@@ -61,6 +61,7 @@ import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
@@ -70,7 +71,6 @@ import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.journal.DefaultJournal;
@@ -135,7 +135,7 @@ public class ServiceBuilder
             return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
         }
     };
-    
+
 
     /**
      * Creates the Interceptor instances from the configuration
@@ -147,7 +147,7 @@ public class ServiceBuilder
     public static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
     {
         List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
-        
+
         // First order the interceptorBeans
         Set<InterceptorBean> orderedInterceptorBeans = new TreeSet<InterceptorBean>();
 
@@ -164,22 +164,27 @@ public class ServiceBuilder
         {
             try
             {
-                LOG.debug( "loading the interceptor class {} and instantiating", interceptorBean.getInterceptorClassName() );
-                Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() ).newInstance();
-                
-                if (interceptorBean instanceof AuthenticationInterceptorBean) {
+                LOG.debug( "loading the interceptor class {} and instantiating",
+                    interceptorBean.getInterceptorClassName() );
+                Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
+                    .newInstance();
+
+                if ( interceptorBean instanceof AuthenticationInterceptorBean )
+                {
                     // Transports
-                    Authenticator[] authenticators = createAuthenticators( ((AuthenticationInterceptorBean)interceptorBean).getAuthenticators() );
-                    ((AuthenticationInterceptor) interceptor).setAuthenticators( authenticators );
-                    
+                    Authenticator[] authenticators = createAuthenticators( ( ( AuthenticationInterceptorBean ) interceptorBean )
+                        .getAuthenticators() );
+                    ( ( AuthenticationInterceptor ) interceptor ).setAuthenticators( authenticators );
+
                     // password policies
-                    List<PasswordPolicyBean> ppolicyBeans = ((AuthenticationInterceptorBean)interceptorBean).getPasswordPolicies();
-                    PpolicyConfigContainer ppolicyContainer = new  PpolicyConfigContainer();
+                    List<PasswordPolicyBean> ppolicyBeans = ( ( AuthenticationInterceptorBean ) interceptorBean )
+                        .getPasswordPolicies();
+                    PpolicyConfigContainer ppolicyContainer = new PpolicyConfigContainer();
 
                     for ( PasswordPolicyBean ppolicyBean : ppolicyBeans )
                     {
                         PasswordPolicyConfiguration ppolicyConfig = createPwdPolicyConfig( ppolicyBean );
-                        
+
                         if ( ppolicyConfig != null )
                         {
                             // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
@@ -193,25 +198,26 @@ public class ServiceBuilder
                             }
                         }
                     }
-                    
+
                     ( ( AuthenticationInterceptor ) interceptor ).setPwdPolicies( ppolicyContainer );
                 }
-                
+
                 interceptors.add( interceptor );
             }
             catch ( Exception e )
             {
                 e.printStackTrace();
-                String message = "Cannot initialize the " + interceptorBean.getInterceptorClassName() + ", error : " + e;
+                String message = "Cannot initialize the " + interceptorBean.getInterceptorClassName() + ", error : "
+                    + e;
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
         }
-        
+
         return interceptors;
     }
-    
-    
+
+
     /**
      * creates the PassworddPolicyConfiguration object after reading the config entry containing pwdpolicy OC
      *
@@ -224,9 +230,9 @@ public class ServiceBuilder
         {
             return null;
         }
-        
+
         PasswordPolicyConfiguration passwordPolicy = new PasswordPolicyConfiguration();
-        
+
         passwordPolicy.setPwdAllowUserChange( passwordPolicyBean.isPwdAllowUserChange() );
         passwordPolicy.setPwdAttribute( passwordPolicyBean.getPwdAttribute() );
         passwordPolicy.setPwdCheckQuality( passwordPolicyBean.getPwdCheckQuality() );
@@ -247,11 +253,11 @@ public class ServiceBuilder
         passwordPolicy.setPwdMinLength( passwordPolicyBean.getPwdMinLength() );
         passwordPolicy.setPwdMustChange( passwordPolicyBean.isPwdMustChange() );
         passwordPolicy.setPwdSafeModify( passwordPolicyBean.isPwdSafeModify() );
-        
+
         return passwordPolicy;
     }
 
-    
+
     /**
      * Read the configuration for the ChangeLog system
      * 
@@ -264,16 +270,16 @@ public class ServiceBuilder
         {
             return null;
         }
-        
+
         ChangeLog changeLog = new DefaultChangeLog();
-        
+
         changeLog.setEnabled( changeLogBean.isEnabled() );
         changeLog.setExposed( changeLogBean.isChangeLogExposed() );
 
         return changeLog;
     }
-    
-    
+
+
     /**
      * Instantiate the Journal object from the stored configuration
      * 
@@ -286,7 +292,7 @@ public class ServiceBuilder
         {
             return null;
         }
-        
+
         Journal journal = new DefaultJournal();
 
         journal.setRotation( journalBean.getJournalRotation() );
@@ -298,7 +304,7 @@ public class ServiceBuilder
         store.setWorkingDirectory( journalBean.getJournalWorkingDir() );
 
         journal.setJournalStore( store );
-        
+
         return journal;
     }
 
@@ -323,7 +329,7 @@ public class ServiceBuilder
         else
         {
             LOG.debug( "parsing the LDIF file(s) present at the path {}", entryFilePath );
-            
+
             try
             {
                 loadEntries( file, entries );
@@ -344,7 +350,7 @@ public class ServiceBuilder
 
         return entries;
     }
-    
+
 
     /**
      * Load the entries from a Ldif file recursively
@@ -365,7 +371,7 @@ public class ServiceBuilder
         else
         {
             LdifReader reader = new LdifReader();
-            
+
             try
             {
                 entries.addAll( reader.parseLdifFile( ldifFile.getAbsolutePath() ) );
@@ -385,17 +391,18 @@ public class ServiceBuilder
      * @return an instance of the MechanismHandler type
      * @throws ConfigurationException if the SASL mechanism handler cannot be created
      */
-    public static MechanismHandler createSaslMechHandler( SaslMechHandlerBean saslMechHandlerBean ) throws ConfigurationException
+    public static MechanismHandler createSaslMechHandler( SaslMechHandlerBean saslMechHandlerBean )
+        throws ConfigurationException
     {
         if ( ( saslMechHandlerBean == null ) || saslMechHandlerBean.isDisabled() )
         {
             return null;
         }
-        
+
         String mechClassName = saslMechHandlerBean.getSaslMechClassName();
-        
+
         Class<?> mechClass = null;
-        
+
         try
         {
             mechClass = Class.forName( mechClassName );
@@ -406,9 +413,9 @@ public class ServiceBuilder
             LOG.error( message );
             throw new ConfigurationException( message );
         }
-        
+
         MechanismHandler handler = null;
-        
+
         try
         {
             handler = ( MechanismHandler ) mechClass.newInstance();
@@ -425,56 +432,62 @@ public class ServiceBuilder
             LOG.error( message );
             throw new ConfigurationException( message );
         }
-        
+
         if ( mechClass == NtlmMechanismHandler.class )
         {
             NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) handler;
             ntlmHandler.setNtlmProviderFqcn( saslMechHandlerBean.getNtlmMechProvider() );
         }
-        
+
         return handler;
     }
-    
+
+
     /**
      * Creates a Authenticator from the configuration
      * 
      * @param authenticatorBean The created instance of authenticator
      * @return An instance of authenticator if the given authenticatorBean is not disabled
      */
-    public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean ) throws ConfigurationException
+    public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean )
+        throws ConfigurationException
     {
         if ( authenticatorBean.isDisabled() )
         {
             return null;
         }
-        
+
         Authenticator authenticator = null;
-        
-        if (authenticatorBean instanceof DelegatingAuthenticatorBean)
+
+        if ( authenticatorBean instanceof DelegatingAuthenticatorBean )
         {
             authenticator = new DelegatingAuthenticator();
-            ((DelegatingAuthenticator)authenticator).setDelegateHost( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegateHost() );
-            ((DelegatingAuthenticator)authenticator).setDelegatePort( ((DelegatingAuthenticatorBean) authenticatorBean).getDelegatePort() );
+            ( ( DelegatingAuthenticator ) authenticator )
+                .setDelegateHost( ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getDelegateHost() );
+            ( ( DelegatingAuthenticator ) authenticator )
+                .setDelegatePort( ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getDelegatePort() );
         }
         else if ( authenticatorBean instanceof AuthenticatorImplBean )
         {
             String fqcn = ( ( AuthenticatorImplBean ) authenticatorBean ).getAuthenticatorClass();
-            
+
             try
             {
                 Class<?> authnImplClass = Class.forName( fqcn );
                 authenticator = ( Authenticator ) authnImplClass.newInstance();
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
-                String errorMsg = "Failed to instantiate the configured authenticator " + authenticatorBean.getAuthenticatorId();
+                String errorMsg = "Failed to instantiate the configured authenticator "
+                    + authenticatorBean.getAuthenticatorId();
                 LOG.warn( errorMsg );
                 throw new ConfigurationException( errorMsg, e );
             }
         }
-        
+
         return authenticator;
     }
+
 
     /**
      * Creates a Transport from the configuration
@@ -488,7 +501,7 @@ public class ServiceBuilder
         {
             return null;
         }
-        
+
         Transport transport = null;
 
         if ( transportBean instanceof TcpTransportBean )
@@ -509,7 +522,7 @@ public class ServiceBuilder
         return transport;
     }
 
-    
+
     /**
      * Creates the array of transports read from the DIT
      * 
@@ -518,16 +531,17 @@ public class ServiceBuilder
      */
     public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
-        Authenticator[] authenticators = new Authenticator[ list.size() ];
+        Authenticator[] authenticators = new Authenticator[list.size()];
         int i = 0;
-        
+
         for ( AuthenticatorBean authenticatorBean : list )
         {
             authenticators[i++] = createAuthenticator( authenticatorBean );
         }
-        
+
         return authenticators;
     }
+
 
     /**
      * Creates the array of transports read from the DIT
@@ -538,7 +552,7 @@ public class ServiceBuilder
     public static Transport[] createTransports( TransportBean[] transportBeans )
     {
         List<Transport> transports = new ArrayList<Transport>();
-        
+
         for ( TransportBean transportBean : transportBeans )
         {
             if ( transportBean.isEnabled() )
@@ -546,9 +560,11 @@ public class ServiceBuilder
                 transports.add( createTransport( transportBean ) );
             }
         }
-        
+
         return transports.toArray( new Transport[transports.size()] );
     }
+
+
     /**
      * Helper method to create an Array of EncryptionTypes from an array of Strings
      */
@@ -558,17 +574,18 @@ public class ServiceBuilder
         {
             return new EncryptionType[0];
         }
-        
+
         EncryptionType[] types = new EncryptionType[encryptionTypes.size()];
         int pos = 0;
-        
+
         for ( String encryptionType : encryptionTypes )
         {
             types[pos++] = EncryptionType.getByName( encryptionType );
         }
-        
+
         return types;
     }
+
 
     /**
      * Instantiates a NtpServer based on the configuration present in the partition
@@ -577,7 +594,8 @@ public class ServiceBuilder
      * @return Instance of NtpServer
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
-    public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws LdapException
+    public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService )
+        throws LdapException
     {
         // Fist, do nothing if the NtpServer is disabled
         if ( ( ntpServerBean == null ) || ntpServerBean.isDisabled() )
@@ -586,14 +604,14 @@ public class ServiceBuilder
         }
 
         NtpServer ntpServer = new NtpServer();
-        
+
         // The service ID
         ntpServer.setServiceId( ntpServerBean.getServerId() );
-        
+
         // The transports
         Transport[] transports = createTransports( ntpServerBean.getTransports() );
         ntpServer.setTransports( transports );
-        
+
         return ntpServer;
     }
 
@@ -633,7 +651,8 @@ public class ServiceBuilder
      * @return Instance of KdcServer
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException
      */
-    public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws LdapException
+    public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService )
+        throws LdapException
     {
         // Fist, do nothing if the KdcServer is disabled
         if ( ( kdcServerBean == null ) || kdcServerBean.isDisabled() )
@@ -642,69 +661,69 @@ public class ServiceBuilder
         }
 
         KdcServer kdcServer = new KdcServer();
-        
+
         kdcServer.setDirectoryService( directoryService );
         kdcServer.setEnabled( true );
-        
+
         kdcServer.setDirectoryService( directoryService );
-        
+
         // The ID
         kdcServer.setServiceId( kdcServerBean.getServerId() );
-        
+
         // AllowableClockSkew
         kdcServer.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
-        
+
         // BodyChecksumVerified
         kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
-        
+
         // CatalogBased
         //kdcServer.setCatelogBased( kdcServerBean.is );
-        
+
         // EmptyAddressesAllowed
         kdcServer.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
-        
+
         // EncryptionType
         EncryptionType[] encryptionTypes = createEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
         kdcServer.setEncryptionTypes( encryptionTypes );
-        
+
         // ForwardableAllowed
         kdcServer.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
-        
+
         // KdcPrincipal
         kdcServer.setKdcPrincipal( kdcServerBean.getKrbKdcPrincipal().toString() );
-        
+
         // MaximumRenewableLifetime
         kdcServer.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
-        
+
         // MaximumTicketLifetime
         kdcServer.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
-        
+
         // PaEncTimestampRequired
         kdcServer.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
-        
+
         // PostdatedAllowed
         kdcServer.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
-        
+
         // PrimaryRealm
         kdcServer.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
-        
+
         // ProxiableAllowed
         kdcServer.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
 
         // RenewableAllowed
         kdcServer.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
-        
+
         // searchBaseDn
         kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn().getName() );
-        
+
         // The transports
         Transport[] transports = createTransports( kdcServerBean.getTransports() );
         kdcServer.setTransports( transports );
-        
+
         return kdcServer;
     }
-    
-    
+
+
     /**
      * Instantiates the HttpWebApps based on the configuration present in the partition
      *
@@ -712,7 +731,8 @@ public class ServiceBuilder
      * @return Instances of HttpWebAppBean
      * @throws LdapException
      */
-    public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService ) throws LdapException
+    public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService )
+        throws LdapException
     {
         Set<WebApp> webApps = new HashSet<WebApp>();
 
@@ -727,22 +747,22 @@ public class ServiceBuilder
             {
                 continue;
             }
-            
+
             WebApp webApp = new WebApp();
-            
+
             // HttpAppCtxPath
             webApp.setContextPath( httpWebAppBean.getHttpAppCtxPath() );
-            
+
             // HttpWarFile
             webApp.setWarFile( httpWebAppBean.getHttpWarFile() );
-            
+
             webApps.add( webApp );
         }
-        
+
         return webApps;
     }
-    
-    
+
+
     /**
      * Instantiates a HttpServer based on the configuration present in the partition
      *
@@ -750,7 +770,8 @@ public class ServiceBuilder
      * @return Instance of LdapServer
      * @throws LdapException
      */
-    public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws LdapException
+    public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService )
+        throws LdapException
     {
         // Fist, do nothing if the HttpServer is disabled
         if ( ( httpServerBean == null ) || httpServerBean.isDisabled() )
@@ -759,25 +780,25 @@ public class ServiceBuilder
         }
 
         HttpServer httpServer = new HttpServer();
-        
+
         // HttpConfFile
         httpServer.setConfFile( httpServerBean.getHttpConfFile() );
-        
+
         // The transports
         TransportBean[] transports = httpServerBean.getTransports();
-        
+
         for ( TransportBean transportBean : transports )
         {
             if ( transportBean.isDisabled() )
             {
                 continue;
             }
-            
+
             if ( transportBean instanceof TcpTransportBean )
             {
                 TcpTransport transport = new TcpTransport( transportBean.getSystemPort() );
                 transport.setAddress( transportBean.getTransportAddress() );
-                
+
                 if ( transportBean.getTransportId().equalsIgnoreCase( HttpServer.HTTP_TRANSPORT_ID ) )
                 {
                     httpServer.setHttpTransport( transport );
@@ -792,14 +813,14 @@ public class ServiceBuilder
                 }
             }
         }
-        
+
         // The webApps
         httpServer.setWebApps( createHttpWebApps( httpServerBean.getHttpWebApps(), directoryService ) );
-        
+
         return httpServer;
     }
-    
-    
+
+
     /**
      * Instantiates a ChangePasswordServer based on the configuration present in the partition
      *
@@ -861,7 +882,7 @@ public class ServiceBuilder
         return changePasswordServer;
     }
     */
-    
+
     /**
      * Instantiates a LdapServer based on the configuration present in the partition
      *
@@ -869,7 +890,8 @@ public class ServiceBuilder
      * @return Instance of LdapServer
      * @throws LdapException
      */
-    public static LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws LdapException
+    public static LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService )
+        throws LdapException
     {
         // Fist, do nothing if the LdapServer is disabled
         if ( ( ldapServerBean == null ) || ldapServerBean.isDisabled() )
@@ -878,10 +900,10 @@ public class ServiceBuilder
         }
 
         LdapServer ldapServer = new LdapServer();
-        
+
         ldapServer.setDirectoryService( directoryService );
         ldapServer.setEnabled( true );
-        
+
         // The ID
         ldapServer.setServiceId( ldapServerBean.getServerId() );
 
@@ -890,10 +912,10 @@ public class ServiceBuilder
 
         // KeyStore
         ldapServer.setKeystoreFile( ldapServerBean.getLdapServerKeystoreFile() );
-            
+
         // Certificate password
         ldapServer.setCertificatePassword( ldapServerBean.getLdapServerCertificatePassword() );
-        
+
         // ConfidentialityRequired
         ldapServer.setConfidentialityRequired( ldapServerBean.isLdapServerConfidentialityRequired() );
 
@@ -902,16 +924,16 @@ public class ServiceBuilder
 
         // Max time limit
         ldapServer.setMaxTimeLimit( ldapServerBean.getLdapServerMaxTimeLimit() );
-        
+
         // Sasl Host
         ldapServer.setSaslHost( ldapServerBean.getLdapServerSaslHost() );
-        
+
         // Sasl Principal
         ldapServer.setSaslPrincipal( ldapServerBean.getLdapServerSaslPrincipal() );
-        
+
         // Sasl realm
         ldapServer.setSaslRealms( ldapServerBean.getLdapServerSaslRealms() );
-        
+
         // The transports
         Transport[] transports = createTransports( ldapServerBean.getTransports() );
         ldapServer.setTransports( transports );
@@ -925,7 +947,7 @@ public class ServiceBuilder
                 ldapServer.addSaslMechanismHandler( mechanism, createSaslMechHandler( saslMechHandlerBean ) );
             }
         }
-        
+
         // ExtendedOpHandlers
         for ( ExtendedOpHandlerBean extendedpHandlerBean : ldapServerBean.getExtendedOps() )
         {
@@ -949,7 +971,7 @@ public class ServiceBuilder
 
         // ReplReqHandler
         String fqcn = ldapServerBean.getReplReqHandler();
-        
+
         if ( fqcn != null )
         {
             try
@@ -958,21 +980,21 @@ public class ServiceBuilder
                 ReplicationRequestHandler rp = ( ReplicationRequestHandler ) replProvImplClz.newInstance();
                 ldapServer.setReplicationReqHandler( rp );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + fqcn;
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
-            
+
         }
-        
+
         ldapServer.setReplConsumers( createReplConsumers( ldapServerBean.getReplConsumers() ) );
-        
+
         return ldapServer;
     }
-    
-    
+
+
     /**
      * instantiate the ReplicationConsumers based on the configuration present in ReplConsumerBeans
      * 
@@ -980,26 +1002,27 @@ public class ServiceBuilder
      * @return a list of ReplicationConsumer instances
      * @throws ConfigurationException
      */
-    public static List<ReplicationConsumer> createReplConsumers( List<ReplConsumerBean> replConsumerBeans ) throws ConfigurationException
+    public static List<ReplicationConsumer> createReplConsumers( List<ReplConsumerBean> replConsumerBeans )
+        throws ConfigurationException
     {
         List<ReplicationConsumer> lst = new ArrayList<ReplicationConsumer>();
 
-        if( replConsumerBeans == null )
+        if ( replConsumerBeans == null )
         {
             return lst;
         }
-        
+
         for ( ReplConsumerBean replBean : replConsumerBeans )
         {
             String className = replBean.getReplConsumerImpl();
-            
+
             ReplicationConsumer consumer = null;
             Class<?> consumerClass = null;
             SyncreplConfiguration config = null;
-            
+
             try
             {
-                if( className == null )
+                if ( className == null )
                 {
                     consumerClass = ReplicationConsumerImpl.class;
                 }
@@ -1007,9 +1030,9 @@ public class ServiceBuilder
                 {
                     consumerClass = Class.forName( className );
                 }
-                
+
                 consumer = ( ReplicationConsumer ) consumerClass.newInstance();
-                
+
                 // we don't support any other configuration impls atm, but this configuration should suffice for many needs
                 config = new SyncreplConfiguration();
 
@@ -1020,39 +1043,40 @@ public class ServiceBuilder
                 config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
                 config.setRefreshInterval( replBean.getReplRefreshInterval() );
                 config.setRefreshNPersist( replBean.isReplRefreshNPersist() );
-                
+
                 int scope = SearchScope.getSearchScope( replBean.getReplSearchScope() );
                 config.setSearchScope( SearchScope.getSearchScope( scope ) );
-                
+
                 config.setFilter( replBean.getReplSearchFilter() );
                 config.setSearchTimeout( replBean.getReplSearchTimeOut() );
                 config.setReplUserDn( replBean.getReplUserDn() );
                 config.setReplUserPassword( replBean.getReplUserPassword() );
-                
+
                 config.setUseTls( replBean.isReplUseTls() );
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
-                
+
                 config.setConfigEntryDn( replBean.getDn() );
-                
+
                 if ( replBean.getReplPeerCertificate() != null )
                 {
-                    ReplicationTrustManager.addCertificate( replBean.getReplConsumerId(), replBean.getReplPeerCertificate() );
+                    ReplicationTrustManager.addCertificate( replBean.getReplConsumerId(),
+                        replBean.getReplPeerCertificate() );
                 }
-                
+
                 consumer.setConfig( config );
-                
+
                 lst.add( consumer );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 throw new ConfigurationException( "cannot configure the replication consumer with FQCN " + className, e );
             }
         }
-        
+
         return lst;
     }
-    
-    
+
+
     /**
      * Create a new instance of a JdbmIndex from an instance of JdbmIndexBean
      * 
@@ -1060,29 +1084,30 @@ public class ServiceBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
+    public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition, JdbmIndexBean<String, Entry> jdbmIndexBean,
+        DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
         {
             return null;
         }
-        
+
         JdbmIndex<String> index = new JdbmIndex<String>();
-        
+
         index.setAttributeId( jdbmIndexBean.getIndexAttributeId() );
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
         index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
-        
+
         String indexFileName = jdbmIndexBean.getIndexFileName();
-        
+
         if ( indexFileName == null )
         {
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
-            
+
         // Find the OID for this index
         SchemaManager schemaManager = directoryService.getSchemaManager();
-        
+
         try
         {
             AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( indexFileName );
@@ -1092,7 +1117,7 @@ public class ServiceBuilder
         {
             // Not found ? We will use the index file name
         }
-        
+
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
             index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ).toURI() );
@@ -1102,15 +1127,16 @@ public class ServiceBuilder
             // Set the Partition working dir as a default
             index.setWkDirPath( partition.getPartitionPath() );
         }
-                
+
         return index;
     }
 
-    
+
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans, DirectoryService directoryService ) //throws Exception
+    private static Set<Index<?>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans,
+        DirectoryService directoryService ) //throws Exception
     {
         Set<Index<?>> indexes = new HashSet<Index<?>>();
 
@@ -1118,7 +1144,7 @@ public class ServiceBuilder
         {
             if ( indexBean.isEnabled() && ( indexBean instanceof JdbmIndexBean ) )
             {
-                indexes.add( createJdbmIndex( partition, (JdbmIndexBean)indexBean, directoryService ) );
+                indexes.add( createJdbmIndex( partition, ( JdbmIndexBean ) indexBean, directoryService ) );
             }
         }
 
@@ -1134,21 +1160,25 @@ public class ServiceBuilder
      * @throws LdapInvalidDnException
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmPartition createJdbmPartition( DirectoryService directoryService, JdbmPartitionBean jdbmPartitionBean, TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
+    public static JdbmPartition createJdbmPartition( DirectoryService directoryService,
+        JdbmPartitionBean jdbmPartitionBean, TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
     {
         if ( ( jdbmPartitionBean == null ) || jdbmPartitionBean.isDisabled() )
         {
             return null;
         }
-        
-        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager(), txnManagerFactory, executionManagerFactory );
-        
+
+        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager(), txnManagerFactory,
+            executionManagerFactory );
+
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
         jdbmPartition.setOptimizerEnabled( jdbmPartitionBean.isJdbmPartitionOptimizerEnabled() );
-        File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), jdbmPartitionBean.getPartitionId() );
+        File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
+            jdbmPartitionBean.getPartitionId() );
         jdbmPartition.setPartitionPath( partitionPath.toURI() );
-        
+
         try
         {
             jdbmPartition.setSuffixDn( jdbmPartitionBean.getPartitionSuffix() );
@@ -1159,23 +1189,24 @@ public class ServiceBuilder
             LOG.error( message );
             throw new ConfigurationException( message );
         }
-        
+
         jdbmPartition.setSyncOnWrite( jdbmPartitionBean.isPartitionSyncOnWrite() );
-        jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes(), directoryService ) );
-        
+        jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes(),
+            directoryService ) );
+
         String contextEntry = jdbmPartitionBean.getContextEntry();
-        
+
         if ( contextEntry != null )
         {
             try
             {
                 // Replace '\n' to real LF
                 String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
-                
+
                 LdifReader ldifReader = new LdifReader();
-                
+
                 List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
-                
+
                 if ( ( entries != null ) && ( entries.size() > 0 ) )
                 {
                     entries.get( 0 );
@@ -1188,11 +1219,11 @@ public class ServiceBuilder
                 throw new ConfigurationException( message );
             }
         }
-        
+
         return jdbmPartition;
     }
-    
-    
+
+
     /**
      * Create the a Partition instantiated from the configuration
      * 
@@ -1200,24 +1231,27 @@ public class ServiceBuilder
      * @return The instantiated Partition
      * @throws ConfigurationException If we cannot process the Partition
      */
-    public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean, 
-        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
+    public static Partition createPartition( DirectoryService directoryService, PartitionBean partitionBean,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory )
+        throws ConfigurationException
     {
         if ( ( partitionBean == null ) || partitionBean.isDisabled() )
         {
             return null;
         }
-        
+
         if ( partitionBean instanceof JdbmPartitionBean )
         {
-            return createJdbmPartition( directoryService, (JdbmPartitionBean)partitionBean, txnManagerFactory, executionManagerFactory );
+            return createJdbmPartition( directoryService, ( JdbmPartitionBean ) partitionBean, txnManagerFactory,
+                executionManagerFactory );
         }
         else
         {
             return null;
         }
     }
-    
+
+
     /**
      * Create the set of Partitions instantiated from the configuration
      * 
@@ -1225,30 +1259,33 @@ public class ServiceBuilder
      * @return A Map of all the instantiated partitions
      * @throws ConfigurationException If we cannot process some Partition
      */
-    public static Map<String, Partition> createPartitions( DirectoryService directoryService, List<PartitionBean> partitionBeans, 
-        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws ConfigurationException
+    public static Map<String, Partition> createPartitions( DirectoryService directoryService,
+        List<PartitionBean> partitionBeans,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory )
+        throws ConfigurationException
     {
         Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
-        
+
         for ( PartitionBean partitionBean : partitionBeans )
         {
             if ( partitionBean.isDisabled() )
             {
                 continue;
             }
-            
-            Partition partition = createPartition( directoryService, partitionBean, txnManagerFactory, executionManagerFactory );
-            
+
+            Partition partition = createPartition( directoryService, partitionBean, txnManagerFactory,
+                executionManagerFactory );
+
             if ( partition != null )
             {
                 partitions.put( partitionBean.getPartitionId(), partition );
             }
         }
-        
+
         return partitions;
     }
 
-    
+
     /**
      * Instantiates a DirectoryService based on the configuration present in the partition
      *
@@ -1257,20 +1294,22 @@ public class ServiceBuilder
      * @return An instance of DirectoryService
      * @throws Exception
      */
-    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean, InstanceLayout instanceLayout, SchemaManager schemaManager,
-        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws Exception
+    public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean,
+        InstanceLayout instanceLayout, SchemaManager schemaManager,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory )
+        throws Exception
     {
         DirectoryService directoryService = new DefaultDirectoryService();
         ( ( DefaultDirectoryService ) directoryService ).setTxnManagerFactory( txnManagerFactory );
         ( ( DefaultDirectoryService ) directoryService ).setExecutionManagerFactory( executionManagerFactory );
-        
+
         // The schemaManager
         directoryService.setSchemaManager( schemaManager );
 
         // MUST attributes
         // DirectoryService ID
         directoryService.setInstanceId( directoryServiceBean.getDirectoryServiceId() );
-        
+
         // Replica ID
         directoryService.setReplicaId( directoryServiceBean.getDsReplicaId() );
 
@@ -1280,9 +1319,10 @@ public class ServiceBuilder
         // Interceptors
         List<Interceptor> interceptors = createInterceptors( directoryServiceBean.getInterceptors() );
         directoryService.setInterceptors( interceptors );
-        
+
         // Partitions
-        Map<String, Partition> partitions = createPartitions( directoryService, directoryServiceBean.getPartitions(), txnManagerFactory, executionManagerFactory );
+        Map<String, Partition> partitions = createPartitions( directoryService, directoryServiceBean.getPartitions(),
+            txnManagerFactory, executionManagerFactory );
 
         Partition systemPartition = partitions.remove( "system" );
 
@@ -1297,32 +1337,32 @@ public class ServiceBuilder
         // MAY attributes
         // AccessControlEnabled
         directoryService.setAccessControlEnabled( directoryServiceBean.isDsAccessControlEnabled() );
-        
+
         // AllowAnonymousAccess
         directoryService.setAllowAnonymousAccess( directoryServiceBean.isDsAllowAnonymousAccess() );
-        
+
         // ChangeLog
         ChangeLog cl = createChangeLog( directoryServiceBean.getChangeLog() );
-        
+
         if ( cl != null )
         {
             directoryService.setChangeLog( cl );
         }
-        
+
         // DenormalizedOpAttrsEnabled
         directoryService.setDenormalizeOpAttrsEnabled( directoryServiceBean.isDsDenormalizeOpAttrsEnabled() );
-        
+
         // Journal
         Journal journal = createJournal( directoryServiceBean.getJournal() );
-        
+
         if ( journal != null )
         {
             directoryService.setJournal( journal );
         }
-        
+
         // MaxPDUSize
         directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
-        
+
         // PasswordHidden
         directoryService.setPasswordHidden( directoryServiceBean.isDsPasswordHidden() );
 
@@ -1331,12 +1371,12 @@ public class ServiceBuilder
 
         // testEntries
         String entryFilePath = directoryServiceBean.getDsTestEntries();
-        
+
         if ( entryFilePath != null )
         {
             directoryService.setTestEntries( readTestEntries( entryFilePath ) );
         }
-        
+
         // Enabled
         if ( !directoryServiceBean.isEnabled() )
         {

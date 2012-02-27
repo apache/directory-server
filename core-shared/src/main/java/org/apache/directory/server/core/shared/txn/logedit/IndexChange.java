@@ -186,7 +186,7 @@ public class IndexChange implements IndexModification
 
         sb.append( "IndexChange '" );
         // The index's name
-        sb.append( index.getAttribute().getName() ).append( "': " );
+        sb.append( index.getAttributeId() ).append( "': " );
 
         // The change' type
         sb.append( "<" ).append( type ).append( ", " );

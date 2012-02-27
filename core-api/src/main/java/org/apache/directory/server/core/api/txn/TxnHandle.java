@@ -27,4 +27,5 @@ package org.apache.directory.server.core.api.txn;
  */
 public interface TxnHandle
 {
+    public long getId();
 }

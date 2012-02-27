@@ -177,38 +177,37 @@ class DefaultTxnManager implements TxnManagerInternal
     public Transaction beginTransaction( boolean readOnly ) throws Exception
     {
         Transaction curTxn = getCurTxn();
-        Transaction transaction = null;
 
+        // Deal with an existing TXN
         if ( curTxn != null )
         {
+            // If we already have a RO TXN, then we can start another one
             if ( curTxn instanceof ReadOnlyTxn )
             {
                 if ( readOnly )
                 {
-                    transaction = beginReadOnlyTxn();
+                    return beginReadOnlyTxn();
                 }
                 else
                 {
-                    transaction = beginReadWriteTxn();
+                    return beginReadWriteTxn();
                 }
-
-                return transaction;
             }
 
+            // Cannot start a TXN when a RW txn is ongoing 
             throw new IllegalStateException( "Cannot begin a txn when txn is already running: " +
                 curTxn );
         }
 
+        // Normal situation : starts a brand new txn
         if ( readOnly )
         {
-            transaction = beginReadOnlyTxn();
+            return beginReadOnlyTxn();
         }
         else
         {
-            transaction = beginReadWriteTxn();
+            return beginReadWriteTxn();
         }
-
-        return transaction;
     }
 
 
@@ -241,6 +240,8 @@ class DefaultTxnManager implements TxnManagerInternal
         }
 
         setCurTxn( null );
+
+        //System.out.println( "TRAN: Committed " + txn );
     }
 
 
@@ -266,6 +267,9 @@ class DefaultTxnManager implements TxnManagerInternal
 
         txn.abortTxn();
         setCurTxn( null );
+
+        //System.out.println( "TRAN: Aborted " + txn );
+
     }
 
 
@@ -367,7 +371,6 @@ class DefaultTxnManager implements TxnManagerInternal
          * count and changes to txn2 are flushed to partitions. Below we loop until we make sure
          * that the txn for which we bumped up the ref count is indeed the latest committed txn.
          */
-
         do
         {
             if ( lastTxnToCheck != null )
@@ -376,36 +379,21 @@ class DefaultTxnManager implements TxnManagerInternal
             }
 
             lastTxnToCheck = latestCommittedTxn.get();
-
-            if ( lastTxnToCheck != null )
-            {
-                lastTxnToCheck.getRefCount().getAndIncrement();
-            }
-
+            lastTxnToCheck.getRefCount().getAndIncrement();
         }
         while ( lastTxnToCheck != latestCommittedTxn.get() );
 
         // Determine start time
         long startTime;
 
-        if ( lastTxnToCheck != null )
-        {
-            startTime = lastTxnToCheck.getCommitTime();
-        }
-        else
-        {
-            startTime = LogAnchor.UNKNOWN_LSN;
-        }
-
+        startTime = lastTxnToCheck.getCommitTime();
         txn.startTxn( startTime );
-
-        //        int refCount = lastTxnToCheck.getRefCount().get();
-        //        System.out.println("start time" + startTime + " " + refCount + 
-        //            " pending " + pending.incrementAndGet() );
 
         buildCheckList( txn, lastTxnToCheck );
 
         setCurTxn( txn );
+
+        //System.out.println( "TRAN: Started " + txn );
 
         return txn;
     }
@@ -432,7 +420,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             bout = new ByteArrayOutputStream();
             out = new ObjectOutputStream( bout );
-            out.writeObject( txnRecord );
+            txnRecord.writeExternal( out );
             out.flush();
             data = bout.toByteArray();
         }
@@ -455,8 +443,8 @@ class DefaultTxnManager implements TxnManagerInternal
          * Get the start time and last txn to depend on
          * when mergin data under te writeTxnLock.
          */
-
         ReadWriteTxn lastTxnToCheck = null;
+
         writeTxnsLock.lock();
 
         try
@@ -473,14 +461,10 @@ class DefaultTxnManager implements TxnManagerInternal
 
                 lastTxnToCheck = latestVerifiedTxn.get();
 
-                if ( lastTxnToCheck != null )
-                {
-                    lastTxnToCheck.getRefCount().incrementAndGet();
-                }
+                lastTxnToCheck.getRefCount().incrementAndGet();
 
             }
             while ( lastTxnToCheck != latestVerifiedTxn.get() );
-
         }
         finally
         {
@@ -491,6 +475,8 @@ class DefaultTxnManager implements TxnManagerInternal
         buildCheckList( txn, lastTxnToCheck );
 
         setCurTxn( txn );
+
+        //System.out.println( "TRAN: Started " + txn );
 
         return txn;
     }
@@ -507,43 +493,30 @@ class DefaultTxnManager implements TxnManagerInternal
      */
     private void buildCheckList( Transaction txn, ReadWriteTxn lastTxnToCheck )
     {
-        if ( lastTxnToCheck != null )
+        long lastLSN = lastTxnToCheck.getCommitTime();
+
+        List<ReadWriteTxn> toCheckList = txn.getTxnsToCheck();
+        long flushedLSN = latestFlushedTxnLSN.get();
+
+        // Get all the txns that has been committed before the new txn
+        for ( ReadWriteTxn toAdd : committedQueue )
         {
-            long lastLSN = lastTxnToCheck.getCommitTime();
-            ReadWriteTxn toAdd;
+            long commitTime = toAdd.getCommitTime();
 
-            List<ReadWriteTxn> toCheckList = txn.getTxnsToCheck();
-            Iterator<ReadWriteTxn> it = committedQueue.iterator();
-
-            while ( it.hasNext() )
+            if ( commitTime > lastLSN )
             {
-                toAdd = it.next();
-
-                if ( toAdd.getCommitTime() > lastLSN )
-                {
-                    break;
-                }
-
-                toCheckList.add( toAdd );
+                break;
             }
 
             /*
              * Get latest flushed lsn and eliminate already flushed txn from the check list.
              */
-            long flushedLSN = latestFlushedTxnLSN.get();
-
-            it = toCheckList.iterator();
-            ReadWriteTxn toCheck;
-
-            while ( it.hasNext() )
+            if ( ( commitTime <= flushedLSN ) && ( toAdd != lastTxnToCheck ) )
             {
-                toCheck = it.next();
-
-                if ( toCheck.commitTime <= flushedLSN && toCheck != lastTxnToCheck )
-                {
-                    it.remove();
-                }
+                continue;
             }
+
+            toCheckList.add( toAdd );
         }
 
         // A read write txn, always has to check its changes
@@ -643,7 +616,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             bout = new ByteArrayOutputStream();
             out = new ObjectOutputStream( bout );
-            out.writeObject( txnRecord );
+            txnRecord.writeExternal( out );
             out.flush();
             data = bout.toByteArray();
         }

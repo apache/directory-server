@@ -52,7 +52,6 @@ import org.apache.directory.server.operations.modifydn.ModifyRdnIT;
 import org.apache.directory.server.operations.modifydn.MoveIT;
 import org.apache.directory.server.operations.search.IndexedNegationSearchIT;
 import org.apache.directory.server.operations.search.NegationSearchIT;
-import org.apache.directory.server.operations.search.PagedSearchIT;
 import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchNoRevertIT;
@@ -73,8 +72,9 @@ import org.junit.runners.Suite;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkSuite.class )
-@Suite.SuiteClasses ( {
+@RunWith(FrameworkSuite.class)
+@Suite.SuiteClasses(
+    {
         // kerberos
         KeyDerivationServiceIT.class,
         PasswordPolicyServiceIT.class,
@@ -120,7 +120,7 @@ import org.junit.runners.Suite;
         // operations.search
         IndexedNegationSearchIT.class,
         NegationSearchIT.class,
-        PagedSearchIT.class,
+        //PagedSearchIT.class,
         PersistentSearchIT.class,
         ReferralSearchIT.class,
         ReferralSearchNoRevertIT.class,
@@ -136,33 +136,33 @@ import org.junit.runners.Suite;
         StartTlsConfidentialityIT.class,
         StartTlsIT.class,
         StartTlsUpdateCertificateIT.class
-        } )
-@CreateDS( 
-    name = "SuiteDS",
-    partitions =
+})
+@CreateDS(
+name = "SuiteDS",
+partitions =
     {
         @CreatePartition(
             name = "example",
             suffix = "dc=example,dc=com",
-            contextEntry = @ContextEntry( 
+            contextEntry = @ContextEntry(
                 entryLdif =
-                    "dn: dc=example,dc=com\n" +
+                "dn: dc=example,dc=com\n" +
                     "dc: example\n" +
                     "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes = 
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" )
-            } )
-    } )
-@CreateLdapServer ( 
-    transports = 
+                    "objectClass: domain\n\n"),
+            indexes =
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
+            })
+})
+@CreateLdapServer(
+transports =
     {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
-    })
+        @CreateTransport(protocol = "LDAP"),
+        @CreateTransport(protocol = "LDAPS")
+})
 public class StockServerISuite
 {
 }

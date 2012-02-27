@@ -24,12 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.AbstractIndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
-import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
-import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -44,16 +42,12 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
 {
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
-    
+
     /** */
     private final IndexCursor<V> wrapped;
-    
+
     /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode>> evaluators;
-    
-    /** Txn and Operation Execution Factories */
-    private TxnManagerFactory txnManagerFactory;
-    private OperationExecutionManagerFactory executionManagerFactory;
 
 
     /**
@@ -66,9 +60,6 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     public AndCursor( IndexCursor<V> wrapped,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
-        this.txnManagerFactory = txnManagerFactory;
-        this.executionManagerFactory = executionManagerFactory;
-        
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
     }
@@ -82,7 +73,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -111,7 +102,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -122,7 +113,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -137,7 +128,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
             checkNotClosed( "previous()" );
 
             IndexEntry<V> candidate = wrapped.get();
-            
+
             if ( matches( candidate ) )
             {
                 return setAvailable( true );
@@ -157,14 +148,14 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "next()" );
             IndexEntry<V> candidate = wrapped.get();
-            
+
             if ( matches( candidate ) )
             {
                 return setAvailable( true );
             }
         }
 
-        return setAvailable( false);
+        return setAvailable( false );
     }
 
 
@@ -174,7 +165,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return wrapped.get();
@@ -225,7 +216,9 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
-            if ( !evaluator.evaluate( indexEntry ) )
+            boolean eval = evaluator.evaluate( indexEntry );
+
+            if ( !eval )
             {
                 return false;
             }

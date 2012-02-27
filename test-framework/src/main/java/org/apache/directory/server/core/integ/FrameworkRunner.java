@@ -87,31 +87,31 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     /**
      * Initialize the codec service
      */
-    static 
+    static
     {
         // Load the extension points
-        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST, 
+        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST,
             "org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
+                "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
 
-        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST, 
+        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST,
             "org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
-        
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST, 
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
 
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST, 
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST,
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST,
             "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
     }
 
@@ -221,13 +221,13 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else if ( ( suite != null ) && ( suite.getLdapServer() != null ) )
             {
                 classLdapServer = suite.getLdapServer();
-                
+
                 // set directoryService only if there is no class level DS
                 if ( directoryService == null )
                 {
                     directoryService = classLdapServer.getDirectoryService();
                 }
-                
+
                 // no need to inject the LDIF data that would have been done above
                 // if ApplyLdifs is present
             }
@@ -275,6 +275,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             }
             else
             {
+                Description description = getDescription();
+                System.out.println( "reverting for " + description );
                 // Revert the ldifs
                 // We use a class or suite DS, just revert the current test's modifications
                 revert( directoryService, revision );
@@ -288,6 +290,8 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         finally
         {
+            Description description = getDescription();
+            System.out.println( "reverting for " + description );
             // help GC to get rid of the directory service with all its references
             suite = null;
             classDS = null;
@@ -319,7 +323,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 }
             }
         }
-        
+
         return minPort;
     }
 
@@ -435,14 +439,16 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // At this point, we know which service to use.
             // Inject it into the class
-            Method setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME, DirectoryService.class );
+            Method setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME,
+                DirectoryService.class );
             setService.invoke( getTestClass().getJavaClass(), directoryService );
 
             // if we run this class in a suite, tell it to the test
             Field runInSuiteField = getTestClass().getJavaClass().getField( IS_RUN_IN_SUITE_FIELD_NAME );
             runInSuiteField.set( getTestClass().getJavaClass(), suite != null );
 
-            Method setLdapServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME, LdapServer.class );
+            Method setLdapServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME,
+                LdapServer.class );
             Method setKdcServer = getTestClass().getJavaClass().getMethod( SET_KDC_SERVER_METHOD_NAME, KdcServer.class );
 
             DirectoryService oldLdapServerDirService = null;
@@ -454,7 +460,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 methodLdapServer.setDirectoryService( directoryService );
 
                 setLdapServer.invoke( getTestClass().getJavaClass(), methodLdapServer );
-            }    
+            }
             else if ( classLdapServer != null )
             {
                 oldLdapServerDirService = classLdapServer.getDirectoryService();
@@ -494,12 +500,12 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             {
                 classLdapServer.setDirectoryService( oldLdapServerDirService );
             }
-            
+
             if ( oldKdcServerDirService != null )
             {
                 classKdcServer.setDirectoryService( oldKdcServerDirService );
             }
-            
+
             // Cleanup the methodDS if it has been created
             if ( methodDS != null )
             {
@@ -564,6 +570,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
 
         ChangeLog cl = dirService.getChangeLog();
+
         if ( cl.isEnabled() && ( revision < cl.getCurrentRevision() ) )
         {
             LOG.debug( "Revert revision {}", revision );

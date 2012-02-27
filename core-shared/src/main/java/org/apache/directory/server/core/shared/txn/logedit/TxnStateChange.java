@@ -33,9 +33,6 @@ import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
  */
 public class TxnStateChange extends AbstractLogEdit
 {
-    /** ID of the txn associated with this change */
-    long txnID;
-
     /** State to record for the txn */
     ChangeState txnState;
 
@@ -45,19 +42,14 @@ public class TxnStateChange extends AbstractLogEdit
     // For deserialization
     public TxnStateChange()
     {
+        super( Long.MIN_VALUE );
     }
 
 
     public TxnStateChange( long txnID, ChangeState txnState )
     {
-        this.txnID = txnID;
+        super( txnID );
         this.txnState = txnState;
-    }
-
-
-    public long getTxnID()
-    {
-        return txnID;
     }
 
 

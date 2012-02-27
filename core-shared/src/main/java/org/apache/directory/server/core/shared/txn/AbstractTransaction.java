@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
@@ -53,6 +54,10 @@ abstract class AbstractTransaction implements Transaction
     /** The number of operations using this transaction */
     private int nbRef;
 
+    protected long id;
+
+    private static AtomicLong counter = new AtomicLong( 0 );
+
 
     /**
      * TODO : doco
@@ -61,6 +66,7 @@ abstract class AbstractTransaction implements Transaction
     {
         txnState = State.INITIAL;
         nbRef = 0;
+        id = counter.getAndIncrement();
     }
 
 
@@ -70,7 +76,7 @@ abstract class AbstractTransaction implements Transaction
     protected void startTxn( long startTime )
     {
         this.startTime = startTime;
-        setState( State.READ );
+        txnState = State.READ;
         nbRef++;
     }
 
@@ -100,7 +106,7 @@ abstract class AbstractTransaction implements Transaction
 
         if ( nbRef == 0 )
         {
-            setState( State.COMMIT );
+            txnState = State.COMMIT;
         }
     }
 
@@ -119,7 +125,7 @@ abstract class AbstractTransaction implements Transaction
      */
     public void abortTxn()
     {
-        setState( State.ABORT );
+        txnState = State.ABORT;
     }
 
 
@@ -138,15 +144,6 @@ abstract class AbstractTransaction implements Transaction
     public State getState()
     {
         return txnState;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setState( State newState )
-    {
-        txnState = newState;
     }
 
 
@@ -224,5 +221,11 @@ abstract class AbstractTransaction implements Transaction
         }
 
         return currentlyExists;
+    }
+
+
+    public long getId()
+    {
+        return id;
     }
 }

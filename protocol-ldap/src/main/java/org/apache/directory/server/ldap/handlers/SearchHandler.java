@@ -441,7 +441,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             Entry entry = cursor.get();
-            session.getIoSession().write( generateResponse( session, req, entry ) );
+            Response response = generateResponse( session, req, entry );
+            session.getIoSession().write( response );
             LOG.debug( "Sending {}", entry.getDn() );
             count++;
         }

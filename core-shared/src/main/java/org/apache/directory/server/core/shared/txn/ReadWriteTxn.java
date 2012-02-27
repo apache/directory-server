@@ -679,7 +679,7 @@ class ReadWriteTxn extends AbstractTransaction
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "RWTxn[" );
+        sb.append( "RWTxn-" ).append( id ).append( "[" );
 
         // The state
         sb.append( "state:" ).append( getState() );
@@ -698,14 +698,14 @@ class ReadWriteTxn extends AbstractTransaction
 
         if ( ( edits != null ) && ( edits.size() > 0 ) )
         {
-            sb.append( "{\n" );
+            sb.append( "LogEdits(" ).append( edits.size() ).append( ")\n[\n" );
 
             for ( LogEdit logEdit : edits )
             {
                 sb.append( logEdit ).append( "\n" );
             }
 
-            sb.append( "\n}" );
+            sb.append( "]" );
         }
 
         return sb.toString();

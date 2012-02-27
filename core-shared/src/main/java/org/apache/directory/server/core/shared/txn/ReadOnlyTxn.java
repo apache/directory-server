@@ -46,31 +46,4 @@ class ReadOnlyTxn extends AbstractTransaction
     {
         return nbRef > 1;
     }
-
-
-    /**
-     * @see Object#toString()
-     */
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append( "ROTxn[" );
-
-        // The state
-        sb.append( "state:" ).append( getState() );
-
-        // The ref count
-        sb.append( ", ref:" ).append( nbRef );
-
-        // The start time
-        sb.append( ", start:" ).append( getStartTime() );
-
-        // The commit time
-        sb.append( ", commit:" ).append( getCommitTime() );
-
-        sb.append( "]\n" );
-
-        return sb.toString();
-    }
 }

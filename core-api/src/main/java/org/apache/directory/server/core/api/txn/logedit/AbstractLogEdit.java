@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.core.api.txn.logedit;
 
+
 import org.apache.directory.server.core.api.log.LogAnchor;
+
 
 /**
  * 
@@ -29,8 +31,17 @@ public abstract class AbstractLogEdit implements LogEdit
 {
     /** position in the wal */
     private transient LogAnchor logAnchor = new LogAnchor();
-    
-    
+
+    /** Transaction under which the change is done */
+    protected long txnID;
+
+
+    protected AbstractLogEdit( long txnID )
+    {
+        this.txnID = txnID;
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -38,13 +49,25 @@ public abstract class AbstractLogEdit implements LogEdit
     {
         return logAnchor;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void apply( boolean recovery ) throws Exception
     {
         // do nothing by default
+    }
+
+
+    public long getTxnID()
+    {
+        return txnID;
+    }
+
+
+    public void setTxnID( long id )
+    {
+        txnID = id;
     }
 }

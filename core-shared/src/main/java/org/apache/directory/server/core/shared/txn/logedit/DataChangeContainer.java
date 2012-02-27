@@ -52,9 +52,6 @@ public class DataChangeContainer extends AbstractLogEdit
     /** id of the entry if the container contains a change for an entry */
     private UUID entryID;
 
-    /** Transaction under which the change is done */
-    private long txnID;
-
     /** Partition stored for fast access */
     private transient Partition partition;
 
@@ -68,25 +65,15 @@ public class DataChangeContainer extends AbstractLogEdit
     //For externalizable
     public DataChangeContainer()
     {
+        super( Long.MIN_VALUE );
     }
 
 
     public DataChangeContainer( Partition partition )
     {
+        super( Long.MIN_VALUE );
         this.partitionDn = partition.getSuffixDn();
         this.partition = partition;
-    }
-
-
-    public long getTxnID()
-    {
-        return txnID;
-    }
-
-
-    public void setTxnID( long id )
-    {
-        txnID = id;
     }
 
 
@@ -317,5 +304,36 @@ public class DataChangeContainer extends AbstractLogEdit
             change = it.next();
             change.writeExternal( out );
         }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "DataChangeContainer(" );
+
+        // The partition
+        sb.append( partitionDn ).append( ", " );
+
+        // The entry UUID
+        sb.append( entryID ).append( ", " );
+
+        // The txn ID
+        sb.append( txnID ).append( ")\n{\n" );
+
+        for ( DataChange change : changes )
+        {
+            sb.append( "    " );
+            sb.append( change );
+            sb.append( '\n' );
+        }
+
+        sb.append( "}" );
+
+        return sb.toString();
     }
 }

@@ -35,6 +35,7 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.MasterTable;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -112,7 +113,7 @@ public class DefaultTxnLogManager implements TxnLogManager
         {
             bout = new ByteArrayOutputStream();
             out = new ObjectOutputStream( bout );
-            out.writeObject( logEdit );
+            logEdit.writeExternal( out );
             out.flush();
             data = bout.toByteArray();
         }
@@ -134,6 +135,8 @@ public class DefaultTxnLogManager implements TxnLogManager
         log( logRecord, sync );
 
         logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
+        ( ( AbstractLogEdit ) logEdit ).setTxnID( txn.getId() );
+
         txn.addLogEdit( logEdit );
     }
 
