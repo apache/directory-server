@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm;
 
@@ -27,6 +27,7 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
 
@@ -176,30 +177,102 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
         return true;
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */
     public int compareTo( ParentIdAndRdn<ID> that )
     {
-        int val = this.rdns.length - that.rdns.length;
+        int val = rdns.length - that.rdns.length;
 
         if ( val != 0 )
         {
             return val;
         }
-
-        for ( int i = 0; i < this.rdns.length; i++ )
+        
+        // Handle the special case where we only have one RDN
+        // But we may have more than one Ava.
+        if ( rdns.length == 1 )
         {
-            val = this.rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
-
-            if ( val != 0 )
+            Rdn thisRdn = rdns[0];
+            Rdn thatRdn = that.rdns[0];
+            
+            // Check the AVAs now
+            // If we only have one, no need to create an Array
+            if ( thisRdn.size() == 1 )
             {
-                return val;
+                if ( thatRdn.size() > 1 )
+                {
+                    return -1;
+                }
+                
+                Ava thisAva = thisRdn.getAva();
+                
+                val = thisAva.compareTo( thatRdn.getAva() );
+                
+                if ( val != 0 )
+                {
+                    return val;
+                }
+            }
+            else
+            {
+                if ( thisRdn.size() > thatRdn.size() )
+                {
+                    return 1;
+                }
+                else if ( thatRdn.size() > thisRdn.size() )
+                {
+                    return -1;
+                }
+                
+                Ava[] thisAvas = new Ava[thisRdn.size()];
+                int pos = 0;
+                
+                for ( Ava ava : thisRdn )
+                {
+                    thisAvas[pos++] = ava;
+                }
+                
+                Arrays.sort( thisAvas );
+
+                Ava[] thatAvas = new Ava[thatRdn.size()];
+                pos = 0;
+                
+                for ( Ava ava : thatRdn )
+                {
+                    thatAvas[pos++] = ava;
+                }
+                
+                Arrays.sort( thatAvas );
+                
+                for ( int i = 0; i < thisAvas.length; i++ )
+                {
+                    val = thisAvas[i].compareTo( thatAvas[i] );
+
+                    if ( val != 0 )
+                    {
+                        return val;
+                    }
+                }
             }
         }
-
+        else
+        {
+            // if we have more than one RDN, then it's a context entry.
+            // Atm, do a string comparison
+            for ( int i = 0; i < rdns.length; i++ )
+            {
+                val = rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
+                
+                if ( val != 0 )
+                {
+                    return val;
+                }
+            }
+        }
+        
         val = this.getParentId().compareTo( that.getParentId() );
 
         return val;
