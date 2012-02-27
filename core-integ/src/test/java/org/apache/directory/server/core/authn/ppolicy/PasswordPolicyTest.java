@@ -72,6 +72,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -439,6 +440,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testPwdMaxAgeAndGraceAuth() throws Exception
     {
         policyConfig.setPwdMaxAge( 5 );
