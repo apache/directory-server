@@ -276,7 +276,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             else
             {
                 Description description = getDescription();
-                System.out.println( "reverting for " + description );
                 // Revert the ldifs
                 // We use a class or suite DS, just revert the current test's modifications
                 revert( directoryService, revision );
@@ -291,7 +290,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         finally
         {
             Description description = getDescription();
-            System.out.println( "reverting for " + description );
             // help GC to get rid of the directory service with all its references
             suite = null;
             classDS = null;

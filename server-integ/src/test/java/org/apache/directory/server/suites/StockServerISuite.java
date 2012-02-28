@@ -52,6 +52,7 @@ import org.apache.directory.server.operations.modifydn.ModifyRdnIT;
 import org.apache.directory.server.operations.modifydn.MoveIT;
 import org.apache.directory.server.operations.search.IndexedNegationSearchIT;
 import org.apache.directory.server.operations.search.NegationSearchIT;
+import org.apache.directory.server.operations.search.PagedSearchIT;
 import org.apache.directory.server.operations.search.PersistentSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchIT;
 import org.apache.directory.server.operations.search.ReferralSearchNoRevertIT;
@@ -120,7 +121,7 @@ import org.junit.runners.Suite;
         // operations.search
         IndexedNegationSearchIT.class,
         NegationSearchIT.class,
-        //PagedSearchIT.class,
+        PagedSearchIT.class,
         PersistentSearchIT.class,
         ReferralSearchIT.class,
         ReferralSearchNoRevertIT.class,

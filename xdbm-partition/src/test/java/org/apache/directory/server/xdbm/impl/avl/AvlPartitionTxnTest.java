@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.impl.avl;
 
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -51,31 +52,31 @@ import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 public class AvlPartitionTxnTest
 {
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
 
-    
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
 
     /** Txn manager */
     private static TxnManager txnManager;
-    
+
     /** log dir */
     private static File logDir;
-    
+
+
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -87,7 +88,7 @@ public class AvlPartitionTxnTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-        
+
         logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -106,7 +107,7 @@ public class AvlPartitionTxnTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -137,20 +138,20 @@ public class AvlPartitionTxnTest
             fail();
         }
     }
-   
+
 
     @After
     public void destroyStore() throws Exception
     {
         partition.destroy();
-        
+
         if ( logDir != null )
         {
-            FileUtils.deleteDirectory( logDir);
+            FileUtils.deleteDirectory( logDir );
         }
     }
-    
-    
+
+
     @Test
     public void testAddsConcurrentWithSearch()
     {
@@ -158,16 +159,15 @@ public class AvlPartitionTxnTest
         {
             int numThreads = 10;
             AddsConcurrentWithSearchTestThread threads[] = new AddsConcurrentWithSearchTestThread[numThreads];
-            
-            
-            for ( int idx =0; idx < numThreads; idx++ )
+
+            for ( int idx = 0; idx < numThreads; idx++ )
             {
                 threads[idx] = new AddsConcurrentWithSearchTestThread();
                 threads[idx].start();
             }
-            
+
             txnManager.beginTransaction( false );
-            
+
             // dn id 12
             Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
             DefaultEntry entry = new DefaultEntry( schemaManager, martinDn );
@@ -179,10 +179,10 @@ public class AvlPartitionTxnTest
 
             AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( partition, addContext );
-            
+
             // Sleep some
             Thread.sleep( 100 );
-            
+
             // dn id 13
             Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales, ou=Sales,o=Good Times Co." );
             entry = new DefaultEntry( schemaManager, jimmyDn );
@@ -191,13 +191,13 @@ public class AvlPartitionTxnTest
             entry.add( "cn", "Jimmy Wales" );
             entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
             entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
-            
+
             addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( partition, addContext );
-            
+
             txnManager.commitTransaction();
-            
-            for ( int idx =0; idx < numThreads; idx++ )
+
+            for ( int idx = 0; idx < numThreads; idx++ )
             {
                 threads[idx].join();
             }
@@ -208,7 +208,7 @@ public class AvlPartitionTxnTest
             assertTrue( false );
         }
     }
-    
+
 
     private static boolean removeDirectory( File directory )
     {
@@ -216,20 +216,19 @@ public class AvlPartitionTxnTest
         {
             return false;
         }
-        
+
         if ( !directory.exists() )
         {
             return true;
         }
-        
+
         if ( !directory.isDirectory() )
         {
-            return false;   
+            return false;
         }
-            
 
         String[] list = directory.list();
-        
+
         if ( list != null )
         {
             for ( int i = 0; i < list.length; i++ )
@@ -251,55 +250,53 @@ public class AvlPartitionTxnTest
 
         return directory.delete();
     }
-    
+
     class AddsConcurrentWithSearchTestThread extends Thread
     {
         private void doSearch() throws Exception
         {
             int numEntries = 0;
-            
+
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
             ExprNode filter = new PresenceNode( schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT ) );
-            
+
             Dn baseDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
-            
+
             txnManager.beginTransaction( true );
 
-            IndexCursor<UUID> cursor = partition.getSearchEngine().cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-            
+            IndexCursor<UUID> cursor = partition.getSearchEngine().cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
+                filter, controls );
+
             while ( cursor.next() )
             {
                 numEntries++;
             }
-            
+
             assertTrue( numEntries == 2 || numEntries == 4 );
-            //System.out.println("Num entries: " + numEntries );
-            
+
             txnManager.commitTransaction();
         }
 
 
         public void run()
-        {         
+        {
             try
             {
                 Random sleepRandomizer = new Random();
                 int sleepTime = sleepRandomizer.nextInt( 10 ) * 100;
-                
+
                 Thread.sleep( sleepTime );
-                
+
                 doSearch();
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 e.printStackTrace();
                 fail();
                 assertTrue( false );
             }
-            
-            
-            
+
         }
     } // end of class RemoveInsertTestThread
 
