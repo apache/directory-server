@@ -227,7 +227,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             throw new IOException( "Flushing of txns failed" );
         }
-
+        
         prepareForEndingTxn( txn );
 
         if ( txn instanceof ReadOnlyTxn )

@@ -91,14 +91,6 @@ interface Transaction extends TxnHandle
 
 
     /**
-     * Returns the current state of the txn
-     *
-     * @return
-     */
-    State getState();
-
-
-    /**
      * Provides a transactionally consistent view of the entry.
      *
      * @param partitionDn dn of the partition the entry lives in.
@@ -146,11 +138,4 @@ interface Transaction extends TxnHandle
      */
     boolean mergeExistence( Dn partitionDN, String attributeOid, IndexEntry<?> indexEntry, boolean currentlyExists );
 
-    enum State
-    {
-        INITIAL,
-        READ,
-        COMMIT,
-        ABORT
-    }
 }

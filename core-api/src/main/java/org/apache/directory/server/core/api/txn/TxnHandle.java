@@ -27,5 +27,19 @@ package org.apache.directory.server.core.api.txn;
  */
 public interface TxnHandle
 {
-    public long getId();
+    /**
+     * Returns the current state of the txn
+     *
+     * @return
+     */
+    State getState();
+    
+    enum State
+    {
+        INITIAL,
+        READ,
+        COMMIT,
+        ABORT
+    }
+
 }

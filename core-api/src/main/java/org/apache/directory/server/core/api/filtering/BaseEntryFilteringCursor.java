@@ -169,9 +169,22 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      * {@inheritDoc}
      */
     public void afterLast() throws Exception
-    {
-        wrapped.afterLast();
-        prefetched = null;
+    {   
+        boolean setCurTxn = maybeSetCurTxn();
+        
+        try
+        {
+            wrapped.afterLast();
+            prefetched = null;
+        }
+        finally
+        {
+            if ( setCurTxn )
+            {
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
+            }
+        }
     }
 
 
@@ -198,8 +211,21 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
-        wrapped.beforeFirst();
-        prefetched = null;
+        boolean setCurTxn = maybeSetCurTxn();
+        
+        try
+        {
+            wrapped.beforeFirst();
+            prefetched = null;
+        }
+        finally
+        {
+            if ( setCurTxn )
+            {
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
+            }
+        }
     }
 
 
@@ -207,27 +233,15 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      * {@inheritDoc}
      */
     public void close() throws Exception
-    {
-        wrapped.close();
-        prefetched = null;
-
-        if ( txnManager != null )
+    {        
+        try
+        {            
+            wrapped.close();
+            prefetched = null;
+        }
+        finally
         {
-            TxnHandle curTxn = txnManager.getCurTxn();
-
-            if ( curTxn != null )
-            {
-                if ( transaction != curTxn )
-                {
-                    TxnHandle previousTransaction = txnManager.setCurTxn( transaction );
-                    txnManager.commitTransaction();
-                    txnManager.setCurTxn( previousTransaction );
-                }
-                else
-                {
-                    txnManager.commitTransaction();
-                }
-            }
+            endTxnAtClose( false );
         }
     }
 
@@ -237,14 +251,14 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public void close( Exception reason ) throws Exception
     {
-        wrapped.close( reason );
-        prefetched = null;
-
-        if ( txnManager != null )
+        try
+        {   
+            wrapped.close( reason );
+            prefetched = null;
+        }
+        finally
         {
-            TxnHandle previousTransaction = txnManager.setCurTxn( transaction );
-            txnManager.abortTransaction();
-            txnManager.setCurTxn( previousTransaction );
+            endTxnAtClose( true );
         }
     }
 
@@ -269,9 +283,22 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-
-        beforeFirst();
-        return next();
+        
+        boolean setCurTxn = maybeSetCurTxn();
+        
+        try
+        {
+            beforeFirst();
+            return next();
+        }
+        finally
+        {
+            if ( setCurTxn )
+            {
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
+            }
+        }
     }
 
 
@@ -309,9 +336,22 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-
-        afterLast();
-        return previous();
+        
+        boolean setCurTxn = maybeSetCurTxn();
+        
+        try
+        {
+            afterLast();
+            return previous();
+        }
+        finally
+        {
+            if ( setCurTxn )
+            {
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
+            }
+        }
     }
 
 
@@ -446,19 +486,13 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-
-        Entry tempResult = null;
-
-        // Switch the current transaction
-        TxnHandle previousTxn = null;
-
-        if ( txnManager != null )
-        {
-            previousTxn = txnManager.setCurTxn( transaction );
-        }
-
+        
+        boolean setCurTxn = maybeSetCurTxn();
+        
         try
-        {
+        { 
+            Entry tempResult = null;
+
             outer: while ( wrapped.next() )
             {
                 boolean accepted = true;
@@ -514,18 +548,18 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
 
                 return true;
             }
+        
+            prefetched = null;
+            return false;
         }
         finally
         {
-            // Switch back the previous transaction
-            if ( txnManager != null )
+            if ( setCurTxn )
             {
-                txnManager.setCurTxn( previousTxn );
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
             }
         }
-
-        prefetched = null;
-        return false;
     }
 
 
@@ -540,58 +574,71 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-
-        Entry tempResult = null;
-
-        outer: while ( wrapped.previous() )
+        
+        boolean setCurTxn = maybeSetCurTxn();
+        
+        try
         {
-            boolean accepted = true;
-            tempResult = new ClonedServerEntrySearch( wrapped.get() );
-
-            /*
-             * O P T I M I Z A T I O N
-             * -----------------------
-             * 
-             * Don't want to waste cycles on enabling a loop for processing 
-             * filters if we have zero or one filter.
-             */
-
-            if ( filters.isEmpty() )
+            Entry tempResult = null;
+    
+            outer: while ( wrapped.previous() )
             {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-
-            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
-            {
-                prefetched = tempResult;
-                filterContents( prefetched );
-                return true;
-            }
-
-            /* E N D   O P T I M I Z A T I O N */
-
-            for ( EntryFilter filter : filters )
-            {
-                // if a filter rejects then short and continue with outer loop
-                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                boolean accepted = true;
+                tempResult = new ClonedServerEntrySearch( wrapped.get() );
+    
+                /*
+                 * O P T I M I Z A T I O N
+                 * -----------------------
+                 * 
+                 * Don't want to waste cycles on enabling a loop for processing 
+                 * filters if we have zero or one filter.
+                 */
+    
+                if ( filters.isEmpty() )
                 {
-                    continue outer;
+                    prefetched = tempResult;
+                    filterContents( prefetched );
+                    return true;
                 }
+    
+                if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+                {
+                    prefetched = tempResult;
+                    filterContents( prefetched );
+                    return true;
+                }
+    
+                /* E N D   O P T I M I Z A T I O N */
+    
+                for ( EntryFilter filter : filters )
+                {
+                    // if a filter rejects then short and continue with outer loop
+                    if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                    {
+                        continue outer;
+                    }
+                }
+    
+                /*
+                 * Here the entry has been accepted by all filters.
+                 */
+                prefetched = tempResult;
+                filterContents( prefetched );
+                return true;
             }
-
-            /*
-             * Here the entry has been accepted by all filters.
-             */
-            prefetched = tempResult;
-            filterContents( prefetched );
-            return true;
+    
+            prefetched = null;
+    
+            return false;     
         }
-
-        prefetched = null;
-
-        return false;
+        finally
+        {
+            if ( setCurTxn )
+            {
+                txnBusy.set( false );
+                txnManager.setCurTxn( null );
+            }
+        }
     }
 
 
@@ -641,5 +688,10 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
-    }
+    } 
 }
+
+
+    
+    
+    

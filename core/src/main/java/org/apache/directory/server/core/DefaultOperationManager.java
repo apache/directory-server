@@ -397,13 +397,19 @@ public class DefaultOperationManager implements OperationManager
             // Call the Add method
             Interceptor head = directoryService.getInterceptor( addContext.getNextInterceptor() );
 
+            boolean startedTxn = false;
             TxnManager txnManager = directoryService.getTxnManager();
+            TxnHandle curTxn = txnManager.getCurTxn();
 
             boolean done = false;
 
             do
             {
-                beginTransactionRW( txnManager );
+                if( curTxn == null )
+                {
+                    beginTransactionRW( txnManager );
+                    startedTxn = true;
+                }
 
                 try
                 {
@@ -413,12 +419,19 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( LdapException le )
                 {
-                    abortTransaction( txnManager, le );
+                    if ( startedTxn )
+                    {
+                        abortTransaction( txnManager, le );
+                    }
 
                     throw le;
                 }
 
-                commitTransaction( txnManager );
+                if ( startedTxn )
+                {
+                    commitTransaction( txnManager );
+                }
+                
                 txnManager.applyPendingTxns();
             }
             while ( !done );
@@ -443,10 +456,10 @@ public class DefaultOperationManager implements OperationManager
 
         boolean done = false;
         TxnManager txnManager = directoryService.getTxnManager();
-
+        
         do
         {
-            beginTransactionR( txnManager );
+            beginTransactionRW( txnManager );
 
             try
             {
@@ -454,7 +467,15 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                /*
+                 *  TODO : Bind expects the changes to be committed even if the
+                 *  authentication fails. We should certainly skip some exceptions
+                 *  here. For now commit on every exception other than maybe
+                 *  conflict exception.
+                 */
+                
+                commitTransaction( txnManager );
+               
 
                 throw ( le );
             }
@@ -627,13 +648,19 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
 
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
+        TxnHandle curTxn = txnManager.getCurTxn();
 
         boolean done = false;
 
         do
         {
-            beginTransactionRW( txnManager );
+            if ( curTxn == null )
+            {
+                beginTransactionRW( txnManager );
+                startedTxn = true;
+            }
 
             try
             {
@@ -650,12 +677,18 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                if ( startedTxn )
+                {
+                    abortTransaction( txnManager, le );
+                }
 
                 throw le;
             }
 
-            commitTransaction( txnManager );
+            if ( startedTxn )
+            {
+                commitTransaction( txnManager );
+            }
             txnManager.applyPendingTxns();
         }
         while ( !done );
@@ -743,6 +776,7 @@ public class DefaultOperationManager implements OperationManager
             cursor = head.list( listContext );
 
             cursor.setTxnManager( txnManager );
+            txnManager.setCurTxn( null );
         }
         catch ( LdapException le )
         {
@@ -868,11 +902,17 @@ public class DefaultOperationManager implements OperationManager
         referralManager.unlock();
 
         boolean done = false;
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
+        TxnHandle curTxn = txnManager.getCurTxn();
 
         do
         {
-            beginTransactionRW( txnManager );
+            if ( curTxn == null )
+            {
+                beginTransactionRW( txnManager );
+                startedTxn = true;
+            }
 
             try
             {
@@ -886,7 +926,10 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                if ( startedTxn )
+                {
+                    abortTransaction( txnManager, le );
+                }
 
                 throw ( le );
             }
@@ -894,7 +937,10 @@ public class DefaultOperationManager implements OperationManager
             // If here then we are done.
             done = true;
 
-            commitTransaction( txnManager );
+            if ( startedTxn )
+            {
+                commitTransaction( txnManager );
+            }
             txnManager.applyPendingTxns();
         }
         while ( !done );
@@ -990,11 +1036,17 @@ public class DefaultOperationManager implements OperationManager
         directoryService.getReferralManager().unlock();
 
         boolean done = false;
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
+        TxnHandle curTxn = txnManager.getCurTxn();
 
         do
         {
-            beginTransactionRW( txnManager );
+            if ( curTxn == null )
+            {
+                beginTransactionRW( txnManager );
+                startedTxn = true;
+            }
 
             try
             {
@@ -1009,7 +1061,10 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                if ( startedTxn )
+                {
+                    abortTransaction( txnManager, le );
+                }
 
                 throw ( le );
             }
@@ -1017,7 +1072,10 @@ public class DefaultOperationManager implements OperationManager
             // If here then we are done.
             done = true;
 
-            commitTransaction( txnManager );
+            if ( startedTxn )
+            {
+                commitTransaction( txnManager );
+            }
             txnManager.applyPendingTxns();
         }
         while ( !done );
@@ -1115,11 +1173,17 @@ public class DefaultOperationManager implements OperationManager
         directoryService.getReferralManager().unlock();
 
         boolean done = false;
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
+        TxnHandle curTxn = txnManager.getCurTxn();
 
         do
         {
-            beginTransactionRW( txnManager );
+            if ( curTxn == null )
+            {
+                beginTransactionRW( txnManager );
+                startedTxn = true;
+            }
 
             try
             {
@@ -1133,7 +1197,10 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                if ( startedTxn )
+                {
+                    abortTransaction( txnManager, le );
+                }
 
                 throw ( le );
             }
@@ -1141,7 +1208,10 @@ public class DefaultOperationManager implements OperationManager
             // If here then we are done.
             done = true;
 
-            commitTransaction( txnManager );
+            if ( startedTxn )
+            {
+                commitTransaction( txnManager );
+            }
             txnManager.applyPendingTxns();
         }
         while ( !done );
@@ -1227,11 +1297,17 @@ public class DefaultOperationManager implements OperationManager
         directoryService.getReferralManager().unlock();
 
         boolean done = false;
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
+        TxnHandle curTxn = txnManager.getCurTxn();
 
         do
         {
-            beginTransactionRW( txnManager );
+            if ( curTxn == null )
+            {
+                beginTransactionRW( txnManager );
+                startedTxn = true;
+            }
 
             try
             {
@@ -1249,7 +1325,10 @@ public class DefaultOperationManager implements OperationManager
             }
             catch ( LdapException le )
             {
-                abortTransaction( txnManager, le );
+                if ( startedTxn )
+                {
+                    abortTransaction( txnManager, le );
+                }
 
                 throw ( le );
             }
@@ -1257,7 +1336,10 @@ public class DefaultOperationManager implements OperationManager
             // If here then we are done.
             done = true;
 
-            commitTransaction( txnManager );
+            if ( startedTxn )
+            {
+                commitTransaction( txnManager );
+            }
             txnManager.applyPendingTxns();
         }
         while ( !done );
@@ -1347,6 +1429,7 @@ public class DefaultOperationManager implements OperationManager
             cursor = head.search( searchContext );
 
             cursor.setTxnManager( txnManager );
+            txnManager.setCurTxn( null );
         }
         catch ( LdapException le )
         {

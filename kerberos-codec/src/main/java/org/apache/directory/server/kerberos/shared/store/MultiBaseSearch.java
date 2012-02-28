@@ -61,7 +61,7 @@ class MultiBaseSearch implements PrincipalStore
         
         try
         {
-            txnManager.beginTransaction( true );
+            //txnManager.beginTransaction( true );
             
             try
             {
@@ -70,12 +70,12 @@ class MultiBaseSearch implements PrincipalStore
             }
             catch ( Exception e )
             {
-                txnManager.abortTransaction();
+                //txnManager.abortTransaction();
 
                 throw e;
             }
             
-            txnManager.commitTransaction();
+            //txnManager.commitTransaction();
 
         }
         catch ( Exception e )
@@ -92,7 +92,7 @@ class MultiBaseSearch implements PrincipalStore
         
         try
         {
-            txnManager.beginTransaction( true );
+            //txnManager.beginTransaction( true );
             
             try
             {
@@ -100,12 +100,12 @@ class MultiBaseSearch implements PrincipalStore
             }
             catch ( NamingException ne )
             {
-                txnManager.abortTransaction();
+                //txnManager.abortTransaction();
 
                 throw ne;
             }
             
-            txnManager.commitTransaction();
+            //txnManager.commitTransaction();
 
         }
         catch ( Exception e )
@@ -127,7 +127,7 @@ class MultiBaseSearch implements PrincipalStore
         {
             do
             {
-                txnManager.beginTransaction( false );
+                //txnManager.beginTransaction( false );
             
                 try
                 {
@@ -135,7 +135,7 @@ class MultiBaseSearch implements PrincipalStore
                 }
                 catch ( NamingException ne )
                 {
-                    txnManager.abortTransaction();
+                    //txnManager.abortTransaction();
     
                     throw ne;
                 }
@@ -144,7 +144,7 @@ class MultiBaseSearch implements PrincipalStore
                 
                 try
                 {
-                    txnManager.commitTransaction();
+                    //txnManager.commitTransaction();
                 }
                 catch ( Exception e )
                 {

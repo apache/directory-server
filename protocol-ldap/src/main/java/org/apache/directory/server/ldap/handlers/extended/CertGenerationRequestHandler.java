@@ -83,7 +83,7 @@ public class CertGenerationRequestHandler
 
         do
         {
-            txnManager.beginTransaction( false );
+            //txnManager.beginTransaction( false );
 
             try
             {
@@ -100,7 +100,7 @@ public class CertGenerationRequestHandler
             }
             catch ( Exception e )
             {
-                txnManager.abortTransaction();
+                //txnManager.abortTransaction();
 
                 // TODO Instead of rethrowing the exception here all the time, check
                 // if the root cause if conflictexception and retry by going to he
@@ -112,7 +112,7 @@ public class CertGenerationRequestHandler
             }
 
             // If here then we are done.
-            txnManager.commitTransaction();
+            //txnManager.commitTransaction();
             done = true;
         }
         while ( !done );

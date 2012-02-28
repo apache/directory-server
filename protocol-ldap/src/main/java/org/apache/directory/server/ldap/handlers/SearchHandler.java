@@ -539,8 +539,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 pagedContext.incrementCurrentPosition( pageCount );
 
                 // Suspend the current txn
-                TxnHandle txnHandle = txnManager.suspendCurTxn();
-                pagedContext.setTxnHandle( txnHandle );
+               // TxnHandle txnHandle = txnManager.suspendCurTxn();
+                //pagedContext.setTxnHandle( txnHandle );
 
                 return;
             }
@@ -1692,71 +1692,5 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     public void setReplicationReqHandler( ReplicationRequestHandler replicationReqHandler )
     {
         this.replicationReqHandler = replicationReqHandler;
-    }
-
-
-    private boolean checkPagedSearchTxnResume( LdapSession session, SearchRequest req )
-    {
-        boolean resumedTxn = false;
-
-        PagedResultsDecorator pagedSearchControl = ( PagedResultsDecorator ) req.getControls().get( PagedResults.OID );
-
-        if ( pagedSearchControl != null )
-        {
-            byte[] cookie = pagedSearchControl.getCookie();
-
-            if ( !Strings.isEmpty( cookie ) )
-            {
-                int cookieValue = pagedSearchControl.getCookieValue();
-                PagedSearchContext pagedContext = session.getPagedSearchContext( cookieValue );
-
-                if ( pagedContext != null )
-                {
-                    TxnHandle txnHandle = pagedContext.getTxnHandle();
-                    pagedContext.setTxnHandle( null );
-                    txnManager.resumeTxn( txnHandle );
-                    resumedTxn = true;
-                }
-            }
-        }
-
-        return resumedTxn;
-    }
-
-
-    private void beginTxnForSearch( LdapSession session, SearchRequest req ) throws Exception
-    {
-        boolean resumedTxn = checkPagedSearchTxnResume( session, req );
-
-        // If resumed an existing txn then just return
-
-        if ( resumedTxn )
-        {
-            return;
-        }
-
-        txnManager.beginTransaction( true );
-    }
-
-
-    private void endTxnForSearch( boolean abort ) throws Exception
-    {
-        // Paged search might have suspended the execution of the txn
-        TxnHandle txnHandle = txnManager.getCurTxn();
-
-        if ( txnHandle == null )
-        {
-            return;
-        }
-
-        if ( abort == false )
-        {
-            txnManager.commitTransaction();
-        }
-        else
-        {
-            txnManager.abortTransaction();
-        }
-
     }
 }
