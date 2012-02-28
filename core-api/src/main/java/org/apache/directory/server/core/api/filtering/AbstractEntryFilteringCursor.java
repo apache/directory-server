@@ -20,7 +20,6 @@ package org.apache.directory.server.core.api.filtering;
 
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.txn.TxnHandle;
@@ -47,9 +46,9 @@ public abstract class AbstractEntryFilteringCursor implements EntryFilteringCurs
 
     /** The associated transaction */
     protected TxnHandle transaction;
-    
+
     /** True if a thread is using the txn */
-    protected AtomicBoolean txnBusy = new AtomicBoolean(false);
+    protected AtomicBoolean txnBusy = new AtomicBoolean( false );
 
 
     /**
@@ -69,7 +68,7 @@ public abstract class AbstractEntryFilteringCursor implements EntryFilteringCurs
     public void setTxnManager( TxnManager txnManager )
     {
         this.txnManager = txnManager;
-        transaction = txnManager.getCurTxn() ;
+        transaction = txnManager.getCurTxn();
     }
 
 
@@ -113,59 +112,59 @@ public abstract class AbstractEntryFilteringCursor implements EntryFilteringCurs
             LOG.info( "Cursor has been abandoned." );
         }
     }
-    
+
+
     protected boolean maybeSetCurTxn() throws Exception
     {
         if ( transaction != null )
         {
             TxnHandle curTxn = txnManager.getCurTxn();
-            
+
             if ( curTxn != null )
             {
                 if ( curTxn != transaction )
                 {
-                    throw new 
-                        IllegalStateException("Shouldnt Have another txn running if cursor has a txn ");
+                    throw new IllegalStateException( "Shouldnt Have another txn running if cursor has a txn " );
                 }
             }
             else
             {
                 boolean busy = !txnBusy.compareAndSet( false, true );
-                
+
                 // This can happen if the abondon listener sneaked in and
                 // closed the cursor. return immediately
                 if ( busy )
                 {
                     throw new OperationAbandonedException();
                 }
-                
+
                 txnManager.setCurTxn( transaction );
-                
+
                 return true;
             }
         }
-        
+
         return false;
     }
-    
-    protected void endTxnAtClose(boolean abort) throws Exception
+
+
+    protected void endTxnAtClose( boolean abort ) throws Exception
     {
         if ( transaction == null )
         {
             return;
         }
-        
+
         // If this thread already owns the txn, then end it and return
         TxnHandle curTxn = txnManager.getCurTxn();
-        
+
         if ( curTxn != null )
         {
             if ( curTxn != transaction )
             {
-                throw new 
-                    IllegalStateException("Shouldnt Have another txn running if cursor has a txn ");
+                throw new IllegalStateException( "Shouldnt Have another txn running if cursor has a txn " );
             }
-            
+
             if ( abort == false )
             {
                 txnManager.commitTransaction();
@@ -174,42 +173,40 @@ public abstract class AbstractEntryFilteringCursor implements EntryFilteringCurs
             {
                 txnManager.abortTransaction();
             }
-            
+
             txnBusy.set( false );
             txnManager.setCurTxn( null );
         }
         else
         {
-            while ( !(transaction.getState() == TxnHandle.State.COMMIT || 
-                transaction.getState() == TxnHandle.State.ABORT) )
+            while ( !( transaction.getState() == TxnHandle.State.COMMIT || transaction.getState() == TxnHandle.State.ABORT ) )
             {
                 boolean busy = !txnBusy.compareAndSet( false, true );
-                
+
                 // This can happen if the abondon listener sneaked in and
                 // closed the cursor. return immediately
                 if ( busy )
                 {
                     try
                     {
-                        System.out.println("sleeping " + this);
                         Thread.sleep( 100 );
                     }
-                    catch( Exception e )
+                    catch ( Exception e )
                     {
                         //ignore
                     }
                     continue;
                 }
-                
-                if (transaction.getState() == TxnHandle.State.COMMIT || 
-                    transaction.getState() == TxnHandle.State.ABORT)
+
+                if ( transaction.getState() == TxnHandle.State.COMMIT ||
+                    transaction.getState() == TxnHandle.State.ABORT )
                 {
                     txnBusy.set( false );
                     break;
                 }
-                
-                txnManager.setCurTxn( transaction ); 
-                
+
+                txnManager.setCurTxn( transaction );
+
                 if ( abort == false )
                 {
                     txnManager.commitTransaction();
@@ -218,7 +215,7 @@ public abstract class AbstractEntryFilteringCursor implements EntryFilteringCurs
                 {
                     txnManager.abortTransaction();
                 }
-                
+
                 txnBusy.set( false );
                 txnManager.setCurTxn( null );
             }
