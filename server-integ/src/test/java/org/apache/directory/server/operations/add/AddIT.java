@@ -1478,4 +1478,47 @@ public class AddIT extends AbstractLdapTestUnit
             assertEquals( 'A', description.charAt( i ) );
         }
     }
+
+
+    /**
+     * Test case to demonstrate DIRSERVER-1681
+     * Create an entry with a certificate;binary value
+     * 
+     * @throws LDAPException if we fail to connect and add entries
+     */
+    @Test
+    public void testAddWithCertificateBinary() throws Exception
+    {
+        LdapConnection con = getAdminConnection( getLdapServer() );
+        con.loadSchema();
+
+        String dn = "cn=Kate Bush," + BASE;
+        Entry kate = new DefaultEntry( dn,
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: inetOrgPerson",
+            "userCertificate;binary:: PEhlbGxvIHdvcmxkICE+", // This is "<hello world !>"
+            "sn: Bush",
+            "cn: Kate Bush" );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        Entry kateReloaded = con.lookup( dn );
+        assertNotNull( kateReloaded );
+        Attribute certificate = kateReloaded.get( "userCertificate;binary" );
+        assertNotNull( certificate );
+        assertEquals( 1, certificate.size() );
+        assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
+        
+        // Same check without the ";binary"
+        certificate = kateReloaded.get( "userCertificate" );
+        assertNotNull( certificate );
+        assertEquals( 1, certificate.size() );
+        assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
+        
+        // Remove entry
+        con.delete( dn );
+        con.unBind();
+    }
 }
