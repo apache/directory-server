@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.bind;
 
@@ -146,27 +146,56 @@ import org.slf4j.LoggerFactory;
         "krb5KeyVersionNumber: 0",
         "cn: LDAP Service",
         "sn: Service" })
-@CreateDS(allowAnonAccess = false, name = "SaslBindIT-class", partitions =
-    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) },
+@CreateDS(
+    allowAnonAccess = false,
+    name = "SaslBindIT-class",
+    partitions =
+    {
+        @CreatePartition(
+            name = "example",
+            suffix = "dc=example,dc=com",
+            contextEntry =
+            @ContextEntry(
+                entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                    "dc: example\n" +
+                    "objectClass: top\n" +
+                    "objectClass: domain\n\n"),
+                indexes =
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
+                })
+    },
     additionalInterceptors =
         { KeyDerivationInterceptor.class })
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslPrincipal = "ldap/localhost@EXAMPLE.COM", saslMechanisms =
-    { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+    {
+        @CreateTransport(protocol = "LDAP")
+    },
+    saslHost = "localhost",
+    saslPrincipal = "ldap/localhost@EXAMPLE.COM",
+    saslMechanisms =
+    {
+        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
         @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class) }, extendedOpHandlers =
-    { StoredProcedureExtendedOperationHandler.class }, ntlmProvider = BogusNtlmProvider.class)
+        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers =
+    {
+        StoredProcedureExtendedOperationHandler.class
+    },
+    ntlmProvider = BogusNtlmProvider.class)
 @CreateKdcServer(
     transports =
         {
             @CreateTransport(protocol = "UDP", port = 6088),
             @CreateTransport(protocol = "TCP", port = 6088)
-    })
+        })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
     @Rule
@@ -234,7 +263,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      */
     @Test
     @Ignore
-    // The SASL Plain mechanism is ot supported
+    // The SASL Plain mechanism is not supported
     public void testSaslBindPLAIN() throws Exception
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -255,7 +284,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
 
     /**
-     * Test a SASL bind with an empty mechanism 
+     * Test a SASL bind with an empty mechanism
      */
     @Test
     @Ignore("Activate and fix when DIRAPI-36 (Provide a SaslBindRequest extending BindRequest that can be used in LdapConnection.bind(...) method) is solved")
