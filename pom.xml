@@ -65,7 +65,7 @@
     <commons.pool.version>1.6</commons.pool.version>
     <derby.version>10.8.2.2</derby.version>
     <dnsjava.version>2.1.1</dnsjava.version>
-    <ehcache.version>2.5.1</ehcache.version>
+    <ehcache.version>2.4.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
