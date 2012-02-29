@@ -27,7 +27,11 @@ import org.junit.runners.Suite;
 
 @RunWith(FrameworkSuite.class)
 @Suite.SuiteClasses(
-    { TestClassA.class, TestClassB.class, TestClassC.class })
+    {
+        TestClassA.class,
+        TestClassB.class,
+        TestClassC.class
+    })
 @CreateDS(name = "SuiteDS")
 @ApplyLdifs(
     {
@@ -35,7 +39,7 @@ import org.junit.runners.Suite;
         "objectClass: person",
         "cn: testSuite",
         "sn: sn_testSuite"
-})
+    })
 public class TestSuite
 {
 }

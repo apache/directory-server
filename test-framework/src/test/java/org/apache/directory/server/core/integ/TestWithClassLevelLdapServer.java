@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
     transports =
         {
             @CreateTransport(protocol = "LDAP")
-    })
+        })
 public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
 {
     @Test

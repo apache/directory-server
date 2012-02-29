@@ -42,49 +42,48 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "cn: testClassA2",
         "sn: sn_testClassA2"
-
 })
 public class TestClassA extends AbstractLdapTestUnit
 {
-@Test
-@CreateDS(name = "testDS")
-@ApplyLdifs(
+    @Test
+    @CreateDS(name = "testDS")
+    @ApplyLdifs(
+        {
+            "dn: cn=testMethodA,ou=system",
+            "objectClass: person",
+            "cn: testMethodA",
+            "sn: sn_testMethodA"
+        })
+    public void testWithFactoryAnnotation() throws Exception
     {
-        "dn: cn=testMethodA,ou=system",
-        "objectClass: person",
-        "cn: testMethodA",
-        "sn: sn_testMethodA"
-})
-public void testWithFactoryAnnotation() throws Exception
-{
-    if ( isRunInSuite )
-    {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+        if ( isRunInSuite )
+        {
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+        }
+    
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
     }
 
-    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
-}
 
-
-@Test
-@ApplyLdifs(
+    @Test
+    @ApplyLdifs(
+        {
+            "dn: cn=testMethodWithApplyLdif,ou=system",
+            "objectClass: person",
+            "cn: testMethodWithApplyLdif",
+            "sn: sn_testMethodWithApplyLdif"
+        })
+    public void testWithoutFactoryAnnotation() throws Exception
     {
-        "dn: cn=testMethodWithApplyLdif,ou=system",
-        "objectClass: person",
-        "cn: testMethodWithApplyLdif",
-        "sn: sn_testMethodWithApplyLdif"
-})
-public void testWithoutFactoryAnnotation() throws Exception
-{
-    if ( isRunInSuite )
-    {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+        if ( isRunInSuite )
+        {
+            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
+        }
+    
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
+        assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
     }
-
-    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
-    assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
-    assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
-}
 }

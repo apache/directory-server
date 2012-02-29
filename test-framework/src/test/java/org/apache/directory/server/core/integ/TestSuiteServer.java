@@ -32,7 +32,10 @@ import org.junit.runners.Suite;
 
 @RunWith(FrameworkSuite.class)
 @Suite.SuiteClasses(
-    { TestClassServer.class, TestMultiLevelDS.class })
+    {
+        TestClassServer.class,
+        TestMultiLevelDS.class
+    })
 @CreateDS(
     name = "SuiteDS",
     partitions =
@@ -51,8 +54,8 @@ import org.junit.runners.Suite;
                         @CreateIndex(attribute = "objectClass"),
                         @CreateIndex(attribute = "dc"),
                         @CreateIndex(attribute = "ou")
-                })
-    })
+                    })
+        })
 @CreateLdapServer(
     transports =
         {
@@ -65,7 +68,7 @@ import org.junit.runners.Suite;
         "objectClass: person",
         "cn: testSuite",
         "sn: sn_testSuite"
-})
+    })
 public class TestSuiteServer
 {
 }
