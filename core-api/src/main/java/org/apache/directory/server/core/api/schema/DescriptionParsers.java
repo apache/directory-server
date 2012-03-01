@@ -283,7 +283,6 @@ public class DescriptionParsers
                     I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ) );
             }
 
-            attributeType.setRegistries( schemaManager.getRegistries() );
             attributeTypes[pos++] = attributeType;
         }
 
@@ -371,8 +370,6 @@ public class DescriptionParsers
                     }
                 }
             }
-
-            objectClass.setRegistries( schemaManager.getRegistries() );
 
             objectClasses[pos++] = objectClass;
         }
