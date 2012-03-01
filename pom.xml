@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>26</version>
+    <version>27-SNAPSHOT</version>
     <relativePath />
   </parent>
 
