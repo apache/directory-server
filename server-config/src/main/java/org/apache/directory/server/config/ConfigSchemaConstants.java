@@ -31,11 +31,11 @@ public enum ConfigSchemaConstants
     //------------------------------------------------------------------------------------
     // The ObjectClasses
     //------------------------------------------------------------------------------------
-    ADS_BASE_OC("ads-base", "1.3.6.1.4.1.18060.0.4.1.3.1"),
+    ADS_BASE_OC("ads-base", "1.3.6.1.4.1.18060.0.4.1.3.0"),
 
     ADS_TRANSPORT_OC("ads-transport", "1.3.6.1.4.1.18060.0.4.1.3.18"),
 
-    ADS_TCP_TRANSPORT_OC("ads-tpTransport", "1.3.6.1.4.1.18060.0.4.1.3.19"),
+    ADS_TCP_TRANSPORT_OC("ads-tcpTransport", "1.3.6.1.4.1.18060.0.4.1.3.19"),
 
     ADS_UDP_TRANSPORT_OC("ads-udpTransport", "1.3.6.1.4.1.18060.0.4.1.3.20"),
 
@@ -43,7 +43,9 @@ public enum ConfigSchemaConstants
 
     ADS_CHANGE_LOG_OC("ads-changeLog", "1.3.6.1.4.1.18060.0.4.1.3.120"),
 
-    ADS_INTERCEPTOR_LOG_OC("ads-interceptor", "1.3.6.1.4.1.18060.0.4.1.3.130"),
+    ADS_INTERCEPTOR_OC("ads-interceptor", "1.3.6.1.4.1.18060.0.4.1.3.130"),
+
+    ADS_AUTHENTICATION_INTERCEPTOR_OC("ads-authenticationInterceptor", "1.3.6.1.4.1.18060.0.4.1.3.131"),
 
     ADS_JOURNAL_OC("ads-journal", "1.3.6.1.4.1.18060.0.4.1.3.140"),
 
@@ -71,19 +73,25 @@ public enum ConfigSchemaConstants
 
     ADS_CHANGE_PASSWORD_SERVER_OC("ads-changePasswordServer", "1.3.6.1.4.1.18060.0.4.1.3.800"),
 
-    ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC("ads-ldapServerSaslMechanismHandler", "1.3.6.1.4.1.18060.0.4.1.3.801"),
+    ADS_SASL_MECH_HANDLER_OC("ads-saslMechHandler", "1.3.6.1.4.1.18060.0.4.1.3.801"),
 
-    ADS_LDAP_SERVER_EXT_OP_HANDLER_OC("ads-ldapServerExtendedOpHandler", "1.3.6.1.4.1.18060.0.4.1.3.802"),
+    ADS_EXTENDED_OP_HANDLER_OC("ads-extendedOpHandler", "1.3.6.1.4.1.18060.0.4.1.3.802"),
 
     ADS_HTTP_WEB_APP_OC("ads-httpWebApp", "1.3.6.1.4.1.18060.0.4.1.3.803"),
 
     ADS_HTTP_SERVER_OC("ads-httpServer", "1.3.6.1.4.1.18060.0.4.1.3.804"),
 
-    //ADS_REPL_CONSUMER_OC( "ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
+    ADS_REPL_EVENT_LOG_OC( "ads-replEventLog", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
 
-    ADS_REPL_PROVIDER_OC("ads-replProvider", "1.3.6.1.4.1.18060.0.4.1.3.806"),
+    ADS_REPL_CONSUMER_OC("ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.806"),
 
-    ADS_PWD_POLICY_OC("ads-pwdPolicy", "1.3.6.1.4.1.18060.0.4.1.3.900"),
+    ADS_PASSWORD_POLICY_OC("ads-passwordPolicy", "1.3.6.1.4.1.18060.0.4.1.3.900"),
+    
+    ADS_AUTHENTICATOR_OC("ads-authenticator", "1.3.6.1.4.1.18060.0.4.1.3.901"),
+    
+    ADS_AUTHENTICATOR_IMPL_OC("ads-authenticatorImpl", "1.3.6.1.4.1.18060.0.4.1.3.902"),
+    
+    ADS_DELEGATING_AUTHENTICATOR_OC("ads-delegatingAuthenticator", "1.3.6.1.4.1.18060.0.4.1.3.904"),
 
     ADS_CONFIG_ID("ads-configId", ""),
 
