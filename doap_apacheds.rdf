@@ -50,6 +50,14 @@
         <revision>1.0.2</revision>
       </Version>
     </release>
+    
+    <release>
+      <Version>
+        <name>Latest 2.x milestone release</name>
+        <created>2012-02-29</created>
+        <revision>2.0.0-M6</revision>
+      </Version>
+    </release>
 
     <repository>
       <SVNRepository>
