@@ -47,6 +47,7 @@
     <!-- Set versions for depending projects -->
     <org.apache.directory.shared.version>1.0.0-M9-SNAPSHOT</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
+    <org.apache.directory.jdbm.version>2.0.0-M2-SNAPSHOT</org.apache.directory.jdbm.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <skin.version>1.0.2</skin.version>
     
@@ -102,7 +103,6 @@
   <modules>
     <module>i18n</module>
     <module>all</module>
-    <module>jdbm</module>
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>
     <module>xdbm-tools</module>
@@ -569,7 +569,14 @@
         <artifactId>apacheds-i18n</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
+     
+      <dependency>
+        <groupId>org.apache.directory.jdbm</groupId>
+        <artifactId>apacheds-jdbm2</artifactId>
+        <type>bundle</type>
+        <version>${org.apache.directory.jdbm.version}</version>
+      </dependency>
+ 
       <!-- Interceptors --> 
       <dependency>
         <groupId>${project.groupId}</groupId>
