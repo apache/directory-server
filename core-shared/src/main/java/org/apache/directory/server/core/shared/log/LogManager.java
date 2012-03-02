@@ -20,23 +20,20 @@
 package org.apache.directory.server.core.shared.log;
 
 
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.io.EOFException;
-
-import org.apache.directory.server.core.api.log.LogAnchor;
-import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.LogAnchor;
 import org.apache.directory.server.core.api.log.LogAnchorComparator;
 import org.apache.directory.server.core.api.log.LogScanner;
-
+import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -244,12 +241,6 @@ import org.apache.directory.server.i18n.I18n;
         try
         {
             reader = logFileManager.getReaderForLogFile( LogAnchor.MIN_LOG_NUMBER );
-
-            if ( reader.getLength() > LogFileRecords.LOG_FILE_HEADER_SIZE )
-            {
-                throw new InvalidLogException( I18n.err( I18n.ERR_750 ) );
-            }
-
             fileExists = true;
             currentLogFileNumber++;
         }

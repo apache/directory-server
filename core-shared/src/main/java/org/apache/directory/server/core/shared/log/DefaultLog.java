@@ -20,13 +20,15 @@
 package org.apache.directory.server.core.shared.log;
 
 
+import java.io.File;
 import java.io.IOException;
-import org.apache.directory.server.core.api.log.Log;
-import org.apache.directory.server.core.api.log.LogScanner;
-import org.apache.directory.server.core.api.log.LogAnchor;
 
-import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.log.InvalidLogException;
+import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.LogScanner;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -52,6 +54,18 @@ public class DefaultLog implements Log
     public void init( String logFilepath, String suffix, int logBufferSize, long logFileSize ) throws IOException,
         InvalidLogException
     {
+        File logFileDir = new File( logFilepath );
+
+        if ( !logFileDir.exists() )
+        {
+            //LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
+
+            if ( !logFileDir.mkdirs() )
+            {
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, logFileDir ) );
+            }
+        }
+
         logFileManager = new DefaultLogFileManager( logFilepath, suffix );
 
         logManager = new LogManager( logFileManager );
