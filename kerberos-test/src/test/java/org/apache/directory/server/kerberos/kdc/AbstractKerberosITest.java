@@ -114,31 +114,23 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     protected void testObtainTickets( ObtainTicketParameters parameters ) throws Exception
     {
         setupEnv( parameters );
-        try
+        Subject subject = new Subject();
+
+        KerberosTestUtils.obtainTGT( subject, USER_UID, USER_PASSWORD );
+
+        assertEquals( 1, subject.getPrivateCredentials().size() );
+        assertEquals( 0, subject.getPublicCredentials().size() );
+
+        KerberosTestUtils.obtainServiceTickets( subject, USER_UID, LDAP_SERVICE_NAME, HOSTNAME );
+
+        assertEquals( 2, subject.getPrivateCredentials().size() );
+        assertEquals( 0, subject.getPublicCredentials().size() );
+        for ( KerberosTicket kt : subject.getPrivateCredentials( KerberosTicket.class ) )
         {
-            Subject subject = new Subject();
-
-            KerberosTestUtils.obtainTGT( subject, USER_UID, USER_PASSWORD );
-
-            assertEquals( 1, subject.getPrivateCredentials().size() );
-            assertEquals( 0, subject.getPublicCredentials().size() );
-
-            KerberosTestUtils.obtainServiceTickets( subject, USER_UID, LDAP_SERVICE_NAME, HOSTNAME );
-
-            assertEquals( 2, subject.getPrivateCredentials().size() );
-            assertEquals( 0, subject.getPublicCredentials().size() );
-            for ( KerberosTicket kt : subject.getPrivateCredentials( KerberosTicket.class ) )
-            {
-                // System.out.println( kt.getClient() );
-                // System.out.println( kt.getServer() );
-                // System.out.println( kt.getSessionKeyType() );
-                assertEquals( parameters.encryptionType.getValue(), kt.getSessionKeyType() );
-            }
-            // System.out.println( subject );
-        }
-        finally
-        {
-            resetEnv( parameters );
+            // System.out.println( kt.getClient() );
+            // System.out.println( kt.getServer() );
+            // System.out.println( kt.getSessionKeyType() );
+            assertEquals( parameters.encryptionType.getValue(), kt.getSessionKeyType() );
         }
     }
 
@@ -154,20 +146,10 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     protected void setupEnv( ObtainTicketParameters parameters )
         throws Exception
     {
-        // Save current value of sun.security.krb5.KrbKdcReq.udpPrefLimit field.
-        // Then set it to -1/1 to force UDP/TCP.
-        parameters.oldUdpPrefLimit = getUdpPrefLimit();
-        setUdpPrefLimit( parameters.transport == TcpTransport.class ? 1 : -1 );
-
-        // Save current value of sun.security.krb5.Checksum.CKSUMTYPE_DEFAULT field.
-        // Then set it to the required checksum value
-        parameters.oldCksumtypeDefault = getCksumtypeDefault();
-        setCksumtypeDefault( parameters.checksumType.getValue() );
-
         // create krb5.conf with proper encryption type
-        String krb5confPath = createKrb5Conf( parameters.encryptionType );
+        String krb5confPath = createKrb5Conf( parameters.checksumType, parameters.encryptionType, parameters.transport == TcpTransport.class );
         System.setProperty( "java.security.krb5.conf", krb5confPath );
-
+        
         // change encryption type in KDC
         kdcServer.setEncryptionTypes( Collections.singletonList( parameters.encryptionType ) );
 
@@ -181,78 +163,6 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         String servicePrincipal = LDAP_SERVICE_NAME + "/" + HOSTNAME + "@" + REALM;
         createPrincipal( "uid=ldap", "Service", "LDAP Service",
             "ldap", "randall", servicePrincipal );
-    }
-
-
-    protected void resetEnv( ObtainTicketParameters parameters )
-        throws Exception
-    {
-        setUdpPrefLimit( parameters.oldUdpPrefLimit );
-        setCksumtypeDefault( parameters.oldCksumtypeDefault );
-    }
-
-
-    private static Integer getUdpPrefLimit() throws Exception
-    {
-        Field udpPrefLimitField = getUdpPrefLimitField();
-        Object value = udpPrefLimitField.get( null );
-        return ( Integer ) value;
-    }
-
-
-    private static void setUdpPrefLimit( int limit ) throws Exception
-    {
-        Field udpPrefLimitField = getUdpPrefLimitField();
-        udpPrefLimitField.setAccessible( true );
-        udpPrefLimitField.set( null, limit );
-    }
-
-
-    private static Field getUdpPrefLimitField() throws ClassNotFoundException, NoSuchFieldException
-    {
-        String clazz = "sun.security.krb5.KrbKdcReq";
-        Class<?> krbKdcReqClass = Class.forName( clazz );
-
-        // Absolutely ugly fix to get this method working with the latest JVM on Mac (1.6.0_29)
-        Field udpPrefLimitField = null;
-
-        try
-        {
-            udpPrefLimitField = krbKdcReqClass.getDeclaredField( "udpPrefLimit" );
-        }
-        catch ( NoSuchFieldException nsfe )
-        {
-            udpPrefLimitField = krbKdcReqClass.getDeclaredField( "defaultUdpPrefLimit" );
-        }
-
-        udpPrefLimitField.setAccessible( true );
-        return udpPrefLimitField;
-    }
-
-
-    private static Integer getCksumtypeDefault() throws Exception
-    {
-        Field cksumtypeDefaultField = getCksumtypeDefaultField();
-        Object value = cksumtypeDefaultField.get( null );
-        return ( Integer ) value;
-    }
-
-
-    private static void setCksumtypeDefault( int limit ) throws Exception
-    {
-        Field cksumtypeDefaultField = getCksumtypeDefaultField();
-        cksumtypeDefaultField.setAccessible( true );
-        cksumtypeDefaultField.set( null, limit );
-    }
-
-
-    private static Field getCksumtypeDefaultField() throws ClassNotFoundException, NoSuchFieldException
-    {
-        String clazz = "sun.security.krb5.Checksum";
-        Class<?> checksumClass = Class.forName( clazz );
-        Field cksumtypeDefaultField = checksumClass.getDeclaredField( "CKSUMTYPE_DEFAULT" );
-        cksumtypeDefaultField.setAccessible( true );
-        return cksumtypeDefaultField;
     }
 
 
@@ -283,7 +193,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
      * @return the path to the krb5.conf file
      * @throws IOException
      */
-    private String createKrb5Conf( EncryptionType encryptionType ) throws IOException
+    private String createKrb5Conf( ChecksumType checksumType, EncryptionType encryptionType, boolean isTcp ) throws IOException
     {
         File file = folder.newFile( "krb5.conf" );
 
@@ -296,7 +206,13 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         data += "permitted_enctypes = " + encryptionType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "default_checksum = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "ap_req_checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
-        //        data += "checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
+        data += "checksum_type = " + checksumType + SystemUtils.LINE_SEPARATOR;
+        
+        if ( isTcp )
+        {
+            data += "udp_preference_limit = 1" + SystemUtils.LINE_SEPARATOR;
+        }
+            
 
         data += "[realms]" + SystemUtils.LINE_SEPARATOR;
         data += REALM + " = {" + SystemUtils.LINE_SEPARATOR;
