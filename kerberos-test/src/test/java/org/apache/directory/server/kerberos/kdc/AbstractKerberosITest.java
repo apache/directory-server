@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Collections;
 
 import javax.security.auth.Subject;
@@ -125,6 +124,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
 
         assertEquals( 2, subject.getPrivateCredentials().size() );
         assertEquals( 0, subject.getPublicCredentials().size() );
+        
         for ( KerberosTicket kt : subject.getPrivateCredentials( KerberosTicket.class ) )
         {
             // System.out.println( kt.getClient() );
@@ -206,7 +206,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         data += "permitted_enctypes = " + encryptionType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "default_checksum = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "ap_req_checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
-        data += "checksum_type = " + checksumType + SystemUtils.LINE_SEPARATOR;
+        data += "default-checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         
         if ( isTcp )
         {

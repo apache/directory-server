@@ -40,8 +40,8 @@ import org.junit.runner.RunWith;
  * Tests to obtain TGTs and Service Tickets from KDCs via TCP.
  * 
  * We use some internal knowledge of the Sun/Oracle implementation here to force
- * the usage of TCP and checksum: 
- * <li>In sun.security.krb5.KrbKdcReq the static field udpPrefLimit is set to 1 
+ * the usage of TCP and checksum:
+ * <li>In sun.security.krb5.KrbKdcReq the static field udpPrefLimit is set to 1
  * which means that TCP is always used.
  * <li>In sun.security.krb5.Checksum the static field CKSUMTYPE_DEFAULT is set
  * to the appropriate checksum value.
@@ -69,7 +69,7 @@ Project</a>
 @CreateKdcServer(
     transports =
         {
-            @CreateTransport(protocol = "TCP")
+            @CreateTransport(protocol = "TCP", port = 6086)
     })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosTcpITest extends AbstractKerberosITest
@@ -82,7 +82,7 @@ public class KerberosTcpITest extends AbstractKerberosITest
     @Test
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
-        // TODO: rsa-md5-des 
+        // TODO: rsa-md5-des
         // RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
         ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
             EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
