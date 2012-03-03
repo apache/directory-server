@@ -120,7 +120,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // DirContext Implementations
     // ------------------------------------------------------------------------
 
-
     public ServerDirContext( DirectoryService service, CoreSession session, Name bindDn ) throws Exception
     {
         super( service, session, bindDn );
@@ -175,7 +174,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attributes attrs = null;
         try
         {
-            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( JndiUtils.fromName( name ) ), attrIds ) );
+            attrs = ServerEntryUtils.toBasicAttributes( doLookupOperation( buildTarget( JndiUtils.fromName( name ) ),
+                attrIds ) );
         }
         catch ( Exception e )
         {
@@ -192,7 +192,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( String name, int modOp, Attributes attrs ) throws NamingException
     {
-        modifyAttributes( new LdapName( name ), modOp, AttributeUtils.toCaseInsensitive(attrs) );
+        modifyAttributes( new LdapName( name ), modOp, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -236,7 +236,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             doModifyOperation( buildTarget( JndiUtils.fromName( name ) ), newMods );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             JndiUtils.wrap( e );
         }
@@ -527,7 +527,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         try
         {
             HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( getSession(), target );
-            
+
             if ( getDirectoryService().getOperationManager().hasEntry( hasEntryContext ) )
             {
                 doDeleteOperation( target );
@@ -593,7 +593,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             JndiUtils.wrap( e );
         }
-
 
         return ctx;
     }
@@ -723,7 +722,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
                 else
                 {
-                    node = new EqualityNode<String>( attributeType, new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) value ) );
+                    node = new EqualityNode<String>( attributeType,
+                        new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -735,7 +735,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
                 catch ( Exception e )
                 {
-                    JndiUtils.wrap(e);
+                    JndiUtils.wrap( e );
                     return null; // shut compiler up
                 }
             }
@@ -777,7 +777,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel Ava node if its value is a String
                 if ( val instanceof String )
                 {
-                    node = new EqualityNode<String>( attr.getID(), new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) val ) );
+                    node = new EqualityNode<String>( attr.getID(),
+                        new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) val ) );
                     filter.addNode( node );
                 }
             }
@@ -957,7 +958,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // EventDirContext implementations
     // ------------------------------------------------------------------------
 
-
     public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
     {
@@ -965,7 +965,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            filter = FilterParser.parse(schemaManager, filterStr);
+            filter = FilterParser.parse( schemaManager, filterStr );
         }
         catch ( Exception e )
         {

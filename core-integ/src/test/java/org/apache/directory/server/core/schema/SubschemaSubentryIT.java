@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -108,7 +110,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     private String subschemaSubentryDn;
     private Entry subschemaSubentry;
 
-    
+
     @Before
     public void init() throws Exception
     {
@@ -120,7 +122,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         subschemaSubentryDn = subschemaSubentryAT.getString();
         updateSSSE();
     }
-    
+
 
     /**
      * Test for DIRSHARED-60.
@@ -157,7 +159,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test( expected = LdapException.class )
+    @Test(expected = LdapException.class)
     public void testSSSEDeleteRejection() throws Exception
     {
         connection.delete( subschemaSubentryDn );
@@ -170,7 +172,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test( expected = LdapException.class )
+    @Test(expected = LdapException.class)
     public void testSSSEAddRejection() throws Exception
     {
         connection.add( subschemaSubentry );
@@ -183,7 +185,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test( expected = LdapException.class )
+    @Test(expected = LdapException.class)
     public void testSSSERenameRejection() throws Exception
     {
         connection.rename( subschemaSubentryDn, "cn=schema,ou=system" );
@@ -579,7 +581,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         else
         {
             entry = connection.lookup( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName + ",ou=schema" );
-            
+
             assertNull( entry );
         }
 
@@ -688,7 +690,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // get the subschemaSubentry again
         updateSSSE();
-        
+
         Attribute attrTypes = subschemaSubentry.get( "ldapSyntaxes" );
         LdapSyntax ldapSyntax = null;
 
@@ -727,7 +729,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         else
         {
             entry = connection.lookup( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName + ",ou=schema" );
-            
+
             assertNull( entry );
         }
 
@@ -889,7 +891,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         else
         {
             entry = connection.lookup( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName + ",ou=schema" );
-            
+
             assertNull( entry );
         }
 
@@ -1052,7 +1054,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // get the subschemaSubentry again
         updateSSSE();
-        
+
         Attribute attrTypes = subschemaSubentry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
@@ -1539,7 +1541,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         else
         {
             entry = connection.lookup( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName + ",ou=schema" );
-            
+
             assertNull( entry );
         }
 
@@ -1820,7 +1822,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore( "The test is failing when run in conjonction with other tests" )
+    @Ignore("The test is failing when run in conjonction with other tests")
     // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {
@@ -1842,7 +1844,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         Calendar cal = Calendar.getInstance( tz );
         String modifyTimestampStr = modifyTimestampAttr.getString();
-        Date modifyTimestamp = DateUtils.getDate(modifyTimestampStr);
+        Date modifyTimestamp = DateUtils.getDate( modifyTimestampStr );
         Date currentTimestamp = cal.getTime();
 
         assertFalse( modifyTimestamp.after( currentTimestamp ) );
@@ -1887,7 +1889,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
             "sn: bogus",
             "cn: bogus user",
             "userPassword: secret" );
-        
+
         connection.add( user );
 
         // now let's get a context for this user
@@ -1979,11 +1981,12 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         return new String( Base64.encode( out.toByteArray() ) );
     }
-    
-    
+
+
     private void updateSSSE() throws Exception
     {
-        subschemaSubentry = connection.lookup( subschemaSubentryDn, "*", "attributeTypes", "objectClasses", "ldapSyntaxes", "matchingRules",
+        subschemaSubentry = connection.lookup( subschemaSubentryDn, "*", "attributeTypes", "objectClasses",
+            "ldapSyntaxes", "matchingRules",
             "syntaxCheckers", "normalizers", "comparators" );
     }
 }

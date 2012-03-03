@@ -58,14 +58,15 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
 {
     public TxnManagerFactory getTxnManagerFactory()
     {
-        return ( ( DefaultDirectoryService )getService() ).getTxnManagerFactory();
+        return ( ( DefaultDirectoryService ) getService() ).getTxnManagerFactory();
     }
-    
-    
+
+
     public OperationExecutionManagerFactory getOperationExecutionManagerFactory()
     {
-        return ( ( DefaultDirectoryService )getService() ).getOperationExecutionManagerFactory();
+        return ( ( DefaultDirectoryService ) getService() ).getOperationExecutionManagerFactory();
     }
+
 
     @Test
     public void testAddAndRemove() throws Exception
@@ -73,22 +74,22 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
         DirectoryService service = getService();
         DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
         PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
-        Partition partition = partitionFactory.createPartition( 
-            service.getSchemaManager(), 
-            "removable", 
-            "ou=removable", 
-            100, 
+        Partition partition = partitionFactory.createPartition(
+            service.getSchemaManager(),
+            "removable",
+            "ou=removable",
+            100,
             service.getInstanceLayout().getPartitionsDirectory(),
-            getTxnManagerFactory(), 
-            getOperationExecutionManagerFactory());
+            getTxnManagerFactory(),
+            getOperationExecutionManagerFactory() );
 
         // Test AddContextPartition
         service.addPartition( partition );
 
         Dn suffixDn = new Dn( service.getSchemaManager(), "ou=removable" );
 
-        Entry ctxEntry = new DefaultEntry( 
-            service.getSchemaManager(), 
+        Entry ctxEntry = new DefaultEntry(
+            service.getSchemaManager(),
             suffixDn.toString(),
             "objectClass: top",
             "objectClass: organizationalUnit",

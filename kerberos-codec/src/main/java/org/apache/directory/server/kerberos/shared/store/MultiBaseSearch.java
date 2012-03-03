@@ -51,18 +51,18 @@ class MultiBaseSearch implements PrincipalStore
 {
     private final Catalog catalog;
     private final DirectoryService directoryService;
-    private TxnManager txnManager; 
+    private TxnManager txnManager;
 
 
     MultiBaseSearch( String catalogBaseDn, DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         txnManager = directoryService.getTxnManager();
-        
+
         try
         {
             //txnManager.beginTransaction( true );
-            
+
             try
             {
                 catalog = new KerberosCatalog( ( Map<String, String> ) execute( directoryService.getSession(),
@@ -74,7 +74,7 @@ class MultiBaseSearch implements PrincipalStore
 
                 throw e;
             }
-            
+
             //txnManager.commitTransaction();
 
         }
@@ -89,11 +89,11 @@ class MultiBaseSearch implements PrincipalStore
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
         PrincipalStoreEntry entry = null;
-        
+
         try
         {
             //txnManager.beginTransaction( true );
-            
+
             try
             {
                 entry = ( PrincipalStoreEntry ) execute( directoryService.getSession(), new GetPrincipal( principal ) );
@@ -104,7 +104,7 @@ class MultiBaseSearch implements PrincipalStore
 
                 throw ne;
             }
-            
+
             //txnManager.commitTransaction();
 
         }
@@ -113,7 +113,7 @@ class MultiBaseSearch implements PrincipalStore
             String message = I18n.err( I18n.ERR_625, principal.getRealm() );
             throw new ServiceConfigurationException( message, e );
         }
-        
+
         return entry;
     }
 
@@ -122,26 +122,27 @@ class MultiBaseSearch implements PrincipalStore
     {
         String result = null;
         boolean done = false;
-        
+
         try
         {
             do
             {
                 //txnManager.beginTransaction( false );
-            
+
                 try
                 {
-                    result = ( String ) execute( directoryService.getSession(), new ChangePassword( principal, newPassword ) );
+                    result = ( String ) execute( directoryService.getSession(), new ChangePassword( principal,
+                        newPassword ) );
                 }
                 catch ( NamingException ne )
                 {
                     //txnManager.abortTransaction();
-    
+
                     throw ne;
                 }
-                
+
                 done = true;
-                
+
                 try
                 {
                     //txnManager.commitTransaction();
@@ -160,9 +161,9 @@ class MultiBaseSearch implements PrincipalStore
             String message = I18n.err( I18n.ERR_625, principal.getRealm() );
             throw new ServiceConfigurationException( message, e );
         }
-        
+
         return result;
-        
+
     }
 
 

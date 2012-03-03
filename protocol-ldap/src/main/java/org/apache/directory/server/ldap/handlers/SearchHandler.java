@@ -34,7 +34,6 @@ import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
@@ -539,7 +538,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 pagedContext.incrementCurrentPosition( pageCount );
 
                 // Suspend the current txn
-               // TxnHandle txnHandle = txnManager.suspendCurTxn();
+                // TxnHandle txnHandle = txnManager.suspendCurTxn();
                 //pagedContext.setTxnHandle( txnHandle );
 
                 return;

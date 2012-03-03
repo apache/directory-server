@@ -62,6 +62,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     /** The partition factory. */
     private PartitionFactory partitionFactory;
 
+
     public DefaultDirectoryServiceFactory()
     {
         try
@@ -70,7 +71,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             // we we can set some properties like accesscontrol, anon access
             // before starting up the service
             directoryService = new DefaultDirectoryService();
-            
+
             // no need to register a shutdown hook during tests because this 
             // starts a lot of threads and slows down test execution
             directoryService.setShutdownHookEnabled( false );
@@ -83,7 +84,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         try
         {
             String typeName = System.getProperty( "apacheds.partition.factory" );
-            
+
             if ( typeName != null )
             {
                 Class<? extends PartitionFactory> type = ( Class<? extends PartitionFactory> ) Class.forName( typeName );
@@ -129,19 +130,19 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         }
 
         InstanceLayout instanceLayout = new InstanceLayout( instanceDirectory );
-        
+
         if ( instanceLayout.getInstanceDirectory().exists() )
         {
             try
             {
                 FileUtils.deleteDirectory( instanceLayout.getInstanceDirectory() );
             }
-            catch( IOException e )
+            catch ( IOException e )
             {
                 LOG.warn( "couldn't delete the instance directory before initializing the DirectoryService", e );
             }
         }
-        
+
         directoryService.setInstanceLayout( instanceLayout );
     }
 
@@ -156,7 +157,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workingDirectory );
-        
+
         try
         {
             extractor.extractOrCopy();
@@ -168,7 +169,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         SchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
-        
+
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
@@ -177,8 +178,9 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager, getTxnManagerFactory(), getOperationExecutionManagerFactory() );
-        ldifPartition.setPartitionPath( new File(workingDirectory, "schema" ).toURI() );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, getTxnManagerFactory(),
+            getOperationExecutionManagerFactory() );
+        ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
         schemaPartition.setWrappedPartition( ldifPartition );
         directoryService.setSchemaPartition( schemaPartition );
@@ -187,7 +189,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors(errors) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }
     }
 
@@ -227,13 +229,15 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         buildInstanceDirectory( name );
 
         // Initialize the txn subsystem and the operation execution manager
-        TxnManagerFactory txnManagerFactory = new TxnManagerFactory( directoryService.getInstanceLayout().getTxnLogDirectory().getPath(), 
+        TxnManagerFactory txnManagerFactory = new TxnManagerFactory( directoryService.getInstanceLayout()
+            .getTxnLogDirectory().getPath(),
             DefaultDirectoryService.TXN_LOG_BUFFER_SIZE, DefaultDirectoryService.TXN_LOG_FILE_SIZE );
-        OperationExecutionManagerFactory  executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
-        
-        ( ( DefaultDirectoryService )directoryService ).setTxnManagerFactory( txnManagerFactory );
-        ( ( DefaultDirectoryService )directoryService ).setExecutionManagerFactory( executionManagerFactory );
-        
+        OperationExecutionManagerFactory executionManagerFactory = new OperationExecutionManagerFactory(
+            txnManagerFactory );
+
+        ( ( DefaultDirectoryService ) directoryService ).setTxnManagerFactory( txnManagerFactory );
+        ( ( DefaultDirectoryService ) directoryService ).setExecutionManagerFactory( executionManagerFactory );
+
         // Init the service now
         initSchema();
         initSystemPartition();
@@ -258,24 +262,23 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     {
         return partitionFactory;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public TxnManagerFactory getTxnManagerFactory()
     {
-        return ( ( DefaultDirectoryService )directoryService ).getTxnManagerFactory();
+        return ( ( DefaultDirectoryService ) directoryService ).getTxnManagerFactory();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public OperationExecutionManagerFactory getOperationExecutionManagerFactory()
     {
-        return ( ( DefaultDirectoryService )directoryService ).getOperationExecutionManagerFactory();
+        return ( ( DefaultDirectoryService ) directoryService ).getOperationExecutionManagerFactory();
     }
-    
-    
+
 }

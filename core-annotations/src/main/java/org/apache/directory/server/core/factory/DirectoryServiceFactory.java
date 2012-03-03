@@ -57,10 +57,10 @@ public interface DirectoryServiceFactory
      * @return the partition factory
      */
     PartitionFactory getPartitionFactory() throws Exception;
-    
-    
+
+
     TxnManagerFactory getTxnManagerFactory();
-    
-    
+
+
     OperationExecutionManagerFactory getOperationExecutionManagerFactory();
 }

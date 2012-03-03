@@ -24,11 +24,11 @@ import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
@@ -63,13 +63,13 @@ public class SubtreeScopeEvaluator extends AbstractEvaluator<ScopeNode>
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
-    
+
     /** One level idx */
     private final Index<UUID> subLevelIdx;
-    
+
     /** One level alias idx. Set if dereferencing aliases */
     private final Index<UUID> subAliasIdx;
-    
+
     /** Alias idx. Set if dereferencing aliases */
     private final Index<String> aliasIdx;
 
@@ -83,8 +83,8 @@ public class SubtreeScopeEvaluator extends AbstractEvaluator<ScopeNode>
      */
     @SuppressWarnings("unchecked")
     public SubtreeScopeEvaluator( Partition db, ScopeNode node,
-            TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
         super( db, txnManagerFactory, executionManagerFactory );
         this.node = node;
@@ -97,19 +97,19 @@ public class SubtreeScopeEvaluator extends AbstractEvaluator<ScopeNode>
         baseId = executionManager.getEntryId( db, node.getBaseDn() );
         baseIsContextEntry = ( getContextEntryId().compareTo( baseId ) == 0 );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
-        
+
         Index<?> index;
-        
+
         index = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-        subLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), index );
-        
+        subLevelIdx = ( Index<UUID> ) txnLogManager.wrap( db.getSuffixDn(), index );
+
         if ( dereferencing )
         {
             index = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-            subAliasIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), index );
-            
+            subAliasIdx = ( Index<UUID> ) txnLogManager.wrap( db.getSuffixDn(), index );
+
             index = db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), index );
+            aliasIdx = ( Index<String> ) txnLogManager.wrap( db.getSuffixDn(), index );
         }
         else
         {
@@ -160,7 +160,7 @@ public class SubtreeScopeEvaluator extends AbstractEvaluator<ScopeNode>
     public boolean evaluate( IndexEntry<?> candidate ) throws Exception
     {
         UUID id = candidate.getId();
-        
+
         /*
          * This condition catches situations where the candidate is equal to 
          * the base entry and when the base entry is the context entry.  Note

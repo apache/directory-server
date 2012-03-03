@@ -405,7 +405,7 @@ public class DefaultOperationManager implements OperationManager
 
             do
             {
-                if( curTxn == null )
+                if ( curTxn == null )
                 {
                     beginTransactionRW( txnManager );
                     startedTxn = true;
@@ -431,7 +431,7 @@ public class DefaultOperationManager implements OperationManager
                 {
                     commitTransaction( txnManager );
                 }
-                
+
                 txnManager.applyPendingTxns();
             }
             while ( !done );
@@ -456,7 +456,7 @@ public class DefaultOperationManager implements OperationManager
 
         boolean done = false;
         TxnManager txnManager = directoryService.getTxnManager();
-        
+
         do
         {
             beginTransactionRW( txnManager );
@@ -473,9 +473,8 @@ public class DefaultOperationManager implements OperationManager
                  *  here. For now commit on every exception other than maybe
                  *  conflict exception.
                  */
-                
+
                 commitTransaction( txnManager );
-               
 
                 throw ( le );
             }

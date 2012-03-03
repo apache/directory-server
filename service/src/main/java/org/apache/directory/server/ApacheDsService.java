@@ -142,6 +142,7 @@ public class ApacheDsService
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
+
     /**
      * starts various services configured according to the
      * configuration present in the given instance's layout
@@ -156,19 +157,19 @@ public class ApacheDsService
         if ( !partitionsDir.exists() )
         {
             LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
-            
+
             if ( !partitionsDir.mkdirs() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
             }
         }
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
 
-        txnManagerFactory = new TxnManagerFactory( instanceLayout.getTxnLogDirectory().getPath(), 
+        txnManagerFactory = new TxnManagerFactory( instanceLayout.getTxnLogDirectory().getPath(),
             DirectoryService.TXN_LOG_BUFFER_SIZE, DirectoryService.TXN_LOG_FILE_SIZE );
         executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
-        
+
         initSchemaManager( instanceLayout );
         initSchemaLdifPartition( instanceLayout );
         initConfigPartition( instanceLayout );
@@ -299,7 +300,7 @@ public class ApacheDsService
         LOG.info( "Initializing the DirectoryService..." );
 
         long startTime = System.currentTimeMillis();
- 
+
         DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean,
             instanceLayout, schemaManager, txnManagerFactory, executionManagerFactory );
 

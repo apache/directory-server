@@ -25,10 +25,10 @@ import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
@@ -58,7 +58,7 @@ public class DefaultOptimizer implements Optimizer
     /** the database this optimizer operates on */
     private final Partition db;
     private UUID contextEntryId;
-    
+
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
@@ -68,8 +68,9 @@ public class DefaultOptimizer implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Partition db, 
-        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory ) throws Exception
+    public DefaultOptimizer( Partition db,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory )
+        throws Exception
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
@@ -171,7 +172,7 @@ public class DefaultOptimizer implements Optimizer
                 /** Cannot really say so we presume the total index count */
                 count = getFullScan( leaf );
             }
-            else if ( node instanceof ApproximateNode)
+            else if ( node instanceof ApproximateNode )
             {
                 /** Feature not implemented so we just use equality matching */
                 count = getEqualityScan( ( ApproximateNode ) leaf );
@@ -192,9 +193,9 @@ public class DefaultOptimizer implements Optimizer
             }
             else if ( node instanceof OrNode )
             {
-                count = getDisjunctionScan( (OrNode) node );
+                count = getDisjunctionScan( ( OrNode ) node );
             }
-            else if ( node instanceof NotNode)
+            else if ( node instanceof NotNode )
             {
                 annotate( ( ( NotNode ) node ).getFirstChild() );
 
@@ -359,7 +360,7 @@ public class DefaultOptimizer implements Optimizer
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
             Index<String> idx;
-            idx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+            idx = ( Index<String> ) db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
@@ -392,7 +393,7 @@ public class DefaultOptimizer implements Optimizer
 
             case ONELEVEL:
                 idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-                return ( ( Index<UUID> )idx ).count( id );
+                return ( ( Index<UUID> ) idx ).count( id );
 
             case SUBTREE:
                 if ( id.compareTo( getContextEntryId() ) == 0 )
@@ -402,7 +403,7 @@ public class DefaultOptimizer implements Optimizer
                 else
                 {
                     idx = db.getSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-                    return ( ( Index<UUID> )idx ).count( id );
+                    return ( ( Index<UUID> ) idx ).count( id );
                 }
 
             default:

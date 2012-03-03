@@ -27,7 +27,6 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.core.api.partition.index.EmptyIndexCursor;
 import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
 import org.apache.directory.server.core.api.partition.index.Index;
@@ -35,6 +34,7 @@ import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.api.partition.index.IndexEntry;
 import org.apache.directory.server.core.api.partition.index.SingletonIndexCursor;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -58,23 +58,21 @@ public class DefaultSearchEngine implements SearchEngine
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
-    
+
     /** the Database this DefaultSearchEngine operates on */
     private final Partition db;
-    
+
     /** creates Cursors over entries satisfying filter expressions */
     private final CursorBuilder cursorBuilder;
-    
+
     /** creates evaluators which check to see if candidates satisfy a filter expression */
     private final EvaluatorBuilder evaluatorBuilder;
-    
+
     /** Txn log manager */
     private final TxnLogManager txnLogManager;
-    
+
     /** Operation execution manager */
     private final OperationExecutionManager executionManager;
-    
-    
 
 
     // ------------------------------------------------------------------------
@@ -96,7 +94,7 @@ public class DefaultSearchEngine implements SearchEngine
         this.optimizer = optimizer;
         this.cursorBuilder = cursorBuilder;
         this.evaluatorBuilder = evaluatorBuilder;
-        txnLogManager = evaluatorBuilder.getTxnManagerFactory().txnLogManagerInstance();       
+        txnLogManager = evaluatorBuilder.getTxnManagerFactory().txnLogManagerInstance();
         executionManager = evaluatorBuilder.getExecutionManagerFactory().instance();
     }
 
@@ -140,12 +138,12 @@ public class DefaultSearchEngine implements SearchEngine
         Index<?> aliasIdx;
         aliasIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         aliasIdx = txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
-        String aliasedBase = ( (Index<String>) aliasIdx ).reverseLookup( baseId );
+        String aliasedBase = ( ( Index<String> ) aliasIdx ).reverseLookup( baseId );
 
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-        
+
         /*
          * If the base is not an alias or if alias dereferencing does not
          * occur on finding the base then we set the effective base to the
@@ -154,9 +152,9 @@ public class DefaultSearchEngine implements SearchEngine
         if ( ( null == aliasedBase ) || !aliasDerefMode.isDerefFindingBase() )
         {
             effectiveBase = base;
-            
+
             // We depend on the provided base with the given scope
-            txnLogManager.addRead( base, SearchScope.values()[ searchCtls.getSearchScope() ] );
+            txnLogManager.addRead( base, SearchScope.values()[searchCtls.getSearchScope()] );
         }
 
         /*
@@ -167,13 +165,13 @@ public class DefaultSearchEngine implements SearchEngine
         else
         {
             effectiveBase = new Dn( aliasedBase );
-            
+
             // Add dependency on the effective base with the given scope
-            txnLogManager.addRead( effectiveBase, SearchScope.values()[ searchCtls.getSearchScope() ] );
-            
+            txnLogManager.addRead( effectiveBase, SearchScope.values()[searchCtls.getSearchScope()] );
+
             // We also depend on the base as we are routed through it.
             txnLogManager.addRead( base, SearchScope.OBJECT );
-            
+
         }
 
         // --------------------------------------------------------------------
@@ -205,8 +203,8 @@ public class DefaultSearchEngine implements SearchEngine
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope(searchCtls
-                .getSearchScope()) );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
+            .getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

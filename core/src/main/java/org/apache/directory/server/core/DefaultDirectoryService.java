@@ -2392,8 +2392,8 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public boolean isPwdPolicyEnabled()
     {
-        AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR
-            .getName() );
+        AuthenticationInterceptor authenticationInterceptor =
+            ( AuthenticationInterceptor ) getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
 
         if ( authenticationInterceptor == null )
         {
