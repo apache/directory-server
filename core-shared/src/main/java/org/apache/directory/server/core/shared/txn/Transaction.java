@@ -37,7 +37,12 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 /** Package protected */
 interface Transaction extends TxnHandle
 {
-
+    boolean isExclusive();
+    
+    
+    void setExclusive();
+    
+    
     /**
      * Get the list of txns that this txn should check when mergin
      * its view from the partitions with the data in txn logs.

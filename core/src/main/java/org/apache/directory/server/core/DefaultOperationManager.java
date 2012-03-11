@@ -44,6 +44,7 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.i18n.I18n;
@@ -310,6 +311,22 @@ public class DefaultOperationManager implements OperationManager
             throw new LdapOtherException( e.getMessage() );
         }
     }
+    
+    
+    /**
+     * Retries a transaction
+     */
+    private TxnHandle retryTransactionRW( TxnManager txnManager ) throws LdapException
+    {
+        try
+        {
+            return txnManager.retryTransaction();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOtherException( e.getMessage() );
+        }
+    }
 
 
     /**
@@ -331,15 +348,18 @@ public class DefaultOperationManager implements OperationManager
     /**
      * Commit a transaction
      */
-    private void commitTransaction( TxnManager txnManager ) throws LdapException
+    private void commitTransaction( TxnManager txnManager ) throws LdapException, TxnConflictException
     {
         try
         {
             txnManager.commitTransaction();
         }
+        catch( TxnConflictException ce )
+        {
+            throw ce;
+        }
         catch ( Exception e )
         {
-            // TODO check for conflict
             throw new LdapOtherException( e.getMessage(), e );
         }
     }
@@ -402,10 +422,14 @@ public class DefaultOperationManager implements OperationManager
             TxnHandle curTxn = txnManager.getCurTxn();
 
             boolean done = false;
-
+            
             do
             {
-                if ( curTxn == null )
+                if ( startedTxn )
+                {
+                    retryTransactionRW( txnManager );
+                }
+                else if ( curTxn == null )
                 {
                     beginTransactionRW( txnManager );
                     startedTxn = true;
@@ -414,8 +438,6 @@ public class DefaultOperationManager implements OperationManager
                 try
                 {
                     head.add( addContext );
-
-                    done = true;
                 }
                 catch ( LdapException le )
                 {
@@ -427,9 +449,19 @@ public class DefaultOperationManager implements OperationManager
                     throw le;
                 }
 
+                
+                done = true;
+                
                 if ( startedTxn )
                 {
-                    commitTransaction( txnManager );
+                    try
+                    {
+                        commitTransaction( txnManager );
+                    }
+                    catch ( TxnConflictException txne )
+                    {
+                       done = false; // retry
+                    }
                 }
 
                 txnManager.applyPendingTxns();
@@ -464,6 +496,9 @@ public class DefaultOperationManager implements OperationManager
             try
             {
                 head.bind( bindContext );
+                
+                // If here then we are done.
+                done = true;
             }
             catch ( LdapException le )
             {
@@ -474,15 +509,37 @@ public class DefaultOperationManager implements OperationManager
                  *  conflict exception.
                  */
 
-                commitTransaction( txnManager );
+                boolean conflict = false;
+                
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   conflict = true; // retry
+                }
 
-                throw ( le );
+                if ( conflict == false )
+                {
+                    throw ( le );
+                }
+                else
+                {
+                    done = false;
+                }
             }
 
-            // If here then we are done.
-            commitTransaction( txnManager );
 
-            done = true;
+            
+            try
+            {
+                commitTransaction( txnManager );
+            }
+            catch ( TxnConflictException txne )
+            {
+               done = false; // retry
+            }
         }
         while ( !done );
 
@@ -574,7 +631,14 @@ public class DefaultOperationManager implements OperationManager
             throw le;
         }
 
-        commitTransaction( txnManager );
+        try
+        {
+            commitTransaction( txnManager );
+        }
+        catch ( TxnConflictException txne )
+        {
+          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+        }
 
         LOG.debug( "<< CompareOperation successful" );
 
@@ -655,7 +719,11 @@ public class DefaultOperationManager implements OperationManager
 
         do
         {
-            if ( curTxn == null )
+            if ( startedTxn )
+            {
+                retryTransactionRW( txnManager );
+            }
+            else if ( curTxn == null )
             {
                 beginTransactionRW( txnManager );
                 startedTxn = true;
@@ -670,9 +738,6 @@ public class DefaultOperationManager implements OperationManager
                 Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
                 head.delete( deleteContext );
-
-                // If here then we are done.
-                done = true;
             }
             catch ( LdapException le )
             {
@@ -684,9 +749,19 @@ public class DefaultOperationManager implements OperationManager
                 throw le;
             }
 
+            // If here then we are done.
+            done = true;
+            
             if ( startedTxn )
             {
-                commitTransaction( txnManager );
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   done = false; // retry
+                }
             }
             txnManager.applyPendingTxns();
         }
@@ -745,7 +820,14 @@ public class DefaultOperationManager implements OperationManager
             return false;
         }
 
-        commitTransaction( txnManager );
+        try
+        {
+            commitTransaction( txnManager );
+        }
+        catch ( TxnConflictException txne )
+        {
+          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+        }
 
         LOG.debug( "<< HasEntryOperation successful" );
 
@@ -818,7 +900,14 @@ public class DefaultOperationManager implements OperationManager
             throw le;
         }
 
-        commitTransaction( txnManager );
+        try
+        {
+            commitTransaction( txnManager );
+        }
+        catch ( TxnConflictException txne )
+        {
+          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+        }
 
         LOG.debug( "<< LookupOperation successful" );
 
@@ -907,7 +996,11 @@ public class DefaultOperationManager implements OperationManager
 
         do
         {
-            if ( curTxn == null )
+            if ( startedTxn )
+            {
+                retryTransactionRW( txnManager );
+            }
+            else if ( curTxn == null )
             {
                 beginTransactionRW( txnManager );
                 startedTxn = true;
@@ -938,7 +1031,14 @@ public class DefaultOperationManager implements OperationManager
 
             if ( startedTxn )
             {
-                commitTransaction( txnManager );
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   done = false; // retry
+                }
             }
             txnManager.applyPendingTxns();
         }
@@ -1041,7 +1141,11 @@ public class DefaultOperationManager implements OperationManager
 
         do
         {
-            if ( curTxn == null )
+            if ( startedTxn )
+            {
+                retryTransactionRW( txnManager );
+            }
+            else if ( curTxn == null )
             {
                 beginTransactionRW( txnManager );
                 startedTxn = true;
@@ -1073,7 +1177,14 @@ public class DefaultOperationManager implements OperationManager
 
             if ( startedTxn )
             {
-                commitTransaction( txnManager );
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   done = false; // retry
+                }
             }
             txnManager.applyPendingTxns();
         }
@@ -1178,7 +1289,11 @@ public class DefaultOperationManager implements OperationManager
 
         do
         {
-            if ( curTxn == null )
+            if ( startedTxn )
+            {
+                retryTransactionRW( txnManager );
+            }
+            else if ( curTxn == null )
             {
                 beginTransactionRW( txnManager );
                 startedTxn = true;
@@ -1209,7 +1324,14 @@ public class DefaultOperationManager implements OperationManager
 
             if ( startedTxn )
             {
-                commitTransaction( txnManager );
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   done = false; // retry
+                }
             }
             txnManager.applyPendingTxns();
         }
@@ -1302,7 +1424,11 @@ public class DefaultOperationManager implements OperationManager
 
         do
         {
-            if ( curTxn == null )
+            if ( startedTxn )
+            {
+                retryTransactionRW( txnManager );
+            }
+            else if ( curTxn == null )
             {
                 beginTransactionRW( txnManager );
                 startedTxn = true;
@@ -1337,7 +1463,14 @@ public class DefaultOperationManager implements OperationManager
 
             if ( startedTxn )
             {
-                commitTransaction( txnManager );
+                try
+                {
+                    commitTransaction( txnManager );
+                }
+                catch ( TxnConflictException txne )
+                {
+                   done = false; // retry
+                }
             }
             txnManager.applyPendingTxns();
         }

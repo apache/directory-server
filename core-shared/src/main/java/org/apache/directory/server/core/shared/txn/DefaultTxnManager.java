@@ -33,7 +33,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.core.api.log.LogAnchor;
 import org.apache.directory.server.core.api.log.UserLogRecord;
@@ -62,6 +64,9 @@ class DefaultTxnManager implements TxnManagerInternal
 
     /** Used to assign start and commit version numbers to writeTxns */
     private Lock writeTxnsLock = new ReentrantLock();
+    
+    /** Used to order txns in case of conflicts */
+    private ReadWriteLock optimisticLock = new ReentrantReadWriteLock();
 
     /** Latest committed txn on which read only txns can depend */
     private AtomicReference<ReadWriteTxn> latestCommittedTxn = new AtomicReference<ReadWriteTxn>();
@@ -170,6 +175,28 @@ class DefaultTxnManager implements TxnManagerInternal
         syncer = null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public TxnHandle retryTransaction() throws Exception
+    {
+        Transaction curTxn = getCurTxn();
+
+        // Should have a rw txn
+        if ( ( curTxn == null ) ||
+              !( curTxn instanceof ReadWriteTxn )  )
+        {
+            // Cannot start a TXN when a RW txn is ongoing 
+            throw new IllegalStateException( "Unexpected txn state when trying txn: " +
+                curTxn );
+        }
+        
+        // abort current txn and start a new read write txn
+        
+        abortTransaction();
+        return beginReadWriteTxn( true );
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -181,19 +208,6 @@ class DefaultTxnManager implements TxnManagerInternal
         // Deal with an existing TXN
         if ( curTxn != null )
         {
-            // If we already have a RO TXN, then we can start another one
-            if ( curTxn instanceof ReadOnlyTxn )
-            {
-                if ( readOnly )
-                {
-                    return beginReadOnlyTxn();
-                }
-                else
-                {
-                    return beginReadWriteTxn();
-                }
-            }
-
             // Cannot start a TXN when a RW txn is ongoing 
             throw new IllegalStateException( "Cannot begin a txn when txn is already running: " +
                 curTxn );
@@ -206,7 +220,7 @@ class DefaultTxnManager implements TxnManagerInternal
         }
         else
         {
-            return beginReadWriteTxn();
+            return beginReadWriteTxn( false );
         }
     }
 
@@ -251,22 +265,37 @@ class DefaultTxnManager implements TxnManagerInternal
     public void abortTransaction() throws Exception
     {
         Transaction txn = getCurTxn();
-
+        
         if ( txn == null )
         {
-            // this is acceptable
-            return;
+            throw new IllegalStateException("Trying to abort while there is not txn ");
         }
+        
+        boolean isExclusive = txn.isExclusive();
 
-        prepareForEndingTxn( txn );
-
-        if ( txn instanceof ReadWriteTxn )
+        try
         {
-            abortReadWriteTxn( ( ReadWriteTxn ) txn );
+            prepareForEndingTxn( txn );
+    
+            if ( txn instanceof ReadWriteTxn )
+            {
+                abortReadWriteTxn( ( ReadWriteTxn ) txn );
+            }
+    
+            txn.abortTxn();
+            setCurTxn( null );
         }
-
-        txn.abortTxn();
-        setCurTxn( null );
+        finally
+        {
+            if ( !isExclusive )
+            {
+                optimisticLock.readLock().unlock();
+            }
+            else
+            {
+                optimisticLock.writeLock().unlock();
+            }
+        }
 
         //System.out.println( "TRAN: Aborted " + txn );
 
@@ -391,6 +420,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
         buildCheckList( txn, lastTxnToCheck );
 
+        optimisticLock.readLock().lock(); 
         setCurTxn( txn );
 
         //System.out.println( "TRAN: Started " + txn );
@@ -404,7 +434,7 @@ class DefaultTxnManager implements TxnManagerInternal
      * into the txn log and the lsn of that log record is the
      * start time.
      */
-    private Transaction beginReadWriteTxn() throws Exception
+    private Transaction beginReadWriteTxn( boolean retry ) throws Exception
     {
 
         ReadWriteTxn txn = new ReadWriteTxn();
@@ -438,6 +468,16 @@ class DefaultTxnManager implements TxnManagerInternal
         }
 
         logRecord.setData( data, data.length );
+        
+        if ( retry == false )
+        {
+            optimisticLock.readLock().lock();
+        }
+        else
+        {
+            optimisticLock.writeLock().lock();
+            txn.setExclusive();
+        }
 
         /*
          * Get the start time and last txn to depend on
@@ -465,6 +505,17 @@ class DefaultTxnManager implements TxnManagerInternal
 
             }
             while ( lastTxnToCheck != latestVerifiedTxn.get() );
+        }
+        catch( Exception e )
+        {
+            if ( txn.isExclusive() == false )
+            {
+                optimisticLock.readLock().unlock();
+            }
+            else
+            {
+                optimisticLock.writeLock().unlock();
+            }
         }
         finally
         {

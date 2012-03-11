@@ -35,7 +35,14 @@ public interface TxnManager
      * @throws Exception
      */
     TxnHandle beginTransaction( boolean readOnly ) throws Exception;
-
+    
+    
+    /**
+     * Retries a txn. Retry is not necessary for read only transactions and
+     * this method should only expect RW transactions
+     * 
+     */
+    TxnHandle retryTransaction() throws Exception;
 
     
     /**

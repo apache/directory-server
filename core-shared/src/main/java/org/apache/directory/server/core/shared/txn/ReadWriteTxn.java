@@ -87,8 +87,8 @@ class ReadWriteTxn extends AbstractTransaction
 
     /** List of Dn sets affected by the write operations of this txn */
     private List<DnSet> writeDns = new LinkedList<DnSet>();
-
-
+    
+    
     public AtomicInteger getRefCount()
     {
         return txnRefCount;

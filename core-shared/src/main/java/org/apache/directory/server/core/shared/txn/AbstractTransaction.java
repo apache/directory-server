@@ -57,6 +57,21 @@ abstract class AbstractTransaction implements Transaction
     protected long id;
 
     private static AtomicLong counter = new AtomicLong( 0 );
+    
+    /** Trus if this is the only running txn */
+    private boolean isExclusive = false;
+
+
+    public boolean isExclusive()
+    {
+        return isExclusive;
+    }
+    
+    
+    public void setExclusive()
+    {
+        isExclusive = true;
+    }
 
 
     /**
