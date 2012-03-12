@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -72,7 +72,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
      * Test with bindDn which is not even found under any namingContext of the
      * server.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @CreateDS(
         allowAnonAccess = true,
@@ -93,7 +93,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer()
+        LdapConnection ldapConnection = new LdapNetworkConnection( "localhost", getLdapServer()
             .getPort() );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
 
@@ -132,7 +132,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
      * Test with bindDn which is not even found under any namingContext of the
      * server.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @CreateDS(
         allowAnonAccess = true,
@@ -167,8 +167,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( "localhost", getLdapServer()
-            .getPort() );
+        LdapConnection ldapConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
         assertTrue( ldapConnection.isAuthenticated() );
