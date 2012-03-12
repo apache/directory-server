@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.client.api.operations.bind;
 
@@ -254,7 +254,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
 
     /**
-     * Test for DIRAPI-49 (LdapNetworkConnection.anonymousBind() uses name and credentials 
+     * Test for DIRAPI-49 (LdapNetworkConnection.anonymousBind() uses name and credentials
      * from configuration instead of empty values).
      */
     @Test
@@ -342,7 +342,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     /**
      * Test an bind with no password
      */
-    @Test(expected = LdapAuthenticationException.class)
+    @Test(expected = LdapUnwillingToPerformException.class)
     public void testSimpleBindNoPassword() throws Exception
     {
         connection.bind( "uid=admin,ou=system", ( String ) null );
@@ -432,7 +432,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isAuthenticated() );
         assertFalse( connection.isConnected() );
 
-        // And Bind again. The messageId should be 1 
+        // And Bind again. The messageId should be 1
         BindRequest br3 = new BindRequestImpl();
         br3.setDn( new Dn( "uid=admin,ou=system" ) );
         br3.setCredentials( Strings.getBytesUtf8( "secret" ) );
@@ -452,7 +452,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     {
         try
         {
-            // Inject the interceptor that waits 1 second when binding 
+            // Inject the interceptor that waits 1 second when binding
             // in order to be able to send a request before we get the response
             Interceptor interceptor = new BaseInterceptor( "test" )
             {
