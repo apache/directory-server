@@ -30,7 +30,6 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -358,7 +357,11 @@ public class IntegrationUtils
 
 
     /**
-     * gets a LdapConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
+     * Gets a LdapCoreSessionConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
      */
     public static LdapConnection getAdminConnection( DirectoryService dirService ) throws Exception
     {
@@ -366,6 +369,16 @@ public class IntegrationUtils
     }
 
 
+    /**
+     * Gets a LdapCoreSessionConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password )
         throws Exception
     {
@@ -373,24 +386,43 @@ public class IntegrationUtils
     }
 
 
+    /**
+     * Gets a LdapCoreSessionConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN
+     * @param password The User's password as a String
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password )
         throws Exception
     {
-        Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
+        LdapCoreSessionConnection connection = new LdapCoreSessionConnection();
 
-        LdapCoreSessionConnection coreConnection = ( LdapCoreSessionConnection ) connectionObj;
-        coreConnection.setDirectoryService( dirService );
+        connection.setDirectoryService( dirService );
 
-        coreConnection.bind( dn, password );
+        connection.bind( dn, password );
 
-        return coreConnection;
+        return connection;
     }
 
 
+    /**
+     * Gets a LdapNetworkConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
         throws Exception
     {
-        LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
+        LdapConnection connection = new LdapNetworkConnection( host, port);
 
         connection.bind( dn, password );
         openConnections.add( connection );
@@ -398,6 +430,13 @@ public class IntegrationUtils
     }
 
 
+    /**
+     * Gets a LdapNetworkConnection bound to the Admin user (uid=admin,ou=system).
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
@@ -411,6 +450,16 @@ public class IntegrationUtils
     }
 
 
+    /**
+     * Gets a LdapNetworkConnection bound using a user's DN and a password. We will bind using those
+     * credentials. We specify a LdapServer instance too.
+     * 
+     * @param ldapServer The LdapServer to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
         throws Exception
     {
