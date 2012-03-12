@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -53,6 +53,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
@@ -690,7 +691,7 @@ public class GreaterEqTest
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
         LdapSyntax syntax = new BogusSyntax( 1 );
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
@@ -719,7 +720,7 @@ public class GreaterEqTest
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
 
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
+        MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
