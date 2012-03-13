@@ -27,7 +27,18 @@ import java.io.ObjectOutput;
 
 
 /** 
- * A user log record that can be used to pass user record between the clients and the logger.
+ * A user log record that can be used to pass user record between the clients and the logger. 
+ * It contains a byte array which may not be used completely, and a position in the Log file.<br/>
+ * <br/>
+ * Here, we can see a RecordHolder containing some data, where the data's length is smaller
+ * than the RecordHolder's length :
+ * <pre>
+ * +--------------------------+----------+
+ * |XXXXXXXXXXXXXXXXXXXXXXXXXX|          |
+ * +--------------------------+----------+
+ *  <---------data----------->
+ *  <-------------RecordHolder---------->
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -104,8 +115,9 @@ public class UserLogRecord implements Externalizable
     /**
      * Write the UserLogRecord in a stream. The format is : <br/>
      * <ul>
-     * <li>length of the stored data</li>
-     * <li>data</li>
+     * <li>length of the stored data into the buffer</li>
+     * <li>length of the buffer
+     * <li>the buffer containing the data</li>
      * <li>The logAnchor</li>
      * </ul>
      */
@@ -113,7 +125,7 @@ public class UserLogRecord implements Externalizable
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeInt( length );
-        out.write( recordHolder.length );
+        out.writeInt( recordHolder.length );
         out.write( recordHolder );
         logAnchor.writeExternal( out );
     }
