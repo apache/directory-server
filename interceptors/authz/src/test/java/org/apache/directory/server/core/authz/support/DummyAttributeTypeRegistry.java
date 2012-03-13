@@ -28,8 +28,8 @@ import java.util.Set;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MutableAttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaObjectType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -61,7 +61,7 @@ public class DummyAttributeTypeRegistry extends DefaultSchemaObjectRegistry<Attr
     {
         Normalizer normalizer = new DeepTrimToLowerNormalizer( "1.1.1" );
 
-        MatchingRule equality = new MatchingRule( "1.1.1" );
+        MutableMatchingRule equality = new MutableMatchingRule( "1.1.1" );
         equality.setNormalizer( normalizer );
 
         MutableAttributeType attributeType = new MutableAttributeType( id );
