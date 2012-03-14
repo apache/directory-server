@@ -44,6 +44,18 @@ import java.io.ObjectOutput;
  */
 public class UserLogRecord implements Externalizable
 {
+    /**
+     * An enum used to distinguished the data type being serialized in the UserLogRecord
+     */
+    public enum LogEditType
+    {
+        TXN,
+        DATA;
+    }
+
+    /** The serialized LogEdit type */
+    private LogEditType dataType;
+
     /** array used to hold user log records */
     private byte[] recordHolder;
 
@@ -101,12 +113,23 @@ public class UserLogRecord implements Externalizable
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        length = in.readInt();
-        int dataSize = in.readInt();
+        // Read the DataType : TXN or DATA
+        int type = in.read();
 
-        recordHolder = new byte[dataSize];
+        dataType = LogEditType.values()[type];
+
+        // The data size
+        length = in.readInt();
+
+        // The buffer size
+        int bufferSize = in.readInt();
+
+        recordHolder = new byte[bufferSize];
+
+        // The buffer
         in.readFully( recordHolder );
 
+        // The position
         logAnchor = new LogAnchor();
         logAnchor.readExternal( in );
     }
@@ -124,10 +147,26 @@ public class UserLogRecord implements Externalizable
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
+        // The inner data type : TXN or DATA
+        out.write( dataType.ordinal() );
+
+        // The size of the stored data
         out.writeInt( length );
+
+        // The size of the container buffer
         out.writeInt( recordHolder.length );
+
+        // The buffer
         out.write( recordHolder );
+
+        // The position
         logAnchor.writeExternal( out );
+    }
+
+
+    public void setType( LogEditType dataType )
+    {
+        this.dataType = dataType;
     }
 
 

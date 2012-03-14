@@ -20,9 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +41,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
 
 
@@ -64,7 +63,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
     /** Used to assign start and commit version numbers to writeTxns */
     private Lock writeTxnsLock = new ReentrantLock();
-    
+
     /** Used to order txns in case of conflicts */
     private ReadWriteLock optimisticLock = new ReentrantReadWriteLock();
 
@@ -175,6 +174,7 @@ class DefaultTxnManager implements TxnManagerInternal
         syncer = null;
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -184,19 +184,19 @@ class DefaultTxnManager implements TxnManagerInternal
 
         // Should have a rw txn
         if ( ( curTxn == null ) ||
-              !( curTxn instanceof ReadWriteTxn )  )
+            !( curTxn instanceof ReadWriteTxn ) )
         {
             // Cannot start a TXN when a RW txn is ongoing 
             throw new IllegalStateException( "Unexpected txn state when trying txn: " +
                 curTxn );
         }
-        
+
         // abort current txn and start a new read write txn
-        
+
         abortTransaction();
         return beginReadWriteTxn( true );
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -241,7 +241,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             throw new IOException( "Flushing of txns failed" );
         }
-        
+
         prepareForEndingTxn( txn );
 
         if ( txn instanceof ReadOnlyTxn )
@@ -265,23 +265,23 @@ class DefaultTxnManager implements TxnManagerInternal
     public void abortTransaction() throws Exception
     {
         Transaction txn = getCurTxn();
-        
+
         if ( txn == null )
         {
-            throw new IllegalStateException("Trying to abort while there is not txn ");
+            throw new IllegalStateException( "Trying to abort while there is not txn " );
         }
-        
+
         boolean isExclusive = txn.isExclusive();
 
         try
         {
             prepareForEndingTxn( txn );
-    
+
             if ( txn instanceof ReadWriteTxn )
             {
                 abortReadWriteTxn( ( ReadWriteTxn ) txn );
             }
-    
+
             txn.abortTxn();
             setCurTxn( null );
         }
@@ -420,7 +420,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
         buildCheckList( txn, lastTxnToCheck );
 
-        optimisticLock.readLock().lock(); 
+        optimisticLock.readLock().lock();
         setCurTxn( txn );
 
         //System.out.println( "TRAN: Started " + txn );
@@ -440,35 +440,11 @@ class DefaultTxnManager implements TxnManagerInternal
         ReadWriteTxn txn = new ReadWriteTxn();
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        TxnStateChange txnRecord = new TxnStateChange( LogAnchor.UNKNOWN_LSN,
+        LogEdit logEdit = new TxnStateChange( LogAnchor.UNKNOWN_LSN,
             TxnStateChange.ChangeState.TXN_BEGIN );
-        ObjectOutputStream out = null;
-        ByteArrayOutputStream bout = null;
-        byte[] data;
 
-        try
-        {
-            bout = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bout );
-            txnRecord.writeExternal( out );
-            out.flush();
-            data = bout.toByteArray();
-        }
-        finally
-        {
-            if ( bout != null )
-            {
-                bout.close();
-            }
+        logEdit.injectData( logRecord, UserLogRecord.LogEditType.TXN );
 
-            if ( out != null )
-            {
-                out.close();
-            }
-        }
-
-        logRecord.setData( data, data.length );
-        
         if ( retry == false )
         {
             optimisticLock.readLock().lock();
@@ -506,7 +482,7 @@ class DefaultTxnManager implements TxnManagerInternal
             }
             while ( lastTxnToCheck != latestVerifiedTxn.get() );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             if ( txn.isExclusive() == false )
             {
@@ -657,34 +633,10 @@ class DefaultTxnManager implements TxnManagerInternal
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
+        LogEdit logEdit = new TxnStateChange( txn.getStartTime(),
             TxnStateChange.ChangeState.TXN_COMMIT );
-        ObjectOutputStream out = null;
-        ByteArrayOutputStream bout = null;
-        byte[] data;
 
-        try
-        {
-            bout = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bout );
-            txnRecord.writeExternal( out );
-            out.flush();
-            data = bout.toByteArray();
-        }
-        finally
-        {
-            if ( bout != null )
-            {
-                bout.close();
-            }
-
-            if ( out != null )
-            {
-                out.close();
-            }
-        }
-
-        logRecord.setData( data, data.length );
+        logEdit.injectData( logRecord, UserLogRecord.LogEditType.TXN );
 
         verifyLock.lock();
 
@@ -738,34 +690,11 @@ class DefaultTxnManager implements TxnManagerInternal
     {
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        TxnStateChange txnRecord = new TxnStateChange( txn.getStartTime(),
+        LogEdit logEdit = new TxnStateChange( txn.getStartTime(),
             TxnStateChange.ChangeState.TXN_ABORT );
-        ObjectOutputStream out = null;
-        ByteArrayOutputStream bout = null;
-        byte[] data;
 
-        try
-        {
-            bout = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bout );
-            out.writeObject( txnRecord );
-            out.flush();
-            data = bout.toByteArray();
-        }
-        finally
-        {
-            if ( bout != null )
-            {
-                bout.close();
-            }
+        logEdit.injectData( logRecord, UserLogRecord.LogEditType.TXN );
 
-            if ( out != null )
-            {
-                out.close();
-            }
-        }
-
-        logRecord.setData( data, data.length );
         txnLogManager.log( logRecord, false );
     }
 

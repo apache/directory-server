@@ -62,6 +62,15 @@ public class IndexChange implements IndexModification
     }
 
 
+    /**
+     * Create a new IndexChange instance.
+     * 
+     * @param index The changed index
+     * @param key The index' key
+     * @param id The entry's UUID
+     * @param type The change type, Add or Delete
+     * @param isSystemIndex Tells f the index is a system index or a user index
+     */
     public IndexChange( Index<?> index, Object key, UUID id, Type type, boolean isSystemIndex )
     {
         this.index = index;
@@ -155,7 +164,29 @@ public class IndexChange implements IndexModification
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         oid = in.readUTF();
-        key = in.readObject();
+        KeyType keyType = KeyType.getType( in.readByte() );
+
+        switch ( keyType )
+        {
+            case STRING:
+                key = in.readUTF();
+                break;
+
+            case LONG:
+                key = in.readLong();
+                break;
+
+            case BYTES:
+                int length = in.readInt();
+                key = new byte[length];
+                in.read( ( byte[] ) key );
+                break;
+
+            case OBJECT:
+                key = in.readObject();
+                break;
+        }
+
         id = UUID.fromString( in.readUTF() );
         type = Type.values()[in.readInt()];
     }
@@ -165,7 +196,29 @@ public class IndexChange implements IndexModification
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeUTF( oid );
-        out.writeObject( key );
+
+        if ( key instanceof String )
+        {
+            out.write( KeyType.STRING.getOrdinal() );
+            out.writeUTF( ( String ) key );
+        }
+        else if ( key instanceof byte[] )
+        {
+            out.write( KeyType.BYTES.getOrdinal() );
+            out.writeInt( ( ( byte[] ) key ).length );
+            out.write( ( byte[] ) key );
+        }
+        else if ( key instanceof Long )
+        {
+            out.write( KeyType.LONG.getOrdinal() );
+            out.writeLong( ( Long ) key );
+        }
+        else
+        {
+            out.write( KeyType.OBJECT.getOrdinal() );
+            out.writeObject( key );
+        }
+
         out.writeUTF( id.toString() );
         out.writeInt( type.ordinal() );
     }
@@ -185,6 +238,7 @@ public class IndexChange implements IndexModification
         StringBuilder sb = new StringBuilder();
 
         sb.append( "IndexChange '" );
+
         // The index's name
         sb.append( index.getAttributeId() ).append( "': " );
 
@@ -200,5 +254,43 @@ public class IndexChange implements IndexModification
         sb.append( ">" );
 
         return sb.toString();
+    }
+
+    private enum KeyType
+    {
+        STRING(0),
+        LONG(1),
+        BYTES(2),
+        OBJECT(3);
+
+        private int value;
+
+
+        private KeyType( int value )
+        {
+            this.value = value;
+        }
+
+
+        private byte getOrdinal()
+        {
+            return ( byte ) value;
+        }
+
+
+        private static KeyType getType( byte value )
+        {
+            switch ( value )
+            {
+                case 0:
+                    return STRING;
+                case 1:
+                    return LONG;
+                case 2:
+                    return BYTES;
+                default:
+                    return OBJECT;
+            }
+        }
     }
 }

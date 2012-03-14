@@ -19,15 +19,18 @@
  */
 package org.apache.directory.server.core.api.txn.logedit;
 
-import org.apache.directory.server.core.api.log.LogAnchor;
 
 import java.io.Externalizable;
+
+import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+
 
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface LogEdit extends Externalizable 
+public interface LogEdit extends Externalizable
 {
     /**
      * Returns the position the edit is inserted in the wal.
@@ -37,11 +40,22 @@ public interface LogEdit extends Externalizable
      * @return position of the log edit in the wal
      */
     LogAnchor getLogAnchor();
-    
+
+
     /**
      * Applies the logedit to the underlying partitions
      *
      * @param recovery true if at recovery stage 
      */
     void apply( boolean recovery ) throws Exception;
+
+
+    /**
+     * Serialize the LogEdit into a UserLogRecord
+     * 
+     * @param logRecord The UserLogRecord which will contain the serialized LogEdit
+     * @param type The type of data being written (TXN or DATA)
+     * @throws Exception If the serialization failed
+     */
+    void injectData( UserLogRecord logRecord, UserLogRecord.LogEditType type ) throws Exception;
 }

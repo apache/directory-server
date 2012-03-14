@@ -28,31 +28,60 @@ import org.apache.directory.server.core.api.txn.logedit.AbstractLogEdit;
 
 
 /**
+ * A class used to store a transaction changeState (either BEGIN, COMMIT or ABORT).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class TxnStateChange extends AbstractLogEdit
 {
+    /** SerialVrsionUID as requested for serializable classes */
+    private static final long serialVersionUID = 1;
+
+    /**
+     * Change State, one of :
+     * <ul>
+     * <li>TXN_BEGIN : for a starting transaction</li>
+     * <li>TXN_COMMIT :  for a validated transaction</li>
+     * <li>TXN_ABORT : for an aborted transaction</li>
+     * </ul>
+     */
+    public enum ChangeState
+    {
+        TXN_BEGIN,
+        TXN_COMMIT,
+        TXN_ABORT
+    }
+
     /** State to record for the txn */
     ChangeState txnState;
 
-    private static final long serialVersionUID = 1;
 
-
-    // For deserialization
+    /**
+     * A default constructor used by deserialization
+     */
     public TxnStateChange()
     {
         super( Long.MIN_VALUE );
     }
 
 
+    /**
+     * Creates a new TxnStateChange instance, with a transaction ID and a ChangeState.
+     * 
+     * @param txnID The transaction ID
+     * @param txnState The ChangeState
+     */
     public TxnStateChange( long txnID, ChangeState txnState )
     {
         super( txnID );
+
         this.txnState = txnState;
     }
 
 
+    /**
+     * @return The ChangeState for this transaction
+     */
     public ChangeState getTxnState()
     {
         return txnState;
@@ -74,10 +103,12 @@ public class TxnStateChange extends AbstractLogEdit
         out.writeInt( txnState.ordinal() );
     }
 
-    public enum ChangeState
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
     {
-        TXN_BEGIN,
-        TXN_COMMIT,
-        TXN_ABORT
+        return "TxnStateChange[" + txnID + "/" + txnState + "]";
     }
 }

@@ -72,6 +72,7 @@ public class DataChangeContainer extends AbstractLogEdit
     public DataChangeContainer( Partition partition )
     {
         super( Long.MIN_VALUE );
+
         this.partitionDn = partition.getSuffixDn();
         this.partition = partition;
     }

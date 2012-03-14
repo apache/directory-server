@@ -20,9 +20,7 @@
 package org.apache.directory.server.core.shared.txn;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.UUID;
 
@@ -105,32 +103,7 @@ public class DefaultTxnLogManager implements TxnLogManager
         ReadWriteTxn txn = ( ReadWriteTxn ) curTxn;
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        ObjectOutputStream out = null;
-        ByteArrayOutputStream bout = null;
-        byte[] data;
-
-        try
-        {
-            bout = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bout );
-            logEdit.writeExternal( out );
-            out.flush();
-            data = bout.toByteArray();
-        }
-        finally
-        {
-            if ( bout != null )
-            {
-                bout.close();
-            }
-
-            if ( out != null )
-            {
-                out.close();
-            }
-        }
-
-        logRecord.setData( data, data.length );
+        logEdit.injectData( logRecord, UserLogRecord.LogEditType.DATA );
 
         log( logRecord, sync );
 

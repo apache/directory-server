@@ -92,7 +92,7 @@ public class EntryChange implements EntryModification
             }
         }
 
-        // TODO in reovery mode, check the version of the entry. 
+        // TODO in recovery mode, check the version of the entry. 
         try
         {
             AttributeUtils.applyModification( curEntry, redoChange );

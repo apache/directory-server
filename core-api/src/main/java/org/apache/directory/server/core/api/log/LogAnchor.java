@@ -86,7 +86,7 @@ public class LogAnchor implements Externalizable
 
     public void resetLogAnchor( LogAnchor logAnchor )
     {
-        resetLogAnchor( logAnchor.getLogFileNumber(), logAnchor.getLogFileOffset(), logAnchor.getLogLSN() );
+        resetLogAnchor( logAnchor.logFileNumber, logAnchor.logFileOffset, logAnchor.logLSN );
     }
 
 

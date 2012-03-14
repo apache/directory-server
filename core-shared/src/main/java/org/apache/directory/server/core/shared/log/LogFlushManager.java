@@ -20,31 +20,29 @@
 package org.apache.directory.server.core.shared.log;
 
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
+import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.log.LogAnchor;
 import org.apache.directory.server.core.api.log.UserLogRecord;
-import org.apache.directory.server.core.api.log.InvalidLogException;
-
-import java.io.IOException;
-
 import org.apache.directory.server.core.shared.log.LogFileManager.LogFileWriter;
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * Manages the flushing of log to media and scanning of logs. All appends to the log file go through this class. 
+ * Manages the flushing of log to media and scanning of logs. All appends to the log file go 
+ * through this class. 
  *
  * Internally it manages a circular  buffer where appends initially go. Appends are first 
- * appended to this in memory circular log. As the in memory circular log fills up or as the user requests
- * memory buffer is flushed to the underlying media.  
+ * appended to this in memory circular log. As the in memory circular log fills up or as the 
+ * user requests, memory buffer is flushed to the underlying media.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -92,7 +90,7 @@ import org.apache.directory.server.i18n.I18n;
 
     /**
      * Creates a LogFlushManager instance. We define the memory buffer size, and the default maximum
-     * size for each Log file (this maximul size may be exceeded, if one user record is bigger than 
+     * size for each Log file (this maximum size may be exceeded, if one user record is bigger than 
      * this maximum size. Log file may be smaller too.
      * 
      * @param logManager The associated LogManager
@@ -191,7 +189,7 @@ import org.apache.directory.server.i18n.I18n;
                             // Write the data
                             writeHead.put( userBuffer, 0, length );
 
-                            // Write the footeer
+                            // Write the footer
                             writeFooter( writeHead, ( int ) checksum.getValue() );
 
                             appendedRecord = true;

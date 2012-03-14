@@ -36,7 +36,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 
 
-
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -72,8 +71,7 @@ public interface TxnLogManager
      * @param entry current version of the entry the txn has
      * @return
      */
-    Entry mergeUpdates(Dn partitionDN, UUID entryID,  Entry entry );
-    
+    Entry mergeUpdates( Dn partitionDN, UUID entryID, Entry entry );
 
 
     /**
@@ -131,7 +129,6 @@ public interface TxnLogManager
         String attributeOid, boolean forwardIndex, Object onlyValueKey, UUID onlyIDKey ) throws Exception;
 
 
-    
     /**
      * Returns an index which a provides a transactionally consistent view over the given index
      *

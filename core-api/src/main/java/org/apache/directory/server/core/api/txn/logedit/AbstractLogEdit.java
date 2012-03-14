@@ -20,7 +20,13 @@
 package org.apache.directory.server.core.api.txn.logedit;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+
 import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.UserLogRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,13 +35,21 @@ import org.apache.directory.server.core.api.log.LogAnchor;
  */
 public abstract class AbstractLogEdit implements LogEdit
 {
-    /** position in the wal */
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractLogEdit.class );
+
+    /** Position in the wal */
     private transient LogAnchor logAnchor = new LogAnchor();
 
     /** Transaction under which the change is done */
     protected long txnID;
 
 
+    /**
+     * Create a new instance of AbstractLogEdit
+     * 
+     * @param txnID The transaction ID to store
+     */
     protected AbstractLogEdit( long txnID )
     {
         this.txnID = txnID;
@@ -69,5 +83,45 @@ public abstract class AbstractLogEdit implements LogEdit
     public void setTxnID( long id )
     {
         txnID = id;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void injectData( UserLogRecord logRecord, UserLogRecord.LogEditType type ) throws Exception
+    {
+        logRecord.setType( type );
+        LOG.debug( "Serializing : " + this );
+
+        ObjectOutputStream out = null;
+        ByteArrayOutputStream bout = null;
+        byte[] data;
+
+        try
+        {
+            bout = new ByteArrayOutputStream();
+            out = new ObjectOutputStream( bout );
+
+            // The LogEdit instance
+            writeExternal( out );
+
+            out.flush();
+            data = bout.toByteArray();
+        }
+        finally
+        {
+            if ( bout != null )
+            {
+                bout.close();
+            }
+
+            if ( out != null )
+            {
+                out.close();
+            }
+        }
+
+        logRecord.setData( data, data.length );
     }
 }

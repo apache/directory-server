@@ -22,16 +22,16 @@ package org.apache.directory.server.core.shared.log;
 
 import java.io.EOFException;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileNotFoundException;
-
+import java.io.IOException;
 import java.io.RandomAccessFile;
 
 
 /**
  * Creates and manages a LogFile on disk. The file name is the concatenation of a 
  * path on disk, and of a suffix.<br/>
- * Each log file has a name like <b>logFileName/log_&lt;logFileNumber&gt;.suffix</b>
+ * Each log file has a name like <b>logFileName/log_&lt;logFileNumber&gt;.suffix</b><br/>
+ * This class expose a reader and a writer for the given log file.
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
