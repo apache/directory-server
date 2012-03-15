@@ -232,6 +232,7 @@ public class SingleFileLdifPartitionTest
     private void assertExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         opCtx.setDn( entry.getDn() );
 
         Entry fetched = partition.lookup( opCtx );
