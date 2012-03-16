@@ -27,7 +27,6 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
 
@@ -190,90 +189,51 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             return val;
         }
+
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
         
-        // Handle the special case where we only have one RDN
-        // But we may have more than one Ava.
-        if ( rdns.length == 1 )
+        for ( Rdn rdn : rdns )
         {
-            Rdn thisRdn = rdns[0];
-            Rdn thatRdn = that.rdns[0];
-            
-            // Check the AVAs now
-            // If we only have one, no need to create an Array
-            if ( thisRdn.size() == 1 )
+            if ( isFirst )
             {
-                if ( thatRdn.size() > 1 )
-                {
-                    return -1;
-                }
-                
-                Ava thisAva = thisRdn.getAva();
-                
-                val = thisAva.compareTo( thatRdn.getAva() );
-                
-                if ( val != 0 )
-                {
-                    return val;
-                }
+                sb.append( ',' );
             }
             else
             {
-                if ( thisRdn.size() > thatRdn.size() )
-                {
-                    return 1;
-                }
-                else if ( thatRdn.size() > thisRdn.size() )
-                {
-                    return -1;
-                }
-                
-                Ava[] thisAvas = new Ava[thisRdn.size()];
-                int pos = 0;
-                
-                for ( Ava ava : thisRdn )
-                {
-                    thisAvas[pos++] = ava;
-                }
-                
-                Arrays.sort( thisAvas );
-
-                Ava[] thatAvas = new Ava[thatRdn.size()];
-                pos = 0;
-                
-                for ( Ava ava : thatRdn )
-                {
-                    thatAvas[pos++] = ava;
-                }
-                
-                Arrays.sort( thatAvas );
-                
-                for ( int i = 0; i < thisAvas.length; i++ )
-                {
-                    val = thisAvas[i].compareTo( thatAvas[i] );
-
-                    if ( val != 0 )
-                    {
-                        return val;
-                    }
-                }
+                isFirst = false;
             }
-        }
-        else
-        {
-            // if we have more than one RDN, then it's a context entry.
-            // Atm, do a string comparison
-            for ( int i = 0; i < rdns.length; i++ )
-            {
-                val = rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
-                
-                if ( val != 0 )
-                {
-                    return val;
-                }
-            }
+            
+            sb.append( rdn.getNormName() );
         }
         
-        val = this.getParentId().compareTo( that.getParentId() );
+        String thisString = sb.toString();
+        
+        isFirst = true;
+        sb = new StringBuilder();
+
+        for ( Rdn rdn : that.rdns )
+        {
+            if ( isFirst )
+            {
+                sb.append( ',' );
+            }
+            else
+            {
+                isFirst = false;
+            }
+            
+            sb.append( rdn.getNormName() );
+        }
+        
+        String thatString = sb.toString();
+        
+        val = ( thisString.compareTo( thatString ) );
+        
+        if ( val == 0 )
+        {
+            val = this.getParentId().compareTo( that.getParentId() );
+        }
 
         return val;
     }

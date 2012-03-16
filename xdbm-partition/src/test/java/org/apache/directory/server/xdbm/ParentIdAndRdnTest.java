@@ -128,7 +128,7 @@ public class ParentIdAndRdnTest
         // Sixth rdn
         assertEquals( 0, rdn6.compareTo( rdn7 ) );
         assertEquals( 0, rdn7.compareTo( rdn6 ) );
-        assertEquals( -1, rdn1.compareTo( rdn6 ) );
-        assertEquals( -1, rdn1.compareTo( rdn7 ) );
+        assertEquals( -14, rdn1.compareTo( rdn6 ) );
+        assertEquals( -14, rdn1.compareTo( rdn7 ) );
     }
 }
