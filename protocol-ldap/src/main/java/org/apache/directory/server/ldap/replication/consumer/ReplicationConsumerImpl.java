@@ -903,7 +903,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             }
 
             // Check if the OldRdn has been deleted
-            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
+            boolean deleteOldRdn = !remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
 
             switch ( modDnType )
             {
