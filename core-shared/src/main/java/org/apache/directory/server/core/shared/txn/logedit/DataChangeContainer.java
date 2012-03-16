@@ -61,6 +61,15 @@ public class DataChangeContainer extends AbstractLogEdit
     /** List of data changes */
     private List<DataChange> changes = new LinkedList<DataChange>();
 
+    /** The type of change */
+    private enum ChangeType
+    {
+        INDEX_MODIFICATION,
+        ENTRY_ADD_DELETE,
+        ENTRY_CHANGE,
+        ENTRY_REPLACE
+    }
+
 
     //For externalizable
     public DataChangeContainer()
@@ -266,12 +275,33 @@ public class DataChangeContainer extends AbstractLogEdit
 
         // Here, we must find a way to find the Partition from its Dn
 
-        DataChange change;
+        DataChange change = null;
         int numChanges = in.readInt();
 
         for ( int idx = 0; idx < numChanges; idx++ )
         {
-            change = ( DataChange ) in.readObject();
+            ChangeType changeType = ChangeType.values()[in.read()];
+
+            switch ( changeType )
+            {
+                case ENTRY_ADD_DELETE:
+                    change = new EntryAddDelete();
+                    break;
+
+                case ENTRY_CHANGE:
+                    change = new EntryChange();
+                    break;
+
+                case ENTRY_REPLACE:
+                    change = new EntryReplace();
+                    break;
+
+                case INDEX_MODIFICATION:
+                    change = new IndexChange();
+                    break;
+            }
+
+            change.readExternal( in );
             changes.add( change );
         }
     }
@@ -303,6 +333,24 @@ public class DataChangeContainer extends AbstractLogEdit
         while ( it.hasNext() )
         {
             change = it.next();
+
+            if ( change instanceof IndexModification )
+            {
+                out.write( ChangeType.INDEX_MODIFICATION.ordinal() );
+            }
+            else if ( change instanceof EntryAddDelete )
+            {
+                out.write( ChangeType.ENTRY_ADD_DELETE.ordinal() );
+            }
+            else if ( change instanceof EntryChange )
+            {
+                out.write( ChangeType.ENTRY_CHANGE.ordinal() );
+            }
+            else if ( change instanceof EntryReplace )
+            {
+                out.write( ChangeType.ENTRY_REPLACE.ordinal() );
+            }
+
             change.writeExternal( out );
         }
     }

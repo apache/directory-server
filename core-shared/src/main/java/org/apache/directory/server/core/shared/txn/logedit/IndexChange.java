@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
+import org.apache.directory.server.core.api.partition.index.ParentIdAndRdn;
 import org.apache.directory.server.core.api.txn.logedit.IndexModification;
 
 
@@ -164,7 +165,7 @@ public class IndexChange implements IndexModification
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         oid = in.readUTF();
-        KeyType keyType = KeyType.getType( in.readByte() );
+        KeyType keyType = KeyType.values()[in.readByte()];
 
         switch ( keyType )
         {
@@ -180,6 +181,19 @@ public class IndexChange implements IndexModification
                 int length = in.readInt();
                 key = new byte[length];
                 in.read( ( byte[] ) key );
+                break;
+
+            case RDN:
+                ParentIdAndRdn parentIdAndRdn = new ParentIdAndRdn();
+                parentIdAndRdn.readExternal( in );
+                key = parentIdAndRdn;
+                break;
+
+            case UUID:
+                long mostSignificantBits = in.readLong();
+                long leastSignificantBits = in.readLong();
+                UUID uuid = new UUID( mostSignificantBits, leastSignificantBits );
+                key = uuid;
                 break;
 
             case OBJECT:
@@ -199,23 +213,35 @@ public class IndexChange implements IndexModification
 
         if ( key instanceof String )
         {
-            out.write( KeyType.STRING.getOrdinal() );
+            out.write( KeyType.STRING.ordinal() );
             out.writeUTF( ( String ) key );
         }
         else if ( key instanceof byte[] )
         {
-            out.write( KeyType.BYTES.getOrdinal() );
+            out.write( KeyType.BYTES.ordinal() );
             out.writeInt( ( ( byte[] ) key ).length );
             out.write( ( byte[] ) key );
         }
         else if ( key instanceof Long )
         {
-            out.write( KeyType.LONG.getOrdinal() );
+            out.write( KeyType.LONG.ordinal() );
             out.writeLong( ( Long ) key );
+        }
+        else if ( key instanceof ParentIdAndRdn )
+        {
+            out.write( KeyType.RDN.ordinal() );
+            ( ( ParentIdAndRdn ) key ).writeExternal( out );
+        }
+        else if ( key instanceof UUID )
+        {
+            out.write( KeyType.UUID.ordinal() );
+            UUID uuid = ( UUID ) key;
+            out.writeLong( uuid.getMostSignificantBits() );
+            out.writeLong( uuid.getLeastSignificantBits() );
         }
         else
         {
-            out.write( KeyType.OBJECT.getOrdinal() );
+            out.write( KeyType.OBJECT.ordinal() );
             out.writeObject( key );
         }
 
@@ -258,39 +284,11 @@ public class IndexChange implements IndexModification
 
     private enum KeyType
     {
-        STRING(0),
-        LONG(1),
-        BYTES(2),
-        OBJECT(3);
-
-        private int value;
-
-
-        private KeyType( int value )
-        {
-            this.value = value;
-        }
-
-
-        private byte getOrdinal()
-        {
-            return ( byte ) value;
-        }
-
-
-        private static KeyType getType( byte value )
-        {
-            switch ( value )
-            {
-                case 0:
-                    return STRING;
-                case 1:
-                    return LONG;
-                case 2:
-                    return BYTES;
-                default:
-                    return OBJECT;
-            }
-        }
+        STRING,
+        LONG,
+        BYTES,
+        RDN,
+        UUID,
+        OBJECT;
     }
 }

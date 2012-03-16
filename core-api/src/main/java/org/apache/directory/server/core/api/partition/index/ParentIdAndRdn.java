@@ -209,7 +209,8 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
 
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        out.writeObject( parentId );
+        out.writeLong( parentId.getMostSignificantBits() );
+        out.writeLong( parentId.getLeastSignificantBits() );
         out.writeInt( rdns.length );
 
         for ( Rdn rdn : rdns )
@@ -222,7 +223,10 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        parentId = ( UUID ) in.readObject();
+        long mostSignificantBits = in.readLong();
+        long leastSignificantBits = in.readLong();
+
+        parentId = new UUID( mostSignificantBits, leastSignificantBits );
         int size = in.readInt();
         rdns = new Rdn[size];
 

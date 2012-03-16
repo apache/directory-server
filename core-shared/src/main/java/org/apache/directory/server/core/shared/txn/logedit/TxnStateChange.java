@@ -92,7 +92,7 @@ public class TxnStateChange extends AbstractLogEdit
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         txnID = in.readLong();
-        txnState = ChangeState.values()[in.readInt()];
+        txnState = ChangeState.values()[in.read()];
     }
 
 
@@ -100,7 +100,7 @@ public class TxnStateChange extends AbstractLogEdit
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeLong( txnID );
-        out.writeInt( txnState.ordinal() );
+        out.write( txnState.ordinal() );
     }
 
 
