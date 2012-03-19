@@ -41,6 +41,13 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 public interface OperationContext
 {
     /**
+     * Called when operation is to be re-executed.Operation context willr reset its state
+     * related to the execution of the operation 
+     */
+    void reset();
+    
+    
+    /**
      * @return The number of the current interceptor in the list
      */
     int getCurrentInterceptor();

@@ -53,6 +53,20 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     public AbstractChangeOperationContext( CoreSession session )
     {
         super( session );
+        
+        logChange = LogChange.TRUE;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reset()
+    {
+        super.reset();
+        modifiedEntry = null;
+        logChange = LogChange.FALSE;
+        changeLogEvent = null;
     }
 
     

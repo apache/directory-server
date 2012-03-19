@@ -193,7 +193,9 @@ class DefaultTxnManager implements TxnManagerInternal
 
         // abort current txn and start a new read write txn
 
-        abortTransaction();
+      
+        abortReadWriteTxn( ( ReadWriteTxn ) curTxn );
+        curTxn.abortTxn();
         return beginReadWriteTxn( true );
     }
 
@@ -237,20 +239,36 @@ class DefaultTxnManager implements TxnManagerInternal
             throw new IllegalStateException( " trying to commit non existent txn " );
         }
 
-        if ( flushFailed )
-        {
-            throw new IOException( "Flushing of txns failed" );
-        }
+        boolean isExclusive = txn.isExclusive();
 
-        prepareForEndingTxn( txn );
-
-        if ( txn instanceof ReadOnlyTxn )
-        {
-            txn.commitTxn( txn.getStartTime() );
+        try
+        {        
+            if ( flushFailed )
+            {
+                throw new IOException( "Flushing of txns failed" );
+            }
+            
+            prepareForEndingTxn( txn );
+    
+            if ( txn instanceof ReadOnlyTxn )
+            {
+                txn.commitTxn( txn.getStartTime() );
+            }
+            else
+            {
+                commitReadWriteTxn( ( ReadWriteTxn ) txn );
+            }
         }
-        else
+        finally
         {
-            commitReadWriteTxn( ( ReadWriteTxn ) txn );
+            if ( !isExclusive )
+            {
+                optimisticLock.readLock().unlock();
+            }
+            else
+            {
+                optimisticLock.writeLock().unlock();
+            }
         }
 
         setCurTxn( null );
@@ -392,6 +410,8 @@ class DefaultTxnManager implements TxnManagerInternal
         ReadOnlyTxn txn = new ReadOnlyTxn();
         ReadWriteTxn lastTxnToCheck = null;
 
+        optimisticLock.readLock().lock(); 
+        
         /*
          * Set the start time as the latest committed txn's commit time. We need to make sure that
          * any change after our start time is not flushed to the partitions. Say we have txn1 as the
@@ -420,7 +440,6 @@ class DefaultTxnManager implements TxnManagerInternal
 
         buildCheckList( txn, lastTxnToCheck );
 
-        optimisticLock.readLock().lock();
         setCurTxn( txn );
 
         //System.out.println( "TRAN: Started " + txn );
@@ -478,7 +497,6 @@ class DefaultTxnManager implements TxnManagerInternal
                 lastTxnToCheck = latestVerifiedTxn.get();
 
                 lastTxnToCheck.getRefCount().incrementAndGet();
-
             }
             while ( lastTxnToCheck != latestVerifiedTxn.get() );
         }
@@ -586,7 +604,7 @@ class DefaultTxnManager implements TxnManagerInternal
                 throw new IllegalStateException( " prepareForEndingTxn: txn has unpexptected start time " +
                     txn + " expected: " + lastTxnToCheck );
             }
-
+            
             if ( lastTxnToCheck.getRefCount().get() <= 0 )
             {
                 throw new IllegalStateException( " prepareForEndingTxn: lastTxnToCheck has unexpected ref cnt " +

@@ -998,6 +998,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
+                modifyContext.reset();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )

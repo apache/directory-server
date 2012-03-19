@@ -89,6 +89,15 @@ public abstract class AbstractOperationContext implements OperationContext
         this.session = session;
         currentInterceptor = 0;
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reset()
+    {
+        currentInterceptor = 0;
+    }
 
 
     /**

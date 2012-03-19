@@ -220,6 +220,12 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // Call the next interceptor
         next( modifyContext );
+        
+        // If op doesnt want to be logged, skipped
+        if ( !modifyContext.isLogChange() )
+        {
+            return;
+        }
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?

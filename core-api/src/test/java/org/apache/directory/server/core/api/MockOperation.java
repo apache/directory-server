@@ -48,6 +48,12 @@ public class MockOperation implements OperationContext
         this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
     }
+    
+    
+    public void reset()
+    {
+        
+    }
 
 
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
