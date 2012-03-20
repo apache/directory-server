@@ -37,7 +37,6 @@ import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +70,6 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
-        //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
-
-        keyCache = new SynchronizedLRUMap( cacheSize );
         this.attributeType = attributeType;
 
         if ( attributeId == null )
@@ -123,7 +119,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
-     * @throws NamingException 
+     * @throws NamingException
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {

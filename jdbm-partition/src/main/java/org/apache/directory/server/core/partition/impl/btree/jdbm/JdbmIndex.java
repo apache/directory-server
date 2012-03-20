@@ -37,12 +37,10 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +84,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * the JDBM record manager for the file containing this index
      */
     protected RecordManager recMan;
-
-    /**
-     * the normalized value cache for this index
-     * @todo I don't think the keyCache is required anymore since the normalizer
-     * will cache values for us.
-     */
-    protected SynchronizedLRUMap keyCache;
 
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
@@ -155,7 +146,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
-        keyCache = new SynchronizedLRUMap( cacheSize );
         this.attributeType = attributeType;
 
         if ( attributeId == null )
