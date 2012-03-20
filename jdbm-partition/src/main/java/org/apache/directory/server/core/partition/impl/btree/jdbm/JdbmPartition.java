@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -172,7 +173,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             {
                 allIndices.add( index.getAttributeId() );
 
-                // take the part after removing .db from the  
+                // take the part after removing .db from the
                 String name = index.getAttributeId() + JDBM_DB_FILE_EXTN;
 
                 // if the name doesn't exist in the list of index DB files
@@ -290,7 +291,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         for ( File file : dbFiles )
         {
             String name = file.getName();
-            // take the part after removing .db from the  
+            // take the part after removing .db from the
             name = name.substring( 0, name.lastIndexOf( JDBM_DB_FILE_EXTN ) );
 
             // remove the file if not found in the list of names of indices
@@ -406,5 +407,32 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         {
             throw errors;
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    protected final Index createSystemIndex( String oid, URI path )  throws Exception
+    {
+        LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
+         "Will create new JdbmIndex using copied configuration parameters." );
+        JdbmIndex<?, Entry> jdbmIndex;
+
+        if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            jdbmIndex = new JdbmRdnIndex();
+            jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+        }
+        else
+        {
+            jdbmIndex = new JdbmIndex( oid );
+            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+        }
+
+        jdbmIndex.setWkDirPath( path );
+
+        return jdbmIndex;
     }
 }

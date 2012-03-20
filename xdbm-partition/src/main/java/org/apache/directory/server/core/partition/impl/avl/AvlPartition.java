@@ -167,6 +167,31 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         return avlIndex;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    protected final Index createSystemIndex( String oid, URI path ) throws Exception
+    {
+        LOG.debug( "Supplied index {} is not a JdbmIndex.  "
+            + "Will create new JdbmIndex using copied configuration parameters." );
+
+        AvlIndex<?, Entry>  avlIndex;
+
+        if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            avlIndex = new AvlRdnIndex<Entry>( oid );
+        }
+        else
+        {
+            LOG.debug( "Supplied index {} is not a AvlIndex. "
+                + "Will create new AvlIndex using copied configuration parameters." );
+            avlIndex = new AvlIndex( oid );
+        }
+
+        return avlIndex;
+    }
+
 
     /**
      * {@inheritDoc}

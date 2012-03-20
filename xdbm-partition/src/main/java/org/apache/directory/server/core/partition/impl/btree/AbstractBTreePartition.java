@@ -52,7 +52,6 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -286,74 +285,61 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>(
-                ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getOneLevelIndex() == null )
         {
-            Index<ID, Entry, ID> index = new GenericIndex<ID, Entry, ID>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getSubLevelIndex() == null )
         {
-            Index<ID, Entry, ID> index = new GenericIndex<ID, Entry, ID>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getRdnIndex() == null )
         {
-            Index<ParentIdAndRdn<ID>, Entry, ID> index = new GenericIndex<ParentIdAndRdn<ID>, Entry, ID>(
-                ApacheSchemaConstants.APACHE_RDN_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<ParentIdAndRdn<ID>, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getAliasIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>(
-                ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getOneAliasIndex() == null )
         {
-            Index<ID, Entry, ID> index = new GenericIndex<ID, Entry, ID>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
-            Index<ID, Entry, ID> index = new GenericIndex<ID, Entry, ID>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getObjectClassIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>( SchemaConstants.OBJECT_CLASS_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.OBJECT_CLASS_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getEntryUuidIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>( SchemaConstants.ENTRY_UUID_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID, partitionPath );
             addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
-            Index<String, Entry, ID> index = new GenericIndex<String, Entry, ID>( SchemaConstants.ENTRY_CSN_AT_OID );
-            index.setWkDirPath( partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath );
             addIndex( index );
         }
 
@@ -2617,4 +2603,15 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         return "Partition<" + id + ">";
     }
+
+
+    /**
+     * Create a new Index for a given OID
+     * 
+     * @param indexOid The Attribute OID
+     * @param path The working directory where this indew will be stored
+     * @return The created index
+     * @throws Exception If the index can't be created
+     */
+     protected abstract Index createSystemIndex( String indexOid, URI path ) throws Exception;
 }
