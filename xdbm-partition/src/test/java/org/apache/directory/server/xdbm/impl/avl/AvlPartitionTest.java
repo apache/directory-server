@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -36,7 +35,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -556,20 +554,6 @@ public class AvlPartitionTest
         assertEquals( 3, ( long ) cursor.get().getId() );
 
         assertFalse( cursor.previous() );
-    }
-
-
-    @Test
-    public void testConvertIndex() throws Exception
-    {
-        Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ).toURI() );
-
-        Method convertIndex = partition.getClass().getDeclaredMethod( "convertAndInit", Index.class );
-        convertIndex.setAccessible( true );
-        Object obj = convertIndex.invoke( partition, nonAvlIndex );
-
-        assertNotNull( obj );
-        assertEquals( AvlIndex.class, obj.getClass() );
     }
 
 

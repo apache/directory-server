@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -36,7 +35,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -651,27 +649,6 @@ public class JdbmStoreTest
         assertEquals( 3, ( long ) cursor.get().getId() );
 
         assertFalse( cursor.previous() );
-    }
-
-
-    @Test
-    public void testConvertIndex() throws Exception
-    {
-        // just create the new directory under working directory
-        // so this gets cleaned up automatically
-        File testSpecificDir = new File( wkdir, "testConvertIndex" );
-        testSpecificDir.mkdirs();
-
-        Index<?, Object, Long> nonJdbmIndex = new GenericIndex<Object, Object, Long>( "ou", 10, testSpecificDir.toURI() );
-
-        Method convertIndex = store.getClass().getDeclaredMethod( "convertAndInit", Index.class );
-        convertIndex.setAccessible( true );
-        Object obj = convertIndex.invoke( store, nonJdbmIndex );
-
-        assertNotNull( obj );
-        assertEquals( JdbmIndex.class, obj.getClass() );
-
-        ( ( JdbmIndex ) obj ).close();
     }
 
 
