@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm;
 
@@ -113,16 +113,6 @@ public interface Index<K, O, ID>
 
 
     /**
-     * Gets the normalized value for an attribute.
-     *
-     * @param attrVal the user provided value to normalize
-     * @return the normalized value.
-     * @throws Exception if something goes wrong.
-     */
-    K getNormalized( K attrVal ) throws Exception;
-
-
-    /**
      * Gets the total scan count for this index.
      *
      * @return the number of key/value pairs in this index
@@ -132,7 +122,7 @@ public interface Index<K, O, ID>
 
 
     /**
-     * Gets the scan count for the occurrence of a specific attribute value 
+     * Gets the scan count for the occurrence of a specific attribute value
      * within the index.
      *
      * @param attrVal the value of the attribute to get a scan count for
@@ -169,7 +159,7 @@ public interface Index<K, O, ID>
      * Remove all the reference to an entry from the index.
      * <br/>
      * As an entry might be referenced more than once in the forward index,
-     * depending on which index we are dealing with, we need to iterate 
+     * depending on which index we are dealing with, we need to iterate
      * over all the values contained into the reverse index for this entryId.
      * <br/>
      * For instance, considering the ObjectClass index for an entry having
@@ -186,7 +176,7 @@ public interface Index<K, O, ID>
      * </pre>
      * So dropping the entryId means that we must first get all the values from
      * the reverse index (and we will get [top, person, inetOrgPerson]) then to
-     * iterate through all those values to remove entryId from the associated 
+     * iterate through all those values to remove entryId from the associated
      * list of entryIds.
      * 
      * @param entryId The master table entry ID to remove
@@ -196,7 +186,7 @@ public interface Index<K, O, ID>
 
 
     /**
-     * Remove the pair <K,ID> from the index for the given value and id. 
+     * Remove the pair <K,ID> from the index for the given value and id.
      * 
      * @param attrVal The value we want to remove from the index
      * @param id The associated ID
@@ -268,7 +258,7 @@ public interface Index<K, O, ID>
     /**
      * tells whether the Index implementation supports storing duplicate keys
      *
-     * @return true if duplicate keys are allowed false otherwise 
+     * @return true if duplicate keys are allowed false otherwise
      */
     boolean isDupsEnabled();
 }

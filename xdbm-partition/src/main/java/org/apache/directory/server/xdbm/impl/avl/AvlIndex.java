@@ -29,7 +29,6 @@ import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -87,7 +86,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         LdapComparator<K> comp = ( LdapComparator<K> ) mr.getLdapComparator();
 
         /*
-         * The forward key/value map stores attribute values to master table 
+         * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
@@ -96,7 +95,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         /*
          * Now the reverse map stores the primary key into the master table as
          * the key and the values of attributes as the value.  If an attribute
-         * is single valued according to its specification based on a schema 
+         * is single valued according to its specification based on a schema
          * then duplicate keys should not be allowed within the reverse table.
          */
         if ( attributeType.isSingleValued() )
@@ -112,8 +111,8 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
 
     public void add( K attrVal, Long id ) throws Exception
     {
-        forward.put( getNormalized( attrVal ), id );
-        reverse.put( id, getNormalized( attrVal ) );
+        forward.put( attrVal, id );
+        reverse.put( id, attrVal );
     }
 
 
@@ -148,7 +147,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public int count( K attrVal ) throws Exception
     {
-        return forward.count( getNormalized( attrVal ) );
+        return forward.count( attrVal );
     }
 
 
@@ -174,8 +173,8 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public void drop( K attrVal, Long id ) throws Exception
     {
-        forward.remove( getNormalized( attrVal ), id );
-        reverse.remove( id, getNormalized( attrVal ) );
+        forward.remove( attrVal, id );
+        reverse.remove( id, attrVal );
     }
 
 
@@ -184,7 +183,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forward( K attrVal ) throws Exception
     {
-        return forward.has( getNormalized( attrVal ) );
+        return forward.has( attrVal );
     }
 
 
@@ -193,7 +192,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forward( K attrVal, Long id ) throws Exception
     {
-        return forward.has( getNormalized( attrVal ), id );
+        return forward.has( attrVal, id );
     }
 
 
@@ -222,7 +221,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardGreaterOrEq( K attrVal ) throws Exception
     {
-        return forward.hasGreaterOrEqual( getNormalized( attrVal ) );
+        return forward.hasGreaterOrEqual( attrVal );
     }
 
 
@@ -231,7 +230,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
+        return forward.hasGreaterOrEqual( attrVal, id );
     }
 
 
@@ -240,7 +239,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardLessOrEq( K attrVal ) throws Exception
     {
-        return forward.hasLessOrEqual( getNormalized( attrVal ) );
+        return forward.hasLessOrEqual( attrVal );
     }
 
 
@@ -249,7 +248,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasLessOrEqual( getNormalized( attrVal ), id );
+        return forward.hasLessOrEqual( attrVal, id );
     }
 
 
@@ -258,7 +257,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public Long forwardLookup( K attrVal ) throws Exception
     {
-        return forward.get( getNormalized( attrVal ) );
+        return forward.get( attrVal );
     }
 
 
@@ -274,31 +273,9 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public K getNormalized( K attrVal ) throws Exception
-    {
-        if ( attrVal instanceof Long )
-        {
-            return attrVal;
-        }
-
-        if ( attrVal instanceof String )
-        {
-            return ( K ) normalizer.normalize( ( String ) attrVal );
-        }
-        else
-        {
-            return ( K ) normalizer.normalize( new BinaryValue( ( byte[] ) attrVal ) ).getValue();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public int greaterThanCount( K attrVal ) throws Exception
     {
-        return forward.greaterThanCount( getNormalized( attrVal ) );
+        return forward.greaterThanCount( attrVal );
     }
 
 
@@ -307,7 +284,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public int lessThanCount( K attrVal ) throws Exception
     {
-        return forward.lessThanCount( getNormalized( attrVal ) );
+        return forward.lessThanCount( attrVal );
     }
 
 
@@ -325,7 +302,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverse( Long id, K attrVal ) throws Exception
     {
-        return reverse.has( id, getNormalized( attrVal ) );
+        return reverse.has( id, attrVal );
     }
 
 
@@ -363,7 +340,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
+        return reverse.hasGreaterOrEqual( id, attrVal );
     }
 
 
@@ -381,7 +358,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
+        return reverse.hasLessOrEqual( id, attrVal );
     }
 
 

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm;
 
@@ -62,108 +62,124 @@ public class StoreUtils
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
 
         // Entry #1
-        Entry entry = new DefaultEntry( schemaManager, suffixDn );
-        entry.add( "objectClass", "organization" );
-        entry.add( "o", "Good Times Co." );
-        entry.add( "postalCode", "1" );
-        entry.add( "postOfficeBox", "1" );
+        Entry entry = new DefaultEntry( schemaManager, suffixDn,
+            "objectClass: organization",
+            "o: Good Times Co.",
+            "postalCode: 1",
+            "postOfficeBox: 1" );
         injectEntryInStore( store, entry );
 
         // Entry #2
         Dn dn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Sales" );
-        entry.add( "postalCode", "1" );
-        entry.add( "postOfficeBox", "1" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: Sales",
+            "postalCode: 1",
+            "postOfficeBox: 1" );
         injectEntryInStore( store, entry );
 
         // Entry #3
         dn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Board of Directors" );
-        entry.add( "postalCode", "1" );
-        entry.add( "postOfficeBox", "1" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: Board of Directors",
+            "postalCode: 1",
+            "postOfficeBox: 1" );
         injectEntryInStore( store, entry );
 
         // Entry #4
         dn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "postalCode", "2" );
-        entry.add( "postOfficeBox", "2" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: Engineering",
+            "postalCode: 2",
+            "postOfficeBox: 2" );
         injectEntryInStore( store, entry );
 
         // Entry #5
         dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "JOhnny WAlkeR" );
-        entry.add( "sn", "WAlkeR" );
-        entry.add( "postalCode", "3" );
-        entry.add( "postOfficeBox", "3" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "ou: Sales",
+            "cn: JOhnny WAlkeR",
+            "sn: WAlkeR",
+            "postalCode: 3",
+            "postOfficeBox: 3" );
         injectEntryInStore( store, entry );
 
         // Entry #6
         dn = new Dn( schemaManager, "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "JIM BEAN" );
-        entry.add( "surName", "BEAN" );
-        entry.add( "postalCode", "4" );
-        entry.add( "postOfficeBox", "4" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "ou: Sales",
+            "cn: JIM BEAN",
+            "surName: BEAN",
+            "postalCode: 4",
+            "postOfficeBox: 4" );
         injectEntryInStore( store, entry );
 
         // Entry #7
         dn = new Dn( schemaManager, "ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Apache" );
-        entry.add( "postalCode", "5" );
-        entry.add( "postOfficeBox", "5" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: Apache",
+            "postalCode: 5",
+            "postOfficeBox: 5" );
         injectEntryInStore( store, entry );
 
         // Entry #8
         dn = new Dn( schemaManager, "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Jack Daniels" );
-        entry.add( "SN", "Daniels" );
-        entry.add( "postalCode", "6" );
-        entry.add( "postOfficeBox", "6" );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "ou: Engineering",
+            "cn: Jack Daniels",
+            "SN: Daniels",
+            "postalCode: 6",
+            "postOfficeBox: 6" );
         injectEntryInStore( store, entry );
 
         // aliases -------------
 
         // Entry #9
         dn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Apache" );
-        entry.add( "commonName", "Jim Bean" );
-        entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: alias",
+            "objectClass: extensibleObject",
+            "ou: Apache",
+            "commonName: Jim Bean",
+            "aliasedObjectName: cn=Jim Bean,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
 
         // Entry #10
         dn = new Dn( schemaManager, "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "commonName", "Jim Bean" );
-        entry.add( "aliasedObjectName", "cn=Jim Bean,ou=Sales,o=Good Times Co." );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: alias",
+            "objectClass: extensibleObject",
+            "commonName: Jim Bean",
+            "aliasedObjectName: cn=Jim Bean,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
 
         // Entry #11
         dn = new Dn( schemaManager, "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "2.5.4.3", "Johnny Walker" );
-        entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top",
+            "objectClass: alias",
+            "objectClass: extensibleObject",
+            "ou: Engineering",
+            "2.5.4.3: Johnny Walker",
+            "aliasedObjectName: cn=Johnny Walker,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry );
     }
 

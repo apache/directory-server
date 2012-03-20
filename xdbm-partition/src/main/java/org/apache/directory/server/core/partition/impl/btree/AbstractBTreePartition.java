@@ -589,7 +589,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             for ( Value<?> value : objectClass )
             {
-                objectClassIdx.add( value.getString(), id );
+                objectClassIdx.add( (String)value.getNormValue(), id );
             }
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
@@ -650,7 +650,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
                     for ( Value<?> value : attribute )
                     {
-                        idx.add( value.getValue(), id );
+                        idx.add( value.getNormValue(), id );
                     }
 
                     // Adds only those attributes that are indexed
