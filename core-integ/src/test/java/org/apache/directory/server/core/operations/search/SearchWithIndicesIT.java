@@ -6,22 +6,24 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.operations.search;
 
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -82,7 +84,10 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         Partition systemPartition = getService().getSystemPartition();
         DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
         dsFactory.getPartitionFactory().addIndex( systemPartition, "gidNumber", 100 );
-        
+
+        // Also add an index on Description
+        dsFactory.getPartitionFactory().addIndex( systemPartition, "description", 100 );
+
         // Restart the service so that the index is created
         getService().shutdown();
         getService().startup();
@@ -102,7 +107,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     private void addNisPosixGroup( String name, int gid ) throws Exception
     {
         connection.add(
-            new DefaultEntry( 
+            new DefaultEntry(
                 "cn=" + name + ",ou=groups, ou=system",
                 "objectClass: top",
                 "objectClass: posixGroup",
@@ -215,5 +220,44 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+    
+    
+    /**
+     * Test that the search using the presence index still works after the removal of an attribute
+     */
+    @Test
+    public void testModifyReplaceSearchIndexAttribute() throws Exception
+    {
+        Entry entry = new DefaultEntry(
+            "ou=testPresence,ou=system",
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: testPresence",
+            "description: this is a test"
+            );
+        
+        // First add the entry
+        connection.add( entry );
+        
+        // Check that we can find it back
+        EntryCursor cursor = connection.search( "", "(description=*)", SearchScope.SUBTREE, "*" );
+
+        while ( cursor.next() )
+        {
+            assertEquals( "ou=testPresence,ou=system", cursor.get().getDn().toString() );
+        }
+        
+        // Modify the entry to remove the description
+        connection.modify( "ou=testPresence,ou=system",
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "description" ) );
+        
+        // Check that we can find it back
+        cursor = connection.search( "", "(description=*)", SearchScope.SUBTREE, "*" );
+
+        while ( cursor.next() )
+        {
+            fail( "The search should not return any entry" );
+        }
     }
 }
