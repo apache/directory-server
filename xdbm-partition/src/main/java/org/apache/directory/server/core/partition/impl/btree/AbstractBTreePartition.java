@@ -514,8 +514,19 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      */
     protected void doInit() throws Exception
     {
+        // First, inject the indexed attributes if any
+        if ( ( indexedAttributes != null ) && ( indexedAttributes.size() > 0 ) )
+        {
+            for ( Index index : indexedAttributes )
+            {
+                addIndex( index );
+            }
+        }
+
+        // Now, initialize the configured index
         setupSystemIndices();
         setupUserIndices();
+        
     }
 
 

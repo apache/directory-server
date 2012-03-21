@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.client.api.perf;
 
@@ -50,17 +50,34 @@ import org.junit.runner.RunWith;
  * Tests for comparing performance of client API against various other LDAP client APIs
  *  (currently only compared against JNDI )
  * 
- * TODO print the performance results in a neat tabular fashion 
+ * TODO print the performance results in a neat tabular fashion
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "ClientApiPerfTestDS", partitions =
-    { @CreatePartition(name = "example", suffix = "dc=example,dc=com", contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { @CreateIndex(attribute = "objectClass"), @CreateIndex(attribute = "dc"), @CreateIndex(attribute = "ou") }) })
+    {
+    @CreatePartition(
+        name = "example",
+        suffix = "dc=example,dc=com",
+        contextEntry = @ContextEntry(
+            entryLdif =
+                "dn: dc=example,dc=com\n" +
+                "dc: example\n" +
+                "objectClass: top\n" +
+                "objectClass: domain\n\n"),
+        indexes =
+        {
+            @CreateIndex(attribute = "objectClass"),
+            @CreateIndex(attribute = "dc"),
+            @CreateIndex(attribute = "ou")
+        })
+    })
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
+    {
+        @CreateTransport(protocol = "LDAP"),
+        @CreateTransport(protocol = "LDAPS")
+    })
 public class TestClientApiPerf extends AbstractLdapTestUnit
 {
 
@@ -119,7 +136,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         NamingEnumeration<SearchResult> ne = ctx.search( "dc=example,dc=com", "objectClass=*", searchControls );
         while ( ne.hasMoreElements() )
         {
-            SearchResult searchResult = ( SearchResult ) ne.nextElement();
+            SearchResult searchResult = ne.nextElement();
         }
         ne.close();
 
