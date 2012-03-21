@@ -241,7 +241,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         connection.add( entry );
         
         // Check that we can find it back
-        EntryCursor cursor = connection.search( "", "(description=*)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor = connection.search( "ou=system", "(description=*)", SearchScope.SUBTREE, "*" );
 
         while ( cursor.next() )
         {
@@ -253,7 +253,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
             new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "description" ) );
         
         // Check that we can find it back
-        cursor = connection.search( "", "(description=*)", SearchScope.SUBTREE, "*" );
+        cursor = connection.search( "ou=system", "(description=*)", SearchScope.SUBTREE, "*" );
 
         while ( cursor.next() )
         {
