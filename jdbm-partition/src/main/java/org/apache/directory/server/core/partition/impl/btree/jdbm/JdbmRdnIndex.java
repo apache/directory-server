@@ -55,6 +55,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
     public JdbmRdnIndex()
     {
+        super();
         initialized = false;
     }
 

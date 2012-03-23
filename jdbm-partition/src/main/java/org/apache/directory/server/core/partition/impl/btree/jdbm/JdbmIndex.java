@@ -33,9 +33,11 @@ import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
+import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -120,7 +122,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public JdbmIndex()
     {
-        super();
+        super( true );
         initialized = false;
     }
 
@@ -130,7 +132,17 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public JdbmIndex( String attributeId )
     {
-        super( attributeId );
+        super( attributeId, true );
+        initialized = false;
+    }
+
+
+    /**
+     * Creates a JdbmIndex instance for a give AttributeId
+     */
+    public JdbmIndex( String attributeId, boolean withReverse )
+    {
+        super( attributeId, withReverse );
         initialized = false;
     }
 
@@ -225,16 +237,19 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
          * is single valued according to its specification based on a schema
          * then duplicate keys should not be allowed within the reverse table.
          */
-        if ( attributeType.isSingleValued() )
+        if ( withReverse )
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
-                LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
-        }
-        else
-        {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
-                recMan,
-                LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
+            if ( attributeType.isSingleValued() )
+            {
+                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
+                    LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+            }
+            else
+            {
+                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                    recMan,
+                    LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
+            }
         }
     }
 
@@ -347,7 +362,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public K reverseLookup( Long id ) throws Exception
     {
-        return reverse.get( id );
+        if ( withReverse )
+        {
+            return reverse.get( id );
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -362,7 +384,11 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         // The pair to be removed must exists
         forward.put( attrVal, id );
-        reverse.put( id, attrVal );
+
+        if ( withReverse )
+        {
+            reverse.put( id, attrVal );
+        }
     }
 
 
@@ -375,7 +401,11 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( forward.has( attrVal, id ) )
         {
             forward.remove( attrVal, id );
-            reverse.remove( id, attrVal );
+
+            if ( withReverse )
+            {
+                reverse.remove( id, attrVal );
+            }
         }
     }
 
@@ -396,7 +426,10 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         }
 
         // Remove the id -> key from the reverse index
-        reverse.remove( entryId );
+        if ( withReverse )
+        {
+            reverse.remove( entryId );
+        }
     }
 
 
@@ -406,7 +439,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> reverseCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
+        if ( withReverse )
+        {
+            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
+        }
+        else
+        {
+            return new EmptyIndexCursor<K, O, Long>();
+        }
     }
 
 
@@ -420,7 +460,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
+        if ( withReverse )
+        {
+            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
+        }
+        else
+        {
+            return new EmptyIndexCursor<K, O, Long>();
+        }
     }
 
 
@@ -433,7 +480,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
     public Cursor<K> reverseValueCursor( Long id ) throws Exception
     {
-        return reverse.valueCursor( id );
+        if ( withReverse )
+        {
+            return reverse.valueCursor( id );
+        }
+        else
+        {
+            return new EmptyCursor<K>();
+        }
     }
 
 
@@ -469,7 +523,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverse( Long id ) throws Exception
     {
-        return reverse.has( id );
+        if ( withReverse )
+        {
+            return reverse.has( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -523,7 +584,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseGreaterOrEq( Long id ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id );
+        if ( withReverse )
+        {
+            return reverse.hasGreaterOrEqual( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -532,7 +600,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id, attrVal );
+        if ( withReverse )
+        {
+            return reverse.hasGreaterOrEqual( id, attrVal );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -541,7 +616,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseLessOrEq( Long id ) throws Exception
     {
-        return reverse.hasLessOrEqual( id );
+        if ( withReverse )
+        {
+            return reverse.hasLessOrEqual( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -550,7 +632,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasLessOrEqual( id, attrVal );
+        if ( withReverse )
+        {
+            return reverse.hasLessOrEqual( id, attrVal );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -591,7 +680,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean isDupsEnabled()
     {
-        return reverse.isDupsEnabled();
+        if ( withReverse )
+        {
+            return reverse.isDupsEnabled();
+        }
+        else
+        {
+            return false;
+        }
     }
 
 

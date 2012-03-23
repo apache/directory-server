@@ -40,12 +40,13 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
 
     public AvlRdnIndex()
     {
+        super();
     }
 
 
     public AvlRdnIndex( String attributeId )
     {
-        super( attributeId );
+        super( attributeId, true );
     }
 
 
@@ -77,7 +78,7 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
         LongComparator.INSTANCE.setSchemaManager( schemaManager );
 
         /*
-         * The forward key/value map stores attribute values to master table 
+         * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
