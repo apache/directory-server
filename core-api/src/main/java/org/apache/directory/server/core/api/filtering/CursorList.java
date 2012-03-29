@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -130,7 +131,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean available()
     {
-        if ( index >= 0 && index < end )
+        if ( ( index >= 0 ) && ( index < end ) )
         {
             return list.get( index ).available();
         }
@@ -164,7 +165,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
-        this.index = 0;
+        index = 0;
         list.get( index ).beforeFirst();
     }
 
@@ -174,7 +175,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public void afterLast() throws Exception
     {
-        this.index = end - 1;
+        index = end - 1;
         list.get( index ).afterLast();
     }
 
@@ -187,6 +188,7 @@ public class CursorList implements EntryFilteringCursor
         if ( list.size() > 0 )
         {
             index = start;
+            
             return list.get( index ).first();
         }
 
@@ -267,6 +269,7 @@ public class CursorList implements EntryFilteringCursor
             if ( !list.get( index ).previous() )
             {
                 index--;
+                
                 if ( index != -1 )
                 {
                     return list.get( index ).previous();
@@ -288,6 +291,7 @@ public class CursorList implements EntryFilteringCursor
             if ( !list.get( index ).previous() )
             {
                 index = -1;
+                
                 return false;
             }
             else
@@ -311,18 +315,19 @@ public class CursorList implements EntryFilteringCursor
     public boolean next() throws Exception
     {
         // if parked at -1 we advance to the start index and return true
-        if ( list.size() > 0 && index == -1 )
+        if ( ( list.size() ) > 0 && ( index == -1 ) )
         {
             index = start;
             return list.get( index ).next();
         }
 
         // if the index plus one is less than the end then increment and return true
-        if ( list.size() > 0 && index + 1 < end )
+        if ( ( list.size()  > 0 ) && ( index + 1 < end ) )
         {
             if ( !list.get( index ).next() )
             {
                 index++;
+                
                 if ( index < end )
                 {
                     return list.get( index ).next();
@@ -339,7 +344,7 @@ public class CursorList implements EntryFilteringCursor
         }
 
         // if the index plus one is equal to the end then increment and return false
-        if ( list.size() > 0 && index + 1 == end )
+        if ( ( list.size() > 0 ) && ( index + 1 == end ) )
         {
             if ( !list.get( index ).next() )
             {
@@ -380,6 +385,9 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean addEntryFilter( EntryFilter filter )
     {
         for ( EntryFilteringCursor efc : list )
@@ -392,12 +400,18 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public List<EntryFilter> getEntryFilters()
     {
         throw new UnsupportedOperationException( "CursorList doesn't support this operation" );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public SearchingOperationContext getOperationContext()
     {
         return searchContext;
@@ -470,12 +484,14 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setClosureMonitor( ClosureMonitor monitor )
     {
-        for ( Cursor c : list )
+        for ( EntryFilteringCursor c : list )
         {
             c.setClosureMonitor( monitor );
         }
     }
-
 }
