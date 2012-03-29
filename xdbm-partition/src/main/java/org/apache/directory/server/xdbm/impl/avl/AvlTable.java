@@ -48,9 +48,6 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     private final AvlTreeMap<K, V> avl;
     private final Comparator<Tuple<K, V>> keyOnlytupleComparator;
 
-    /** whether or not this table allows for duplicates */
-    private final boolean allowsDuplicates;
-
     public AvlTable( String name, final Comparator<K> keyComparator, final Comparator<V> valueComparator,
         boolean dupsEnabled )
     {
