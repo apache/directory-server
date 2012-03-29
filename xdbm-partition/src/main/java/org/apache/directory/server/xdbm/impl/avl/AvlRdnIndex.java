@@ -37,7 +37,6 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
 {
-
     public AvlRdnIndex()
     {
         super();
@@ -107,6 +106,7 @@ public class AvlRdnIndex<E> extends AvlIndex<ParentIdAndRdn<Long>, E>
     public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
     {
         long val = forward.get( rdn );
+        
         if ( val == id )
         {
             forward.remove( rdn );

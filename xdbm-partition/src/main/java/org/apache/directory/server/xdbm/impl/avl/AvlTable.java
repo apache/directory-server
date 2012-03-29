@@ -48,12 +48,15 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     private final AvlTreeMap<K, V> avl;
     private final Comparator<Tuple<K, V>> keyOnlytupleComparator;
 
+    /** whether or not this table allows for duplicates */
+    private final boolean allowsDuplicates;
 
     public AvlTable( String name, final Comparator<K> keyComparator, final Comparator<V> valueComparator,
         boolean dupsEnabled )
     {
         super( null, name, keyComparator, valueComparator );
         this.avl = new AvlTreeMapImpl<K, V>( keyComparator, valueComparator, dupsEnabled );
+        allowsDuplicates = this.avl.isDupsAllowed();
         this.keyOnlytupleComparator = new Comparator<Tuple<K, V>>()
         {
             public int compare( Tuple<K, V> t0, Tuple<K, V> t1 )
@@ -253,7 +256,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      */
     public boolean isDupsEnabled()
     {
-        return avl.isDupsAllowed();
+        return allowsDuplicates;
     }
 
 
@@ -271,7 +274,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      */
     public void put( K key, V value ) throws Exception
     {
-        if ( key == null || value == null )
+        if ( ( key == null ) || ( value == null ) )
         {
             return;
         }
@@ -328,9 +331,10 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      */
     public Cursor<Tuple<K, V>> cursor() throws Exception
     {
-        if ( !avl.isDupsAllowed() )
+        if ( !allowsDuplicates )
         {
-            return new AvlTreeMapNoDupsWrapperCursor<K, V>( new AvlSingletonOrOrderedSetCursor<K, V>( avl ) );
+            return new AvlTreeMapNoDupsWrapperCursor<K, V>( 
+                new AvlSingletonOrOrderedSetCursor<K, V>( avl ) );
         }
 
         return new AvlTableDupsCursor<K, V>( this );

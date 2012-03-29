@@ -52,12 +52,14 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -177,6 +179,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
+    
+    private static final int ADD_CHILD = 1;
+    private static final int REMOVE_CHILD = -1;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -531,6 +536,45 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         
     }
 
+   
+    private void dumpRdnIdx() throws Exception
+    {
+        if ( LOG.isDebugEnabled() )
+        {
+            dumpRdnIdx( getRootId(), 1, "" );
+            System.out.println( "-----------------------------" );
+        }
+    }
+    
+    
+    private void dumpRdnIdx( ID id, int nbSibbling, String tabs ) throws Exception
+    {
+        // Start with the root
+        IndexCursor<ParentIdAndRdn<ID>,Entry,ID> cursor = rdnIdx.forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+        cursor.before( startingPos );
+        int countChildren = 0;
+        
+        while ( cursor.next() && ( countChildren < nbSibbling ) )
+        {
+            IndexEntry<ParentIdAndRdn<ID>, ID> entry = cursor.get();
+            System.out.println( tabs + entry.getValue() );
+            countChildren++;
+            
+            // And now, the children
+            int nbChildren = entry.getValue().getNbChildren();
+            
+            if ( nbChildren > 0 )
+            {
+                dumpRdnIdx( entry.getId(), nbChildren, tabs + "  " );
+            }
+        }
+        
+        cursor.close();
+    }
+
 
     //---------------------------------------------------------------------------------------------
     // The Add operation
@@ -587,6 +631,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             // Update the RDN index
             rdnIdx.add( key, id );
+            
+            // Update the parent's nbChildren and nbDescendants values
+            updateRdnIdx( parentId, ADD_CHILD );
 
             // Update the ObjectClass index
             Attribute objectClass = entry.get( OBJECT_CLASS_AT );
@@ -676,6 +723,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             // And finally add the entry into the master table
             master.put( id, entry );
+            
+            dumpRdnIdx();
 
             if ( isSyncOnWrite.get() )
             {
@@ -721,6 +770,38 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // We now defer the deletion to the implementing class
         delete( id );
     }
+    
+    
+    private void updateRdnIdx( ID id, int addRemove ) throws Exception
+    {
+        ID tmpId = id;
+
+        if ( addRemove == REMOVE_CHILD )
+        {
+            ParentIdAndRdn<ID> entry = rdnIdx.reverseLookup( id );
+            tmpId = entry.getParentId();
+        }
+        
+        boolean isFirst = true;
+        
+        while ( !tmpId.equals( getRootId() ) )
+        {
+            ParentIdAndRdn<ID> parent = rdnIdx.reverseLookup( tmpId );
+        
+            if ( isFirst )
+            {
+                parent.setNbChildren( parent.getNbChildren() + addRemove );
+                isFirst = false;
+            }
+            
+            parent.setNbDescendants( parent.getNbDescendants() + addRemove );
+
+            // Inject the modified element into the index
+            rdnIdx.add( parent, tmpId );
+            
+            tmpId = parent.getParentId();
+        }
+    }
 
 
     /**
@@ -754,8 +835,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 objectClassIdx.drop( value.getString(), id );
             }
 
+            // Update the parent's nbChildren and nbDescendants values
+            updateRdnIdx( id, REMOVE_CHILD );
+
             // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
             rdnIdx.drop( id );
+            
+            dumpRdnIdx();
+
             oneLevelIdx.drop( id );
             subLevelIdx.drop( id );
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
@@ -1409,9 +1496,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         updateSubLevelIndex( entryId, oldParentId, newParentId );
 
         // Update the Rdn index
+        updateRdnIdx( entryId, REMOVE_CHILD );
         rdnIdx.drop( entryId );
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
         rdnIdx.add( key, entryId );
+        updateRdnIdx( newParentId, ADD_CHILD );
+
+        dumpRdnIdx();
 
         /*
          * Read Alias Index Tuples
@@ -1582,9 +1673,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         /*
          * Update the Rdn index
          */
+        updateRdnIdx( childId, REMOVE_CHILD );
         rdnIdx.drop( childId );
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, newRdn );
         rdnIdx.add( key, childId );
+        updateRdnIdx( newParentId, ADD_CHILD );
+
+        dumpRdnIdx();
 
         /*
          * Read Alias Index Tuples
