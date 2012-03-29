@@ -315,6 +315,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isArrayTree() )
         {
             ArrayTree<V> set = values.getArrayTree();
