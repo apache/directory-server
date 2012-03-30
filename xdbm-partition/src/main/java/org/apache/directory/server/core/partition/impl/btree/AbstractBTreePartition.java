@@ -2050,7 +2050,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            return oneLevelIdx.count( id );
+            ParentIdAndRdn<ID> parentIdAndRdn = rdnIdx.reverseLookup( id );
+            
+            return parentIdAndRdn.getNbChildren();
         }
         catch ( Exception e )
         {
