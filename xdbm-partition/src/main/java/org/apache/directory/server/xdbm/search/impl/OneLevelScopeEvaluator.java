@@ -154,7 +154,8 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      */
     public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
     {
-        boolean isChild = db.getOneLevelIndex().forward( baseId, candidate.getId() );
+        ParentIdAndRdn<ID> parent = db.getRdnIndex().reverseLookup( candidate.getId() );
+        boolean isChild = parent.getParentId().equals( baseId );
 
         /*
          * The candidate id could be any entry in the db.  If search
