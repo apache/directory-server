@@ -49,11 +49,11 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /** The entry database/store */
     private final Store<Entry, ID> db;
     
-    /** The current position in the cursor */
-    private int currentChild;
+    /** The Parent ID */
+    private ID parentId;
     
-    /** The max number of childen */
-    private int maxChildren;
+    /** The prefetched element */
+    private IndexEntry prefetched;
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -62,23 +62,11 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    //@SuppressWarnings("unchecked")
-    public ChildrenCursor( Store<Entry, ID> db, ID id, IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor )
+    public ChildrenCursor( Store<Entry, ID> db, ID parentId, IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor )
         throws Exception
     {
         this.db = db;
-        ParentIdAndRdn<ID> parent = db.getRdnIndex().reverseLookup( id );
-        currentChild = 0;
-        
-        if ( parent == null )
-        {
-            maxChildren = 0;
-        }
-        else
-        {
-            maxChildren = parent.getNbChildren();
-        }
-        
+        this.parentId = parentId;
         this.cursor = cursor;
     }
 
@@ -108,7 +96,6 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean first() throws Exception
     {
         beforeFirst();
-        currentChild = -1;
         
         return next();
     }
@@ -122,33 +109,54 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
 
     public boolean previous() throws Exception
     {
-        throw new UnsupportedOperationException( getUnsupportedMessage() );
+        checkNotClosed( "next()" );
+        
+        boolean hasPrevious = cursor.previous();
+        
+        if ( hasPrevious )
+        {
+            IndexEntry entry = cursor.get();
+            
+            if ( ((ParentIdAndRdn<ID>)entry.getTuple().getKey()).getParentId().equals( parentId ) )
+            {
+                prefetched = entry;
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
         
-        if ( currentChild < maxChildren )
+        boolean hasNext = cursor.next();
+        
+        if ( hasNext )
         {
-            currentChild++;
-
-            return cursor.next();
+            IndexEntry entry = cursor.get();
+            
+            if ( ((ParentIdAndRdn<ID>)entry.getTuple().getKey()).getParentId().equals( parentId ) )
+            {
+                prefetched = entry;
+                return true;
+            }
         }
-        else
-        {
-            return false;
-        }
+        
+        return false;
     }
+    
 
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
 
-        IndexEntry entry = cursor.get();
-        
-        return entry;
+        return prefetched;
     }
 
 
