@@ -515,8 +515,13 @@ public class JdbmStoreTest
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( 3L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertEquals( 4L, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+        
         assertEquals( 3, store.getChildCount( 1L ) );
 
         store.delete( 2L );

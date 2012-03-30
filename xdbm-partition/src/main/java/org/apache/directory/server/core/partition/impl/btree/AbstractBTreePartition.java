@@ -63,6 +63,8 @@ import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.server.xdbm.search.impl.ChildrenCursor;
+import org.apache.directory.server.xdbm.search.impl.OneLevelScopeCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -536,6 +538,15 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         
     }
 
+    
+    /*
+    private void dumpAllRdnIdx() throws Exception
+    {
+        dumpRdnIdx( getRootId(), "" );
+        System.out.println( "-----------------------------" );
+    }
+    */
+
    
     private void dumpRdnIdx() throws Exception
     {
@@ -545,6 +556,27 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             System.out.println( "-----------------------------" );
         }
     }
+    
+    
+    /*
+    private void dumpRdnIdx( ID id, String tabs ) throws Exception
+    {
+        // Start with the root
+        IndexCursor<ParentIdAndRdn<ID>,Entry,ID> cursor = rdnIdx.forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+        cursor.before( startingPos );
+        
+        while ( cursor.next() )
+        {
+            IndexEntry<ParentIdAndRdn<ID>, ID> entry = cursor.get();
+            System.out.println( tabs + entry );
+        }
+        
+        cursor.close();
+    }
+    */
     
     
     private void dumpRdnIdx( ID id, int nbSibbling, String tabs ) throws Exception
@@ -560,7 +592,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
             IndexEntry<ParentIdAndRdn<ID>, ID> entry = cursor.get();
-            System.out.println( tabs + entry.getValue() );
+            System.out.println( tabs + entry );
             countChildren++;
             
             // And now, the children
@@ -910,12 +942,20 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
+            // Fetch the entry
+            ParentIdAndRdn<ID> parent = rdnIdx.reverseLookup( id );
+            
             // We use the OneLevel index to get all the entries from a starting point
-            // and below
-            IndexCursor<ID, Entry, ID> cursor = oneLevelIdx.forwardCursor( id );
-            cursor.beforeValue( id, null );
+            // and below up to the number of children
+            IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = rdnIdx.forwardCursor();
+            
+            IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+            startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+            cursor.before( startingPos );
 
-            return cursor;
+            dumpRdnIdx();
+
+            return new ChildrenCursor( this, id, cursor );
         }
         catch ( Exception e )
         {

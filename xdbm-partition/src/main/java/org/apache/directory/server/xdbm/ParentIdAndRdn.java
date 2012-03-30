@@ -193,7 +193,17 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         // Special case when that.rdns = null : we are searching for oneLevel or subLevel scope
         if ( that.rdns == null )
         {
-            return parentId.compareTo( that.parentId );
+            int val = parentId.compareTo( that.parentId );
+            
+            if ( val != 0 )
+            {
+                return val;
+            }
+            else
+            {
+                // The current value is necessarily superior
+                return 1;
+            }
         }
 
         if ( rdns == null )

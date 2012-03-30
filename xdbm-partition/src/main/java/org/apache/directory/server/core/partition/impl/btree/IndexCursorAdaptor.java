@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.Iterator;
 
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -31,7 +32,6 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
 
 
 /**
@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
+public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
 {
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
@@ -77,26 +77,6 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     public boolean available()
     {
         return wrappedCursor.available();
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void beforeValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof TupleCursor )
-        {
-            ( ( TupleCursor ) wrappedCursor ).beforeValue( key, id );
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void afterValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof TupleCursor )
-        {
-            ( ( TupleCursor ) wrappedCursor ).afterValue( key, id );
-        }
     }
 
 
@@ -233,5 +213,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
     }
 }
