@@ -25,7 +25,7 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyTupleBTreeCursor<K, V> extends AbstractTupleCursor<K, V>
+public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private final Comparator<V> comparator;
     private final BTree btree;

@@ -22,7 +22,7 @@ package org.apache.directory.server.core.avltree;
 
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K, SingletonOrOrderedSet<V>>
+public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K, SingletonOrOrderedSet<V>>>
 {
     /** The underlying AVL tree map */
     private AvlTreeMap<K, V> tree;

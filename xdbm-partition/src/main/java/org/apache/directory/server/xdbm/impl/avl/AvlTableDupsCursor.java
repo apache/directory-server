@@ -24,7 +24,7 @@ import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTableDupsCursor<K, V> extends AbstractTupleCursor<K, V>
+public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlTableDupsCursor.class.getSimpleName() );
 

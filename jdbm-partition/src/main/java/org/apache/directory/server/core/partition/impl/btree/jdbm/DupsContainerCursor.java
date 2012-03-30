@@ -26,7 +26,7 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  * @param K The Key
  * @param V The associated value
  */
-public class DupsContainerCursor<K, V> extends AbstractTupleCursor<K, DupsContainer<V>>
+public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
 {
     /** The JDBM table we are building a cursor over */
     private final JdbmTable<K, V> table;

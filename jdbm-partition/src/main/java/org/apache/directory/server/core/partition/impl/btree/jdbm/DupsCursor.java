@@ -24,7 +24,7 @@ import jdbm.btree.BTree;
 
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class DupsCursor<K, V> extends AbstractTupleCursor<K, V>
+class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class.getSimpleName() );
 
