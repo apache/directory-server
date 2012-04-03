@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -116,7 +116,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
 
         // to keep the cursor always *after* the last matched tuple
-        // This fixes an issue if the last matched tuple is also the last record present in the 
+        // This fixes an issue if the last matched tuple is also the last record present in the
         // index. In this case the wrapped cursor is positioning on the last tuple instead of positioning after that
         wrapped.afterLast();
         clear();
@@ -185,6 +185,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
                 this.indexEntry.setId( entry.getId() );
                 this.indexEntry.setValue( entry.getValue() );
                 this.indexEntry.setEntry( entry.getEntry() );
+                
                 return true;
             }
         }

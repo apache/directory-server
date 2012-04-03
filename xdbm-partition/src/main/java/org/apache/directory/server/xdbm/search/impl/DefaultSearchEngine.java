@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -96,7 +96,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
 
     /**
-     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
+     * {@inheritDoc}
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception
@@ -134,7 +134,6 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         {
             effectiveBase = base;
         }
-
         /*
          * If the base is an alias and alias dereferencing does occur on
          * finding the base then we set the effective base to the alias target
@@ -152,6 +151,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
             ID effectiveBaseId = baseId;
+            
             if ( effectiveBase != base )
             {
                 effectiveBaseId = db.getEntryId( effectiveBase );

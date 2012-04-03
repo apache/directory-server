@@ -24,7 +24,7 @@ import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
@@ -35,12 +35,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Cursor which walks and advance over AvlTables that may contain duplicate
- * keys with values stored in an AvlTree.  All duplicate keys are traversed 
+ * keys with values stored in an AvlTree.  All duplicate keys are traversed
  * returning the key and the value in a Tuple.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTableDupsCursor<K, V> extends AbstractTupleCursor<K, V>
+public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlTableDupsCursor.class.getSimpleName() );
 
@@ -136,10 +136,10 @@ public class AvlTableDupsCursor<K, V> extends AbstractTupleCursor<K, V>
                 return;
             }
 
-            /* 
-             * The cursor over the values is only advanced if we're on the 
+            /*
+             * The cursor over the values is only advanced if we're on the
              * same key as the primary cursor.  This is because we want this
-             * method to really position us within a set of duplicate key 
+             * method to really position us within a set of duplicate key
              * entries at the proper value.
              */
             if ( table.getKeyComparator().compare( wrappedTuple.getKey(), key ) == 0 )
@@ -427,7 +427,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractTupleCursor<K, V>
 
         /*
          * If we get to this point then cursor has more elements and
-         * wrappedTuple holds the Tuple containing the key and the 
+         * wrappedTuple holds the Tuple containing the key and the
          * AvlTree of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.

@@ -175,6 +175,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
 
+    private static final boolean NO_REVERSE = Boolean.FALSE;
+    private static final boolean WITH_REVERSE = Boolean.TRUE;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -285,61 +287,61 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getOneLevelIndex() == null )
         {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getSubLevelIndex() == null )
         {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getRdnIndex() == null )
         {
-            Index<ParentIdAndRdn<ID>, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID, partitionPath );
+            Index<ParentIdAndRdn<ID>, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getAliasIndex() == null )
         {
-            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getOneAliasIndex() == null )
         {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, partitionPath );
+            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getObjectClassIndex() == null )
         {
-            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.OBJECT_CLASS_AT_OID, partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.OBJECT_CLASS_AT_OID, partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getEntryUuidIndex() == null )
         {
-            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID, partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID, partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
-            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath );
+            Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
@@ -756,8 +758,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             rdnIdx.drop( id );
             oneLevelIdx.drop( id );
             subLevelIdx.drop( id );
-            entryCsnIdx.drop( id );
-            entryUuidIdx.drop( id );
+            entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
+            entryUuidIdx.drop( entry.get( ENTRY_UUID_AT ).getString(), id );
 
             // Update the user indexes
             for ( Attribute attribute : entry )
@@ -1148,11 +1150,11 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
-            if ( objectClassIdx.reverse( id ) )
+            for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
             {
-                objectClassIdx.drop( id );
+                objectClassIdx.drop( value.getString(), id );
             }
-
+            
             for ( Value<?> value : mods )
             {
                 objectClassIdx.add( value.getString(), id );
@@ -1245,7 +1247,10 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
              */
             if ( mods.size() == 0 )
             {
-                objectClassIdx.drop( id );
+                for ( Value<?> objectClass : entry.get( OBJECT_CLASS_AT ) )
+                {
+                    objectClassIdx.drop( objectClass.getString(), id );
+                }
             }
             else
             {
@@ -1818,8 +1823,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      */
     private void updateCsnIndex( Entry entry, ID id ) throws Exception
     {
-        entryCsnIdx.drop( id );
-        entryCsnIdx.add( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString(), id );
+        String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+        entryCsnIdx.drop( entryCsn, id );
+        entryCsnIdx.add( entryCsn, id );
     }
 
 
@@ -2624,5 +2630,5 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * @return The created index
      * @throws Exception If the index can't be created
      */
-     protected abstract Index createSystemIndex( String indexOid, URI path ) throws Exception;
+     protected abstract Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws Exception;
 }

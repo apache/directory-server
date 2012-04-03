@@ -261,4 +261,11 @@ public interface Index<K, O, ID>
      * @return true if duplicate keys are allowed false otherwise
      */
     boolean isDupsEnabled();
+    
+    
+    /**
+     * Tells if the index has a reverse table or not
+     * @return true if the index has a reverse table
+     */
+    boolean hasReverse();
 }

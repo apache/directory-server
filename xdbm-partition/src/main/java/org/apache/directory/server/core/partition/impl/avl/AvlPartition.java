@@ -159,7 +159,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         {
             LOG.debug( "Supplied index {} is not a AvlIndex. "
                 + "Will create new AvlIndex using copied configuration parameters.", index );
-            avlIndex = new AvlIndex( index.getAttributeId() );
+            avlIndex = new AvlIndex( index.getAttributeId(), true );
         }
 
         avlIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
@@ -171,7 +171,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    protected final Index createSystemIndex( String oid, URI path ) throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
@@ -186,7 +186,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         {
             LOG.debug( "Supplied index {} is not a AvlIndex. "
                 + "Will create new AvlIndex using copied configuration parameters." );
-            avlIndex = new AvlIndex( oid );
+            avlIndex = new AvlIndex( oid, withReverse );
         }
 
         return avlIndex;

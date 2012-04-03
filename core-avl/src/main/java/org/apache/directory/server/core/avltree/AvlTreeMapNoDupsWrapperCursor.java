@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.avltree;
 
 
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
@@ -28,11 +28,11 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
 /**
  * A cursor that converts SingletonOrOrderedSet objects in the value from a
  * AvlTreeMap into Tuples with just K and V presuming that all the keys have
- * no duplicates. 
+ * no duplicates.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractTupleCursor<K, V>
+public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private final AvlSingletonOrOrderedSetCursor<K, V> wrapped;
     private final Tuple<K, V> returnedTuple = new Tuple<K, V>();

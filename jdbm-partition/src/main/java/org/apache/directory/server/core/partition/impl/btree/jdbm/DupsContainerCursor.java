@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
@@ -26,7 +26,7 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  * @param K The Key
  * @param V The associated value
  */
-public class DupsContainerCursor<K, V> extends AbstractTupleCursor<K, DupsContainer<V>>
+public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
 {
     /** The JDBM table we are building a cursor over */
     private final JdbmTable<K, V> table;
@@ -135,7 +135,7 @@ public class DupsContainerCursor<K, V> extends AbstractTupleCursor<K, DupsContai
         while ( browser.getNext( jdbmTuple ) )
         {
             checkNotClosed( "afterKey()" );
-            K next = ( K ) jdbmTuple.getKey();
+            K next = jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
 
@@ -286,7 +286,7 @@ public class DupsContainerCursor<K, V> extends AbstractTupleCursor<K, DupsContai
 
         if ( valueAvailable )
         {
-            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+            returnedTuple.setKey( jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
         }
         else

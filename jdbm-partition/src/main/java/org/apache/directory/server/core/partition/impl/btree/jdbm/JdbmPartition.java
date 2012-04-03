@@ -358,7 +358,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         {
             LOG.debug( "Supplied index {} is not a JdbmIndex.  "
                 + "Will create new JdbmIndex using copied configuration parameters.", index );
-            jdbmIndex = new JdbmIndex( index.getAttributeId() );
+            jdbmIndex = new JdbmIndex( index.getAttributeId(), true );
             jdbmIndex.setCacheSize( index.getCacheSize() );
             jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
             jdbmIndex.setWkDirPath( index.getWkDirPath() );
@@ -413,7 +413,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    protected final Index createSystemIndex( String oid, URI path )  throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse )  throws Exception
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
          "Will create new JdbmIndex using copied configuration parameters." );
@@ -427,7 +427,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         }
         else
         {
-            jdbmIndex = new JdbmIndex( oid );
+            jdbmIndex = new JdbmIndex( oid, withReverse );
             jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
         }
 
