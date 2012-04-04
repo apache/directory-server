@@ -247,11 +247,6 @@ public class JdbmStoreTest
         jdbmPartition.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( jdbmPartition.getPresenceIndex() );
 
-        assertNull( jdbmPartition.getOneLevelIndex() );
-        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
-            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( jdbmPartition.getOneLevelIndex() );
-
         assertNull( jdbmPartition.getSubLevelIndex() );
         ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
             ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
@@ -331,16 +326,6 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getOneLevelIndex() );
-        try
-        {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         assertNotNull( store.getSubLevelIndex() );
         try
         {
@@ -405,7 +390,7 @@ public class JdbmStoreTest
 
         Iterator<String> systemIndices = store.getSystemIndices();
 
-        for ( int ii = 0; ii < 10; ii++ )
+        for ( int ii = 0; ii < 9; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

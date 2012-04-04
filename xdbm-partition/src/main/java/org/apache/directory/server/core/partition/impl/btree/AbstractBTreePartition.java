@@ -150,9 +150,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     /** a system index on objectClass attribute*/
     protected Index<String, Entry, ID> objectClassIdx;
 
-    /** the parent child relationship index */
-    protected Index<ID, Entry, ID> oneLevelIdx;
-
     /** a system index on the entries of descendants of root Dn */
     protected Index<ID, Entry, ID> subLevelIdx;
 
@@ -299,12 +296,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             addIndex( index );
         }
 
-        if ( getOneLevelIndex() == null )
-        {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
-            addIndex( index );
-        }
-
         if ( getSubLevelIndex() == null )
         {
             Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
@@ -364,7 +355,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // set index shortcuts
         rdnIdx = ( Index<ParentIdAndRdn<ID>, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
         presenceIdx = ( Index<String, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-        oneLevelIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         subLevelIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
         aliasIdx = ( Index<String, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         oneAliasIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
@@ -693,9 +683,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 addAliasIndices( id, entryDn, aliasAttr.getString() );
             }
 
-            // Update the OneLevel index
-            oneLevelIdx.add( parentId, id );
-
             // Update the SubLevel index
             ID tempId = parentId;
 
@@ -892,7 +879,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             
             dumpRdnIdx();
 
-            oneLevelIdx.drop( id );
             subLevelIdx.drop( id );
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
             entryUuidIdx.drop( entry.get( ENTRY_UUID_AT ).getString(), id );
@@ -1544,9 +1530,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        oneLevelIdx.drop( oldParentId, entryId );
-        oneLevelIdx.add( newParentId, entryId );
-
         updateSubLevelIndex( entryId, oldParentId, newParentId );
 
         // Update the Rdn index
@@ -1731,9 +1714,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        oneLevelIdx.drop( oldParentId, entryId );
-        oneLevelIdx.add( newParentId, entryId );
-
         updateSubLevelIndex( entryId, oldParentId, newParentId );
 
         /*
@@ -2356,16 +2336,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public Index<ID, Entry, ID> getOneLevelIndex()
-    {
-        return ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
     }
 
 

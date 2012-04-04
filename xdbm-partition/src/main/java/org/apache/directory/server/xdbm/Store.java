@@ -91,7 +91,6 @@ public interface Store<E, ID extends Comparable<ID>>
     public static final String[] SYS_INDEX_OID_ARRAY =
         {
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,
             ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
@@ -177,12 +176,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The Presence system index
      */
     Index<String, E, ID> getPresenceIndex();
-
-
-    /**
-     * @return The OneLevel system index
-     */
-    Index<ID, E, ID> getOneLevelIndex();
 
 
     /**

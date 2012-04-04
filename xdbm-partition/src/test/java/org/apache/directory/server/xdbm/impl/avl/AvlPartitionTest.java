@@ -172,10 +172,6 @@ public class AvlPartitionTest
         avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( avlPartition.getPresenceIndex() );
 
-        assertNull( avlPartition.getOneLevelIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( avlPartition.getOneLevelIndex() );
-
         assertNull( avlPartition.getSubLevelIndex() );
         avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
         assertNotNull( avlPartition.getSubLevelIndex() );
@@ -246,17 +242,6 @@ public class AvlPartitionTest
         {
         }
 
-        assertNotNull( partition.getOneLevelIndex() );
-
-        try
-        {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-            //fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         assertNotNull( partition.getSubLevelIndex() );
 
         try
@@ -317,7 +302,7 @@ public class AvlPartitionTest
 
         Iterator<String> systemIndices = partition.getSystemIndices();
 
-        for ( int i = 0; i < 10; i++ )
+        for ( int i = 0; i < 9; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

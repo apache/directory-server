@@ -148,7 +148,6 @@ public class PartitionTest
     public void testExampleDataIndices() throws Exception
     {
         assertEquals( 11, partition.getRdnIndex().count() );
-        assertEquals( 11, partition.getOneLevelIndex().count() );
         assertEquals( 19, partition.getSubLevelIndex().count() );
         assertEquals( 3, partition.getAliasIndex().count() );
         assertEquals( 3, partition.getOneAliasIndex().count() );
