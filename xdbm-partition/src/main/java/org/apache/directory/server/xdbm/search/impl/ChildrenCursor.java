@@ -53,7 +53,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private ID parentId;
     
     /** The prefetched element */
-    private IndexEntry prefetched;
+    private IndexEntry<ID, ID> prefetched;
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -139,9 +139,12 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         
         if ( hasNext )
         {
-            IndexEntry entry = cursor.get();
+            IndexEntry cursorEntry = cursor.get();
+            IndexEntry<ID, ID> entry = new ForwardIndexEntry();
+            entry.setId( (ID)cursorEntry.getId() );
+            entry.setValue( ((ParentIdAndRdn<ID>)cursorEntry.getTuple().getKey()).getParentId() );
             
-            if ( ((ParentIdAndRdn<ID>)entry.getTuple().getKey()).getParentId().equals( parentId ) )
+            if ( entry.getValue().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;

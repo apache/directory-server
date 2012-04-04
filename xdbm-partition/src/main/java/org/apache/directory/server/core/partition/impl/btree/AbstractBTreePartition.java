@@ -959,9 +959,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            // Fetch the entry
-            ParentIdAndRdn<ID> parent = rdnIdx.reverseLookup( id );
-            
             // We use the OneLevel index to get all the entries from a starting point
             // and below up to the number of children
             IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = rdnIdx.forwardCursor();
