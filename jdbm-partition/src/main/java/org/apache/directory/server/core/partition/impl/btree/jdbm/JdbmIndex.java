@@ -424,6 +424,8 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
             // Remove the Key -> entryId from the index
             forward.remove( values.get().getValue(), entryId );
         }
+        
+        values.close();
 
         // Remove the id -> key from the reverse index
         if ( withReverse )
