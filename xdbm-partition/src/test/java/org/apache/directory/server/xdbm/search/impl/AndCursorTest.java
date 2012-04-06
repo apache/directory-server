@@ -299,6 +299,8 @@ public class AndCursorTest
         {
         }
 
+        cursor.close();
+        wrapped.close();
     }
 
 }

@@ -186,6 +186,8 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -209,6 +211,8 @@ public class OneLevelScopeTest
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
+        cursor.close();
+
         // --------- Test afterLast() ---------
 
         cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -222,6 +226,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
         
         /*
@@ -259,6 +264,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
 
         /*
@@ -292,6 +298,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
         
         /*
@@ -335,6 +342,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -367,6 +375,8 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -389,6 +399,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -402,6 +413,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
 
         /*
@@ -438,6 +450,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
 
         /*
@@ -471,6 +484,7 @@ public class OneLevelScopeTest
         catch ( UnsupportedOperationException uoe )
         {
             // expected
+            cursor.close();
         }
 
         /*
@@ -512,6 +526,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -545,7 +560,8 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        
         // --------- Test first() ---------
 
         cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -567,6 +583,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -580,6 +597,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -604,6 +622,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -628,6 +647,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -667,6 +687,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -682,6 +703,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -695,6 +717,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertFalse( cursor.previous() );
@@ -712,6 +735,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertFalse( cursor.previous() );
@@ -729,6 +753,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 7L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertFalse( cursor.previous() );
@@ -809,6 +834,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -845,6 +871,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -865,6 +892,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -896,6 +924,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -942,6 +971,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
         assertEquals( 3L, ( long ) indexEntry.getValue() );
+        cursor.close();
 
         /*
         assertTrue( cursor.previous() );
@@ -997,6 +1027,7 @@ public class OneLevelScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -1049,44 +1080,71 @@ public class OneLevelScopeTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
-            node );
-        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
-        cursor.get();
+        OneLevelScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
+                node );
+            cursor = new OneLevelScopeCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
-            node );
-        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.before( entry );
+        OneLevelScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
+                node );
+            cursor = new OneLevelScopeCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setValue( 3L );
+            cursor.before( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
-        OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
-            node );
-        OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
-
-        // test after()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.after( entry );
+        OneLevelScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
+                node );
+            cursor = new OneLevelScopeCursor<Long>( store, evaluator );
+    
+            // test after()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setValue( 3L );
+            cursor.after( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 

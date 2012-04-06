@@ -180,12 +180,14 @@ public class NotCursorTest
         cursor.beforeFirst();
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -215,12 +217,14 @@ public class NotCursorTest
         cursor.beforeFirst();
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -234,12 +238,14 @@ public class NotCursorTest
         cursor.afterLast();
 
         set.clear();
+        
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -276,6 +282,7 @@ public class NotCursorTest
         catch ( UnsupportedOperationException uoe )
         {
         }
+        
+        cursor.close();
     }
-
 }

@@ -193,6 +193,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -222,6 +223,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -252,6 +254,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test last() ---------
 
@@ -281,6 +284,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test previous() before positioning ---------
 
@@ -310,7 +314,8 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-    }
+        cursor.close();
+}
 
 
     @Test
@@ -528,6 +533,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -550,6 +556,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -573,6 +580,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test last() ---------
 
@@ -595,6 +603,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test previous() before positioning ---------
 
@@ -617,6 +626,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -627,12 +637,13 @@ public class SubtreeScopeTest
             + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "alias", "extensibleObject" );
-        entry.add( "cn", "jd" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "cn: jd",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         ( ( Partition ) store ).add( addContext );
@@ -641,18 +652,20 @@ public class SubtreeScopeTest
             + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "person" );
-        entry.add( "cn", "jdoe" );
-        entry.add( "sn", "doe" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: person",
+            "cn: jdoe",
+            "sn: doe",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         addContext = new AddOperationContext( null, entry );
         ( ( Partition ) store ).add( addContext );
 
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        ScopeNode node = new ScopeNode( 
+            AliasDerefMode.DEREF_IN_SEARCHING, 
+            new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), 
+            SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
@@ -698,6 +711,8 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -735,6 +750,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -779,6 +795,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test last() ---------
 
@@ -822,6 +839,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test previous() before positioning ---------
 
@@ -865,6 +883,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test next() before positioning ---------
 
@@ -908,6 +927,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -953,41 +973,68 @@ public class SubtreeScopeTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-        cursor.get();
+        SubtreeScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.before( entry );
+        SubtreeScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setValue( 3L );
+            cursor.before( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-
-        // test after()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.after( entry );
+        SubtreeScopeCursor<Long> cursor = null;
+        
+        try
+        {
+            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
+                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+    
+            // test after()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setValue( 3L );
+            cursor.after( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 

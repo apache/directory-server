@@ -429,6 +429,7 @@ public class AvlPartitionTest
         partition.add( addContext );
 
         partition.delete( 12L );
+        cursor.close();
     }
 
 
@@ -542,6 +543,8 @@ public class AvlPartitionTest
         assertEquals( 3, ( long ) cursor.get().getId() );
 
         assertFalse( cursor.previous() );
+        
+        cursor.close();
     }
 
 

@@ -491,6 +491,8 @@ public class GreaterEqTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
 
         // ---------- test last() ----------
 
@@ -514,12 +516,15 @@ public class GreaterEqTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
 
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "2" );
+        
         try
         {
             cursor.before( indexEntry );
@@ -527,6 +532,8 @@ public class GreaterEqTest
         }
         catch ( UnsupportedOperationException e )
         {
+            cursor.close();
+            assertTrue( cursor.isClosed() );
         }
 
         // ---------- test after() ----------
@@ -541,6 +548,8 @@ public class GreaterEqTest
         }
         catch ( UnsupportedOperationException e )
         {
+            cursor.close();
+            assertTrue( cursor.isClosed() );
         }
     }
 

@@ -156,6 +156,7 @@ public class NestedFilterTest
         }
 
         store = null;
+        
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -192,6 +193,7 @@ public class NestedFilterTest
         assertEquals( "apache", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -211,6 +213,7 @@ public class NestedFilterTest
         assertEquals( "walker", cursor.get().getValue() );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -227,17 +230,20 @@ public class NestedFilterTest
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
         }
+        
         assertEquals( 2, set.size() );
         assertTrue( set.contains( 7L ) );
         assertTrue( set.contains( 8L ) );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -250,5 +256,6 @@ public class NestedFilterTest
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        cursor.close();
     }
 }
