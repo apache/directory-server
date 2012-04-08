@@ -26,6 +26,7 @@ import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.ReferralHandlingMode;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.util.Strings;
@@ -47,6 +48,9 @@ public class BindOperationContext extends AbstractOperationContext
 
     /** The password */
     private byte[] credentials;
+    
+    /** Original credentials */
+    private byte[] originalCredentials;
 
     /** The SASL mechanism */
     private String saslMechanism;
@@ -121,6 +125,27 @@ public class BindOperationContext extends AbstractOperationContext
         }
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void saveOriginalContext()
+    {
+        super.saveOriginalContext();
+      
+        originalCredentials = credentials;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetContext()
+    {
+        super.resetContext();
+        
+        credentials = originalCredentials;
+    }
 
     /**
      * @return the SASL mechanisms

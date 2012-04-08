@@ -1261,6 +1261,10 @@ public class DefaultDirectoryService implements DirectoryService
                         }
                     }
                 }
+                catch ( LdapException e )
+                {
+                    //e.printStackTrace();
+                }
                 catch ( Exception e )
                 {
                     throw e;

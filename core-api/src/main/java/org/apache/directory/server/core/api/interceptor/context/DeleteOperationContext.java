@@ -90,6 +90,16 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     
     
     /**
+     * {@inheritDoc}
+     */
+    public void resetContext()
+    {
+        super.resetContext();
+        entry = null;
+    }
+    
+    
+    /**
      * @return the operation name
      */
     public String getName()

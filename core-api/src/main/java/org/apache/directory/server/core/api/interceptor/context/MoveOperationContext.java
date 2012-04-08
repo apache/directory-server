@@ -135,7 +135,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
             throw new IllegalArgumentException( lide.getMessage(), lide );
         }
     }
-
+    
 
     /**
      *  @return The oldSuperior Dn

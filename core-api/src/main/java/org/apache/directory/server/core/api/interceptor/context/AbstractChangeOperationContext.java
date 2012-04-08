@@ -61,9 +61,9 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * {@inheritDoc}
      */
-    public void reset()
+    public void resetContext()
     {
-        super.reset();
+        super.resetContext();
         modifiedEntry = null;
         logChange = LogChange.FALSE;
         changeLogEvent = null;

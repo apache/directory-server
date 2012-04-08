@@ -427,6 +427,7 @@ public class DefaultOperationManager implements OperationManager
             {
                 if ( startedTxn )
                 {
+                    addContext.resetContext();
                     retryTransactionRW( txnManager );
                 }
                 else if ( curTxn == null )
@@ -435,6 +436,8 @@ public class DefaultOperationManager implements OperationManager
                     startedTxn = true;
                 }
 
+                addContext.saveOriginalContext();
+                
                 try
                 {
                     head.add( addContext );
@@ -487,12 +490,23 @@ public class DefaultOperationManager implements OperationManager
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
 
         boolean done = false;
+        boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
 
         do
         {
+            if ( startedTxn )
+            {
+                bindContext.resetContext();
+                retryTransactionRW( txnManager );
+            }
+            
             beginTransactionRW( txnManager );
-
+            startedTxn = true;
+            
+            
+            bindContext.saveOriginalContext();
+            
             try
             {
                 head.bind( bindContext );
@@ -721,6 +735,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
+                deleteContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )
@@ -729,6 +744,8 @@ public class DefaultOperationManager implements OperationManager
                 startedTxn = true;
             }
 
+            deleteContext.saveOriginalContext();
+            
             try
             {
                 // populate the context with the old entry
@@ -998,7 +1015,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
-                modifyContext.reset();
+                modifyContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )
@@ -1007,6 +1024,8 @@ public class DefaultOperationManager implements OperationManager
                 startedTxn = true;
             }
 
+            modifyContext.saveOriginalContext();
+            
             try
             {
                 // populate the context with the old entry
@@ -1144,6 +1163,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
+                moveContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )
@@ -1152,6 +1172,8 @@ public class DefaultOperationManager implements OperationManager
                 startedTxn = true;
             }
 
+            moveContext.saveOriginalContext();
+            
             try
             {
                 Entry originalEntry = getOriginalEntry( moveContext );
@@ -1292,6 +1314,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
+                moveAndRenameContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )
@@ -1300,6 +1323,8 @@ public class DefaultOperationManager implements OperationManager
                 startedTxn = true;
             }
 
+            moveAndRenameContext.saveOriginalContext();
+            
             try
             {
                 moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
@@ -1427,6 +1452,7 @@ public class DefaultOperationManager implements OperationManager
         {
             if ( startedTxn )
             {
+                renameContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else if ( curTxn == null )
@@ -1435,6 +1461,8 @@ public class DefaultOperationManager implements OperationManager
                 startedTxn = true;
             }
 
+            renameContext.saveOriginalContext();
+            
             try
             {
                 // Call the rename method

@@ -51,6 +51,9 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
+    
+    /** Orignal list of modification items */
+    private List<Modification> originalModItems = new ArrayList<Modification>();
 
     /** The entry after being renamed and altered for rdn attributes */
     private Entry alteredEntry;
@@ -67,16 +70,6 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
         }
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void reset()
-    {
-        super.reset();
-        alteredEntry = null;
     }
 
 
@@ -123,6 +116,33 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         }
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void saveOriginalContext()
+    {
+        super.saveOriginalContext();
+      
+        for ( Modification mod : getModItems() )
+        {
+            originalModItems.add( mod.clone() );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetContext()
+    {
+        super.resetContext();
+        alteredEntry = null;
+        modItems.clear();
+        modItems.addAll( originalModItems );
+        originalModItems.clear();
+    }
+    
 
     /**
      * Set the modified attributes

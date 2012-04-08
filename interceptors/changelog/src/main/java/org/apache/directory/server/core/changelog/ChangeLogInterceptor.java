@@ -221,7 +221,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // Call the next interceptor
         next( modifyContext );
         
-        // If op doesnt want to be logged, skipped
+        // If op doesnt want to be logged, skip
         if ( !modifyContext.isLogChange() )
         {
             return;

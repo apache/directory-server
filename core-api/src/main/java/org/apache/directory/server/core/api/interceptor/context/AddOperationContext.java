@@ -42,6 +42,9 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public class AddOperationContext extends AbstractChangeOperationContext
 {
+    /** Original version of the entry to be added */
+    private Entry originalAddedEntry;
+    
     /**
      * Creates a new instance of AddOperationContext.
      * 
@@ -140,6 +143,38 @@ public class AddOperationContext extends AbstractChangeOperationContext
         {
             throwReferral();
         }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void saveOriginalContext()
+    {
+        super.saveOriginalContext();
+        
+        if ( entry instanceof ClonedServerEntry )
+        {
+            originalAddedEntry = (( ClonedServerEntry )entry).getOriginalEntry();
+        }
+        else
+        {
+            originalAddedEntry = entry;
+            entry = new ClonedServerEntry( session.getDirectoryService().getSchemaManager(),
+                originalAddedEntry);
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetContext()
+    {
+        super.resetContext();
+           
+        entry = new ClonedServerEntry( session.getDirectoryService().getSchemaManager(),
+            originalAddedEntry);
     }
 
 

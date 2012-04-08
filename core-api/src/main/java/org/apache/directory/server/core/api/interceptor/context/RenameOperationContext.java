@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
@@ -110,8 +111,8 @@ public class RenameOperationContext extends AbstractChangeOperationContext
             throwReferral();
         }
     }
-
-
+    
+    
     /**
      * @return The delete old Rdn flag
      */

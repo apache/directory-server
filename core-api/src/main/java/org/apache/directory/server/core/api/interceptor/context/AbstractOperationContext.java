@@ -55,6 +55,9 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The associated request's controls */
     protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
+    
+    /** Original request controls used in case of a reset */
+    protected Map<String, Control> originalRequestControls = new HashMap<String, Control>(4);
 
     /** The associated response's controls */
     protected Map<String, Control> responseControls = new HashMap<String, Control>(4);
@@ -89,15 +92,6 @@ public abstract class AbstractOperationContext implements OperationContext
         this.session = session;
         currentInterceptor = 0;
     }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void reset()
-    {
-        currentInterceptor = 0;
-    }
 
 
     /**
@@ -113,6 +107,32 @@ public abstract class AbstractOperationContext implements OperationContext
         // The flag is set to ignore, so that the revert operation can act on
         // the entries, even if they are referrals.
         ignoreReferral();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void saveOriginalContext()
+    {
+        originalRequestControls.putAll( requestControls );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetContext()
+    {
+        currentInterceptor = 0;
+        originalEntry = null;
+        authorizedPrincipal = null;
+        next = null;
+        previous = null;
+        entry = null;
+        responseControls.clear();
+        requestControls = originalRequestControls;
+        originalRequestControls = new HashMap<String, Control>(4);
     }
 
 

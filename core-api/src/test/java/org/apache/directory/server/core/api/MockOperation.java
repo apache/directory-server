@@ -50,7 +50,13 @@ public class MockOperation implements OperationContext
     }
     
     
-    public void reset()
+    public void saveOriginalContext()
+    {
+        
+    }
+    
+    
+    public void resetContext()
     {
         
     }
