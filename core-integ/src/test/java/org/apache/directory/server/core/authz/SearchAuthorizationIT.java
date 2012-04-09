@@ -195,6 +195,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         }
 
         results.close();
+        
         reusableAdminCon.delete( rdn );
     }
 
@@ -319,6 +320,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             results.put( result.getDn().getName(), result );
             counter++;
         }
+        
+        cursor.close();
 
         recursivelyDelete( base );
 
@@ -348,6 +351,8 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             results.get();
             counter++;
         }
+        
+        results.close();
 
         assertEquals( 10, counter );
         recursivelyDelete( base );
@@ -958,7 +963,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @return the single search result if access is allowed or null
      * @throws Exception if the search fails w/ exception other than no permission
      */
-    private Entry checkCanSearhSubentryAs( String uid, String password, Dn dn ) throws Exception
+    private Entry checkCanSearchSubentryAs( String uid, String password, Dn dn ) throws Exception
     {
         LdapConnection userCtx = getConnectionAs( new Dn( "uid=" + uid + ",ou=users,ou=system" ), password );
         Entry result = null;
@@ -1003,7 +1008,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
                 "}" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
+        assertNotNull( checkCanSearchSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
         addSubentryACI(
@@ -1025,7 +1030,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             "}" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
+        assertNull( checkCanSearchSubentryAs( "billyd", "billyd", new Dn( "cn=anybodySearch,ou=system" ) ) );
     }
 
 
@@ -1136,7 +1141,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
                 "}" );
 
         // check and see if we can access the subentry now
-        assertNotNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn(
+        assertNotNull( checkCanSearchSubentryAs( "billyd", "billyd", new Dn(
             "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
 
         // now add a denial to prevent all users except the admin from accessing the subentry
@@ -1159,7 +1164,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
                 "}" );
 
         // now we should not be able to access the subentry with a search
-        assertNull( checkCanSearhSubentryAs( "billyd", "billyd", new Dn( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
+        assertNull( checkCanSearchSubentryAs( "billyd", "billyd", new Dn( "ou=phoneBook,uid=billyd,ou=users,ou=system" ) ) );
     }
 
 

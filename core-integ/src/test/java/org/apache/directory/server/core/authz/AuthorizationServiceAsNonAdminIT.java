@@ -180,6 +180,8 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
             {
                 fail();
             }
+            
+            cursor.close();
         }
         catch ( LdapNoPermissionException e )
         {
