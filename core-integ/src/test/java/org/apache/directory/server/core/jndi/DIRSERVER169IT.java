@@ -160,5 +160,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
 
         // We should have a match
         assertTrue( results.hasMore() );
+        
+        results.close();
     }
 }
