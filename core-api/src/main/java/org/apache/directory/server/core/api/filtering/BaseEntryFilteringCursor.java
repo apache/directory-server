@@ -57,6 +57,9 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     /** the logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** the underlying wrapped search results Cursor */
     private final Cursor<Entry> wrapped;
 
@@ -101,6 +104,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
     {
+        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor " + this );
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -119,6 +123,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
+        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor " + this );
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -248,6 +253,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor " + this );
         wrapped.close();
         prefetched = null;
     }
@@ -258,6 +264,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public void close( Exception reason ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor " + this );
         wrapped.close( reason );
         prefetched = null;
     }

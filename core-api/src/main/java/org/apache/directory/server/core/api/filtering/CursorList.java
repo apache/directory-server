@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -47,6 +46,9 @@ import org.slf4j.LoggerFactory;
  */
 public class CursorList implements EntryFilteringCursor
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The inner List */
     private final List<EntryFilteringCursor> list;
 
@@ -82,6 +84,8 @@ public class CursorList implements EntryFilteringCursor
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
+        LOG_CURSOR.debug( "Creating CursorList " + this );
+        
         if ( list != null )
         {
             this.list = list;
@@ -443,12 +447,14 @@ public class CursorList implements EntryFilteringCursor
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing CursorList " + this );
         close( null );
     }
 
 
     public void close( Exception reason ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing CursorList " + this );
         closed = true;
 
         for ( Cursor<?> c : list )
