@@ -31,6 +31,7 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.model.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
@@ -458,6 +459,26 @@ public class LdapSession
         return pagedSearchContexts.remove( contextId );
     }
 
+    
+    /**
+     * Close all the pending cursors for all the pending PagedSearches
+     * 
+     * @throws Exception If we've got an exception.
+     */
+    public void closeAllPagedSearches() throws Exception
+    {
+        for ( int contextId : pagedSearchContexts.keySet() )
+        {
+            PagedSearchContext context = pagedSearchContexts.get( contextId );
+            
+            EntryFilteringCursor cursor = context.getCursor();
+            
+            if ( cursor != null )
+            {
+                cursor.close();
+            }
+        }
+    }
 
     /**
      * Get paged search context associated with an ID 
