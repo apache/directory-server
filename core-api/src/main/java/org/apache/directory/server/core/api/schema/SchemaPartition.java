@@ -310,6 +310,8 @@ public final class SchemaPartition extends AbstractPartition
             {
                 nbEntry++;
             }
+            
+            cursor.close();
 
             return nbEntry;
         }
