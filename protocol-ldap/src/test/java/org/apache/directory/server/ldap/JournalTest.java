@@ -226,6 +226,8 @@ public class JournalTest
 
             pos++;
         }
+        
+        cursor.close();
     }
 
 
@@ -270,6 +272,8 @@ public class JournalTest
             journal.sync();
             deleted++;
         }
+        
+        deleteCursor.close();
 
         // Now check that the first mod is the 501th
         assertEquals( 500, journal.count() );
@@ -282,6 +286,8 @@ public class JournalTest
         ReplicaEventMessage replicaEventMessage = tuple.getValue();
         assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
         assertEquals( "test500", replicaEventMessage.getEntry().get( "ou" ).getString() );
+        
+        cursor.close();
     }
 
 
