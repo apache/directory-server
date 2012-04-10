@@ -83,6 +83,8 @@ public class AvlTableTest
         assertEquals( 1, tuple.getValue().intValue() );
 
         assertFalse( cursor.next() );
+        
+        cursor.close();
 
         // ---- on duplicates ----
 

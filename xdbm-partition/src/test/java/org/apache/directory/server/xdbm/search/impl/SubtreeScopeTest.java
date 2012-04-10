@@ -354,6 +354,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -383,6 +384,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
 
@@ -413,6 +415,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test last() ---------
 
@@ -442,6 +445,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test previous() before positioning ---------
 
@@ -471,6 +475,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test next() before positioning ---------
 
@@ -500,6 +505,7 @@ public class SubtreeScopeTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 

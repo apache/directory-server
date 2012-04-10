@@ -417,13 +417,15 @@ public class AvlPartitionTest
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Apache" );
-        entry.add( "commonName", "Jack Daniels" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "ou: Apache",
+            "commonName: Jack Daniels",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -454,6 +456,8 @@ public class AvlPartitionTest
         assertFalse( cursor.next() );
 
         idx.drop( 5L );
+        
+        cursor.close();
 
         cursor = idx.forwardCursor( 2L );
 
@@ -465,14 +469,18 @@ public class AvlPartitionTest
 
         assertFalse( cursor.next() );
 
+        cursor.close();
+
         // dn id 12
         Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, martinDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        DefaultEntry entry = new DefaultEntry( schemaManager, martinDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Sales",
+            "cn: Martin King",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
@@ -481,6 +489,8 @@ public class AvlPartitionTest
         cursor.afterLast();
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
+
+        cursor.close();
 
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
@@ -492,25 +502,30 @@ public class AvlPartitionTest
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
 
+        cursor.close();
+
         // dn id 13
         Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, marketingDn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, marketingDn,
+            "objectClass: top", 
+            "objectClass: organizationalUnit",
+            "ou: Marketing",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
         // dn id 14
         Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, jimmyDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "cn", "Jimmy Wales" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, jimmyDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Marketing",
+            "cn: Jimmy Wales",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
