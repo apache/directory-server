@@ -147,13 +147,13 @@ public class DupsContainerCursorTest
         comparator.setSchemaManager( schemaManager );
         table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
 
-        Cursor<Tuple<String, DupsContainer<String>>> cursor =
-            new DupsContainerCursor<String, String>( table );
-        assertNotNull( cursor );
+        Cursor<Tuple<String, DupsContainer<String>>> cursor = null;
+        
+        cursor = new DupsContainerCursor<String, String>( table );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testEmptyTable() throws Exception
     {
         Cursor<Tuple<String, DupsContainer<String>>> cursor =
@@ -162,15 +162,27 @@ public class DupsContainerCursorTest
 
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
+        cursor.close();
 
         cursor = new DupsContainerCursor<String, String>( table );
         assertFalse( cursor.previous() );
+        cursor.close();
 
         cursor = new DupsContainerCursor<String, String>( table );
         assertFalse( cursor.next() );
 
         cursor.after( new Tuple<String, DupsContainer<String>>( "7", null ) );
-        cursor.get();
+        
+        try
+        {
+            cursor.get();
+            fail();
+        }
+        catch ( InvalidCursorPositionException icpe )
+        {
+            // Expected
+            cursor.close();
+        }
     }
 
 
@@ -189,6 +201,7 @@ public class DupsContainerCursorTest
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
+        cursor.close();
     }
 
 
@@ -245,6 +258,7 @@ public class DupsContainerCursorTest
         tuple = cursor.get();
         assertEquals( "2", tuple.getKey() );
         assertEquals( "2", tuple.getValue().getArrayTree().getFirst() );
+        cursor.close();
     }
 
 

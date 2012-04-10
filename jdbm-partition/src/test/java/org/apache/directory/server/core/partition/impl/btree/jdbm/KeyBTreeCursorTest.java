@@ -106,6 +106,8 @@ public class KeyBTreeCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
+        
+        cursor.close();
     }
 
 

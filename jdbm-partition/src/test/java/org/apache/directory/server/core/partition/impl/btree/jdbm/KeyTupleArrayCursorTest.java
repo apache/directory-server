@@ -28,6 +28,7 @@ import java.util.Comparator;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +70,13 @@ public class KeyTupleArrayCursorTest
         tree = new ArrayTree<Integer>( comparator );
 
         cursor = new KeyTupleArrayCursor<Integer, Integer>( tree, KEY );
+    }
+    
+    
+    @After
+    public void cleanup() throws Exception
+    {
+        cursor.close();
     }
 
 

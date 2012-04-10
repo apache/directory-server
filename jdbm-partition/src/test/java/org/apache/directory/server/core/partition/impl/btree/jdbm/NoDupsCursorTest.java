@@ -132,7 +132,7 @@ public class NoDupsCursorTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testEmptyTable() throws Exception
     {
         Cursor<Tuple<String, String>> cursor = table.cursor();
@@ -140,15 +140,28 @@ public class NoDupsCursorTest
 
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
+        
+        cursor.close();
 
         cursor = table.cursor();
         assertFalse( cursor.previous() );
+        
+        cursor.close();
 
         cursor = table.cursor();
         assertFalse( cursor.next() );
 
         cursor.after( new Tuple<String, String>( "7", "7" ) );
-        cursor.get();
+        
+        try
+        {
+            cursor.get();
+            fail();
+        }
+        catch ( InvalidCursorPositionException icpe )
+        {
+            cursor.close();
+        }
     }
 
 
@@ -166,6 +179,8 @@ public class NoDupsCursorTest
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
+        
+        cursor.close();
     }
 
 
@@ -182,7 +197,7 @@ public class NoDupsCursorTest
 
         cursor.after( new Tuple<String, String>( "2", "2" ) );
         assertTrue( cursor.next() );
-
+        
         Tuple<String, String> tuple = cursor.get();
         assertEquals( "3", tuple.getKey() );
         assertEquals( "3", tuple.getValue() );
@@ -220,6 +235,8 @@ public class NoDupsCursorTest
         tuple = cursor.get();
         assertEquals( "1", tuple.getKey() );
         assertEquals( "1", tuple.getValue() );
+        
+        cursor.close();
     }
 
 
@@ -279,7 +296,8 @@ public class NoDupsCursorTest
 
         assertTrue( cursor.previous() );
         assertEquals( "1", cursor.get().getKey() );
-
+        
+        cursor.close();
     }
 
 
