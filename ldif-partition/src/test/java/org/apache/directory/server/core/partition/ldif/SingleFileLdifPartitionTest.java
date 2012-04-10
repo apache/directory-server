@@ -677,6 +677,8 @@ public class SingleFileLdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
+        
+        cursor.close();
     }
     
     
