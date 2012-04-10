@@ -136,6 +136,8 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         {
             results.add( cursor.get().getDn().getName() );
         }
+        
+        cursor.close();
 
         return results;
     }
@@ -248,6 +250,8 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
             assertEquals( "ou=testPresence,ou=system", cursor.get().getDn().toString() );
         }
         
+        cursor.close();
+        
         // Modify the entry to remove the description
         connection.modify( "ou=testPresence,ou=system",
             new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "description" ) );
@@ -259,5 +263,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         {
             fail( "The search should not return any entry" );
         }
+        
+        cursor.close();
     }
 }
