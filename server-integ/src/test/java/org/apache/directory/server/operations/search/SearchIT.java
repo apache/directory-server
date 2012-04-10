@@ -1615,6 +1615,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testAbandonnedRequest() throws Exception
     {
         LdapConnection asyncCnx = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        EntryCursor cursor = null;
     
         try
         {
@@ -1636,7 +1637,7 @@ public class SearchIT extends AbstractLdapTestUnit
             }
     
             // Searches for all the entries in ou=system
-            EntryCursor cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+            cursor = asyncCnx.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
     
             // Now loop on all the elements found, and abandon after 10 elements returned
             int count = 0;
@@ -1663,6 +1664,7 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             asyncCnx.unBind();
             asyncCnx.close();
+            cursor.close();
         }
     }
     
