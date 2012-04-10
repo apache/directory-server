@@ -134,7 +134,6 @@ public class AddAliasIT extends AbstractLdapTestUnit
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
                 assertTrue( true );
             }
 
@@ -224,8 +223,10 @@ public class AddAliasIT extends AbstractLdapTestUnit
 
             while ( cursor.next() )
             {
-                System.out.println( cursor.get().getDn() );
+                //System.out.println( cursor.get().getDn() );
             }
+            
+            cursor.close();
         }
         finally
         {
