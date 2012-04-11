@@ -28,6 +28,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
@@ -68,6 +73,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public SubtreeScopeCursor( Store<Entry, ID> db, SubtreeScopeEvaluator<Entry, ID> evaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating SubtreeScopeCursor {}", this );
         this.db = db;
         this.evaluator = evaluator;
 
@@ -312,8 +318,13 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    private void closeCursors() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
+        
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
@@ -323,21 +334,38 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             scopeCursor.close();
         }
-    }
+        
+        if ( cursor != null )
+        {
+            cursor.close();
+        }
 
-
-    @Override
-    public void close() throws Exception
-    {
-        closeCursors();
         super.close();
     }
 
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void close( Exception cause ) throws Exception
     {
-        closeCursors();
+        LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
+        
+        if ( dereferencedCursor != null )
+        {
+            dereferencedCursor.close( cause );
+        }
+
+        if ( scopeCursor != null )
+        {
+            scopeCursor.close( cause );
+        }
+        
+        if ( cursor != null )
+        {
+            cursor.close( cause );
+        }
+
         super.close( cause );
     }
 }

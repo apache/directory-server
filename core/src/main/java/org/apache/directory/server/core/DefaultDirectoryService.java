@@ -1206,6 +1206,17 @@ public class DefaultDirectoryService implements DirectoryService
         {
             throw new LdapOperationException( e.getMessage(), e );
         }
+        finally
+        {
+            try
+            {
+                cursor.close();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage(), e );
+            }
+        }
 
         return changeLog.getCurrentRevision();
     }

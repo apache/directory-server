@@ -180,6 +180,8 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
                 Tuple<Long, K> tuple = cursor.get();
                 forward.remove( tuple.getValue(), id );
             }
+            
+            cursor.close();
     
             reverse.remove( id );
         }

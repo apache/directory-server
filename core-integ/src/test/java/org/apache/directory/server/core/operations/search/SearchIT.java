@@ -303,6 +303,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 9, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -327,6 +329,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect", 14, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
@@ -358,6 +362,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
         Attributes attrs = map.get( "ou=testing02,ou=system" );
@@ -382,6 +388,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         // 16 because it also matches organizationalPerson which the admin is
         assertEquals( "Expected number of results returned was incorrect", 17, map.size() );
@@ -415,24 +423,36 @@ public class SearchIT extends AbstractLdapTestUnit
         NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
         assertNotNull( e );
 
+        e.close();
+        
         e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
+
+        e.close();
 
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
 
+        e.close();
+
         e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
+
+        e.close();
 
         e = sysRoot.search( "", "(OBJECTclass=*)", cons );
         assertNotNull( e );
         assertTrue( e.hasMore() );
 
+        e.close();
+
         e = sysRoot.search( "", "(objectclass=*)", cons );
         assertNotNull( e );
+
+        e.close();
 
         getService().setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
     }
@@ -457,6 +477,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -480,6 +502,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
+        list.close();
 
         assertEquals( "size of results", 1, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
@@ -503,6 +527,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "size of results", 23, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
@@ -543,6 +569,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "size of results", 2, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
@@ -566,6 +594,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "size of results", 6, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
@@ -600,6 +630,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "size of results", 6, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
@@ -630,6 +662,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         Attributes attrs = map.get( "ou=testing00,ou=system" );
@@ -658,6 +692,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
@@ -705,6 +741,9 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult sr = enm.next();
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
+        
+        enm.close();
+        
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
 
         enm = sysRoot.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
@@ -713,6 +752,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
+
+        enm.close();
     }
 
 
@@ -735,6 +776,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
@@ -767,6 +810,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
@@ -797,6 +842,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
@@ -829,6 +876,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
@@ -860,6 +909,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
@@ -890,6 +941,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
@@ -1067,6 +1120,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
+        
+        list.close();
 
         return results;
     }
@@ -1106,6 +1161,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
+        
+        list.close();
 
         return results;
     }
@@ -1135,6 +1192,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
+        
+        list.close();
 
         return results;
     }
@@ -1301,6 +1360,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
@@ -1338,6 +1399,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         String[] filters = new String[]
             { "(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)", "(description=*\\5C*)" };
+        
         for ( String filter : filters )
         {
             HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1348,6 +1410,8 @@ public class SearchIT extends AbstractLdapTestUnit
                 SearchResult result = list.next();
                 map.put( result.getName(), result.getAttributes() );
             }
+
+            list.close();
 
             assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
@@ -1378,11 +1442,15 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
 
+        res.close();
+        
         res = sysRoot.search( "", "(cn=*{0}*)", new String[]
             { "x*y*z*" }, controls );
         assertTrue( res.hasMore() );
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        
+        res.close();
     }
 
 
@@ -1545,6 +1613,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
         assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) || map.containsKey( "cn=Heather Nova,ou=system" ) );
     }
@@ -1568,6 +1638,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
         assertTrue( map.containsKey( "cn=with-dn, ou=system" ) || map.containsKey( "cn=with-dn,ou=system" ) );
@@ -1598,6 +1670,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
+        list.close();
 
         assertEquals( "size of results", 5, map.size() );
         assertTrue( map.containsKey( "cn=testGroup0,ou=groups,ou=system" ) );
@@ -1634,6 +1708,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
@@ -1666,6 +1742,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
@@ -1702,6 +1780,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
@@ -1735,6 +1815,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( 2, map.size() );
 
         assertTrue( map.containsKey( "ou=system" ) );
@@ -1759,6 +1841,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertTrue( map.size() > 2 );
 
@@ -1785,6 +1869,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( 0, map.size() );
 
         assertFalse( map.containsKey( "ou=system" ) );
@@ -1810,6 +1896,8 @@ public class SearchIT extends AbstractLdapTestUnit
             map.put( result.getName(), result.getAttributes() );
         }
 
+        list.close();
+
         assertEquals( 0, map.size() );
 
         assertFalse( map.containsKey( "ou=system" ) );
@@ -1832,10 +1920,10 @@ public class SearchIT extends AbstractLdapTestUnit
 
         // add an entry to have a entry with higher CSN value
         Dn dn2 = new Dn( "cn=testHigherCsnAdd,ou=system" );
-        Entry entry2 = new DefaultEntry( dn2 );
-        entry2.add( "objectClass", SchemaConstants.PERSON_OC );
-        entry2.add( "cn", "testHigherCsnAdd_cn" );
-        entry2.add( "sn", "testHigherCsnAdd_sn" );
+        Entry entry2 = new DefaultEntry( dn2,
+            "objectClass :person",
+            "cn: testHigherCsnAdd_cn",
+            "sn: testHigherCsnAdd_sn" );
 
         connection.add( entry2 );
 
@@ -1920,6 +2008,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+        
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -1943,6 +2033,8 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
+
+        list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 0, map.size() );
     }

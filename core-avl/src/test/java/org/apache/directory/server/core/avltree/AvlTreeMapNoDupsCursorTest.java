@@ -30,6 +30,7 @@ import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,6 +64,13 @@ public class AvlTreeMapNoDupsCursorTest
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
 
         cursor = new AvlSingletonOrOrderedSetCursor<Integer, Integer>( tree );
+    }
+    
+    
+    @After
+    public void cleanup() throws Exception
+    {
+        cursor.close();
     }
 
 
@@ -105,9 +113,6 @@ public class AvlTreeMapNoDupsCursorTest
 
         cursor.after( new Tuple<Integer, SingletonOrOrderedSet<Integer>>( 3, null ) );
         assertFalse( cursor.available() );
-
-        cursor.close();
-        assertTrue( cursor.isClosed() );
     }
 
 
@@ -480,5 +485,6 @@ public class AvlTreeMapNoDupsCursorTest
         assertEquals( 10, valCursor.get().intValue() );
 
         assertFalse( valCursor.next() );
+        valCursor.close();
     }
 }

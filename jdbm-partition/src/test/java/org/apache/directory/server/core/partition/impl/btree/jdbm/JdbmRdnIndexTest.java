@@ -367,6 +367,8 @@ public class JdbmRdnIndexTest
         assertEquals( 2, ( long ) e3.getId() );
         assertEquals( "cn=key2", e3.getValue().getRdns()[0].getName() );
         assertEquals( 2, e3.getValue().getParentId().longValue() );
+        
+        cursor.close();
     }
 
     //    @Test

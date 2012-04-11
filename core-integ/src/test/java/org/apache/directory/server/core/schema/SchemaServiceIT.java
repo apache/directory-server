@@ -244,6 +244,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             persons.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // admin is extra
         assertEquals( 4, persons.size() );
 
@@ -288,6 +290,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             orgPersons.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // admin is extra
         assertEquals( 3, orgPersons.size() );
 
@@ -325,6 +329,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             inetOrgPersons.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // admin is extra
         assertEquals( 2, inetOrgPersons.size() );
 
@@ -354,6 +360,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
@@ -392,6 +400,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
@@ -421,6 +431,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
@@ -474,6 +486,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
@@ -520,6 +534,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
     }
@@ -542,6 +558,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
@@ -597,6 +615,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
@@ -648,6 +668,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
     }
@@ -670,6 +692,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -695,6 +719,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 1, persons.size() );
@@ -739,6 +765,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -789,6 +817,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -839,6 +869,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -889,6 +921,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         assertEquals( 3, persons.size() );
 
@@ -933,16 +967,18 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> results = schemaRoot.search( "", "(objectClass=top)", controls );
         assertTrue( "Expected some results", results.hasMore() );
+        results.close();
 
         controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         results = schemaRoot.search( "", "(objectClass=metaAttributeType)", controls );
         assertTrue( "Expected some results", results.hasMore() );
+        results.close();
 
         controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         results = schemaRoot.search( "", "(objectClass=metaTop)", controls );
         assertTrue( "Expected some results", results.hasMore() );
+        results.close();
     }
-
 }

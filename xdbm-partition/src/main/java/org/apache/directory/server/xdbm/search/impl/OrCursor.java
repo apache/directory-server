@@ -34,6 +34,8 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +45,9 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  */
 public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     private final List<IndexCursor<V, Entry, ID>> cursors;
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
@@ -54,6 +59,8 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     public OrCursor( List<IndexCursor<V, Entry, ID>> cursors,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
+        LOG_CURSOR.debug( "Creating OrCursor {}", this );
+        
         if ( cursors.size() <= 1 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_723 ) );
@@ -63,10 +70,11 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         this.evaluators = evaluators;
         this.blacklists = new ArrayList<Set<ID>>();
 
-        for ( int ii = 0; ii < cursors.size(); ii++ )
+        for ( int i = 0; i < cursors.size(); i++ )
         {
             this.blacklists.add( new HashSet<ID>() );
         }
+        
         this.cursorIndex = 0;
     }
 
@@ -235,10 +243,24 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing OrCursor {}", this );
         super.close();
+        
         for ( Cursor<?> cursor : cursors )
         {
             cursor.close();
+        }
+    }
+
+
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing OrCursor {}", this );
+        super.close( cause );
+        
+        for ( Cursor<?> cursor : cursors )
+        {
+            cursor.close( cause );
         }
     }
 }

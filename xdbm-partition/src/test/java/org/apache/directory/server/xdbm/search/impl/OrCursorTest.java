@@ -378,6 +378,13 @@ public class OrCursorTest
         {
         }
 
-        cursor.get();
+        try
+        {
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 }

@@ -137,6 +137,7 @@ public class KeyTupleBTreeCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
+        cursor.close();
     }
 
 
@@ -166,7 +167,7 @@ public class KeyTupleBTreeCursorTest
         table.put( KEY, "30" );
         table.put( KEY, "25" );
 
-        cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
+        KeyTupleBTreeCursor<String, String> cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
 
         cursor.before( new Tuple<String, String>( KEY, "3" ) );
         assertTrue( cursor.next() );
@@ -202,6 +203,7 @@ public class KeyTupleBTreeCursorTest
         assertTrue( cursor.next() );
         assertEquals( "30", cursor.get().getValue() );
 
+        cursor.close();
     }
 
 

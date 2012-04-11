@@ -29,6 +29,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
     private final IndexCursor<String, Entry, ID> wrapped;
@@ -49,6 +54,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     public SubstringCursor( Store<Entry, ID> store, final SubstringEvaluator<ID> substringEvaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
@@ -208,10 +214,26 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
         super.close();
         wrapped.close();
+        clear();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+        super.close( cause );
+        wrapped.close( cause );
         clear();
     }
 }

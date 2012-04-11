@@ -25,6 +25,8 @@ import java.util.Comparator;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,9 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K, SingletonOrOrderedSet<V>>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The underlying AVL tree map */
     private AvlTreeMap<K, V> tree;
 
@@ -48,6 +53,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
 
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
+        LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
         this.tree = tree;
     }
 
@@ -284,5 +290,25 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     public void beforeValue( K key, SingletonOrOrderedSet<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception reason ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        super.close( reason );
     }
 }

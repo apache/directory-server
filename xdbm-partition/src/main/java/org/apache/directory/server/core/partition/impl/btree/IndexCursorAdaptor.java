@@ -24,7 +24,6 @@ import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.shared.i18n.I18n;
@@ -32,6 +31,8 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,6 +43,9 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
     final ForwardIndexEntry<K, ID> forwardEntry;
@@ -59,6 +63,7 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
     @SuppressWarnings("unchecked")
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
+        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
         this.wrappedCursor = wrappedCursor;
 
         if ( forwardIndex )
@@ -77,26 +82,6 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
     public boolean available()
     {
         return wrappedCursor.available();
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void beforeValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof IndexCursor )
-        {
-            ( ( IndexCursor ) wrappedCursor ).beforeValue( key, id );
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void afterValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof IndexCursor )
-        {
-            ( ( IndexCursor ) wrappedCursor ).afterValue( key, id );
-        }
     }
 
 
@@ -180,12 +165,14 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         wrappedCursor.close();
     }
 
 
     public void close( Exception reason ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         wrappedCursor.close( reason );
     }
 

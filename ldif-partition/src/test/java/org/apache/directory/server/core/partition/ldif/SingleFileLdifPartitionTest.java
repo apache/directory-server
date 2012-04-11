@@ -51,6 +51,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -676,14 +677,16 @@ public class SingleFileLdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
+        
+        cursor.close();
     }
-
-
+    
+    
     @Test
     public void testLdifMoveEntry() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
-
+        
         Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
             "dc=child1,ou=test,ou=system" ) ) );
         Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,

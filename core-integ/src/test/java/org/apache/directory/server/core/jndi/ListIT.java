@@ -30,6 +30,8 @@ import java.util.HashSet;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -109,11 +111,26 @@ public class ListIT extends AbstractLdapTestUnit
         {
             NameClassPair ncp = list.next();
             set.add( ncp.getName() );
+            
+            System.out.println( ncp.getName() );
         }
 
         assertTrue( set.contains( "uid=admin,ou=system" ) );
         assertTrue( set.contains( "ou=users,ou=system" ) );
         assertTrue( set.contains( "ou=groups,ou=system" ) );
+        
+        System.out.println( "--------------------" );
+
+        SearchControls sc = new SearchControls();
+        sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = sysRoot.search( "", "(objectClass=*)", sc );
+        
+        while ( ne.hasMoreElements() )
+        {
+            SearchResult sr = ne.nextElement();
+            
+            System.out.println( sr.getName() );
+        }
     }
 
 

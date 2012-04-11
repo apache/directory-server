@@ -259,6 +259,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
+        
         try
         {
             ( ( JdbmIndex<String, Entry> ) idx ).setNumDupLimit( 30 );
@@ -267,6 +268,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
+        
         assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String, Entry> ) idx ).getNumDupLimit() );
     }
 
@@ -331,6 +333,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
+        
         assertEquals( 26, idx.greaterThanCount( "a" ) );
     }
 
@@ -345,6 +348,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
+        
         assertEquals( 26, idx.lessThanCount( "z" ) );
     }
 
@@ -539,6 +543,8 @@ public class JdbmIndexTest
         IndexEntry<String, Long> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getValue() );
+        
+        cursor.close();
 
         // use reverse index's cursor
         cursor = idx.reverseCursor();
@@ -558,6 +564,8 @@ public class JdbmIndexTest
         e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getValue() );
+        
+        cursor.close();
     }
 
 

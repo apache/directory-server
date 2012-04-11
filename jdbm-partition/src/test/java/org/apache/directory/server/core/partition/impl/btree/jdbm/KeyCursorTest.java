@@ -106,6 +106,8 @@ public class KeyCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
+        
+        cursor.close();
     }
 
 

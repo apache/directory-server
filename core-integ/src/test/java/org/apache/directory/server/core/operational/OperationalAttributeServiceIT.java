@@ -198,6 +198,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         // test to make sure op attribute do not occur - this is the control
         assertNull( entry.get( "creatorsName" ) );
         assertNull( entry.get( "createTimestamp" ) );
+        
+        responses.close();
 
         // now we ask for all the op attributes and check to get them
         responses = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, "creatorsName",
@@ -210,6 +212,8 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         // We should not have any other operational Attribute
         assertNull( entry.get( "entryUuid" ) );
+        
+        responses.close();
     }
 
 

@@ -211,11 +211,13 @@ public class JdbmStoreTest
 
         // inject context entry
         Dn suffixDn = new Dn( schemaManager, "dc=example,dc=com" );
-        Entry entry = new DefaultEntry( schemaManager, suffixDn );
-        entry.add( "objectClass", "top", "domain" );
-        entry.add( "dc", "example" );
-        entry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, suffixDn,
+            "objectClass: top", 
+            "objectClass: domain",
+            "dc: example",
+            SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString(),
+            SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        
         store2.add( new AddOperationContext( null, entry ) );
 
         // lookup the context entry
@@ -246,11 +248,6 @@ public class JdbmStoreTest
         assertNull( jdbmPartition.getPresenceIndex() );
         jdbmPartition.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( jdbmPartition.getPresenceIndex() );
-
-        assertNull( jdbmPartition.getOneLevelIndex() );
-        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
-            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( jdbmPartition.getOneLevelIndex() );
 
         assertNull( jdbmPartition.getSubLevelIndex() );
         ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
@@ -331,16 +328,6 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getOneLevelIndex() );
-        try
-        {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-            fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         assertNotNull( store.getSubLevelIndex() );
         try
         {
@@ -405,7 +392,7 @@ public class JdbmStoreTest
 
         Iterator<String> systemIndices = store.getSystemIndices();
 
-        for ( int ii = 0; ii < 10; ii++ )
+        for ( int ii = 0; ii < 9; ii++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -453,6 +440,7 @@ public class JdbmStoreTest
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
         assertNotNull( store.getUserIndex( OU_AT ) );
+        
         try
         {
             store.getUserIndex( SN_AT );
@@ -515,8 +503,15 @@ public class JdbmStoreTest
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( 3L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertEquals( 4L, ( long ) cursor.get().getId() );
+        assertTrue( cursor.next() );
+        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+        
+        cursor.close();
+        
         assertEquals( 3, store.getChildCount( 1L ) );
 
         store.delete( 2L );
@@ -525,19 +520,20 @@ public class JdbmStoreTest
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Apache" );
-        entry.add( "commonName", "Jack Daniels" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "ou: Apache",
+            "commonName: Jack Daniels",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
         store.delete( 12L ); // drops the alias indices
-
     }
 
 
@@ -563,6 +559,8 @@ public class JdbmStoreTest
 
         idx.drop( 5L );
 
+        cursor.close();
+        
         cursor = idx.forwardCursor( 2L );
 
         assertTrue( cursor.next() );
@@ -573,14 +571,18 @@ public class JdbmStoreTest
 
         assertFalse( cursor.next() );
 
+        cursor.close();
+
         // dn id 12
         Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, martinDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, martinDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Sales",
+            "cn: Martin King",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
@@ -588,6 +590,8 @@ public class JdbmStoreTest
         cursor.afterLast();
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
+        
+        cursor.close();
 
         Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
 
@@ -599,24 +603,29 @@ public class JdbmStoreTest
         assertTrue( cursor.previous() );
         assertEquals( 12, ( long ) cursor.get().getId() );
 
+        cursor.close();
+
         // dn id 13
         Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, marketingDn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, marketingDn,
+            "objectClass: top", 
+            "objectClass: organizationalUnit",
+            "ou: Marketing",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
         // dn id 14
         Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, jimmyDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "cn", "Jimmy Wales" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        entry = new DefaultEntry( schemaManager, jimmyDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Marketing",
+            "cn", "Jimmy Wales",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
         addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
@@ -649,6 +658,8 @@ public class JdbmStoreTest
         assertEquals( 3, ( long ) cursor.get().getId() );
 
         assertFalse( cursor.previous() );
+
+        cursor.close();
     }
 
 
@@ -656,10 +667,12 @@ public class JdbmStoreTest
     public void testAddWithoutParentId() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Not Present" );
-        entry.add( "cn", "Martin King" );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Not Present",
+            "cn: Martin King" );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
     }
@@ -669,9 +682,9 @@ public class JdbmStoreTest
     public void testAddWithoutObjectClass() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "ou: Sales",
+            "cn: Martin King" );
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
     }
@@ -695,12 +708,14 @@ public class JdbmStoreTest
     public void testRename() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Engineering",
+            "cn: Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
@@ -720,12 +735,14 @@ public class JdbmStoreTest
     public void testRenameEscaped() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Engineering" );
-        entry.add( "cn", "Private Ryan" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Engineering",
+            "cn: Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
@@ -746,12 +763,14 @@ public class JdbmStoreTest
     public void testMove() throws Exception
     {
         Dn childDn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
-        Entry childEntry = new DefaultEntry( schemaManager, childDn );
-        childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
-        childEntry.add( "ou", "Engineering" );
-        childEntry.add( "cn", "Private Ryan" );
-        childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry childEntry = new DefaultEntry( schemaManager, childDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou", "Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
         store.add( addContext );
@@ -855,11 +874,13 @@ public class JdbmStoreTest
     public void testModifyReplaceNonExistingIndexAttribute() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=Tim B,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "cn", "Tim B" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "cn", "Tim B",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );

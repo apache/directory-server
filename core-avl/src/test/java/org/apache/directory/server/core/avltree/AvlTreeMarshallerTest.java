@@ -299,6 +299,8 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get() );
             cursor.next();
         }
+        
+        cursor.close();
     }
 
 
@@ -336,6 +338,8 @@ public class AvlTreeMarshallerTest
         // this marshaller fails to preserve last node reference
         assertNotNull( deserialized.getLast() );
         assertEquals( 99, ( int ) deserialized.getLast().getKey() );
+        
+        cursor.close();
     }
 
 
@@ -370,6 +374,8 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get().intValue );
             cursor.next();
         }
+        
+        cursor.close();
     }
 
     static class Bar implements Serializable

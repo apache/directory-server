@@ -109,20 +109,20 @@ public class ParentIdAndRdnTest
         assertEquals( -2, rdn3.compareTo( rdn2 ) );
         assertEquals( 0, rdn3.compareTo( rdn3 ) );
         assertEquals( -1, rdn3.compareTo( rdn4 ) );
-        assertEquals( -2, rdn3.compareTo( rdn5 ) );
+        assertEquals( 1, rdn3.compareTo( rdn5 ) );
         
         // Forth rdn
         assertEquals( -2, rdn4.compareTo( rdn1 ) );
         assertEquals( -2, rdn4.compareTo( rdn2 ) );
         assertEquals( 1, rdn4.compareTo( rdn3 ) );
         assertEquals( 0, rdn4.compareTo( rdn4 ) );
-        assertEquals( -2, rdn4.compareTo( rdn5 ) );
+        assertEquals( 1, rdn4.compareTo( rdn5 ) );
         
         // Fifth rdn
         assertEquals( -1, rdn5.compareTo( rdn1 ) );
         assertEquals( -1, rdn5.compareTo( rdn2 ) );
-        assertEquals( 2, rdn5.compareTo( rdn3 ) );
-        assertEquals( 2, rdn5.compareTo( rdn4 ) );
+        assertEquals( -1, rdn5.compareTo( rdn3 ) );
+        assertEquals( -1, rdn5.compareTo( rdn4 ) );
         assertEquals( 0, rdn5.compareTo( rdn5 ) );
 
         // Sixth rdn

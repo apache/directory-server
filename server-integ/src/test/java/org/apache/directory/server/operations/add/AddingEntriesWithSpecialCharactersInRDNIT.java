@@ -106,6 +106,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( cn.contains( "Kate#Bush" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -144,6 +146,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( cn.contains( "Bush, Kate" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -178,6 +182,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( cn.contains( "Mackie \"The Knife\" Messer" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -211,6 +217,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
         }
+        
+        cursor.close();
 
         assertTrue( "no entry found", entryFound );
         connection.delete( dn );
@@ -248,6 +256,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "East -> West" ) );
         }
+
+        cursor.close();
 
         assertTrue( "entry found", entryFound );
 
@@ -287,6 +297,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "Scissors 8<" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -325,6 +337,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "semicolon group;" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -361,6 +375,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "nomen=omen" ) );
         }
+
+        cursor.close();
 
         assertTrue( "entry found", entryFound );
 

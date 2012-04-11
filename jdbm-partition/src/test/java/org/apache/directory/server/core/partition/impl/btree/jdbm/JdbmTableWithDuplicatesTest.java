@@ -383,6 +383,8 @@ public class JdbmTableWithDuplicatesTest
         {
             //System.out.println( cursor.get() );
         }
+        
+        cursor.close();
 
         assertFalse( table.hasLessOrEqual( "1" ) );
         assertFalse( table.hasLessOrEqual( "1", "10" ) );

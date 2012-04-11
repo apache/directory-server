@@ -45,6 +45,11 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
 
+    /** Number of direct children */
+    protected int nbChildren;
+
+    /** Number of global descendant */
+    protected int nbDescendants;
 
     /**
      * Serializable constructor.
@@ -77,6 +82,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     {
         this.parentId = parentId;
         this.rdns = rdns.toArray( new Rdn[rdns.size()] );
+        nbChildren = 0;
+        nbDescendants = 0;
     }
 
 
@@ -183,13 +190,50 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      */
     public int compareTo( ParentIdAndRdn<ID> that )
     {
-        int val = rdns.length - that.rdns.length;
+        // Special case when that.rdns = null : we are searching for oneLevel or subLevel scope
+        if ( that.rdns == null )
+        {
+            int val = parentId.compareTo( that.parentId );
+            
+            if ( val != 0 )
+            {
+                return val;
+            }
+            else
+            {
+                // The current value is necessarily superior
+                return 1;
+            }
+        }
+
+        if ( rdns == null )
+        {
+            int res = parentId.compareTo( that.parentId );
+            
+            if ( res == 0 )
+            {
+                return -1;
+            }
+            else
+            {
+                return res;
+            }
+        }
+        
+        int val = parentId.compareTo( that.getParentId() );
 
         if ( val != 0 )
         {
             return val;
         }
 
+        val = rdns.length - that.rdns.length;
+
+        if ( val != 0 )
+        {
+            return val;
+        }
+        
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         
@@ -230,11 +274,6 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         
         val = ( thisString.compareTo( thatString ) );
         
-        if ( val == 0 )
-        {
-            val = this.getParentId().compareTo( that.getParentId() );
-        }
-
         return val;
     }
 
@@ -242,6 +281,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeObject( parentId );
+        out.writeInt( nbChildren );
+        out.writeInt( nbDescendants );
         out.writeInt( rdns.length );
 
         for ( Rdn rdn : rdns )
@@ -255,6 +296,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         parentId = ( ID ) in.readObject();
+        nbChildren = in.readInt();
+        nbDescendants = in.readInt();
         int size = in.readInt();
         rdns = new Rdn[size];
 
@@ -268,6 +311,46 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
 
     /**
+     * @return The number of children this entry has
+     */
+    public int getNbChildren()
+    {
+        return nbChildren;
+    }
+
+
+    /**
+     * Sets the number of children this entry has
+     * @param nbChildren The number of children
+     */
+    public void setNbChildren( int nbChildren )
+    {
+        this.nbChildren = nbChildren;
+    }
+
+
+    /**
+     * @return The number of descendants this entry has
+     */
+    public int getNbDescendants()
+    {
+        return nbDescendants;
+    }
+
+
+    /**
+     * Sets the number of descendants this entry has
+     * @param nbChildren The number of descendants
+     */
+    public void setNbDescendants( int nbDescendants )
+    {
+        this.nbDescendants = nbDescendants;
+    }
+
+
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString()
@@ -277,23 +360,33 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         sb.append( "ParentIdAndRdn<" );
         sb.append( parentId ).append( ", '" );
 
-        boolean isFirst = true;
-
-        for ( Rdn rdn : rdns )
+        if ( rdns == null )
         {
-            if ( isFirst )
+            sb.append( "*'>" );
+        }
+        else
+        {
+            boolean isFirst = true;
+    
+            for ( Rdn rdn : rdns )
             {
-                isFirst = false;
-            }
-            else
-            {
-                sb.append( "," );
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( "," );
+                }
+    
+                sb.append( rdn );
             }
 
-            sb.append( rdn );
+            sb.append( "'>" );
+            
+            sb.append( "[nbC:" ).append( nbChildren ).append( ", nbD:" ).append( nbDescendants ).append( "]" );
         }
 
-        sb.append( "'>" );
 
         return sb.toString();
     }

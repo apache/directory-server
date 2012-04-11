@@ -434,7 +434,6 @@ public class LessEqTest
         assertFalse( cursor.isClosed() );
 
         // ---------- test bad get() ----------
-
         try
         {
             cursor.get();
@@ -455,6 +454,7 @@ public class LessEqTest
             assertTrue( cursor.available() );
             set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 1L ) ) );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 2L ) ) );
@@ -469,7 +469,6 @@ public class LessEqTest
         assertTrue( cursor.isClosed() );
 
         // ---------- test beforeFirst() ----------
-
         set.clear();
         cursor = new LessEqCursor( store, evaluator );
         cursor.first();
@@ -482,6 +481,7 @@ public class LessEqTest
             assertTrue( cursor.available() );
             set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 1L ) ) );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 2L ) ) );
@@ -496,7 +496,6 @@ public class LessEqTest
         assertTrue( cursor.isClosed() );
 
         // ---------- test afterLast() ----------
-
         set.clear();
         cursor = new LessEqCursor( store, evaluator );
         cursor.afterLast();
@@ -507,6 +506,7 @@ public class LessEqTest
             assertTrue( cursor.available() );
             set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 1L ) ) );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 2L ) ) );
@@ -516,6 +516,8 @@ public class LessEqTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
 
         // ---------- test last() ----------
 
@@ -531,6 +533,7 @@ public class LessEqTest
             assertTrue( cursor.available() );
             set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 1L ) ) );
         assertTrue( set.contains( new Tuple<String, Long>( "1", 2L ) ) );
@@ -540,12 +543,15 @@ public class LessEqTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        assertTrue( cursor.isClosed() );
 
         // ---------- test before() ----------
 
         cursor = new LessEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setValue( "2" );
+        
         try
         {
             cursor.before( indexEntry );
@@ -553,6 +559,8 @@ public class LessEqTest
         }
         catch ( UnsupportedOperationException e )
         {
+            cursor.close();
+            assertTrue( cursor.isClosed() );
         }
 
         // ---------- test after() ----------
@@ -567,6 +575,8 @@ public class LessEqTest
         }
         catch ( UnsupportedOperationException e )
         {
+            cursor.close();
+            assertTrue( cursor.isClosed() );
         }
     }
 

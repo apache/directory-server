@@ -27,6 +27,8 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,6 +39,9 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class KeyBTreeCursor<E> extends AbstractCursor<E>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private final Tuple tuple = new Tuple();
 
     private final BTree btree;
@@ -54,6 +59,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public KeyBTreeCursor( BTree btree, Comparator<E> comparator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating KeyBTreeCursor {}", this );
         this.btree = btree;
         this.comparator = comparator;
     }
@@ -218,6 +224,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         super.close();
         this.closeBrowser( browser );
     }
@@ -229,6 +236,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         super.close( cause );
         this.closeBrowser( browser );
     }

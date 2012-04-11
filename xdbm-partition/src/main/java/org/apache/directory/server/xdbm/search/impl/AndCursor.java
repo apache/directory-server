@@ -32,6 +32,8 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,9 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  */
 public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
 
@@ -61,6 +66,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     public AndCursor( IndexCursor<V, Entry, ID> wrapped,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
+        LOG_CURSOR.debug( "Creating AndCursor {}", this );
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
     }
@@ -175,14 +181,26 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void close( ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AndCursor {}", this );
+        super.close();
+        wrapped.close();
+    }
+
 
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close( Exception cause ) throws Exception
     {
-        super.close();
-        wrapped.close();
+        LOG_CURSOR.debug( "Closing AndCursor {}", this );
+        super.close( cause );
+        wrapped.close( cause );
     }
 
 

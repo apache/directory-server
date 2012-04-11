@@ -83,6 +83,8 @@ public class AvlTableTest
         assertEquals( 1, tuple.getValue().intValue() );
 
         assertFalse( cursor.next() );
+        
+        cursor.close();
 
         // ---- on duplicates ----
 
@@ -111,6 +113,7 @@ public class AvlTableTest
         assertEquals( 10, tuple.getValue().intValue() );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -255,6 +258,7 @@ public class AvlTableTest
         assertNotNull( tuple );
         assertEquals( 23, tuple.getKey().intValue() );
         assertEquals( 8934, tuple.getValue().intValue() );
+        cursor.close();
     }
 
 
@@ -295,6 +299,7 @@ public class AvlTableTest
         assertNotNull( tuple );
         assertEquals( 23, tuple.getKey().intValue() );
         assertEquals( 8934, tuple.getValue().intValue() );
+        cursor.close();
     }
 
 

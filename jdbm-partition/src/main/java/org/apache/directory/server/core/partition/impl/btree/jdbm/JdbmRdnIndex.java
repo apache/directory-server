@@ -106,6 +106,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
         FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
+        
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
@@ -160,6 +161,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
     {
         long val = forward.get( rdn );
+        
         if ( val == id )
         {
             forward.remove( rdn );

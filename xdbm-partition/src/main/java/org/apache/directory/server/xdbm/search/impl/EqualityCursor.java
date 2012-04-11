@@ -30,6 +30,8 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +45,9 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
@@ -65,6 +70,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     @SuppressWarnings("unchecked")
     public EqualityCursor( Store<Entry, ID> db, EqualityEvaluator<V, ID> equalityEvaluator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating EqualityCursor {}", this );
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
@@ -319,6 +325,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
      */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
         super.close();
 
         if ( userIdxCursor != null )
@@ -328,6 +335,25 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         else
         {
             uuidIdxCursor.close();
+        }
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
+        super.close( cause );
+        
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.close( cause );
+        }
+        else
+        {
+            uuidIdxCursor.close( cause );
         }
     }
 }

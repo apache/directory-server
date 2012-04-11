@@ -40,6 +40,7 @@ import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -52,15 +53,19 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.server.xdbm.search.impl.ChildrenCursor;
+import org.apache.directory.server.xdbm.search.impl.OneLevelScopeCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -145,9 +150,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     /** a system index on objectClass attribute*/
     protected Index<String, Entry, ID> objectClassIdx;
 
-    /** the parent child relationship index */
-    protected Index<ID, Entry, ID> oneLevelIdx;
-
     /** a system index on the entries of descendants of root Dn */
     protected Index<ID, Entry, ID> subLevelIdx;
 
@@ -177,6 +179,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
+    
+    private static final boolean ADD_CHILD = true;
+    private static final boolean REMOVE_CHILD = false;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -291,12 +296,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             addIndex( index );
         }
 
-        if ( getOneLevelIndex() == null )
-        {
-            Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
-            addIndex( index );
-        }
-
         if ( getSubLevelIndex() == null )
         {
             Index<ID, Entry, ID> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID, partitionPath, WITH_REVERSE );
@@ -356,7 +355,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // set index shortcuts
         rdnIdx = ( Index<ParentIdAndRdn<ID>, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
         presenceIdx = ( Index<String, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-        oneLevelIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         subLevelIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID );
         aliasIdx = ( Index<String, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         oneAliasIdx = ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
@@ -531,6 +529,74 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         
     }
 
+    
+    private void dumpAllRdnIdx() throws Exception
+    {
+        if ( LOG.isDebugEnabled() )
+        {
+            dumpRdnIdx( getRootId(), "" );
+            System.out.println( "-----------------------------" );
+        }
+    }
+
+   
+    private void dumpRdnIdx() throws Exception
+    {
+        if ( LOG.isDebugEnabled() )
+        {
+            dumpRdnIdx( getRootId(), 1, "" );
+            System.out.println( "-----------------------------" );
+        }
+    }
+    
+    
+    private void dumpRdnIdx( ID id, String tabs ) throws Exception
+    {
+        // Start with the root
+        IndexCursor<ParentIdAndRdn<ID>,Entry,ID> cursor = rdnIdx.forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+        cursor.before( startingPos );
+        
+        while ( cursor.next() )
+        {
+            IndexEntry<ParentIdAndRdn<ID>, ID> entry = cursor.get();
+            System.out.println( tabs + entry );
+        }
+        
+        cursor.close();
+    }
+    
+    
+    private void dumpRdnIdx( ID id, int nbSibbling, String tabs ) throws Exception
+    {
+        // Start with the root
+        IndexCursor<ParentIdAndRdn<ID>,Entry,ID> cursor = rdnIdx.forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+        cursor.before( startingPos );
+        int countChildren = 0;
+        
+        while ( cursor.next() && ( countChildren < nbSibbling ) )
+        {
+            IndexEntry<ParentIdAndRdn<ID>, ID> entry = cursor.get();
+            System.out.println( tabs + entry );
+            countChildren++;
+            
+            // And now, the children
+            int nbChildren = entry.getValue().getNbChildren();
+            
+            if ( nbChildren > 0 )
+            {
+                dumpRdnIdx( entry.getId(), nbChildren, tabs + "  " );
+            }
+        }
+        
+        cursor.close();
+    }
+
 
     //---------------------------------------------------------------------------------------------
     // The Add operation
@@ -587,6 +653,12 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             // Update the RDN index
             rdnIdx.add( key, id );
+            
+            // Update the parent's nbChildren and nbDescendants values
+            if ( parentId != getRootId() )
+            {
+                updateRdnIdx( parentId, ADD_CHILD, 0 );
+            }
 
             // Update the ObjectClass index
             Attribute objectClass = entry.get( OBJECT_CLASS_AT );
@@ -610,9 +682,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
                 addAliasIndices( id, entryDn, aliasAttr.getString() );
             }
-
-            // Update the OneLevel index
-            oneLevelIdx.add( parentId, id );
 
             // Update the SubLevel index
             ID tempId = parentId;
@@ -676,6 +745,8 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             // And finally add the entry into the master table
             master.put( id, entry );
+            
+            dumpRdnIdx();
 
             if ( isSyncOnWrite.get() )
             {
@@ -721,6 +792,51 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         // We now defer the deletion to the implementing class
         delete( id );
     }
+    
+    
+    private void updateRdnIdx( ID parentId, boolean addRemove, int nbDescendant ) throws Exception
+    {
+        boolean isFirst = true;
+        
+        if ( parentId.equals( getRootId() ) )
+        {
+            return;
+        }
+        
+        ParentIdAndRdn<ID> parent = rdnIdx.reverseLookup( parentId );
+        
+        while ( parent != null )
+        {
+            if ( isFirst )
+            {
+                if ( addRemove == ADD_CHILD )
+                {
+                    parent.setNbChildren( parent.getNbChildren() + 1 );
+                }
+                else
+                {
+                    parent.setNbChildren( parent.getNbChildren() - 1 );
+                }
+                
+                isFirst = false;
+            }
+            
+            if ( addRemove == ADD_CHILD )
+            {
+                parent.setNbDescendants( parent.getNbDescendants() + ( nbDescendant + 1 ) );
+            }
+            else
+            {
+                parent.setNbDescendants( parent.getNbDescendants() - ( nbDescendant + 1 ) );
+            }
+
+            // Inject the modified element into the index
+            rdnIdx.add( parent, parentId );
+            
+            parentId = parent.getParentId();
+            parent = rdnIdx.reverseLookup( parentId );
+        }
+    }
 
 
     /**
@@ -754,9 +870,15 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 objectClassIdx.drop( value.getString(), id );
             }
 
+            // Update the parent's nbChildren and nbDescendants values
+            ParentIdAndRdn<ID> parent = rdnIdx.reverseLookup( id );
+            updateRdnIdx( parent.getParentId(), REMOVE_CHILD, 0 );
+
             // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
             rdnIdx.drop( id );
-            oneLevelIdx.drop( id );
+            
+            dumpRdnIdx();
+
             subLevelIdx.drop( id );
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
             entryUuidIdx.drop( entry.get( ENTRY_UUID_AT ).getString(), id );
@@ -824,11 +946,16 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             // We use the OneLevel index to get all the entries from a starting point
-            // and below
-            IndexCursor<ID, Entry, ID> cursor = oneLevelIdx.forwardCursor( id );
-            cursor.beforeValue( id, null );
+            // and below up to the number of children
+            IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = rdnIdx.forwardCursor();
+            
+            IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+            startingPos.setValue( new ParentIdAndRdn( id, (Rdn[]) null ) );
+            cursor.before( startingPos );
 
-            return cursor;
+            dumpRdnIdx();
+
+            return new ChildrenCursor( this, id, cursor );
         }
         catch ( Exception e )
         {
@@ -1403,15 +1530,21 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        oneLevelIdx.drop( oldParentId, entryId );
-        oneLevelIdx.add( newParentId, entryId );
-
         updateSubLevelIndex( entryId, oldParentId, newParentId );
 
         // Update the Rdn index
+        // First drop the old entry
+        ParentIdAndRdn<ID> movedEntry = rdnIdx.reverseLookup( entryId );
+        
+        updateRdnIdx( oldParentId, REMOVE_CHILD, movedEntry.getNbDescendants() );
+
         rdnIdx.drop( entryId );
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, oldDn.getRdn() );
-        rdnIdx.add( key, entryId );
+
+        // Now, add the new entry at the right position
+        movedEntry.setParentId( newParentId );
+        rdnIdx.add( movedEntry, entryId );
+
+        updateRdnIdx( newParentId, ADD_CHILD, movedEntry.getNbDescendants() );
 
         /*
          * Read Alias Index Tuples
@@ -1528,7 +1661,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             throw ne;
         }
 
-        rename( oldDn, newRdn, deleteOldRdn, modifiedEntry );
+        // First, rename
+        // Get the old ID
+        if ( modifiedEntry == null )
+        {
+            modifiedEntry = master.get( oldId );
+        }
+
+        rename( oldId, newRdn, deleteOldRdn, modifiedEntry );
         moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
@@ -1553,12 +1693,12 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * @param modifiedEntry the modified entry
      * @throws Exception if something goes wrong
      */
-    private void moveAndRename( Dn oldDn, ID childId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry )
+    private void moveAndRename( Dn oldDn, ID entryId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry )
         throws Exception
     {
         // Get the child and the new parent to be entries and Ids
         ID newParentId = getEntryId( newSuperior );
-        ID oldParentId = getParentId( childId );
+        ID oldParentId = getParentId( entryId );
 
         /*
          * All aliases including and below oldChildDn, will be affected by
@@ -1574,17 +1714,27 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * Drop the old parent child relationship and add the new one
          * Set the new parent id for the child replacing the old parent id
          */
-        oneLevelIdx.drop( oldParentId, childId );
-        oneLevelIdx.add( newParentId, childId );
-
-        updateSubLevelIndex( childId, oldParentId, newParentId );
+        updateSubLevelIndex( entryId, oldParentId, newParentId );
 
         /*
          * Update the Rdn index
          */
-        rdnIdx.drop( childId );
-        ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( newParentId, newRdn );
-        rdnIdx.add( key, childId );
+        // First drop the old entry
+        ParentIdAndRdn<ID> movedEntry = rdnIdx.reverseLookup( entryId );
+        
+        updateRdnIdx( oldParentId, REMOVE_CHILD, movedEntry.getNbDescendants() );
+
+        rdnIdx.drop( entryId );
+        
+
+        // Now, add the new entry at the right position
+        movedEntry.setParentId( newParentId );
+        movedEntry.setRdns( new Rdn[]{ newRdn } );
+        rdnIdx.add( movedEntry, entryId );
+
+        updateRdnIdx( newParentId, ADD_CHILD, movedEntry.getNbDescendants() );
+
+        dumpRdnIdx();
 
         /*
          * Read Alias Index Tuples
@@ -1596,22 +1746,11 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * aliasTarget is used as a marker to tell us if we're moving an
          * alias.  If it is null then the moved entry is not an alias.
          */
-        String aliasTarget = aliasIdx.reverseLookup( childId );
+        String aliasTarget = aliasIdx.reverseLookup( entryId );
 
         if ( null != aliasTarget )
         {
-            addAliasIndices( childId, buildEntryDn( childId ), aliasTarget );
-        }
-
-        // Update the master table with the modified entry
-        // Warning : this test is an hack. As we may call the Store API directly
-        // we may not have a modified entry to update. For instance, if the ModifierName
-        // or ModifyTimeStamp AT are not updated, there is no reason we want to update the
-        // master table.
-        if ( modifiedEntry != null )
-        {
-            modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
-            master.put( childId, modifiedEntry );
+            addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
         }
     }
 
@@ -1645,19 +1784,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public synchronized final void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
+    
+    
+    private void rename( ID oldId, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
-        ID id = getEntryId( dn );
-
         if ( entry == null )
         {
-            entry = master.get( id );
+            entry = master.get( oldId );
         }
 
         Dn updn = entry.getDn();
@@ -1672,7 +1805,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * Also we make sure that the presence index shows the existence of the
          * new Rdn attribute within this entry.
          */
-
         for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
@@ -1685,16 +1817,16 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             if ( hasUserIndexOn( newRdnAttrType ) )
             {
                 Index<?, Entry, ID> index = getUserIndex( newRdnAttrType );
-                ( ( Index ) index ).add( newNormValue, id );
+                ( ( Index ) index ).add( newNormValue, oldId );
 
                 // Make sure the altered entry shows the existence of the new attrib
-                if ( !presenceIdx.forward( newNormType, id ) )
+                if ( !presenceIdx.forward( newNormType, oldId ) )
                 {
-                    presenceIdx.add( newNormType, id );
+                    presenceIdx.add( newNormType, oldId );
                 }
             }
         }
-
+        
         /*
          * H A N D L E   O L D   R D N
          * ====================================================================
@@ -1747,14 +1879,29 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                          * If there is no value for id in this index due to our
                          * drop above we remove the oldRdnAttr from the presence idx
                          */
-                        if ( null == index.reverseLookup( id ) )
+                        if ( null == index.reverseLookup( oldId ) )
                         {
-                            presenceIdx.drop( oldNormType, id );
+                            presenceIdx.drop( oldNormType, oldId );
                         }
                     }
                 }
             }
         }
+
+        // And save the modified entry
+        master.put( oldId, entry );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized final void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
+    {
+        ID oldId = getEntryId( dn );
+
+        rename ( oldId, newRdn, deleteOldRdn, entry );
 
         /*
          * H A N D L E   D N   C H A N G E
@@ -1762,13 +1909,10 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
          * We only need to update the Rdn index.
          * No need to calculate the new Dn.
          */
-
-        ID parentId = getParentId( id );
-        rdnIdx.drop( id );
+        ID parentId = getParentId( oldId );
+        rdnIdx.drop( oldId );
         ParentIdAndRdn<ID> key = new ParentIdAndRdn<ID>( parentId, newRdn );
-        rdnIdx.add( key, id );
-
-        master.put( id, entry );
+        rdnIdx.add( key, oldId );
 
         if ( isSyncOnWrite.get() )
         {
@@ -1955,7 +2099,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            return oneLevelIdx.count( id );
+            ParentIdAndRdn<ID> parentIdAndRdn = rdnIdx.reverseLookup( id );
+            
+            return parentIdAndRdn.getNbChildren();
         }
         catch ( Exception e )
         {
@@ -2190,16 +2336,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         }
 
         throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public Index<ID, Entry, ID> getOneLevelIndex()
-    {
-        return ( Index<ID, Entry, ID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
     }
 
 

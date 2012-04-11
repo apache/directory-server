@@ -185,6 +185,8 @@ public class AvlTreeCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
+        
+        cursor.close();
     }
 
 
@@ -383,6 +385,7 @@ public class AvlTreeCursorTest
         cursor.before( 2 );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
     class IntegerComparator implements Comparator<Integer>

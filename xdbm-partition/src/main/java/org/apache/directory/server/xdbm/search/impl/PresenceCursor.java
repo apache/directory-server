@@ -28,6 +28,8 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,6 +39,9 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
     private final IndexCursor<String, Entry, ID> uuidCursor;
     private final IndexCursor<String, Entry, ID> presenceCursor;
@@ -45,6 +50,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
 
     public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
@@ -295,6 +301,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
         super.close();
 
         if ( presenceCursor != null )
@@ -304,6 +311,22 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         else
         {
             uuidCursor.close();
+        }
+    }
+
+
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+        super.close( cause );
+
+        if ( presenceCursor != null )
+        {
+            presenceCursor.close( cause );
+        }
+        else
+        {
+            uuidCursor.close( cause );
         }
     }
 }

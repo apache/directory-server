@@ -26,6 +26,8 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,6 +37,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The index entry we use to return entries one by one.  */
     private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
 
@@ -58,6 +63,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      */
     public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
         // Get a reverse cursor because we want to sort by ID
         wrapped = db.getEntryUuidIndex().reverseCursor();
     }
@@ -205,6 +211,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
         wrapped.close();
     }
 
@@ -215,6 +222,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
         wrapped.close( cause );
     }
 }

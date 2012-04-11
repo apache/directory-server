@@ -52,6 +52,8 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     /** the current count of entries in this Table */
     protected int count;
 
+    /** whether or not this table allows for duplicates */
+    protected boolean allowsDuplicates;
 
     /**
      * Create an instance of Table

@@ -116,6 +116,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         EntryCursor cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -132,6 +133,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
+        
+        cursor.close();
     }
 
 

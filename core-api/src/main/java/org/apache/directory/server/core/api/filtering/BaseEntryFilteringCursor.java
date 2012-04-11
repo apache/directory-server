@@ -29,6 +29,7 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
@@ -55,6 +56,9 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 {
     /** the logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
+
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     /** the underlying wrapped search results Cursor */
     private final Cursor<Entry> wrapped;
@@ -100,6 +104,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
     {
+        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -118,6 +123,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
+        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -160,7 +166,6 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         return filters.add( filter );
     }
 
-
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#removeEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
@@ -169,9 +174,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         return filters.remove( filter );
     }
 
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getEntryFilters()
+    /**
+     * {@inheritDoc}
      */
     public List<EntryFilter> getEntryFilters()
     {
@@ -179,8 +183,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#getOperationContext()
+    /**
+     * {@inheritDoc}
      */
     public SearchingOperationContext getOperationContext()
     {
@@ -191,7 +195,6 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
-
     /* 
      * @see Cursor#after(Object)
      */
@@ -204,11 +207,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#afterLast()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#afterLast()
+    /**
+     * {@inheritDoc}
      */
     public void afterLast() throws Exception
     {
@@ -217,11 +217,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#available()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#available()
+    /**
+     * {@inheritDoc}
      */
     public boolean available()
     {
@@ -241,11 +238,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#beforeFirst()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#beforeFirst()
+    /**
+     * {@inheritDoc}
      */
     public void beforeFirst() throws Exception
     {
@@ -254,27 +248,23 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#close()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+    /**
+     * {@inheritDoc}
      */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
         wrapped.close();
         prefetched = null;
     }
 
 
-    /* 
-     * @see Cursor#close()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#close()
+    /**
+     * {@inheritDoc}
      */
     public void close( Exception reason ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
         wrapped.close( reason );
         prefetched = null;
     }
@@ -286,11 +276,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#first()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#first()
+    /**
+     * {@inheritDoc}
      */
     public boolean first() throws Exception
     {
@@ -302,15 +289,13 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
 
         beforeFirst();
+        
         return next();
     }
 
 
-    /* 
-     * @see Cursor#get()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#get()
+    /**
+     * {@inheritDoc}
      */
     public Entry get() throws Exception
     {
@@ -323,11 +308,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#isClosed()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#isClosed()
+    /**
+     * {@inheritDoc}
      */
     public boolean isClosed() throws Exception
     {
@@ -335,11 +317,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#last()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#last()
+    /**
+     * {@inheritDoc}
      */
     public boolean last() throws Exception
     {
@@ -351,6 +330,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
 
         afterLast();
+        
         return previous();
     }
 
@@ -475,11 +455,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#next()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#next()
+    /**
+     * {@inheritDoc}
      */
     public boolean next() throws Exception
     {
@@ -533,7 +510,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( !filter.accept( getOperationContext(), tempResult ) )
                 {
                     continue outer;
                 }
@@ -553,11 +530,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Cursor#previous()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#previous()
+    /**
+     * {@inheritDoc}
      */
     public boolean previous() throws Exception
     {
@@ -602,7 +576,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( !( accepted &= filter.accept( getOperationContext(), tempResult ) ) )
+                if ( !filter.accept( getOperationContext(), tempResult ) )
                 {
                     continue outer;
                 }
@@ -613,6 +587,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              */
             prefetched = tempResult;
             filterContents( prefetched );
+            
             return true;
         }
 
@@ -622,11 +597,8 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
-     * @see Iterable#iterator()
-     */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#iterator()
+    /**
+     * {@inheritDoc}
      */
     public Iterator<Entry> iterator()
     {

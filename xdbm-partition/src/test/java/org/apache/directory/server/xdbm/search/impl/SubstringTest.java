@@ -227,6 +227,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -263,6 +264,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -297,6 +299,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -326,6 +329,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -346,6 +350,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -368,6 +373,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -388,6 +394,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -417,6 +424,8 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -437,6 +446,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -459,6 +469,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -479,6 +490,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -513,6 +525,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -527,6 +540,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -540,6 +554,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -561,6 +576,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -573,6 +589,7 @@ public class SubstringTest
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -587,6 +604,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -600,6 +618,7 @@ public class SubstringTest
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -692,47 +711,83 @@ public class SubstringTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-        cursor.get();
+        SubstringCursor<Long> cursor = null;
+    
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException2() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-        cursor.get();
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
-        entry.setValue( SchemaConstants.SN_AT_OID );
-        cursor.before( entry );
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
+            entry.setValue( SchemaConstants.SN_AT_OID );
+            cursor.before( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
-        entry.setValue( SchemaConstants.SN_AT_OID );
-        cursor.after( entry );
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
+            entry.setValue( SchemaConstants.SN_AT_OID );
+            cursor.after( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 }

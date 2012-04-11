@@ -319,6 +319,7 @@ public class JdbmTableNoDuplicatesTest
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
+        
         assertEquals( SIZE, table.count() );
 
         assertFalse( table.has( "-1" ) );

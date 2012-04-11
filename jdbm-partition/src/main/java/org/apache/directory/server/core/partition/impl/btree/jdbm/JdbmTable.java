@@ -64,9 +64,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     /** the JDBM record manager for the file this table is managed in */
     private final RecordManager recMan;
 
-    /** whether or not this table allows for duplicates */
-    private final boolean allowsDuplicates;
-
     /** the wrappedCursor JDBM btree used in this Table */
     private BTree<K, V> bt;
 
@@ -315,6 +312,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+        
         if ( values.isArrayTree() )
         {
             ArrayTree<V> set = values.getArrayTree();
@@ -1072,6 +1070,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         {
             bTree.insert( keys.get(), ( K ) StringConstants.EMPTY_BYTES, true );
         }
+        
+        keys.close();
 
         return bTree;
     }

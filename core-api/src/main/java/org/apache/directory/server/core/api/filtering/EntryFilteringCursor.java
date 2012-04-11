@@ -28,30 +28,12 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
- * 
- * TODO Add Javadoc !
+ * A wrapper on top of a Cursor used to filter entries we get from the backend.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface EntryFilteringCursor extends Cursor<Entry>
 {
-
-    /**
-     * Gets whether or not this BaseEntryFilteringCursor has been abandoned.
-     *
-     * @return true if abandoned, false if not
-     */
-    public abstract boolean isAbandoned();
-
-
-    /**
-     * Sets whether this BaseEntryFilteringCursor has been abandoned.
-     *
-     * @param abandoned true if abandoned, false if not
-     */
-    public abstract void setAbandoned( boolean abandoned );
-
-
     /**
      * Adds an entry filter to this BaseEntryFilteringCursor at the very end of 
      * the filter list.  EntryFilters are applied in the order of addition.
@@ -59,17 +41,7 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      * @param filter a filter to apply to the entries
      * @return the result of {@link List#add(Object)}
      */
-    public abstract boolean addEntryFilter( EntryFilter filter );
-
-
-    /**
-     * Removes an entry filter to this BaseEntryFilteringCursor at the very end of 
-     * the filter list.  
-     * 
-     * @param filter a filter to remove from the filter list
-     * @return the result of {@link List#remove(Object)}
-     */
-    public abstract boolean removeEntryFilter( EntryFilter filter );
+    boolean addEntryFilter( EntryFilter filter );
 
 
     /**
@@ -77,11 +49,11 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      *
      * @return an unmodifiable list of EntryFilters applied
      */
-    public abstract List<EntryFilter> getEntryFilters();
+    List<EntryFilter> getEntryFilters();
 
 
     /**
      * @return the operationContext
      */
-    public abstract SearchingOperationContext getOperationContext();
+    SearchingOperationContext getOperationContext();
 }
