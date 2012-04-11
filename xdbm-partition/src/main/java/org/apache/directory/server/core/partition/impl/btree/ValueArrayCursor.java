@@ -27,6 +27,8 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.util.exception.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,6 +38,9 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
  */
 public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final int BEFORE_FIRST = -1;
 
     private final K key;
@@ -47,6 +52,7 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public ValueArrayCursor( final K key, final V[] values )
     {
+        LOG_CURSOR.debug( "Creating ValueArrayCursor {}", this );
         this.key = key;
         this.tuple.setKey( key );
         this.values = Arrays.asList( values );
@@ -55,6 +61,7 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public ValueArrayCursor( final K key, final List<V> values )
     {
+        LOG_CURSOR.debug( "Creating ValueArrayCursor {}", this );
         this.key = key;
         this.tuple.setKey( key );
         this.values = values;
@@ -198,5 +205,27 @@ public class ValueArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_701, pos, ( values.size() - 1 ) ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing ValueArrayCursor {}", this );
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing ValueArrayCursor {}", this );
+        super.close( cause );
     }
 }

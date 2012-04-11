@@ -43,6 +43,9 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaJournalCursor.class );
 
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** the underlying journal's cursor */
     private Cursor<Tuple<String, ReplicaEventMessage>> tupleCursor;
 
@@ -63,6 +66,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      */
     public ReplicaJournalCursor( JdbmTable<String, ReplicaEventMessage> journal, String consumerCsn ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating ReplicaJournalCursor {}", this );
         this.journal = journal;
         this.tupleCursor = journal.cursor();
         this.consumerCsn = consumerCsn;
@@ -212,6 +216,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         tupleCursor.close();
         super.close();
     }
@@ -223,6 +228,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         tupleCursor.close();
         super.close( cause );
     }

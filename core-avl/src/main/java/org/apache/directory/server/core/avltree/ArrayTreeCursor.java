@@ -52,7 +52,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public ArrayTreeCursor( ArrayTree<E> array )
     {
-        LOG_CURSOR.debug( "Creating ArrayTreeCursor " + this );
+        LOG_CURSOR.debug( "Creating ArrayTreeCursor {}", this );
         this.array = array;
         position = Position.BEFORE_FIRST;
     }
@@ -305,7 +305,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing ArrayTreeCursor " + this );
+        LOG_CURSOR.debug( "Closing ArrayTreeCursor {}", this );
         super.close();
     }
 
@@ -315,7 +315,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing ArrayTreeCursor " + this );
+        LOG_CURSOR.debug( "Closing ArrayTreeCursor {}", this );
         super.close( reason );
     }
 }

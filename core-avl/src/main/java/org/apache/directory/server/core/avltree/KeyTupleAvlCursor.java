@@ -54,7 +54,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public KeyTupleAvlCursor( AvlTree<V> avlTree, K key )
     {
-        LOG_CURSOR.debug( "Creating KeyTupleAvlCursor " + this );
+        LOG_CURSOR.debug( "Creating KeyTupleAvlCursor {}", this );
         this.key = key;
         this.wrapped = new AvlTreeCursor<V>( avlTree );
     }
@@ -217,7 +217,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor " + this );
+        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
         super.close();
 
         if ( wrapped != null )
@@ -232,7 +232,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor " + this );
+        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
         super.close( cause );
 
         if ( wrapped != null )

@@ -22,6 +22,8 @@ package org.apache.directory.server.xdbm;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +33,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
@@ -39,6 +44,7 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
 
     public SingletonIndexCursor( IndexEntry<V, ID> singleton )
     {
+        LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
         this.singleton = singleton;
     }
 
@@ -189,5 +195,19 @@ public class SingletonIndexCursor<V, ID> extends AbstractIndexCursor<V, Entry, I
         {
             throw new InvalidCursorPositionException( I18n.err( I18n.ERR_706 ) );
         }
+    }
+
+
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+        super.close();
+    }
+
+
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+        super.close( cause );
     }
 }

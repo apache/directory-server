@@ -31,6 +31,8 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,9 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
  */
 public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
@@ -72,6 +77,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public OneLevelScopeCursor( Store<Entry, ID> db, OneLevelScopeEvaluator<Entry, ID> evaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating OneLevelScopeCursor {}", this );
         this.db = db;
         this.evaluator = evaluator;
 
@@ -294,6 +300,13 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
+        
+        if ( cursor != null )
+        {
+            cursor.close();
+        }
+        
         scopeCursor.close();
 
         if ( dereferencedCursor != null )
@@ -308,6 +321,13 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
+        
+        if ( cursor != null )
+        {
+            cursor.close( cause );
+        }
+
         scopeCursor.close( cause );
 
         if ( dereferencedCursor != null )

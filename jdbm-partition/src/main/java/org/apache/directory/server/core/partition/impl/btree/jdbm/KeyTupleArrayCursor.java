@@ -25,6 +25,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,6 +38,9 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private final ArrayTreeCursor<V> wrapped;
     private final K key;
 
@@ -51,6 +56,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public KeyTupleArrayCursor( ArrayTree<V> arrayTree, K key )
     {
+        LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
         this.key = key;
         this.wrapped = new ArrayTreeCursor<V>( arrayTree );
     }
@@ -205,5 +211,37 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         }
 
         throw new InvalidCursorPositionException();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
+        
+        if ( wrapped != null )
+        {
+            wrapped.close();
+        }
+        
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception reason ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
+        
+        if ( wrapped != null )
+        {
+            wrapped.close( reason );
+        }
+        
+        super.close( reason );
     }
 }

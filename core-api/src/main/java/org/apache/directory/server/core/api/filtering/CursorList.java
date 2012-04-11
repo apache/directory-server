@@ -84,7 +84,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
-        LOG_CURSOR.debug( "Creating CursorList " + this );
+        LOG_CURSOR.debug( "Creating CursorList {}", this );
         
         if ( list != null )
         {
@@ -447,14 +447,14 @@ public class CursorList implements EntryFilteringCursor
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing CursorList " + this );
+        LOG_CURSOR.debug( "Closing CursorList {}", this );
         close( null );
     }
 
 
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing CursorList " + this );
+        LOG_CURSOR.debug( "Closing CursorList {}", this );
         closed = true;
 
         for ( Cursor<?> c : list )

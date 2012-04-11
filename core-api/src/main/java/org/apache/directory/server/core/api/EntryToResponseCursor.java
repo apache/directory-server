@@ -66,7 +66,7 @@ public class EntryToResponseCursor implements SearchCursor
 
     public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
     {
-        LOG_CURSOR.debug( "Creating EntryToResponseCursor " + this );
+        LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -110,14 +110,14 @@ public class EntryToResponseCursor implements SearchCursor
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryToResponseCursor " + this );
+        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         wrapped.close();
     }
 
 
     public void close( Exception e ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryToResponseCursor " + this );
+        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         wrapped.close( e );
     }
 

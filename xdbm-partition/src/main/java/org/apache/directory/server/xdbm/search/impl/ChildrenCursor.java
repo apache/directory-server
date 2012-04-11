@@ -27,9 +27,9 @@ import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,6 +40,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
@@ -65,6 +68,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public ChildrenCursor( Store<Entry, ID> db, ID parentId, IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
         this.db = db;
         this.parentId = parentId;
         this.cursor = cursor;
@@ -166,6 +170,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
         cursor.close();
 
         super.close();
@@ -175,6 +180,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
         cursor.close( cause );
 
         super.close( cause );

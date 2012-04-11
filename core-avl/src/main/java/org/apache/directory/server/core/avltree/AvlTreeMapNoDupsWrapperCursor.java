@@ -44,7 +44,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
 
     public AvlTreeMapNoDupsWrapperCursor( AvlSingletonOrOrderedSetCursor<K, V> wrapped )
     {
-        LOG_CURSOR.debug( "Creating AvlTreeMapNoDupsWrapperCursor " + this );
+        LOG_CURSOR.debug( "Creating AvlTreeMapNoDupsWrapperCursor {}", this );
         this.wrapped = wrapped;
     }
 
@@ -148,14 +148,14 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor " + this );
+        LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor {}", this );
         wrapped.close();
     }
 
 
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor " + this );
+        LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor {}", this );
         wrapped.close( reason );
     }
 }

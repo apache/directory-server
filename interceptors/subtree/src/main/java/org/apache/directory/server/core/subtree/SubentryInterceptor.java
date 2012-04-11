@@ -386,6 +386,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
+            
             subentries.close();
         }
         catch ( Exception e )

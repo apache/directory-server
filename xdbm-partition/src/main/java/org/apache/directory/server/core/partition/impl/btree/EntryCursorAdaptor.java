@@ -29,6 +29,8 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,12 +40,16 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private final AbstractBTreePartition<ID> db;
     private final IndexCursor<ID, Entry, ID> indexCursor;
 
 
     public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
     {
+        LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;
         this.indexCursor = indexCursor;
     }
@@ -100,21 +106,23 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
     }
 
 
-    /* 
-     * @see Cursor#close()
+    /**
+     * {@inheritDoc}}
      */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
         indexCursor.close();
     }
 
 
-    /* 
-     * @see Cursor#close()
+    /**
+     * {@inheritDoc}
      */
-    public void close( Exception e ) throws Exception
+    public void close( Exception cause ) throws Exception
     {
-        indexCursor.close( e );
+        LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+        indexCursor.close( cause );
     }
 
 

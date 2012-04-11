@@ -29,6 +29,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,9 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  */
 public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The JDBM table we are building a cursor over */
     private final JdbmTable<K, V> table;
 
@@ -68,6 +73,8 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public DupsContainerCursor( JdbmTable<K, V> table ) throws IOException
     {
+        LOG_CURSOR.debug( "Creating DupsContainerCursor {}", this );
+        
         if ( !table.isDupsEnabled() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_572 ) );
@@ -376,8 +383,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         super.close();
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
 
 
@@ -387,8 +395,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         super.close( cause );
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
 
 
