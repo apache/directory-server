@@ -1070,6 +1070,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         {
             bTree.insert( keys.get(), ( K ) StringConstants.EMPTY_BYTES, true );
         }
+        
+        keys.close();
 
         return bTree;
     }
