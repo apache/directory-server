@@ -165,13 +165,15 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 allIndices.add( index.getAttribute().getOid() );
             }
 
+            List<Index<?, Entry, Long>> indexToBuild = new ArrayList<Index<?, Entry, Long>>();
+
             // this loop is used for two purposes
             // one for collecting all user indices
             // two for finding a new index to be built
             // just to avoid another iteration for determining which is the new index
             for ( Index<?, Entry, Long> index : userIndices.values() )
             {
-                allIndices.add( index.getAttributeId() );
+                allIndices.add( index.getAttribute().getOid() );
 
                 // take the part after removing .db from the
                 String name = index.getAttributeId() + JDBM_DB_FILE_EXTN;
@@ -180,8 +182,13 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 // this is a new index and we need to build it
                 if ( !indexDbFileNameList.contains( name ) )
                 {
-                    buildUserIndex( index );
+                    indexToBuild.add( index );
                 }
+            }
+
+            if ( indexToBuild.size() > 0 )
+            {
+                buildUserIndex( indexToBuild );
             }
 
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
@@ -241,40 +248,43 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
 
 
     /**
-     * builds a user defined index on a attribute by browsing all the entries present in master db
+     * builds user defined indexes on a attributes by browsing all the entries present in master db
      * 
-     * @param userIdx then user defined index
+     * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( Index userIdx ) throws Exception
+    private void buildUserIndex( List<Index<?, Entry, Long>> userIndexes ) throws Exception
     {
-        AttributeType atType = userIdx.getAttribute();
-
-        LOG.info( "building the index for attribute type {}", atType );
-
         Cursor<Tuple<Long, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
 
-        String attributeOid = userIdx.getAttribute().getOid();
-
         while ( cursor.next() )
         {
-            Tuple<Long, Entry> tuple = cursor.get();
-
-            Long id = tuple.getKey();
-            Entry entry = tuple.getValue();
-
-            Attribute entryAttr = entry.get( atType );
-
-            if ( entryAttr != null )
+            for ( Index index : userIndexes )
             {
-                for ( Value<?> value : entryAttr )
-                {
-                    userIdx.add( value.getValue(), id );
-                }
+                AttributeType atType = index.getAttribute();
+    
+                String attributeOid = index.getAttribute().getOid();
 
-                // Adds only those attributes that are indexed
-                presenceIdx.add( attributeOid, id );
+                LOG.info( "building the index for attribute type {}", atType );
+
+                Tuple<Long, Entry> tuple = cursor.get();
+    
+                Long id = tuple.getKey();
+                Entry entry = tuple.getValue();
+    
+                Attribute entryAttr = entry.get( atType );
+    
+                if ( entryAttr != null )
+                {
+                    for ( Value<?> value : entryAttr )
+                    {
+                        index.add( value.getValue(), id );
+                    }
+    
+                    // Adds only those attributes that are indexed
+                    presenceIdx.add( attributeOid, id );
+                }
             }
         }
 
