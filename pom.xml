@@ -75,6 +75,7 @@
     <maven.plugin.api.version>3.0.3</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <maven.ipojo.version>1.8.0</maven.ipojo.version>
+    <bnd.ipojo.version>1.8.4</bnd.ipojo.version>
     <mina.core.version>2.0.4</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
@@ -153,6 +154,7 @@
     <module>installers</module>
     <module>apache-felix</module>
     <module>dependencies</module>
+    <module>directorycomponent-handler</module>
   </modules>
 
   <build>
@@ -866,6 +868,12 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-server-config-builder</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-directorycomponent-handler</artifactId>
         <version>${project.version}</version>
       </dependency>
       
