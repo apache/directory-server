@@ -173,10 +173,11 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             // just to avoid another iteration for determining which is the new index
             for ( Index<?, Entry, Long> index : userIndices.values() )
             {
-                allIndices.add( index.getAttribute().getOid() );
+                String indexOid = index.getAttribute().getOid();
+                allIndices.add( indexOid );
 
                 // take the part after removing .db from the
-                String name = index.getAttributeId() + JDBM_DB_FILE_EXTN;
+                String name = indexOid + JDBM_DB_FILE_EXTN;
 
                 // if the name doesn't exist in the list of index DB files
                 // this is a new index and we need to build it
