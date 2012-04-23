@@ -47,6 +47,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.model.message.AddResponse;
@@ -56,6 +57,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -347,4 +349,31 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         
         assertEquals( 2, count );
     }
+    
+    /**
+     * the below test fails cause the API is failing to
+     * preserve the UP name of the attribute of RDN
+     * when the DN is schema-aware
+     */
+    @Test
+    @Ignore("see DIRAPI-84")
+    public void testPreserveRdnUpName() throws Exception
+    {
+        Dn dn = new Dn( getService().getSchemaManager(), "cn=testadd,ou=system" );
+        Entry entry = new DefaultEntry( dn );
+        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+        entry.add( SchemaConstants.CN_AT, "testadd" );
+        entry.add( SchemaConstants.SN_AT, "testadd_sn" );
+
+        connection.add( entry );
+
+        assertTrue( session.exists( dn ) );
+
+        entry = connection.lookup(dn);
+        
+        String ldif = LdifUtils.convertToLdif(entry);
+        
+        assertTrue( ldif.contains(dn.getName()) );
+    }
+    
 }
