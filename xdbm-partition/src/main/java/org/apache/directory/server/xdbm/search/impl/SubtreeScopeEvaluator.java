@@ -70,7 +70,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode<ID> node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -80,7 +80,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
             throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
         }
 
-        baseId = db.getEntryId( node.getBaseDn() );
+        baseId = node.getBaseId();
         baseIsContextEntry = getContextEntryId() == baseId;
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }

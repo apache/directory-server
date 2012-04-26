@@ -91,13 +91,13 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
                 return new PresenceEvaluator<ID>( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
-                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
+                if ( ( ( ScopeNode<ID> ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode<ID> ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode<ID> ) node );
                 }
 
             case SUBSTRING:

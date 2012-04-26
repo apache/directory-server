@@ -180,7 +180,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         assertEquals( 10, i );
 
-        int nbIterations = 15000000;
+        int nbIterations = 1500000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;

@@ -149,15 +149,15 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
+        ID effectiveBaseId = baseId;
+        
+        if ( effectiveBase != base )
+        {
+            effectiveBaseId = db.getEntryId( effectiveBase );
+        }
 
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
-            ID effectiveBaseId = baseId;
-            if ( effectiveBase != base )
-            {
-                effectiveBaseId = db.getEntryId( effectiveBase );
-            }
-
             IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
@@ -175,13 +175,14 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
+        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, SearchScope.getSearchScope( searchCtls
             .getSearchScope() ) );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
+        
         return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
     }
 

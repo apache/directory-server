@@ -161,9 +161,10 @@ public class SubtreeScopeTest
     @Test
     public void testCursorNoDeref() throws Exception
     {
-        ScopeNode node = new ScopeNode( 
-            AliasDerefMode.NEVER_DEREF_ALIASES, 
-            new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), 
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, 
             SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
@@ -265,8 +266,11 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
@@ -458,9 +462,13 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing2() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=apache," + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID
-            + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=apache," + SchemaConstants.OU_AT_OID 
+            + "=board of directors," + SchemaConstants.O_AT_OID
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
@@ -617,9 +625,13 @@ public class SubtreeScopeTest
         addContext = new AddOperationContext( null, entry );
         ( ( Partition ) store ).add( addContext );
 
-        ScopeNode node = new ScopeNode( 
+        dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( 
             AliasDerefMode.DEREF_IN_SEARCHING, 
-            new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), 
+            dn, 
+            baseId, 
             SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
@@ -831,8 +843,11 @@ public class SubtreeScopeTest
     @Test
     public void testEvaluatorNoDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
 
         ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
@@ -844,8 +859,11 @@ public class SubtreeScopeTest
     @Test
     public void testEvaluatorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, new Dn( SchemaConstants.OU_AT_OID
-            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_ALWAYS, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         assertEquals( node, evaluator.getExpression() );
 
@@ -871,11 +889,12 @@ public class SubtreeScopeTest
     public void testInvalidCursorPositionException() throws Exception
     {
         SubtreeScopeCursor<Long> cursor = null;
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
         
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
             SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
             cursor = new SubtreeScopeCursor<Long>( store, evaluator );
             cursor.get();
@@ -891,11 +910,13 @@ public class SubtreeScopeTest
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         SubtreeScopeCursor<Long> cursor = null;
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
         
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
             SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
             cursor = new SubtreeScopeCursor<Long>( store, evaluator );
     
@@ -915,11 +936,13 @@ public class SubtreeScopeTest
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         SubtreeScopeCursor<Long> cursor = null;
-        
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
             SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
             cursor = new SubtreeScopeCursor<Long>( store, evaluator );
     
@@ -939,7 +962,7 @@ public class SubtreeScopeTest
     public void testIllegalStateBadScope() throws Exception
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), null, SearchScope.ONELEVEL );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         assertNull( evaluator );
     }

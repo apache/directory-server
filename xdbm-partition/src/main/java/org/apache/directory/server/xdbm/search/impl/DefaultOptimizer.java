@@ -122,7 +122,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode ) node );
+            count = getScopeScan( ( ScopeNode<ID> ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -210,6 +210,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         }
 
         node.set( "count", count );
+        
         return count;
     }
 
@@ -370,9 +371,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode node ) throws Exception
+    private long getScopeScan( ScopeNode<ID> node ) throws Exception
     {
-        ID id = db.getEntryId( node.getBaseDn() );
+        ID id = node.getBaseId();
         
         switch ( node.getScope() )
         {
