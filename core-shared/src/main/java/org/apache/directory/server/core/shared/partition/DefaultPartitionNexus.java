@@ -754,7 +754,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             // We are searching from the rootDSE. We have to distinguish three cases :
             // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
-            // 2) The scope is ONELEVEL : we have to return all the Namin
+            // 2) The scope is ONELEVEL : we have to return all the Naming Contexts
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
             boolean isOnelevelScope = searchCtls.getSearchScope() == SearchControls.ONELEVEL_SCOPE;
