@@ -47,7 +47,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     * A basic search for one single entry
     */
     @Test
-    public void testSearchPerf() throws Exception
+    public void testSearchPerfObjectScope() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
@@ -88,6 +88,120 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             }
 
             cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
+            cursor.close();
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+
+
+    /**
+    * A basic search for one single entry
+    */
+    @Test
+    public void testSearchPerfOneLevelScope() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        EntryCursor cursor = connection.search( "ou=system", "(ObjectClass=*)",
+            SearchScope.ONELEVEL, "*" );
+
+        int i = 0;
+
+        while ( cursor.next() )
+        {
+            Entry entry = cursor.get();
+            ++i;
+        }
+
+        cursor.close();
+
+        assertEquals( 5, i );
+
+        int nbIterations = 1500000;
+
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+
+        for ( i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( i == 50000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.ONELEVEL, "*" );
+            cursor.close();
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+
+
+    /**
+    * A basic search for one single entry
+    */
+    @Test
+    public void testSearchPerfSublevelScope() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        EntryCursor cursor = connection.search( "ou=system", "(ObjectClass=*)",
+            SearchScope.SUBTREE, "*" );
+
+        int i = 0;
+
+        while ( cursor.next() )
+        {
+            Entry entry = cursor.get();
+            ++i;
+        }
+
+        cursor.close();
+
+        assertEquals( 10, i );
+
+        int nbIterations = 1500000;
+
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+
+        for ( i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( i == 50000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
             cursor.close();
         }
 
