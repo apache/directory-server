@@ -173,9 +173,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
             case ON_NODE:
             case AFTER_NODE:
                 node = node.next;
+                
                 if ( node == null )
                 {
                     afterLast();
+                    
                     return false;
                 }
                 else
