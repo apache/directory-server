@@ -82,7 +82,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -94,7 +94,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -139,7 +139,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -151,7 +151,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -180,7 +180,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         assertEquals( 10, i );
 
-        int nbIterations = 1500000;
+        int nbIterations = 15000000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -196,7 +196,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -208,7 +208,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
