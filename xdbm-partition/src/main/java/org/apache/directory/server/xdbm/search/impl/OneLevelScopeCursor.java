@@ -86,7 +86,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = db.getRdnIndex().forwardCursor();
         
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
-        startingPos.setValue( new ParentIdAndRdn( evaluator.getBaseId(), (Rdn[]) null ) );
+        startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), (Rdn[]) null ) );
         cursor.before( startingPos );
 
         scopeCursor = new ChildrenCursor( db, evaluator.getBaseId(), cursor );

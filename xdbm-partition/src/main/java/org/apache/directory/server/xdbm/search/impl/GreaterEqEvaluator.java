@@ -218,7 +218,7 @@ public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvalua
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setValue( value.getNormValue() );
+                    indexEntry.setKey( value.getNormValue() );
                 }
                 return true;
             }

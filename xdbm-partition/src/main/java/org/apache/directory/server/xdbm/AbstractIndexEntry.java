@@ -28,10 +28,10 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * Abstract class managing the object for index entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <K> The key stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
+public abstract class AbstractIndexEntry<K, ID> implements IndexEntry<K, ID>
 {
     /** The referenced Entry if loaded from the store */
     private Entry entry;
@@ -51,13 +51,13 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public abstract V getValue();
+    public abstract K getKey();
 
 
     /**
      * {@inheritDoc}
      */
-    public abstract void setValue( V value );
+    public abstract void setKey( K value );
 
 
     /**
@@ -108,7 +108,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<K, ID> entry )
     {
         this.entry = entry.getEntry();
     }

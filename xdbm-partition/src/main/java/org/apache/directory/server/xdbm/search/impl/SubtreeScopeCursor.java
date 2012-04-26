@@ -20,14 +20,21 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +90,19 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         }
         else
         {
-            scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+            // We use the RdnIndex to get all the entries from a starting point
+            // and below up to the number of children
+            ID baseId = evaluator.getBaseId();
+            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId ); 
+            IndexEntry indexEntry = new ForwardIndexEntry();
+            
+            indexEntry.setId( baseId );
+            indexEntry.setKey( parentIdAndRdn );
+
+            IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>( indexEntry );
+            ID parentId = parentIdAndRdn.getParentId();
+
+            scopeCursor = new DescendantCursor( db, baseId, parentId, cursor );
         }
 
         if ( evaluator.isDereferencing() )
@@ -246,6 +265,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         // if the cursor hasn't been set position it before the first element
         if ( cursor == null )
         {

@@ -215,7 +215,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setValue( value.getNormValue() );
+                    indexEntry.setKey( value.getNormValue() );
                 }
                 return true;
             }

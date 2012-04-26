@@ -290,7 +290,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
              * set that accordingly here.
              */
             IndexEntry<String, ID> indexEntry = uuidCursor.get();
-            indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
+            indexEntry.setKey( presenceEvaluator.getAttributeType().getOid() );
 
             return indexEntry;
         }

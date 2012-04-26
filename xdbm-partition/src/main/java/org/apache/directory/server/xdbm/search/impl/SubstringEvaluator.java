@@ -195,7 +195,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
-            if ( regex.matcher( rec.getValue() ).matches() )
+            if ( regex.matcher( rec.getKey() ).matches() )
             {
                 entries.close();
                 return true;
@@ -231,7 +231,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
-            if ( regex.matcher( rec.getValue() ).matches() )
+            if ( regex.matcher( rec.getKey() ).matches() )
             {
                 entries.close();
                 return true;
@@ -368,7 +368,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                     if ( regex.matcher( strValue ).matches() )
                     {
                         // before returning we set the normalized value
-                        indexEntry.setValue( strValue );
+                        indexEntry.setKey( strValue );
                         return true;
                     }
                 }
@@ -387,7 +387,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                     if ( check( byteValue ) )
                     {
                         // before returning we set the normalized value
-                        indexEntry.setValue( byteValue );
+                        indexEntry.setKey( byteValue );
                         return true;
                     }
                     */
@@ -430,7 +430,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                         if ( regex.matcher( strValue ).matches() )
                         {
                             // before returning we set the normalized value
-                            indexEntry.setValue( strValue );
+                            indexEntry.setKey( strValue );
                             return true;
                         }
                     }

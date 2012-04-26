@@ -194,22 +194,22 @@ public class GreaterEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
+        assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -224,22 +224,22 @@ public class GreaterEqTest
 
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
+        assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -256,22 +256,22 @@ public class GreaterEqTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
+        assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -286,22 +286,22 @@ public class GreaterEqTest
 
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6L, ( long ) cursor.get().getId() );
-        assertEquals( "4", cursor.get().getValue() );
+        assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -312,7 +312,7 @@ public class GreaterEqTest
 
         cursor = new GreaterEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "5" );
+        indexEntry.setKey( "5" );
 
         assertFalse( cursor.available() );
         cursor.before( indexEntry );
@@ -321,12 +321,12 @@ public class GreaterEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -335,29 +335,29 @@ public class GreaterEqTest
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "7" );
+        indexEntry.setKey( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "3" );
+        indexEntry.setKey( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "4" );
+        indexEntry.setKey( "4" );
 
         assertFalse( cursor.available() );
         cursor.after( indexEntry );
@@ -366,12 +366,12 @@ public class GreaterEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7L, ( long ) cursor.get().getId() );
-        assertEquals( "5", cursor.get().getValue() );
+        assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -380,22 +380,22 @@ public class GreaterEqTest
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "7" );
+        indexEntry.setKey( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 8L, ( long ) cursor.get().getId() );
-        assertEquals( "6", cursor.get().getValue() );
+        assertEquals( "6", cursor.get().getKey() );
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "3" );
+        indexEntry.setKey( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
     }
 
@@ -431,7 +431,7 @@ public class GreaterEqTest
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
@@ -452,12 +452,12 @@ public class GreaterEqTest
         cursor.first();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
@@ -481,7 +481,7 @@ public class GreaterEqTest
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
@@ -501,12 +501,12 @@ public class GreaterEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
         assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
@@ -523,7 +523,7 @@ public class GreaterEqTest
 
         cursor = new GreaterEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "2" );
+        indexEntry.setKey( "2" );
         
         try
         {
@@ -540,7 +540,7 @@ public class GreaterEqTest
 
         cursor = new GreaterEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "2" );
+        indexEntry.setKey( "2" );
         try
         {
             cursor.after( indexEntry );

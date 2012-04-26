@@ -145,10 +145,6 @@ public final class ApacheSchemaConstants
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.37";
 
-    // apacheSubLevel
-    public final static String APACHE_SUB_LEVEL_AT = "apacheSubLevel";
-    public final static String APACHE_SUB_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.43";
-
     // apacheRdn
     public final static String APACHE_RDN_AT = "apacheRdn";
     public final static String APACHE_RDN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.50";

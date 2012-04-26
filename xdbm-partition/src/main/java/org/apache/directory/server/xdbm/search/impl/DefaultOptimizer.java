@@ -373,6 +373,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     private long getScopeScan( ScopeNode node ) throws Exception
     {
         ID id = db.getEntryId( node.getBaseDn() );
+        
         switch ( node.getScope() )
         {
             case OBJECT:
@@ -388,7 +389,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
                 }
                 else
                 {
-                    return db.getSubLevelIndex().count( id );
+                    return db.getRdnIndex().reverseLookup( id ).getNbDescendants() + 1;
                 }
 
             default:

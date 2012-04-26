@@ -532,17 +532,17 @@ public class JdbmIndexTest
         cursor.next();
         IndexEntry<String, Long> e1 = cursor.get();
         assertEquals( 555L, ( long ) e1.getId() );
-        assertEquals( "bar", e1.getValue() );
+        assertEquals( "bar", e1.getKey() );
 
         cursor.next();
         IndexEntry<String, Long> e2 = cursor.get();
         assertEquals( 333L, ( long ) e2.getId() );
-        assertEquals( "foo", e2.getValue() );
+        assertEquals( "foo", e2.getKey() );
 
         cursor.next();
         IndexEntry<String, Long> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getValue() );
+        assertEquals( "foo", e3.getKey() );
         
         cursor.close();
 
@@ -553,17 +553,17 @@ public class JdbmIndexTest
         cursor.next();
         e1 = cursor.get();
         assertEquals( 333L, ( long ) e1.getId() );
-        assertEquals( "foo", e1.getValue() );
+        assertEquals( "foo", e1.getKey() );
 
         cursor.next();
         e2 = cursor.get();
         assertEquals( 555L, ( long ) e2.getId() );
-        assertEquals( "bar", e2.getValue() );
+        assertEquals( "bar", e2.getKey() );
 
         cursor.next();
         e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getValue() );
+        assertEquals( "foo", e3.getKey() );
         
         cursor.close();
     }

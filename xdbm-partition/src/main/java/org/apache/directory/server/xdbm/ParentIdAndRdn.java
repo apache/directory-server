@@ -125,7 +125,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @param rdns the new Rdn
      */
-    public void setRdns( Rdn[] rdns )
+    public void setRdns( Rdn... rdns )
     {
         this.rdns = rdns;
     }

@@ -185,7 +185,7 @@ public class NotCursorTest
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -222,7 +222,7 @@ public class NotCursorTest
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -243,7 +243,7 @@ public class NotCursorTest
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
         
         assertEquals( 5, set.size() );

@@ -50,7 +50,7 @@ public class SingletonIndexCursorTest
         indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 1L );
         indexEntry.setEntry( new DefaultEntry() );
-        indexEntry.setValue( "test" );
+        indexEntry.setKey( "test" );
         indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
     }
     
