@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1964,8 +1965,9 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         ID parentId = id;
         ID rootId = getRootId();
 
-        StringBuilder upName = new StringBuilder();
-        boolean isFirst = true;
+        // Create an array of 10 rdns, just in case. We will extend it if needed
+        Rdn[] rdnArray = new Rdn[10];
+        int pos = 0;
 
         do
         {
@@ -1974,23 +1976,22 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             for ( Rdn rdn : rdns )
             {
-                if ( isFirst )
+                if ( ( pos > 0 ) && (pos % 10 == 0 ) )
                 {
-                    isFirst = false;
+                    // extend the array
+                    Rdn[] newRdnArray = new Rdn[pos + 10];
+                    System.arraycopy( rdnArray, 0, newRdnArray, 0, pos );
+                    rdnArray = newRdnArray;
                 }
-                else
-                {
-                    upName.append( ',' );
-                }
-
-                upName.append( rdn.getName() );
+                
+                rdnArray[pos++]= rdn;
             }
 
             parentId = cur.getParentId();
         }
         while ( !parentId.equals( rootId ) );
 
-        Dn dn = new Dn( schemaManager, upName.toString() );
+        Dn dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
 
         return dn;
     }
