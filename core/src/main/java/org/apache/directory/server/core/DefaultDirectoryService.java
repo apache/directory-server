@@ -2044,16 +2044,7 @@ public class DefaultDirectoryService implements DirectoryService
         try
         {
             readLock.lock();
-
-            for ( Interceptor interceptor : interceptors )
-            {
-                if ( interceptor.getName().equalsIgnoreCase( interceptorName ) )
-                {
-                    return interceptor;
-                }
-            }
-
-            return null;
+            return interceptorNames.get( interceptorName );
         }
         finally
         {
