@@ -22,14 +22,18 @@ package org.apache.directory.server.core.operations.search;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,7 +62,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         while ( cursor.next() )
         {
-            Entry entry = cursor.get();
+            cursor.get();
             ++i;
         }
 
@@ -67,11 +71,21 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         assertEquals( 1, i );
 
         int nbIterations = 1500000;
+        
+        Dn dn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
+
+        SearchRequest searchRequest = new SearchRequestImpl();
+
+        searchRequest.setBase( dn );
+        searchRequest.setFilter( "(ObjectClass=*)" );
+        searchRequest.setScope( SearchScope.OBJECT );
+        searchRequest.addAttributes( "*" );
+        searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-
+        
         for ( i = 0; i < nbIterations; i++ )
         {
             if ( i % 100000 == 0 )
@@ -87,7 +101,13 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
+            cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+            while ( cursor.next() )
+            {
+                cursor.get();
+            }
+            
             cursor.close();
         }
 
@@ -115,7 +135,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         while ( cursor.next() )
         {
-            Entry entry = cursor.get();
+            cursor.get();
             ++i;
         }
 
@@ -123,7 +143,15 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         assertEquals( 5, i );
 
-        int nbIterations = 1500000;
+        int nbIterations = 150000;
+        Dn dn = new Dn( getService().getSchemaManager(), "ou=system" );
+        SearchRequest searchRequest = new SearchRequestImpl();
+
+        searchRequest.setBase( dn );
+        searchRequest.setFilter( "(ObjectClass=*)" );
+        searchRequest.setScope( SearchScope.ONELEVEL );
+        searchRequest.addAttributes( "*" );
+        searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -131,7 +159,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         for ( i = 0; i < nbIterations; i++ )
         {
-            if ( i % 100000 == 0 )
+            if ( i % 10000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -139,19 +167,25 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 500000 )
+            if ( i == 50000 )
             {
                 t00 = System.currentTimeMillis();
             }
 
-            cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.ONELEVEL, "*" );
+            cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+            while ( cursor.next() )
+            {
+                cursor.get();
+            }
+            
             cursor.close();
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -172,7 +206,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         while ( cursor.next() )
         {
-            Entry entry = cursor.get();
+            cursor.get();
             ++i;
         }
 
@@ -180,7 +214,15 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         assertEquals( 10, i );
 
-        int nbIterations = 1500000;
+        int nbIterations = 150000;
+        Dn dn = new Dn( getService().getSchemaManager(), "ou=system" );
+        SearchRequest searchRequest = new SearchRequestImpl();
+
+        searchRequest.setBase( dn );
+        searchRequest.setFilter( "(ObjectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "*" );
+        searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -188,7 +230,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         for ( i = 0; i < nbIterations; i++ )
         {
-            if ( i % 100000 == 0 )
+            if ( i % 10000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -196,19 +238,25 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 500000 )
+            if ( i == 50000 )
             {
                 t00 = System.currentTimeMillis();
             }
 
-            cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+            cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+            while ( cursor.next() )
+            {
+                cursor.get();
+            }
+            
             cursor.close();
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 10
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
