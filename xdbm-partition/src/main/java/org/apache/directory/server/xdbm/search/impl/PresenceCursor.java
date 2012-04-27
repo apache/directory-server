@@ -46,6 +46,9 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private final IndexCursor<String, Entry, ID> uuidCursor;
     private final IndexCursor<String, Entry, ID> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
+    
+    /** The prefetched entry, if it's a valid one */
+    private IndexEntry<String, ID> prefetched;
 
 
     public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
@@ -248,6 +251,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         if ( presenceCursor != null )
         {
             return presenceCursor.next();
@@ -256,10 +260,12 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<String, ID> candidate = uuidCursor.get();
 
             if ( presenceEvaluator.evaluate( candidate ) )
             {
+                prefetched = candidate;
+                
                 return setAvailable( true );
             }
         }
@@ -284,15 +290,19 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
 
         if ( available() )
         {
+            if ( prefetched == null )
+            {
+                prefetched = uuidCursor.get();
+            }
+            
             /*
              * The value of NDN indices is the normalized dn and we want the
              * value to be the value of the attribute in question.  So we will
              * set that accordingly here.
              */
-            IndexEntry<String, ID> indexEntry = uuidCursor.get();
-            indexEntry.setKey( presenceEvaluator.getAttributeType().getOid() );
+            prefetched.setKey( presenceEvaluator.getAttributeType().getOid() );
 
-            return indexEntry;
+            return prefetched;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
