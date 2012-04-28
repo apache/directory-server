@@ -226,6 +226,8 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             return val;
         }
+        
+        // The ID is the same, check the RDNs now
 
         val = rdns.length - that.rdns.length;
 
@@ -234,47 +236,27 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             return val;
         }
         
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        
-        for ( Rdn rdn : rdns )
+        if ( rdns.length == 1 )
         {
-            if ( isFirst )
+            // Special case : we only have one rdn.
+            val = rdns[0].getNormName().compareTo( that.rdns[0].getNormName() );
+            
+            return val;
+        }
+        else
+        {
+            for ( int i = 0; i < rdns.length; i++ )
             {
-                sb.append( ',' );
-            }
-            else
-            {
-                isFirst = false;
+                val = rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
+            
+                if ( val != 0 )
+                {
+                    return val;
+                }
             }
             
-            sb.append( rdn.getNormName() );
+            return 0;
         }
-        
-        String thisString = sb.toString();
-        
-        isFirst = true;
-        sb = new StringBuilder();
-
-        for ( Rdn rdn : that.rdns )
-        {
-            if ( isFirst )
-            {
-                sb.append( ',' );
-            }
-            else
-            {
-                isFirst = false;
-            }
-            
-            sb.append( rdn.getNormName() );
-        }
-        
-        String thatString = sb.toString();
-        
-        val = ( thisString.compareTo( thatString ) );
-        
-        return val;
     }
 
 
