@@ -23,17 +23,13 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -41,7 +37,6 @@ import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -85,6 +80,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformEx
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -954,13 +950,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            SearchControls searchCtls = searchContext.getSearchControls();
+            SearchScope scope = searchContext.getScope();
             IndexCursor<ID, Entry, ID> underlying;
             Dn dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
 
-            underlying = searchEngine.cursor( dn, derefMode, filter, searchCtls );
+            underlying = searchEngine.cursor( dn, derefMode, filter, scope );
 
             return new BaseEntryFilteringCursor( new EntryCursorAdaptor<ID>( this, underlying ), searchContext );
         }

@@ -728,8 +728,6 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( scope.ordinal() );
         IndexCursor<Long, Entry, Long> cursor = null;
 
         // Create a container for all the read beans
@@ -738,7 +736,7 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, scope );
 
             // First, check if we have some entries to process.
             if ( !cursor.next() )

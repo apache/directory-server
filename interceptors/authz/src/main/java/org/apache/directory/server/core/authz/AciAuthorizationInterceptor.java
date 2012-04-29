@@ -79,6 +79,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -1255,9 +1256,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next( searchContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( searchContext.getDn().getNormName() );
-        SearchControls searchCtls = searchContext.getSearchControls();
-        boolean isRootDseLookup = searchContext.getDn().size() == 0
-            && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+
+        boolean isRootDseLookup = ( searchContext.getDn().size() == 0 )
+            && ( searchContext.getScope() == SearchScope.OBJECT );
 
         if ( isPrincipalAnAdministrator( principalDn )
             || !directoryService.isAccessControlEnabled() || isRootDseLookup

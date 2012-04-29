@@ -100,7 +100,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
      * @see SearchEngine#cursor(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
-        SearchControls searchCtls ) throws Exception
+        SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
         ID baseId = db.getEntryId( base );
@@ -156,7 +156,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             effectiveBaseId = db.getEntryId( effectiveBase );
         }
 
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        if ( scope == SearchScope.OBJECT )
         {
             IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
@@ -175,8 +175,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, SearchScope.getSearchScope( searchCtls
-            .getSearchScope() ) );
+        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 

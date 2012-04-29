@@ -83,6 +83,7 @@ import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnec
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
@@ -660,15 +661,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     private EntryFilteringCursor searchRootDse( SearchOperationContext searchContext ) throws LdapException
     {
-        SearchControls searchControls = searchContext.getSearchControls();
-
-        String[] ids = searchControls.getReturningAttributes();
+        Set<AttributeTypeOptions> ids = searchContext.getReturningAttributes();
 
         // -----------------------------------------------------------
         // If nothing is asked for then we just return the entry asis.
         // We let other mechanisms filter out operational attributes.
         // -----------------------------------------------------------
-        if ( ( ids == null ) || ( ids.length == 0 ) )
+        if ( ( ids == null ) || ( ids.size() == 0 ) )
         {
             Entry rootDse = getRootDse( null );
             return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext );
@@ -684,17 +683,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         boolean allOperationalAttributes = searchContext.isAllOperationalAttributes();
         boolean noAttribute = searchContext.isNoAttributes();
 
-        for ( String id : ids )
+        for ( AttributeTypeOptions id : ids )
         {
-            String idTrimmed = id.trim();
-
             try
             {
-                realIds.add( schemaManager.getAttributeTypeRegistry().getOidByName( idTrimmed ) );
+                realIds.add( id.getAttributeType().getOid() );
             }
             catch ( Exception e )
             {
-                realIds.add( idTrimmed );
+                realIds.add( id.getAttributeType().getName() );
             }
         }
 
@@ -744,7 +741,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Dn base = searchContext.getDn();
-        SearchControls searchCtls = searchContext.getSearchControls();
         ExprNode filter = searchContext.getFilter();
 
         // TODO since we're handling the *, and + in the EntryFilteringCursor
@@ -755,11 +751,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             // We are searching from the rootDSE. We have to distinguish three cases :
             // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
             // 2) The scope is ONELEVEL : we have to return all the Naming Contexts
-            boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
+            boolean isObjectScope = searchContext.getScope() == SearchScope.OBJECT;
 
-            boolean isOnelevelScope = searchCtls.getSearchScope() == SearchControls.ONELEVEL_SCOPE;
+            boolean isOnelevelScope = searchContext.getScope() == SearchScope.ONELEVEL;
 
-            boolean isSublevelScope = searchCtls.getSearchScope() == SearchControls.SUBTREE_SCOPE;
+            boolean isSublevelScope = searchContext.getScope() == SearchScope.SUBTREE;
 
             // test for (objectClass=*)
             boolean isSearchAll = false;

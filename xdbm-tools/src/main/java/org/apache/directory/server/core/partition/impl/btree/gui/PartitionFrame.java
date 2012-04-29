@@ -72,6 +72,7 @@ import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -629,19 +630,19 @@ public class PartitionFrame extends JFrame
             return false;
         }
 
-        SearchControls ctls = new SearchControls();
+        SearchScope searchScope = null;
 
         if ( scope.equals( FilterDialog.BASE_SCOPE ) )
         {
-            ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+            searchScope = SearchScope.OBJECT;
         }
         else if ( scope.equals( FilterDialog.SINGLE_SCOPE ) )
         {
-            ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+            searchScope = SearchScope.ONELEVEL;
         }
         else if ( scope.equals( FilterDialog.SUBTREE_SCOPE ) )
         {
-            ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+            searchScope = SearchScope.SUBTREE;
         }
         else
         {
@@ -655,7 +656,7 @@ public class PartitionFrame extends JFrame
         }
 
         IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
-            AliasDerefMode.DEREF_ALWAYS, root, ctls );
+            AliasDerefMode.DEREF_ALWAYS, root, searchScope );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
