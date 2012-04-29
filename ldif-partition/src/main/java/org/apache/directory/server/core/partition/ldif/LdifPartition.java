@@ -271,7 +271,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, modifyContext.getDn() );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
@@ -302,7 +302,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.move( moveContext );
 
         // Get the modified entry
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, oldDn );
 
         try
         {
@@ -326,7 +326,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, oldDn );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         try
@@ -352,7 +352,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, oldDn );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
@@ -384,7 +384,6 @@ public class LdifPartition extends AbstractLdifPartition
         addEntry( modifiedEntry );
         
         Long baseId = getEntryId( modifiedEntry.getDn() );
-
 
         ParentIdAndRdn<Long> parentIdAndRdn = getRdnIndex().reverseLookup( baseId ); 
         IndexEntry indexEntry = new ForwardIndexEntry();

@@ -357,6 +357,17 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @param dn The entry DN when we have it
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    Entry lookup( ID id, Dn dn ) throws Exception;
+
+
+    /**
      * Gets the count of immediate children of the given entry ID.
      *
      * @param id the entry ID

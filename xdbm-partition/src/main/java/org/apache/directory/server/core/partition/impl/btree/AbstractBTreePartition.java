@@ -991,7 +991,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             return null;
         }
 
-        Entry entry = lookup( id );
+        Entry entry = lookup( id, lookupContext.getDn() );
 
         // Remove all the attributes if the NO_ATTRIBUTE flag is set and there is no requested attribute
         if ( lookupContext.hasNoAttribute()
@@ -1090,6 +1090,37 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 // We have to store the DN in this entry
                 Dn dn = buildEntryDn( id );
+                entry.setDn( dn );
+
+                return new ClonedServerEntry( entry );
+            }
+
+            return null;
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+    }
+
+
+    /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    public Entry lookup( ID id, Dn dn ) throws LdapException
+    {
+        try
+        {
+            Entry entry = master.get( id );
+
+            if ( entry != null )
+            {
+                // We have to store the DN in this entry
+                //Dn dn = buildEntryDn( id );
                 entry.setDn( dn );
 
                 return new ClonedServerEntry( entry );
@@ -1921,7 +1952,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             ID id = getEntryId( entryContext.getDn() );
 
-            Entry entry = lookup( id );
+            Entry entry = lookup( id, entryContext.getDn() );
 
             return entry != null;
         }
