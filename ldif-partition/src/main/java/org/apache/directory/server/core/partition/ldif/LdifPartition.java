@@ -302,7 +302,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.move( moveContext );
 
         // Get the modified entry
-        Entry modifiedEntry = lookup( id, oldDn );
+        Entry modifiedEntry = lookup( id, moveContext.getNewDn() );
 
         try
         {
@@ -326,7 +326,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id, oldDn );
+        Entry modifiedEntry = lookup( id, moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         try
@@ -352,7 +352,8 @@ public class LdifPartition extends AbstractLdifPartition
         super.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id, oldDn );
+        Dn newDn = oldDn.getParent().add( renameContext.getNewRdn() );
+        Entry modifiedEntry = lookup( id, newDn );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
