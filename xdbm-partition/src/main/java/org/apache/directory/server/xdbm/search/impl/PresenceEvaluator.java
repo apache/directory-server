@@ -88,7 +88,7 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     }
 
 
-    // TODO - determine if comaparator and index entry should have the Value
+    // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
