@@ -162,6 +162,10 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
+            
+            // Fetch the entry, as we have only one
+            Entry entry = db.lookup( indexEntry.getId(), effectiveBase );
+            indexEntry.setEntry( entry );
 
             if ( evaluator.evaluate( indexEntry ) )
             {
