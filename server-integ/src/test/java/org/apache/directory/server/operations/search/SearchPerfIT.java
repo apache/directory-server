@@ -23,6 +23,7 @@ package org.apache.directory.server.operations.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -31,7 +32,11 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,10 +57,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
      * test a search request perf.
      */
     @Test
-    public void testSearchRequestPerf() throws Exception
+    public void testSearchRequestObjectScopePerf() throws Exception
     {
-        //getLdapServer().getDirectoryService().getInterceptorChain().addFirst( new TimerInterceptor( "Start" ) );
-        //getLdapServer().getDirectoryService().getInterceptorChain().addLast( new TimerInterceptor( "End" ) );
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         try
@@ -90,27 +93,251 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 cursor.close();
             }
 
+            Dn dn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
+
+            SearchRequest searchRequest = new SearchRequestImpl();
+
+            searchRequest.setBase( dn );
+            searchRequest.setFilter( "(ObjectClass=*)" );
+            searchRequest.setScope( SearchScope.OBJECT );
+            searchRequest.addAttributes( "*" );
+            searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
+
             long t0 = System.currentTimeMillis();
+            long t00 = 0L;
+            long tt0 = System.currentTimeMillis();
             int nbIterations = 200000;
 
             for ( int j = 0; j < nbIterations; j++ )
             {
                 if ( j % 10000 == 0 )
                 {
-                    System.out.println( j );
+                    long tt1 = System.currentTimeMillis();
+                    
+                    System.out.println( j + ", " + ( tt1 - tt0 ) );
+                    tt0 = tt1;
+                }
+                
+                if ( j == 50000 )
+                {
+                    t00 = System.currentTimeMillis();
                 }
 
-                cursor = connection.search( "uid=admin,ou=system", "(ObjectClass=*)", SearchScope.OBJECT, "*" );
+                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
                 while ( cursor.next() )
                 {
+                    cursor.get();
                 }
+                
                 cursor.close();
             }
 
             long t1 = System.currentTimeMillis();
 
-            Long deltaWarmed = ( t1 - t0 );
-            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( nbIterations * 1000 ) / deltaWarmed )
+            Long deltaWarmed = ( t1 - t00 );
+            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+                + " per s ) /" + ( t1 - t0 ) );
+        }
+        catch ( LdapException e )
+        {
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
+        }
+        finally
+        {
+            connection.unBind();
+            connection.close();
+        }
+    }
+
+
+    /**
+     * test a search request perf.
+     */
+    @Test
+    public void testSearchRequestOneLevelScopePerf() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+
+        try
+        {
+            // Use the client API as JNDI cannot be used to do a search without
+            // first binding. (hmmm, even client API won't allow searching without binding)
+            connection.bind( "uid=admin,ou=system", "secret" );
+
+            // Searches for all the entries in ou=system
+            EntryCursor cursor = connection.search( "ou=system", "(ObjectClass=*)",
+                SearchScope.ONELEVEL, "*" );
+
+            int i = 0;
+
+            while ( cursor.next() )
+            {
+                cursor.get();
+                ++i;
+            }
+
+            cursor.close();
+            assertEquals( 5, i );
+
+            for ( int j = 0; j < 10000; j++ )
+            {
+                cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.ONELEVEL, "*" );
+
+                while ( cursor.next() )
+                {
+                    cursor.get();
+                }
+
+                cursor.close();
+            }
+
+            Dn dn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
+
+            SearchRequest searchRequest = new SearchRequestImpl();
+
+            searchRequest.setBase( dn );
+            searchRequest.setFilter( "(ObjectClass=*)" );
+            searchRequest.setScope( SearchScope.ONELEVEL );
+            searchRequest.addAttributes( "*" );
+            searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
+
+            long t0 = System.currentTimeMillis();
+            long t00 = 0L;
+            long tt0 = System.currentTimeMillis();
+            int nbIterations = 200000;
+
+            for ( int j = 0; j < nbIterations; j++ )
+            {
+                if ( j % 10000 == 0 )
+                {
+                    long tt1 = System.currentTimeMillis();
+                    
+                    System.out.println( j + ", " + ( tt1 - tt0 ) );
+                    tt0 = tt1;
+                }
+                
+                if ( j == 50000 )
+                {
+                    t00 = System.currentTimeMillis();
+                }
+
+                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+                while ( cursor.next() )
+                {
+                    cursor.get();
+                }
+                
+                cursor.close();
+            }
+
+            long t1 = System.currentTimeMillis();
+
+            Long deltaWarmed = ( t1 - t00 );
+            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+                + " per s ) /" + ( t1 - t0 ) );
+        }
+        catch ( LdapException e )
+        {
+            e.printStackTrace();
+            fail( "Should not have caught exception." );
+        }
+        finally
+        {
+            connection.unBind();
+            connection.close();
+        }
+    }
+
+
+    /**
+     * test a search request perf.
+     */
+    @Test
+    public void testSearchRequestSubtreeLevelScopePerf() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0 );
+
+        try
+        {
+            // Use the client API as JNDI cannot be used to do a search without
+            // first binding. (hmmm, even client API won't allow searching without binding)
+            connection.bind( "uid=admin,ou=system", "secret" );
+
+            // Searches for all the entries in ou=system
+            EntryCursor cursor = connection.search( "ou=system", "(ObjectClass=*)",
+                SearchScope.SUBTREE, "*" );
+
+            int i = 0;
+
+            while ( cursor.next() )
+            {
+                cursor.get();
+                ++i;
+            }
+
+            cursor.close();
+            assertEquals( 10, i );
+
+            for ( int j = 0; j < 10000; j++ )
+            {
+                cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+
+                while ( cursor.next() )
+                {
+                    cursor.get();
+                }
+
+                cursor.close();
+            }
+
+            Dn dn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
+
+            SearchRequest searchRequest = new SearchRequestImpl();
+
+            searchRequest.setBase( dn );
+            searchRequest.setFilter( "(ObjectClass=*)" );
+            searchRequest.setScope( SearchScope.SUBTREE );
+            searchRequest.addAttributes( "*" );
+            searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
+
+            long t0 = System.currentTimeMillis();
+            long t00 = 0L;
+            long tt0 = System.currentTimeMillis();
+            int nbIterations = 200000;
+
+            for ( int j = 0; j < nbIterations; j++ )
+            {
+                if ( j % 10000 == 0 )
+                {
+                    long tt1 = System.currentTimeMillis();
+                    
+                    System.out.println( j + ", " + ( tt1 - tt0 ) );
+                    tt0 = tt1;
+                }
+                
+                if ( j == 50000 )
+                {
+                    t00 = System.currentTimeMillis();
+                }
+
+                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+                while ( cursor.next() )
+                {
+                    cursor.get();
+                }
+                
+                cursor.close();
+            }
+
+            long t1 = System.currentTimeMillis();
+
+            Long deltaWarmed = ( t1 - t00 );
+            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 + " per s ) /" + ( t1 - t0 ) );
         }
         catch ( LdapException e )
