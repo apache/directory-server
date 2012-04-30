@@ -48,13 +48,13 @@ import org.junit.runner.RunWith;
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
                         "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
                         "objectClass: domain\n\n" ),
-                indexes = 
+                indexes =
                 {
                     @CreateIndex( attribute = "objectClass" ),
                     @CreateIndex( attribute = "sn" ),
@@ -88,7 +88,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < nbIterations; i++ )
         {
-            if ( i % 100 == 0 )
+            if ( i % 1000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 

@@ -180,17 +180,17 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -210,7 +210,7 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -235,7 +235,7 @@ public class NestedFilterTest
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
         
         assertEquals( 2, set.size() );

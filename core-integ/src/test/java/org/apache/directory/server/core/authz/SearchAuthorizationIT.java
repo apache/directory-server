@@ -67,7 +67,6 @@ import org.junit.runner.RunWith;
 @CreateDS(enableAccessControl = true, name = "SearchAuthorizationIT")
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
-
     // to avoid creating too many connections during recursive operations
     private LdapConnection reusableAdminCon;
 
@@ -184,17 +183,17 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      */
     private void recursivelyDelete( Dn rdn ) throws Exception
     {
-        EntryCursor results = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
+        EntryCursor entries = reusableAdminCon.search( rdn.getName(), "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
 
-        while ( results.next() )
+        while ( entries.next() )
         {
-            Entry result = results.get();
-            Dn childRdn = result.getDn();
+            Entry entry = entries.get();
+            Dn childRdn = entry.getDn();
             recursivelyDelete( childRdn );
         }
 
-        results.close();
+        entries.close();
         
         reusableAdminCon.delete( rdn );
     }
@@ -341,18 +340,18 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection();
         Dn base = addSearchData( new Dn( "ou=system" ), 3, 10 );
-
-        EntryCursor results = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
+        
+        EntryCursor entries = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
             "+" );
         int counter = 0;
 
-        while ( results.next() )
+        while ( entries.next() )
         {
-            results.get();
+            entries.get();
             counter++;
         }
         
-        results.close();
+        entries.close();
 
         assertEquals( 10, counter );
         recursivelyDelete( base );

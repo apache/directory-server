@@ -297,7 +297,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 {
                     IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
-                    row[0] = rec.getValue();
+                    row[0] = rec.getKey();
                     row[1] = rec.getId();
                     model.addRow( row );
                     count++;
@@ -307,13 +307,13 @@ public class IndexDialog<K, O, ID> extends JDialog
             {
                 list = index.forwardCursor();
                 ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
-                entry.setValue( key );
+                entry.setKey( key );
                 list.before( entry );
                 while ( list.next() )
                 {
                     IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
-                    row[0] = rec.getValue();
+                    row[0] = rec.getKey();
                     row[1] = rec.getId();
                     model.addRow( row );
                     count++;
@@ -323,13 +323,13 @@ public class IndexDialog<K, O, ID> extends JDialog
             {
                 list = index.forwardCursor();
                 ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
-                entry.setValue( key );
+                entry.setKey( key );
                 list.after( entry );
                 while ( list.previous() )
                 {
                     IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
-                    row[0] = rec.getValue();
+                    row[0] = rec.getKey();
                     row[1] = rec.getId();
                     model.addRow( row );
                     count++;
@@ -362,7 +362,7 @@ public class IndexDialog<K, O, ID> extends JDialog
                 {
                     IndexEntry<K, ID> rec = list.get();
                     row = new Object[2];
-                    row[0] = rec.getValue();
+                    row[0] = rec.getKey();
                     row[1] = rec.getId();
                     model.addRow( row );
                     count++;

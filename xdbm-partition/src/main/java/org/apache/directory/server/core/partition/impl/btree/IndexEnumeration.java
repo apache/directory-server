@@ -170,7 +170,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
             // If regex is null just transfer into prefetched from tmp record
             // but if it is not then use it to match.  Successful match shorts
             // while loop.
-            if ( null == re || re.matcher( ( String ) tmp.getValue() ).matches() )
+            if ( null == re || re.matcher( ( String ) tmp.getKey() ).matches() )
             {
                 prefetched.copy( tmp );
                 return;

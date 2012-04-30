@@ -156,6 +156,8 @@ public class DSAnnotationProcessor
                     partitionFactory.addIndex( partition,
                         createIndex.attribute(), createIndex.cacheSize() );
                 }
+
+                partition.initialize();
             }
             else
             {

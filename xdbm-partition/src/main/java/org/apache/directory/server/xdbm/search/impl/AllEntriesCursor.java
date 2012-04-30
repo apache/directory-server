@@ -165,7 +165,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
         IndexEntry<String, ID> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
-        indexEntry.setValue( wrappedEntry.getId() );
+        indexEntry.setKey( wrappedEntry.getId() );
         indexEntry.setEntry( wrappedEntry.getEntry() );
 
         return indexEntry;

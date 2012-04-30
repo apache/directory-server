@@ -235,9 +235,9 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<Attribute> removeAttributes( AttributeType... attributes )
+    public void removeAttributes( AttributeType... attributes )
     {
-        return clonedEntry.removeAttributes( attributes );
+        clonedEntry.removeAttributes( attributes );
     }
 
 
@@ -376,9 +376,9 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public List<Attribute> removeAttributes( String... attributes )
+    public void removeAttributes( String... attributes )
     {
-        return clonedEntry.removeAttributes( attributes );
+        clonedEntry.removeAttributes( attributes );
     }
 
 

@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
@@ -100,7 +98,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
      * {@inheritDoc}
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
-        SearchControls searchCtls ) throws Exception
+        SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
         ID baseId = db.getEntryId( base );
@@ -148,20 +146,33 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
-
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        ID effectiveBaseId = baseId;
+        
+        if ( effectiveBase != base )
         {
-            ID effectiveBaseId = baseId;
-            
-            if ( effectiveBase != base )
-            {
-                effectiveBaseId = db.getEntryId( effectiveBase );
-            }
+            effectiveBaseId = db.getEntryId( effectiveBase );
+        }
 
+        if ( scope == SearchScope.OBJECT )
+        {
             IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
+            
+            // Fetch the entry, as we have only one
+            Entry entry = null;
+            
+            if ( effectiveBase != base )
+            {
+                entry = db.lookup( indexEntry.getId() );
+            }
+            else
+            {
+                entry = db.lookup( indexEntry.getId(), effectiveBase );
+            }
+            
+            indexEntry.setEntry( entry );
 
             if ( evaluator.evaluate( indexEntry ) )
             {
@@ -175,13 +186,13 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope( searchCtls
-            .getSearchScope() ) );
+        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
+        
         return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
     }
 

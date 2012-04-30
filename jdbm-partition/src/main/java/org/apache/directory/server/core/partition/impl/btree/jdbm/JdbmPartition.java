@@ -164,7 +164,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
-
+            
             List<Index<?, Entry, Long>> indexToBuild = new ArrayList<Index<?, Entry, Long>>();
 
             // this loop is used for two purposes
@@ -175,7 +175,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             {
                 String indexOid = index.getAttribute().getOid();
                 allIndices.add( indexOid );
-
+                
                 // take the part after removing .db from the
                 String name = indexOid + JDBM_DB_FILE_EXTN;
 
@@ -185,6 +185,11 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 {
                     indexToBuild.add( index );
                 }
+            }
+            
+            if ( indexToBuild.size() > 0 )
+            {
+                buildUserIndex( indexToBuild );
             }
 
             if ( indexToBuild.size() > 0 )
@@ -249,7 +254,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
 
 
     /**
-     * builds user defined indexes on a attributes by browsing all the entries present in master db
+     * Builds user defined indexes on a attributes by browsing all the entries present in master db
      * 
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
@@ -264,13 +269,13 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             for ( Index index : userIndexes )
             {
                 AttributeType atType = index.getAttribute();
-    
+  
                 String attributeOid = index.getAttribute().getOid();
-
+  
                 LOG.info( "building the index for attribute type {}", atType );
-
+          
                 Tuple<Long, Entry> tuple = cursor.get();
-    
+
                 Long id = tuple.getKey();
                 Entry entry = tuple.getValue();
     

@@ -291,20 +291,20 @@ public class AvlRdnIndexTest
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e1 = cursor.get();
         assertEquals( 0, ( long ) e1.getId() );
-        assertEquals( "cn=key", e1.getValue().getRdns()[0].getName() );
-        assertEquals( 0, e1.getValue().getParentId().longValue() );
+        assertEquals( "cn=key", e1.getKey().getRdns()[0].getName() );
+        assertEquals( 0, e1.getKey().getParentId().longValue() );
 
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e2 = cursor.get();
         assertEquals( 1, ( long ) e2.getId() );
-        assertEquals( "cn=key1", e2.getValue().getRdns()[0].getName() );
-        assertEquals( 1, e2.getValue().getParentId().longValue() );
+        assertEquals( "cn=key1", e2.getKey().getRdns()[0].getName() );
+        assertEquals( 1, e2.getKey().getParentId().longValue() );
 
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e3 = cursor.get();
         assertEquals( 2, ( long ) e3.getId() );
-        assertEquals( "cn=key2", e3.getValue().getRdns()[0].getName() );
-        assertEquals( 2, e3.getValue().getParentId().longValue() );
+        assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
+        assertEquals( 2, e3.getKey().getParentId().longValue() );
 
         cursor.close();
     }

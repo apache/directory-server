@@ -1879,6 +1879,43 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
+    public void testSearchRootDSE() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]{ "*", "+" } );
+
+        LdapContext nullRootCtx = getRootContext( getService() );
+
+        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=*)", controls );
+        Attributes rootDse = null;
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            rootDse = result.getAttributes();
+        }
+
+        list.close();
+
+        assertNotNull( rootDse );
+        
+        assertEquals( 10, rootDse.size() );
+        assertNotNull( rootDse.get( "objectClass" ) );
+        assertNotNull( rootDse.get( "entryUUID" ) );
+        assertNotNull( rootDse.get( "namingContexts" ) );
+        assertNotNull( rootDse.get( "subschemaSubentry" ) );
+        assertNotNull( rootDse.get( "supportedControl" ) );
+        assertNotNull( rootDse.get( "supportedExtension" ) );
+        assertNotNull( rootDse.get( "supportedFeatures" ) );
+        assertNotNull( rootDse.get( "supportedLDAPVersion" ) );
+        assertNotNull( rootDse.get( "vendorName" ) );
+        assertNotNull( rootDse.get( "vendorVersion" ) );
+    }
+
+
+    @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
         SearchControls controls = new SearchControls();

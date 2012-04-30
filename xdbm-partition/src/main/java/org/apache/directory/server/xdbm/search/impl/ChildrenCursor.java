@@ -146,9 +146,9 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             IndexEntry cursorEntry = cursor.get();
             IndexEntry<ID, ID> entry = new ForwardIndexEntry();
             entry.setId( (ID)cursorEntry.getId() );
-            entry.setValue( ((ParentIdAndRdn<ID>)cursorEntry.getTuple().getKey()).getParentId() );
+            entry.setKey( ((ParentIdAndRdn<ID>)cursorEntry.getTuple().getKey()).getParentId() );
             
-            if ( entry.getValue().equals( parentId ) )
+            if ( entry.getKey().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;

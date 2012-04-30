@@ -3351,12 +3351,6 @@ public class SchemaAwareEntryTest
 
         assertFalse( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.containsAttribute( "objectclass", "userpassword" ) );
-
-        List<Attribute> removed = entry.removeAttributes( ( AttributeType ) null );
-        assertNull( removed );
-
-        removed = entry.removeAttributes( atC );
-        assertNull( removed );
     }
 
 
@@ -3380,14 +3374,9 @@ public class SchemaAwareEntryTest
         assertFalse( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.containsAttribute( "objectclass", "userpassword" ) );
 
-        List<Attribute> removed = entry.removeAttributes( "badId" );
-        assertNull( removed );
-
-        removed = entry.removeAttributes( "l" );
-        assertNull( removed );
-
-        removed = entry.removeAttributes( ( String ) null );
-        assertNull( removed );
+        entry.removeAttributes( "badId" );
+        entry.removeAttributes( "l" );
+        entry.removeAttributes( ( String ) null );
     }
 
 
@@ -3515,8 +3504,7 @@ public class SchemaAwareEntryTest
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
 
         // test a removal of an non existing attribute
-        List<Attribute> removed = entry.removeAttributes( atCN );
-        assertNull( removed );
+        entry.removeAttributes( atCN );
 
         // Test a simple removal
         entry.add( "cN", atCN, test1 );
@@ -3548,9 +3536,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( atCN ) );
         assertNotNull( entry.get( atPassword ) );
 
-        removed = entry.removeAttributes( "badAttribute" );
-
-        assertNull( removed );
+        entry.removeAttributes( "badAttribute" );
     }
 
 

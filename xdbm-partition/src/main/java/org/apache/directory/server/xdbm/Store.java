@@ -91,7 +91,6 @@ public interface Store<E, ID extends Comparable<ID>>
     public static final String[] SYS_INDEX_OID_ARRAY =
         {
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-            ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,
             ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
@@ -176,12 +175,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The Presence system index
      */
     Index<String, E, ID> getPresenceIndex();
-
-
-    /**
-     * @return The SubLevel system index
-     */
-    Index<ID, E, ID> getSubLevelIndex();
 
 
     /**
@@ -361,6 +354,17 @@ public interface Store<E, ID extends Comparable<ID>>
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
     Entry lookup( ID id ) throws Exception;
+
+
+    /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @param dn The entry DN when we have it
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    Entry lookup( ID id, Dn dn ) throws Exception;
 
 
     /**

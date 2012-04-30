@@ -199,7 +199,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
              * userIdxCursor before the first element.  Otherwise we let the
              * underlying userIdx Cursor position the element.
              */
-            if ( greaterEqEvaluator.getComparator().compare( element.getValue(),
+            if ( greaterEqEvaluator.getComparator().compare( element.getKey(),
                 greaterEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
             {
                 beforeFirst();
@@ -225,7 +225,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
 
         if ( userIdxCursor != null )
         {
-            int comparedValue = greaterEqEvaluator.getComparator().compare( element.getValue(),
+            int comparedValue = greaterEqEvaluator.getComparator().compare( element.getKey(),
                 greaterEqEvaluator.getExpression().getValue().getValue() );
 
             /*
@@ -273,7 +273,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         if ( userIdxCursor != null )
         {
             IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
-            advanceTo.setValue( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
+            advanceTo.setKey( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.before( advanceTo );
         }
         else
@@ -347,7 +347,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
                 checkNotClosed( "previous()" );
                 IndexEntry<?, ID> candidate = userIdxCursor.get();
 
-                if ( greaterEqEvaluator.getComparator().compare( candidate.getValue(),
+                if ( greaterEqEvaluator.getComparator().compare( candidate.getKey(),
                     greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
                 {
                     return setAvailable( true );

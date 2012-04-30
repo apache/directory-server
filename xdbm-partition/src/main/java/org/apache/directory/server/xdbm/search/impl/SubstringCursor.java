@@ -96,7 +96,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
             ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
-            indexEntry.setValue( evaluator.getExpression().getInitial() );
+            indexEntry.setKey( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
         else
@@ -113,7 +113,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         setAvailable( false );
         indexEntry.setEntry( null );
         indexEntry.setId( null );
-        indexEntry.setValue( null );
+        indexEntry.setKey( null );
     }
 
 
@@ -140,7 +140,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     {
         if ( hasIndex )
         {
-            return evaluator.getPattern().matcher( indexEntry.getValue() ).matches();
+            return evaluator.getPattern().matcher( indexEntry.getKey() ).matches();
         }
         else
         {
@@ -167,7 +167,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
-                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setKey( entry.getKey() );
                 this.indexEntry.setEntry( entry.getEntry() );
                 return true;
             }
@@ -189,7 +189,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
-                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setKey( entry.getKey() );
                 this.indexEntry.setEntry( entry.getEntry() );
                 
                 return true;

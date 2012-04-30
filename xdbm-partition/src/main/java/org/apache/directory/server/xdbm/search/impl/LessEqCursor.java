@@ -170,7 +170,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
              * If the element's value is smaller, then we delegate to the
              * before() method of the userIdxCursor.
              */
-            int compareValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int compareValue = lessEqEvaluator.getComparator().compare( element.getKey(),
                 lessEqEvaluator.getExpression().getValue().getValue() );
 
             if ( compareValue > 0 )
@@ -246,7 +246,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
 
         if ( userIdxCursor != null )
         {
-            int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
+            int comparedValue = lessEqEvaluator.getComparator().compare( element.getKey(),
                 lessEqEvaluator.getExpression().getValue().getValue() );
 
             /*
@@ -301,7 +301,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         {
             IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             //noinspection unchecked
-            advanceTo.setValue( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
+            advanceTo.setKey( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
         }
         else
@@ -377,7 +377,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
                 checkNotClosed( "next()" );
                 IndexEntry<?, ID> candidate = userIdxCursor.get();
 
-                if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
+                if ( lessEqEvaluator.getComparator().compare( candidate.getKey(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
                     return setAvailable( true );

@@ -51,7 +51,6 @@ public class JdbmPartitionFactory implements PartitionFactory
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionPath( workingDirectory.toURI() );
-        partition.initialize();
 
         return partition;
     }

@@ -182,17 +182,17 @@ public class AndCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -233,19 +233,19 @@ public class AndCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -255,19 +255,19 @@ public class AndCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

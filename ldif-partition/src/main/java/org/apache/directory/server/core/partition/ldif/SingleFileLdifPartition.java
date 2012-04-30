@@ -331,7 +331,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         IndexCursor<ParentIdAndRdn<Long>,Entry,Long> cursor = rdnIdx.forwardCursor();
         
         IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
-        startingPos.setValue( new ParentIdAndRdn<Long>( id, (Rdn[]) null ) );
+        startingPos.setKey( new ParentIdAndRdn<Long>( id, (Rdn[]) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
         
@@ -346,7 +346,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             countChildren++;
             
             // And now, the children
-            int nbChildren = element.getValue().getNbChildren();
+            int nbChildren = element.getKey().getNbChildren();
             
             if ( nbChildren > 0 )
             {

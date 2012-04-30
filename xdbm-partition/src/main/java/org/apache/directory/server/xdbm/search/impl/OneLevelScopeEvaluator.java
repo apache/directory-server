@@ -56,7 +56,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
+    public OneLevelScopeEvaluator( Store<E, ID> db, ScopeNode<ID> node ) throws Exception
     {
         this.node = node;
 
@@ -66,7 +66,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
         }
 
         this.db = db;
-        baseId = db.getEntryId( node.getBaseDn() );
+        baseId = node.getBaseId();
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 

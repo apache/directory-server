@@ -82,6 +82,7 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.Cascade;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -1494,7 +1495,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // The user was searching into the subSchemaSubEntry
         // This kind of search _must_ be limited to OBJECT scope (the subSchemaSubEntry
         // does not have any sub level)
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        if ( searchContext.getScope() == SearchScope.OBJECT )
         {
             // The filter can be an equality or a presence, but nothing else
             if ( filter instanceof SimpleNode )

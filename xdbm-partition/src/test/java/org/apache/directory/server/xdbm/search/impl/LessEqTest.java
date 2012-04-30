@@ -196,27 +196,27 @@ public class LessEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 1L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -231,27 +231,27 @@ public class LessEqTest
 
         assertTrue( cursor.available() );
         assertEquals( 1L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 3L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -268,27 +268,27 @@ public class LessEqTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 1L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -303,27 +303,27 @@ public class LessEqTest
 
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 3L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 1L, ( long ) cursor.get().getId() );
-        assertEquals( "1", cursor.get().getValue() );
+        assertEquals( "1", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -334,7 +334,7 @@ public class LessEqTest
 
         cursor = new LessEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "2" );
+        indexEntry.setKey( "2" );
 
         assertFalse( cursor.available() );
         cursor.before( indexEntry );
@@ -343,12 +343,12 @@ public class LessEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -357,29 +357,29 @@ public class LessEqTest
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "7" );
+        indexEntry.setKey( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "3" );
+        indexEntry.setKey( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
         // ---------- test after() ----------
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "1" );
+        indexEntry.setKey( "1" );
 
         assertFalse( cursor.available() );
         cursor.after( indexEntry );
@@ -388,12 +388,12 @@ public class LessEqTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 4L, ( long ) cursor.get().getId() );
-        assertEquals( "2", cursor.get().getValue() );
+        assertEquals( "2", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -402,22 +402,22 @@ public class LessEqTest
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "7" );
+        indexEntry.setKey( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "3" );
+        indexEntry.setKey( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "3", cursor.get().getValue() );
+        assertEquals( "3", cursor.get().getKey() );
         cursor.close();
     }
 
@@ -452,7 +452,7 @@ public class LessEqTest
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -474,12 +474,12 @@ public class LessEqTest
         cursor.first();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -504,7 +504,7 @@ public class LessEqTest
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -526,12 +526,12 @@ public class LessEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getValue(), cursor.get().getId() ) );
+            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         
         assertEquals( 5, set.size() );
@@ -550,7 +550,7 @@ public class LessEqTest
 
         cursor = new LessEqCursor( store, evaluator );
         ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "2" );
+        indexEntry.setKey( "2" );
         
         try
         {
@@ -567,7 +567,7 @@ public class LessEqTest
 
         cursor = new LessEqCursor( store, evaluator );
         indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setValue( "2" );
+        indexEntry.setKey( "2" );
         try
         {
             cursor.after( indexEntry );

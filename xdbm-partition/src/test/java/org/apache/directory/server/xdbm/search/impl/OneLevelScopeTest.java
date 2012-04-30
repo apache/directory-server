@@ -159,8 +159,12 @@ public class OneLevelScopeTest
     @Test
     public void testCursorNoDeref() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -175,14 +179,14 @@ public class OneLevelScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -199,14 +203,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -238,14 +242,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -272,14 +276,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -308,14 +312,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -331,14 +335,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        assertEquals( 2L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -349,8 +353,13 @@ public class OneLevelScopeTest
     @Test
     public void testCursorNoDerefReturnAliases() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=engineering," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -364,14 +373,14 @@ public class OneLevelScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -388,14 +397,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -424,14 +433,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -458,14 +467,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -492,14 +501,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -515,14 +524,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 11L, ( long ) indexEntry.getId() );
-        assertEquals( 4L, ( long ) indexEntry.getValue() );
+        assertEquals( 4L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -533,8 +542,11 @@ public class OneLevelScopeTest
     @Test
     public void testCursorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -549,14 +561,14 @@ public class OneLevelScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -572,14 +584,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -596,7 +608,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -605,7 +617,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -621,7 +633,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -630,7 +642,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -646,7 +658,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -655,7 +667,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -666,9 +678,14 @@ public class OneLevelScopeTest
     @Test
     public void testCursorWithDereferencing2() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=apache," + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID
-            + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=apache," + SchemaConstants.OU_AT_OID 
+            + "=board of directors," 
+            + SchemaConstants.O_AT_OID
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -683,7 +700,7 @@ public class OneLevelScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -699,7 +716,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -716,7 +733,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -734,7 +751,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -752,7 +769,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -793,8 +810,13 @@ public class OneLevelScopeTest
         addContext = new AddOperationContext( null, entry );
         ( ( Partition ) store ).add( addContext );
 
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=board of directors," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         OneLevelScopeCursor<Long> cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -809,28 +831,28 @@ public class OneLevelScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -846,28 +868,28 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -884,14 +906,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -900,14 +922,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -923,7 +945,7 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -932,21 +954,21 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -963,14 +985,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
         cursor.close();
 
         /*
@@ -979,14 +1001,14 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -1002,28 +1024,28 @@ public class OneLevelScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -1034,8 +1056,12 @@ public class OneLevelScopeTest
     @Test
     public void testEvaluatorNoDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
 
@@ -1048,8 +1074,13 @@ public class OneLevelScopeTest
     @Test
     public void testEvaluatorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, new Dn( SchemaConstants.OU_AT_OID
-            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=engineering," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+        
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_ALWAYS, dn, baseId, SearchScope.ONELEVEL );
         OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
             node );
         assertEquals( node, evaluator.getExpression() );
@@ -1081,11 +1112,15 @@ public class OneLevelScopeTest
     public void testInvalidCursorPositionException() throws Exception
     {
         OneLevelScopeCursor<Long> cursor = null;
-        
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
             OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
                 node );
             cursor = new OneLevelScopeCursor<Long>( store, evaluator );
@@ -1102,18 +1137,22 @@ public class OneLevelScopeTest
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         OneLevelScopeCursor<Long> cursor = null;
-        
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
             OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
                 node );
             cursor = new OneLevelScopeCursor<Long>( store, evaluator );
     
             // test before()
             ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-            entry.setValue( 3L );
+            entry.setKey( 3L );
             cursor.before( entry );
         }
         finally
@@ -1127,18 +1166,21 @@ public class OneLevelScopeTest
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         OneLevelScopeCursor<Long> cursor = null;
-        
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
         try
         {
-            ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-                + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.ONELEVEL );
             OneLevelScopeEvaluator<Entry, Long> evaluator = new OneLevelScopeEvaluator<Entry, Long>( store,
                 node );
             cursor = new OneLevelScopeCursor<Long>( store, evaluator );
     
             // test after()
             ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-            entry.setValue( 3L );
+            entry.setKey( 3L );
             cursor.after( entry );
         }
         finally
@@ -1151,8 +1193,13 @@ public class OneLevelScopeTest
     @Test(expected = IllegalStateException.class)
     public void testIllegalStateBadScope() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," 
+            + SchemaConstants.O_AT_OID 
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
         new OneLevelScopeEvaluator<Entry, Long>( store, node );
     }
 }
