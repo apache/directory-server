@@ -95,7 +95,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            if ( operation.getSearchControls().getReturningAttributes() == null )
+            if ( operation.getReturningAttributesString() == null )
             {
                 return true;
             }
@@ -111,7 +111,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            return operation.getSearchControls().getReturningAttributes() != null
+            return operation.getReturningAttributesString() != null
                 || filterOperationalAttributes( entry );
         }
     }

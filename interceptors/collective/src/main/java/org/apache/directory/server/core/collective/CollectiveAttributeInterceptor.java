@@ -87,7 +87,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            String[] retAttrs = operation.getSearchControls().getReturningAttributes();
+            String[] retAttrs = operation.getReturningAttributesString();
             addCollectiveAttributes( operation, entry, retAttrs );
 
             return true;

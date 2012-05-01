@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -389,18 +387,18 @@ public class SchemaInterceptor extends BaseInterceptor
      * " If there are attribute descriptions in "
      * " the list which are not recognized, they are ignored by the server."
      *
-     * @param searchCtls The SearchControls we will filter
+     * @param searchContext The SearchControls we will filter
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void filterAttributesToReturn( SearchControls searchCtls )
+    private void filterAttributesToReturn( SearchOperationContext searchContext ) throws LdapException
     {
-        String[] attributes = searchCtls.getReturningAttributes();
+        String[] attributes = searchContext.getReturningAttributesString();
 
         if ( ( attributes == null ) || ( attributes.length == 0 ) )
         {
             // We have no attributes, that means "*" (all users attributes)
-            searchCtls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+            //searchContext.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
             return;
         }
 
@@ -472,7 +470,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             // We just have to pass the special 1.1 attribute,
             // as we don't want to return any attribute
-            searchCtls.setReturningAttributes( SchemaConstants.NO_ATTRIBUTE_ARRAY );
+            searchContext.setReturningAttributes( SchemaConstants.NO_ATTRIBUTE_ARRAY );
             return;
         }
 
@@ -486,7 +484,7 @@ public class SchemaInterceptor extends BaseInterceptor
             newAttributesList[pos++] = entry.getValue();
         }
 
-        searchCtls.setReturningAttributes( newAttributesList );
+        searchContext.setReturningAttributes( newAttributesList );
     }
 
 
@@ -1459,15 +1457,14 @@ public class SchemaInterceptor extends BaseInterceptor
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Dn base = searchContext.getDn();
-        SearchControls searchCtls = searchContext.getSearchControls();
         ExprNode filter = searchContext.getFilter();
 
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
-        if ( searchCtls.getReturningAttributes() != null )
+        if ( searchContext.getReturningAttributesString() != null )
         {
-            filterAttributesToReturn( searchCtls );
+            filterAttributesToReturn( searchContext );
         }
 
         // We also have to check the H/R flag for the filter attributes
@@ -1480,7 +1477,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             EntryFilteringCursor cursor = next( searchContext );
 
-            if ( searchCtls.getReturningAttributes() != null )
+            if ( searchContext.getReturningAttributesString() != null )
             {
                 cursor.addEntryFilter( topFilter );
                 return cursor;
@@ -1529,7 +1526,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
-                        searchCtls.getReturningAttributes() );
+                        searchContext.getReturningAttributesString() );
                     serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
@@ -1547,7 +1544,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
-                        searchCtls.getReturningAttributes() );
+                        searchContext.getReturningAttributesString() );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
                         new SingletonCursor<Entry>( serverEntry ), searchContext );
