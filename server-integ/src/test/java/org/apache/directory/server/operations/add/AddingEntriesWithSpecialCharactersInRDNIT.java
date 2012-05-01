@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.add;
 
@@ -30,7 +30,6 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -79,7 +78,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with hash sign (#) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithHashRdn() throws Exception
@@ -117,8 +116,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
     /**
      * adding an entry with comma sign (,) in Rdn.
-     *    
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     @Test
     public void testAddingWithCommaInRdn() throws Exception
@@ -229,7 +228,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with greater sign (>) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithGreaterSignInRdn() throws Exception
@@ -269,7 +268,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with less sign (<) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithLessSignInRdn() throws Exception
@@ -309,7 +308,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with semicolon (;) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithSemicolonInRdn() throws Exception
@@ -349,7 +348,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with equals sign (=) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithEqualsInRdn() throws Exception

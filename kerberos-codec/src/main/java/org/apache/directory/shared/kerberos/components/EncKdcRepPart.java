@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -455,7 +455,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( lastReqLength ) + lastReqLength;
 
         // The nonce
-        nonceLength = Value.getNbBytes( nonce );
+        nonceLength = BerValue.getNbBytes( nonce );
         nonceLength = 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
 
@@ -540,7 +540,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The nonce
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_NONCE_TAG );
             buffer.put( TLV.getBytes( nonceLength ) );
-            Value.encode( buffer, nonce );
+            BerValue.encode( buffer, nonce );
 
             // The key-expiration, if any
             if ( keyExpiration != null )
@@ -556,7 +556,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The flags
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( 0x07 ) );
-            Value.encode( buffer, flags );
+            BerValue.encode( buffer, flags );
 
             // The authtime
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_AUTH_TIME_TAG );

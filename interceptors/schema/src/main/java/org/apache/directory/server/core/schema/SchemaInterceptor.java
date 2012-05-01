@@ -583,6 +583,8 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( filter instanceof ExtensibleNode )
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
+                
+                // Todo : add the needed checks here
             }
             else if ( filter instanceof ApproximateNode )
             {

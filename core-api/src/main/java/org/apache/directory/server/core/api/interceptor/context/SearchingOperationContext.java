@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -40,13 +40,12 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.StringConstants;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A context used for search related operations and used by all 
+ * A context used for search related operations and used by all
  * the Interceptors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -108,12 +107,12 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of a SearchingOperationContext using one level 
+     * Creates a new instance of a SearchingOperationContext using one level
      * scope, with attributes to return.
      *
      * @param dn The Dn to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws LdapException 
+     * @throws LdapException
      */
     public SearchingOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
@@ -346,7 +345,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new SearchControls object populated with the parameters 
+     * Creates a new SearchControls object populated with the parameters
      * contained in this SearchOperationContext in normalized form.
      *
      * @return a new SearchControls object
@@ -358,7 +357,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new SearchControls object populated with the parameters 
+     * Creates a new SearchControls object populated with the parameters
      * contained in this SearchOperationContext.
      *
      * @param denormalized true if attribute values are <b>not</b> normalized

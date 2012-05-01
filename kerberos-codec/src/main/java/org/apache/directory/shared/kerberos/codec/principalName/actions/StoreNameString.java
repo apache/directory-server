@@ -24,7 +24,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
@@ -75,7 +75,7 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
         // Get the principalName
         PrincipalName principalName = principalNameContainer.getPrincipalName();
 
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
 
         // The PrincipalName must be pure ASCII witout any control character
         if ( KerberosUtils.isKerberosString( value.getData() ) )

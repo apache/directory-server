@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
@@ -505,7 +505,7 @@ public class KdcReqBody extends AbstractAsn1Object
         }
 
         // The nonce length
-        nonceLength = 1 + 1 + Value.getNbBytes( nonce );
+        nonceLength = 1 + 1 + BerValue.getNbBytes( nonce );
         kdcReqBodySeqLength += 1 + 1 + nonceLength;
 
         // The eType length
@@ -515,7 +515,7 @@ public class KdcReqBody extends AbstractAsn1Object
 
         for ( EncryptionType encryptionType : eType )
         {
-            eTypeLengths[pos] = 1 + 1 + Value.getNbBytes( encryptionType.getValue() );
+            eTypeLengths[pos] = 1 + 1 + BerValue.getNbBytes( encryptionType.getValue() );
             eTypeSeqLength += eTypeLengths[pos];
             pos++;
         }
@@ -587,7 +587,7 @@ public class KdcReqBody extends AbstractAsn1Object
         buffer.put( TLV.getBytes( kdcOptionsLength ) );
 
         // The value
-        Value.encode( buffer, kdcOptions );
+        BerValue.encode( buffer, kdcOptions );
 
         // The cname if any ---------------------------------------------------
         if ( cName != null )
@@ -663,7 +663,7 @@ public class KdcReqBody extends AbstractAsn1Object
         buffer.put( TLV.getBytes( nonceLength ) );
 
         // The value
-        Value.encode( buffer, nonce );
+        BerValue.encode( buffer, nonce );
 
         // The etype ----------------------------------------------------------
         // The tag
@@ -677,7 +677,7 @@ public class KdcReqBody extends AbstractAsn1Object
         // The values
         for ( EncryptionType encryptionType : eType )
         {
-            Value.encode( buffer, encryptionType.getValue() );
+            BerValue.encode( buffer, encryptionType.getValue() );
         }
 
         // The addresses if any -----------------------------------------------

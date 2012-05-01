@@ -26,7 +26,6 @@ import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -40,7 +39,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
 /**
- * A ServerEntry refers to the original entry before being modified by 
+ * A ServerEntry refers to the original entry before being modified by
  * EntryFilters or operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -72,7 +71,7 @@ public class ClonedServerEntry implements Entry
     public ClonedServerEntry( Entry originalEntry )
     {
         this.originalEntry = originalEntry;
-        this.clonedEntry = ( Entry ) originalEntry.clone();
+        this.clonedEntry = originalEntry.clone();
     }
 
 
@@ -405,7 +404,7 @@ public class ClonedServerEntry implements Entry
         // Copy the Dn
         Entry clientEntry = new DefaultEntry( clonedEntry.getDn() );
 
-        // Convert each attribute 
+        // Convert each attribute
         for ( Attribute clonedEntry : this )
         {
             Attribute clientAttribute = clonedEntry.clone();
@@ -440,7 +439,7 @@ public class ClonedServerEntry implements Entry
 
     public Entry clone()
     {
-        return ( Entry ) clonedEntry.clone();
+        return clonedEntry.clone();
     }
 
 

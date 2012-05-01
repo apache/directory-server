@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 import org.apache.directory.shared.util.Strings;
@@ -152,7 +152,7 @@ public class TransitedEncoding extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the trType. The Length will always be contained in 1 byte
-        trTypeLength = 1 + 1 + Value.getNbBytes( trType.getValue() );
+        trTypeLength = 1 + 1 + BerValue.getNbBytes( trType.getValue() );
         transitedEncodingLength = 1 + TLV.getNbBytes( trTypeLength ) + trTypeLength;
 
         // Compute the contents length
@@ -168,7 +168,7 @@ public class TransitedEncoding extends AbstractAsn1Object
         transitedEncodingLength += 1 + TLV.getNbBytes( contentsLength ) + contentsLength;
 
         // Compute the whole sequence length
-        int transitedEncodingSeqLength = 1 + Value.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
+        int transitedEncodingSeqLength = 1 + BerValue.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
 
         return transitedEncodingSeqLength;
     }
@@ -205,12 +205,12 @@ public class TransitedEncoding extends AbstractAsn1Object
             // The tr-type, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.TRANSITED_ENCODING_TR_TYPE_TAG );
             buffer.put( TLV.getBytes( trTypeLength ) );
-            Value.encode( buffer, trType.getValue() );
+            BerValue.encode( buffer, trType.getValue() );
 
             // The contents, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.TRANSITED_ENCODING_CONTENTS_TAG );
             buffer.put( TLV.getBytes( contentsLength ) );
-            Value.encode( buffer, contents );
+            BerValue.encode( buffer, contents );
         }
         catch ( BufferOverflowException boe )
         {

@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
@@ -221,10 +221,10 @@ public class ApReq extends KerberosMessage
         reset();
 
         // Compute the PVNO length.
-        pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        pvnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the msg-type length
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + BerValue.getNbBytes( getMessageType().getValue() );
 
         // Compute the APOptions length
         apOptionsLength = 1 + 1 + apOptions.getBytes().length;
@@ -279,7 +279,7 @@ public class ApReq extends KerberosMessage
             buffer.put( TLV.getBytes( pvnoLength ) );
 
             // The value
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // The msg-type ---------------------------------------------------
             // The tag
@@ -287,7 +287,7 @@ public class ApReq extends KerberosMessage
             buffer.put( TLV.getBytes( msgTypeLength ) );
 
             // The value
-            Value.encode( buffer, getMessageType().getValue() );
+            BerValue.encode( buffer, getMessageType().getValue() );
 
             // The ap-options -------------------------------------------------
             // The tag
@@ -295,7 +295,7 @@ public class ApReq extends KerberosMessage
             buffer.put( TLV.getBytes( apOptionsLength ) );
 
             // The value
-            Value.encode( buffer, apOptions );
+            BerValue.encode( buffer, apOptions );
 
             // The ticket -----------------------------------------------------
             // The tag

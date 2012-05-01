@@ -21,9 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.event.Evaluator;

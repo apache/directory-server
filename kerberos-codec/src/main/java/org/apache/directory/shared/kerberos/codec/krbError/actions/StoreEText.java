@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.codec.krbError.actions;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
 import org.apache.directory.shared.kerberos.messages.KrbError;
@@ -72,7 +72,7 @@ public class StoreEText extends GrammarAction<KrbErrorContainer>
         }
 
         // The value is the realm
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
         String eText = Strings.utf8ToString( value.getData() );
 
         KrbError krbError = krbErrorContainer.getKrbError();

@@ -28,7 +28,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
@@ -223,7 +223,7 @@ public abstract class KdcReq extends KerberosMessage
         buffer.put( TLV.getBytes( pvnoLength ) );
 
         // The value
-        Value.encode( buffer, getProtocolVersionNumber() );
+        BerValue.encode( buffer, getProtocolVersionNumber() );
 
         // The msg-type if any ------------------------------------------------
         // The tag
@@ -231,7 +231,7 @@ public abstract class KdcReq extends KerberosMessage
         buffer.put( TLV.getBytes( msgTypeLength ) );
 
         // The value
-        Value.encode( buffer, getMessageType().getValue() );
+        BerValue.encode( buffer, getMessageType().getValue() );
 
         // The PD-DATA if any -------------------------------------------------
         if ( paData.size() > 0 )

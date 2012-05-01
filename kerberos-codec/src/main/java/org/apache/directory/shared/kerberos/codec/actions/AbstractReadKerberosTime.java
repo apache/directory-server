@@ -24,7 +24,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
@@ -82,7 +82,7 @@ public abstract class AbstractReadKerberosTime<E extends Asn1Container> extends 
         }
 
         // The value is the KerberosTime
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
         String date = Strings.utf8ToString( value.getData() );
 
         try

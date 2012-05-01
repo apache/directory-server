@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -290,7 +290,7 @@ public class KrbCredInfo extends AbstractAsn1Object
                 // flags tag and value
                 buffer.put( ( byte ) KerberosConstants.KRB_CRED_INFO_FLAGS_TAG );
                 buffer.put( TLV.getBytes( ticketFlagsLen ) );
-                Value.encode( buffer, ticketFlags );
+                BerValue.encode( buffer, ticketFlags );
             }
 
             if ( authTime != null )

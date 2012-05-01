@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -327,7 +327,7 @@ public class Authenticator extends KerberosMessage
         reset();
 
         // Compute the Authenticator version length.
-        authenticatorVnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        authenticatorVnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
         authenticatorSeqLength = 1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
 
         // Compute the  crealm length.
@@ -347,7 +347,7 @@ public class Authenticator extends KerberosMessage
         }
 
         // Compute the cusec length
-        cusecLength = 1 + 1 + Value.getNbBytes( cusec );
+        cusecLength = 1 + 1 + BerValue.getNbBytes( cusec );
         authenticatorSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
 
         // Compute the ctime length
@@ -364,7 +364,7 @@ public class Authenticator extends KerberosMessage
         // Compute the seq-number  length if any
         if ( seqNumber != null )
         {
-            seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
+            seqNumberLength = 1 + 1 + BerValue.getNbBytes( seqNumber );
             authenticatorSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
 
@@ -434,7 +434,7 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( authenticatorVnoLength ) );
 
             // The value
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // The crealm -----------------------------------------------------
             // The tag
@@ -471,7 +471,7 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( cusecLength ) );
 
             // The value
-            Value.encode( buffer, cusec );
+            BerValue.encode( buffer, cusec );
 
             // The ctime ------------------------------------------------------
             // The tag
@@ -500,7 +500,7 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( seqNumberLength ) );
 
             // The value
-            Value.encode( buffer, seqNumber );
+            BerValue.encode( buffer, seqNumber );
 
             // The authorization-data, if any ---------------------------------
             if ( authorizationData != null )

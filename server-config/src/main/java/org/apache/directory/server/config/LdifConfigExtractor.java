@@ -35,8 +35,6 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
@@ -49,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * A class to copy the default config to the work directory of a DirectoryService instance.
  * 
  * NOTE: much of this class code is duplicated from DefaultSchemaLdifExtractor class
- *       We should create a AbstractLdifExtractor class and move the reusable code there 
- *  
+ *       We should create a AbstractLdifExtractor class and move the reusable code there
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifConfigExtractor
@@ -119,7 +117,7 @@ public class LdifConfigExtractor
 
 
     /**
-     * Copies a file line by line from the source file argument to the 
+     * Copies a file line by line from the source file argument to the
      * destination file argument.
      *
      * @param source the source file to copy
@@ -228,8 +226,8 @@ public class LdifConfigExtractor
         {
             if ( parent.getName().equals( "config" ) )
             {
-                // All LDIF files besides the config.ldif are under the 
-                // config/config base path. So we need to add one more 
+                // All LDIF files besides the config.ldif are under the
+                // config/config base path. So we need to add one more
                 // schema component to all LDIF files minus this config.ldif
                 fileComponentStack.push( "config" );
 

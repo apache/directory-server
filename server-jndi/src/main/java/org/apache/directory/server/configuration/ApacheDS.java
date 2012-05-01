@@ -89,7 +89,7 @@ public class ApacheDS
 
     /**
      * Creates a new instance of the ApacheDS server
-     *  
+     * 
      * @param ldapServer The ldap server protocol handler
      */
     public ApacheDS( LdapServer ldapServer ) throws Exception
@@ -112,7 +112,7 @@ public class ApacheDS
      *  <li>initialize the DirectoryService</li>
      *  <li>start the LDAP server</li>
      *  <li>start the LDAPS server</li>
-     *  
+     * 
      * @throws NamingException If the server cannot be started
      * @throws IOException If an IO error occurred while reading some file
      */
@@ -338,7 +338,7 @@ public class ApacheDS
 
     /**
      * Load a ldif into the directory.
-     *  
+     * 
      * @param root The context in which we will inject the entries
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
@@ -394,8 +394,6 @@ public class ApacheDS
                 getCanonical( ldifDirectory ) );
             return;
         }
-
-        Dn dn = new Dn( directoryService.getSchemaManager(), ServerDNConstants.ADMIN_SYSTEM_DN );
 
         ensureLdifFileBase();
 
@@ -503,7 +501,7 @@ public class ApacheDS
         schemaPartition.setWrappedPartition( ldifPartition );
 
         // We have to load the schema now, otherwise we won't be able
-        // to initialize the Partitions, as we won't be able to parse 
+        // to initialize the Partitions, as we won't be able to parse
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 

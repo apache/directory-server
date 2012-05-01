@@ -96,7 +96,6 @@ import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -1076,12 +1075,14 @@ public abstract class ServerContext implements EventContext
         {
             try
             {
+                // Remember : a JNDI Bind is a LDAP Add ! Silly, insn't it ?
                 doAddOperation( target, outServerEntry );
             }
             catch ( Exception e )
             {
                 JndiUtils.wrap( e );
             }
+            
             return;
         }
 
@@ -1121,21 +1122,6 @@ public abstract class ServerContext implements EventContext
                 throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
             }
 
-            if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
-            {
-                for ( Attribute serverAttribute : outServerEntry )
-                {
-                    try
-                    {
-                        serverEntry.put( serverAttribute );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
-                    }
-                }
-            }
-
             // Get target and inject all rdn attributes into entry
             injectRdnAttributeValues( target, serverEntry );
 
@@ -1173,22 +1159,8 @@ public abstract class ServerContext implements EventContext
                 throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
             }
 
-            if ( ( outServerEntry != null ) && ( outServerEntry.size() > 0 ) )
-            {
-                for ( Attribute serverAttribute : outServerEntry )
-                {
-                    try
-                    {
-                        serverEntry.put( serverAttribute );
-                    }
-                    catch ( LdapException le )
-                    {
-                        throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
-                    }
-                }
-            }
-
             injectRdnAttributeValues( target, serverEntry );
+            
             try
             {
                 doAddOperation( target, serverEntry );

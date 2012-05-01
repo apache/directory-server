@@ -31,7 +31,6 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.model.message.BindStatus;
 import org.apache.mina.core.session.IoSession;
@@ -172,7 +171,7 @@ public class LdapSession
     /**
      * Gets the MINA IoSession associated with this LdapSession.
      *
-     * @return the MINA IoSession 
+     * @return the MINA IoSession
      */
     public IoSession getIoSession()
     {
@@ -181,7 +180,7 @@ public class LdapSession
 
 
     /**
-     * Gets the logical core DirectoryService session associated with this 
+     * Gets the logical core DirectoryService session associated with this
      * LdapSession.
      *
      * @return the logical core DirectoryService session
@@ -193,7 +192,7 @@ public class LdapSession
 
 
     /**
-     * Sets the logical core DirectoryService session. 
+     * Sets the logical core DirectoryService session.
      * 
      * @param coreSession the logical core DirectoryService session
      */
@@ -286,7 +285,7 @@ public class LdapSession
 
 
     /**
-     * @return A list of all the abandonable requests for this session. 
+     * @return A list of all the abandonable requests for this session.
      */
     public Map<Integer, AbandonableRequest> getOutstandingRequests()
     {
@@ -419,7 +418,7 @@ public class LdapSession
 
     /**
      * Add a new Paged Search context into the stored context. If some
-     * context with the same id already exists, it will be closed and 
+     * context with the same id already exists, it will be closed and
      * removed.
      * 
      * @param context The context to add
@@ -481,8 +480,8 @@ public class LdapSession
     }
 
     /**
-     * Get paged search context associated with an ID 
-     * @param contextId The id for teh context we want to get 
+     * Get paged search context associated with an ID
+     * @param contextId The id for teh context we want to get
      * @return The associated context, if any
      */
     public PagedSearchContext getPagedSearchContext( int contextId )

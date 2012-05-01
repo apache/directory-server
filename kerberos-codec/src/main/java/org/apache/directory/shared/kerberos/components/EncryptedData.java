@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -217,14 +217,14 @@ public class EncryptedData extends AbstractAsn1Object
         encryptedDataSeqLength = 0;
 
         // Compute the encryption Type length
-        int eTypeLength = Value.getNbBytes( eType.getValue() );
+        int eTypeLength = BerValue.getNbBytes( eType.getValue() );
         eTypeTagLength = 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
         encryptedDataSeqLength = 1 + TLV.getNbBytes( eTypeTagLength ) + eTypeTagLength;
 
         // Compute the kvno length if any
         if ( hasKvno )
         {
-            int kvnoLength = Value.getNbBytes( kvno );
+            int kvnoLength = BerValue.getNbBytes( kvno );
             kvnoTagLength = 1 + TLV.getNbBytes( kvnoLength ) + kvnoLength;
             encryptedDataSeqLength += 1 + TLV.getNbBytes( kvnoTagLength ) + kvnoTagLength;
         }
@@ -284,7 +284,7 @@ public class EncryptedData extends AbstractAsn1Object
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( eTypeTagLength ) );
 
-            Value.encode( buffer, eType.getValue() );
+            BerValue.encode( buffer, eType.getValue() );
 
             // The kvno, if any, first the tag, then the value
             if ( hasKvno )
@@ -292,13 +292,13 @@ public class EncryptedData extends AbstractAsn1Object
                 buffer.put( ( byte ) 0xA1 );
                 buffer.put( TLV.getBytes( kvnoTagLength ) );
 
-                Value.encode( buffer, kvno );
+                BerValue.encode( buffer, kvno );
             }
 
             // The cipher tag
             buffer.put( ( byte ) 0xA2 );
             buffer.put( TLV.getBytes( cipherTagLength ) );
-            Value.encode( buffer, cipher );
+            BerValue.encode( buffer, cipher );
         }
         catch ( BufferOverflowException boe )
         {

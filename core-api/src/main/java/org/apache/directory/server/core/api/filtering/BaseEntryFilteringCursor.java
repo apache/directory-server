@@ -29,7 +29,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Cursor which uses a list of filters to selectively return entries and/or
- * modify the contents of entries.  Uses lazy pre-fetching on positioning 
+ * modify the contents of entries.  Uses lazy pre-fetching on positioning
  * operations which means adding filters after creation will not miss candidate
  * entries.
  *
@@ -78,7 +77,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a new entry filtering Cursor over an existing Cursor using a 
+     * Creates a new entry filtering Cursor over an existing Cursor using a
      * single filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
@@ -94,7 +93,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 
 
     /**
-     * Creates a new entry filtering Cursor over an existing Cursor using a 
+     * Creates a new entry filtering Cursor over an existing Cursor using a
      * no filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
@@ -112,7 +111,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
 
 
     /**
-     * Creates a new entry filtering Cursor over an existing Cursor using a 
+     * Creates a new entry filtering Cursor over an existing Cursor using a
      * list of filters initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
@@ -195,7 +194,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
-    /* 
+    /*
      * @see Cursor#after(Object)
      */
     /* (non-Javadoc)
@@ -226,7 +225,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     }
 
 
-    /* 
+    /*
      * @see Cursor#before(java.lang.Object)
      */
     /* (non-Javadoc)
@@ -488,7 +487,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              * O P T I M I Z A T I O N
              * -----------------------
              * 
-             * Don't want to waste cycles on enabling a loop for processing 
+             * Don't want to waste cycles on enabling a loop for processing
              * filters if we have zero or one filter.
              */
 
@@ -553,7 +552,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              * O P T I M I Z A T I O N
              * -----------------------
              * 
-             * Don't want to waste cycles on enabling a loop for processing 
+             * Don't want to waste cycles on enabling a loop for processing
              * filters if we have zero or one filter.
              */
 

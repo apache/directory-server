@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -129,7 +129,7 @@ public class AdAndOr extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the condition count length
-        int conditionCountLength = Value.getNbBytes( conditionCount );
+        int conditionCountLength = BerValue.getNbBytes( conditionCount );
         conditionCountTagLength = 1 + TLV.getNbBytes( conditionCountLength ) + conditionCountLength;
         adAndOrSeqLength = 1 + TLV.getNbBytes( conditionCountTagLength ) + conditionCountTagLength;
 
@@ -166,7 +166,7 @@ public class AdAndOr extends AbstractAsn1Object
             // the condition-count
             buffer.put( ( byte ) KerberosConstants.AD_AND_OR_CONDITION_COUNT_TAG );
             buffer.put( ( byte ) conditionCountTagLength );
-            Value.encode( buffer, conditionCount );
+            BerValue.encode( buffer, conditionCount );
 
             // the elements
             buffer.put( ( byte ) KerberosConstants.AD_AND_OR_ELEMENTS_TAG );

@@ -24,7 +24,7 @@ import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -80,7 +80,7 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
         }
 
         // The value is the realm
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
         String realm = Strings.utf8ToString( value.getData() );
 
         if ( IS_DEBUG )

@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -194,7 +194,7 @@ public class EncApRepPart extends KerberosMessage
         encApRepPartSeqLength = 1 + TLV.getNbBytes( ctimeLength ) + ctimeLength;
 
         // Compute the cusec length
-        cusecLength = 1 + 1 + Value.getNbBytes( cusec );
+        cusecLength = 1 + 1 + BerValue.getNbBytes( cusec );
         encApRepPartSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
 
         // Compute the subkey length, if any
@@ -207,7 +207,7 @@ public class EncApRepPart extends KerberosMessage
         // Compute the sequence size, if any
         if ( seqNumber != null )
         {
-            seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
+            seqNumberLength = 1 + 1 + BerValue.getNbBytes( seqNumber );
             encApRepPartSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
 
@@ -269,7 +269,7 @@ public class EncApRepPart extends KerberosMessage
             buffer.put( TLV.getBytes( cusecLength ) );
 
             // The value
-            Value.encode( buffer, cusec );
+            BerValue.encode( buffer, cusec );
 
             // The subkey if any ----------------------------------------------
             if ( subkey != null )
@@ -290,7 +290,7 @@ public class EncApRepPart extends KerberosMessage
                 buffer.put( TLV.getBytes( seqNumberLength ) );
 
                 // The value
-                Value.encode( buffer, seqNumber );
+                BerValue.encode( buffer, seqNumber );
             }
 
         }

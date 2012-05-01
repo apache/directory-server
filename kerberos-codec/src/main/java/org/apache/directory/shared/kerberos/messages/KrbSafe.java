@@ -28,7 +28,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.Checksum;
@@ -151,7 +151,7 @@ public class KrbSafe extends KerberosMessage
         pvnoLen = 1 + 1 + 1;
         krbSafeSeqLen = 1 + TLV.getNbBytes( pvnoLen ) + pvnoLen;
 
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + BerValue.getNbBytes( getMessageType().getValue() );
         krbSafeSeqLen += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         krbSafeBodyLen = krbSafeBody.computeLength();
@@ -190,12 +190,12 @@ public class KrbSafe extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_MSGTYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLength ) );
-            Value.encode( buffer, getMessageType().getValue() );
+            BerValue.encode( buffer, getMessageType().getValue() );
 
             // safe-body tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_SAFE_BODY_TAG );

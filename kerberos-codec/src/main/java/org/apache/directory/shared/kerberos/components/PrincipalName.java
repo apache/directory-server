@@ -98,7 +98,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.util.StringConstants;
@@ -325,7 +325,7 @@ public class PrincipalName extends AbstractAsn1Object
     public int computeLength()
     {
         // The principalName can't be empty.
-        principalTypeLength = Value.getNbBytes( nameType.getValue() );
+        principalTypeLength = BerValue.getNbBytes( nameType.getValue() );
         principalTypeTagLength = 1 + 1 + principalTypeLength;
 
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
@@ -399,7 +399,7 @@ public class PrincipalName extends AbstractAsn1Object
             // The name-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( principalTypeTagLength ) );
-            Value.encode( buffer, nameType.getValue() );
+            BerValue.encode( buffer, nameType.getValue() );
 
             // The name-string tag
             buffer.put( ( byte ) 0xA1 );

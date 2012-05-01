@@ -139,7 +139,7 @@ public class DupsContainerCursorTest
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
         // gosh this is a terrible use of a global static variable
-        //SerializableComparator.setRegistry( 
+        //SerializableComparator.setRegistry(
         //    new MockComparatorRegistry(
         //        new OidRegistry() ) );
         SerializableComparator<String> comparator = new SerializableComparator<String>(
@@ -147,9 +147,7 @@ public class DupsContainerCursorTest
         comparator.setSchemaManager( schemaManager );
         table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
 
-        Cursor<Tuple<String, DupsContainer<String>>> cursor = null;
-        
-        cursor = new DupsContainerCursor<String, String>( table );
+        new DupsContainerCursor<String, String>( table );
     }
 
 

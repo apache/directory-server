@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
@@ -141,7 +141,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
 
         if ( nonce != null )
         {
-            nonceLen = Value.getNbBytes( nonce );
+            nonceLen = BerValue.getNbBytes( nonce );
             nonceLen = 1 + TLV.getNbBytes( nonceLen ) + nonceLen;
             encKrbCredPartSeqLen += 1 + TLV.getNbBytes( nonceLen ) + nonceLen;
         }
@@ -155,7 +155,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
 
         if ( usec != null )
         {
-            usecLen = Value.getNbBytes( usec );
+            usecLen = BerValue.getNbBytes( usec );
             usecLen = 1 + TLV.getNbBytes( usecLen ) + usecLen;
             encKrbCredPartSeqLen += 1 + TLV.getNbBytes( usecLen ) + usecLen;
         }
@@ -217,7 +217,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
                 // nonce tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_KRB_CRED_PART_NONCE_TAG );
                 buffer.put( TLV.getBytes( nonceLen ) );
-                Value.encode( buffer, nonce );
+                BerValue.encode( buffer, nonce );
             }
 
             if ( timestamp != null )
@@ -236,7 +236,7 @@ public class EncKrbCredPart extends AbstractAsn1Object
                 // usec tag and value
                 buffer.put( ( byte ) KerberosConstants.ENC_KRB_CRED_PART_USEC_TAG );
                 buffer.put( TLV.getBytes( usecLen ) );
-                Value.encode( buffer, usec );
+                BerValue.encode( buffer, usec );
             }
 
             if ( senderAddress != null )

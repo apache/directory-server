@@ -40,7 +40,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
@@ -97,7 +96,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -122,7 +121,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -150,7 +149,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on non-existent entries without 
+     * Tests normal delete operation on non-existent entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -199,7 +198,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
+     * Tests delete operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -227,8 +226,8 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests delete operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test

@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
@@ -183,7 +183,7 @@ public class LastReq extends AbstractAsn1Object
 
         for ( LastReqEntry lre : lastReqs )
         {
-            int lrTypeLen = Value.getNbBytes( lre.getLrType().getValue() );
+            int lrTypeLen = BerValue.getNbBytes( lre.getLrType().getValue() );
             lrTypeTagLen[i] = 1 + TLV.getNbBytes( lrTypeLen ) + lrTypeLen;
             byte[] lrValyeBytes = lre.getLrValue().getBytes();
             lrValueTagLen[i] = 1 + TLV.getNbBytes( lrValyeBytes.length ) + lrValyeBytes.length;
@@ -240,7 +240,7 @@ public class LastReq extends AbstractAsn1Object
                 // the lrType
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_TYPE_TAG );
                 buffer.put( TLV.getBytes( lrTypeTagLen[i] ) );
-                Value.encode( buffer, lre.getLrType().getValue() );
+                BerValue.encode( buffer, lre.getLrType().getValue() );
 
                 // the lrValue tag
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_VALUE_TAG );

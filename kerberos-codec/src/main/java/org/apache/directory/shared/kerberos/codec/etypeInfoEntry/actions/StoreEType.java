@@ -25,7 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.etypeInfoEntry.ETypeInfoEntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -75,7 +75,7 @@ public class StoreEType extends GrammarAction<ETypeInfoEntryContainer>
         }
 
         // The etype is an integer
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
 
         EncryptionType etype = null;
         ETypeInfoEntry etypeInfoEntry = eTypeInfoEntryContainer.getETypeInfoEntry();

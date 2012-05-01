@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.util.Strings;
@@ -106,7 +106,7 @@ public class AuthorizationData extends AbstractAsn1Object
 
         for ( AuthorizationDataEntry ad : authorizationData )
         {
-            int adTypeLen = Value.getNbBytes( ad.getAdType().getValue() );
+            int adTypeLen = BerValue.getNbBytes( ad.getAdType().getValue() );
             adTypeTagLen[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
             adDataTagLen[i] = 1 + TLV.getNbBytes( ad.getAdDataRef().length ) + ad.getAdDataRef().length;
 
@@ -152,12 +152,12 @@ public class AuthorizationData extends AbstractAsn1Object
                 // the adType
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADTYPE_TAG );
                 buffer.put( TLV.getBytes( adTypeTagLen[i] ) );
-                Value.encode( buffer, ad.getAdType().getValue() );
+                BerValue.encode( buffer, ad.getAdType().getValue() );
 
                 // the adData
                 buffer.put( ( byte ) KerberosConstants.AUTHORIZATION_DATA_ADDATA_TAG );
                 buffer.put( TLV.getBytes( adDataTagLen[i] ) );
-                Value.encode( buffer, ad.getAdDataRef() );
+                BerValue.encode( buffer, ad.getAdDataRef() );
 
                 i++;
             }

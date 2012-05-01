@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
@@ -73,7 +73,7 @@ public class PagedSearchContext
         // a user may send more than one PagedSearch on the same session.
         cookieValue = new AtomicInteger( searchRequest.getMessageId() << 16 );
 
-        cookie = Value.getBytes( cookieValue.get() );
+        cookie = BerValue.getBytes( cookieValue.get() );
     }
 
 
@@ -104,7 +104,7 @@ public class PagedSearchContext
      */
     public byte[] getNewCookie()
     {
-        cookie = Value.getBytes( cookieValue.incrementAndGet() );
+        cookie = BerValue.getBytes( cookieValue.incrementAndGet() );
 
         return cookie;
     }

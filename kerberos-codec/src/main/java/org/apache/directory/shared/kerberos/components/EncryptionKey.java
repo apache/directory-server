@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
@@ -244,7 +244,7 @@ public class EncryptionKey extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the keyType. The Length will always be cobntained in 1 byte
-        keyTypeLength = 1 + 1 + Value.getNbBytes( keyType.getValue() );
+        keyTypeLength = 1 + 1 + BerValue.getNbBytes( keyType.getValue() );
         encryptionKeyLength = 1 + TLV.getNbBytes( keyTypeLength ) + keyTypeLength;
 
         // Compute the keyValue
@@ -260,7 +260,7 @@ public class EncryptionKey extends AbstractAsn1Object
         encryptionKeyLength += 1 + TLV.getNbBytes( keyValueLength ) + keyValueLength;
 
         // Compute the whole sequence length
-        int encryptionKeySeqLength = 1 + Value.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
+        int encryptionKeySeqLength = 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
 
         return encryptionKeySeqLength;
 
@@ -298,12 +298,12 @@ public class EncryptionKey extends AbstractAsn1Object
             // The keyType, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_TYPE_TAG );
             buffer.put( TLV.getBytes( keyTypeLength ) );
-            Value.encode( buffer, keyType.getValue() );
+            BerValue.encode( buffer, keyType.getValue() );
 
             // The keyValue, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_VALUE_TAG );
             buffer.put( TLV.getBytes( keyValueLength ) );
-            Value.encode( buffer, keyValue );
+            BerValue.encode( buffer, keyValue );
         }
         catch ( BufferOverflowException boe )
         {

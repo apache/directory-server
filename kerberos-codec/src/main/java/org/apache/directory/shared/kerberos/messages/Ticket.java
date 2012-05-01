@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
@@ -252,7 +252,7 @@ public class Ticket extends KerberosMessage
     public int computeLength()
     {
         // Compute the Ticket version length.
-        tktvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        tktvnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the Ticket realm length.
         realmBytes = Strings.getBytesUtf8( realm );
@@ -314,7 +314,7 @@ public class Ticket extends KerberosMessage
             // The tkt-vno Tag and value
             buffer.put( ( byte ) KerberosConstants.TICKET_TKT_VNO_TAG );
             buffer.put( TLV.getBytes( tktvnoLength ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // The realm Tag and value
             buffer.put( ( byte ) KerberosConstants.TICKET_REALM_TAG );

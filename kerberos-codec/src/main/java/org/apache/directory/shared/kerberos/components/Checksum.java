@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.util.Strings;
@@ -195,7 +195,7 @@ public class Checksum extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the checksulType. The Length will always be contained in 1 byte
-        checksumTypeLength = 1 + 1 + Value.getNbBytes( cksumtype.getValue() );
+        checksumTypeLength = 1 + 1 + BerValue.getNbBytes( cksumtype.getValue() );
         checksumLength = 1 + TLV.getNbBytes( checksumTypeLength ) + checksumTypeLength;
 
         // Compute the checksum Value
@@ -211,7 +211,7 @@ public class Checksum extends AbstractAsn1Object
         checksumLength += 1 + TLV.getNbBytes( checksumBytesLength ) + checksumBytesLength;
 
         // Compute the whole sequence length
-        int checksumSeqLength = 1 + Value.getNbBytes( checksumLength ) + checksumLength;
+        int checksumSeqLength = 1 + BerValue.getNbBytes( checksumLength ) + checksumLength;
 
         return checksumSeqLength;
 
@@ -250,12 +250,12 @@ public class Checksum extends AbstractAsn1Object
             // The cksumtype, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.CHECKSUM_TYPE_TAG );
             buffer.put( TLV.getBytes( checksumTypeLength ) );
-            Value.encode( buffer, cksumtype.getValue() );
+            BerValue.encode( buffer, cksumtype.getValue() );
 
             // The checksum, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.CHECKSUM_CHECKSUM_TAG );
             buffer.put( TLV.getBytes( checksumBytesLength ) );
-            Value.encode( buffer, checksum );
+            BerValue.encode( buffer, checksum );
         }
         catch ( BufferOverflowException boe )
         {
