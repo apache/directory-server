@@ -57,7 +57,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -356,7 +355,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
      * when the DN is schema-aware
      */
     @Test
-    @Ignore("see DIRAPI-84")
     public void testPreserveRdnUpName() throws Exception
     {
         Dn dn = new Dn( getService().getSchemaManager(), "cn=testadd,ou=system" );
