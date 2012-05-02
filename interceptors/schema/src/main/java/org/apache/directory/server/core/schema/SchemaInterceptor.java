@@ -1043,7 +1043,6 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 for ( Value<?> value : attribute )
                 {
-                    attribute.add( value );
                     binaries.add( new BinaryValue( attribute.getAttributeType(), value.getBytes() ) );
                 }
 
@@ -1057,6 +1056,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
 
+    
     /**
      * A special filter over entry attributes which replaces Attribute String values with their respective byte[]
      * representations using schema information and the value held in the JNDI environment property:
