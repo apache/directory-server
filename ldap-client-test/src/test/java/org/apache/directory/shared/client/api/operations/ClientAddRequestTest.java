@@ -349,6 +349,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertEquals( 2, count );
     }
     
+    
     /**
      * the below test fails cause the API is failing to
      * preserve the UP name of the attribute of RDN
@@ -357,11 +358,12 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testPreserveRdnUpName() throws Exception
     {
+        connection.setTimeOut( 0L );
         Dn dn = new Dn( getService().getSchemaManager(), "cn=testadd,ou=system" );
-        Entry entry = new DefaultEntry( dn );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
-        entry.add( SchemaConstants.CN_AT, "testadd" );
-        entry.add( SchemaConstants.SN_AT, "testadd_sn" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: person",
+            "cn: testadd",
+            "sn: testadd_sn" );
 
         connection.add( entry );
 
