@@ -51,14 +51,14 @@
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.2</ant.version>
+    <ant.version>1.8.3</ant.version>
     <antlr.version>2.7.7</antlr.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
     <commons.daemon.version>1.0.10</commons.daemon.version>
     <commons.dbcp.version>1.4</commons.dbcp.version>
-    <commons.io.version>2.1</commons.io.version>
+    <commons.io.version>2.3</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.1</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
