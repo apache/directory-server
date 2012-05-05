@@ -44,10 +44,10 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>1.0.0-M12-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>1.0.0-M12</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
-    <org.apache.directory.jdbm.version>2.0.0-M2-SNAPSHOT</org.apache.directory.jdbm.version>
+    <org.apache.directory.jdbm.version>2.0.0-M1</org.apache.directory.jdbm.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
