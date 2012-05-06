@@ -1708,6 +1708,8 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             ++i;
         }
+        
+        cursor.close();
     
         assertEquals( sizeLimit, i );
         connection.close();
