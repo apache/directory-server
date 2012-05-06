@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -38,6 +39,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
@@ -54,6 +56,8 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
     { @CreateTransport(protocol = "LDAP") })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private Entry getPersonEntry( String sn, String cn ) throws LdapException
     {
         Entry entry = new DefaultEntry();

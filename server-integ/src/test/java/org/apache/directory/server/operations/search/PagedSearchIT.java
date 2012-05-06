@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.search;
 
@@ -180,7 +180,7 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "cn: user8",
         "sn: user 8",
-        // 
+        //
         "dn: cn=user9,dc=users,ou=system",
         "objectClass: top",
         "objectClass: person",
@@ -198,7 +198,7 @@ import org.junit.runner.RunWith;
 public class PagedSearchIT extends AbstractLdapTestUnit
 {
     @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     
     private LdapApiService codec = LdapApiServiceFactory.getSingleton();
     
@@ -1083,7 +1083,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     
     
     /**
-     * Do a test with a paged search, changing the number of entries to 
+     * Do a test with a paged search, changing the number of entries to
      * return in the middle of the loop
      */
     @Test

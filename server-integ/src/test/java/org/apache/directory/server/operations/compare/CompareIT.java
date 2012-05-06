@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
@@ -51,6 +52,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -93,11 +95,14 @@ import org.slf4j.LoggerFactory;
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class CompareIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -119,7 +124,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control using an attribute that does not exist in the
      * entry.
      */
@@ -174,7 +179,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
+     * Tests compare operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -216,8 +221,8 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests compare operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test

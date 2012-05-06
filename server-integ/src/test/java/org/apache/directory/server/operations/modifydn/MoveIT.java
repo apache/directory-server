@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.modifydn;
 
@@ -32,6 +32,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -39,6 +40,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,6 +83,8 @@ import org.junit.runner.RunWith;
         "ou: child" })
 public class MoveIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String DN = "uid=akarasulu,ou=users,ou=system";
     private static final String NEW_DN = "uid=akarasulu,ou=NewSuperior,ou=system";
     private static final String NEW_DN2 = "uid=elecharny,ou=NewSuperior,ou=system";
@@ -134,7 +138,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         LdapConnection con = getAdminConnection( getLdapServer() );
 
-        //now do something bad: make the parent a child of its own child 
+        //now do something bad: make the parent a child of its own child
         try
         {
             con.move( "ou=parent,ou=system", "ou=child,ou=parent,ou=system" );

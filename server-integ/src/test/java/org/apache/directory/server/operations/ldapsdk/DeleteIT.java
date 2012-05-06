@@ -39,6 +39,7 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -48,6 +49,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -92,11 +94,13 @@ import org.slf4j.LoggerFactory;
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class DeleteIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -121,7 +125,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -149,7 +153,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on non-existent entries without 
+     * Tests normal delete operation on non-existent entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -203,7 +207,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
+     * Tests delete operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -232,8 +236,8 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests delete operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test

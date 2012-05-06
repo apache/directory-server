@@ -43,6 +43,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -53,6 +54,7 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,6 +68,9 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "SchemaIT-class")
 public class SchemaIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
     private static final ObjectClassDescriptionSchemaParser OBJECT_CLASS_DESCRIPTION_SCHEMA_PARSER = new ObjectClassDescriptionSchemaParser();
