@@ -32,6 +32,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -92,6 +94,8 @@ import org.slf4j.LoggerFactory;
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class DeleteIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
 
 

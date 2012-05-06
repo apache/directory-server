@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.modify;
 
@@ -39,12 +39,14 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,245 +85,247 @@ import org.junit.runner.RunWith;
 })
 public class ModifyReplaceIT extends AbstractLdapTestUnit
 {
-private static final String BASE = "ou=system";
-
-
-/**
- * Create a person entry and try to remove a not present attribute
- */
-@Test
-public void testReplaceToRemoveNotPresentAttribute() throws Exception
-{
-    DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-
-    String rdn = "cn=Kate Bush";
-
-    Attribute attr = new BasicAttribute( "description" );
-    ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-
-    sysRoot.modifyAttributes( rdn, new ModificationItem[]
-        { item } );
-
-    SearchControls sctls = new SearchControls();
-    sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-    String filter = "(sn=Bush)";
-    String base = "";
-
-    NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-
-    while ( enm.hasMore() )
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+    private static final String BASE = "ou=system";
+    
+    
+    /**
+     * Create a person entry and try to remove a not present attribute
+     */
+    @Test
+    public void testReplaceToRemoveNotPresentAttribute() throws Exception
     {
-        SearchResult sr = ( SearchResult ) enm.next();
-        Attribute cn = sr.getAttributes().get( "cn" );
-        assertNotNull( cn );
-        assertTrue( cn.contains( "Kate Bush" ) );
-        Attribute desc = sr.getAttributes().get( "description" );
-        assertNull( desc );
-    }
-}
-
-
-/**
- * Create a person entry and try to add a not present attribute via a REPLACE
- */
-@Test
-public void testReplaceToAddNotPresentAttribute() throws Exception
-{
-    DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-
-    String rdn = "cn=Kate Bush";
-
-    Attribute attr = new BasicAttribute( "description", "added description" );
-    ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-
-    sysRoot.modifyAttributes( rdn, new ModificationItem[]
-        { item } );
-
-    SearchControls sctls = new SearchControls();
-    sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-    String filter = "(sn=Bush)";
-    String base = "";
-
-    NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-
-    while ( enm.hasMore() )
-    {
-        SearchResult sr = ( SearchResult ) enm.next();
-        Attribute cn = sr.getAttributes().get( "cn" );
-        assertNotNull( cn );
-        assertTrue( cn.contains( "Kate Bush" ) );
-        Attribute desc = sr.getAttributes().get( "description" );
-        assertNotNull( desc );
-        assertTrue( desc.contains( "added description" ) );
-        assertEquals( 1, desc.size() );
-    }
-}
-
-
-/**
- * Create a person entry and try to remove a non existing attribute
- */
-@Test
-public void testReplaceNonExistingAttribute() throws Exception
-{
-    DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-
-    String rdn = "cn=Kate Bush";
-
-    Attribute attr = new BasicAttribute( "numberOfOctaves" );
-    ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-
-    try
-    {
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+    
+        String rdn = "cn=Kate Bush";
+    
+        Attribute attr = new BasicAttribute( "description" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+    
         sysRoot.modifyAttributes( rdn, new ModificationItem[]
             { item } );
-        fail();
+    
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+    
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+    
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = enm.next();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+            Attribute desc = sr.getAttributes().get( "description" );
+            assertNull( desc );
+        }
     }
-    catch ( InvalidAttributeIdentifierException iaie )
+    
+    
+    /**
+     * Create a person entry and try to add a not present attribute via a REPLACE
+     */
+    @Test
+    public void testReplaceToAddNotPresentAttribute() throws Exception
     {
-        assertTrue( true );
-    }
-
-    SearchControls sctls = new SearchControls();
-    sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-    String filter = "(sn=Bush)";
-    String base = "";
-
-    NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-
-    while ( enm.hasMore() )
-    {
-        SearchResult sr = enm.next();
-        Attribute cn = sr.getAttributes().get( "cn" );
-        assertNotNull( cn );
-        assertTrue( cn.contains( "Kate Bush" ) );
-    }
-}
-
-
-/**
- * Create a person entry and try to remove a non existing attribute
- */
-@Test
-public void testReplaceNonExistingAttributeManyMods() throws Exception
-{
-    DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-
-    String rdn = "cn=Kate Bush";
-
-    Attribute attr = new BasicAttribute( "numberOfOctaves" );
-    ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-    Attribute attr2 = new BasicAttribute( "description", "blah blah blah" );
-    ModificationItem item2 = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr2 );
-
-    try
-    {
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+    
+        String rdn = "cn=Kate Bush";
+    
+        Attribute attr = new BasicAttribute( "description", "added description" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+    
         sysRoot.modifyAttributes( rdn, new ModificationItem[]
-            { item, item2 } );
-        fail();
+            { item } );
+    
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+    
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+    
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = enm.next();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+            Attribute desc = sr.getAttributes().get( "description" );
+            assertNotNull( desc );
+            assertTrue( desc.contains( "added description" ) );
+            assertEquals( 1, desc.size() );
+        }
     }
-    catch ( InvalidAttributeIdentifierException iaie )
+    
+    
+    /**
+     * Create a person entry and try to remove a non existing attribute
+     */
+    @Test
+    public void testReplaceNonExistingAttribute() throws Exception
     {
-        assertTrue( true );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+    
+        String rdn = "cn=Kate Bush";
+    
+        Attribute attr = new BasicAttribute( "numberOfOctaves" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+    
+        try
+        {
+            sysRoot.modifyAttributes( rdn, new ModificationItem[]
+                { item } );
+            fail();
+        }
+        catch ( InvalidAttributeIdentifierException iaie )
+        {
+            assertTrue( true );
+        }
+    
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+    
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+    
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = enm.next();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+        }
     }
-
-    SearchControls sctls = new SearchControls();
-    sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-    String filter = "(sn=Bush)";
-    String base = "";
-
-    NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-    while ( enm.hasMore() )
+    
+    
+    /**
+     * Create a person entry and try to remove a non existing attribute
+     */
+    @Test
+    public void testReplaceNonExistingAttributeManyMods() throws Exception
     {
-        SearchResult sr = enm.next();
-        Attribute cn = sr.getAttributes().get( "cn" );
-        assertNotNull( cn );
-        assertTrue( cn.contains( "Kate Bush" ) );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+    
+        String rdn = "cn=Kate Bush";
+    
+        Attribute attr = new BasicAttribute( "numberOfOctaves" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        Attribute attr2 = new BasicAttribute( "description", "blah blah blah" );
+        ModificationItem item2 = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr2 );
+    
+        try
+        {
+            sysRoot.modifyAttributes( rdn, new ModificationItem[]
+                { item, item2 } );
+            fail();
+        }
+        catch ( InvalidAttributeIdentifierException iaie )
+        {
+            assertTrue( true );
+        }
+    
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Bush)";
+        String base = "";
+    
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = enm.next();
+            Attribute cn = sr.getAttributes().get( "cn" );
+            assertNotNull( cn );
+            assertTrue( cn.contains( "Kate Bush" ) );
+        }
     }
-}
-
-
-/**
- * Create a person entry and try to replace a non existing indexed attribute
- */
-@Test
-public void testReplaceNonExistingIndexedAttribute() throws Exception
-{
-    DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-
-    String rdn = "cn=Kim Wilde";
-
-    Attribute attr = new BasicAttribute( "ou", "test" );
-    ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-
-    sysRoot.modifyAttributes( rdn, new ModificationItem[]
-        { item } );
-
-    SearchControls sctls = new SearchControls();
-    sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-    String filter = "(sn=Wilde)";
-    String base = "";
-
-    NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
-
-    while ( enm.hasMore() )
+    
+    
+    /**
+     * Create a person entry and try to replace a non existing indexed attribute
+     */
+    @Test
+    public void testReplaceNonExistingIndexedAttribute() throws Exception
     {
-        SearchResult sr = enm.next();
-        Attribute ou = sr.getAttributes().get( "ou" );
-        assertNotNull( ou );
-        assertTrue( ou.contains( "test" ) );
+        DirContext sysRoot = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+    
+        String rdn = "cn=Kim Wilde";
+    
+        Attribute attr = new BasicAttribute( "ou", "test" );
+        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+    
+        sysRoot.modifyAttributes( rdn, new ModificationItem[]
+            { item } );
+    
+        SearchControls sctls = new SearchControls();
+        sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        String filter = "(sn=Wilde)";
+        String base = "";
+    
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+    
+        while ( enm.hasMore() )
+        {
+            SearchResult sr = enm.next();
+            Attribute ou = sr.getAttributes().get( "ou" );
+            assertNotNull( ou );
+            assertTrue( ou.contains( "test" ) );
+        }
     }
-}
-
-
-/**
- * Create a person entry, replace telephoneNumber, verify the 
- * case of the attribute description attribute.
- */
-@Test
-public void testReplaceCaseOfAttributeDescription() throws Exception
-{
-    DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    String rdn = "cn=Kate Bush";
-
-    // Replace telephoneNumber
-    String newValue = "2345678901";
-    Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, false );
-    ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
-
-    // Verify, that
-    // - case of attribute description is correct
-    // - attribute value is added 
-    attrs = ctx.getAttributes( rdn );
-    Attribute attr = attrs.get( "telephoneNumber" );
-    assertNotNull( attr );
-    assertEquals( "telephoneNumber", attr.getID() );
-    assertTrue( attr.contains( newValue ) );
-    assertEquals( 1, attr.size() );
-}
-
-
-/**
- * Create a person entry, replace an attribute not present in the ObjectClasses
- */
-@Test
-public void testReplaceAttributeNotInOC() throws Exception
-{
-    DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    String rdn = "cn=Kate Bush";
-
-    // Replace ou
-    String newValue = "Test";
-    Attributes attrs = new BasicAttributes( "ou", newValue, false );
-
-    try
+    
+    
+    /**
+     * Create a person entry, replace telephoneNumber, verify the
+     * case of the attribute description attribute.
+     */
+    @Test
+    public void testReplaceCaseOfAttributeDescription() throws Exception
     {
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+        String rdn = "cn=Kate Bush";
+    
+        // Replace telephoneNumber
+        String newValue = "2345678901";
+        Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, false );
         ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
-        fail( "Should get a SchemaViolationException" );
+    
+        // Verify, that
+        // - case of attribute description is correct
+        // - attribute value is added
+        attrs = ctx.getAttributes( rdn );
+        Attribute attr = attrs.get( "telephoneNumber" );
+        assertNotNull( attr );
+        assertEquals( "telephoneNumber", attr.getID() );
+        assertTrue( attr.contains( newValue ) );
+        assertEquals( 1, attr.size() );
     }
-    catch ( SchemaViolationException sve )
+    
+    
+    /**
+     * Create a person entry, replace an attribute not present in the ObjectClasses
+     */
+    @Test
+    public void testReplaceAttributeNotInOC() throws Exception
     {
-        assertTrue( true );
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+        String rdn = "cn=Kate Bush";
+    
+        // Replace ou
+        String newValue = "Test";
+        Attributes attrs = new BasicAttributes( "ou", newValue, false );
+    
+        try
+        {
+            ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
+            fail( "Should get a SchemaViolationException" );
+        }
+        catch ( SchemaViolationException sve )
+        {
+            assertTrue( true );
+        }
     }
-}
 }

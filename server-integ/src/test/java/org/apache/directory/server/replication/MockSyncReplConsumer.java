@@ -193,7 +193,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
      * one remote server
      * 
-     * @return true if the connections have been successful. 
+     * @return true if the connections have been successful.
      */
     public boolean connect()
     {
@@ -471,7 +471,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     }
 
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public void setConfig( ReplicationConsumerConfig config )

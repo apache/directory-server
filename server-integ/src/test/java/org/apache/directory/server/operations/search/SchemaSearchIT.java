@@ -35,11 +35,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -166,197 +168,199 @@ import org.junit.runner.RunWith;
 })
 public class SchemaSearchIT extends AbstractLdapTestUnit
 {
-private static final String DN = "cn=schema";
-private static final String FILTER = "(objectclass=subschema)";
-
-
-protected void checkForAttributes( Attributes attrs, String[] attrNames )
-{
-    for ( int i = 0; i < attrNames.length; i++ )
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+    private static final String DN = "cn=schema";
+    private static final String FILTER = "(objectclass=subschema)";
+    
+    
+    protected void checkForAttributes( Attributes attrs, String[] attrNames )
     {
-        String attrName = attrNames[i];
-
-        assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
-    }
-}
-
-
-/**
- * Check if modifyTimestamp and createTimestamp are present in the search result,
- * if they are requested.
- */
-@Test
-public void testRequestOperationalAttributes() throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-    SearchControls ctls = new SearchControls();
-
-    String[] attrNames =
-        { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
-
-    ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    ctls.setReturningAttributes( attrNames );
-
-    NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
-    if ( result.hasMore() )
-    {
-        SearchResult entry = result.next();
-        checkForAttributes( entry.getAttributes(), attrNames );
-    }
-    else
-    {
-        fail( "entry " + DN + " not found" );
-    }
-
-    result.close();
-}
-
-
-/**
- * Check if modifyTimestamp and createTimestamp are present in the search result,
- * if + is requested.
- */
-@Test
-public void testRequestAllOperationalAttributes() throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-    SearchControls ctls = new SearchControls();
-
-    ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    ctls.setReturningAttributes( new String[]
-        { "+" } );
-
-    NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
-    if ( result.hasMore() )
-    {
-        SearchResult entry = result.next();
-        String[] attrNames =
-            { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
-        checkForAttributes( entry.getAttributes(), attrNames );
-    }
-    else
-    {
-        fail( "entry " + DN + " not found" );
-    }
-
-    result.close();
-}
-
-
-/**
- * Test case for DIRSERVER-1083: Search on an custom attribute added to
- * the dynamic schema fails when no result is found.
- */
-@Test
-public void testSearchingNewSchemaElements() throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-
-    // create an entry with the schema objectClass personActiveDirectory
-    Attributes person = new BasicAttributes( "objectClass", "top", true );
-    person.get( "objectClass" ).add( "person" );
-    person.get( "objectClass" ).add( "personActiveDirectory" );
-    person.put( "cn", "foobar" );
-    person.put( "sn", "bar" );
-    person.put( "pwdLastSet", "3" );
-    person.put( "SourceAD", "blah" );
-    person.put( "useraccountcontrol", "7" );
-    person.put( "sAMAccountName", "foobar" );
-    ctx.createSubcontext( "cn=foobar,ou=system", person );
-
-    // Confirm creation with a lookup
-    Attributes read = ctx.getAttributes( "cn=foobar,ou=system" );
-    assertNotNull( read );
-    assertEquals( "3", read.get( "pwdLastSet" ).get() );
-
-    // Now search for foobar with pwdLastSet value of 3
-    SearchControls searchControls = new SearchControls();
-    searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-    NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(pwdLastSet=3)", searchControls );
-    assertTrue( results.hasMore() );
-    SearchResult result = results.next();
-    assertNotNull( result );
-    assertEquals( "cn=foobar", result.getName() );
-    Attributes attributes = result.getAttributes();
-    assertEquals( "3", attributes.get( "pwdLastSet" ).get() );
-    results.close();
-
-    // Now search with bogus value for pwdLastSet
-    results = ctx.search( "ou=system", "(pwdLastSet=300)", searchControls );
-    assertFalse( results.hasMore() );
-    results.close();
-}
-
-
-/**
- * Test case for DIRSERVER-: Ensure that schema entry is returned,
- * even if no ManageDsaIT decorator is present in the search request.
- */
-@Test
-public void testRequestWithoutManageDsaITControl() throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-
-    // this removes the ManageDsaIT decorator from the search request
-    ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
-
-    SearchControls ctls = new SearchControls();
-    String[] attrNames =
-        { "objectClasses", "attributeTypes", "ldapSyntaxes", "matchingRules", "matchingRuleUse", "createTimestamp",
-            "modifyTimestamp" };
-    ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    ctls.setReturningAttributes( attrNames );
-
-    NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
-    if ( result.hasMore() )
-    {
-        SearchResult entry = result.next();
-        checkForAttributes( entry.getAttributes(), attrNames );
-    }
-    else
-    {
-        fail( "entry " + DN + " not found" );
-    }
-
-    result.close();
-}
-
-
-/**
- * Test a search done on cn=schema
- */
-@Test
-public void testSubSchemaSubEntrySearch() throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-
-    SearchControls searchControls = new SearchControls();
-    searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    searchControls.setReturningAttributes( new String[]
-        { "objectClasses" } );
-    NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "(ObjectClass=*)", searchControls );
-
-    assertTrue( results.hasMore() );
-    SearchResult result = results.next();
-    Attributes entry = result.getAttributes();
-
-    Attribute objectClasses = entry.get( "objectClasses" );
-    NamingEnumeration<?> ocs = objectClasses.getAll();
-
-    while ( ocs.hasMore() )
-    {
-        String oc = ( String ) ocs.nextElement();
-        if ( oc.startsWith( "( 2.5.6.6" ) )
+        for ( int i = 0; i < attrNames.length; i++ )
         {
-            assertEquals(
-                "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) X-SCHEMA 'core' )",
-                oc );
+            String attrName = attrNames[i];
+    
+            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
         }
     }
-
-    results.close();
-}
+    
+    
+    /**
+     * Check if modifyTimestamp and createTimestamp are present in the search result,
+     * if they are requested.
+     */
+    @Test
+    public void testRequestOperationalAttributes() throws Exception
+    {
+        DirContext ctx = getWiredContext( getLdapServer() );
+        SearchControls ctls = new SearchControls();
+    
+        String[] attrNames =
+            { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
+    
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( attrNames );
+    
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+    
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+    
+        result.close();
+    }
+    
+    
+    /**
+     * Check if modifyTimestamp and createTimestamp are present in the search result,
+     * if + is requested.
+     */
+    @Test
+    public void testRequestAllOperationalAttributes() throws Exception
+    {
+        DirContext ctx = getWiredContext( getLdapServer() );
+        SearchControls ctls = new SearchControls();
+    
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( new String[]
+            { "+" } );
+    
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+    
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            String[] attrNames =
+                { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+    
+        result.close();
+    }
+    
+    
+    /**
+     * Test case for DIRSERVER-1083: Search on an custom attribute added to
+     * the dynamic schema fails when no result is found.
+     */
+    @Test
+    public void testSearchingNewSchemaElements() throws Exception
+    {
+        DirContext ctx = getWiredContext( getLdapServer() );
+    
+        // create an entry with the schema objectClass personActiveDirectory
+        Attributes person = new BasicAttributes( "objectClass", "top", true );
+        person.get( "objectClass" ).add( "person" );
+        person.get( "objectClass" ).add( "personActiveDirectory" );
+        person.put( "cn", "foobar" );
+        person.put( "sn", "bar" );
+        person.put( "pwdLastSet", "3" );
+        person.put( "SourceAD", "blah" );
+        person.put( "useraccountcontrol", "7" );
+        person.put( "sAMAccountName", "foobar" );
+        ctx.createSubcontext( "cn=foobar,ou=system", person );
+    
+        // Confirm creation with a lookup
+        Attributes read = ctx.getAttributes( "cn=foobar,ou=system" );
+        assertNotNull( read );
+        assertEquals( "3", read.get( "pwdLastSet" ).get() );
+    
+        // Now search for foobar with pwdLastSet value of 3
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(pwdLastSet=3)", searchControls );
+        assertTrue( results.hasMore() );
+        SearchResult result = results.next();
+        assertNotNull( result );
+        assertEquals( "cn=foobar", result.getName() );
+        Attributes attributes = result.getAttributes();
+        assertEquals( "3", attributes.get( "pwdLastSet" ).get() );
+        results.close();
+    
+        // Now search with bogus value for pwdLastSet
+        results = ctx.search( "ou=system", "(pwdLastSet=300)", searchControls );
+        assertFalse( results.hasMore() );
+        results.close();
+    }
+    
+    
+    /**
+     * Test case for DIRSERVER-: Ensure that schema entry is returned,
+     * even if no ManageDsaIT decorator is present in the search request.
+     */
+    @Test
+    public void testRequestWithoutManageDsaITControl() throws Exception
+    {
+        DirContext ctx = getWiredContext( getLdapServer() );
+    
+        // this removes the ManageDsaIT decorator from the search request
+        ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
+    
+        SearchControls ctls = new SearchControls();
+        String[] attrNames =
+            { "objectClasses", "attributeTypes", "ldapSyntaxes", "matchingRules", "matchingRuleUse", "createTimestamp",
+                "modifyTimestamp" };
+        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        ctls.setReturningAttributes( attrNames );
+    
+        NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
+    
+        if ( result.hasMore() )
+        {
+            SearchResult entry = result.next();
+            checkForAttributes( entry.getAttributes(), attrNames );
+        }
+        else
+        {
+            fail( "entry " + DN + " not found" );
+        }
+    
+        result.close();
+    }
+    
+    
+    /**
+     * Test a search done on cn=schema
+     */
+    @Test
+    public void testSubSchemaSubEntrySearch() throws Exception
+    {
+        DirContext ctx = getWiredContext( getLdapServer() );
+    
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        searchControls.setReturningAttributes( new String[]
+            { "objectClasses" } );
+        NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "(ObjectClass=*)", searchControls );
+    
+        assertTrue( results.hasMore() );
+        SearchResult result = results.next();
+        Attributes entry = result.getAttributes();
+    
+        Attribute objectClasses = entry.get( "objectClasses" );
+        NamingEnumeration<?> ocs = objectClasses.getAll();
+    
+        while ( ocs.hasMore() )
+        {
+            String oc = ( String ) ocs.nextElement();
+            if ( oc.startsWith( "( 2.5.6.6" ) )
+            {
+                assertEquals(
+                    "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) X-SCHEMA 'core' )",
+                    oc );
+            }
+        }
+    
+        results.close();
+    }
 }

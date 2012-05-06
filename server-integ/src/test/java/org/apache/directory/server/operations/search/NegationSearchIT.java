@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.search;
 
@@ -45,9 +45,9 @@ import org.junit.runner.RunWith;
 
 
 /**
- * A set of tests to make sure the negation operator is working 
+ * A set of tests to make sure the negation operator is working
  * properly when included in search filters. Created in response
- * to JIRA issue 
+ * to JIRA issue
  * <a href="https://issues.apache.org/jira/browse/DIRSERVER-951">DIRSERVER-951</a>.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -109,75 +109,75 @@ import org.junit.runner.RunWith;
 })
 public class NegationSearchIT extends AbstractLdapTestUnit
 {
-@Rule
-public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
-
-
-/**
- * Tests to make sure a negated search for actors without ou
- * with value 'drama' returns those that do not have the attribute
- * and do not have a 'drama' value for ou if the attribute still
- * exists.  This test does not build an index on ou for the system
- * partition.
- */
-@Test
-public void testSearchNotDrama() throws Exception
-{
-    // jack black has ou but not drama, and joe newbie has no ou what so ever
-    Set<SearchResult> results = getResults( "(!(ou=drama))" );
-    assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
-    assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
-    assertEquals( 2, results.size() );
-}
-
-
-/**
- * Tests to make sure a negated search for actors without ou
- * with value 'drama' returns those that do not have the attribute
- * and do not have a 'drama' value for ou if the attribute still
- * exists.  This test does not build an index on ou for the system
- * partition.
- */
-@Test
-public void testSearchNotDramaNotNewbie() throws Exception
-{
-    // jack black has ou but not drama, and joe newbie has no ou what so ever
-    Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
-    assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
-    assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
-    assertEquals( 1, results.size() );
-}
-
-
-boolean contains( String dn, Set<SearchResult> results )
-{
-    for ( SearchResult result : results )
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+    
+    
+    /**
+     * Tests to make sure a negated search for actors without ou
+     * with value 'drama' returns those that do not have the attribute
+     * and do not have a 'drama' value for ou if the attribute still
+     * exists.  This test does not build an index on ou for the system
+     * partition.
+     */
+    @Test
+    public void testSearchNotDrama() throws Exception
     {
-        if ( result.getNameInNamespace().equals( dn ) )
+        // jack black has ou but not drama, and joe newbie has no ou what so ever
+        Set<SearchResult> results = getResults( "(!(ou=drama))" );
+        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+        assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 2, results.size() );
+    }
+    
+    
+    /**
+     * Tests to make sure a negated search for actors without ou
+     * with value 'drama' returns those that do not have the attribute
+     * and do not have a 'drama' value for ou if the attribute still
+     * exists.  This test does not build an index on ou for the system
+     * partition.
+     */
+    @Test
+    public void testSearchNotDramaNotNewbie() throws Exception
+    {
+        // jack black has ou but not drama, and joe newbie has no ou what so ever
+        Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
+        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+        assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 1, results.size() );
+    }
+    
+    
+    boolean contains( String dn, Set<SearchResult> results )
+    {
+        for ( SearchResult result : results )
         {
-            return true;
+            if ( result.getNameInNamespace().equals( dn ) )
+            {
+                return true;
+            }
         }
+    
+        return false;
     }
-
-    return false;
-}
-
-
-Set<SearchResult> getResults( String filter ) throws Exception
-{
-    DirContext ctx = getWiredContext( getLdapServer() );
-    Set<SearchResult> results = new HashSet<SearchResult>();
-    SearchControls controls = new SearchControls();
-    controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-    NamingEnumeration<SearchResult> namingEnumeration = ctx.search( "ou=actors,ou=system", filter, controls );
-    while ( namingEnumeration.hasMore() )
+    
+    
+    Set<SearchResult> getResults( String filter ) throws Exception
     {
-        results.add( namingEnumeration.next() );
+        DirContext ctx = getWiredContext( getLdapServer() );
+        Set<SearchResult> results = new HashSet<SearchResult>();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> namingEnumeration = ctx.search( "ou=actors,ou=system", filter, controls );
+        while ( namingEnumeration.hasMore() )
+        {
+            results.add( namingEnumeration.next() );
+        }
+    
+        namingEnumeration.close();
+        ctx.close();
+    
+        return results;
     }
-
-    namingEnumeration.close();
-    ctx.close();
-
-    return results;
-}
 }
