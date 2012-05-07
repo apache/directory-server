@@ -277,7 +277,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
             // log the change
             txnLogManager.log( changeContainer, false );
 
-            //TODO TODO TODO REMOVE THIS
+            // Mostly for schema partition
             partition.add( addContext );
         }
         catch ( LdapException le )
@@ -301,7 +301,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
     {
         Dn dn = deleteContext.getDn();
 
-        //TODO TODO TODO REMOVE THIS
+        // Mostly for schema partition
         partition.delete( deleteContext );
 
         // Add write dependency on the dn
@@ -498,7 +498,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                     {} ) );
             modifyContext.setAlteredEntry( modifiedEntry );
 
-            //TODO TODO TODO REMOVE THIS
+            // Mostly for schema partition
             partition.modify( modifyContext );
 
         }
@@ -1022,7 +1022,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 rename( partition, oldDn, newRdn, deleteOldRdn, null, originalEntry );
             }
 
-            //TODO TODO TODO REMOVE THIS
+            // Mostly for schema partition
             partition.rename( renameContext );
         }
         catch ( Exception e )
@@ -1346,7 +1346,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             move( partition, oldDn, newSuperior, newDn, modifiedEntry, originalEntry );
 
-            //TODO TODO TODO REMOVE THIS
+            // Mostly for schema partition
             partition.move( moveContext );
 
         }

@@ -27,23 +27,5 @@ package org.apache.directory.server.core.shared.txn;
 /** Package protected */
 class ReadOnlyTxn extends AbstractTransaction
 {
-    private int nbRef = 0;
-
-
-    public void releaseTxn()
-    {
-        nbRef--;
-    }
-
-
-    public void acquireTxn()
-    {
-        nbRef++;
-    }
-
-
-    public boolean isReused()
-    {
-        return nbRef > 1;
-    }
+   
 }

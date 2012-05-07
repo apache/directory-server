@@ -37,4 +37,19 @@ interface TxnManagerInternal extends TxnManager
      * @return current txn
      */
     Transaction getCurTxn();
+    
+    
+    /**
+     *  Returns the current version of logical data
+     *
+     * @return the current version of logical data
+     */
+    long getLogicalDataVersion();
+    
+    
+    /**
+     * Bumps the current version of logical data. Caller is 
+     * assumed to provide synchronization.
+     */
+    void bumpLogicalDataVersion();
 }

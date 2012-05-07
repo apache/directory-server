@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 @RunWith ( FrameworkRunner.class )
-@CreateDS(name = "TxnConflictIT")
+@CreateDS(enableChangeLog = false, name = "TxnConflictIT")
 @ApplyLdifs(
     {
         "dn: cn=test1, ou=system",
@@ -242,13 +242,23 @@ public class TxnConflictIT extends AbstractLdapTestUnit
             connection.add( entry );
         }
         
+        private void doModifyConfclictingWithDelete() throws Exception
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            
+            // The added value
+            Attributes attrs = new BasicAttributes( "telephoneNumber", "1 650 300 6070", true );
+
+            // Add the Ava
+            sysRoot.modifyAttributes( "cn=test3,ou=users", DirContext.ADD_ATTRIBUTE, attrs );
+        }
         
         private void doModifyConfclictingWithRename() throws Exception
         {
             LdapContext sysRoot = getSystemContext( getService() );
             
             // The added value
-            Attributes attrs = new BasicAttributes( "telephoneNumber", "1 650 300 6088", true );
+            Attributes attrs = new BasicAttributes( "telephoneNumber", "1 650 300 6071", true );
 
             // Add the Ava
             sysRoot.modifyAttributes( "cn=test3,ou=users", DirContext.ADD_ATTRIBUTE, attrs );
@@ -267,7 +277,7 @@ public class TxnConflictIT extends AbstractLdapTestUnit
                 {
                     try
                     {
-                        doConflictingModify();
+                        doModifyConfclictingWithDelete();
                     }
                     catch ( NameNotFoundException e )
                     {

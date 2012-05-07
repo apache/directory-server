@@ -51,26 +51,43 @@ abstract class AbstractTransaction implements Transaction
     /** List of txns that this txn depends on */
     private List<ReadWriteTxn> txnsToCheck = new ArrayList<ReadWriteTxn>();
 
-    /** The number of operations using this transaction */
-    private int nbRef;
-
     protected long id;
 
     private static AtomicLong counter = new AtomicLong( 0 );
     
-    /** Trus if this is the only running txn */
-    private boolean isExclusive = false;
+    /** True optimistic lock is held by the txn */
+    private boolean isOptimisticLockHeld = false;
+    
+    /** version of the logical data vseen by this txn */
+    private long myLogicalDataVersion;
 
-
-    public boolean isExclusive()
+    public boolean isOptimisticLockHeld()
     {
-        return isExclusive;
+        return isOptimisticLockHeld;
     }
     
     
-    public void setExclusive()
+    public void setOptimisticLockHeld()
     {
-        isExclusive = true;
+        isOptimisticLockHeld = true;
+    }
+    
+    
+    public void clearOptimisticLockHeld()
+    {
+        isOptimisticLockHeld = false;
+    }
+    
+    
+    public long getLogicalDataVersion()
+    {
+        return myLogicalDataVersion;
+    }
+    
+    
+    public void setLogicalDataVersion( long logicalDataVersion )
+    {
+        myLogicalDataVersion = logicalDataVersion;
     }
 
 
@@ -80,7 +97,6 @@ abstract class AbstractTransaction implements Transaction
     public AbstractTransaction()
     {
         txnState = State.INITIAL;
-        nbRef = 0;
         id = counter.getAndIncrement();
     }
 
@@ -88,19 +104,11 @@ abstract class AbstractTransaction implements Transaction
     /**
      * {@inheritDoc}
      */
-    protected void startTxn( long startTime )
+    public void startTxn( long startTime, long logicalDataVerion  )
     {
         this.startTime = startTime;
         txnState = State.READ;
-        nbRef++;
     }
-
-
-    public void reuseTxn()
-    {
-        nbRef++;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -117,12 +125,7 @@ abstract class AbstractTransaction implements Transaction
     public void commitTxn( long commitTime )
     {
         this.commitTime = commitTime;
-        nbRef--;
-
-        if ( nbRef == 0 )
-        {
-            txnState = State.COMMIT;
-        }
+        txnState = State.COMMIT;
     }
 
 

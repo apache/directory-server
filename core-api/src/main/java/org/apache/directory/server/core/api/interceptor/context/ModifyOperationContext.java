@@ -124,9 +124,14 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         super.saveOriginalContext();
       
-        for ( Modification mod : getModItems() )
+        List<Modification> items = getModItems();
+        
+        if ( items != null )
         {
-            originalModItems.add( mod.clone() );
+            for ( Modification mod : items )
+            {
+                originalModItems.add( mod.clone() );
+            }
         }
     }
     
@@ -138,8 +143,13 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         super.resetContext();
         alteredEntry = null;
-        modItems.clear();
-        modItems.addAll( originalModItems );
+        
+        if ( modItems != null )
+        {
+         modItems.clear();
+         modItems.addAll( originalModItems );
+        }
+        
         originalModItems.clear();
     }
     

@@ -300,7 +300,7 @@ public class DefaultDirectoryService implements DirectoryService
     private DnFactory dnFactory;
 
     /** The Subentry cache */
-    SubentryCache subentryCache = new SubentryCache();
+    SubentryCache subentryCache;
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
@@ -1263,7 +1263,8 @@ public class DefaultDirectoryService implements DirectoryService
                 }
                 catch ( LdapException e )
                 {
-                    //e.printStackTrace();
+                    e.printStackTrace();
+                    throw e;
                 }
                 catch ( Exception e )
                 {
@@ -1901,6 +1902,19 @@ public class DefaultDirectoryService implements DirectoryService
         }
     }
 
+    
+    private void initializeCaches()
+    {   
+        // Initialize the AP caches
+        accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
+        collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
+        subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
+        triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
+        
+        // Reinit the subentry cache as well
+        subentryCache = new SubentryCache();
+    }
+    
 
     /**
      * Kicks off the initialization of the entire system.
@@ -1919,15 +1933,12 @@ public class DefaultDirectoryService implements DirectoryService
         {
             setDefaultInterceptorConfigurations();
         }
-
+        
         cacheService = new CacheService();
         cacheService.initialize( this );
 
-        // Initialize the AP caches
-        accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
-        collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
-        subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
-        triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
+        // prepare caches
+        initializeCaches();
 
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
@@ -2390,6 +2401,14 @@ public class DefaultDirectoryService implements DirectoryService
         return triggerExecutionAPCache;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void resetCaches()
+    {
+        initializeCaches();
+    }
 
     /**
      * {@inheritDoc}

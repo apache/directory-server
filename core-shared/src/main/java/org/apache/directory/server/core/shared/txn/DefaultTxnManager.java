@@ -43,6 +43,7 @@ import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**
@@ -65,7 +66,7 @@ class DefaultTxnManager implements TxnManagerInternal
     private Lock writeTxnsLock = new ReentrantLock();
 
     /** Used to order txns in case of conflicts */
-    private ReadWriteLock optimisticLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock optimisticLock = new ReentrantReadWriteLock();
 
     /** Latest committed txn on which read only txns can depend */
     private AtomicReference<ReadWriteTxn> latestCommittedTxn = new AtomicReference<ReadWriteTxn>();
@@ -104,6 +105,9 @@ class DefaultTxnManager implements TxnManagerInternal
     private ReadWriteTxn dummyTxn = new ReadWriteTxn();
 
     private AtomicInteger pending = new AtomicInteger();
+
+    /** Logical data version number */
+    private long logicalDataVersion = 0;
 
     /** Per thread txn context */
     static final ThreadLocal<Transaction> txnVar =
@@ -178,6 +182,24 @@ class DefaultTxnManager implements TxnManagerInternal
     /**
      * {@inheritDoc}
      */
+    public long getLogicalDataVersion()
+    {
+        return logicalDataVersion;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void bumpLogicalDataVersion()
+    {
+        logicalDataVersion++;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public TxnHandle retryTransaction() throws Exception
     {
         Transaction curTxn = getCurTxn();
@@ -193,7 +215,6 @@ class DefaultTxnManager implements TxnManagerInternal
 
         // abort current txn and start a new read write txn
 
-      
         abortReadWriteTxn( ( ReadWriteTxn ) curTxn );
         curTxn.abortTxn();
         return beginReadWriteTxn( true );
@@ -239,17 +260,15 @@ class DefaultTxnManager implements TxnManagerInternal
             throw new IllegalStateException( " trying to commit non existent txn " );
         }
 
-        boolean isExclusive = txn.isExclusive();
-
         try
-        {        
+        {
             if ( flushFailed )
             {
                 throw new IOException( "Flushing of txns failed" );
             }
-            
+
             prepareForEndingTxn( txn );
-    
+
             if ( txn instanceof ReadOnlyTxn )
             {
                 txn.commitTxn( txn.getStartTime() );
@@ -261,14 +280,8 @@ class DefaultTxnManager implements TxnManagerInternal
         }
         finally
         {
-            if ( !isExclusive )
-            {
-                optimisticLock.readLock().unlock();
-            }
-            else
-            {
-                optimisticLock.writeLock().unlock();
-            }
+            // Release optimistic lock if it is held
+            releaseOptimisticLock();
         }
 
         setCurTxn( null );
@@ -289,8 +302,6 @@ class DefaultTxnManager implements TxnManagerInternal
             throw new IllegalStateException( "Trying to abort while there is not txn " );
         }
 
-        boolean isExclusive = txn.isExclusive();
-
         try
         {
             prepareForEndingTxn( txn );
@@ -301,18 +312,12 @@ class DefaultTxnManager implements TxnManagerInternal
             }
 
             txn.abortTxn();
-            setCurTxn( null );
         }
         finally
         {
-            if ( !isExclusive )
-            {
-                optimisticLock.readLock().unlock();
-            }
-            else
-            {
-                optimisticLock.writeLock().unlock();
-            }
+            // Release optimistic lock if it is held
+            releaseOptimisticLock();
+            setCurTxn( null );
         }
 
         //System.out.println( "TRAN: Aborted " + txn );
@@ -402,6 +407,127 @@ class DefaultTxnManager implements TxnManagerInternal
 
 
     /**
+     * {@inheritDoc}
+     */
+    public void startLogicalDataChange() throws LdapException
+    {
+        Transaction curTxn = getCurTxn();
+
+        if (curTxn == null)
+        {
+            return;
+        }
+        // Should have a rw txn
+        if ( !( curTxn instanceof ReadWriteTxn ) )
+        {
+            // Cannot start a TXN when a RW txn is ongoing 
+            throw new IllegalStateException( "Unexpected txn state when starting logical data change txn: " +
+                curTxn );
+        }
+
+        // If txn is already exclusive then it can start logical data change immediately
+
+        if ( !curTxn.isOptimisticLockHeld() )
+        {
+            throw new IllegalStateException( "Unexpected txn state when starting logical data change txn: " +
+                " txn is not holding optimistic lock:"+
+                curTxn );
+        }
+        
+        // If lock is already held exclusively by the txn, then return
+        if ( optimisticLock.isWriteLockedByCurrentThread() )
+        {
+            return;
+        }
+
+        long txnLogicalDataVersion = curTxn.getLogicalDataVersion();
+
+        // Get operations lock in exclusive mode
+        optimisticLock.readLock().unlock();
+        optimisticLock.writeLock().lock();
+
+        // If somebody raced and changed logical data, then bail out
+        if ( getLogicalDataVersion() != txnLogicalDataVersion )
+        {
+            
+            TxnConflictException e = new TxnConflictException();
+            throw new LdapException(e);
+        }
+
+        // Finally bump of logical data version number
+        bumpLogicalDataVersion();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void endLogicalDataRead()
+    {
+        // Should only be called for read only txns
+        Transaction curTxn = getCurTxn();
+
+        if (curTxn == null || !( curTxn instanceof ReadOnlyTxn ))
+        {
+            throw new IllegalStateException( "Unexpected txn state when ending logical data read:" + curTxn );
+        }
+        
+        if ( !curTxn.isOptimisticLockHeld() )
+        {
+            throw new IllegalStateException( "Unexpected txn state when ending logical data read, optimistic lock not held:" + 
+                curTxn );
+        }
+        
+        releaseOptimisticLock();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean prepareForLogicalDataReinit()
+    {
+        Transaction curTxn = getCurTxn();
+
+        if (curTxn == null || !( curTxn instanceof ReadWriteTxn ))
+        {
+            throw new IllegalStateException( "Unexpected txn state when preparing for logical data reinit:" + curTxn );
+        }
+        
+        if ( optimisticLock.isWriteLockedByCurrentThread() )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    
+    /**
+     * If the thread holds optimistic lock, release it
+     */
+    private void releaseOptimisticLock()
+    {
+        Transaction curTxn = getCurTxn();
+        
+        if ( curTxn.isOptimisticLockHeld() )
+        {
+            if ( optimisticLock.isWriteLockedByCurrentThread() )
+            {
+                optimisticLock.writeLock().unlock();
+            }
+            else
+            {
+                optimisticLock.readLock().unlock();
+            }
+            
+            curTxn.clearOptimisticLockHeld();
+        }
+    }
+
+    /**
      * Begins a read only txn. A read only txn does not put any log edits
      * to the txn log.Its start time is the latest committed txn's commit time. 
      */
@@ -410,7 +536,9 @@ class DefaultTxnManager implements TxnManagerInternal
         ReadOnlyTxn txn = new ReadOnlyTxn();
         ReadWriteTxn lastTxnToCheck = null;
 
-        optimisticLock.readLock().lock(); 
+        optimisticLock.readLock().lock();
+        txn.setOptimisticLockHeld();
+        txn.setLogicalDataVersion( logicalDataVersion );
         
         /*
          * Set the start time as the latest committed txn's commit time. We need to make sure that
@@ -436,7 +564,7 @@ class DefaultTxnManager implements TxnManagerInternal
         long startTime;
 
         startTime = lastTxnToCheck.getCommitTime();
-        txn.startTxn( startTime );
+        txn.startTxn( startTime, logicalDataVersion );
 
         buildCheckList( txn, lastTxnToCheck );
 
@@ -471,8 +599,10 @@ class DefaultTxnManager implements TxnManagerInternal
         else
         {
             optimisticLock.writeLock().lock();
-            txn.setExclusive();
         }
+        
+        txn.setOptimisticLockHeld();
+        txn.setLogicalDataVersion( logicalDataVersion );
 
         /*
          * Get the start time and last txn to depend on
@@ -485,7 +615,7 @@ class DefaultTxnManager implements TxnManagerInternal
         try
         {
             txnLogManager.log( logRecord, false );
-            txn.startTxn( logRecord.getLogAnchor().getLogLSN() );
+            txn.startTxn( logRecord.getLogAnchor().getLogLSN(), logicalDataVersion );
 
             do
             {
@@ -502,14 +632,10 @@ class DefaultTxnManager implements TxnManagerInternal
         }
         catch ( Exception e )
         {
-            if ( txn.isExclusive() == false )
-            {
-                optimisticLock.readLock().unlock();
-            }
-            else
-            {
-                optimisticLock.writeLock().unlock();
-            }
+            // Release optimistic lock if held
+            setCurTxn(txn);
+            releaseOptimisticLock();
+            
         }
         finally
         {
@@ -604,7 +730,7 @@ class DefaultTxnManager implements TxnManagerInternal
                 throw new IllegalStateException( " prepareForEndingTxn: txn has unpexptected start time " +
                     txn + " expected: " + lastTxnToCheck );
             }
-            
+
             if ( lastTxnToCheck.getRefCount().get() <= 0 )
             {
                 throw new IllegalStateException( " prepareForEndingTxn: lastTxnToCheck has unexpected ref cnt " +

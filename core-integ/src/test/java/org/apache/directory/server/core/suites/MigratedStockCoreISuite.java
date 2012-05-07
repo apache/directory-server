@@ -35,6 +35,7 @@ import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
 import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
+import org.apache.directory.server.core.txn.TxnConflictIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
 import org.junit.runner.RunWith;
@@ -70,7 +71,10 @@ import org.junit.runners.Suite;
         SearchAuthorizationIT.class,
 
         // exception
-        ExceptionServiceIT.class
+        ExceptionServiceIT.class,
+        
+        // Txn Conflict/Serialization
+        TxnConflictIT.class
 
         } )
 public class MigratedStockCoreISuite

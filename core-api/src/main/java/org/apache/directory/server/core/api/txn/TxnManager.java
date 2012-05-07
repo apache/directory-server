@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.api.txn;
 
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+
 
 /**
  * The transaction manager interface.
@@ -103,4 +105,31 @@ public interface TxnManager
      * Flushes the committed txns to partitions.
      */
     void applyPendingTxns();
+    
+    
+    /**
+     * Called when data derived from the underlying
+     * data managed by the txn manager is about to be
+     * changed. Ensures Every txn sees a consistent
+     * version of the data. 
+     *
+     * @throws LdapException with a root cause as TxnConflictException
+     */
+    void startLogicalDataChange() throws LdapException;
+    
+    
+    /**
+     * Called when txn manager wont need data derived from  
+     * data managed by the txn layer is not needed any more.  
+     */
+    void endLogicalDataRead();
+    
+    
+    /**
+     * Prepares the current txn for logical data reinit
+     *
+     * @return TRUE if txn needs to do logical data reinit
+     */
+    boolean prepareForLogicalDataReinit();
+
 }

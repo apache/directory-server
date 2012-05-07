@@ -263,6 +263,9 @@ public final class SchemaPartition extends AbstractPartition
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
+        // Ensure logical data in registries is consistent
+        addContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         // At this point, the added SchemaObject does not exist in the partition
         // We have to check if it's enabled and then inject it into the registries
         // but only if it does not break the server.
@@ -324,6 +327,9 @@ public final class SchemaPartition extends AbstractPartition
             throw new LdapUnwillingToPerformException();
         }
         
+        // Ensure logical data in registries is consistent
+        deleteContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
 
@@ -367,6 +373,9 @@ public final class SchemaPartition extends AbstractPartition
 
         boolean cascade = modifyContext.hasRequestControl( Cascade.OID );
 
+        // Ensure logical data in registries is consistent
+        modifyContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         synchronizer.modify( modifyContext, targetEntry, cascade );
 
         if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
@@ -386,6 +395,10 @@ public final class SchemaPartition extends AbstractPartition
         CoreSession session = moveContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        
+        // Ensure logical data in registries is consistent
+        session.getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         synchronizer.move( moveContext, entry, cascade );
         updateSchemaModificationAttributes( moveContext );
     }
@@ -400,6 +413,10 @@ public final class SchemaPartition extends AbstractPartition
         CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+        
+        // Ensure logical data in registries is consistent
+        session.getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         updateSchemaModificationAttributes( moveAndRenameContext );
     }
@@ -412,6 +429,9 @@ public final class SchemaPartition extends AbstractPartition
     {
         boolean cascade = renameContext.hasRequestControl( Cascade.OID );
 
+        // Ensure logical data in registries is consistent
+        renameContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
+        
         // First update the registries
         synchronizer.rename( renameContext, cascade );
 

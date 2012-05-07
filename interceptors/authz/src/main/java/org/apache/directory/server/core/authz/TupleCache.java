@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -90,6 +91,9 @@ public class TupleCache
 
     /** A storage for the ObjectClass attributeType */
     private static AttributeType OBJECT_CLASS_AT;
+    
+    /** Directory service */
+    private DirectoryService directoryService;
 
 
     /**
@@ -107,9 +111,16 @@ public class TupleCache
         aciParser = new ACIItemParser( ncn, schemaManager );
         PRESCRIPTIVE_ACI_AT = schemaManager.getAttributeType( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        directoryService = session.getDirectoryService();
         initialize( session );
     }
 
+    public void reinitialize() throws LdapException
+    {
+        tuples.clear();
+        initialize( directoryService.getAdminSession() );
+    }
+    
 
     private Dn parseNormalized( String name ) throws LdapException
     {
@@ -202,6 +213,9 @@ public class TupleCache
         {
             return;
         }
+        
+        // Ensure cache consistency
+        directoryService.getTxnManager().startLogicalDataChange();
 
         // Get the prescriptiveACI
         Attribute prescriptiveAci = entry.get( PRESCRIPTIVE_ACI_AT );
@@ -241,6 +255,9 @@ public class TupleCache
             return;
         }
 
+        // Ensure cache consistency
+        directoryService.getTxnManager().startLogicalDataChange();
+        
         tuples.remove( normName.toString() );
     }
 
@@ -292,8 +309,11 @@ public class TupleCache
     }
 
 
-    public void subentryRenamed( Dn oldName, Dn newName )
+    public void subentryRenamed( Dn oldName, Dn newName ) throws LdapException
     {
+        // Ensure cache consistency
+        directoryService.getTxnManager().startLogicalDataChange();
+        
         tuples.put( newName.getNormName(), tuples.remove( oldName.getNormName() ) );
     }
 }

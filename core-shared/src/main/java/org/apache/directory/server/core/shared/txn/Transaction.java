@@ -37,10 +37,34 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 /** Package protected */
 interface Transaction extends TxnHandle
 {
-    boolean isExclusive();
+    /**
+     * returns TRUE if optimisticLock held, false otherwise
+     *
+     * @return  TRUE if optimisticLock held, false otherwise
+     */
+    boolean isOptimisticLockHeld();
     
     
-    void setExclusive();
+    /**
+     * Called after txn gets the optimistic lock
+     *
+     */
+    void setOptimisticLockHeld();
+    
+    
+    /**
+     * Called after txn release the optimistic lock
+     */
+    void clearOptimisticLockHeld();
+    
+    
+    /**
+     * 
+     * Returns the version of the logical data this txn sees.
+     *
+     * @return version of the logical data this txn sees.
+     */
+    long getLogicalDataVersion();
     
     
     /**
@@ -65,10 +89,9 @@ interface Transaction extends TxnHandle
      * is updated accordingly.
      *
      * @param startTime start time of the txn
+     * @param version of the logical data this txn sees
      */
-    //void startTxn( long startTime );
-
-    void reuseTxn();
+    void startTxn( long startTime, long logicalDataVerion  );
 
 
     /**

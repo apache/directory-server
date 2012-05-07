@@ -670,6 +670,22 @@ class ReadWriteTxn extends AbstractTransaction
             }
         }
     }
+    
+    
+    public void clearLogEdits()
+    {
+        LogEdit txnStartMarker = logEdits.get( 0 );
+        
+        logEdits.clear();
+        logEdits.add( txnStartMarker );
+        
+        forwardIndexAdds.clear();
+        reverseIndexAdds.clear();
+        indexDeletes.clear();
+        
+        readDns.clear();
+        writeDns.clear();
+    }
 
 
     /**

@@ -116,6 +116,16 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void destroy()
     {
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reinitLogicalData( DirectoryService directoryService ) throws LdapException
+    {
+        notAliasCache.clear();
+    }
+    
 
 
     /**
@@ -145,11 +155,9 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check if we're trying to add to a parent that is an alias
         boolean notAnAlias;
 
-        synchronized ( notAliasCache )
-        {
-            notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
-        }
-
+ 
+        notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
+        
         if ( !notAnAlias )
         {
             // We don't know if the parent is an alias or not, so we will launch a
@@ -183,10 +191,9 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             else
             {
-                synchronized ( notAliasCache )
-                {
-                    notAliasCache.put( parentDn.getNormName(), parentDn );
-                }
+                // Ensure logical data consistency
+                directoryService.getTxnManager().startLogicalDataChange();
+                notAliasCache.put( parentDn.getNormName(), parentDn );
             }
         }
 
@@ -211,12 +218,12 @@ public class ExceptionInterceptor extends BaseInterceptor
         next( deleteContext );
 
         // Update the alias cache
-        synchronized ( notAliasCache )
+        if ( notAliasCache.containsKey( dn.getNormName() ) )
         {
-            if ( notAliasCache.containsKey( dn.getNormName() ) )
-            {
-                notAliasCache.remove( dn.getNormName() );
-            }
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
+            notAliasCache.remove( dn.getNormName() );
         }
     }
 
@@ -286,13 +293,13 @@ public class ExceptionInterceptor extends BaseInterceptor
         // We will simply remove the Dn from the NotAlias cache.
         // It would be smarter to check the modified attributes, but
         // it would also be more complex.
-        synchronized ( notAliasCache )
-        {
-            if ( notAliasCache.containsKey( modifyContext.getDn().getNormName() ) )
-            {
-                notAliasCache.remove( modifyContext.getDn().getNormName() );
-            }
-        }
+         if ( notAliasCache.containsKey( modifyContext.getDn().getNormName() ) )
+         {
+             // Ensure logical data consistency
+             directoryService.getTxnManager().startLogicalDataChange();
+             
+             notAliasCache.remove( modifyContext.getDn().getNormName() );
+         }
 
         next( modifyContext );
     }
@@ -314,12 +321,12 @@ public class ExceptionInterceptor extends BaseInterceptor
         next( moveContext );
 
         // Remove the original entry from the NotAlias cache, if needed
-        synchronized ( notAliasCache )
+        if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
         {
-            if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
-            {
-                notAliasCache.remove( oriChildName.getNormName() );
-            }
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
+            notAliasCache.remove( oriChildName.getNormName() );
         }
     }
 
@@ -339,12 +346,12 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         // Remove the original entry from the NotAlias cache, if needed
-        synchronized ( notAliasCache )
+        if ( notAliasCache.containsKey( oldDn.getNormName() ) )
         {
-            if ( notAliasCache.containsKey( oldDn.getNormName() ) )
-            {
-                notAliasCache.remove( oldDn.getNormName() );
-            }
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
+            notAliasCache.remove( oldDn.getNormName() );
         }
 
         next( moveAndRenameContext );
@@ -376,12 +383,12 @@ public class ExceptionInterceptor extends BaseInterceptor
         }
 
         // Remove the previous entry from the notAnAlias cache
-        synchronized ( notAliasCache )
+        if ( notAliasCache.containsKey( dn.getNormName() ) )
         {
-            if ( notAliasCache.containsKey( dn.getNormName() ) )
-            {
-                notAliasCache.remove( dn.getNormName() );
-            }
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
+            notAliasCache.remove( dn.getNormName() );
         }
 
         next( renameContext );

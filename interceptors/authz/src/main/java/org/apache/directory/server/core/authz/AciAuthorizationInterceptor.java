@@ -309,6 +309,19 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Init the SubentryUtils instance
         subentryUtils = new SubentryUtils( directoryService );
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reinitLogicalData(  DirectoryService directoryService  ) throws LdapException
+    {
+        tupleCache.reinitialize();
+        groupCache.reinitialize();
+        
+        initTupleCache();
+        initGroupCache();
+    }
 
 
     private void protectCriticalEntries( OperationContext opCtx, Dn dn ) throws LdapException

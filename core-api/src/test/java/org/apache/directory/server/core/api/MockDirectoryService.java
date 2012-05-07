@@ -77,6 +77,13 @@ public class MockDirectoryService implements DirectoryService
     {
         this.count = count;
     }
+    
+    
+    public void resetCaches()
+    {
+        // do nothing
+    }
+    
 
     public Hashtable<String, Object> getEnvironment()
     {

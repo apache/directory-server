@@ -193,8 +193,31 @@ public class SubentryInterceptor extends BaseInterceptor
             TRIGGER_EXECUTION_SUBENTRIES_AT
             };
 
-        ssParser = new SubtreeSpecificationParser( schemaManager );
+        ssParser = new SubtreeSpecificationParser( schemaManager );  
+        
+        // Init the sub entry cache
+        initializeSubEntryCache();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reinitLogicalData(  DirectoryService directoryService  ) throws LdapException
+    {
+        initializeSubEntryCache();
+    }
 
+
+    //-------------------------------------------------------------------------------------------
+    // Helper methods
+    //-------------------------------------------------------------------------------------------
+    
+    /**
+     * Initializes the subentry cache
+     */
+    private void initializeSubEntryCache() throws LdapException
+    {
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
         ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
@@ -265,13 +288,10 @@ public class SubentryInterceptor extends BaseInterceptor
                     LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
             }
-        }
+        } 
     }
-
-
-    //-------------------------------------------------------------------------------------------
-    // Helper methods
-    //-------------------------------------------------------------------------------------------
+    
+    
     /**
      * Return the list of AdministrativeRole for a subentry
      */
@@ -899,6 +919,7 @@ public class SubentryInterceptor extends BaseInterceptor
              * ----------------------------------------------------------------
              */
             setSubtreeSpecification( subentry, entry );
+            directoryService.getTxnManager().startLogicalDataChange();
             directoryService.getSubentryCache().addSubentry( dn, subentry );
 
             // Now inject the subentry into the backend
@@ -989,6 +1010,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // We first remove the re
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
+            directoryService.getTxnManager().startLogicalDataChange();
             Subentry removedSubentry = directoryService.getSubentryCache().getSubentry( dn );
 
             /* ----------------------------------------------------------------
@@ -1072,6 +1094,7 @@ public class SubentryInterceptor extends BaseInterceptor
         // Check if we have a modified subentry attribute in a Subentry entry
         if ( containsSubentryOC && isSubtreeSpecificationModification )
         {
+            directoryService.getTxnManager().startLogicalDataChange();
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( dn );
             SubtreeSpecification ssOld = subentry.getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1249,6 +1272,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // the new parent is an AP
             checkAdministrativeRole( moveContext, newSuperiorDn );
 
+            directoryService.getTxnManager().startLogicalDataChange();
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();
@@ -1352,6 +1376,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
+            directoryService.getTxnManager().startLogicalDataChange();
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();
@@ -1447,6 +1472,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
+            directoryService.getTxnManager().startLogicalDataChange();
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
             Dn apName = oldDn.getParent();

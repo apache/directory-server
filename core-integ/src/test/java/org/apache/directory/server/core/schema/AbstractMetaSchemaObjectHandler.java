@@ -77,6 +77,9 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
      */
     protected boolean isOnDisk( Dn dn )
     {
+        
+        getService().getTxnManager().applyPendingTxns();
+        
         // do not change the value of getSchemaPath to lowercase
         // on Linux this gives a wrong path
         String schemaObjectFileName = getSchemaPath( dn );

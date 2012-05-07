@@ -214,6 +214,15 @@ public class ReferralInterceptor extends BaseInterceptor
         Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reinitLogicalData(  DirectoryService directoryService  ) throws LdapException
+    {
+        referralManager.reinitialize( directoryService );
+    }
 
 
     /**
@@ -250,11 +259,11 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // We have to add it to the referralManager
-            referralManager.lockWrite();
-
+            
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
             referralManager.addReferral( entry );
-
-            referralManager.unlock();
         }
     }
 
@@ -287,11 +296,11 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( ( entry != null ) && isReferral( entry ) )
         {
             // We have to remove it from the referralManager
-            referralManager.lockWrite();
 
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
             referralManager.removeReferral( entry );
-
-            referralManager.unlock();
         }
     }
 
@@ -329,15 +338,14 @@ public class ReferralInterceptor extends BaseInterceptor
         // TODO : entries should be locked until the operation is done on it.
         if ( newEntry != null )
         {
-            referralManager.lockWrite();
-
             if ( referralManager.isReferral( newEntry.getDn() ) )
             {
+                // Ensure logical data consistency
+                directoryService.getTxnManager().startLogicalDataChange();
+                
                 referralManager.removeReferral( modifyContext.getEntry() );
                 referralManager.addReferral( newEntry );
             }
-
-            referralManager.unlock();
         }
     }
 
@@ -357,12 +365,12 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // Update the referralManager
-            referralManager.lockWrite();
+            
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
 
             referralManager.addReferral( moveContext.getModifiedEntry() );
             referralManager.removeReferral( moveContext.getOriginalEntry() );
-
-            referralManager.unlock();
         }
     }
 
@@ -382,12 +390,11 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             Entry newEntry = moveAndRenameContext.getModifiedEntry();
 
-            referralManager.lockWrite();
-
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( moveAndRenameContext.getOriginalEntry() );
-
-            referralManager.unlock();
         }
     }
 
@@ -411,12 +418,11 @@ public class ReferralInterceptor extends BaseInterceptor
 
             Entry newEntry = nexus.lookup( lookupContext );
 
-            referralManager.lockWrite();
-
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() );
-
-            referralManager.unlock();
         }
     }
 }

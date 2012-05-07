@@ -111,6 +111,15 @@ public interface ReferralManager
      * @exception If the initialization failed
      */
     void init( DirectoryService directoryService, String... suffixes ) throws Exception;
+    
+    /** Reinitalize the referrals 
+     * 
+     * Rereads the referalls
+     *
+     * @param directoryService  The associated LDAP service
+     * @throws LdapException
+     */
+    void reinitialize( DirectoryService directoryService ) throws LdapException;
 
 
     /**

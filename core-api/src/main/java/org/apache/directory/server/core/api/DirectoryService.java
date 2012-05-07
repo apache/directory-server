@@ -603,7 +603,12 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The TriggerExecution AdministrativePoint cache
      */
     DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache();
-
+    
+    
+    /**
+     * Reset all the caches to their initial state
+     */
+    void resetCaches();
 
     /**
      * @return true if the password policy is enabled, false otherwise

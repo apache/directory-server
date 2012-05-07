@@ -73,8 +73,6 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public ReferralManagerImpl( DirectoryService directoryService ) throws LdapException
     {
-        lockWrite();
-
         referrals = new DnNode<Entry>();
         PartitionNexus nexus = directoryService.getPartitionNexus();
 
@@ -83,8 +81,18 @@ public class ReferralManagerImpl implements ReferralManager
 
         init( directoryService, suffixes.toArray( new String[]
             {} ) );
-
-        unlock();
+    }
+    
+    
+    public void reinitialize( DirectoryService directoryService ) throws LdapException
+    {
+        referrals = new DnNode<Entry>();
+        
+        PartitionNexus nexus = directoryService.getPartitionNexus();
+        Set<String> suffixes = nexus.listSuffixes();
+        
+        init( directoryService, suffixes.toArray( new String[]
+            {} ) );
     }
 
 
@@ -181,14 +189,8 @@ public class ReferralManagerImpl implements ReferralManager
                 {
                     Entry entry = cursor.get();
 
-                    // Lock the referralManager
-                    lockWrite();
-
                     // Add it at the right place
                     addReferral( entry );
-
-                    // Unlock the referralManager
-                    unlock();
                 }
 
                 cursor.close();

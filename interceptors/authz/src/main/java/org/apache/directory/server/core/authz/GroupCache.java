@@ -97,6 +97,10 @@ public class GroupCache
 
     /** String key for the Dn of a group to a Set (HashSet) for the Strings of member DNs */
     private Cache ehCache;
+    
+    /** Directory service */
+    private DirectoryService directoryService;
+
 
     /**
      * Creates a static group cache.
@@ -117,10 +121,16 @@ public class GroupCache
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         this.ehCache = dirService.getCacheService().getCache( "groupCache" );
-        
+        directoryService = dirService;
         initialize( dirService.getAdminSession() );
     }
 
+    
+    public void reinitialize() throws LdapException
+    {
+        ehCache.removeAll();
+        initialize( directoryService.getAdminSession() );
+    }
 
     private Dn parseNormalized( String name ) throws LdapException
     {
@@ -296,6 +306,9 @@ public class GroupCache
         {
             return;
         }
+        
+        // Ensure cache consistency
+        directoryService.getTxnManager().startLogicalDataChange();
 
         Set<String> memberSet = new HashSet<String>( members.size() );
         addMembers( memberSet, members );
@@ -325,6 +338,9 @@ public class GroupCache
         {
             return;
         }
+        
+        // Ensure cache consistency
+        directoryService.getTxnManager().startLogicalDataChange();
 
         ehCache.remove( name.getNormName() );
 
@@ -414,6 +430,9 @@ public class GroupCache
                 
                 if ( memSetElement != null )
                 {
+                    // Ensure cache consistency
+                    directoryService.getTxnManager().startLogicalDataChange();
+                    
                     Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
                     modify( memberSet, modification.getOperation(), modification.getAttribute() );
                 }
@@ -451,6 +470,9 @@ public class GroupCache
 
         if ( memSetElement != null )
         {
+            // Ensure cache consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+            
             Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
             modify( memberSet, modOp, members );
         }
@@ -555,13 +577,16 @@ public class GroupCache
     }
 
 
-    public boolean groupRenamed( Dn oldName, Dn newName )
+    public boolean groupRenamed( Dn oldName, Dn newName ) throws LdapException
     {
         Element membersElement = ehCache.get( oldName.getNormName() );
         
         if ( membersElement != null )
         {
             Set<String> members = ( Set<String> ) membersElement.getValue();
+            
+            // Ensure cache consistency
+            directoryService.getTxnManager().startLogicalDataChange();
             
             ehCache.remove( oldName.getNormName() );
             

@@ -151,6 +151,15 @@ public abstract class BaseInterceptor implements Interceptor
         {
             // unused
         }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public void reinitLogicalData( DirectoryService directoryService ) throws LdapException
+        {
+            // Do nothing by default
+        }
 
 
         /**
@@ -374,6 +383,15 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void destroy()
     {
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void reinitLogicalData( DirectoryService directoryService ) throws LdapException
+    {
+        // Do nothing by default
     }
 
 
