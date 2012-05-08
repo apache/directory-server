@@ -232,6 +232,16 @@ public class LdapSession
         {
             request = outstandingRequests.remove( messageId );
         }
+        
+        // Remove the PagedSearch cursors now
+        try
+        {
+            closeAllPagedSearches();
+        }
+        catch ( Exception e )
+        {
+            LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
+        }
 
         if ( request == null )
         {
