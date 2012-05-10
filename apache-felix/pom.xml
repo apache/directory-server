@@ -82,34 +82,33 @@
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.ipojo</artifactId>
-                  <version>1.8.0</version>
+                  <version>${ipojo.version}</version>
                   <overWrite>true</overWrite>                  
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.ipojo.arch.gogo</artifactId>
                   <version>1.0.1</version>
-                  <overWrite>true</overWrite>                  
                 </artifactItem>
                 <artifactItem>
                   <groupId>commons-io</groupId>
                   <artifactId>commons-io</artifactId>
-                  <version>2.0.1</version>
+                  <version>${commons.io.version}</version>
                 </artifactItem>
                 <artifactItem>
                   <groupId>commons-lang</groupId>
                   <artifactId>commons-lang</artifactId>
-                  <version>2.6</version>
+                  <version>${commons.lang.version}</version>
                 </artifactItem>
                 <artifactItem>
                   <groupId>commons-collections</groupId>
                   <artifactId>commons-collections</artifactId>
-                  <version>3.2.1</version>
+                  <version>${commons.collections.version}</version>
                 </artifactItem>
                 <artifactItem>
                   <groupId>commons-pool</groupId>
                   <artifactId>commons-pool</artifactId>
-                  <version>1.5.6</version>
+                  <version>${commons.pool.version}</version>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.mortbay.jetty</groupId>
@@ -140,6 +139,21 @@
                   <groupId>org.apache.mina</groupId>
                   <artifactId>mina-core</artifactId>
                   <version>${mina.core.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.jdbm</groupId>
+                  <artifactId>apacheds-jdbm2</artifactId>
+                  <version>${org.apache.directory.jdbm.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.studio</groupId>
+                  <artifactId>org.dom4j.dom4j</artifactId>
+                  <version>1.6.1</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.directory.studio</groupId>
+                  <artifactId>org.xpp3.xpp3</artifactId>
+                  <version>1.1.4.c</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>bundle</outputDirectory>
