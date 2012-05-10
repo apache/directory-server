@@ -23,13 +23,11 @@ package org.apache.directory.server.operations.search;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
 import javax.naming.SizeLimitExceededException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -38,6 +36,8 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.ldap.client.api.EntryCursorImpl;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -48,9 +48,19 @@ import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.Control;
+import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.model.message.SearchResultDone;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1013,72 +1023,89 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     /**
      * Do a test with a paged search and send a wrong cookie in the middle
      */
+    @Ignore
     @Test
     public void testPagedSearchWrongCookie() throws Exception
     {
-        getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
-        DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
-        SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 3 );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        SearchControls controls = new SearchControls();
+        controls.setCountLimit( ( int ) LdapServer.NO_SIZE_LIMIT );
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        PagedResults pagedSearchControl = new PagedResultsDecorator( codec );
+        pagedSearchControl.setSize( 3 );
     
         // Loop over all the elements
         int loop = 0;
-        List<SearchResult> results = new ArrayList<SearchResult>();
+        List<Entry> results = new ArrayList<Entry>();
         boolean hasUnwillingToPerform = false;
     
         while ( true )
         {
             loop++;
             
-            NamingEnumeration<SearchResult> list = null;
+            EntryCursor cursor = null;
     
             try
             {
-                list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
-    
-                while ( list.hasMore() )
+                SearchRequest searchRequest = new SearchRequestImpl();
+                searchRequest.setBase( new Dn( "ou=system" ) );
+                searchRequest.setFilter( "(ObjectClass=*)" );
+                searchRequest.setScope( SearchScope.SUBTREE );
+                searchRequest.addAttributes( "*" );
+                searchRequest.addControl( pagedSearchControl );
+                
+                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+
+                int i = 0;
+
+                while ( cursor.next() )
                 {
-                    SearchResult result = list.next();
+                    Entry result = cursor.get();
                     results.add( result );
+                    ++i;
                 }
-            }
-            catch ( OperationNotSupportedException onse )
-            {
-                hasUnwillingToPerform = true;
-                break;
+
+                SearchResultDone result = cursor.getSearchResultDone();
+                pagedSearchControl = (PagedResults)result.getControl( PagedResults.OID );
+                
+                if ( result.getLdapResult().getResultCode() == ResultCodeEnum.UNWILLING_TO_PERFORM )
+                {
+                    hasUnwillingToPerform = true;
+                    break;
+                }
             }
             finally
             {
-                if ( list != null )
+                if ( cursor != null )
                 {
-                    list.close();
+                    cursor.close();
                 }
             }
     
             // Now read the next ones
-            javax.naming.ldap.Control[] responseControls = ( ( LdapContext ) ctx ).getResponseControls();
-    
-            PagedResultsResponseControl responseControl =
-                ( PagedResultsResponseControl ) responseControls[0];
-            assertEquals( 0, responseControl.getResultSize() );
-    
+            assertEquals( 0, pagedSearchControl.getSize() );
+            
             // check if this is over
-            byte[] cookie = responseControl.getCookie();
+            byte[] cookie = pagedSearchControl.getCookie();
     
             if ( Strings.isEmpty( cookie ) )
             {
                 // If so, exit the loop
                 break;
             }
-    
+
             // Prepare the next iteration, sending a bad cookie
-            createNextSearchControls( ctx, "test".getBytes( "UTF-8" ), 3 );
+            pagedSearchControl.setCookie(  "test".getBytes( "UTF-8" ) );
+            pagedSearchControl.setSize( 3 );
         }
 
         assertTrue( hasUnwillingToPerform );
-        
+
         // Cleanup the session
-        ctx.close();
-    
+        connection.unBind();
+        connection.close();
     }
     
     
