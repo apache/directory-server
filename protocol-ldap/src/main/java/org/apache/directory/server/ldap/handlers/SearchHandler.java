@@ -550,7 +550,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
         req.getResultResponse().addControl( pagedSearchControl );
-        return ( SearchResultDone ) req.getResultResponse();
+        return req.getResultResponse();
     }
 
 
@@ -648,7 +648,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
-                return ( SearchResultDone ) req.getResultResponse();
+                return req.getResultResponse();
             }
             else
             {
@@ -687,7 +687,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 ldapResult.setDiagnosticMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
 
-                return ( SearchResultDone ) req.getResultResponse();
+                return req.getResultResponse();
             }
 
             if ( pagedContext.hasSameRequest( req, session ) )
@@ -755,7 +755,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return ( SearchResultDone ) req.getResultResponse();
+        return req.getResultResponse();
     }
 
 
@@ -825,7 +825,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return ( SearchResultDone ) req.getResultResponse();
+        return req.getResultResponse();
     }
 
 
@@ -1170,7 +1170,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 {
                     LOG.debug( "Entry is a referral: {}", entry );
 
-                    handleReferralEntryForSearch( session, req, ( ( ClonedServerEntry ) entry ) );
+                    handleReferralEntryForSearch( session, req, entry );
 
                     return;
                 }
