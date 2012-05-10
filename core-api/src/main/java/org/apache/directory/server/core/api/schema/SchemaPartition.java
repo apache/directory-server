@@ -175,6 +175,16 @@ public final class SchemaPartition extends AbstractPartition
         return wrapped;
     }
 
+   /**
+    * Gets the {@link RegistrySynchronizerAdaptor} synchronizer
+    *
+    * @return the registry synchronizer
+    */
+    public RegistrySynchronizerAdaptor getRegistrySynchronizerAdaptor()
+    {
+        return synchronizer;
+    }
+
 
     /**
      * Has no affect: the id is fixed at {@link SchemaPartition#SCHEMA_ID}: 'schema'.
