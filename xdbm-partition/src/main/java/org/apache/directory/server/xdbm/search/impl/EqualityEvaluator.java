@@ -48,10 +48,10 @@ import org.apache.directory.shared.util.Strings;
 public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     /** The default byte[] comparator if no comparator has been defined */
-    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
+    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( ( String ) null );
 
     /** The default String comparator if no comparator has been defined */
-    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
+    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( ( String ) null );
 
 
     @SuppressWarnings("unchecked")
