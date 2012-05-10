@@ -44,7 +44,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>1.0.0-M12</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>1.0.0-M13</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M1</org.apache.directory.jdbm.version>
@@ -85,6 +85,9 @@
     <velocity.version>1.7-beta1</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.10.0</xercesImpl.version>
+    <ipojo.version>1.9.0-SNAPSHOT</ipojo.version>
+    <ipojo.annotations.version>1.8.0</ipojo.annotations.version>
+    <bnd.ipojo.version>1.8.4</bnd.ipojo.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -150,10 +153,10 @@
     <module>installers-maven-plugin</module>
     <module>installers</module>
     <!--Uncomment to build OSGi-related bundles-->
-    <!--<module>apache-felix</module>-->
-    <!--<module>dependencies</module>-->
-    <!--<module>service-osgi</module>-->
-    <!--<module>component-hub</module>-->
+    <module>apache-felix</module>
+    <module>dependencies</module>
+    <module>service-osgi</module>
+    <module>hub</module>
   </modules>
 
   <build>
@@ -894,6 +897,36 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-hub-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-hub-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-hub-connector-ipojo-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-hub-connector-ipojo-handler</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-hub-connector-ds</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- Shared dependencies -->
       
       <dependency>
@@ -1004,7 +1037,13 @@
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
       
-      <!-- Mina dependencies -->
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ipojo-manager</artifactId>
+        <version>${org.apache.directory.shared.version}</version>
+      </dependency>
+      
+     <!-- Mina dependencies -->
       
       <dependency>
         <groupId>org.apache.mina</groupId>
@@ -1222,6 +1261,18 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
         <version>${ehcache.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo</artifactId>
+        <version>${ipojo.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+        <version>${ipojo.annotations.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
