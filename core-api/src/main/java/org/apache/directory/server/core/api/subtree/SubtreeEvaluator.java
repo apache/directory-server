@@ -79,9 +79,9 @@ public class SubtreeEvaluator
         // AP Dn and the subentry base
         Dn subentryBaseDn = apDn;
         subentryBaseDn = subentryBaseDn.add( subtree.getBase() );
-        
+
         String s = subentryBaseDn.toString();
-        
+
         if ( !entryDn.isDescendantOf( subentryBaseDn ) )
         {
             // The entry Dn is not part of the subtree specification, get out
@@ -97,9 +97,9 @@ public class SubtreeEvaluator
          * are rejected.
          */
         int entryRelativeDnSize = entryDn.size() - subentryBaseDn.size();
-        
+
         if ( ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX ) &&
-             ( entryRelativeDnSize > subtree.getMaxBaseDistance() ) )
+            ( entryRelativeDnSize > subtree.getMaxBaseDistance() ) )
         {
             return false;
         }
@@ -117,12 +117,12 @@ public class SubtreeEvaluator
          * as well and reject if the relative names are equal.
          */
         // Now, get the entry's relative part
-        
-        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || 
-             ( subtree.getChopAfterExclusions().size() != 0 ) )
+
+        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) ||
+            ( subtree.getChopAfterExclusions().size() != 0 ) )
         {
             Dn entryRelativeDn = entryDn.getDescendantOf( apDn ).getDescendantOf( subtree.getBase() );
-            
+
             for ( Dn chopBeforeDn : subtree.getChopBeforeExclusions() )
             {
                 if ( entryRelativeDn.isDescendantOf( chopBeforeDn ) )
@@ -130,7 +130,7 @@ public class SubtreeEvaluator
                     return false;
                 }
             }
-    
+
             for ( Dn chopAfterDn : subtree.getChopAfterExclusions() )
             {
                 if ( entryRelativeDn.isDescendantOf( chopAfterDn ) && !chopAfterDn.equals( entryRelativeDn ) )

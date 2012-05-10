@@ -41,14 +41,15 @@ public class EncTgsRepPart extends KerberosMessage
 {
     /** The EncKdcRepPart */
     private EncKdcRepPart encKdcRepPart;
-    
+
     // Storage for computed lengths
     private int encKdcRepPartLength;
+
 
     /**
      * Creates a new instance of EncTgsRepPart.
      */
-    public EncTgsRepPart() 
+    public EncTgsRepPart()
     {
         super( KerberosMessageType.ENC_TGS_REP_PART );
     }
@@ -71,7 +72,7 @@ public class EncTgsRepPart extends KerberosMessage
         this.encKdcRepPart = encKdcRepPart;
     }
 
-    
+
     /**
      * Compute the EncTgsRepPart length
      * <pre>
@@ -87,8 +88,8 @@ public class EncTgsRepPart extends KerberosMessage
         encKdcRepPartLength = encKdcRepPart.computeLength();
         return 1 + TLV.getNbBytes( encKdcRepPartLength ) + encKdcRepPartLength;
     }
-    
-    
+
+
     /**
      * Encode the EncTgsRepPart component
      * 
@@ -102,14 +103,14 @@ public class EncTgsRepPart extends KerberosMessage
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         // The EncAsRepPart Tag
-        buffer.put( (byte)KerberosConstants.ENC_TGS_REP_PART_TAG );
+        buffer.put( ( byte ) KerberosConstants.ENC_TGS_REP_PART_TAG );
         buffer.put( TLV.getBytes( encKdcRepPartLength ) );
-        
+
         // The EncKdcRepPart --------------------------------------------------------
         encKdcRepPart.encode( buffer );
-        
+
         return buffer;
     }
 }

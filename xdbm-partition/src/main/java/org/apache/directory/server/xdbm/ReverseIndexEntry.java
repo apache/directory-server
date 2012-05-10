@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -28,13 +29,13 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * if one has already been loaded.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The value stored in the Tuple, associated key for the Entry
+ * @param <K> The key stored in the Tuple, associated key for the Entry
  * @param <ID> The ID of the Entry
  */
-public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
+public class ReverseIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
 {
     /** The underlying Tuple */
-    private final Tuple<ID, V> tuple = new Tuple<ID, V>();
+    private final Tuple<ID, K> tuple = new Tuple<ID, K>();
 
 
     /**
@@ -44,8 +45,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     {
         super( null );
     }
-    
-    
+
 
     /**
      * Sets the Tuple value represented by this ReverseIndexEntry optionally
@@ -55,7 +55,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
      * @param tuple the tuple for the ReverseIndexEntry
      * @param obj the resusitated Entry that is indexed if any
      */
-    public void setTuple( Tuple<ID, V> tuple, Entry entry )
+    public void setTuple( Tuple<ID, K> tuple, Entry entry )
     {
         setEntry( entry );
         this.tuple.setKey( tuple.getKey() );
@@ -75,7 +75,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public V getValue()
+    public K getKey()
     {
         return tuple.getValue();
     }
@@ -93,7 +93,7 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void setValue( V key )
+    public void setKey( K key )
     {
         tuple.setValue( key );
     }
@@ -122,11 +122,11 @@ public class ReverseIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<K, ID> entry )
     {
         setEntry( entry.getEntry() );
         tuple.setKey( entry.getId() );
-        tuple.setValue( entry.getValue() );
+        tuple.setValue( entry.getKey() );
     }
 
 

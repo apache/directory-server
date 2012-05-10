@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.log.impl;
 
+
 import java.nio.ByteBuffer;
 
 import java.util.concurrent.locks.Lock;
@@ -26,13 +27,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 import java.io.IOException;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.log.InvalidLogException;
 import org.apache.directory.server.log.LogAnchor;
 import org.apache.directory.server.log.UserLogRecord;
+
 
 /**
  * Manages the flushing of log to media and scanning of logs. All appends to the log file go through this class.
@@ -45,28 +46,28 @@ import org.apache.directory.server.log.UserLogRecord;
  */
 class LogFlushManager
 {
-    
+
     /** Ever increasing logical log sequence number assigned to user log records. Bumped up under append lock */
     private long logLSN = Long.MIN_VALUE + 1;
-       
+
     /** Memory buffer size in bytes */
     private final int logBufferSize;
-        
+
     /** Synchronizes appends */
     private final Lock appendLock = new ReentrantLock();
-    
+
     /** Synchronizes flushes to media */
     private final Lock flushLock = new ReentrantLock();
-    
+
     /** Used to wait on ongoing flush */
     private final Condition flushCondition = flushLock.newCondition();
-     
+
     /** In memory LogBuffer */
     private LogBuffer logBuffer;
-    
+
     /** Flush status */
     private FlushStatus flushStatus = new FlushStatus();
-       
+
     /** Current LogFile appends go to */
     private LogFileManager.LogFileWriter currentLogFile;
 
@@ -75,25 +76,27 @@ class LogFlushManager
 
     /** Size of data appended to the currentLogFile so far */
     long appendedSize;
-    
+
     /** Sof limit on the log file size */
     long targetLogFileSize;
-    
-    public LogFlushManager(LogManager logManager, int logMemoryBufferSize, long logFileSize )
+
+
+    public LogFlushManager( LogManager logManager, int logMemoryBufferSize, long logFileSize )
     {
         if ( ( logMemoryBufferSize < 0 ) || ( logFileSize < 0 ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_748, logMemoryBufferSize, logFileSize ) );
         }
-        
+
         logBufferSize = logMemoryBufferSize;
         targetLogFileSize = logFileSize;
         this.logManager = logManager;
-        
+
         logBuffer = new LogBuffer( logBufferSize, currentLogFile );
-        
+
     }
-    
+
+
     /**
      * Appends the given user record to the log. Position where the record is appended is returned as part of
      * userRecord.
@@ -103,50 +106,50 @@ class LogFlushManager
      * @throws IOException
      * @throws InvalidLogException
      */
-    public void append(UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
+    public void append( UserLogRecord userRecord, boolean sync ) throws IOException, InvalidLogException
     {
         long lsn;
         boolean appendedRecord = false;
         byte[] userBuffer = userRecord.getDataBuffer();
-        int length  = userRecord.getDataLength();
+        int length = userRecord.getDataLength();
         LogAnchor userLogAnchor = userRecord.getLogAnchor();
-        
+
         int recordSize = LogFileRecords.RECORD_HEADER_SIZE + LogFileRecords.RECORD_FOOTER_SIZE + length;
-        
+
         appendLock.lock();
         try
         {
             lsn = logLSN++;
-            
+
             if ( currentLogFile == null )
             {
                 // We are just starting, get the current log file
                 currentLogFile = logManager.switchToNextLogFile( null );
                 appendedSize = currentLogFile.getLength();
             }
-            
+
             if ( appendedSize > this.targetLogFileSize )
             {
                 // Make sure everything outstanding goes to the current log file
-                this.flush( lsn, null, 0, 0, true);
-                
+                this.flush( lsn, null, 0, 0, true );
+
                 currentLogFile = logManager.switchToNextLogFile( currentLogFile );
                 appendedSize = currentLogFile.getLength();
             }
-            
+
             if ( recordSize <= logBufferSize )
             {
                 ByteBuffer writeHead = logBuffer.writeHead;
-                
+
                 while ( !appendedRecord )
                 {
                     // First get the rewind count then the position to which the readhead advanced
                     int readHeadRewindCount = logBuffer.readHeadRewindCount.get();
                     int readHeadPosition = logBuffer.readHeadPosition;
-                    
+
                     if ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount ) ||
                         ( ( logBuffer.writeHeadRewindCount == readHeadRewindCount + 1 ) &&
-                            ( readHeadPosition < writeHead.position() ) ) )
+                        ( readHeadPosition < writeHead.position() ) ) )
                     {
                         if ( writeHead.remaining() >= recordSize )
                         {
@@ -155,14 +158,15 @@ class LogFlushManager
                             this.writeFooter( writeHead, 0 );
                             appendedRecord = true;
                         }
-                        else // ( writeHead.remaining() < recordSize )
+                        else
+                        // ( writeHead.remaining() < recordSize )
                         {
                             if ( writeHead.remaining() >= LogFileRecords.RECORD_HEADER_SIZE )
                             {
                                 // Write a skip record
                                 this.writeHeader( writeHead, -1, -1 );
                             }
-                            
+
                             // rewind buffer now
                             writeHead.rewind();
                             logBuffer.writeHeadRewindCount++;
@@ -170,10 +174,10 @@ class LogFlushManager
                     }
                     else
                     {
-                        assert( logBuffer.writeHeadRewindCount == ( readHeadRewindCount + 1 ) ) :
-                                "Unexpected sequence number for read/write heads:" + logBuffer.writeHeadRewindCount +
-                                " " + readHeadRewindCount;
-                        
+                        assert ( logBuffer.writeHeadRewindCount == ( readHeadRewindCount + 1 ) ) : "Unexpected sequence number for read/write heads:"
+                            + logBuffer.writeHeadRewindCount +
+                            " " + readHeadRewindCount;
+
                         if ( ( readHeadPosition - writeHead.position() ) > recordSize )
                         {
                             this.writeHeader( writeHead, length, lsn );
@@ -183,19 +187,17 @@ class LogFlushManager
                         }
                         else
                         {
-                            this.flush( lsn, null, 0, 0, true);
+                            this.flush( lsn, null, 0, 0, true );
                         }
                     }
                 }
-                
+
             }
             else
             {
                 this.flush( lsn, userBuffer, 0, length, true );
             }
-            
-            
-            
+
             userLogAnchor.resetLogAnchor( currentLogFile.logFileNumber(), appendedSize, lsn );
             this.appendedSize += recordSize;
         }
@@ -203,12 +205,13 @@ class LogFlushManager
         {
             appendLock.unlock();
         }
-        
+
         if ( sync )
             this.flush( lsn, null, 0, 0, false );
 
     }
-    
+
+
     /**
      * Flushes the changes in the log buffer upto the given point. The given point is determined as follows:
      * appendLock is held: flushLSN is the highest lsn generated by the logging system and no more appends can
@@ -236,28 +239,28 @@ class LogFlushManager
      * @throws IOException
      */
     private void flush( long flushLSN, byte[] userBuffer, int offset, int length,
-                        boolean appendLockHeld ) throws IOException
+        boolean appendLockHeld ) throws IOException
     {
         long uptoLSN = flushLSN;
-       
+
         if ( appendLockHeld == true )
         {
             uptoLSN--;
         }
-        
+
         flushLock.lock();
-        
+
         // Update max requested lsn if necessary
         if ( uptoLSN > flushStatus.uptoLSN )
         {
             flushStatus.uptoLSN = uptoLSN;
         }
-        
+
         /*
          * Check if we need to do flush and wait for ongoing flush if
          * necessary
          */
-        
+
         while ( true )
         {
             if ( ( flushStatus.flushedLSN >= uptoLSN ) && ( appendLockHeld == false ) )
@@ -265,20 +268,20 @@ class LogFlushManager
                 flushLock.unlock();
                 return;
             }
-            
+
             if ( flushStatus.flushInProgress == false )
             {
                 break;
             }
-            
+
             flushStatus.numWaiters++;
             flushCondition.awaitUninterruptibly();
             flushStatus.numWaiters--;
         }
-        
+
         // Mark flush in progress and do the flush
         flushStatus.flushInProgress = true;
-        
+
         // If not appendlock held, adjust uptoLSN with the max one requested by any thread
         if ( appendLockHeld == false )
         {
@@ -288,57 +291,58 @@ class LogFlushManager
         {
             uptoLSN = flushLSN;
         }
-        
+
         flushLock.unlock();
-        
+
         long flushedLSN = this.doFlush( uptoLSN, appendLockHeld );
-        
+
         // Now if there is a user buffer, flush from that
         if ( userBuffer != null )
         {
             ByteBuffer headerFooterHead = logBuffer.headerFooterHead;
-            
+
             headerFooterHead.rewind();
             this.writeHeader( headerFooterHead, length, flushLSN );
             currentLogFile.append( logBuffer.headerFooterBuffer, 0, LogFileRecords.RECORD_HEADER_MAGIC_NUMBER );
-            
+
             currentLogFile.append( userBuffer, offset, length );
-            
+
             headerFooterHead.rewind();
             this.writeFooter( headerFooterHead, 0 );
             currentLogFile.append( logBuffer.headerFooterBuffer, 0, LogFileRecords.RECORD_FOOTER_SIZE );
 
             flushedLSN = flushLSN;
         }
-        
+
         currentLogFile.sync();
-        
+
         flushLock.lock();
-        
+
         if ( flushedLSN != LogAnchor.UNKNOWN_LSN )
         {
             flushStatus.flushedLSN = flushedLSN;
-            
+
             if ( flushStatus.flushedLSN > flushStatus.uptoLSN )
             {
                 // This should only happen with append lock held
-                assert( appendLockHeld == true ) : "FlushedLSN went ahead of uptoLSN while appendlock is not held: " + flushStatus.flushedLSN + "  " + flushStatus.uptoLSN;
-                
+                assert ( appendLockHeld == true ) : "FlushedLSN went ahead of uptoLSN while appendlock is not held: "
+                    + flushStatus.flushedLSN + "  " + flushStatus.uptoLSN;
+
                 flushStatus.uptoLSN = flushStatus.flushedLSN;
             }
         }
-        
+
         flushStatus.flushInProgress = false;
-        
+
         if ( flushStatus.numWaiters != 0 )
         {
             flushCondition.signalAll();
         }
-        
+
         flushLock.unlock();
     }
-    
-    
+
+
     /**
      * Walks the log buffer and writes it to the underlying log file until the uptoLSN or current write head.
      *
@@ -347,20 +351,20 @@ class LogFlushManager
      * @return lsn upto which flush is done. UNKNOWN_LSN if no flushing is done.
      * @throws IOException
      */
-    private long doFlush( long uptoLSN, boolean appendLockHeld  ) throws IOException
+    private long doFlush( long uptoLSN, boolean appendLockHeld ) throws IOException
     {
         ByteBuffer readHead = logBuffer.readHead;
         ByteBuffer writeHead = logBuffer.writeHead;
         boolean done = false;
-        
+
         int magicNumber;
         int length;
         long lsn = LogAnchor.UNKNOWN_LSN;
-        
+
         while ( !done )
         {
             int totalLength = 0;
-            while( true )
+            while ( true )
             {
                 /*
                  * If append lock is held, we might hit write head. We can read
@@ -369,63 +373,62 @@ class LogFlushManager
                 if ( appendLockHeld )
                 {
                     if ( ( writeHead.position() == readHead.position() ) &&
-                            ( logBuffer.writeHeadRewindCount == logBuffer.readHeadRewindCount.get() ) )
+                        ( logBuffer.writeHeadRewindCount == logBuffer.readHeadRewindCount.get() ) )
                     {
                         done = true;
                         break;
                     }
                 }
-                
+
                 // If less than header length left to process, then break and flush whatever we got so far
                 if ( readHead.remaining() < LogFileRecords.RECORD_HEADER_SIZE )
                     break;
-                
+
                 magicNumber = readHead.getInt();
-                
-                assert( magicNumber == LogFileRecords.RECORD_HEADER_MAGIC_NUMBER ) : " Record header magic " +
-                        "number does not match " + magicNumber + " expected "+
-                        LogFileRecords.RECORD_HEADER_MAGIC_NUMBER;
-                
+
+                assert ( magicNumber == LogFileRecords.RECORD_HEADER_MAGIC_NUMBER ) : " Record header magic " +
+                    "number does not match " + magicNumber + " expected " +
+                    LogFileRecords.RECORD_HEADER_MAGIC_NUMBER;
+
                 length = readHead.getInt();
-                
+
                 // Did we hit a skip record at the end of the buffer?
                 if ( length == LogBuffer.SKIP_RECORD_LENGTH )
                     break;
-                
-                
+
                 // Sanitize length, it includes header and footer overhead
-                assert( length >  ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER) ) :
-                    "Record length doesnt make sense:" + length + " expected:" +
-                    ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER);
-                
+                assert ( length > ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER ) ) : "Record length doesnt make sense:"
+                    + length + " expected:" +
+                    ( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER + LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER );
+
                 // Add to the total length
                 totalLength += length;
-                
+
                 lsn = readHead.getLong();
-                
+
                 // Move to the next record, we processed 16 bytes already
                 readHead.position( readHead.position() + length - 16 );
-                
+
                 if ( lsn >= uptoLSN )
                 {
                     done = true;
                     break;
                 }
-                    
+
             }
-            
+
             // If there is something to flush, then do it now
             if ( totalLength > 0 )
             {
                 int offset;
                 offset = logBuffer.readHeadPosition;
-                
+
                 currentLogFile.append( logBuffer.buffer, offset, totalLength );
-                       
+
                 //move the position to the next record
                 logBuffer.readHeadPosition = readHead.position();
             }
-            
+
             if ( !done )
             {
                 // this means we need to rewind and keep flushing
@@ -434,26 +437,27 @@ class LogFlushManager
                 logBuffer.readHeadRewindCount.incrementAndGet();
             }
         }
-        
+
         return lsn;
 
     }
-    
-    private void writeHeader ( ByteBuffer buffer, int length, long lsn )
+
+
+    private void writeHeader( ByteBuffer buffer, int length, long lsn )
     {
         buffer.putInt( LogFileRecords.RECORD_HEADER_MAGIC_NUMBER );
         buffer.putInt( length );
         buffer.putLong( lsn );
         buffer.putLong( length ^ lsn );
     }
-    
-    private void writeFooter ( ByteBuffer buffer, int checksum )
+
+
+    private void writeFooter( ByteBuffer buffer, int checksum )
     {
         buffer.putInt( checksum );
         buffer.putInt( LogFileRecords.RECORD_FOOTER_MAGIC_NUMBER );
     }
-    
-    
+
     /**
      * Used to group the memory buffer data together
      */
@@ -461,45 +465,46 @@ class LogFlushManager
     {
         /** In memory buffer */
         byte buffer[];
-                
+
         /** Used to scan the buffer while reading it to flush */
         ByteBuffer readHead;
-        
+
         /** Advanced as readHead flushes data */
         int readHeadPosition;
-        
+
         /** Rewind count of readHead..used to avoid overwriting nonflushed data */
         AtomicInteger readHeadRewindCount;
-        
+
         /** Used to scan the buffer while appending records into it */
         ByteBuffer writeHead;
-        
+
         /** Rewind count of writeHead..used to avoid overwriting nonflushed data */
         int writeHeadRewindCount;
-        
+
         /** Used to mark records that should be skipped at the end of the log buffer */
         final static int SKIP_RECORD_LENGTH = -1;
-        
+
         /** Header footer buffer used when writing user buffers directly */
         byte headerFooterBuffer[];
-        
+
         /** Used to format header footer buffer */
         ByteBuffer headerFooterHead;
-        
+
+
         public LogBuffer( int bufferSize, LogFileManager.LogFileWriter currentLogFile )
         {
             buffer = new byte[bufferSize];
             readHead = ByteBuffer.wrap( buffer );
-            
+
             readHeadRewindCount = new AtomicInteger( 0 );
-            
+
             writeHead = ByteBuffer.wrap( buffer );
-            
+
             headerFooterBuffer = new byte[LogFileRecords.MAX_MARKER_SIZE];
             headerFooterHead = ByteBuffer.wrap( headerFooterBuffer );
         }
     }
-    
+
     /**
      * Used to group the flush related data together
      */
@@ -507,15 +512,13 @@ class LogFlushManager
     {
         /** whether flush is going on */
         boolean flushInProgress;
-        
+
         /** Current flush request */
         long uptoLSN;
-        
-        
+
         /** Current flushed lsn */
         long flushedLSN;
-        
-        
+
         /** Keeps track of the number of waiters */
         int numWaiters;
     }

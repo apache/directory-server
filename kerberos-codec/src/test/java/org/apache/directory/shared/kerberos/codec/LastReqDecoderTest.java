@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.kerberos.components.LastReqEntry;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for LastReq decoder.
  *
@@ -50,27 +52,67 @@ public class LastReqDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x36 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x34,
-                0x30, 0x18,
-                  (byte)0xA0, 0x03,                 // lr-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x11,                 // lr-value
-                    0x18, 0x0F, '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-                0x30, 0x18,
-                  (byte)0xA0, 0x03,                 // lr-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x11,                 // lr-value
-                    0x18, 0x0F, '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '6', 'Z'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x34,
+                0x30, 0x18,
+                ( byte ) 0xA0, 0x03, // lr-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x11, // lr-value
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '1',
+                '1',
+                '0',
+                '1',
+                '5',
+                '4',
+                '5',
+                '2',
+                '5',
+                'Z',
+                0x30,
+                0x18,
+                ( byte ) 0xA0,
+                0x03, // lr-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x11, // lr-value
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '1',
+                '1',
+                '0',
+                '1',
+                '5',
+                '4',
+                '5',
+                '2',
+                '6',
+                'Z'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         // Decode the LastReq PDU
         try
         {
@@ -82,32 +124,33 @@ public class LastReqDecoderTest
         }
 
         LastReq lastReq = lastReqContainer.getLastReq();
-        
+
         assertNotNull( lastReq.getLastReqs().size() );
         assertEquals( 2, lastReq.getLastReqs().size() );
-        
-        String[] expected = new String[]{ "20101110154525Z", "20101110154526Z" };
+
+        String[] expected = new String[]
+            { "20101110154525Z", "20101110154526Z" };
         int i = 0;
-        
+
         for ( LastReqEntry lre : lastReq.getLastReqs() )
         {
             assertEquals( LastReqType.TIME_OF_INITIAL_REQ, lre.getLrType() );
             assertEquals( expected[i++], lre.getLrValue().toString() );
-            
+
         }
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( lastReq.computeLength() );
-        
+
         try
         {
             bb = lastReq.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x36, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -115,117 +158,157 @@ public class LastReqDecoderTest
             fail();
         }
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testLastReqWithoutType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x15 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x13,
-                (byte)0xA1, 0x11,                 // lr-value
-                  0x18, 0x0F, '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '6', 'Z'
-            } );
+            {
+                0x30, 0x13,
+                ( byte ) 0xA1, 0x11, // lr-value
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '1',
+                '1',
+                '0',
+                '1',
+                '5',
+                '4',
+                '5',
+                '2',
+                '6',
+                'Z'
+        } );
 
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         kerberosDecoder.decode( stream, lastReqContainer );
         fail();
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testLastReqWithoutValue() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x05,
-                (byte)0xA0, 0x03,                 // lr-type
-                  0x02, 0x01, 0x02
-            } );
+                ( byte ) 0xA0, 0x03, // lr-type
+                0x02,
+                0x01,
+                0x02
+        } );
 
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         kerberosDecoder.decode( stream, lastReqContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testLastReqWithIncorrectPdu() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         kerberosDecoder.decode( stream, lastReqContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testLastReqWithEmptyValue() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xB );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x09,
-                  (byte)0xA0, 0x03,                 // lr-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x02,                 // lr-value
-                    0x18, 0x00
-            } );
+                ( byte ) 0xA0, 0x03, // lr-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x02, // lr-value
+                0x18,
+                0x00
+        } );
 
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         kerberosDecoder.decode( stream, lastReqContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testLastReqWithEmptyType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x19 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x17,
-                  (byte)0xA0, 0x02,                 // lr-type
-                    0x02, 0x00,
-                  (byte)0xA1, 0x11,                 // lr-value
-                    0x18, 0x0F, '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '6', 'Z'
-            } );
+                ( byte ) 0xA0, 0x02, // lr-type
+                0x02,
+                0x00,
+                ( byte ) 0xA1,
+                0x11, // lr-value
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '1',
+                '1',
+                '0',
+                '1',
+                '5',
+                '4',
+                '5',
+                '2',
+                '6',
+                'Z'
+        } );
 
         stream.flip();
 
         LastReqContainer lastReqContainer = new LastReqContainer();
-        
+
         kerberosDecoder.decode( stream, lastReqContainer );
         fail();
     }

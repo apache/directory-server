@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
@@ -61,10 +61,9 @@ public class LastReq extends AbstractAsn1Object
 
     /** The list of LastReq elements */
     private List<LastReqEntry> lastReqs = new ArrayList<LastReqEntry>();
-    
+
     /** The current LastReqEntry being processed */
     private LastReqEntry currentLR;
-
 
     // Storage for computed lengths
     private int lrTypeTagLen[];
@@ -140,7 +139,7 @@ public class LastReq extends AbstractAsn1Object
      * Add a new LastReqEntry
      * @param lastReqEntry The enry to add
      */
-    public void addEntry( LastReqEntry lastReqEntry)
+    public void addEntry( LastReqEntry lastReqEntry )
     {
         lastReqs.add( lastReqEntry );
     }
@@ -153,8 +152,8 @@ public class LastReq extends AbstractAsn1Object
     {
         return lastReqs;
     }
-    
-    
+
+
     /**
      * Compute the LastReq length
      * 
@@ -181,17 +180,17 @@ public class LastReq extends AbstractAsn1Object
         lrTypeTagLen = new int[lastReqs.size()];
         lrValueTagLen = new int[lastReqs.size()];
         lastReqSeqSeqLen = 0;
-        
+
         for ( LastReqEntry lre : lastReqs )
         {
-            int lrTypeLen = Value.getNbBytes( lre.getLrType().getValue() );
+            int lrTypeLen = BerValue.getNbBytes( lre.getLrType().getValue() );
             lrTypeTagLen[i] = 1 + TLV.getNbBytes( lrTypeLen ) + lrTypeLen;
             byte[] lrValyeBytes = lre.getLrValue().getBytes();
             lrValueTagLen[i] = 1 + TLV.getNbBytes( lrValyeBytes.length ) + lrValyeBytes.length;
-            
-            lastReqSeqLen[i] = 1 + TLV.getNbBytes( lrTypeTagLen[i] ) + lrTypeTagLen[i] + 
-                                         1 + TLV.getNbBytes( lrValueTagLen[i] ) + lrValueTagLen[i];
-            
+
+            lastReqSeqLen[i] = 1 + TLV.getNbBytes( lrTypeTagLen[i] ) + lrTypeTagLen[i] +
+                1 + TLV.getNbBytes( lrValueTagLen[i] ) + lrValueTagLen[i];
+
             lastReqSeqSeqLen += 1 + TLV.getNbBytes( lastReqSeqLen[i] ) + lastReqSeqLen[i];
             i++;
         }
@@ -230,19 +229,19 @@ public class LastReq extends AbstractAsn1Object
             // The lastRequest SEQ OF Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( lastReqSeqSeqLen ) );
-            
+
             int i = 0;
-            
+
             for ( LastReqEntry lre : lastReqs )
             {
                 buffer.put( UniversalTag.SEQUENCE.getValue() );
                 buffer.put( TLV.getBytes( lastReqSeqLen[i] ) );
-                
+
                 // the lrType
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_TYPE_TAG );
                 buffer.put( TLV.getBytes( lrTypeTagLen[i] ) );
-                Value.encode( buffer, lre.getLrType().getValue() );
-    
+                BerValue.encode( buffer, lre.getLrType().getValue() );
+
                 // the lrValue tag
                 buffer.put( ( byte ) KerberosConstants.LAST_REQ_LR_VALUE_TAG );
                 buffer.put( TLV.getBytes( lrValueTagLen[i] ) );
@@ -262,7 +261,7 @@ public class LastReq extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "LastReq encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "LastReq encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "LastReq initial value : {}", toString() );
         }
 
@@ -278,7 +277,7 @@ public class LastReq extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
 
         sb.append( tabs ).append( "LastReq : \n" );
-        
+
         for ( LastReqEntry lre : lastReqs )
         {
             sb.append( lre.toString( tabs + "    " ) );
@@ -286,8 +285,8 @@ public class LastReq extends AbstractAsn1Object
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

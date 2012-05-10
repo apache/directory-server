@@ -403,7 +403,7 @@ public class ConfigWriter
                                     // Adding the field value to the parent entry
                                     addAttributeTypeValues( attributeTypeForParentEntry, fieldValue, parentEntry );
                                 }
-                                
+
                                 // Checking if the field is optional and if the default value matches
                                 if ( configurationElement.isOptional() )
                                 {
@@ -578,7 +578,7 @@ public class ConfigWriter
             else
             {
                 // Adding the single value
-                addAttributeTypeValue( attributeType, o, entry);
+                addAttributeTypeValue( attributeType, o, entry );
             }
         }
     }
@@ -609,7 +609,7 @@ public class ConfigWriter
                 attribute = new DefaultAttribute( attributeType );
                 entry.addAttribute( attribute );
             }
-            
+
             // Storing the value to the attribute
             if ( value instanceof byte[] )
             {

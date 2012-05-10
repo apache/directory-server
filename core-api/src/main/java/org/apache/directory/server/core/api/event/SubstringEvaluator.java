@@ -59,17 +59,16 @@ public class SubstringEvaluator implements Evaluator
     public boolean evaluate( ExprNode node, Dn dn, Entry entry ) throws LdapException
     {
         Pattern regex = null;
-        SubstringNode snode = (SubstringNode)node;
+        SubstringNode snode = ( SubstringNode ) node;
         AttributeType attributeType = snode.getAttributeType();
         MatchingRule matchingRule = attributeType.getSubstring();
-        
+
         if ( matchingRule == null )
         {
             matchingRule = attributeType.getEquality();
         }
-        
+
         Normalizer normalizer = matchingRule.getNormalizer();
-        
 
         // get the attribute
         Attribute attr = entry.get( snode.getAttribute() );
@@ -99,7 +98,7 @@ public class SubstringEvaluator implements Evaluator
          * substring matching rule.
          */
 
-        for ( Value<?> value: attr )
+        for ( Value<?> value : attr )
         {
             String normValue = normalizer.normalize( value.getString() );
 

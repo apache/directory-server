@@ -6,18 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.ldapsdk;
+
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getNsdkWiredConnection;
@@ -29,6 +30,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -45,11 +47,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
-/** 
- * A test taken from DIRSERVER-630: If one tries to add an attribute to an 
- * entry, and does not provide a value, it is assumed that the server does 
- * not modify the entry. We have a situation here using Sun ONE Directory 
- * SDK for Java, where adding a description attribute without value to a 
+/**
+ * A test taken from DIRSERVER-630: If one tries to add an attribute to an
+ * entry, and does not provide a value, it is assumed that the server does
+ * not modify the entry. We have a situation here using Sun ONE Directory
+ * SDK for Java, where adding a description attribute without value to a
  * person entry like this,
  * <code>
  * dn: cn=Kate Bush,dc=example,dc=com
@@ -57,11 +59,11 @@ import org.junit.runner.RunWith;
  * objectclass: top
  * sn: Bush
  * cn: Kate Bush
- * </code> 
- * does not fail (modify call does not result in an exception). Instead, a 
- * description attribute is created within the entry. At least the new 
- * attribute is readable with Netscape SDK (it is not visible to most UIs, 
- * because it is invalid ...). 
+ * </code>
+ * does not fail (modify call does not result in an exception). Instead, a
+ * description attribute is created within the entry. At least the new
+ * attribute is readable with Netscape SDK (it is not visible to most UIs,
+ * because it is invalid ...).
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -71,10 +73,15 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
-    // Entry # 1
-        "dn: cn=Kate Bush,ou=system", "objectClass: person", "objectClass: top", "cn: Kate Bush", "sn: Bush" })
+        // Entry # 1
+        "dn: cn=Kate Bush,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Kate Bush",
+        "sn: Bush" })
 public class IllegalModificationIT extends AbstractLdapTestUnit
 {
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String DN = "cn=Kate Bush,ou=system";
 
 

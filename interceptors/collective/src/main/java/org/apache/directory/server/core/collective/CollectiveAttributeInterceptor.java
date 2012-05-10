@@ -71,6 +71,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
+
     /**
      * Creates a new instance of a CollectiveAttributeInterceptor.
      */
@@ -79,7 +80,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         super( InterceptorEnum.COLLECTIVE_ATTRIBUTE_INTERCEPTOR );
     }
 
-    
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -87,7 +87,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            String[] retAttrs = operation.getSearchControls().getReturningAttributes();
+            String[] retAttrs = operation.getReturningAttributesString();
             addCollectiveAttributes( operation, entry, retAttrs );
 
             return true;
@@ -209,7 +209,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             }
 
             LOG.info( "A CollectiveAttribute subentry *should* have at least one collectiveAttribute" );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
+                I18n.err( I18n.ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
         }
 
         if ( containsAnyCollectiveAttributes( entry ) )
@@ -217,9 +218,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            LOG.info( "Cannot add the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
+            LOG.info(
+                "Cannot add the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 entry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
+                I18n.err( I18n.ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
         }
     }
 
@@ -246,7 +249,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             /*
              * TODO: Replace the Exception and the ResultCodeEnum with the correct ones.
              */
-            LOG.info( "Cannot modify the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
+            LOG.info(
+                "Cannot modify the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 targetEntry );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_242 ) );
         }
@@ -323,7 +327,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws LdapException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs ) throws LdapException
+    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs )
+        throws LdapException
     {
         Attribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -414,7 +419,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
              */
 
             CoreSession session = opContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn,
+                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry subentry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             for ( Attribute attribute : subentry.getAttributes() )

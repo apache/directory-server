@@ -6,25 +6,22 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.schema;
 
 
 import java.text.ParseException;
-import java.util.List;
-
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -33,8 +30,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValu
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DITContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.DitContentRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -42,8 +39,8 @@ import org.apache.directory.shared.ldap.model.schema.NameForm;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DITContentRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DITStructureRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.DitContentRuleDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.model.schema.parsers.DitStructureRuleDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
@@ -69,33 +66,34 @@ import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescri
 public class DescriptionParsers
 {
     /** Empty arrays of SchemaObjects */
-    private static final LdapComparatorDescription[] EMPTY_COMPARATORS         = new LdapComparatorDescription[0];
-    private static final NormalizerDescription[]     EMPTY_NORMALIZERS         = new NormalizerDescription[0];
-    private static final SyntaxCheckerDescription[]  EMPTY_SYNTAX_CHECKERS     = new SyntaxCheckerDescription[0];
-    private static final LdapSyntax[]                EMPTY_SYNTAXES            = new LdapSyntax[0];
-    private static final MatchingRule[]              EMPTY_MATCHING_RULES      = new MatchingRule[0];
-    private static final AttributeType[]             EMPTY_ATTRIBUTE_TYPES     = new AttributeType[0];
-    private static final ObjectClass[]               EMPTY_OBJECT_CLASSES      = new ObjectClass[0];
-    private static final MatchingRuleUse[]           EMPTY_MATCHING_RULE_USES  = new MatchingRuleUse[0];
-    private static final DITStructureRule[]          EMPTY_DIT_STRUCTURE_RULES = new DITStructureRule[0];
-    private static final DITContentRule[]            EMPTY_DIT_CONTENT_RULES   = new DITContentRule[0];
-    private static final NameForm[]                  EMPTY_NAME_FORMS          = new NameForm[0];
+    private static final LdapComparatorDescription[] EMPTY_COMPARATORS = new LdapComparatorDescription[0];
+    private static final NormalizerDescription[] EMPTY_NORMALIZERS = new NormalizerDescription[0];
+    private static final SyntaxCheckerDescription[] EMPTY_SYNTAX_CHECKERS = new SyntaxCheckerDescription[0];
+    private static final LdapSyntax[] EMPTY_SYNTAXES = new LdapSyntax[0];
+    private static final MatchingRule[] EMPTY_MATCHING_RULES = new MatchingRule[0];
+    private static final AttributeType[] EMPTY_ATTRIBUTE_TYPES = new AttributeType[0];
+    private static final ObjectClass[] EMPTY_OBJECT_CLASSES = new ObjectClass[0];
+    private static final MatchingRuleUse[] EMPTY_MATCHING_RULE_USES = new MatchingRuleUse[0];
+    private static final DitStructureRule[] EMPTY_DIT_STRUCTURE_RULES = new DitStructureRule[0];
+    private static final DitContentRule[] EMPTY_DIT_CONTENT_RULES = new DitContentRule[0];
+    private static final NameForm[] EMPTY_NAME_FORMS = new NameForm[0];
 
     /** The SchemaObject description's parsers */
-    private final LdapComparatorDescriptionSchemaParser   comparatorParser      = new LdapComparatorDescriptionSchemaParser();
-    private final NormalizerDescriptionSchemaParser       normalizerParser       = new NormalizerDescriptionSchemaParser();
-    private final SyntaxCheckerDescriptionSchemaParser    syntaxCheckerParser    = new SyntaxCheckerDescriptionSchemaParser();
-    private final LdapSyntaxDescriptionSchemaParser       syntaxParser           = new LdapSyntaxDescriptionSchemaParser();
-    private final MatchingRuleDescriptionSchemaParser     matchingRuleParser     = new MatchingRuleDescriptionSchemaParser();
-    private final AttributeTypeDescriptionSchemaParser    attributeTypeParser    = new AttributeTypeDescriptionSchemaParser();
-    private final ObjectClassDescriptionSchemaParser      objectClassParser      = new ObjectClassDescriptionSchemaParser();
-    private final MatchingRuleUseDescriptionSchemaParser  matchingRuleUseParser  = new MatchingRuleUseDescriptionSchemaParser();
-    private final DITStructureRuleDescriptionSchemaParser ditStructureRuleParser = new DITStructureRuleDescriptionSchemaParser();
-    private final DITContentRuleDescriptionSchemaParser   ditContentRuleParser   = new DITContentRuleDescriptionSchemaParser();
-    private final NameFormDescriptionSchemaParser         nameFormParser         = new NameFormDescriptionSchemaParser();
+    private final LdapComparatorDescriptionSchemaParser comparatorParser = new LdapComparatorDescriptionSchemaParser();
+    private final NormalizerDescriptionSchemaParser normalizerParser = new NormalizerDescriptionSchemaParser();
+    private final SyntaxCheckerDescriptionSchemaParser syntaxCheckerParser = new SyntaxCheckerDescriptionSchemaParser();
+    private final LdapSyntaxDescriptionSchemaParser syntaxParser = new LdapSyntaxDescriptionSchemaParser();
+    private final MatchingRuleDescriptionSchemaParser matchingRuleParser = new MatchingRuleDescriptionSchemaParser();
+    private final AttributeTypeDescriptionSchemaParser attributeTypeParser = new AttributeTypeDescriptionSchemaParser();
+    private final ObjectClassDescriptionSchemaParser objectClassParser = new ObjectClassDescriptionSchemaParser();
+    private final MatchingRuleUseDescriptionSchemaParser matchingRuleUseParser = new MatchingRuleUseDescriptionSchemaParser();
+    private final DitStructureRuleDescriptionSchemaParser ditStructureRuleParser = new DitStructureRuleDescriptionSchemaParser();
+    private final DitContentRuleDescriptionSchemaParser ditContentRuleParser = new DitContentRuleDescriptionSchemaParser();
+    private final NameFormDescriptionSchemaParser nameFormParser = new NameFormDescriptionSchemaParser();
 
     /** The SchemaManager instance */
     private final SchemaManager schemaManager;
+
 
     /**
      * Creates a description parser.
@@ -135,7 +133,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_405, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_405,
                         value ) );
                 iave.initCause( e );
                 throw iave;
@@ -165,7 +164,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_406, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_406,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -195,7 +195,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_407,
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_407,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -207,11 +208,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of attributeTypeDescriptions held within an attribute into 
+     * Parses a set of attributeTypeDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing attributeTypeDescriptions
-     * @return the set of attributeType objects for the descriptions 
+     * @return the set of attributeType objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
     public AttributeType[] parseAttributeTypes( Attribute attr ) throws LdapException
@@ -235,48 +236,53 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_408,
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_408,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
             }
 
             // if the supertype is provided make sure it exists in some schema
-            if ( ( attributeType.getSuperiorOid() != null ) && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
+            if ( ( attributeType.getSuperiorOid() != null )
+                && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_409, attributeType.getSuperiorOid() ) );
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
-            if ( ( attributeType.getSyntaxOid() != null ) && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
+            if ( ( attributeType.getSyntaxOid() != null )
+                && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( ( attributeType.getEqualityOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
+            if ( ( attributeType.getEqualityOid() != null )
+                && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( ( attributeType.getOrderingOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
+            if ( ( attributeType.getOrderingOid() != null )
+                && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
-            if ( ( attributeType.getSubstringOid() != null ) && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
+            if ( ( attributeType.getSubstringOid() != null )
+                && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                     I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ) );
             }
 
-            attributeType.setRegistries( schemaManager.getRegistries() );
             attributeTypes[pos++] = attributeType;
         }
 
@@ -285,11 +291,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of objectClassDescriptions held within an attribute into 
+     * Parses a set of objectClassDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing objectClassDescriptions
-     * @return the set of objectClass objects for the descriptions 
+     * @return the set of objectClass objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
     public ObjectClass[] parseObjectClasses( Attribute attr ) throws LdapException
@@ -313,7 +319,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_417, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_417,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -364,8 +371,6 @@ public class DescriptionParsers
                 }
             }
 
-            objectClass.setRegistries( schemaManager.getRegistries() );
-
             objectClasses[pos++] = objectClass;
         }
 
@@ -374,11 +379,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of matchingRuleUseDescriptions held within an attribute into 
+     * Parses a set of matchingRuleUseDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing matchingRuleUseDescriptions
-     * @return the set of matchingRuleUse objects for the descriptions 
+     * @return the set of matchingRuleUse objects for the descriptions
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws LdapException
@@ -403,7 +408,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_421, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_421,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -417,11 +423,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of ldapSyntaxes held within an attribute into 
+     * Parses a set of ldapSyntaxes held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing ldapSyntaxes
-     * @return the set of Syntax objects for the descriptions 
+     * @return the set of Syntax objects for the descriptions
      * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public LdapSyntax[] parseLdapSyntaxes( Attribute attr ) throws LdapException
@@ -446,7 +452,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_422, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_422,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -457,7 +464,9 @@ public class DescriptionParsers
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_423 ) );
             }
 
-            ldapSyntax.setHumanReadable( isHumanReadable( ldapSyntax ) );
+            // Call this method once to initialize the flags
+            ldapSyntax.isHumanReadable();
+            
             syntaxes[pos++] = ldapSyntax;
         }
 
@@ -466,11 +475,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of matchingRuleDescriptions held within an attribute into 
+     * Parses a set of matchingRuleDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing matchingRuleDescriptions
-     * @return the set of matchingRule objects for the descriptions 
+     * @return the set of matchingRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
     public MatchingRule[] parseMatchingRules( Attribute attr ) throws LdapException
@@ -495,7 +504,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_424, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_424,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -515,27 +525,27 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of dITStructureRuleDescriptions held within an attribute into 
+     * Parses a set of dITStructureRuleDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing dITStructureRuleDescriptions
-     * @return the set of DITStructureRule objects for the descriptions 
+     * @return the set of DitStructureRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITStructureRule[] parseDitStructureRules( Attribute attr ) throws LdapException
+    public DitStructureRule[] parseDitStructureRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_DIT_STRUCTURE_RULES;
         }
 
-        DITStructureRule[] ditStructureRules = new DITStructureRule[attr.size()];
+        DitStructureRule[] ditStructureRules = new DitStructureRule[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            DITStructureRule ditStructureRule = null;
+            DitStructureRule ditStructureRule = null;
 
             try
             {
@@ -544,7 +554,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_426, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_426,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -558,27 +569,27 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of dITContentRuleDescriptions held within an attribute into 
+     * Parses a set of dITContentRuleDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing dITContentRuleDescriptions
-     * @return the set of DITContentRule objects for the descriptions 
+     * @return the set of DitContentRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
-    public DITContentRule[] parseDitContentRules( Attribute attr ) throws LdapException
+    public DitContentRule[] parseDitContentRules( Attribute attr ) throws LdapException
     {
         if ( attr == null || attr.size() == 0 )
         {
             return EMPTY_DIT_CONTENT_RULES;
         }
 
-        DITContentRule[] ditContentRules = new DITContentRule[attr.size()];
+        DitContentRule[] ditContentRules = new DitContentRule[attr.size()];
 
         int pos = 0;
 
         for ( Value<?> value : attr )
         {
-            DITContentRule ditContentRule = null;
+            DitContentRule ditContentRule = null;
 
             try
             {
@@ -587,7 +598,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_427,
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_427,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -601,11 +613,11 @@ public class DescriptionParsers
 
 
     /**
-     * Parses a set of nameFormDescriptions held within an attribute into 
+     * Parses a set of nameFormDescriptions held within an attribute into
      * schema entities.
      * 
      * @param attr the attribute containing nameFormDescriptions
-     * @return the set of NameFormRule objects for the descriptions 
+     * @return the set of NameFormRule objects for the descriptions
      * @throws LdapException if there are problems parsing the descriptions
      */
     public NameForm[] parseNameForms( Attribute attr ) throws LdapException
@@ -630,7 +642,8 @@ public class DescriptionParsers
             }
             catch ( ParseException e )
             {
-                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_428, 
+                LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_428,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -640,35 +653,5 @@ public class DescriptionParsers
         }
 
         return nameForms;
-    }
-
-
-    /**
-     * Checks to see if the syntax description is human readable by checking 
-     * for the presence of the X-IS-HUMAN_READABLE schema extension.
-     * 
-     * @param desc the ldapSyntax 
-     * @return true if the syntax is human readable, false otherwise
-     */
-    private boolean isHumanReadable( LdapSyntax ldapSyntax )
-    {
-        List<String> values = ldapSyntax.getExtensions().get( MetaSchemaConstants.X_IS_HUMAN_READABLE );
-
-        if ( values == null || values.size() == 0 )
-        {
-            return false;
-        }
-        else
-        {
-            String value = values.get( 0 );
-            if ( value.equals( "TRUE" ) )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
     }
 }

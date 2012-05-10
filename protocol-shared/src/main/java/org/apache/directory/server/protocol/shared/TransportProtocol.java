@@ -26,8 +26,7 @@ package org.apache.directory.server.protocol.shared;
  */
 public enum TransportProtocol
 {
-    TCP( 0, "TCP" ), UDP( 1, "UDP" );
-
+    TCP(0, "TCP"), UDP(1, "UDP");
 
     private final int intValue;
     private final String stringValue;

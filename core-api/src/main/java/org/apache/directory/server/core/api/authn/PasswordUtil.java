@@ -124,10 +124,10 @@ public class PasswordUtil
      */
     public static byte[] createStoragePassword( String credentials, LdapSecurityConstants algorithm )
     {
-        return createStoragePassword( Strings.getBytesUtf8(credentials), algorithm );
+        return createStoragePassword( Strings.getBytesUtf8( credentials ), algorithm );
     }
-    
-    
+
+
     /**
      * create a hashed password in a format that can be stored in the server.
      * If the specified algorithm requires a salt then a random salt of 8 byte size is used
@@ -139,8 +139,8 @@ public class PasswordUtil
     public static byte[] createStoragePassword( byte[] credentials, LdapSecurityConstants algorithm )
     {
         byte[] salt;
-        
-        switch( algorithm )
+
+        switch ( algorithm )
         {
             case HASH_METHOD_SSHA:
             case HASH_METHOD_SSHA256:
@@ -150,21 +150,21 @@ public class PasswordUtil
                 salt = new byte[8]; // we use 8 byte salt always except for "crypt" which needs 2 byte salt
                 new SecureRandom().nextBytes( salt );
                 break;
-                
+
             case HASH_METHOD_CRYPT:
                 salt = new byte[2];
                 SecureRandom sr = new SecureRandom();
                 int i1 = sr.nextInt( 64 );
                 int i2 = sr.nextInt( 64 );
-                
+
                 salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
                 salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
                 break;
-                
+
             default:
                 salt = null;
         }
-        
+
         byte[] hashedPassword = encryptPassword( credentials, algorithm, salt );
         StringBuffer sb = new StringBuffer();
 
@@ -174,8 +174,8 @@ public class PasswordUtil
 
             if ( algorithm == LdapSecurityConstants.HASH_METHOD_CRYPT )
             {
-                sb.append( Strings.utf8ToString(salt) );
-                sb.append( Strings.utf8ToString(hashedPassword) );
+                sb.append( Strings.utf8ToString( salt ) );
+                sb.append( Strings.utf8ToString( hashedPassword ) );
             }
             else if ( salt != null )
             {
@@ -185,17 +185,17 @@ public class PasswordUtil
             }
             else
             {
-                sb.append( String.valueOf( Base64.encode(hashedPassword) ) );
+                sb.append( String.valueOf( Base64.encode( hashedPassword ) ) );
             }
         }
         else
         {
-            sb.append( Strings.utf8ToString(hashedPassword) );
+            sb.append( Strings.utf8ToString( hashedPassword ) );
         }
-        
-        return Strings.getBytesUtf8(sb.toString());
+
+        return Strings.getBytesUtf8( sb.toString() );
     }
-    
+
 
     /**
      * 
@@ -242,22 +242,23 @@ public class PasswordUtil
     public static boolean compareCredentials( byte[] receivedCredentials, byte[] storedCredentials )
     {
         LdapSecurityConstants algorithm = findAlgorithm( storedCredentials );
-        
+
         if ( algorithm != null )
         {
             EncryptionMethod encryptionMethod = new EncryptionMethod( algorithm, null );
-            
+
             // Let's get the encrypted part of the stored password
             // We should just keep the password, excluding the algorithm
             // and the salt, if any.
             // But we should also get the algorithm and salt to
             // be able to encrypt the submitted user password in the next step
             byte[] encryptedStored = PasswordUtil.splitCredentials( storedCredentials, encryptionMethod );
-            
+
             // Reuse the saltedPassword informations to construct the encrypted
             // password given by the user.
-            byte[] userPassword = PasswordUtil.encryptPassword( receivedCredentials, encryptionMethod.getAlgorithm(), encryptionMethod.getSalt() );
-            
+            byte[] userPassword = PasswordUtil.encryptPassword( receivedCredentials, encryptionMethod.getAlgorithm(),
+                encryptionMethod.getSalt() );
+
             // Now, compare the two passwords.
             return Arrays.equals( userPassword, encryptedStored );
         }
@@ -266,7 +267,7 @@ public class PasswordUtil
             return Arrays.equals( storedCredentials, receivedCredentials );
         }
     }
-    
+
 
     /**
      * encrypts the given credentials based on the algorithm name and optional salt
@@ -301,11 +302,11 @@ public class PasswordUtil
                 return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
 
             case HASH_METHOD_CRYPT:
-                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString(credentials), Strings
-                    .utf8ToString(salt) );
+                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString( credentials ), Strings
+                    .utf8ToString( salt ) );
                 String crypted = saltWithCrypted.substring( 2 );
 
-                return Strings.getBytesUtf8(crypted);
+                return Strings.getBytesUtf8( crypted );
 
             default:
                 return credentials;
@@ -364,7 +365,7 @@ public class PasswordUtil
         int algoLength = encryptionMethod.getAlgorithm().getName().length() + 2;
 
         int hashLen = 0;
-        
+
         switch ( encryptionMethod.getAlgorithm() )
         {
             case HASH_METHOD_MD5:
@@ -408,28 +409,28 @@ public class PasswordUtil
 
             case HASH_METHOD_SSHA:
                 hashLen = SHA1_LENGTH;
-            
+
             case HASH_METHOD_SHA256:
             case HASH_METHOD_SSHA256:
                 if ( hashLen == 0 )
                 {
                     hashLen = SHA256_LENGTH;
                 }
-            
+
             case HASH_METHOD_SHA384:
             case HASH_METHOD_SSHA384:
                 if ( hashLen == 0 )
                 {
                     hashLen = SHA384_LENGTH;
                 }
-                
+
             case HASH_METHOD_SHA512:
             case HASH_METHOD_SSHA512:
                 if ( hashLen == 0 )
                 {
                     hashLen = SHA512_LENGTH;
                 }
-                
+
                 try
                 {
                     // The password is associated with a salt. Decompose it

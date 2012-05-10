@@ -37,7 +37,6 @@ import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +55,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
     public JdbmRdnIndex()
     {
+        super();
         initialized = false;
     }
 
@@ -70,27 +70,24 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
-        //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
 
-        keyCache = new SynchronizedLRUMap( cacheSize );
         this.attributeType = attributeType;
 
         if ( attributeId == null )
         {
             setAttributeId( attributeType.getName() );
         }
-        
+
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            
+
             e.printStackTrace();
             throw e;
         }
-        
+
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-        
+
         //System.out.println( "IDX Created index " + path );
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
@@ -109,10 +106,11 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
         // finally write a text file in the format <OID>-<attribute-name>.txt
         FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
+        
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
-        
+
         initialized = true;
     }
 
@@ -123,7 +121,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
-     * @throws NamingException 
+     * @throws NamingException
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {
@@ -163,6 +161,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
     public void drop( ParentIdAndRdn<Long> rdn, Long id ) throws Exception
     {
         long val = forward.get( rdn );
+        
         if ( val == id )
         {
             forward.remove( rdn );

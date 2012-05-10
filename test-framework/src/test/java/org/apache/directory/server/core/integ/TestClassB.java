@@ -27,26 +27,26 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
+
+@RunWith(FrameworkRunner.class)
 @ApplyLdifs(
     {
-        "dn: cn=testClassB,ou=system", 
-        "objectClass: person", 
-        "cn: testClassB", 
+        "dn: cn=testClassB,ou=system",
+        "objectClass: person",
+        "cn: testClassB",
         "sn: sn_testClassB"
     })
 public class TestClassB extends AbstractLdapTestUnit
 {
-
     @Test
-    @CreateDS( name="testDS" )
+    @CreateDS(name = "testDS")
     public void testWithFactoryAnnotation() throws Exception
     {
         if ( isRunInSuite )
         {
             assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
-
+    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
     
@@ -62,7 +62,7 @@ public class TestClassB extends AbstractLdapTestUnit
         {
             assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
         }
-
+    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 }

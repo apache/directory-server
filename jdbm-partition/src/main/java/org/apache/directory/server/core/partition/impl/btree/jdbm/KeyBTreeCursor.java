@@ -27,6 +27,8 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,6 +39,9 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class KeyBTreeCursor<E> extends AbstractCursor<E>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private final Tuple tuple = new Tuple();
 
     private final BTree btree;
@@ -54,6 +59,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public KeyBTreeCursor( BTree btree, Comparator<E> comparator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating KeyBTreeCursor {}", this );
         this.btree = btree;
         this.comparator = comparator;
     }
@@ -105,7 +111,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
             {
                 // just continue
             }
-            else 
+            else
             {
                 /*
                  * If we just have values greater than the element argument
@@ -158,7 +164,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( browser == null )
         {
             browser = btree.browse( null );
@@ -179,7 +185,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( browser == null )
         {
             browser = btree.browse();
@@ -192,7 +198,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         else
         {
             clearValue();
-            
+
             return false;
         }
     }
@@ -202,7 +208,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public E get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( valueAvailable )
         {
             return ( E ) tuple.getKey();
@@ -210,13 +216,15 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
         throw new InvalidCursorPositionException();
     }
- 
+
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         super.close();
         this.closeBrowser( browser );
     }
@@ -228,12 +236,13 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         super.close( cause );
         this.closeBrowser( browser );
     }
-    
-    
-    private void closeBrowser(TupleBrowser browser)
+
+
+    private void closeBrowser( TupleBrowser browser )
     {
         if ( browser != null )
         {

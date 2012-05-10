@@ -39,11 +39,12 @@ public class HostName extends StringOption
     public HostName()
     {
     }
-    
+
+
     /**
      * @param name
      */
-    public HostName(String name)
+    public HostName( String name )
     {
         setString( name );
     }

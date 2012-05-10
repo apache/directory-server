@@ -43,11 +43,11 @@ public interface PartitionNexus extends Partition
 
     /** the admin super user uid */
     public static final String ADMIN_UID = "admin";
-    
+
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD_STRING = "secret";
-    
-    public static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8(ADMIN_PASSWORD_STRING);
+
+    public static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
 
 
     /**

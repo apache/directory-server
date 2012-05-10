@@ -126,10 +126,10 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_364, entry.getDn().getName(), 
-                    Strings.listToString(errors) );
+                String msg = I18n.err( I18n.ERR_364, entry.getDn().getName(),
+                    Strings.listToString( errors ) );
                 LOG.info( msg );
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
         }
         else
@@ -140,7 +140,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             if ( !errors.isEmpty() )
             {
                 String msg = I18n.err( I18n.ERR_365, entry.getDn().getName(),
-                    Strings.listToString(errors) );
+                    Strings.listToString( errors ) );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }

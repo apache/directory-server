@@ -69,7 +69,7 @@ public class NtpServerConfigReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
@@ -90,7 +90,7 @@ public class NtpServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -106,14 +106,16 @@ public class NtpServerConfigReaderTest
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_NTP_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader
+            .readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ),
+                ConfigSchemaConstants.ADS_NTP_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
-        NtpServerBean ntpServerBean = (NtpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        NtpServerBean ntpServerBean = ( NtpServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( ntpServerBean );
 
         configPartition.destroy();

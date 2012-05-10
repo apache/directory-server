@@ -90,7 +90,7 @@ public class LdifPartitionTest
     private static CsnFactory defaultCSNFactory;
 
     @Rule
-    public static TemporaryFolder folder = new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
 
     @BeforeClass
@@ -115,7 +115,7 @@ public class LdifPartitionTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         defaultCSNFactory = new CsnFactory( 0 );
@@ -138,12 +138,12 @@ public class LdifPartitionTest
         partition.setPartitionPath( wkdir.toURI() );
 
         partition.initialize();
-        
+
         Entry entry = createEntry( "ou=test, ou=system" );
-        
+
         entry.put( "objectClass", "top", "organizationalUnit" );
-        entry.put(  "cn", "test" );
-        
+        entry.put( "cn", "test" );
+
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
@@ -175,7 +175,8 @@ public class LdifPartitionTest
     public void testLdifAddEntries() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -220,7 +221,8 @@ public class LdifPartitionTest
     public void testLdifAddExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -274,7 +276,8 @@ public class LdifPartitionTest
     public void testLdifDeleteExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -360,7 +363,8 @@ public class LdifPartitionTest
     public void testLdifSearchExistingEntry() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -420,6 +424,8 @@ public class LdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
+        
+        cursor.close();
     }
 
 
@@ -428,8 +434,10 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=child1,ou=test,ou=system" ) ) );
+        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
         partition.move( moveOpCtx );
@@ -485,7 +493,7 @@ public class LdifPartitionTest
 
         Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        Rdn newRdn = new Rdn( "dc=renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
 
@@ -506,7 +514,7 @@ public class LdifPartitionTest
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
         assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: renamedchild1" ) );
+        assertTrue( content.contains( "dc: renamedChild1" ) );
     }
 
 
@@ -549,7 +557,7 @@ public class LdifPartitionTest
 
         Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        Rdn newRdn = new Rdn( "dc=movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
@@ -572,7 +580,7 @@ public class LdifPartitionTest
         String content = FileUtils
             .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
         assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: movedchild1" ) );
+        assertTrue( content.contains( "dc: movedChild1" ) );
     }
 
 
@@ -584,7 +592,8 @@ public class LdifPartitionTest
     public void testSpecialCharacters() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
@@ -612,18 +621,19 @@ public class LdifPartitionTest
     public void testControlCharacters() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 
         String rdnWithControlChars = "userPassword=-\u0000-\u0001-\u0002-\u0003-\u0004-\u0005-\u0006-\u0007" +
-                "-\u0008-\u0009-\n-\u000B-\u000C-\r-\u000E-\u000F" +
-                "-\u0010-\u0011-\u0012-\u0013-\u0014-\u0015-\u0016-\u0017" +
-                "-\u0018-\u0019-\u001A-\u001B-\u001C-\u001D-\u001E-\u001F" +
-                "-\u007F";
+            "-\u0008-\u0009-\n-\u000B-\u000C-\r-\u000E-\u000F" +
+            "-\u0010-\u0011-\u0012-\u0013-\u0014-\u0015-\u0016-\u0017" +
+            "-\u0018-\u0019-\u001A-\u001B-\u001C-\u001D-\u001E-\u001F" +
+            "-\u007F";
 
         String rdnWithEscapedChars = "userpassword=-%00-%01-%02-%03-%04-%05-%06-%07-%08-%09-%0a-%0b-%0c-%0d-%0e-%0f" +
-                "-%10-%11-%12-%13-%14-%15-%16-%17-%18-%19-%1a-%1b-%1c-%1d-%1e-%1f-%7f";
+            "-%10-%11-%12-%13-%14-%15-%16-%17-%18-%19-%1a-%1b-%1c-%1d-%1e-%1f-%7f";
 
         Entry entry1 = createEntry( rdnWithControlChars + ",ou=test,ou=system" );
         entry1.put( "objectClass", "top", "person" );
@@ -643,7 +653,8 @@ public class LdifPartitionTest
     private CoreSession injectEntries() throws Exception
     {
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession session = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( 1 ) );
         AddOperationContext addCtx = new AddOperationContext( session );
 

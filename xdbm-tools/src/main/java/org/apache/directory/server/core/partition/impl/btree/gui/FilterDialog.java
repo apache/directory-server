@@ -89,7 +89,7 @@ public class FilterDialog extends JDialog
 
 
     /** Creates new form JDialog */
-    public FilterDialog(String a_mode, JFrame parent, boolean modal)
+    public FilterDialog( String a_mode, JFrame parent, boolean modal )
     {
         super( parent, modal );
         m_mode = a_mode;

@@ -33,25 +33,24 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum TicketStatesEnum implements States
 {
     // Start
-    START_STATE,                // 0
+    START_STATE, // 0
 
     // ----- Ticket message --------------------------------------------
-    TICKET_STATE,               // 1
-    TICKET_SEQ_STATE,           // 2
+    TICKET_STATE, // 1
+    TICKET_SEQ_STATE, // 2
 
-    TICKET_VNO_TAG_STATE,       // 3
-    TICKET_VNO_STATE,           // 4
+    TICKET_VNO_TAG_STATE, // 3
+    TICKET_VNO_STATE, // 4
 
-    TICKET_REALM_TAG_STATE,     // 5
-    TICKET_REALM_STATE,         // 6
+    TICKET_REALM_TAG_STATE, // 5
+    TICKET_REALM_STATE, // 6
 
-    TICKET_SNAME_TAG_STATE,     // 7
+    TICKET_SNAME_TAG_STATE, // 7
 
-    TICKET_ENC_PART_TAG_STATE,  // 8
+    TICKET_ENC_PART_TAG_STATE, // 8
 
     // End
-    LAST_TICKET_STATE;          // 9
-
+    LAST_TICKET_STATE; // 9
 
     /**
      * Get the grammar name

@@ -107,7 +107,8 @@ public class DefaultOperationManager implements OperationManager
             // trouble reading the entry due to insufficient access rights
             CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
-            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(),
+                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )
@@ -132,7 +133,8 @@ public class DefaultOperationManager implements OperationManager
         // trouble reading the entry due to insufficient access rights
         CoreSession adminSession = opContext.getSession().getDirectoryService().getAdminSession();
 
-        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
+        Entry foundEntry = adminSession.lookup( opContext.getDn(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES,
+            SchemaConstants.ALL_USER_ATTRIBUTES );
 
         if ( foundEntry != null )
         {
@@ -190,7 +192,8 @@ public class DefaultOperationManager implements OperationManager
     }
 
 
-    private LdapReferralException buildReferralExceptionForSearch( Entry parentEntry, Dn childDn, SearchScope scope ) throws LdapException
+    private LdapReferralException buildReferralExceptionForSearch( Entry parentEntry, Dn childDn, SearchScope scope )
+        throws LdapException
     {
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
@@ -283,21 +286,21 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the addContext Dn
         Dn dn = addContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         if ( directoryService.getReferralManager().hasParentReferral( dn ) )
         {
             Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             // Depending on the Context.REFERRAL property value, we will throw
             // a different exception.
             if ( addContext.isReferralIgnored() )
             {
                 directoryService.getReferralManager().unlock();
-                
+
                 LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                 throw exception;
             }
@@ -305,7 +308,7 @@ public class DefaultOperationManager implements OperationManager
             {
                 // Unlock the referral manager
                 directoryService.getReferralManager().unlock();
-                
+
                 LdapReferralException exception = buildReferralException( parentEntry, childDn );
                 throw exception;
             }
@@ -314,10 +317,10 @@ public class DefaultOperationManager implements OperationManager
         {
             // Unlock the ReferralManager
             directoryService.getReferralManager().unlock();
-            
+
             // Call the Add method
             Interceptor head = directoryService.getInterceptor( addContext.getNextInterceptor() );
-            
+
             head.add( addContext );
         }
 
@@ -337,7 +340,7 @@ public class DefaultOperationManager implements OperationManager
 
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
-        
+
         head.bind( bindContext );
 
         LOG.debug( "<< BindOperation successful" );
@@ -355,18 +358,18 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the compareContext Dn
         Dn dn = compareContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can delete it if the ManageDsaIt flag is true
@@ -376,7 +379,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -388,7 +391,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( compareContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -396,26 +399,26 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         // populate the context with the old entry
         compareContext.setOriginalEntry( getOriginalEntry( compareContext ) );
-        
+
         // Call the Compare method
         Interceptor head = directoryService.getInterceptor( compareContext.getNextInterceptor() );
-        
+
         boolean result = head.compare( compareContext );
 
         LOG.debug( "<< CompareOperation successful" );
-        
+
         return result;
     }
 
@@ -433,17 +436,17 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the deleteContext Dn
         Dn dn = deleteContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can delete it if the ManageDsaIt flag is true
@@ -453,7 +456,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -461,13 +464,13 @@ public class DefaultOperationManager implements OperationManager
             else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 // We can't delete an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( deleteContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -475,22 +478,22 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         // populate the context with the old entry
         eagerlyPopulateFields( deleteContext );
-        
+
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
-        
+
         head.delete( deleteContext );
 
         LOG.debug( "<< DeleteOperation successful" );
@@ -508,11 +511,11 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
-        
+
         Entry root = head.getRootDse( getRootDseContext );
-        
+
         LOG.debug( "<< getRootDseOperation successful" );
-        
+
         return root;
     }
 
@@ -527,11 +530,11 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( hasEntryContext.getNextInterceptor() );
-        
+
         boolean result = head.hasEntry( hasEntryContext );
-        
+
         LOG.debug( "<< HasEntryOperation successful" );
-        
+
         return result;
     }
 
@@ -546,11 +549,11 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
-        
+
         EntryFilteringCursor cursor = head.list( listContext );
-        
+
         LOG.debug( "<< ListOperation successful" );
-        
+
         return cursor;
     }
 
@@ -565,11 +568,11 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
-        
+
         Entry entry = head.lookup( lookupContext );
-        
+
         LOG.debug( "<< LookupOperation successful" );
-        
+
         return entry;
     }
 
@@ -587,15 +590,15 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the modifyContext Dn
         Dn dn = modifyContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         ReferralManager referralManager = directoryService.getReferralManager();
-        
+
         // We have to deal with the referral first
         referralManager.lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = referralManager.getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             if ( referralManager.isReferral( dn ) )
@@ -607,10 +610,10 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     referralManager.unlock();
-                    
+
                     // We have found a parent referral for the current Dn
                     Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -618,16 +621,16 @@ public class DefaultOperationManager implements OperationManager
             else if ( referralManager.hasParentReferral( dn ) )
             {
                 // We can't delete an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( modifyContext.isReferralIgnored() )
                 {
                     referralManager.unlock();
-                    
+
                     // We have found a parent referral for the current Dn
                     Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -635,25 +638,25 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     referralManager.unlock();
-                    
+
                     // We have found a parent referral for the current Dn
                     Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Unlock the ReferralManager
         referralManager.unlock();
-        
+
         // populate the context with the old entry
         eagerlyPopulateFields( modifyContext );
-        
+
         // Call the Modify method
         Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
-        
+
         head.modify( modifyContext );
 
         LOG.debug( "<< ModifyOperation successful" );
@@ -674,22 +677,22 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the moveContext Dn
         Dn dn = moveContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // Normalize the moveContext superior Dn
         Dn newSuperiorDn = moveContext.getNewSuperior();
         newSuperiorDn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can delete it if the ManageDsaIt flag is true
@@ -699,7 +702,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -707,13 +710,13 @@ public class DefaultOperationManager implements OperationManager
             else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 // We can't delete an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( moveContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -721,13 +724,13 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Now, check the destination
         // If he parent Dn is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
         // as stated by RFC 3296 Section 5.6.2
@@ -736,25 +739,25 @@ public class DefaultOperationManager implements OperationManager
         {
             // Unlock the referral manager
             directoryService.getReferralManager().unlock();
-            
+
             LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
             //exception.setRemainingName( dn );
-            
+
             throw exception;
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         Entry originalEntry = getOriginalEntry( moveContext );
-        
+
         moveContext.setOriginalEntry( originalEntry );
-        
+
         // Call the Move method
         Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
-        
+
         head.move( moveContext );
-        
+
         LOG.debug( "<< MoveOperation successful" );
         LOG_CHANGES.debug( "<< MoveOperation successful" );
     }
@@ -773,18 +776,18 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the moveAndRenameContext Dn
         Dn dn = moveAndRenameContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can delete it if the ManageDsaIt flag is true
@@ -794,7 +797,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -802,13 +805,13 @@ public class DefaultOperationManager implements OperationManager
             else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 // We can't delete an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( moveAndRenameContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -816,18 +819,18 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Now, check the destination
         // Normalize the moveAndRenameContext Dn
         Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
         newSuperiorDn.apply( directoryService.getSchemaManager() );
-        
+
         // If he parent Dn is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
         // as stated by RFC 3296 Section 5.6.2
         if ( directoryService.getReferralManager().isReferral( newSuperiorDn )
@@ -835,26 +838,26 @@ public class DefaultOperationManager implements OperationManager
         {
             // Unlock the referral manager
             directoryService.getReferralManager().unlock();
-            
+
             // The parent Dn is a referral, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
             LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
             //exception.setRemainingName( dn );
-            
+
             throw exception;
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
         moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
-        
+
         // Call the MoveAndRename method
         Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
-        
+
         head.moveAndRename( moveAndRenameContext );
-        
+
         LOG.debug( "<< MoveAndRenameOperation successful" );
         LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
     }
@@ -873,7 +876,7 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the renameContext Dn
         Dn dn = renameContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // Inject the newDn into the operation context
         // Inject the new Dn into the context
         if ( !dn.isEmpty() )
@@ -882,18 +885,18 @@ public class DefaultOperationManager implements OperationManager
             newDn = newDn.add( renameContext.getNewRdn() );
             renameContext.setNewDn( newDn );
         }
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can delete it if the ManageDsaIt flag is true
@@ -903,7 +906,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
@@ -911,13 +914,13 @@ public class DefaultOperationManager implements OperationManager
             else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 // We can't delete an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( renameContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -925,28 +928,28 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
                     throw exception;
                 }
             }
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         // Call the rename method
         // populate the context with the old entry
         eagerlyPopulateFields( renameContext );
         Entry originalEntry = getOriginalEntry( renameContext );
         renameContext.setOriginalEntry( originalEntry );
         renameContext.setModifiedEntry( originalEntry.clone() );
-        
+
         // Call the Rename method
         Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
-        
+
         head.rename( renameContext );
-        
+
         LOG.debug( "<< RenameOperation successful" );
         LOG_CHANGES.debug( "<< RenameOperation successful" );
     }
@@ -964,18 +967,18 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the searchContext Dn
         Dn dn = searchContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
-        
+
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
-        
+
         // Check if we have an ancestor for this Dn
         Entry parentEntry = directoryService.getReferralManager().getParentReferral( dn );
-        
+
         if ( parentEntry != null )
         {
             // We have found a parent referral for the current Dn
             Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-            
+
             if ( directoryService.getReferralManager().isReferral( dn ) )
             {
                 // This is a referral. We can return it if the ManageDsaIt flag is true
@@ -985,7 +988,7 @@ public class DefaultOperationManager implements OperationManager
                     // Throw a Referral Exception
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
                         searchContext.getScope() );
                     throw exception;
@@ -994,13 +997,13 @@ public class DefaultOperationManager implements OperationManager
             else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
             {
                 // We can't search an entry which has an ancestor referral
-                
+
                 // Depending on the Context.REFERRAL property value, we will throw
                 // a different exception.
                 if ( searchContext.isReferralIgnored() )
                 {
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
                     throw exception;
                 }
@@ -1008,24 +1011,24 @@ public class DefaultOperationManager implements OperationManager
                 {
                     // Unlock the referral manager
                     directoryService.getReferralManager().unlock();
-                    
+
                     LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
                         searchContext.getScope() );
                     throw exception;
                 }
             }
         }
-        
+
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
-        
+
         // Call the Search method
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
-        
+
         EntryFilteringCursor cursor = head.search( searchContext );
-        
+
         LOG.debug( "<< SearchOperation successful" );
-        
+
         return cursor;
     }
 

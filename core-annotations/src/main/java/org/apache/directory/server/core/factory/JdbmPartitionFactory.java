@@ -42,7 +42,8 @@ public class JdbmPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public JdbmPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory )
+    public JdbmPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+        File workingDirectory )
         throws Exception
     {
         JdbmPartition partition = new JdbmPartition( schemaManager );
@@ -50,8 +51,7 @@ public class JdbmPartitionFactory implements PartitionFactory
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionPath( workingDirectory.toURI() );
-        partition.initialize();
-        
+
         return partition;
     }
 

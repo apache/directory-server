@@ -97,7 +97,7 @@ public class ConfigWriterTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -128,12 +128,12 @@ public class ConfigWriterTest
         // Reading the original config file
         LdifReader ldifReader = new LdifReader( configFile );
         List<LdifEntry> originalConfigEntries = new ArrayList<LdifEntry>();
-        
+
         while ( ldifReader.hasNext() )
         {
             originalConfigEntries.add( ldifReader.next() );
         }
-        
+
         ldifReader.close();
 
         // Getting the list of entries of generated config

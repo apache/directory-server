@@ -33,24 +33,23 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbPrivStatesEnum implements States
 {
     // Start
-    START_STATE,                       // 0
+    START_STATE, // 0
 
     // ----- KRB-SAFE component --------------------------------------
-    KRB_PRIV_TAG_STATE,               // 1
+    KRB_PRIV_TAG_STATE, // 1
 
-    KRB_PRIV_SEQ_STATE,               // 2
+    KRB_PRIV_SEQ_STATE, // 2
 
-    KRB_PRIV_PVNO_TAG_STATE,          // 3
-    KRB_PRIV_PVNO_STATE,              // 4
+    KRB_PRIV_PVNO_TAG_STATE, // 3
+    KRB_PRIV_PVNO_STATE, // 4
 
-    KRB_PRIV_MSGTYPE_TAG_STATE,       // 5
-    KRB_PRIV_MSGTYPE_STATE,           // 6
+    KRB_PRIV_MSGTYPE_TAG_STATE, // 5
+    KRB_PRIV_MSGTYPE_STATE, // 6
 
-    KRB_PRIV_EN_PART_TAG_STATE,       // 7
+    KRB_PRIV_EN_PART_TAG_STATE, // 7
 
     // End
-    LAST_KRB_PRIV_STATE;              // 8
-
+    LAST_KRB_PRIV_STATE; // 8
 
     /**
      * Get the grammar name

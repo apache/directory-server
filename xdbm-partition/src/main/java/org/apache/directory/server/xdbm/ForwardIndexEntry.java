@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -28,15 +29,15 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * indexed Entry if one has already been loaded.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <V> The key stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
+public class ForwardIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
 {
     /** The underlying Tuple */
-    private final Tuple<V, ID> tuple = new Tuple<V, ID>();
+    private final Tuple<K, ID> tuple = new Tuple<K, ID>();
 
-    
+
     /**
      * Creates a ForwardIndexEntry instance
      */
@@ -44,8 +45,8 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     {
         super( null );
     }
-    
-    
+
+
     /**
      * Sets the key value tuple represented by this ForwardIndexEntry optionally
      * setting the Entry associated with the id if one was loaded from the
@@ -54,7 +55,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
      * @param tuple the tuple for the ForwardIndexEntry
      * @param entry the resuscitated Entry if any
      */
-    public void setTuple( Tuple<V, ID> tuple, Entry entry )
+    public void setTuple( Tuple<K, ID> tuple, Entry entry )
     {
         setEntry( entry );
         this.tuple.setKey( tuple.getKey() );
@@ -74,7 +75,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public V getValue()
+    public K getKey()
     {
         return tuple.getKey();
     }
@@ -92,7 +93,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void setValue( V value )
+    public void setKey( K value )
     {
         tuple.setKey( value );
     }
@@ -101,7 +102,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public Tuple<V, ID> getTuple()
+    public Tuple<K, ID> getTuple()
     {
         return tuple;
     }
@@ -121,10 +122,10 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<K, ID> entry )
     {
         super.copy( entry );
-        tuple.setKey( entry.getValue() );
+        tuple.setKey( entry.getKey() );
         tuple.setValue( entry.getId() );
     }
 
@@ -140,7 +141,7 @@ public class ForwardIndexEntry<V, ID> extends AbstractIndexEntry<V, ID>
         buf.append( ", " );
         buf.append( tuple.getValue() );
         buf.append( " ]" );
-        
+
         return buf.toString();
     }
 }

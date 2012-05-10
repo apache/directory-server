@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 

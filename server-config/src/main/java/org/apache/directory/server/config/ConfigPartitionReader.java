@@ -34,8 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.directory.SearchControls;
-
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
@@ -132,7 +130,7 @@ public class ConfigPartitionReader
             {
                 String ocName = ocValue.getString();
                 String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
-                ObjectClass oc = ( ObjectClass ) schemaManager.getObjectClassRegistry().get( ocOid );
+                ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
                 if ( oc.isStructural() )
                 {
@@ -151,7 +149,7 @@ public class ConfigPartitionReader
         {
             String ocName = ocValue.getString();
             String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
-            ObjectClass oc = ( ObjectClass ) schemaManager.getObjectClassRegistry().get( ocOid );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
             for ( ObjectClass superior : oc.getSuperiors() )
             {
@@ -174,8 +172,8 @@ public class ConfigPartitionReader
     }
 
 
-    /** 
-     * Create the base Bean from the ObjectClass name. 
+    /**
+     * Create the base Bean from the ObjectClass name.
      * The bean name is constructed using the OjectClass name, by
      * removing the ADS prefix, upper casing the first letter and adding "Bean" at the end.
      * 
@@ -577,13 +575,14 @@ public class ConfigPartitionReader
                     {
                         // Try by removing 'es'
                         attributeName = fieldName.substring( 0, fieldName.length() - 2 );
-                        
+
                         // if not found try by removing 'ies' and adding 'y' , e.x ads-passwordPolicies
-                        if ( fieldName.endsWith( "ies" ) && !schemaManager.getObjectClassRegistry().contains( attributeName ) )
+                        if ( fieldName.endsWith( "ies" )
+                            && !schemaManager.getObjectClassRegistry().contains( attributeName ) )
                         {
                             attributeName = fieldName.substring( 0, fieldName.length() - 3 ) + "y";
                         }
-                        
+
                         if ( !schemaManager.getObjectClassRegistry().contains( attributeName ) )
                         {
                             String message = "Cannot find the ObjectClass named " + attributeName + " in the schema";
@@ -716,7 +715,7 @@ public class ConfigPartitionReader
 
 
     /**
-     * Read some configuration element from the DIT using its name 
+     * Read some configuration element from the DIT using its name
      */
     private List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
@@ -727,8 +726,6 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( scope.ordinal() );
         IndexCursor<Long, Entry, Long> cursor = null;
 
         // Create a container for all the read beans
@@ -737,7 +734,7 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
+            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, scope );
 
             // First, check if we have some entries to process.
             if ( !cursor.next() )

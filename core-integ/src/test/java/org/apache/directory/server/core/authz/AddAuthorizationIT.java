@@ -188,21 +188,21 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
         // now add a subentry that enables user billyd to add an entry below ou=system
         createAccessControlSubentry( "billydAdd",
             "{ " +
-            "  identificationTag \"addAci\", " +
-            "  precedence 14, " +
-            "  authenticationLevel none, " +
-            "  itemOrUserFirst userFirst: " +
-            "  { " +
-            "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " +
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantAdd, grantBrowse } " +
-            "      } " +
-            "    } " +
-            "  } " +
-            "}" );
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { name { \"uid=billyd,ou=users,ou=system\" } }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // should work now that billyd is authorized by name
         assertTrue( checkCanAddEntryAs( "billyd", "billyd", "ou=testou" ) );

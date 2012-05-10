@@ -131,7 +131,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         nonce           [2] UInt32,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_NONCE_STATE,
@@ -170,7 +171,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         key-expiration  [3] KerberosTime OPTIONAL,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_KEY_EXPIRATION_STATE,
@@ -196,7 +198,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         flags           [4] TicketFlags,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_TAG_STATE.ordinal()][UniversalTag.BIT_STRING.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_TAG_STATE.ordinal()][UniversalTag.BIT_STRING
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_FLAGS_STATE,
@@ -222,7 +225,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         authtime        [5] KerberosTime,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_AUTH_TIME_STATE,
@@ -261,7 +265,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         starttime       [6] KerberosTime OPTIONAL,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_START_TIME_STATE,
@@ -287,7 +292,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         endtime         [7] KerberosTime,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_END_TIME_STATE,
@@ -326,7 +332,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         renew-till      [8] KerberosTime OPTIONAL,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_RENEW_TILL_STATE,
@@ -352,7 +359,8 @@ public final class EncKdcRepPartGrammar extends AbstractGrammar<EncKdcRepPartCon
         // EncKDCRepPart   ::= SEQUENCE {
         //         ...
         //         srealm          [9] Realm,
-        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
+        super.transitions[EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING
+            .getValue()] =
             new GrammarTransition<EncKdcRepPartContainer>(
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_TAG_STATE,
                 EncKdcRepPartStatesEnum.ENC_KDC_REP_PART_SREALM_STATE,

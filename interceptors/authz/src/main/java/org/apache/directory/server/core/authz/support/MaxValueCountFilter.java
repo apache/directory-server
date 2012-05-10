@@ -41,7 +41,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class MaxValueCountFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
         {
@@ -56,7 +57,7 @@ public class MaxValueCountFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = aciContext.getAciTuples().iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
-            
+
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -65,11 +66,11 @@ public class MaxValueCountFilter implements ACITupleFilter
             for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
                 ProtectedItem item = j.next();
-                
+
                 if ( item instanceof MaxValueCountItem )
                 {
                     MaxValueCountItem mvc = ( MaxValueCountItem ) item;
-                    
+
                     if ( isRemovable( mvc, aciContext.getAttributeType(), aciContext.getEntryView() ) )
                     {
                         i.remove();
@@ -83,17 +84,18 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( MaxValueCountItem mvc, AttributeType attributeType, Entry entryView ) throws LdapException
+    private boolean isRemovable( MaxValueCountItem mvc, AttributeType attributeType, Entry entryView )
+        throws LdapException
     {
         for ( Iterator<MaxValueCountElem> k = mvc.iterator(); k.hasNext(); )
         {
             MaxValueCountElem mvcItem = k.next();
-            
+
             if ( attributeType.equals( mvcItem.getAttributeType() ) )
             {
                 Attribute attr = entryView.get( attributeType );
                 int attrCount = attr == null ? 0 : attr.size();
-                
+
                 if ( attrCount > mvcItem.getMaxCount() )
                 {
                     return true;

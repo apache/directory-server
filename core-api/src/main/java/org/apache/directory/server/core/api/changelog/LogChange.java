@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.changelog;
 
+
 /**
  * 
  * A structure telling the changeLog what to do with the incoming change
@@ -27,6 +28,6 @@ package org.apache.directory.server.core.api.changelog;
  */
 public enum LogChange
 {
-    TRUE,  // The change must me stored 
-    FALSE  // The change must not be stored
+    TRUE, // The change must me stored 
+    FALSE // The change must not be stored
 }

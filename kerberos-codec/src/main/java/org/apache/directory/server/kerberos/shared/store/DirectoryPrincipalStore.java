@@ -37,8 +37,8 @@ public class DirectoryPrincipalStore implements PrincipalStore
     /** The directory service backing store for this PrincipalStore. */
     private final DirectoryService directoryService;
     private final Dn searchBaseDn;
-    
-    
+
+
     /**
      * Creates a new instance of DirectoryPrincipalStore.
      *

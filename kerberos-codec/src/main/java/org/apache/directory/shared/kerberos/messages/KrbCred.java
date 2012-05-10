@@ -30,7 +30,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
@@ -63,7 +63,6 @@ public class KrbCred extends KerberosMessage
     /** encrypted part of the message */
     private EncryptedData encPart;
 
-
     private int pvnoLen;
     private int msgTypeLen;
     private int ticketsSeqLen;
@@ -71,6 +70,7 @@ public class KrbCred extends KerberosMessage
     private int encPartLen;
     private int krbCredSeqLen;
     private int krbCredLen;
+
 
     /**
      * Creates a new instance of KrbCred.
@@ -116,7 +116,7 @@ public class KrbCred extends KerberosMessage
         pvnoLen = 1 + 1 + 1;
         krbCredSeqLen = 1 + TLV.getNbBytes( pvnoLen ) + pvnoLen;
 
-        msgTypeLen = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLen = 1 + 1 + BerValue.getNbBytes( getMessageType().getValue() );
         krbCredSeqLen += 1 + TLV.getNbBytes( msgTypeLen ) + msgTypeLen;
 
         for ( Ticket t : tickets )
@@ -157,12 +157,12 @@ public class KrbCred extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_CRED_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_CRED_MSGTYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLen ) );
-            Value.encode( buffer, getMessageType().getValue() );
+            BerValue.encode( buffer, getMessageType().getValue() );
 
             // tickets tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_CRED_TICKETS_TAG );
@@ -190,7 +190,7 @@ public class KrbCred extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbCred encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "KrbCred encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "KrbCred initial value : {}", toString() );
         }
 

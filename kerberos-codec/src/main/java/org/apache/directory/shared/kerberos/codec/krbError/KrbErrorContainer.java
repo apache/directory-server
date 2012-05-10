@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbError;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class KrbErrorContainer extends AbstractContainer
 {
     /** An KDC-ERROR container */
     private KrbError krbError;
-    
+
+
     /**
      * Creates a new KrbErrorContainer object.
      * @param stream The stream containing the data to decode
@@ -56,7 +58,7 @@ public class KrbErrorContainer extends AbstractContainer
         return krbError;
     }
 
-    
+
     /**
      * Set a KrbError Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -27,12 +27,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
-import javax.naming.ConfigurationException;
-
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
+import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -44,16 +43,18 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test the LdapConnection class by enabling SSL and StartTLS one after the other 
+ * Test the LdapConnection class by enabling SSL and StartTLS one after the other
  * (using both in the same test class saves the time required to start/stop another server for StartTLS)
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -61,29 +62,30 @@ import org.junit.runner.RunWith;
 
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { 
+    {
         @CreateTransport(protocol = "LDAP"),
-        @CreateTransport(protocol = "LDAPS") 
-    }, 
-    saslHost = "localhost", 
+        @CreateTransport(protocol = "LDAPS")
+},
+    saslHost = "localhost",
     saslMechanisms =
-    { 
-        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
-    }, 
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    },
     extendedOpHandlers =
-    { 
-        StartTlsHandler.class 
+        {
+            StartTlsHandler.class
     })
 public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 {
     private LdapConnectionConfig sslConfig;
-    
+
     private LdapConnectionConfig tlsConfig;
+
 
     @Before
     public void setup()
@@ -93,11 +95,15 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
-        
+        sslConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
+                ldapServer.getDirectoryService().getSchemaManager() ) );
+
         tlsConfig = new LdapConnectionConfig();
         tlsConfig.setLdapHost( "localhost" );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
+        tlsConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
+            ldapServer.getDirectoryService().getSchemaManager() ) );
     }
 
 
@@ -140,9 +146,9 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         assertFalse( controlList.isEmpty() );
 
         connection.close();
-    }    
-    
-    
+    }
+
+
     /**
      * Test a successful bind request after setting up TLS
      *
@@ -189,9 +195,9 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
-    
-    @Test( expected = LdapException.class)
+
+
+    @Test(expected = LdapException.class)
     public void testFailsStartTLSWhenSSLIsInUse() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
@@ -201,4 +207,20 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         connection.startTls();
     }
 
+
+    @Test(expected = InvalidConnectionException.class)
+    @Ignore( "This test is failing from time to time when runnig integ tests... To be investgated")
+    public void testStallingSsl() throws Exception
+    {
+        LdapConnectionConfig sslConfig = new LdapConnectionConfig();
+        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setUseSsl( true );
+        sslConfig.setLdapPort( getLdapServer().getPortSSL() );
+        //sslConfig.setTrustManagers( new NoVerificationTrustManager() );
+
+        LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig );
+
+        // We should get an exception here, as we don't have a trustManager defined
+        connection.bind();
+    }
 }

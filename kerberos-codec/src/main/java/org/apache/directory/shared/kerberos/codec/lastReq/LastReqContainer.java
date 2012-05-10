@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.lastReq;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.LastReq;
 
@@ -32,6 +33,7 @@ public class LastReqContainer extends AbstractContainer
 {
     /** An LastReq container */
     private LastReq lastReq;
+
 
     /**
      * Creates a new LastReqContainer object.
@@ -53,7 +55,7 @@ public class LastReqContainer extends AbstractContainer
         return lastReq;
     }
 
-    
+
     /**
      * Set a LastReq Object into the container. It will be completed by the
      * KerberosDecoder.

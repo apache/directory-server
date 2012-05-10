@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -35,6 +36,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,14 +47,17 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( 
+@CreateDS(
     enableChangeLog = false,
-    name = "DSAddAlias" )
+    name = "DSAddAlias")
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 public class AddAliasIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private LdapConnection conn;
+
 
     @Test
     public void testAddAliasOnParent() throws Exception
@@ -61,25 +66,25 @@ public class AddAliasIT extends AbstractLdapTestUnit
         {
             conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
-            
-            conn.add( new DefaultEntry( 
-                "cn=foo,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=foo,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: foo",
                 "sn: Foo" ) );
-    
+
             assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
-    
-            conn.add( new DefaultEntry( 
-                "ou=alias,cn=foo,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "ou=alias,cn=foo,ou=system",
                 "objectClass: top",
                 "objectClass: extensibleObject",
                 "objectClass: alias",
-                "ou: alias" ,
+                "ou: alias",
                 "aliasedObjectName: cn=foo,ou=system",
                 "description: alias to father (branch)" ) );
-    
+
             assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
         }
         finally
@@ -89,8 +94,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
             conn.delete( "cn=foo,ou=system" );
         }
     }
-    
-    
+
 
     @Test
     public void testAddAliasWithSubordinate() throws Exception
@@ -99,45 +103,44 @@ public class AddAliasIT extends AbstractLdapTestUnit
         {
             conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
-            
-            conn.add( new DefaultEntry( 
-                "cn=foo,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=foo,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: foo",
                 "sn: Foo" ) );
-    
+
             assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
-    
-            conn.add( new DefaultEntry( 
-                "ou=alias,cn=foo,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "ou=alias,cn=foo,ou=system",
                 "objectClass: top",
                 "objectClass: extensibleObject",
                 "objectClass: alias",
-                "ou: alias" ,
+                "ou: alias",
                 "aliasedObjectName: cn=foo,ou=system",
                 "description: alias to father (branch)" ) );
-    
+
             assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
-    
+
             try
             {
-                conn.add( new DefaultEntry( 
-                    "ou=aliasChild,ou=alias,cn=foo,ou=system", 
+                conn.add( new DefaultEntry(
+                    "ou=aliasChild,ou=alias,cn=foo,ou=system",
                     "objectClass: top",
                     "objectClass: extensibleObject",
                     "objectClass: alias",
-                    "ou: aliasChild" ,
+                    "ou: aliasChild",
                     "aliasedObjectName: cn=foo,ou=system" ) );
-                
+
                 fail();
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
                 assertTrue( true );
             }
-    
+
             assertNotNull( conn.lookup( "ou=alias,cn=foo,ou=system" ) );
             assertNull( conn.lookup( "ou=aliasChild,ou=alias,cn=foo,ou=system" ) );
         }
@@ -149,7 +152,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
         }
     }
 
-    
+
     /**
      * Add aliases with a cycle :
      * ou=system
@@ -166,30 +169,30 @@ public class AddAliasIT extends AbstractLdapTestUnit
         {
             conn = getAdminConnection( getLdapServer() );
             conn.setTimeOut( -1L );
-            
-            conn.add( new DefaultEntry( 
-                "cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=test,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: test",
                 "sn: Test" ) );
-            
-            conn.add( new DefaultEntry( 
-                "cn=foo,cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=foo,cn=test,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: foo",
                 "sn: Foo" ) );
-    
-            conn.add( new DefaultEntry( 
-                "cn=bar,cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=bar,cn=test,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: bar",
                 "sn: Bar" ) );
-            
-            conn.add( new DefaultEntry( 
-                "cn=doh,cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=doh,cn=test,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: doh",
@@ -197,35 +200,37 @@ public class AddAliasIT extends AbstractLdapTestUnit
 
             //assertNotNull( conn.lookup( "cn=foo,cn=test,ou=system" ) );
             //assertNotNull( conn.lookup( "cn=bar,cn=test,ou=system" ) );
-    
-            conn.add( new DefaultEntry( 
-                "cn=barAlias,cn=foo,cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=barAlias,cn=foo,cn=test,ou=system",
                 "objectClass: top",
                 "objectClass: extensibleObject",
                 "objectClass: alias",
-                "cn: barAlias" ,
+                "cn: barAlias",
                 "aliasedObjectName: cn=bar,cn=test,ou=system",
                 "description: alias to father (branch)" ) );
-            
-            conn.add( new DefaultEntry( 
-                "cn=dohAlias,cn=bar,cn=test,ou=system", 
+
+            conn.add( new DefaultEntry(
+                "cn=dohAlias,cn=bar,cn=test,ou=system",
                 "objectClass: top",
                 "objectClass: extensibleObject",
                 "objectClass: alias",
-                "cn: dohAlias" ,
+                "cn: dohAlias",
                 "aliasedObjectName: cn=doh,cn=test,ou=system",
                 "description: alias to father (branch)" ) );
 
             //assertNotNull( conn.lookup( "cn=barAlias,cn=foo,cn=test,ou=system" ) );
             //assertNotNull( conn.lookup( "cn=fooAlias,cn=bar,cn=test,ou=system" ) );
-            
+
             // Now, do a search
             EntryCursor cursor = conn.search( "cn=foo,cn=test,ou=system", "(objectClass=*)", SearchScope.SUBTREE, "*" );
-            
+
             while ( cursor.next() )
             {
-                System.out.println( cursor.get().getDn() );
+                //System.out.println( cursor.get().getDn() );
             }
+            
+            cursor.close();
         }
         finally
         {

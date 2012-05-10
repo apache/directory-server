@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -29,6 +29,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
     private final IndexCursor<String, Entry, ID> wrapped;
@@ -49,6 +54,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     public SubstringCursor( Store<Entry, ID> store, final SubstringEvaluator<ID> substringEvaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
@@ -83,14 +89,14 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
             ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
-            indexEntry.setValue( evaluator.getExpression().getInitial() );
+            indexEntry.setKey( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
         else
@@ -107,7 +113,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         setAvailable( false );
         indexEntry.setEntry( null );
         indexEntry.setId( null );
-        indexEntry.setValue( null );
+        indexEntry.setKey( null );
     }
 
 
@@ -116,7 +122,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
 
         // to keep the cursor always *after* the last matched tuple
-        // This fixes an issue if the last matched tuple is also the last record present in the 
+        // This fixes an issue if the last matched tuple is also the last record present in the
         // index. In this case the wrapped cursor is positioning on the last tuple instead of positioning after that
         wrapped.afterLast();
         clear();
@@ -134,7 +140,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     {
         if ( hasIndex )
         {
-            return evaluator.getPattern().matcher( indexEntry.getValue() ).matches();
+            return evaluator.getPattern().matcher( indexEntry.getKey() ).matches();
         }
         else
         {
@@ -156,12 +162,12 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         {
             checkNotClosed( "previous()" );
             IndexEntry<String, ID> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
-                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setKey( entry.getKey() );
                 this.indexEntry.setEntry( entry.getEntry() );
                 return true;
             }
@@ -178,13 +184,14 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         {
             checkNotClosed( "next()" );
             IndexEntry<String, ID> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
-                this.indexEntry.setValue( entry.getValue() );
+                this.indexEntry.setKey( entry.getKey() );
                 this.indexEntry.setEntry( entry.getEntry() );
+                
                 return true;
             }
         }
@@ -197,7 +204,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     public IndexEntry<String, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return indexEntry;
@@ -207,10 +214,26 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
         super.close();
         wrapped.close();
+        clear();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+        super.close( cause );
+        wrapped.close( cause );
         clear();
     }
 }

@@ -58,11 +58,15 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class MaxValueCountFilterTest
 {
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
 
-    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
+        .unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static Entry ENTRY;
@@ -74,15 +78,16 @@ public class MaxValueCountFilterTest
     /** A reference to the schemaManager */
     private static SchemaManager schemaManager;
 
-    
-    @BeforeClass public static void init() throws Exception
+
+    @BeforeClass
+    public static void init() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
 
         Dn entryName = new Dn( schemaManager, "ou=test, ou=system" );
         ENTRY = new DefaultEntry( schemaManager, entryName );
         FULL_ENTRY = new DefaultEntry( schemaManager, entryName );
-        
+
         ENTRY.put( "cn", "1" );
         FULL_ENTRY.put( "cn", "1", "2", "3" );
 
@@ -90,17 +95,18 @@ public class MaxValueCountFilterTest
         AttributeType cn = schemaManager.lookupAttributeTypeRegistry( "cn" );
         mvcItems.add( new MaxValueCountElem( cn, 2 ) );
         PROTECTED_ITEMS.add( new MaxValueCountItem( mvcItems ) );
-        
+
         CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
-    
-    
-    @Test 
+
+
+    @Test
     public void testWrongScope() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            EMPTY_PROTECTED_ITEM_COLLECTION,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
@@ -117,7 +123,7 @@ public class MaxValueCountFilterTest
     }
 
 
-    @Test 
+    @Test
     public void testZeroTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
@@ -125,16 +131,16 @@ public class MaxValueCountFilterTest
         AciContext aciContext = new AciContext( schemaManager, null );
         aciContext.setAciTuples( EMPTY_ACI_TUPLE_COLLECTION );
 
-        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() ); 
+        assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
-    @Test 
+    @Test
     public void testDenialTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, 
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
@@ -151,24 +157,24 @@ public class MaxValueCountFilterTest
         aciContext.setAttributeType( CN_AT );
         aciContext.setEntry( FULL_ENTRY );
 
-        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE,null ) );
+        assertEquals( tuples, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ) );
     }
 
 
-    @Test 
+    @Test
     public void testGrantTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
+
         // Test with this ACI :
         // 
-        tuples.add( new ACITuple( 
-            EMPTY_USER_CLASS_COLLECTION, 
-            AuthenticationLevel.NONE, 
-            PROTECTED_ITEMS, 
-            EMPTY_MICRO_OPERATION_SET, 
-            true, 
+        tuples.add( new ACITuple(
+            EMPTY_USER_CLASS_COLLECTION,
+            AuthenticationLevel.NONE,
+            PROTECTED_ITEMS,
+            EMPTY_MICRO_OPERATION_SET,
+            true,
             0 ) );
 
         AciContext aciContext = new AciContext( schemaManager, null );

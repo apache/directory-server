@@ -19,11 +19,13 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import java.io.IOException;
 import java.util.Comparator;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+
 
 /**
  * A Abstract Table implementation aggregating the methods comon with all the 
@@ -33,14 +35,14 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  * @param <V> The stored value
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractTable<K,V> implements Table<K,V>
+public abstract class AbstractTable<K, V> implements Table<K, V>
 {
     /** the name of this table */
     protected final String name;
 
     /** The global SchemaManager */
     protected SchemaManager schemaManager;
-    
+
     /** a key comparator for the keys in this Table */
     protected final Comparator<K> keyComparator;
 
@@ -49,6 +51,9 @@ public abstract class AbstractTable<K,V> implements Table<K,V>
 
     /** the current count of entries in this Table */
     protected int count;
+
+    /** whether or not this table allows for duplicates */
+    protected boolean allowsDuplicates;
 
     /**
      * Create an instance of Table
@@ -75,8 +80,8 @@ public abstract class AbstractTable<K,V> implements Table<K,V>
 
         this.valueComparator = valueComparator;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -85,7 +90,7 @@ public abstract class AbstractTable<K,V> implements Table<K,V>
         return keyComparator;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -94,7 +99,7 @@ public abstract class AbstractTable<K,V> implements Table<K,V>
         return valueComparator;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -102,7 +107,7 @@ public abstract class AbstractTable<K,V> implements Table<K,V>
     {
         return name;
     }
-    
+
 
     /**
      * {@inheritDoc}

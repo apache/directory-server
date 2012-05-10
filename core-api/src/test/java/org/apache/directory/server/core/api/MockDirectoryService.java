@@ -75,6 +75,7 @@ public class MockDirectoryService implements DirectoryService
         this.count = count;
     }
 
+
     public Hashtable<String, Object> getEnvironment()
     {
         return null;
@@ -332,10 +333,12 @@ public class MockDirectoryService implements DirectoryService
 
     }
 
+
     public void setChangeLog( ChangeLog changeLog )
     {
 
     }
+
 
     public ChangeLog getChangeLog()
     {
@@ -353,6 +356,7 @@ public class MockDirectoryService implements DirectoryService
     {
         return null;
     }
+
 
     public Entry newEntry( String ldif, String dn )
     {
@@ -386,19 +390,22 @@ public class MockDirectoryService implements DirectoryService
 
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws LdapException
-        {
+    {
         return null;
-        }
+    }
+
 
     public CoreSession getAdminSession()
     {
         return null;
     }
 
+
     public EventService getEventService()
     {
         return null;
     }
+
 
     public void setEventService( EventService eventService )
     {
@@ -450,23 +457,28 @@ public class MockDirectoryService implements DirectoryService
     {
     }
 
+
     public void setJournal( Journal journal )
     {
     }
+
 
     public String getContextCsn()
     {
         return null;
     }
 
+
     public long getSyncPeriodMillis()
     {
         return 0;
     }
 
+
     public void setContextCsn( String lastCommittedCsnVal )
     {
     }
+
 
     public void setSyncPeriodMillis( long syncPeriodMillis )
     {
@@ -575,7 +587,7 @@ public class MockDirectoryService implements DirectoryService
 
 
     @Override
-    public void addFirst( Interceptor interceptor )  throws LdapException
+    public void addFirst( Interceptor interceptor ) throws LdapException
     {
         // TODO Auto-generated method stub
     }

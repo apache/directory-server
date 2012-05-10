@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.add;
 
@@ -115,10 +115,10 @@ import org.slf4j.LoggerFactory;
                     "objectClass: top\n" +
                     "objectClass: domain\n\n"),
             indexes =
-            {
-                @CreateIndex(attribute = "objectClass"),
-                @CreateIndex(attribute = "dc"),
-                @CreateIndex(attribute = "ou")
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
             }),
 
         @CreatePartition(
@@ -130,13 +130,13 @@ import org.slf4j.LoggerFactory;
                     "objectClass: top\n" +
                     "objectClass: domain\n\n"),
             indexes =
-            {
-                @CreateIndex(attribute = "objectClass"),
-                @CreateIndex(attribute = "dc"),
-                @CreateIndex(attribute = "ou")
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
             }) })
-@CreateLdapServer( name = "ADDIT",  transports =
-    { @CreateTransport(protocol = "LDAP", port = -1 ) })
+@CreateLdapServer(name = "ADDIT", transports =
+    { @CreateTransport(protocol = "LDAP", port = -1) })
 @ApplyLdifs(
     {
         // Entry # 0
@@ -195,7 +195,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // modify object classes, add two more
         Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: organizationalPerson",
-                "objectClass: inetOrgPerson" );
+            "objectClass: inetOrgPerson" );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
         person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
@@ -513,7 +513,7 @@ public class AddIT extends AbstractLdapTestUnit
         String rdnAlias = "ou=bestFruit";
         containerCtx.createSubcontext( rdnAlias, alias );
 
-        // search one level scope for alias 
+        // search one level scope for alias
         SearchControls controls = new SearchControls();
         controls.setDerefLinkFlag( true );
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -704,16 +704,17 @@ public class AddIT extends AbstractLdapTestUnit
         addRequest.addControl( manageDSAIT );
 
         // add success
-        Entry entry = new DefaultEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+        Entry entry = new DefaultEntry( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system",
             "objectClass", "organizationalUnit",
             "ou", "UnderReferral" );
-        
+
         addRequest.setEntry( entry );
 
         AddResponse addResponse = conn.add( addRequest );
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        assertNull( conn.lookup( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", new Control[]{ manageDSAIT } ) );
+        assertNull( conn.lookup( "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", new Control[]
+            { manageDSAIT } ) );
 
         conn.close();
     }
@@ -783,8 +784,8 @@ public class AddIT extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
 
         // referrals failure
-        Entry entry = new DefaultEntry( 
-            "ou=UnderReferral,ou=Computers,uid=akarasuluref,ou=users,ou=system", 
+        Entry entry = new DefaultEntry(
+            "ou=UnderReferral,ou=Computers,uid=akarasuluref,ou=users,ou=system",
             "objectClass", "organizationalUnit",
             "ou", "UnderReferral" );
         addRequest.setEntry( entry );
@@ -793,16 +794,19 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/ou=UnderReferral,ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }
 
 
     /**
-     * Tests add operation on normal and referral entries without the 
+     * Tests add operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -817,28 +821,31 @@ public class AddIT extends AbstractLdapTestUnit
         //addRequest.addControl( manageDSAIT );
 
         // referrals failure
-        Entry entry = new DefaultEntry( 
-            "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system", 
+        Entry entry = new DefaultEntry(
+            "ou=UnderReferral,uid=akarasuluref,ou=users,ou=system",
             "objectClass", "organizationalUnit",
             "ou", "UnderReferral" );
-        
+
         addRequest.setEntry( entry );
 
         AddResponse addResponse = conn.add( addRequest );
 
         assertEquals( ResultCodeEnum.REFERRAL, addResponse.getLdapResult().getResultCode() );
 
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( addResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/ou=UnderReferral,uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }
 
 
     /**
-     * Tests add operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests add operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test
@@ -886,7 +893,7 @@ public class AddIT extends AbstractLdapTestUnit
         attrs.put( "cn", "Jim, Bean" );
 
         DirContext jimBeanCtx = ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
-        
+
         assertNotNull( jimBeanCtx );
     }
 
@@ -967,7 +974,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         String[] expectedCns =
-            { "Jackson", "michael" };
+            { "Jackson", "Michael" };
 
         for ( String name : expectedCns )
         {
@@ -1062,15 +1069,15 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( 2, cn.size() );
         assertTrue( cn.contains( "Jackson" ) );
-        assertTrue( cn.contains( "michael" ) );
+        assertTrue( cn.contains( "Michael" ) );
     }
 
 
     /**
      * Test that if we inject a PDU above the max allowed size,
-     * the connection is closed. 
+     * the connection is closed.
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
     public void testAddPDUExceedingMaxSizeJNDI() throws Exception
@@ -1137,9 +1144,9 @@ public class AddIT extends AbstractLdapTestUnit
 
     /**
      * Test that if we inject a PDU above the max allowed size,
-     * the connection is closed. 
+     * the connection is closed.
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
     public void testAddPDUExceedingMaxSizeLdapApi() throws Exception
@@ -1218,7 +1225,7 @@ public class AddIT extends AbstractLdapTestUnit
         binary.put( "userPassword", "test" );
         /*
          * Note that the Rdn attribute is different to the userPassword specified
-         * in the entry. This creates a second cn attribute "userPassword:#414243". 
+         * in the entry. This creates a second cn attribute "userPassword:#414243".
          * This is a JNDI hack:
          * If no other userPassword is available in the entry, JNDI adds the Rdn
          * attribute to the entry before sending the request to the server.
@@ -1234,7 +1241,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "amos,tori" ) );
+        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword
@@ -1326,13 +1333,13 @@ public class AddIT extends AbstractLdapTestUnit
      *        |--cn=alias  <--alias, pointing to the real entry
      * </pre>
      * 
-     * @throws NamingException 
+     * @throws NamingException
      */
     @Test
-    @CreateDS( 
+    @CreateDS(
         enableChangeLog = false,
-        name = "DSAlias" )
-    @CreateLdapServer( name = "DSAlias", transports =
+        name = "DSAlias")
+    @CreateLdapServer(name = "DSAlias", transports =
         { @CreateTransport(protocol = "LDAP", port = -1) })
     public void test_DIRSERVER_1357() throws Exception
     {
@@ -1367,10 +1374,11 @@ public class AddIT extends AbstractLdapTestUnit
         ctx.destroySubcontext( "cn=alias,ou=engineering" );
     }
 
+
     /**
      * Adding an entry with a non existing attribute type.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddEntryNonExistingAT() throws Exception
@@ -1389,9 +1397,9 @@ public class AddIT extends AbstractLdapTestUnit
         try
         {
             connection.add( personEntry );
-            fail("should throw LdapNoSuchAttributeException");
+            fail( "should throw LdapNoSuchAttributeException" );
         }
-        catch( LdapNoSuchAttributeException e )
+        catch ( LdapNoSuchAttributeException e )
         {
             //expected exception
         }
@@ -1406,9 +1414,9 @@ public class AddIT extends AbstractLdapTestUnit
     /**
      * Adding an entry with a non existing attribute type.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
-    @Test( expected = LdapOperationException.class )
+    @Test(expected = LdapOperationException.class)
     public void testAddEntryNonExistingOC() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
@@ -1428,46 +1436,89 @@ public class AddIT extends AbstractLdapTestUnit
     /**
      * Adding an entry with a 100K attribute's value.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
-    @Test( expected = LdapException.class )
+    @Test(expected = LdapException.class)
     public void testAddEntry100KData() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
 
-        int size = 100*1024;
+        int size = 100 * 1024;
         byte[] dataBytes = new byte[size];
-        
-        for ( int i = 0; i < size; i++)
+
+        for ( int i = 0; i < size; i++ )
         {
             dataBytes[i] = 'A';
         }
-        
+
         String data = Strings.utf8ToString( dataBytes );
 
         Dn dn = new Dn( "cn=Kate Bush," + BASE );
-        
+
         Entry personEntry = new DefaultEntry( "cn=Kate Bush," + BASE,
-        "objectClass: top",
-        "objectClass: person",
-        "cn: Kate Bush",
-        "sn: Bush",
-        "description", data );
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Kate Bush",
+            "sn: Bush",
+            "description", data );
 
         connection.add( personEntry );
-        
-        // Check that the entry has been stored 
+
+        // Check that the entry has been stored
         Entry entry = connection.lookup( dn, "description", "cn", "sn" );
-        
+
         String description = entry.get( "description" ).getString();
-        
+
         assertNotNull( description );
         assertTrue( description.startsWith( "AAA" ) );
         assertEquals( size, description.length() );
-        
+
         for ( int i = 0; i < size; i++ )
         {
             assertEquals( 'A', description.charAt( i ) );
         }
+    }
+
+
+    /**
+     * Test case to demonstrate DIRSERVER-1681
+     * Create an entry with a certificate;binary value
+     * 
+     * @throws LDAPException if we fail to connect and add entries
+     */
+    @Test
+    public void testAddWithCertificateBinary() throws Exception
+    {
+        LdapConnection con = getAdminConnection( getLdapServer() );
+        con.loadSchema();
+
+        String dn = "cn=Kate Bush," + BASE;
+        Entry kate = new DefaultEntry( dn,
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: inetOrgPerson",
+            "userCertificate;binary:: PEhlbGxvIHdvcmxkICE+", // This is "<hello world !>"
+            "sn: Bush",
+            "cn: Kate Bush" );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        Entry kateReloaded = con.lookup( dn );
+        assertNotNull( kateReloaded );
+        Attribute certificate = kateReloaded.get( "userCertificate;binary" );
+        assertNotNull( certificate );
+        assertEquals( 1, certificate.size() );
+        assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
+        
+        // Same check without the ";binary"
+        certificate = kateReloaded.get( "userCertificate" );
+        assertNotNull( certificate );
+        assertEquals( 1, certificate.size() );
+        assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
+        
+        // Remove entry
+        con.delete( dn );
+        con.unBind();
     }
 }

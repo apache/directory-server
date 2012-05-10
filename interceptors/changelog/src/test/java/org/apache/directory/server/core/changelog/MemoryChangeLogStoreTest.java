@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.changelog;
 
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -64,7 +63,8 @@ public class MemoryChangeLogStoreTest
     private static MemoryChangeLogStore store;
 
     private static SchemaManager schemaManager;
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -96,14 +96,14 @@ public class MemoryChangeLogStoreTest
         assertEquals( 1, store.log( new LdapPrincipal( schemaManager ), forward, reverse ).getRevision() );
         assertEquals( 1, store.getCurrentRevision() );
     }
-    
-    
+
+
     @Test
     public void testChangeLogSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         Dn systemDn = new Dn( schemaManager, "ou=system" );
         systemDn.apply( schemaManager );
-        
+
         Dn adminDn = new Dn( schemaManager, "uid=admin, ou=system" );
         adminDn.apply( schemaManager );
 
@@ -112,7 +112,7 @@ public class MemoryChangeLogStoreTest
         forward.setChangeType( ChangeType.Add );
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
-        
+
         Dn reverseDn = forward.getDn();
         reverseDn.apply( schemaManager );
 
@@ -120,31 +120,32 @@ public class MemoryChangeLogStoreTest
 
         String zuluTime = DateUtils.getGeneralizedTime();
         long revision = 1L;
-        
-        LdapPrincipal principal = new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.SIMPLE, Strings.getBytesUtf8("secret") );
+
+        LdapPrincipal principal = new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.SIMPLE,
+            Strings.getBytesUtf8( "secret" ) );
         ChangeLogEvent event = new ChangeLogEvent( revision, zuluTime, principal, forward, reverse );
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream( baos );
 
         ChangeLogEventSerializer.serialize( event, out );
-        
+
         byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-        
-        ChangeLogEvent read = ChangeLogEventSerializer.deserialize( schemaManager, in ); 
-        
+
+        ChangeLogEvent read = ChangeLogEventSerializer.deserialize( schemaManager, in );
+
         // The read event should not be equal to the written event, as
         // the principal's password has not been stored
         assertNotSame( event, read );
-        
+
         LdapPrincipal readPrincipal = read.getCommitterPrincipal();
-        
+
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
         assertEquals( principal.getDn(), readPrincipal.getDn() );
         assertNull( readPrincipal.getUserPassword() );
-        
+
         assertEquals( zuluTime, read.getZuluTime() );
         assertEquals( revision, read.getRevision() );
         assertEquals( forward, read.getForwardLdif() );

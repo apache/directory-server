@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.checksum;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
 
@@ -32,6 +33,7 @@ public class ChecksumContainer extends AbstractContainer
 {
     /** holds Checksum */
     private Checksum checksum;
+
 
     /**
      * Creates a new ChecksumContainer object.
@@ -53,7 +55,7 @@ public class ChecksumContainer extends AbstractContainer
         return checksum;
     }
 
-    
+
     /**
      * Set a Checksum Object into the container
      * 

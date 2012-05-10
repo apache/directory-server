@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,23 +57,23 @@ import org.apache.directory.shared.util.DateUtils;
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {
-    
+
     private static final String REV_FILE = "revision";
     private static final String TAG_FILE = "tags";
     private static final String CHANGELOG_FILE = "changelog.dat";
 
     /** An incremental number giving the current revision */
     private long currentRevision;
-    
+
     /** The latest tag */
     private Tag latest;
-    
+
     /** A Map of tags and revisions */
-    private final Map<Long,Tag> tags = new HashMap<Long,Tag>( 100 );
-    
+    private final Map<Long, Tag> tags = new HashMap<Long, Tag>( 100 );
+
     private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
     private File workingDirectory;
-    
+
     /** The DirectoryService */
     private DirectoryService directoryService;
 
@@ -98,7 +99,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      */
     public Tag tag() throws Exception
     {
-        if ( ( latest != null) && ( latest.getRevision() == currentRevision ) )
+        if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
         {
             return latest;
         }
@@ -137,11 +138,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
-        
+
         if ( revFile.exists() )
         {
             BufferedReader reader = null;
-            
+
             try
             {
                 reader = new BufferedReader( new FileReader( revFile ) );
@@ -173,17 +174,17 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveRevision() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
-        
+
         if ( revFile.exists() )
         {
-            if( !revFile.delete() )
+            if ( !revFile.delete() )
             {
                 throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
             }
         }
 
         PrintWriter out = null;
-        
+
         try
         {
             out = new PrintWriter( new FileWriter( revFile ) );
@@ -209,27 +210,27 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveTags() throws Exception
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
-        
+
         if ( tagFile.exists() )
         {
-            if( !tagFile.delete() )
+            if ( !tagFile.delete() )
             {
                 throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, tagFile.getAbsolutePath() ) );
             }
         }
 
         FileOutputStream out = null;
-        
+
         try
         {
             out = new FileOutputStream( tagFile );
 
             Properties props = new Properties();
-            
+
             for ( Tag tag : tags.values() )
             {
                 String key = String.valueOf( tag.getRevision() );
-                
+
                 if ( tag.getDescription() == null )
                 {
                     props.setProperty( key, "null" );
@@ -269,18 +270,18 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadTags() throws Exception
     {
         File revFile = new File( workingDirectory, REV_FILE );
-        
+
         if ( revFile.exists() )
         {
             Properties props = new Properties();
             FileInputStream in = null;
-            
+
             try
             {
                 in = new FileInputStream( revFile );
                 props.load( in );
                 ArrayList<Long> revList = new ArrayList<Long>();
-                
+
                 for ( Object key : props.keySet() )
                 {
                     revList.add( Long.valueOf( ( String ) key ) );
@@ -291,7 +292,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
                 // @todo need some serious syncrhoization here on tags
                 tags.clear();
-                
+
                 for ( Long lkey : revList )
                 {
                     String rev = String.valueOf( lkey );
@@ -338,7 +339,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void loadChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
-        
+
         if ( file.exists() )
         {
             ObjectInputStream in = null;
@@ -347,12 +348,13 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             {
                 in = new ObjectInputStream( new FileInputStream( file ) );
                 int size = in.readInt();
-                
+
                 ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>( size );
 
                 for ( int i = 0; i < size; i++ )
                 {
-                    ChangeLogEvent event = ChangeLogEventSerializer.deserialize( directoryService.getSchemaManager(), in );
+                    ChangeLogEvent event = ChangeLogEventSerializer.deserialize( directoryService.getSchemaManager(),
+                        in );
                     event.getCommitterPrincipal().setSchemaManager( directoryService.getSchemaManager() );
                     changeLogEvents.add( event );
                 }
@@ -388,10 +390,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private void saveChangeLog() throws Exception
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
-        
+
         if ( file.exists() )
         {
-            if( !file.delete() )
+            if ( !file.delete() )
             {
                 throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
             }
@@ -413,10 +415,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             out = new ObjectOutputStream( new FileOutputStream( file ) );
 
             out.writeInt( events.size() );
-            
+
             for ( ChangeLogEvent event : events )
             {
-                ChangeLogEventSerializer.serialize( event, out  );
+                ChangeLogEventSerializer.serialize( event, out );
             }
 
             out.flush();
@@ -473,8 +475,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
-        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(), 
-                principal, forward, reverse );
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
+            principal, forward, reverse );
         events.add( event );
         return event;
     }
@@ -487,7 +489,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
-                principal, forward, reverses );
+            principal, forward, reverses );
         events.add( event );
         return event;
     }
@@ -562,25 +564,25 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         tags.put( revision, latest );
         return latest;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "MemoryChangeLog\n" );
         sb.append( "latest tag : " ).append( latest ).append( '\n' );
-        
+
         if ( events != null )
         {
             sb.append( "Nb of events : " ).append( events.size() ).append( '\n' );
-            
+
             int i = 0;
-            
-            for ( ChangeLogEvent event:events )
+
+            for ( ChangeLogEvent event : events )
             {
                 sb.append( "event[" ).append( i++ ).append( "] : " );
                 sb.append( "\n---------------------------------------\n" );
@@ -588,8 +590,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
                 sb.append( "\n---------------------------------------\n" );
             }
         }
-        
-        
+
         return sb.toString();
     }
 }

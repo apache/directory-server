@@ -71,9 +71,10 @@ public class ReferralInterceptor extends BaseInterceptor
     /** A normalized form for the SubschemaSubentry Dn */
     private Dn subschemaSubentryDn;
 
+
     static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
-        StringValue ref = (StringValue) value;
+        StringValue ref = ( StringValue ) value;
 
         String refVal = ref.getString();
 
@@ -96,7 +97,7 @@ public class ReferralInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
-        if ( !Strings.isEmpty(ldapUrl.getFilter()) )
+        if ( !Strings.isEmpty( ldapUrl.getFilter() ) )
         {
             String message = I18n.err( I18n.ERR_37 );
             LOG.error( message );
@@ -191,6 +192,7 @@ public class ReferralInterceptor extends BaseInterceptor
             return true;
         }
     }
+
 
     /**
      * Creates a new instance of a ReferralInterceptor.
@@ -405,8 +407,9 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(), renameContext
-                .getNewDn() );
+            LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
+                renameContext
+                    .getNewDn() );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry newEntry = nexus.lookup( lookupContext );
@@ -414,7 +417,7 @@ public class ReferralInterceptor extends BaseInterceptor
             referralManager.lockWrite();
 
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() );
+            referralManager.removeReferral( ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry() );
 
             referralManager.unlock();
         }

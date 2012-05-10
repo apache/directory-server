@@ -20,14 +20,23 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.List;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +47,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
@@ -68,6 +80,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public SubtreeScopeCursor( Store<Entry, ID> db, SubtreeScopeEvaluator<Entry, ID> evaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating SubtreeScopeCursor {}", this );
         this.db = db;
         this.evaluator = evaluator;
 
@@ -77,7 +90,19 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         }
         else
         {
-            scopeCursor = db.getSubLevelIndex().forwardCursor( evaluator.getBaseId() );
+            // We use the RdnIndex to get all the entries from a starting point
+            // and below up to the number of children
+            ID baseId = evaluator.getBaseId();
+            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId ); 
+            IndexEntry indexEntry = new ForwardIndexEntry();
+            
+            indexEntry.setId( baseId );
+            indexEntry.setKey( parentIdAndRdn );
+
+            IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>( indexEntry );
+            ID parentId = parentIdAndRdn.getParentId();
+
+            scopeCursor = new DescendantCursor( db, baseId, parentId, cursor );
         }
 
         if ( evaluator.isDereferencing() )
@@ -99,7 +124,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         return UNSUPPORTED_MSG;
     }
 
-    
+
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     private ID getContextEntryId() throws Exception
     {
@@ -107,7 +132,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -188,7 +213,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
                 {
                     checkNotClosed( "previous()" );
                     setAvailable( cursor.previous() );
-                    
+
                     if ( available() && db.getAliasIndex().reverseLookup( cursor.get().getId() ) == null )
                     {
                         break;
@@ -211,7 +236,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
          * last element.
          */
         setAvailable( cursor.previous() );
-        
+
         if ( !available() )
         {
             cursor = scopeCursor;
@@ -240,6 +265,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         // if the cursor hasn't been set position it before the first element
         if ( cursor == null )
         {
@@ -288,7 +314,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             {
                 cursor = dereferencedCursor;
                 cursor.beforeFirst();
-                
+
                 return setAvailable( cursor.next() );
             }
 
@@ -302,7 +328,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return cursor.get();
@@ -312,32 +338,54 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    private void closeCursors() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
     {
-        if( dereferencedCursor != null )
+        LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
+        
+        if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
         }
-        
-        if( scopeCursor != null )
+
+        if ( scopeCursor != null )
         {
             scopeCursor.close();
         }
-    }
-    
-    
-    @Override
-    public void close() throws Exception
-    {
-        closeCursors();
+        
+        if ( cursor != null )
+        {
+            cursor.close();
+        }
+
         super.close();
     }
 
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void close( Exception cause ) throws Exception
     {
-        closeCursors();
+        LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
+        
+        if ( dereferencedCursor != null )
+        {
+            dereferencedCursor.close( cause );
+        }
+
+        if ( scopeCursor != null )
+        {
+            scopeCursor.close( cause );
+        }
+        
+        if ( cursor != null )
+        {
+            cursor.close( cause );
+        }
+
         super.close( cause );
     }
 }

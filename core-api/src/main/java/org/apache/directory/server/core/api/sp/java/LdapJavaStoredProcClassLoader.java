@@ -47,7 +47,7 @@ public class LdapJavaStoredProcClassLoader extends ClassLoader
     public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes;
-        
+
         try
         {
             classBytes = javaByteCodeAttr.getBytes();

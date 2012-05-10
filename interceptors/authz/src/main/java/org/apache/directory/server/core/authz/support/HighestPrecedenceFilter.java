@@ -40,7 +40,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         throws LdapException
     {
         ACI_LOG.debug( "Filtering HighestPrecedence..." );
-        
+
         if ( aciContext.getAciTuples().size() <= 1 )
         {
             ACI_LOG.debug( "HighestPrecedence : nothing to do" );
@@ -50,7 +50,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         int maxPrecedence = -1;
 
         // Find the maximum precedence for all tuples.
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
             if ( ( tuple.getPrecedence() != null ) && ( tuple.getPrecedence() > maxPrecedence ) )
             {
@@ -62,7 +62,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = aciContext.getAciTuples().iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
-            
+
             if ( ( tuple.getPrecedence() != null ) && ( tuple.getPrecedence() != maxPrecedence ) )
             {
                 i.remove();

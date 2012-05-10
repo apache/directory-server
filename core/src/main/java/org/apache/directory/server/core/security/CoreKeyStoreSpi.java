@@ -62,9 +62,9 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     private static final String APACHEDS_ALIAS = "apacheds";
 
     private static final Logger LOG = LoggerFactory.getLogger( CoreKeyStoreSpi.class );
-    
+
     private DirectoryService directoryService;
-    
+
 
     /**
      * Creates a new instance of LocalKeyStore.
@@ -79,12 +79,13 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     private Entry getTlsEntry() throws Exception
     {
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        LdapPrincipal principal = new LdapPrincipal( directoryService.getSchemaManager(), adminDn, AuthenticationLevel.SIMPLE );
+        LdapPrincipal principal = new LdapPrincipal( directoryService.getSchemaManager(), adminDn,
+            AuthenticationLevel.SIMPLE );
         CoreSession session = directoryService.getSession( principal );
         return session.lookup( adminDn );
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see java.security.KeyStoreSpi#engineAliases()
      */
@@ -103,12 +104,12 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public boolean engineContainsAlias( String alias )
     {
         LOG.debug( "engineContainsAlias({}) called.", alias );
-        
+
         if ( alias.equalsIgnoreCase( APACHEDS_ALIAS ) )
         {
             return true;
         }
-        
+
         return false;
     }
 
@@ -143,7 +144,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
                 LOG.error( I18n.err( I18n.ERR_65 ), e );
             }
         }
-        
+
         return null;
     }
 
@@ -155,7 +156,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public String engineGetCertificateAlias( Certificate cert )
     {
         LOG.debug( "engineGetCertificateAlias({}) called.", cert );
-        
+
         if ( cert instanceof X509Certificate )
         {
             LOG.debug( "Certificate in alias request is X.509 based." );
@@ -165,7 +166,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
                 return APACHEDS_ALIAS;
             }
         }
-        
+
         try
         {
             Entry entry = getTlsEntry();
@@ -178,7 +179,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.error( I18n.err( I18n.ERR_66 ), e );
         }
-        
+
         return null;
     }
 
@@ -194,13 +195,14 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             Entry entry = getTlsEntry();
             LOG.debug( "Entry:\n{}", entry );
-            return new Certificate[] { TlsKeyGenerator.getCertificate( entry ) };
+            return new Certificate[]
+                { TlsKeyGenerator.getCertificate( entry ) };
         }
         catch ( Exception e )
         {
             LOG.error( I18n.err( I18n.ERR_66 ), e );
         }
-        
+
         return new Certificate[0];
     }
 
@@ -223,7 +225,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public Key engineGetKey( String alias, char[] password ) throws NoSuchAlgorithmException, UnrecoverableKeyException
     {
         LOG.debug( "engineGetKey({}, {}) called.", alias, password );
-        
+
         try
         {
             Entry entry = getTlsEntry();
@@ -234,7 +236,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.error( I18n.err( I18n.ERR_68 ), e );
         }
-        
+
         return null;
     }
 

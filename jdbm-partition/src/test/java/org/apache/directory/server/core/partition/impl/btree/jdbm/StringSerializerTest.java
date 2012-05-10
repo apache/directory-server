@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.io.IOException;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+
 
 /**
  *
@@ -44,21 +46,21 @@ public class StringSerializerTest
         for ( int ii = 0; ii < 100; ii++ )
         {
             String str = RandomStringUtils.random( ii );
-            byte [] serialized = serializer.serialize( str );
+            byte[] serialized = serializer.serialize( str );
             String deserialized = ( String ) serializer.deserialize( serialized );
             assertEquals( str, deserialized );
         }
     }
-    
-    
+
+
     char getChar( byte[] bites )
     {
         int ch = bites[0] << 8 & 0x0000FF00;
         ch |= bites[1] & 0x000000FF;
         return ( char ) ch;
     }
-    
-    
+
+
     byte[] getBytes( char ch )
     {
         byte[] bites = new byte[2];
@@ -67,7 +69,7 @@ public class StringSerializerTest
         return bites;
     }
 
-    
+
     @Test
     public void testConversion()
     {

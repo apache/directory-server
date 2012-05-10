@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.hostAddresses;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
@@ -33,6 +34,7 @@ public class HostAddressesContainer extends AbstractContainer
 {
     /** The list of HostAddress */
     private HostAddresses hostAddresses = new HostAddresses();
+
 
     /**
      * Creates a new HostAddressesContainer object.
@@ -54,7 +56,7 @@ public class HostAddressesContainer extends AbstractContainer
         return hostAddresses;
     }
 
-    
+
     /**
      * Add a HostAddress Object into the list. It will be completed by the
      * KerberosDecoder.

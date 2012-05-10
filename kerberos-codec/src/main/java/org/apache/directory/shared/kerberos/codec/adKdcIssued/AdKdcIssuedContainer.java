@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.adKdcIssued;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.AdKdcIssued;
 
@@ -32,6 +33,7 @@ public class AdKdcIssuedContainer extends AbstractContainer
 {
     /** An AdKdcIssued container */
     private AdKdcIssued adKdcIssued = new AdKdcIssued();
+
 
     /**
      * Creates a new AdKdcIssuedContainer object.
@@ -53,7 +55,7 @@ public class AdKdcIssuedContainer extends AbstractContainer
         return adKdcIssued;
     }
 
-    
+
     /**
      * Set an AdKdcIssued Object into the container. It will be completed by the
      * KerberosDecoder.

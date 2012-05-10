@@ -33,8 +33,9 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DITContentRule;
-import org.apache.directory.shared.ldap.model.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.model.schema.AttributesFactory;
+import org.apache.directory.shared.ldap.model.schema.DitContentRule;
+import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
@@ -78,8 +79,8 @@ public class SchemaSubentryModifier
         this.schemaManager = schemaManager;
         this.dnFactory = dnFactory;
     }
-    
-    
+
+
     private Dn getDn( SchemaObject obj ) throws LdapInvalidDnException
     {
         StringBuffer buf = new StringBuffer();
@@ -105,11 +106,11 @@ public class SchemaSubentryModifier
         {
             buf.append( SchemaConstants.MATCHING_RULE_USE_AT );
         }
-        else if ( obj instanceof DITStructureRule )
+        else if ( obj instanceof DitStructureRule )
         {
             buf.append( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         }
-        else if ( obj instanceof DITContentRule )
+        else if ( obj instanceof DitContentRule )
         {
             buf.append( SchemaConstants.DIT_CONTENT_RULES_AT );
         }
@@ -121,9 +122,10 @@ public class SchemaSubentryModifier
         buf.append( ",cn=" ).append( obj.getSchemaName() ).append( ",ou=schema" );
         return dnFactory.create( buf.toString() );
     }
-    
 
-    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, LdapComparatorDescription comparatorDescription ) throws LdapException
+
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
         Dn dn = dnFactory.create(
@@ -131,7 +133,7 @@ public class SchemaSubentryModifier
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        
+
         Entry entry = getEntry( dn, comparatorDescription );
 
         AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
@@ -139,71 +141,10 @@ public class SchemaSubentryModifier
 
         nextInterceptor.add( addContext );
     }
-    
-    
-    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, NormalizerDescription normalizerDescription ) throws LdapException
-    {
-        String schemaName = getSchema( normalizerDescription );
-        Dn dn = dnFactory.create(
-            "m-oid=" + normalizerDescription.getOid(),
-            SchemaConstants.NORMALIZERS_PATH ,
-            "cn=" + schemaName,
-            SchemaConstants.OU_SCHEMA );
-        
-        Entry entry = getEntry( dn, normalizerDescription );
-
-        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
-        addContext.setCurrentInterceptor( position );
-
-        nextInterceptor.add( addContext );
-    }
-    
-    
-    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
-    {
-        String schemaName = getSchema( syntaxCheckerDescription );
-        Dn dn = dnFactory.create(
-            "m-oid=" + syntaxCheckerDescription.getOid(),
-            SchemaConstants.SYNTAX_CHECKERS_PATH,
-            "cn=" + schemaName,
-            SchemaConstants.OU_SCHEMA );
-        
-        Entry entry = getEntry( dn, syntaxCheckerDescription );
-
-        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
-        addContext.setCurrentInterceptor( position );
-
-        nextInterceptor.add( addContext );
-    }
-    
-    
-    public void addSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SchemaObject obj ) throws LdapException
-    {
-        Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
-        Dn dn = getDn( obj );
-        Entry entry = factory.getAttributes( obj, schema, schemaManager );
-        entry.setDn( dn );
-        
-        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
-        addContext.setCurrentInterceptor( position );
-
-        nextInterceptor.add( addContext );
-    }
 
 
-    public void deleteSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SchemaObject obj ) throws LdapException
-    {
-        Dn dn = getDn( obj );
-
-        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
-        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
-        deleteContext.setCurrentInterceptor( position );
-
-        nextInterceptor.delete( deleteContext );
-    }
-
-    
-    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, NormalizerDescription normalizerDescription ) throws LdapException
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        NormalizerDescription normalizerDescription ) throws LdapException
     {
         String schemaName = getSchema( normalizerDescription );
         Dn dn = dnFactory.create(
@@ -211,7 +152,55 @@ public class SchemaSubentryModifier
             SchemaConstants.NORMALIZERS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        
+
+        Entry entry = getEntry( dn, normalizerDescription );
+
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
+    }
+
+
+    public void add( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
+    {
+        String schemaName = getSchema( syntaxCheckerDescription );
+        Dn dn = dnFactory.create(
+            "m-oid=" + syntaxCheckerDescription.getOid(),
+            SchemaConstants.SYNTAX_CHECKERS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+
+        Entry entry = getEntry( dn, syntaxCheckerDescription );
+
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
+    }
+
+
+    public void addSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        SchemaObject obj ) throws LdapException
+    {
+        Schema schema = schemaManager.getLoadedSchema( obj.getSchemaName() );
+        Dn dn = getDn( obj );
+        Entry entry = factory.getAttributes( obj, schema, schemaManager );
+        entry.setDn( dn );
+
+        AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
+        addContext.setCurrentInterceptor( position );
+
+        nextInterceptor.add( addContext );
+    }
+
+
+    public void deleteSchemaObject( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        SchemaObject obj ) throws LdapException
+    {
+        Dn dn = getDn( obj );
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
@@ -220,7 +209,26 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        NormalizerDescription normalizerDescription ) throws LdapException
+    {
+        String schemaName = getSchema( normalizerDescription );
+        Dn dn = dnFactory.create(
+            "m-oid=" + normalizerDescription.getOid(),
+            SchemaConstants.NORMALIZERS_PATH,
+            "cn=" + schemaName,
+            SchemaConstants.OU_SCHEMA );
+
+        DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
+        deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
+        deleteContext.setCurrentInterceptor( position );
+
+        nextInterceptor.delete( deleteContext );
+    }
+
+
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        SyntaxCheckerDescription syntaxCheckerDescription ) throws LdapException
     {
         String schemaName = getSchema( syntaxCheckerDescription );
         Dn dn = dnFactory.create(
@@ -237,7 +245,8 @@ public class SchemaSubentryModifier
     }
 
 
-    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext, LdapComparatorDescription comparatorDescription ) throws LdapException
+    public void delete( Interceptor nextInterceptor, int position, ModifyOperationContext modifyContext,
+        LdapComparatorDescription comparatorDescription ) throws LdapException
     {
         String schemaName = getSchema( comparatorDescription );
         Dn dn = dnFactory.create(
@@ -245,7 +254,7 @@ public class SchemaSubentryModifier
             SchemaConstants.COMPARATORS_PATH,
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
-        
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
@@ -257,12 +266,12 @@ public class SchemaSubentryModifier
     private Entry getEntry( Dn dn, LdapComparatorDescription comparatorDescription )
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
-        
+
         entry.put( SchemaConstants.OBJECT_CLASS_AT,
-                    SchemaConstants.TOP_OC,
-                    MetaSchemaConstants.META_TOP_OC,
-                    MetaSchemaConstants.META_COMPARATOR_OC );
-        
+            SchemaConstants.TOP_OC,
+            MetaSchemaConstants.META_TOP_OC,
+            MetaSchemaConstants.META_COMPARATOR_OC );
+
         entry.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
 
@@ -271,12 +280,12 @@ public class SchemaSubentryModifier
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
                 Base64.decode( comparatorDescription.getBytecode().toCharArray() ) );
         }
-        
+
         if ( comparatorDescription.getDescription() != null )
         {
             entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, comparatorDescription.getDescription() );
         }
-        
+
         return entry;
     }
 
@@ -289,7 +298,7 @@ public class SchemaSubentryModifier
             SchemaConstants.TOP_OC,
             MetaSchemaConstants.META_TOP_OC,
             MetaSchemaConstants.META_NORMALIZER_OC );
-        
+
         entry.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getOid() );
         entry.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
 
@@ -298,31 +307,31 @@ public class SchemaSubentryModifier
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
                 Base64.decode( normalizerDescription.getBytecode().toCharArray() ) );
         }
-        
+
         if ( normalizerDescription.getDescription() != null )
         {
             entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, normalizerDescription.getDescription() );
         }
-        
+
         return entry;
     }
 
 
     private String getSchema( SchemaObject desc )
     {
-        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA ) )
+        if ( desc.getExtensions().containsKey( MetaSchemaConstants.X_SCHEMA_AT ) )
         {
-            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            return desc.getExtensions().get( MetaSchemaConstants.X_SCHEMA_AT ).get( 0 );
         }
-        
+
         return MetaSchemaConstants.SCHEMA_OTHER;
     }
-    
-    
+
+
     private Entry getEntry( Dn dn, SyntaxCheckerDescription syntaxCheckerDescription )
     {
         Entry entry = new DefaultEntry( schemaManager, dn );
-        
+
         entry.put( SchemaConstants.OBJECT_CLASS_AT,
             SchemaConstants.TOP_OC,
             MetaSchemaConstants.META_TOP_OC,
@@ -334,14 +343,14 @@ public class SchemaSubentryModifier
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
-                Base64.decode(syntaxCheckerDescription.getBytecode().toCharArray()) );
+                Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() ) );
         }
-        
+
         if ( syntaxCheckerDescription.getDescription() != null )
         {
             entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, syntaxCheckerDescription.getDescription() );
         }
-        
+
         return entry;
     }
 }

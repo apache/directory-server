@@ -39,6 +39,7 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 import netscape.ldap.LDAPSearchConstraints;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -48,6 +49,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -65,30 +67,40 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
         "objectClass: top",
         "uid: akarasulu",
         "cn: Alex Karasulu",
         "sn: karasulu",
 
         // Entry # 2
-        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: computers",
         "description: Computers for Alex",
         "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
 
         // Entry # 3
-        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
-        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class DeleteIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( DeleteIT.class );
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -113,7 +125,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on normal non-referral entries without 
+     * Tests normal delete operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -126,7 +138,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         // delete failure non-existant entry
         try
-        { 
+        {
             conn.delete( "uid=elecharny,ou=users,ou=system" );
             fail();
         }
@@ -141,7 +153,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal delete operation on non-existent entries without 
+     * Tests normal delete operation on non-existent entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -151,7 +163,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         // delete failure non-existent entry
         try
-        { 
+        {
             conn.delete( "uid=elecharny,ou=users,ou=system" );
             fail();
         }
@@ -195,7 +207,7 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
+     * Tests delete operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -224,8 +236,8 @@ public class DeleteIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests delete operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests delete operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test
@@ -308,7 +320,7 @@ public class DeleteIT extends AbstractLdapTestUnit
         {
             // expected
         }
-        
+
         conn.close();
     }
 }

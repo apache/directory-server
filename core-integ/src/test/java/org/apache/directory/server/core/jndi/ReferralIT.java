@@ -68,12 +68,11 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "ReferralIT")
 public class ReferralIT extends AbstractLdapTestUnit
 {
     private TestData td = new TestData();
-
 
     /*
      * NOTE: We may encounter conflicting circumstances where the ManageDsaIT control
@@ -103,8 +102,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         td.rootCtx = getSystemContext( getService() );
 
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ), true ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ), true );
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -258,7 +257,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-        
+
         Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
@@ -294,7 +293,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
 
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        
+
         Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
         userEntry.get( "objectClass" ).add( "person" );
         userEntry.put( "sn", "karasulu" );
@@ -329,9 +328,9 @@ public class ReferralIT extends AbstractLdapTestUnit
         // encounter referral errors with referral setting set to throw.
         // -------------------------------------------------------------------
         Dn userDn = new Dn( "cn=alex karasulu,ou=apache,ou=users,ou=system" );
-        Entry userEntry = new DefaultEntry( getService().getSchemaManager(), userDn);
-        
-        userEntry.add(  "ObjectClass", "top", "person" );
+        Entry userEntry = new DefaultEntry( getService().getSchemaManager(), userDn );
+
+        userEntry.add( "ObjectClass", "top", "person" );
         userEntry.add( "sn", "karasulu" );
         userEntry.add( "cn", "alex karasulu" );
 
@@ -438,7 +437,7 @@ public class ReferralIT extends AbstractLdapTestUnit
                 // abort the test because we're using the sun jdni provider
                 return;
             }
-            
+
             fail( "Should fail here throwing a PartialResultException" );
         }
         catch ( ReferralException e )
@@ -890,7 +889,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( NamingException e )
         {
-           // assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
+            // assertTrue( e.getResultCode() == ResultCodeEnum.AFFECTS_MULTIPLE_DSAS );
         }
     }
 
@@ -945,7 +944,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         catch ( NameNotFoundException e )
         {
         }
-        
+
         try
         {
             userCtx = ( LdapContext ) td.rootCtx.createSubcontext( "cn=akarasulu", referral );
@@ -954,7 +953,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         {
             userCtx = ( LdapContext ) td.rootCtx.lookup( "cn=akarasulu" );
         }
-        
+
         referral = userCtx.getAttributes( "" );
         assertTrue( referral.get( "cn" ).contains( "akarasulu" ) );
         assertTrue( referral.get( "sn" ).contains( "karasulu" ) );
@@ -1073,7 +1072,8 @@ public class ReferralIT extends AbstractLdapTestUnit
         }
         catch ( ReferralException e )
         {
-            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base", e.getReferralInfo() );
+            assertEquals( "ldap://fermi:10389/cn=alex%20karasulu,ou=apache,ou=users,ou=system??base",
+                e.getReferralInfo() );
             assertTrue( e.skipReferral() );
             assertEquals( "ldap://hertz:10389/cn=alex%20karasulu,ou=apache,ou=users,dc=example,dc=com??base", e
                 .getReferralInfo() );
@@ -1094,7 +1094,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> list = td.rootCtx.search( "", "(objectClass=*)", controls );
         Map<String, SearchResult> results = new HashMap<String, SearchResult>();
-        
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
@@ -1175,7 +1175,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
+
         attrs.put( "ref", "ldap://" );
         attrs.put( "cn", "refWithEmptyDN" );
 
@@ -1210,7 +1210,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
+
         Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithAttributes?cn" );
         attrs.put( ref );
 
@@ -1246,7 +1246,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
+
         Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithScope??sub" );
         attrs.put( ref );
 
@@ -1282,7 +1282,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
+
         Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithFilter???(cn=*)" );
         attrs.put( ref );
 
@@ -1318,7 +1318,7 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
+
         Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithExtension????x-extension=1.2.3.4" );
         attrs.put( ref );
 
@@ -1354,8 +1354,9 @@ public class ReferralIT extends AbstractLdapTestUnit
         oc.add( "extensibleObject" );
         oc.add( "referral" );
         attrs.put( oc );
-        
-        Attribute ref = new BasicAttribute( "ref", "ldap://localhost/cn=RefWithCriticalExtension????!x-extension=1.2.3.4" );
+
+        Attribute ref = new BasicAttribute( "ref",
+            "ldap://localhost/cn=RefWithCriticalExtension????!x-extension=1.2.3.4" );
         attrs.put( ref );
 
         attrs.put( "cn", "RefWithCriticalExtension" );

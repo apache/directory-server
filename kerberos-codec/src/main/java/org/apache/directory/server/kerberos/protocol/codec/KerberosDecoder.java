@@ -85,12 +85,14 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
     /** the key used while storing message container in the session */
     private static final String KERBEROS_MESSAGE_CONTAINER = "kerberosMessageContainer";
-    
+
+
     public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
         ByteBuffer buf = in.buf();
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session.getAttribute( KERBEROS_MESSAGE_CONTAINER );
-        
+        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session
+            .getAttribute( KERBEROS_MESSAGE_CONTAINER );
+
         if ( kerberosMessageContainer == null )
         {
             kerberosMessageContainer = new KerberosMessageContainer();
@@ -99,7 +101,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             kerberosMessageContainer.setGathering( true );
             kerberosMessageContainer.setTCP( !session.getTransportMetadata().isConnectionless() );
         }
-        
+
         if ( kerberosMessageContainer.isTCP() )
         {
             if ( buf.remaining() > 4 )
@@ -122,7 +124,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             try
             {
                 asn1Decoder.decode( buf, kerberosMessageContainer );
-                
+
                 if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
                     if ( IS_DEBUG )
@@ -130,9 +132,9 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
                         LOG.debug( "Decoded KerberosMessage : " + kerberosMessageContainer.getMessage() );
                         buf.mark();
                     }
-        
+
                     out.write( kerberosMessageContainer.getMessage() );
-        
+
                     kerberosMessageContainer.clean();
                 }
             }
@@ -147,8 +149,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             }
         }
     }
-    
-    
+
+
     /**
      * Decode an EncrytedData structure
      * 
@@ -161,7 +163,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncryptedData Container
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
@@ -182,8 +184,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encryptedData;
     }
-    
-    
+
+
     /**
      * Decode an PaEncTsEnc structure
      * 
@@ -196,7 +198,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a PaEncTsEnc Container
         Asn1Container paEncTsEncContainer = new PaEncTsEncContainer();
 
@@ -217,8 +219,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return paEncTsEnc;
     }
-    
-    
+
+
     /**
      * Decode an EncApRepPart structure
      * 
@@ -231,7 +233,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncApRepPart Container
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
@@ -252,8 +254,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encApRepPart;
     }
-    
-    
+
+
     /**
      * Decode an EncKdcRepPart structure
      * 
@@ -266,7 +268,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncKdcRepPart Container
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
@@ -287,8 +289,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encKdcRepPart;
     }
-    
-    
+
+
     /**
      * Decode an EncKrbPrivPart structure
      * 
@@ -301,7 +303,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncKrbPrivPart Container
         Asn1Container encKrbPrivPartContainer = new EncKrbPrivPartContainer( stream );
 
@@ -322,8 +324,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encKrbPrivPart;
     }
-    
-    
+
+
     /**
      * Decode an EncTicketPart structure
      * 
@@ -336,7 +338,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncTicketPart Container
         Asn1Container encTicketPartContainer = new EncTicketPartContainer( stream );
 
@@ -357,8 +359,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encTicketPart;
     }
-    
-    
+
+
     /**
      * Decode an EncryptionKey structure
      * 
@@ -371,7 +373,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncryptionKey Container
         Asn1Container encryptionKeyContainer = new EncryptionKeyContainer();
 
@@ -392,8 +394,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encryptionKey;
     }
-    
-    
+
+
     /**
      * Decode an PrincipalName structure
      * 
@@ -406,7 +408,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a PrincipalName Container
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
@@ -427,8 +429,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return principalName;
     }
-    
-    
+
+
     /**
      * Decode a Ticket structure
      * 
@@ -441,7 +443,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a Ticket Container
         Asn1Container ticketContainer = new TicketContainer( stream );
 
@@ -462,8 +464,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return ticket;
     }
-    
-    
+
+
     /**
      * Decode a Authenticator structure
      * 
@@ -476,7 +478,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a Authenticator Container
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
@@ -497,8 +499,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return authenticator;
     }
-    
-    
+
+
     /**
      * Decode a AuthorizationData structure
      * 
@@ -511,7 +513,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a AuthorizationData Container
         Asn1Container authorizationDataContainer = new AuthorizationDataContainer();
 
@@ -528,12 +530,13 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         }
 
         // get the decoded AuthorizationData
-        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer ).getAuthorizationData();
+        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer )
+            .getAuthorizationData();
 
         return authorizationData;
     }
 
-    
+
     /**
      * Decode a AP-REP structure
      * 
@@ -546,7 +549,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a ApRep Container
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
@@ -568,7 +571,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return apRep;
     }
 
-    
+
     /**
      * Decode a AP-REQ structure
      * 
@@ -581,7 +584,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a ApReq Container
         Asn1Container apReqContainer = new ApReqContainer( stream );
 
@@ -603,7 +606,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return apReq;
     }
 
-    
+
     /**
      * Decode a KRB-PRIV structure
      * 
@@ -616,7 +619,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a KrbPriv Container
         Asn1Container krbPrivContainer = new KrbPrivContainer( stream );
 
@@ -637,8 +640,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return krbPriv;
     }
-    
-    
+
+
     /**
      * Decode an EncAsRepPart structure
      * 
@@ -651,7 +654,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-        
+
         // Allocate a EncAsRepPart Container
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 

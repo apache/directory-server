@@ -42,14 +42,14 @@ public class CompareOperationContext extends AbstractOperationContext
 {
     /** The entry OID */
     private String oid;
-    
+
     /** The associated AttributeType */
     private AttributeType attributeType;
 
     /** The value to be compared */
     private Value<?> value;
-    
-    
+
+
     /**
      * 
      * Creates a new instance of CompareOperationContext.
@@ -65,7 +65,7 @@ public class CompareOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * 
      * Creates a new instance of CompareOperationContext.
@@ -81,7 +81,7 @@ public class CompareOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -98,7 +98,7 @@ public class CompareOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -115,7 +115,7 @@ public class CompareOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * 
      * Creates a new instance of LookupOperationContext.
@@ -133,7 +133,7 @@ public class CompareOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     public CompareOperationContext( CoreSession session, CompareRequest compareRequest )
     {
         super( session, compareRequest.getName() );
@@ -145,7 +145,7 @@ public class CompareOperationContext extends AbstractOperationContext
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.COMPARE ) );
         }
-        
+
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
@@ -165,17 +165,17 @@ public class CompareOperationContext extends AbstractOperationContext
         return oid;
     }
 
-    
+
     /**
      * Set the compared OID
      * @param oid The compared OID
      */
-    public void setOid( String  oid )
+    public void setOid( String oid )
     {
         this.oid = oid;
     }
 
-    
+
     /**
      * @return The value to compare
      */
@@ -184,7 +184,7 @@ public class CompareOperationContext extends AbstractOperationContext
         return value;
     }
 
-    
+
     /**
      * Set the value to compare
      * @param value The value to compare
@@ -213,8 +213,8 @@ public class CompareOperationContext extends AbstractOperationContext
     {
         this.attributeType = attributeType;
     }
-    
-    
+
+
     /**
      * @return the operation name
      */
@@ -223,7 +223,7 @@ public class CompareOperationContext extends AbstractOperationContext
         return MessageTypeEnum.COMPARE_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -232,12 +232,12 @@ public class CompareOperationContext extends AbstractOperationContext
         return "CompareContext for Dn '" + getDn().getName() + "'" +
             ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
             ( ( value != null ) ? ", value :'" +
-                    ( ( value.isHumanReadable() ) ?
-                            value.getString() :
-                            ( ( !value.isHumanReadable() ) ?
-                                    Strings.dumpBytes(((BinaryValue) value).getReference()) :
-                                        "unknown value type" ) )
-                        + "'"
-                    : "" );
+                ( ( value.isHumanReadable() ) ?
+                    value.getString() :
+                    ( ( !value.isHumanReadable() ) ?
+                        Strings.dumpBytes( ( ( BinaryValue ) value ).getReference() ) :
+                        "unknown value type" ) )
+                + "'"
+                : "" );
     }
 }

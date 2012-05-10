@@ -57,7 +57,8 @@ class MultiBaseSearch implements PrincipalStore
         this.directoryService = directoryService;
         try
         {
-            catalog = new KerberosCatalog( ( Map<String, String> ) execute( directoryService.getSession(), new GetCatalog() ) );
+            catalog = new KerberosCatalog( ( Map<String, String> ) execute( directoryService.getSession(),
+                new GetCatalog() ) );
         }
         catch ( Exception e )
         {

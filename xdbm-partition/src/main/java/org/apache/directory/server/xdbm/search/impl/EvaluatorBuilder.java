@@ -73,7 +73,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     {
         switch ( node.getAssertionType() )
         {
-            /* ---------- LEAF NODE HANDLING ---------- */
+        /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
                 return new ApproximateEvaluator<T, ID>( ( ApproximateNode<T> ) node, db, schemaManager );
@@ -91,13 +91,13 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
                 return new PresenceEvaluator<ID>( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
-                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
+                if ( ( ( ScopeNode<ID> ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new OneLevelScopeEvaluator<Entry, ID>( db, ( ScopeNode<ID> ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode ) node );
+                    return new SubtreeScopeEvaluator<Entry, ID>( db, ( ScopeNode<ID> ) node );
                 }
 
             case SUBSTRING:
@@ -109,7 +109,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
                 return buildAndEvaluator( ( AndNode ) node );
 
             case NOT:
-                return new NotEvaluator<ID>( (NotNode) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotEvaluator<ID>( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );

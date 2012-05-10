@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertFalse;
 
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,12 +45,24 @@ public class EmptyIndexCursorTest
     {
         indexCursor = new EmptyIndexCursor<String, Entry, Long>();
     }
+    
+    
+    @After
+    public void cleanup() throws Exception
+    {
+        if ( !indexCursor.isClosed() )
+        {
+            indexCursor.close();
+        }
+    }
 
 
     @Test
-    public void testConstructor()
+    public void testConstructor() throws Exception
     {
-        new EmptyIndexCursor<String, Entry, Long>();
+        EmptyIndexCursor<String, Entry, Long> cursor = new EmptyIndexCursor<String, Entry, Long>();
+        
+        cursor.close();
     }
 
 

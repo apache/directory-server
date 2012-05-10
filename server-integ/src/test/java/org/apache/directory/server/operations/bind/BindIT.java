@@ -80,8 +80,8 @@ import org.junit.runner.RunWith;
 @CreateDS(allowAnonAccess = true, name = "BindIT-class")
 @CreateLdapServer(
     transports =
-    {
-        @CreateTransport(protocol = "LDAP")
+        {
+            @CreateTransport(protocol = "LDAP")
     })
 public class BindIT extends AbstractLdapTestUnit
 {
@@ -95,7 +95,7 @@ public class BindIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test(expected = LdapAuthenticationException.class)
     public void testBadBindDnNotInContext() throws Exception
     {
         getWiredConnection( getLdapServer(), "cn=bogus", "blah" );
@@ -106,19 +106,20 @@ public class BindIT extends AbstractLdapTestUnit
     /**
      * Test bind with malformed bind Dn.
      */
-    @Test( expected=LdapInvalidDnException.class )
+    @Test(expected = LdapInvalidDnException.class)
     public void testBadBindDnMalformed() throws Exception
     {
         getWiredConnection( getLdapServer(), "system", "blah" );
         fail( "should never get here due to a " );
     }
 
+
     /**
      * Test with bindDn that is under a naming context but points to non-existant user.
      * 
      * @throws Exception 
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test(expected = LdapAuthenticationException.class)
     public void testBadBindDnInContext() throws Exception
     {
         getWiredConnection( getLdapServer(), "cn=bogus,ou=system", "blah" );

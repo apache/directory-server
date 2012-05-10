@@ -49,39 +49,37 @@ public class PlainSaslServer extends AbstractSaslServer
 {
     /** The authzid property stored into the LdapSession instance */
     public static final String SASL_PLAIN_AUTHZID = "authzid";
-    
+
     /** The authcid property stored into the LdapSession instance */
     public static final String SASL_PLAIN_AUTHCID = "authcid";
 
     /** The password property stored into the LdapSession instance */
     public static final String SASL_PLAIN_PASSWORD = "password";
-    
-    
+
     /**
      * The possible states for the negotiation of a PLAIN mechanism. 
      */
-    private enum NegotiationState 
+    private enum NegotiationState
     {
-        INITIALIZED,    // Negotiation has just started 
-        MECH_RECEIVED,  // We have received the PLAIN mechanism
-        COMPLETED       // The user/password have been received
+        INITIALIZED, // Negotiation has just started 
+        MECH_RECEIVED, // We have received the PLAIN mechanism
+        COMPLETED // The user/password have been received
     }
-    
-    
+
     /**
      * The different state used by the iInitialResponse decoding
      */
     private enum InitialResponse
     {
-        AUTHZID_EXPECTED,    // We are expecting a authzid element
-        AUTHCID_EXPECTED,    // We are expecting a authcid element 
-        PASSWORD_EXPECTED    // We are expecting a password element
+        AUTHZID_EXPECTED, // We are expecting a authzid element
+        AUTHCID_EXPECTED, // We are expecting a authcid element 
+        PASSWORD_EXPECTED // We are expecting a password element
     }
 
     /** The current negotiation state */
     private NegotiationState state;
-    
-    
+
+
     /**
      * 
      * Creates a new instance of PlainSaslServer.
@@ -93,7 +91,7 @@ public class PlainSaslServer extends AbstractSaslServer
     {
         super( ldapSession, adminSession, bindRequest );
         state = NegotiationState.INITIALIZED;
-        
+
         // Reinitialize the SASL properties
         getLdapSession().removeSaslProperty( SASL_PLAIN_AUTHZID );
         getLdapSession().removeSaslProperty( SASL_PLAIN_AUTHCID );
@@ -115,7 +113,7 @@ public class PlainSaslServer extends AbstractSaslServer
      */
     public byte[] evaluateResponse( byte[] initialResponse ) throws SaslException
     {
-        if ( Strings.isEmpty(initialResponse) )
+        if ( Strings.isEmpty( initialResponse ) )
         {
             state = NegotiationState.MECH_RECEIVED;
             return null;
@@ -135,13 +133,13 @@ public class PlainSaslServer extends AbstractSaslServer
             String authzId = null;
             String authcId = null;
             String password = null;
-            
+
             int start = 0;
             int end = 0;
-            
+
             try
             {
-                for ( byte b:initialResponse )
+                for ( byte b : initialResponse )
                 {
                     if ( b == '\0' )
                     {
@@ -165,25 +163,25 @@ public class PlainSaslServer extends AbstractSaslServer
                         {
                             start++;
                             String value = new String( initialResponse, start, end - start + 1, "UTF-8" );
-                            
+
                             switch ( element )
                             {
-                                case AUTHZID_EXPECTED :
+                                case AUTHZID_EXPECTED:
                                     element = InitialResponse.AUTHCID_EXPECTED;
                                     authzId = PrepareString.normalize( value, PrepareString.StringType.CASE_EXACT_IA5 );
                                     end++;
                                     start = end;
                                     break;
-                                    
-                                case AUTHCID_EXPECTED :
+
+                                case AUTHCID_EXPECTED:
                                     element = InitialResponse.PASSWORD_EXPECTED;
-                                    authcId = PrepareString.normalize( value, PrepareString.StringType.DIRECTORY_STRING );
+                                    authcId = PrepareString
+                                        .normalize( value, PrepareString.StringType.DIRECTORY_STRING );
                                     end++;
                                     start = end;
                                     break;
-                                    
-                                    
-                                default :
+
+                                default:
                                     // This is an error !
                                     throw new IllegalArgumentException( I18n.err( I18n.ERR_672 ) );
                             }
@@ -194,27 +192,27 @@ public class PlainSaslServer extends AbstractSaslServer
                         end++;
                     }
                 }
-            
+
                 if ( start == end )
                 {
                     throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
                 }
-                
+
                 start++;
-                String value = Strings.utf8ToString(initialResponse, start, end - start + 1);
-                
+                String value = Strings.utf8ToString( initialResponse, start, end - start + 1 );
+
                 password = PrepareString.normalize( value, PrepareString.StringType.CASE_EXACT_IA5 );
-                
+
                 if ( ( authcId == null ) || ( password == null ) )
                 {
                     throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
                 }
-                
+
                 // Now that we have the authcid and password, try to authenticate.
                 CoreSession userSession = authenticate( authcId, password );
-                
+
                 getLdapSession().setCoreSession( userSession );
-                
+
                 state = NegotiationState.COMPLETED;
             }
             catch ( IOException ioe )
@@ -239,8 +237,8 @@ public class PlainSaslServer extends AbstractSaslServer
     {
         return state == NegotiationState.COMPLETED;
     }
-    
-    
+
+
     /**
      * Try to authenticate the usr against the underlying LDAP server.
      */
@@ -248,10 +246,10 @@ public class PlainSaslServer extends AbstractSaslServer
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new Dn( user ) );
-        bindContext.setCredentials( Strings.getBytesUtf8(password) );
-        
+        bindContext.setCredentials( Strings.getBytesUtf8( password ) );
+
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
-        
+
         return bindContext.getSession();
     }
 }

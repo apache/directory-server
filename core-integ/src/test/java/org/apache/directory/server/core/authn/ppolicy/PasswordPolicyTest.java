@@ -83,9 +83,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-// disable changelog, for more info see DIRSERVER-1528
-@CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
+    {
+    @CreateTransport(protocol = "LDAP"),
+    @CreateTransport(protocol = "LDAPS") })
+    // disable changelog, for more info see DIRSERVER-1528
+    @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
 public class PasswordPolicyTest extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
@@ -242,7 +244,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertNull( respCtrl );
 
         BindRequest bindReq = new BindRequestImpl();
-        bindReq.setName( userDn );
+        bindReq.setDn( userDn );
         bindReq.setCredentials( "1234" ); // wrong password
         bindReq.addControl( PP_REQ_CTRL );
         
@@ -261,7 +263,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertEquals( "000001010000Z", pwdAccountLockedTime.getString() );
         
         bindReq = new BindRequestImpl();
-        bindReq.setName( userDn );
+        bindReq.setDn( userDn );
         bindReq.setCredentials( "12345" ); // correct password
         bindReq.addControl( PP_REQ_CTRL );
         userConnection.bind( bindReq );
@@ -461,7 +463,7 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         connection.add( addRequest );
 
         BindRequest bindReq = new BindRequestImpl();
-        bindReq.setName( userDn );
+        bindReq.setDn( userDn );
         bindReq.setCredentials( password.getBytes() );
         bindReq.addControl( PP_REQ_CTRL );
         

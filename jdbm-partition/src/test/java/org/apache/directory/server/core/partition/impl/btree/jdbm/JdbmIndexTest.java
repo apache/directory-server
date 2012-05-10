@@ -82,7 +82,7 @@ public class JdbmIndexTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -124,7 +124,7 @@ public class JdbmIndexTest
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-            
+
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -149,7 +149,7 @@ public class JdbmIndexTest
         {
             jdbmIdx = new JdbmIndex<String, Entry>();
         }
-        
+
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIdx.init( schemaManager, attributeType );
@@ -183,7 +183,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
@@ -228,7 +228,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
-        
+
         try
         {
             idx.setWkDirPath( wkdir.toURI() );
@@ -237,7 +237,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
@@ -259,6 +259,7 @@ public class JdbmIndexTest
 
         // initialized index
         initIndex();
+        
         try
         {
             ( ( JdbmIndex<String, Entry> ) idx ).setNumDupLimit( 30 );
@@ -267,6 +268,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
+        
         assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String, Entry> ) idx ).getNumDupLimit() );
     }
 
@@ -331,6 +333,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
+        
         assertEquals( 26, idx.greaterThanCount( "a" ) );
     }
 
@@ -345,6 +348,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
+        
         assertEquals( 26, idx.lessThanCount( "z" ) );
     }
 
@@ -528,17 +532,19 @@ public class JdbmIndexTest
         cursor.next();
         IndexEntry<String, Long> e1 = cursor.get();
         assertEquals( 555L, ( long ) e1.getId() );
-        assertEquals( "bar", e1.getValue() );
+        assertEquals( "bar", e1.getKey() );
 
         cursor.next();
         IndexEntry<String, Long> e2 = cursor.get();
         assertEquals( 333L, ( long ) e2.getId() );
-        assertEquals( "foo", e2.getValue() );
+        assertEquals( "foo", e2.getKey() );
 
         cursor.next();
         IndexEntry<String, Long> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getValue() );
+        assertEquals( "foo", e3.getKey() );
+        
+        cursor.close();
 
         // use reverse index's cursor
         cursor = idx.reverseCursor();
@@ -547,17 +553,19 @@ public class JdbmIndexTest
         cursor.next();
         e1 = cursor.get();
         assertEquals( 333L, ( long ) e1.getId() );
-        assertEquals( "foo", e1.getValue() );
+        assertEquals( "foo", e1.getKey() );
 
         cursor.next();
         e2 = cursor.get();
         assertEquals( 555L, ( long ) e2.getId() );
-        assertEquals( "bar", e2.getValue() );
+        assertEquals( "bar", e2.getKey() );
 
         cursor.next();
         e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getValue() );
+        assertEquals( "foo", e3.getKey() );
+        
+        cursor.close();
     }
 
 

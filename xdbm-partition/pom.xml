@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M4-SNAPSHOT</version>
+    <version>2.0.0-M7-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-xdbm-partition</artifactId>
@@ -71,11 +71,6 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-util</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -117,19 +112,6 @@
             </Export-Package>
           </instructions>
         </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-ipojo-plugin</artifactId>
-        <version>${maven.ipojo.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>ipojo-bundle</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.constants;
 
@@ -94,21 +94,9 @@ public final class ApacheSchemaConstants
     public final static String WINDOWS_FILE_OC_OID = "1.3.6.1.4.1.18060.0.4.1.3.6";
 
     // ---- AttributeType ----------------------------------------------------------
-    // ApacheNdn
-    public final static String APACHE_N_DN_AT = "apacheNdn";
-    public final static String APACHE_N_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.1";
-
-    // ApacheUpdn
-    public final static String APACHE_UP_DN_AT = "apacheUpdn";
-    public final static String APACHE_UP_DN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.2";
-
     // ApachePresence
     public final static String APACHE_PRESENCE_AT = "ApachePresence";
     public final static String APACHE_PRESENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
-
-    // ApacheOneLevel
-    public final static String APACHE_ONE_LEVEL_AT = "apacheOneLevel";
-    public final static String APACHE_ONE_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.4";
 
     // ApacheOneAlias
     public final static String APACHE_ONE_ALIAS_AT = "apacheOneAlias";
@@ -156,10 +144,6 @@ public final class ApacheSchemaConstants
     // SubschemaSubentryName
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
     public final static String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.37";
-
-    // apacheSubLevel
-    public final static String APACHE_SUB_LEVEL_AT = "apacheSubLevel";
-    public final static String APACHE_SUB_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.43";
 
     // apacheRdn
     public final static String APACHE_RDN_AT = "apacheRdn";

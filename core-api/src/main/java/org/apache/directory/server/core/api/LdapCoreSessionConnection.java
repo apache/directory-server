@@ -26,15 +26,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.Oid;
+import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
@@ -87,8 +85,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.StringConstants;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +94,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapCoreSessionConnection implements LdapConnection
+public class LdapCoreSessionConnection extends AbstractLdapConnection
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
@@ -106,31 +102,26 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** the CoreSession object */
     private CoreSession session;
 
-    /** the SchemaManager */
-    private SchemaManager schemaManager;
-
     /** the session's DirectoryService */
     private DirectoryService directoryService;
-
-    /** The MessageId counter */
-    private AtomicInteger messageId = new AtomicInteger( 0 );
-
-    private LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
 
     public LdapCoreSessionConnection()
     {
+        super();
     }
 
 
     public LdapCoreSessionConnection( DirectoryService directoryService )
     {
+        super();
         setDirectoryService( directoryService );
     }
 
 
     public LdapCoreSessionConnection( CoreSession session )
     {
+        super();
         this.session = session;
         setDirectoryService( session.getDirectoryService() );
 
@@ -138,7 +129,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         messageId.incrementAndGet();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -228,7 +219,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         addRequest.setEntryDn( entry.getDn() );
 
         AddResponse addResponse = add( addRequest );
-        
+
         processResponse( addResponse );
     }
 
@@ -666,13 +657,12 @@ public class LdapCoreSessionConnection implements LdapConnection
         modifyRequest.setName( entry.getDn() );
 
         Iterator<Attribute> itr = entry.iterator();
-        
+
         while ( itr.hasNext() )
         {
             modifyRequest.addModification( new DefaultModification( modOp, itr.next() ) );
         }
 
-        
         ModifyResponse modifyResponse = modify( modifyRequest );
 
         processResponse( modifyResponse );
@@ -710,7 +700,7 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         addResponseControls( modRequest, resp );
-        
+
         return resp;
     }
 
@@ -774,9 +764,9 @@ public class LdapCoreSessionConnection implements LdapConnection
             }
             else
             {
-                result.setDiagnosticMessage( "Attempt to move entry onto itself." );
-                result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
-                result.setMatchedDn( modDnRequest.getName() );
+                // This might be a simple change, we will update the DN and the entry
+                // with the new provided value by using a modify operation later on
+                session.rename( modDnRequest );
             }
 
         }
@@ -1165,7 +1155,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public void bind() throws LdapException, IOException
     {
         throw new UnsupportedOperationException(
-        "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
+            "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
     }
 
 
@@ -1175,7 +1165,7 @@ public class LdapCoreSessionConnection implements LdapConnection
     public void anonymousBind() throws LdapException, IOException
     {
         BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( Dn.EMPTY_DN );
+        bindRequest.setName( "" );
         bindRequest.setCredentials( ( byte[] ) null );
 
         BindResponse bindResponse = bind( bindRequest );
@@ -1200,7 +1190,7 @@ public class LdapCoreSessionConnection implements LdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         OperationManager operationManager = directoryService.getOperationManager();
@@ -1232,58 +1222,6 @@ public class LdapCoreSessionConnection implements LdapConnection
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( Dn name ) throws LdapException, IOException
-    {
-        byte[] credBytes = StringConstants.EMPTY_BYTES;
-
-        BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
-        bindRequest.setCredentials( credBytes );
-
-        BindResponse bindResponse = bind( bindRequest );
-
-        processResponse( bindResponse );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( Dn name, String credentials ) throws LdapException, IOException
-    {
-        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8(credentials) );
-
-        BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
-        bindRequest.setCredentials( credBytes );
-
-        BindResponse bindResponse = bind( bindRequest );
-
-        processResponse( bindResponse );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( String name ) throws LdapException, IOException
-    {
-        bind( new Dn( schemaManager, name ), null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( String name, String credentials ) throws LdapException, IOException
-    {
-        bind( new Dn( schemaManager, name ), credentials );
-    }
-
-
     private void addResponseControls( ResultResponseRequest iReq, Message clientResp )
     {
         Collection<Control> ctrlSet = iReq.getResultResponse().getControls().values();
@@ -1306,5 +1244,25 @@ public class LdapCoreSessionConnection implements LdapConnection
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
         this.session = directoryService.getAdminSession();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BinaryAttributeDetector getBinaryAttributeDetector()
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBinaryAttributeDetector( BinaryAttributeDetector binaryAttributeDetector )
+    {
+        // Does nothing
     }
 }

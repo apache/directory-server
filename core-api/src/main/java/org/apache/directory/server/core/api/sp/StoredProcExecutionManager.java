@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 public class StoredProcExecutionManager
 {
     private final static Set<AttributeTypeOptions> EMPTY_ATTRIBS = Collections.emptySet();
-    
+
     private final String storedProcContainer;
 
     private final List<StoredProcEngineConfig> storedProcEngineConfigs;
@@ -64,12 +64,14 @@ public class StoredProcExecutionManager
      * @param storedProcContainer The base of the DIT subtree used for storing stored procedure units.
      * @param storedProcEngineConfigs A list of {@link StoredProcEngineConfig}s to register different {@link StoredProcEngine}s with this manager.
      */
-    public StoredProcExecutionManager( final String storedProcContainer, final List<StoredProcEngineConfig> storedProcEngineConfigs )
+    public StoredProcExecutionManager( final String storedProcContainer,
+        final List<StoredProcEngineConfig> storedProcEngineConfigs )
     {
         this.storedProcContainer = storedProcContainer;
         this.storedProcEngineConfigs = storedProcEngineConfigs;
     }
-    
+
+
     /**
      * Finds and returns a stored procedure unit entry whose identifier name
      * is extracted from fullSPName.
@@ -85,10 +87,11 @@ public class StoredProcExecutionManager
         controls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
-        
+
         AttributeType storeProcUnitNamAT = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
-        ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT, new StringValue( storeProcUnitNamAT, spUnitName ) );
+        ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT,
+            new StringValue( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
@@ -96,10 +99,10 @@ public class StoredProcExecutionManager
         {
             Entry entry = results.get();
             results.close();
-            
+
             return entry;
         }
-        
+
         return null;
     }
 
@@ -114,7 +117,8 @@ public class StoredProcExecutionManager
      */
     public StoredProcEngine getStoredProcEngineInstance( Entry spUnitEntry ) throws LdapException
     {
-        String spLangId = ( String ) ((ClonedServerEntry)spUnitEntry).getOriginalEntry().get( "storedProcLangId" ).getString();
+        String spLangId = ( String ) ( ( ClonedServerEntry ) spUnitEntry ).getOriginalEntry().get( "storedProcLangId" )
+            .getString();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )
         {
@@ -122,7 +126,7 @@ public class StoredProcExecutionManager
             {
                 Class<? extends StoredProcEngine> engineType = engineConfig.getStoredProcEngineType();
                 StoredProcEngine engine;
-                
+
                 try
                 {
                     engine = engineType.newInstance();
@@ -139,8 +143,8 @@ public class StoredProcExecutionManager
                     ne.initCause( e );
                     throw ne;
                 }
-                
-                engine.setSPUnitEntry( (Entry)((ClonedServerEntry)spUnitEntry).getOriginalEntry() );
+
+                engine.setSPUnitEntry( ( Entry ) ( ( ClonedServerEntry ) spUnitEntry ).getOriginalEntry() );
                 return engine;
             }
 

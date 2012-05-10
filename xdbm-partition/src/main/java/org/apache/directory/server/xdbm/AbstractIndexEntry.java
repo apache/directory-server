@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -27,13 +28,14 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  * Abstract class managing the object for index entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <K> The key stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
+public abstract class AbstractIndexEntry<K, ID> implements IndexEntry<K, ID>
 {
     /** The referenced Entry if loaded from the store */
     private Entry entry;
+
 
     /**
      * Creates an instance of AbstractIndexEntry
@@ -44,32 +46,32 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
     {
         this.entry = entry;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public abstract V getValue();
+    public abstract K getKey();
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public abstract void setValue( V value );
+    public abstract void setKey( K value );
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract ID getId();
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract void setId( ID id );
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -78,13 +80,13 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         return entry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public abstract Tuple<?, ?> getTuple();
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -93,7 +95,7 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         this.entry = entry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -102,11 +104,11 @@ public abstract class AbstractIndexEntry<V, ID> implements IndexEntry<V, ID>
         entry = null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<V, ID> entry )
+    public void copy( IndexEntry<K, ID> entry )
     {
         this.entry = entry.getEntry();
     }

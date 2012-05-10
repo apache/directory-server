@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
 /**
  * Document me!
  *
@@ -67,7 +66,7 @@ public class KeyCursorTest
     public void createCursor() throws Exception
     {
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -107,6 +106,8 @@ public class KeyCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
+        
+        cursor.close();
     }
 
 
@@ -188,7 +189,7 @@ public class KeyCursorTest
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertEquals( "0", cursor.get() );
-        
+
         bt.remove( "0" );
         bt.remove( "1" );
         bt.remove( "2" );
@@ -272,12 +273,12 @@ public class KeyCursorTest
         assertEquals( "1", tuple.getKey() );
     }
 
-    
+
     @Test
     public void testMiscelleneous() throws Exception
     {
         // Test available()
-        
+
         assertFalse( cursor.available() );
         cursor.beforeFirst();
         assertFalse( cursor.available() );
@@ -288,7 +289,7 @@ public class KeyCursorTest
         cursor.last();
         assertTrue( cursor.available() );
     }
-    
+
 
     private void assertInvalidCursor()
     {

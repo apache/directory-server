@@ -173,7 +173,7 @@ public class SingleFileLdifPartitionTest
         entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
         Entry clonedEntry = new ClonedServerEntry( entry );
-        
+
         return clonedEntry;
     }
 
@@ -181,8 +181,8 @@ public class SingleFileLdifPartitionTest
     private long getEntryLdifLen( Entry entry ) throws LdapException
     {
         // while writing to the file 1 extra newline char will be added
-        String ldif = LdifUtils.convertToLdif(entry) + 1;
-        byte[] data = Strings.getBytesUtf8(ldif);
+        String ldif = LdifUtils.convertToLdif( entry ) + 1;
+        byte[] data = Strings.getBytesUtf8( ldif );
 
         return data.length;
     }
@@ -197,7 +197,7 @@ public class SingleFileLdifPartitionTest
      * @param fileName the full path to the ldif file to be loaded
      * @param truncate the flag to determine to truncate the file or not
      * @return the ldif partition after loading all the data
-     * @throws Exception     
+     * @throws Exception
      */
     private SingleFileLdifPartition createPartition( String fileName, boolean truncate ) throws Exception
     {
@@ -232,6 +232,7 @@ public class SingleFileLdifPartitionTest
     private void assertExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         opCtx.setDn( entry.getDn() );
 
         Entry fetched = partition.lookup( opCtx );
@@ -406,7 +407,7 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        // now perform a modification on the entry present in middle of LDIF file 
+        // now perform a modification on the entry present in middle of LDIF file
         modOpCtx = new ModifyOperationContext( mockSession );
         modOpCtx.setEntry( new ClonedServerEntry( entry1 ) );
         modOpCtx.setDn( entry1.getDn() );
@@ -434,7 +435,7 @@ public class SingleFileLdifPartitionTest
 
         file.read( entry1Data );
 
-        String ldif = Strings.utf8ToString(entry1Data);
+        String ldif = Strings.utf8ToString( entry1Data );
 
         LdifEntry ldifEntry = reader.parseLdif( ldif ).get( 0 );
 
@@ -467,7 +468,7 @@ public class SingleFileLdifPartitionTest
 
         file.read( entry1Data );
 
-        ldif = Strings.utf8ToString(entry1Data);
+        ldif = Strings.utf8ToString( entry1Data );
 
         ldifEntry = reader.parseLdif( ldif ).get( 0 );
 
@@ -675,16 +676,20 @@ public class SingleFileLdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
+        
+        cursor.close();
     }
-
-
+    
+    
     @Test
     public void testLdifMoveEntry() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
-
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        
+        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=child1,ou=test,ou=system" ) ) );
+        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -706,8 +711,10 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager, "dc=child2,ou=test,ou=system" ) ) );
+        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
+        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+            "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -821,16 +828,16 @@ public class SingleFileLdifPartitionTest
         assertTrue( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
     }
-    
-    
+
+
     @Test
     public void testEnableRewritingFlag() throws Exception
     {
         SingleFileLdifPartition partition = createPartition( null, true );
-        
+
         // disable writing
         partition.setEnableRewriting( false );
-        
+
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
 
@@ -848,10 +855,10 @@ public class SingleFileLdifPartitionTest
 
         partition = reloadPartition();
         assertNotExists( partition, contextEntry );
-        
+
         // try adding on the reloaded partition
         partition.add( addCtx );
-        
+
         // eable writing, this will let the partition write data back to disk
         partition.setEnableRewriting( false );
         assertTrue( getEntryLdifLen( contextEntry ) == file.length() );
@@ -860,7 +867,7 @@ public class SingleFileLdifPartitionTest
 
     /**
      * An important test to check the stability of the partition
-     * under high concurrency 
+     * under high concurrency
      *
      * @throws Exception
      */
@@ -871,22 +878,22 @@ public class SingleFileLdifPartitionTest
         SingleFileLdifPartition partition = injectEntries();
 
         ThreadGroup tg = new ThreadGroup( "singlefileldifpartitionTG" );
-        
+
         Thread modifyTask = new Thread( tg, getModifyTask( partition ), "modifyTaskThread" );
         Thread addAndDeleteTask = new Thread( tg, getAddAndDeleteTask( partition ), "addAndDeleteTaskThread" );
         Thread renameTask = new Thread( tg, getRenameTask( partition ), "renameTaskThread" );
         Thread moveTask = new Thread( tg, getMoveTask( partition ), "moveTaskThread" );
-        
+
         modifyTask.start();
         addAndDeleteTask.start();
         renameTask.start();
         moveTask.start();
-        
-        while( tg.activeCount() > 0 )
+
+        while ( tg.activeCount() > 0 )
         {
             Thread.sleep( 2000 );
         }
-        
+
         // tests to be performed after the threads finish their work
         partition = reloadPartition();
 
@@ -917,7 +924,7 @@ public class SingleFileLdifPartitionTest
             public void run()
             {
                 int i = 0;
-                
+
                 try
                 {
                     AddOperationContext addCtx = new AddOperationContext( mockSession );
@@ -977,7 +984,7 @@ public class SingleFileLdifPartitionTest
             public void run()
             {
                 int i = 0;
-                
+
                 try
                 {
                     AddOperationContext addCtx = new AddOperationContext( mockSession );
@@ -1024,7 +1031,7 @@ public class SingleFileLdifPartitionTest
             public void run()
             {
                 int i = 0;
-                
+
                 try
                 {
                     Dn dn = new Dn( schemaManager, "dc=grandChild12,dc=child1,ou=test,ou=system" );
@@ -1063,8 +1070,6 @@ public class SingleFileLdifPartitionTest
 
         return r;
     }
-    
-    
 
 
     /**
@@ -1080,7 +1085,7 @@ public class SingleFileLdifPartitionTest
             public void run()
             {
                 int i = 0;
-                
+
                 try
                 {
                     Dn originalDn = new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" );

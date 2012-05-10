@@ -30,7 +30,6 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -70,6 +69,7 @@ public class IntegrationUtils
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
     private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
+
 
     /**
      * Deletes the working directory.
@@ -142,7 +142,7 @@ public class IntegrationUtils
 
 
     public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
-            throws Exception
+        throws Exception
     {
         if ( principalDn == null )
         {
@@ -207,19 +207,19 @@ public class IntegrationUtils
         Dn dn = entry.getDn();
         CoreSession session = service.getAdminSession();
 
-        switch( entry.getChangeType().getChangeType() )
+        switch ( entry.getChangeType().getChangeType() )
         {
-            case( ChangeType.ADD_ORDINAL ):
+            case ( ChangeType.ADD_ORDINAL ):
                 session.add(
                     new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
                 break;
 
-            case( ChangeType.DELETE_ORDINAL ):
+            case ( ChangeType.DELETE_ORDINAL ):
                 session.delete( dn );
                 break;
 
-            case( ChangeType.MODDN_ORDINAL ):
-            case( ChangeType.MODRDN_ORDINAL ):
+            case ( ChangeType.MODDN_ORDINAL ):
+            case ( ChangeType.MODRDN_ORDINAL ):
                 Rdn newRdn = new Rdn( entry.getNewRdn() );
 
                 if ( entry.getNewSuperior() != null )
@@ -252,7 +252,7 @@ public class IntegrationUtils
 
                 break;
 
-            case( ChangeType.MODIFY_ORDINAL ):
+            case ( ChangeType.MODIFY_ORDINAL ):
                 session.modify( dn, entry.getModifications() );
                 break;
 
@@ -263,7 +263,7 @@ public class IntegrationUtils
 
 
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
-            throws LdapException
+        throws LdapException
     {
         Dn dn = new Dn( dnstr );
         LdifEntry ldif = new LdifEntry();
@@ -294,10 +294,10 @@ public class IntegrationUtils
         return ldif;
     }
 
+
     // -----------------------------------------------------------------------
     // Enable/Disable Schema Tests
     // -----------------------------------------------------------------------
-
 
     public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
     {
@@ -317,7 +317,7 @@ public class IntegrationUtils
         // now enable the test schema
         Modification mod = new DefaultModification(
             ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "TRUE" );
-        
+
         connection.modify( "cn=" + schemaName + ",ou=schema", mod );
     }
 
@@ -357,7 +357,11 @@ public class IntegrationUtils
 
 
     /**
-     * gets a LdapConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
+     * Gets a LdapCoreSessionConnection bound using the default admin Dn uid=admin,ou=system and password "secret"
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
      */
     public static LdapConnection getAdminConnection( DirectoryService dirService ) throws Exception
     {
@@ -365,28 +369,60 @@ public class IntegrationUtils
     }
 
 
-    public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password ) throws Exception
+    /**
+     * Gets a LdapCoreSessionConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password )
+        throws Exception
     {
         return getConnectionAs( dirService, new Dn( dn ), password );
     }
 
 
-    public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password ) throws Exception
+    /**
+     * Gets a LdapCoreSessionConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN
+     * @param password The User's password as a String
+     * @return A LdapCoreSessionConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password )
+        throws Exception
     {
-        Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
+        LdapCoreSessionConnection connection = new LdapCoreSessionConnection();
 
-        LdapCoreSessionConnection coreConnection = ( LdapCoreSessionConnection ) connectionObj;
-        coreConnection.setDirectoryService( dirService );
+        connection.setDirectoryService( dirService );
 
-        coreConnection.bind( dn, password );
+        connection.bind( dn, password );
 
-        return coreConnection;
+        return connection;
     }
 
 
-    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
+    /**
+     * Gets a LdapNetworkConnection bound using a user's DN and a password. We will bind using those
+     * credentials.
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
+        throws Exception
     {
-        LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
+        LdapConnection connection = new LdapNetworkConnection( host, port);
 
         connection.bind( dn, password );
         openConnections.add( connection );
@@ -394,6 +430,13 @@ public class IntegrationUtils
     }
 
 
+    /**
+     * Gets a LdapNetworkConnection bound to the Admin user (uid=admin,ou=system).
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
@@ -407,7 +450,18 @@ public class IntegrationUtils
     }
 
 
-    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
+    /**
+     * Gets a LdapNetworkConnection bound using a user's DN and a password. We will bind using those
+     * credentials. We specify a LdapServer instance too.
+     * 
+     * @param ldapServer The LdapServer to be connected to
+     * @param dn The User's DN as a String
+     * @param password The User's password as a String
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
+        throws Exception
     {
         return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
     }
@@ -416,21 +470,21 @@ public class IntegrationUtils
     public static void closeConnections()
     {
 
-        for( LdapConnection con : openConnections )
+        for ( LdapConnection con : openConnections )
         {
-            if( con == null )
+            if ( con == null )
             {
                 continue;
             }
 
             try
             {
-                if( con.isConnected() )
+                if ( con.isConnected() )
                 {
                     con.close();
                 }
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
                 e.printStackTrace();

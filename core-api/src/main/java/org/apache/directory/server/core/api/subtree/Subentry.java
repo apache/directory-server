@@ -86,7 +86,7 @@ public class Subentry
     public final boolean isCollectiveAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.CollectiveAttributeInnerArea ) ||
-        administrativeRoles.contains( AdministrativeRole.CollectiveAttributeSpecificArea );
+            administrativeRoles.contains( AdministrativeRole.CollectiveAttributeSpecificArea );
     }
 
 
@@ -105,7 +105,7 @@ public class Subentry
     public final boolean isAccessControlAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.AccessControlSpecificArea ) ||
-               administrativeRoles.contains( AdministrativeRole.AccessControlInnerArea );
+            administrativeRoles.contains( AdministrativeRole.AccessControlInnerArea );
     }
 
 
@@ -115,7 +115,7 @@ public class Subentry
     public final boolean isTriggersAdminRole()
     {
         return administrativeRoles.contains( AdministrativeRole.TriggerExecutionSpecificArea ) ||
-               administrativeRoles.contains( AdministrativeRole.TriggerExecutionInnerArea );
+            administrativeRoles.contains( AdministrativeRole.TriggerExecutionInnerArea );
     }
 
 

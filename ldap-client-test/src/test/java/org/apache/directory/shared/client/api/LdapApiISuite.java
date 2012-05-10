@@ -48,7 +48,7 @@ import org.junit.runners.Suite;
     {
         LdapConnectionTest.class,
         LdapSSLConnectionTest.class,
-        NetworkSchemaLoaderTest.class,
+        AdsSchemaLoaderTest.class,
 
         ClientAbandonRequestTest.class,
         ClientAddRequestTest.class,
@@ -63,17 +63,17 @@ import org.junit.runners.Suite;
         ClientSearchRequestTest.class,
         SearchRequestReturningAttributesTest.class
 
-    })
+})
 @CreateDS(
-    name = "SuiteDS",
-    allowAnonAccess = true)
+name = "SuiteDS",
+allowAnonAccess = true)
 @CreateLdapServer(
-    allowAnonymousAccess = true,
-    transports =
+allowAnonymousAccess = true,
+transports =
     {
         @CreateTransport(protocol = "LDAP"),
         @CreateTransport(protocol = "LDAPS")
-    })
+})
 public class LdapApiISuite
 {
 }

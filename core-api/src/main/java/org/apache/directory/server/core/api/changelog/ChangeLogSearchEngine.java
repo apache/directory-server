@@ -24,6 +24,7 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.ldif.ChangeType;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
@@ -137,7 +138,7 @@ public interface ChangeLogSearchEngine
     Cursor<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
         throws Exception;
 
-    
+
     /**
      * Finds all the ChangeLogEvents on an entry.
      *
@@ -147,8 +148,8 @@ public interface ChangeLogSearchEngine
      * @throws Exception if there are failures accessing the store
      */
     Cursor<ChangeLogEvent> find( Dn dn, RevisionOrder order ) throws Exception;
-    
-    
+
+
     /**
      * Finds all the ChangeLogEvents on an entry base and/or it's children/descendants.
      *
@@ -158,8 +159,8 @@ public interface ChangeLogSearchEngine
      * @return the set of changes that occurred on an entry and/or it's descendants depending on the scope
      * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find( Dn base, Scope scope, RevisionOrder order ) throws Exception;
-    
+    Cursor<ChangeLogEvent> find( Dn base, SearchScope scope, RevisionOrder order ) throws Exception;
+
 
     /**
      * Finds all the ChangeLogEvents triggered by a principal in the system.
@@ -170,8 +171,8 @@ public interface ChangeLogSearchEngine
      * @throws Exception if there are failures accessing the store
      */
     Cursor<ChangeLogEvent> find( LdapPrincipal principal, RevisionOrder order ) throws Exception;
-    
-    
+
+
     /**
      * Finds all the ChangeLogEvents of a particular change type.
      * 
@@ -181,8 +182,8 @@ public interface ChangeLogSearchEngine
      * @throws Exception if there are failures accessing the store
      */
     Cursor<ChangeLogEvent> find( ChangeType changeType, RevisionOrder order ) throws Exception;
-    
-    
+
+
     /**
      * Finds all the ChangeLogEvents altering a particular attributeType.
      * 
@@ -192,7 +193,7 @@ public interface ChangeLogSearchEngine
      * @throws Exception if there are failures accessing the store
      */
     Cursor<ChangeLogEvent> find( AttributeType attributeType, RevisionOrder order ) throws Exception;
-    
+
 
     /**
      * Finds all the ChangeLogEvents altering a particular objectClass.
@@ -203,8 +204,8 @@ public interface ChangeLogSearchEngine
      * @throws Exception if there are failures accessing the store
      */
     Cursor<ChangeLogEvent> find( ObjectClass objectClass, RevisionOrder order ) throws Exception;
-    
-    
+
+
     /**
      * Finds all the ChangeLogEvents matched by the filter expression tree parameter.
      * 

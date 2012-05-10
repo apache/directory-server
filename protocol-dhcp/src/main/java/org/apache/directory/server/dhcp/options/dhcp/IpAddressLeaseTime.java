@@ -44,7 +44,7 @@ public class IpAddressLeaseTime extends IntOption
     }
 
 
-    public IpAddressLeaseTime(long leaseTime)
+    public IpAddressLeaseTime( long leaseTime )
     {
         setIntValue( leaseTime );
     }

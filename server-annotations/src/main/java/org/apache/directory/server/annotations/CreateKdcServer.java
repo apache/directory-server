@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.annotations;
 
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -40,25 +41,32 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Inherited
-@Retention ( RetentionPolicy.RUNTIME )
-@Target ( { ElementType.METHOD, ElementType.TYPE } )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateKdcServer
 {
     /** The instance name */
     String name() default "DefaultKrbServer";
-    
+
+
     /** The transports to use, default to LDAP */
-    CreateTransport[] transports() default {};
-    
+    CreateTransport[] transports() default
+        {};
+
+
     /** The default kdc realm */
     String primaryRealm() default "EXAMPLE.COM";
-    
+
+
     /** The default kdc service principal */
     String kdcPrincipal() default "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
-    
+
+
     /** The maximum ticket lifetime. */
     long maxTicketLifetime() default 60000 * 1440;
-    
+
+
     /** The maximum renewable lifetime. */
     long maxRenewableLifetime() default 60000 * 10080;
 }

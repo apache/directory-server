@@ -20,11 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.Iterator;
-
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 
 
 /**
@@ -32,13 +28,15 @@ import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements IndexCursor<V, Entry, ID>
+public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements
+    IndexCursor<V, Entry, ID>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
 
     /** The message used for unsupported operations */
     protected static final String UNSUPPORTED_MSG = "Unsupported operation";
+
 
     /**
      * {@inheritDoc}
@@ -47,8 +45,8 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     {
         return available;
     }
-    
-    
+
+
     /**
      * Gets the message to return for operations that are not supported
      * 
@@ -74,7 +72,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -99,54 +97,5 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     protected boolean setAvailable( boolean available )
     {
         return this.available = available;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<IndexEntry<V, ID>> iterator()
-    {
-        return new CursorIterator<IndexEntry<V, ID>>( this );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isAfterLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isAfterLast()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isBeforeFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isBeforeFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

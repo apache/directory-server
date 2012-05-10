@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,16 +50,16 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(
-    name = "ModifyPerfDS", 
+    name = "ModifyPerfDS",
     partitions =
-    { 
+    {
         @CreatePartition(
-            name = "example", 
-            suffix = "dc=example,dc=com", 
+            name = "example",
+            suffix = "dc=example,dc=com",
             contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
         + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { 
-                @CreateIndex(attribute = "objectClass"), 
+        {
+                @CreateIndex(attribute = "objectClass"),
                 @CreateIndex(attribute = "sn"),
                 @CreateIndex(attribute = "cn") })
 
@@ -71,7 +70,6 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
      * Test an modify operation performance
      */
     @Test
-    @Ignore ( "We should not have performance tests mixed with integration tests" )
     public void testModifyPerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );

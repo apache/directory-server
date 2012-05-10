@@ -36,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the EncryptionKey encoding and decoding
  * 
@@ -51,26 +52,29 @@ public class EncryptionKeyTest
     private static EncryptionKey encryptionC;
     private static EncryptionKey encryptionD;
 
-    private static final byte[] ENCRYPTION_VALUE_A = { 0x01, 0x02, 0x03 };
-    private static final byte[] ENCRYPTION_VALUE_B = { 0x01, 0x02, 0x03 };
-    private static final byte[] ENCRYPTION_VALUE_C = { 0x01, 0x02, 0x04 };
+    private static final byte[] ENCRYPTION_VALUE_A =
+        { 0x01, 0x02, 0x03 };
+    private static final byte[] ENCRYPTION_VALUE_B =
+        { 0x01, 0x02, 0x03 };
+    private static final byte[] ENCRYPTION_VALUE_C =
+        { 0x01, 0x02, 0x04 };
 
-    
+
     /**
      * Initialize name instances
      */
     @BeforeClass
     public static void initNames() throws Exception
     {
-        encryptionA = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
-        encryptionACopy = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
-        encryptionB = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_B );
-        encryptionC = new EncryptionKey ( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_C );
-        encryptionD = new EncryptionKey ( EncryptionType.AES256_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
+        encryptionA = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
+        encryptionACopy = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
+        encryptionB = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_B );
+        encryptionC = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_C );
+        encryptionD = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );
 
     }
 
-    
+
     @Test
     public void testEncodingFast() throws Exception
     {
@@ -82,13 +86,13 @@ public class EncryptionKeyTest
         ec.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0c, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA1, 0x05, 
-                  0x04, 0x03, 0x01, 0x02, 0x03 
-            };
+            {
+                0x30, 0x0c,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA1, 0x05,
+                0x04, 0x03, 0x01, 0x02, 0x03
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -104,13 +108,13 @@ public class EncryptionKeyTest
         ec.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x09, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA1, 0x02, 
-                  0x04, 0x00 
-            };
+            {
+                0x30, 0x09,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA1, 0x02,
+                0x04, 0x00
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -147,13 +151,13 @@ public class EncryptionKeyTest
         ec.encode( buffer );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0c, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x11, 
-                ( byte ) 0xA1, 0x05, 
-                  0x04, 0x03, 0x01, 0x02, 0x03 
-            };
+            {
+                0x30, 0x0c,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA1, 0x05,
+                0x04, 0x03, 0x01, 0x02, 0x03
+        };
 
         assertTrue( Arrays.equals( expectedResult, buffer.array() ) );
     }

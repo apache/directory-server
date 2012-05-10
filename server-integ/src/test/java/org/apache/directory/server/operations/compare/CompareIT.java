@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
@@ -51,6 +52,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -68,28 +70,39 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
         "objectClass: top",
         "uid: akarasulu",
         "cn: Alex Karasulu",
         "sn: karasulu",
         // Entry # 2
-        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: computers",
         "description: Computers for Alex",
         "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
         // Entry # 3
-        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
-        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class CompareIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -111,7 +124,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control using an attribute that does not exist in the
      * entry.
      */
@@ -157,7 +170,7 @@ public class CompareIT extends AbstractLdapTestUnit
         ManageDsaIT manageDSAIT = new ManageDsaITImpl();
         manageDSAIT.setCritical( true );
         compareRequest.addControl( manageDSAIT );
-        
+
         CompareResponse compareResponse = conn.compare( compareRequest );
         assertEquals( ResultCodeEnum.COMPARE_FALSE, compareResponse.getLdapResult().getResultCode() );
 
@@ -166,7 +179,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
+     * Tests compare operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -174,7 +187,7 @@ public class CompareIT extends AbstractLdapTestUnit
     public void testOnReferral() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-        
+
         // comparison success
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( new Dn( "uid=akarasulu,ou=users,ou=system" ) );
@@ -196,17 +209,20 @@ public class CompareIT extends AbstractLdapTestUnit
         compareResponse = conn.compare( compareRequest );
         assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
 
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests compare operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test
@@ -248,7 +264,7 @@ public class CompareIT extends AbstractLdapTestUnit
      * anonymous
      * @throws LdapException
      */
-    @Test( expected=InvalidConnectionException.class )
+    @Test(expected = InvalidConnectionException.class)
     public void testCompareWithoutAuthentication() throws LdapException
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
@@ -278,9 +294,12 @@ public class CompareIT extends AbstractLdapTestUnit
         CompareResponse compareResponse = conn.compare( compareRequest );
         assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
 
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls().contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+            .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
 
         conn.close();
     }

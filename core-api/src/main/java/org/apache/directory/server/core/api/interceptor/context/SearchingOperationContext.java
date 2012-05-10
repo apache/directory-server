@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -25,8 +25,6 @@ import static org.apache.directory.shared.ldap.model.message.SearchScope.ONELEVE
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.naming.directory.SearchControls;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.api.CoreSession;
@@ -45,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A context used for search related operations and used by all 
+ * A context used for search related operations and used by all
  * the Interceptors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -54,37 +52,41 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 {
     /** The LoggerFactory used by this Interceptor */
     private static Logger LOG = LoggerFactory.getLogger( SearchingOperationContext.class );
-    
+
     /** A flag describing the way alias should be handled */
     protected AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
     /** The sizeLimit for this search operation */
     protected long sizeLimit = 0;
-    
+
     /** The timeLimit for this search operation */
     protected int timeLimit = 0;
-    
+
     /** The scope for this search : default to One Level */
     protected SearchScope scope = ONELEVEL;
 
     /** A flag set if the returned attributes set contains '+' */
     protected boolean allOperationalAttributes = false;
-    
+
     /** A flag set if the returned attributes set contains '*' */
     protected boolean allUserAttributes = false;
-    
+
     /** A flag set if the returned attributes set contains '1.1' */
     protected boolean noAttributes = false;
-    
+
     /** A set containing the returning attributeTypesOptions */
-    protected Set<AttributeTypeOptions> returningAttributes; 
-    
+    protected Set<AttributeTypeOptions> returningAttributes;
+
+    /** The set of attributes to return as String */
+    protected String[] returningAttributesString;
+
     /** A flag if the search operation is abandoned */
     protected boolean abandoned = false;
-    
+
     /** A flag to tell if only the attribute names to be returned */
     protected boolean typesOnly = false;
-    
+
+
     /**
      * Creates a new instance of SearchingOperationContext.
      */
@@ -106,12 +108,12 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
 
 
     /**
-     * Creates a new instance of a SearchingOperationContext using one level 
+     * Creates a new instance of a SearchingOperationContext using one level
      * scope, with attributes to return.
      *
      * @param dn The Dn to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
-     * @throws LdapException 
+     * @throws LdapException
      */
     public SearchingOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
@@ -120,66 +122,88 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
     }
 
 
-    protected void setReturningAttributes( Collection<String> attributesIds ) 
+    protected void setReturningAttributes( Collection<String> attributesIds )
         throws LdapException
     {
         setReturningAttributes( attributesIds.toArray( StringConstants.EMPTY_STRINGS ) );
     }
-    
-    
-    public void setReturningAttributes( String[] attributesIds ) throws LdapException
+
+
+    public void setReturningAttributes( String... attributesIds ) throws LdapException
     {
-        if ( attributesIds != null && attributesIds.length != 0 )
+        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
         {
             returningAttributes = new HashSet<AttributeTypeOptions>();
+            Set<String> attributesString = new HashSet<String>();
+            int nbInvalid = 0;
             
             for ( String returnAttribute : attributesIds )
             {
                 if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     noAttributes = true;
+                    attributesString.add( SchemaConstants.NO_ATTRIBUTE );
                     continue;
                 }
-                
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                 {
                     allOperationalAttributes = true;
+                    attributesString.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
                     continue;
                 }
-                
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
                 {
                     allUserAttributes = true;
+                    attributesString.add( SchemaConstants.ALL_USER_ATTRIBUTES );
                     continue;
                 }
-                
+
                 try
                 {
                     String id = SchemaUtils.stripOptions( returnAttribute );
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
-                    
+
                     AttributeType attributeType = session.getDirectoryService()
                         .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-                   
+
                     returningAttributes.add( attrOptions );
+                    attributesString.add( attributeType.getOid() );
                 }
                 catch ( LdapNoSuchAttributeException nsae )
                 {
-                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored", returnAttribute );
+                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
+                        returnAttribute );
                     // Unknown attributes should be silently ignored, as RFC 2251 states
+                    nbInvalid++;
                 }
             }
-            
-            // reset the noAttrubte flag if it is already set cause that will be ignored if any other AT is requested
-            if( noAttributes && ( allUserAttributes || allOperationalAttributes || ( ! returningAttributes.isEmpty() ) ) )
+
+            // reset the noAttribute flag if it is already set cause that will be ignored if any other AT is requested
+            if ( noAttributes && ( allUserAttributes || allOperationalAttributes || ( !returningAttributes.isEmpty() ) ) )
             {
                 noAttributes = false;
-            }   
+            }
+            
+            if ( attributesString.size() > 0 )
+            {
+                returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
+            }
+            else if ( nbInvalid > 0 )
+            {
+                returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
+            }
+            else
+            {
+                returningAttributesString = new String[]{ SchemaConstants.ALL_USER_ATTRIBUTES };
+                allUserAttributes = true;
+            }
         }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -188,7 +212,7 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         return "ListOperationContext with Dn '" + getDn().getName() + "'";
     }
 
-    
+
     public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
@@ -341,71 +365,13 @@ public abstract class SearchingOperationContext extends AbstractOperationContext
         return returningAttributes;
     }
 
-    
-    /**
-     * Creates a new SearchControls object populated with the parameters 
-     * contained in this SearchOperationContext in normalized form.
-     *
-     * @return a new SearchControls object
-     */
-    public SearchControls getSearchControls()
-    {
-        return getSearchControls( false );
-    }
-    
-    
-    /**
-     * Creates a new SearchControls object populated with the parameters 
-     * contained in this SearchOperationContext.
-     *
-     * @param denormalized true if attribute values are <b>not</b> normalized
-     * @return a new SearchControls object
-     */
-    public SearchControls getSearchControls( boolean denormalized )
-    {
-        SearchControls controls = new SearchControls();
-        controls.setCountLimit( sizeLimit );
-        controls.setSearchScope( scope.getScope() );
-        controls.setTimeLimit( timeLimit );
 
-        Set<String> allReturningAttributes = new HashSet<String>();
-        
-        if ( noAttributes )
-        {
-            allReturningAttributes.add( SchemaConstants.NO_ATTRIBUTE );
-        }
-        
-        if ( allUserAttributes )
-        {
-            allReturningAttributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-        }
-        
-        if ( allOperationalAttributes )
-        {
-            allReturningAttributes.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
-        }
-        
-        if ( returningAttributes != null )
-        {
-            for ( AttributeTypeOptions at : returningAttributes )
-            {
-                if ( denormalized )
-                {
-                    allReturningAttributes.add( at.getAttributeType().getName() );
-                }
-                else
-                {
-                    allReturningAttributes.add( at.getAttributeType().getOid() );
-                }
-            }
-        }
-        
-        if ( allReturningAttributes.size() > 0 )
-        {
-            controls.setReturningAttributes( allReturningAttributes.toArray( ArrayUtils.EMPTY_STRING_ARRAY ) );
-        }
-        
-        return controls;
+    /**
+     * @return the returningAttributesString
+     */
+    public String[] getReturningAttributesString()
+    {
+        return returningAttributesString;
     }
 
 

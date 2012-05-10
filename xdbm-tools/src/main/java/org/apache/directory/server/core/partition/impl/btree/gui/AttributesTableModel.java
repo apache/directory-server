@@ -38,25 +38,25 @@ import org.apache.directory.shared.ldap.model.entry.Value;
 public class AttributesTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 3256443603340310841L;
-    
+
     /** name for the key column */
     public static final String KEY_COL = "Keys";
-    
+
     /** name for the values column */
     public static final String VAL_COL = "Values";
 
     /** list of attribute ids */
     private final ArrayList<Object> keyList;
-    
+
     /** list of attribute values */
     private final ArrayList<Object> valList;
 
     /** the unique id of the entry  */
     private final Long id;
-    
+
     /** the distinguished name of the entry */
     private final String dn;
-    
+
     /** whether or not the model is mutable */
     private boolean isMutable = true;
 
@@ -69,7 +69,7 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel( Entry entry, Long id, String dn, boolean isMutable)
+    public AttributesTableModel( Entry entry, Long id, String dn, boolean isMutable )
     {
         this.dn = dn;
         this.id = id;
@@ -77,7 +77,7 @@ public class AttributesTableModel extends AbstractTableModel
 
         int rowCount = 0;
 
-        for ( Attribute attribute:entry )
+        for ( Attribute attribute : entry )
         {
             String attrId = attribute.getId();
             rowCount = rowCount + entry.get( attrId ).size();
@@ -86,9 +86,9 @@ public class AttributesTableModel extends AbstractTableModel
         keyList = new ArrayList<Object>( rowCount );
         valList = new ArrayList<Object>( rowCount );
 
-        for ( Attribute attribute:entry )
+        for ( Attribute attribute : entry )
         {
-            for ( Value<?> value:attribute )
+            for ( Value<?> value : attribute )
             {
                 keyList.add( attribute.getId() );
                 valList.add( value.getValue() );

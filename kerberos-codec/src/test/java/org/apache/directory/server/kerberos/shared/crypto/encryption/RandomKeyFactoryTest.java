@@ -38,6 +38,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test cases for random-to-key functions for DES-, DES3-, AES-, and RC4-based
  * encryption types.

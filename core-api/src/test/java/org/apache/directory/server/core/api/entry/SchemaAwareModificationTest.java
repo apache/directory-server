@@ -176,7 +176,7 @@ public class SchemaAwareModificationTest
 
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(errors) );
+            fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
@@ -247,7 +247,7 @@ public class SchemaAwareModificationTest
         assertTrue( copy instanceof DefaultModification );
         assertTrue( copy instanceof DefaultModification );
         assertFalse( copy.equals( clientModification ) );
-        assertTrue( copy.getAttribute() instanceof Attribute);
+        assertTrue( copy.getAttribute() instanceof Attribute );
         assertEquals( atC, copy.getAttribute().getAttributeType() );
         assertEquals( ModificationOperation.ADD_ATTRIBUTE, copy.getOperation() );
         assertTrue( copy.getAttribute().contains( "test1", "test2" ) );

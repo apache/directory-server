@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.jndi;
 
@@ -30,6 +30,8 @@ import java.util.HashSet;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -57,8 +59,8 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListSystemAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
         HashSet<String> set = new HashSet<String>();
@@ -71,8 +73,8 @@ public class ListIT extends AbstractLdapTestUnit
         }
 
         assertFalse( set.contains( "uid=admin,ou=system" ) );
-        assertTrue( set.contains( "ou=users,ou=system" ) );
-        assertTrue( set.contains( "ou=groups,ou=system" ) );
+        assertFalse( set.contains( "ou=users,ou=system" ) );
+        assertFalse( set.contains( "ou=groups,ou=system" ) );
     }
 
 
@@ -80,7 +82,7 @@ public class ListIT extends AbstractLdapTestUnit
     public void testListUsersAsNonAdmin() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
+        getService().getAdminSession().add(
             new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getContext( akarasulu.getDn().getName(), getService(), "ou=system" );
@@ -109,11 +111,26 @@ public class ListIT extends AbstractLdapTestUnit
         {
             NameClassPair ncp = list.next();
             set.add( ncp.getName() );
+            
+            System.out.println( ncp.getName() );
         }
 
         assertTrue( set.contains( "uid=admin,ou=system" ) );
         assertTrue( set.contains( "ou=users,ou=system" ) );
         assertTrue( set.contains( "ou=groups,ou=system" ) );
+        
+        System.out.println( "--------------------" );
+
+        SearchControls sc = new SearchControls();
+        sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = sysRoot.search( "", "(objectClass=*)", sc );
+        
+        while ( ne.hasMoreElements() )
+        {
+            SearchResult sr = ne.nextElement();
+            
+            System.out.println( sr.getName() );
+        }
     }
 
 
@@ -123,12 +140,11 @@ public class ListIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
         HashSet<String> set = new HashSet<String>();
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
-                
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         NamingEnumeration<NameClassPair> list = sysRoot.list( "ou=users" );
-        
+
         while ( list.hasMore() )
         {
             NameClassPair ncp = list.next();

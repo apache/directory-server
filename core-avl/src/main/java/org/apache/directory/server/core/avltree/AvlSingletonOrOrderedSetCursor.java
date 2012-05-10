@@ -22,9 +22,11 @@ package org.apache.directory.server.core.avltree;
 
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,8 +34,11 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K, SingletonOrOrderedSet<V>>
+public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K, SingletonOrOrderedSet<V>>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The underlying AVL tree map */
     private AvlTreeMap<K, V> tree;
 
@@ -48,6 +53,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K,
 
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
+        LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
         this.tree = tree;
     }
 
@@ -167,9 +173,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K,
             case ON_NODE:
             case AFTER_NODE:
                 node = node.next;
+                
                 if ( node == null )
                 {
                     afterLast();
+                    
                     return false;
                 }
                 else
@@ -284,5 +292,25 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractTupleCursor<K,
     public void beforeValue( K key, SingletonOrOrderedSet<V> value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception reason ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        super.close( reason );
     }
 }

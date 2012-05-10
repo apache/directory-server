@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.ldap.handlers;
 
- 
+
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
@@ -40,7 +40,7 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ModifyDnHandler.class );
 
-    
+
     /**
      * Deal with a ModifyDN request received from a client.
      *
@@ -71,19 +71,19 @@ public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
             session.getIoSession().write( req.getResultResponse() );
             return;
         }
-        
+
         try
         {
             SchemaManager schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
             Dn newRdn = new Dn( schemaManager, req.getNewRdn().getName() );
-            
+
             Dn oldRdn = new Dn( schemaManager, req.getName().getRdn().getName() );
-            
-            boolean rdnChanged = req.getNewRdn() != null && 
-                ! newRdn.getNormName().equals( oldRdn.getNormName() );
-            
+
+            boolean rdnChanged = req.getNewRdn() != null &&
+                !newRdn.getNormName().equals( oldRdn.getNormName() );
+
             CoreSession coreSession = session.getCoreSession();
-            
+
             if ( rdnChanged )
             {
                 if ( req.getNewSuperior() != null )

@@ -76,7 +76,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -122,7 +122,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode ) node );
+            count = getScopeScan( ( ScopeNode<ID> ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -162,7 +162,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
                 /** Cannot really say so we presume the total index count */
                 count = getFullScan( leaf );
             }
-            else if ( node instanceof ApproximateNode)
+            else if ( node instanceof ApproximateNode )
             {
                 /** Feature not implemented so we just use equality matching */
                 count = getEqualityScan( ( ApproximateNode ) leaf );
@@ -183,9 +183,9 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
             }
             else if ( node instanceof OrNode )
             {
-                count = getDisjunctionScan( (OrNode) node );
+                count = getDisjunctionScan( ( OrNode ) node );
             }
-            else if ( node instanceof NotNode)
+            else if ( node instanceof NotNode )
             {
                 annotate( ( ( NotNode ) node ).getFirstChild() );
 
@@ -210,6 +210,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         }
 
         node.set( "count", count );
+        
         return count;
     }
 
@@ -370,9 +371,10 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode node ) throws Exception
+    private long getScopeScan( ScopeNode<ID> node ) throws Exception
     {
-        ID id = db.getEntryId( node.getBaseDn() );
+        ID id = node.getBaseId();
+        
         switch ( node.getScope() )
         {
             case OBJECT:
@@ -388,7 +390,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
                 }
                 else
                 {
-                    return db.getSubLevelIndex().count( id );
+                    return db.getRdnIndex().reverseLookup( id ).getNbDescendants() + 1;
                 }
 
             default:

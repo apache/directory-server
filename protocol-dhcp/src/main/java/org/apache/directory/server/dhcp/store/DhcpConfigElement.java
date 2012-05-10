@@ -33,7 +33,7 @@ import org.apache.directory.server.dhcp.options.OptionsField;
 public abstract class DhcpConfigElement
 {
     public static final String PROPERTY_MAX_LEASE_TIME = "max-lease-time";
-        
+
     /** List of DhcpOptions for ths subnet */
     private OptionsField options = new OptionsField();
 

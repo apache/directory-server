@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
@@ -33,21 +33,21 @@ import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
+import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/** 
+/**
  * A Jdbm based index implementation. It creates an Index for a give AttributeType.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -61,7 +61,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * default duplicate limit before duplicate keys switch to using a btree for values
      */
     public static final int DEFAULT_DUPLICATE_LIMIT = 512;
-    
+
     /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
 
@@ -86,13 +86,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * the JDBM record manager for the file containing this index
      */
     protected RecordManager recMan;
-
-    /**
-     * the normalized value cache for this index
-     * @todo I don't think the keyCache is required anymore since the normalizer
-     * will cache values for us.
-     */
-    protected SynchronizedLRUMap keyCache;
 
     /**
      * duplicate limit before duplicate keys switch to using a btree for values
@@ -129,7 +122,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public JdbmIndex()
     {
-        super();
+        super( true );
         initialized = false;
     }
 
@@ -139,7 +132,17 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public JdbmIndex( String attributeId )
     {
-        super( attributeId );
+        super( attributeId, true );
+        initialized = false;
+    }
+
+
+    /**
+     * Creates a JdbmIndex instance for a give AttributeId
+     */
+    public JdbmIndex( String attributeId, boolean withReverse )
+    {
+        super( attributeId, withReverse );
         initialized = false;
     }
 
@@ -154,8 +157,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
-        keyCache = new SynchronizedLRUMap( cacheSize );
+
         this.attributeType = attributeType;
 
         if ( attributeId == null )
@@ -166,7 +168,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            
+
             e.printStackTrace();
             throw e;
         }
@@ -193,7 +195,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
-        
+
         initialized = true;
     }
 
@@ -219,7 +221,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         comp = new SerializableComparator<K>( mr.getOid() );
 
         /*
-         * The forward key/value map stores attribute values to master table 
+         * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
@@ -232,18 +234,22 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
         /*
          * Now the reverse map stores the primary key into the master table as
          * the key and the values of attributes as the value.  If an attribute
-         * is single valued according to its specification based on a schema 
+         * is single valued according to its specification based on a schema
          * then duplicate keys should not be allowed within the reverse table.
          */
-        if ( attributeType.isSingleValued() )
+        if ( withReverse )
         {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
-                LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
-        }
-        else
-        {
-            reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit, recMan,
-                LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
+            if ( attributeType.isSingleValued() )
+            {
+                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
+                    LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+            }
+            else
+            {
+                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                    recMan,
+                    LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
+            }
         }
     }
 
@@ -294,7 +300,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      * Gets the working directory path to something other than the default. Sometimes more
      * performance is gained by locating indices on separate disk spindles.
      *
-     * @return optional working directory path 
+     * @return optional working directory path
      */
     public URI getWkDirPath()
     {
@@ -319,13 +325,13 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public int count( K attrVal ) throws Exception
     {
-        return forward.count( getNormalized( attrVal ) );
+        return forward.count( attrVal );
     }
 
 
     public int greaterThanCount( K attrVal ) throws Exception
     {
-        return forward.greaterThanCount( getNormalized( attrVal ) );
+        return forward.greaterThanCount( attrVal );
     }
 
 
@@ -334,7 +340,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public int lessThanCount( K attrVal ) throws Exception
     {
-        return forward.lessThanCount( getNormalized( attrVal ) );
+        return forward.lessThanCount( attrVal );
     }
 
 
@@ -347,7 +353,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public Long forwardLookup( K attrVal ) throws Exception
     {
-        return forward.get( getNormalized( attrVal ) );
+        return forward.get( attrVal );
     }
 
 
@@ -356,7 +362,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public K reverseLookup( Long id ) throws Exception
     {
-        return reverse.get( id );
+        if ( withReverse )
+        {
+            return reverse.get( id );
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -369,11 +382,13 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public synchronized void add( K attrVal, Long id ) throws Exception
     {
-        K normalizedValue = getNormalized( attrVal );
-
         // The pair to be removed must exists
-        forward.put( normalizedValue, id );
-        reverse.put( id, normalizedValue );
+        forward.put( attrVal, id );
+
+        if ( withReverse )
+        {
+            reverse.put( id, attrVal );
+        }
     }
 
 
@@ -382,13 +397,15 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public synchronized void drop( K attrVal, Long id ) throws Exception
     {
-        K normalizedValue = getNormalized( attrVal );
-        
         // The pair to be removed must exists
-        if ( forward.has( normalizedValue, id ) )
+        if ( forward.has( attrVal, id ) )
         {
-            forward.remove( normalizedValue, id );
-            reverse.remove( id, normalizedValue );
+            forward.remove( attrVal, id );
+
+            if ( withReverse )
+            {
+                reverse.remove( id, attrVal );
+            }
         }
     }
 
@@ -407,9 +424,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
             // Remove the Key -> entryId from the index
             forward.remove( values.get().getValue(), entryId );
         }
+        
+        values.close();
 
         // Remove the id -> key from the reverse index
-        reverse.remove( entryId );
+        if ( withReverse )
+        {
+            reverse.remove( entryId );
+        }
     }
 
 
@@ -419,7 +441,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> reverseCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
+        if ( withReverse )
+        {
+            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
+        }
+        else
+        {
+            return new EmptyIndexCursor<K, O, Long>();
+        }
     }
 
 
@@ -433,7 +462,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     @SuppressWarnings("unchecked")
     public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( (Cursor) reverse.cursor( id ), false );
+        if ( withReverse )
+        {
+            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
+        }
+        else
+        {
+            return new EmptyIndexCursor<K, O, Long>();
+        }
     }
 
 
@@ -446,7 +482,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
     public Cursor<K> reverseValueCursor( Long id ) throws Exception
     {
-        return reverse.valueCursor( id );
+        if ( withReverse )
+        {
+            return reverse.valueCursor( id );
+        }
+        else
+        {
+            return new EmptyCursor<K>();
+        }
     }
 
 
@@ -464,7 +507,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forward( K attrVal ) throws Exception
     {
-        return forward.has( getNormalized( attrVal ) );
+        return forward.has( attrVal );
     }
 
 
@@ -473,7 +516,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forward( K attrVal, Long id ) throws Exception
     {
-        return forward.has( getNormalized( attrVal ), id );
+        return forward.has( attrVal, id );
     }
 
 
@@ -482,7 +525,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverse( Long id ) throws Exception
     {
-        return reverse.has( id );
+        if ( withReverse )
+        {
+            return reverse.has( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -491,7 +541,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverse( Long id, K attrVal ) throws Exception
     {
-        return forward.has( getNormalized( attrVal ), id );
+        return forward.has( attrVal, id );
     }
 
 
@@ -500,7 +550,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardGreaterOrEq( K attrVal ) throws Exception
     {
-        return forward.hasGreaterOrEqual( getNormalized( attrVal ) );
+        return forward.hasGreaterOrEqual( attrVal );
     }
 
 
@@ -509,7 +559,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasGreaterOrEqual( getNormalized( attrVal ), id );
+        return forward.hasGreaterOrEqual( attrVal, id );
     }
 
 
@@ -518,7 +568,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardLessOrEq( K attrVal ) throws Exception
     {
-        return forward.hasLessOrEqual( getNormalized( attrVal ) );
+        return forward.hasLessOrEqual( attrVal );
     }
 
 
@@ -527,7 +577,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
     {
-        return forward.hasLessOrEqual( getNormalized( attrVal ), id );
+        return forward.hasLessOrEqual( attrVal, id );
     }
 
 
@@ -536,7 +586,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseGreaterOrEq( Long id ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id );
+        if ( withReverse )
+        {
+            return reverse.hasGreaterOrEqual( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -545,7 +602,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasGreaterOrEqual( id, getNormalized( attrVal ) );
+        if ( withReverse )
+        {
+            return reverse.hasGreaterOrEqual( id, attrVal );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -554,7 +618,14 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseLessOrEq( Long id ) throws Exception
     {
-        return reverse.hasLessOrEqual( id );
+        if ( withReverse )
+        {
+            return reverse.hasLessOrEqual( id );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -563,12 +634,19 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
     {
-        return reverse.hasLessOrEqual( id, getNormalized( attrVal ) );
+        if ( withReverse )
+        {
+            return reverse.hasLessOrEqual( id, attrVal );
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
     // ------------------------------------------------------------------------
-    // Maintenance Methods 
+    // Maintenance Methods
     // ------------------------------------------------------------------------
     /**
      * @see org.apache.directory.server.xdbm.Index#close()
@@ -600,51 +678,21 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
 
 
     /**
-     * TODO I don't think the keyCache is required anymore since the normalizer
-     * will cache values for us.
-     */
-    @SuppressWarnings("unchecked")
-    public K getNormalized( K attrVal ) throws Exception
-    {
-        if ( attrVal instanceof Long )
-        {
-            return attrVal;
-        }
-
-        K normalized = ( K ) keyCache.get( attrVal );
-
-        if ( null == normalized )
-        {
-            if ( attrVal instanceof String )
-            {
-                normalized = ( K ) attributeType.getEquality().getNormalizer().normalize( ( String ) attrVal );
-            }
-            else
-            {
-                normalized = ( K ) attributeType.getEquality().getNormalizer().normalize(
-                    new BinaryValue( ( byte[] ) attrVal ) ).getValue();
-            }
-
-            // Double map it so if we use an already normalized
-            // value we can get back the same normalized value.
-            // and not have to regenerate a second time.
-            keyCache.put( attrVal, normalized );
-            keyCache.put( normalized, normalized );
-        }
-
-        return normalized;
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public boolean isDupsEnabled()
     {
-        return reverse.isDupsEnabled();
+        if ( withReverse )
+        {
+            return reverse.isDupsEnabled();
+        }
+        else
+        {
+            return false;
+        }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

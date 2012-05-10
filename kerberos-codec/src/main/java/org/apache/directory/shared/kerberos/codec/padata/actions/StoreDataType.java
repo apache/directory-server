@@ -26,7 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
@@ -77,11 +77,11 @@ public class StoreDataType extends GrammarAction<PaDataContainer>
 
         PaData paData = paDataContainer.getPaData();
         // The PaData's type is an integer
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
 
         try
         {
-            int paDataType = IntegerDecoder.parse(value);
+            int paDataType = IntegerDecoder.parse( value );
 
             paData.setPaDataType( PaDataType.getTypeByValue( paDataType ) );
 
@@ -92,7 +92,7 @@ public class StoreDataType extends GrammarAction<PaDataContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

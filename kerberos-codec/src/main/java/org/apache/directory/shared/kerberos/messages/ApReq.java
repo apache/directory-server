@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.messages;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
@@ -59,10 +60,10 @@ public class ApReq extends KerberosMessage
 
     /** The AP options */
     private ApOptions apOptions;
-    
+
     /** The Ticket */
     private Ticket ticket;
-    
+
     /** The encryptedData, an encrypted Authenticator */
     private EncryptedData authenticator;
 
@@ -74,6 +75,7 @@ public class ApReq extends KerberosMessage
     private int authenticatorLength;
     private int apReqLength;
     private int apReqSeqLength;
+
 
     /**
      * Creates a new instance of ApplicationRequest.
@@ -217,36 +219,36 @@ public class ApReq extends KerberosMessage
     public int computeLength()
     {
         reset();
-        
+
         // Compute the PVNO length.
-        pvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        pvnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the msg-type length
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
-        
+        msgTypeLength = 1 + 1 + BerValue.getNbBytes( getMessageType().getValue() );
+
         // Compute the APOptions length
         apOptionsLength = 1 + 1 + apOptions.getBytes().length;
-        
+
         // Compute the ticket length
         ticketLength = ticket.computeLength();
-        
+
         // Compute the authenticator length
         authenticatorLength = authenticator.computeLength();
-        
+
         // Compute the sequence size
         apReqLength =
             1 + TLV.getNbBytes( pvnoLength ) + pvnoLength +
-            1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength +
-            1 + TLV.getNbBytes( apOptionsLength ) + apOptionsLength +
-            1 + TLV.getNbBytes( ticketLength ) + ticketLength +
-            1 + TLV.getNbBytes( authenticatorLength ) + authenticatorLength;
-        
+                1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength +
+                1 + TLV.getNbBytes( apOptionsLength ) + apOptionsLength +
+                1 + TLV.getNbBytes( ticketLength ) + ticketLength +
+                1 + TLV.getNbBytes( authenticatorLength ) + authenticatorLength;
+
         apReqSeqLength = 1 + TLV.getNbBytes( apReqLength ) + apReqLength;
-        
+
         return 1 + TLV.getNbBytes( apReqSeqLength ) + apReqSeqLength;
     }
 
-    
+
     /**
      * Encode the AP-REQ component
      * 
@@ -264,50 +266,50 @@ public class ApReq extends KerberosMessage
         try
         {
             // The AP-REP Tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_TAG );
             buffer.put( TLV.getBytes( apReqSeqLength ) );
-            
+
             // The AP-REP SEQ Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( apReqLength ) );
-            
+
             // The PVNO -------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_PVNO_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLength ) );
-            
+
             // The value
-            Value.encode( buffer, getProtocolVersionNumber() );
-            
+            BerValue.encode( buffer, getProtocolVersionNumber() );
+
             // The msg-type ---------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_MSG_TYPE_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_MSG_TYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLength ) );
-            
+
             // The value
-            Value.encode( buffer, getMessageType().getValue() );
-            
+            BerValue.encode( buffer, getMessageType().getValue() );
+
             // The ap-options -------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_AP_OPTIONS_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_AP_OPTIONS_TAG );
             buffer.put( TLV.getBytes( apOptionsLength ) );
-            
+
             // The value
-            Value.encode( buffer, apOptions );
-            
+            BerValue.encode( buffer, apOptions );
+
             // The ticket -----------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_TICKET_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_TICKET_TAG );
             buffer.put( TLV.getBytes( ticketLength ) );
-            
+
             // The value
             ticket.encode( buffer );
-            
+
             // The authenticator ----------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AP_REQ_AUTHENTICATOR_TAG );
+            buffer.put( ( byte ) KerberosConstants.AP_REQ_AUTHENTICATOR_TAG );
             buffer.put( TLV.getBytes( authenticatorLength ) );
-            
+
             // The value
             authenticator.encode( buffer );
         }
@@ -320,7 +322,7 @@ public class ApReq extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AP-REQ encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "AP-REQ encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "AP-REQ initial value : {}", toString() );
         }
 
@@ -341,8 +343,8 @@ public class ApReq extends KerberosMessage
         apReqLength = 0;
         apReqSeqLength = 0;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -356,7 +358,7 @@ public class ApReq extends KerberosMessage
         sb.append( "  ap-options : " ).append( apOptions ).append( "\n" );
         sb.append( "  ticket : " ).append( ticket ).append( "\n" );
         sb.append( "  authenticator : " ).append( authenticator ).append( "\n" );
-        
+
         return sb.toString();
     }
 }

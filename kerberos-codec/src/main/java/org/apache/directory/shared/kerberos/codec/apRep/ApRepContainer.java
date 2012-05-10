@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.apRep;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,6 +35,7 @@ public class ApRepContainer extends AbstractContainer
 {
     /** An AP-REP container */
     private ApRep apRep;
+
 
     /**
      * Creates a new ApRepContainer object.
@@ -56,7 +58,7 @@ public class ApRepContainer extends AbstractContainer
         return apRep;
     }
 
-    
+
     /**
      * Set an ApRep Object into the container. It will be completed by the
      * KerberosDecoder.

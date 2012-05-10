@@ -49,15 +49,15 @@ public class StringSerializer implements Serializer
         for ( int ii = 0, jj = 0; ii < strchars.length; ii++, jj = ii << 1 )
         {
             int ch = bites[jj] << 8 & 0x0000FF00;
-            ch |= bites[jj+1] & 0x000000FF;
+            ch |= bites[jj + 1] & 0x000000FF;
             strchars[ii] = ( char ) ch;
         }
         return new String( strchars );
     }
 
-
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-    
+
+
     /* (non-Javadoc)
      * @see jdbm.helper.Serializer#serialize(java.lang.Object)
      */
@@ -67,15 +67,15 @@ public class StringSerializer implements Serializer
         {
             return EMPTY_BYTE_ARRAY;
         }
-        
+
         char[] strchars = ( ( String ) str ).toCharArray();
-        byte[] bites = new byte[strchars.length<<1];
+        byte[] bites = new byte[strchars.length << 1];
         for ( int ii = 0, jj = 0; ii < strchars.length; ii++, jj = ii << 1 )
         {
             bites[jj] = ( byte ) ( strchars[ii] >> 8 & 0x00FF );
-            bites[jj+1] = ( byte ) ( strchars[ii] & 0x00FF );
+            bites[jj + 1] = ( byte ) ( strchars[ii] & 0x00FF );
         }
-        
+
         return bites;
     }
 }

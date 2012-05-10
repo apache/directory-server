@@ -50,7 +50,7 @@ public interface ChangeLog
      * @param enabled true to enable the service, flase to disable it
      */
     void setEnabled( boolean enabled );
-    
+
 
     /**
      * @return The underlying storage
@@ -196,11 +196,13 @@ public interface ChangeLog
      */
     Tag tag() throws Exception;
 
+
     /**
      * @return The latest tag
      * @throws Exception if there is a problem taking the latest tag
      */
     Tag getLatest() throws LdapException;
+
 
     /**
      * Initialize the ChangeLog system.
@@ -210,44 +212,51 @@ public interface ChangeLog
      */
     void init( DirectoryService service ) throws Exception;
 
+
     /**
      * Flush the changes to disk
      * @throws Exception If the flush failed
      */
     void sync() throws Exception;
 
+
     /**
      * Destroy the changeLog
      * @throws Exception 
      */
     void destroy() throws Exception;
-    
+
+
     /**
      * Exposes the contents of ChangeLog to clients if set to true. Default setting is false.
      *
      * @param exposed true to expose the contents, false to not expose.
      */
     void setExposed( boolean exposed );
-    
+
+
     /**
      * @return true if the changeLog system is visible by clients
      */
     boolean isExposed();
-    
+
+
     /**
      * The prefix of the partition. Default value is <i>ou=changelog</i>.
      *
      * @param suffix suffix value to be set for the changelog partition
      */
     void setPartitionSuffix( String suffix );
-    
+
+
     /**
      * The name of the revisions container under the partition. Default value is ou=revisions 
      *
      * @param revContainerName the name of the revisions container
      */
     void setRevisionsContainerName( String revContainerName );
-    
+
+
     /**
      * The name of the tags container under the partition. Default value is ou=tags 
      *

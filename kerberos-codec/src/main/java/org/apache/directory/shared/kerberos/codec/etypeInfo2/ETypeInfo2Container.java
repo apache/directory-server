@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.etypeInfo2;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
@@ -33,6 +34,7 @@ public class ETypeInfo2Container extends AbstractContainer
 {
     /** holds ETypeInfo2 */
     private ETypeInfo2 etypeInfo2 = new ETypeInfo2();
+
 
     /**
      * Creates a new ETypeInfo2Container object.
@@ -54,7 +56,7 @@ public class ETypeInfo2Container extends AbstractContainer
         return etypeInfo2;
     }
 
-    
+
     /**
      * Set a ETypeInfo2 Object into the container
      * 
@@ -65,7 +67,7 @@ public class ETypeInfo2Container extends AbstractContainer
         this.etypeInfo2 = etypeInfo2;
     }
 
-    
+
     /**
      * Add a EtypeInfo2Entry Object into the list. It will be completed by the
      * KerberosDecoder.

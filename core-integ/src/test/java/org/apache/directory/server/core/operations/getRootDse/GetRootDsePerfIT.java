@@ -55,6 +55,8 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         
         for ( int i = 0; i < nbIterations; i++ )
         {
+            getRootDseContext.setCurrentInterceptor( 0 );
+            
             if ( i % 1000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();

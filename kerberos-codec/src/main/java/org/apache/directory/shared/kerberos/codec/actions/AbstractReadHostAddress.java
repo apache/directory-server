@@ -57,6 +57,7 @@ public abstract class AbstractReadHostAddress<E extends Asn1Container> extends G
 
     protected abstract void setAddress( HostAddress hostAddress, E container );
 
+
     /**
      * {@inheritDoc}
      */

@@ -19,19 +19,21 @@
  */
 package org.apache.directory.server.ldap.handlers.controls;
 
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
+
 
 /**
  * The structure which stores the informations relative to the pagedSearch control.
@@ -57,6 +59,7 @@ public class PagedSearchContext
     /** The associated cursor for the current search request */
     private EntryFilteringCursor cursor;
 
+
     /**
      * Creates a new instance of this class, storing the SearchRequest into it.
      */
@@ -70,7 +73,7 @@ public class PagedSearchContext
         // a user may send more than one PagedSearch on the same session.
         cookieValue = new AtomicInteger( searchRequest.getMessageId() << 16 );
 
-        cookie = Value.getBytes( cookieValue.get() );
+        cookie = BerValue.getBytes( cookieValue.get() );
     }
 
 
@@ -101,7 +104,7 @@ public class PagedSearchContext
      */
     public byte[] getNewCookie()
     {
-        cookie = Value.getBytes( cookieValue.incrementAndGet() );
+        cookie = BerValue.getBytes( cookieValue.incrementAndGet() );
 
         return cookie;
     }
@@ -116,7 +119,7 @@ public class PagedSearchContext
         Set<String> requestSet = new HashSet<String>();
 
         // Build the set of attributeType from the attributes
-        for ( String attribute:request.getAttributes() )
+        for ( String attribute : request.getAttributes() )
         {
             try
             {
@@ -127,8 +130,8 @@ public class PagedSearchContext
             {
                 // Deal with special attributes : '*', '+' and '1.1'
                 if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ||
-                     attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                     attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                    attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
+                    attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     requestSet.add( attribute );
                 }
@@ -139,6 +142,7 @@ public class PagedSearchContext
 
         return requestSet;
     }
+
 
     /**
      * Compare the previous search request and the new one, and return
@@ -215,7 +219,7 @@ public class PagedSearchContext
                     return false;
                 }
 
-                for ( String attribute:requestSet )
+                for ( String attribute : requestSet )
                 {
                     previousRequestSet.remove( attribute );
                 }
@@ -315,7 +319,7 @@ public class PagedSearchContext
         StringBuilder sb = new StringBuilder();
 
         sb.append( "PagedSearch context : <" );
-        sb.append( Strings.dumpBytes(cookie) );
+        sb.append( Strings.dumpBytes( cookie ) );
         sb.append( ", " );
         sb.append( currentPosition );
         sb.append( ">" );

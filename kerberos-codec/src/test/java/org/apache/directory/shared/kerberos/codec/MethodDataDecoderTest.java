@@ -60,23 +60,45 @@ public class MethodDataDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x22,
-                0x30, 0x0F,
-                  (byte)0xA1, 0x03,                 // padata-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA2, 0x08,                 // padata-value
-                    0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f',
-                0x30, 0x0F,
-                  (byte)0xA1, 0x03,                 // padata-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA2, 0x08,                 // padata-value
-                    0x04, 0x06, 'g', 'h', 'i', 'j', 'k', 'l'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x22,
+                0x30, 0x0F,
+                ( byte ) 0xA1, 0x03, // padata-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA2,
+                0x08, // padata-value
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                0x30,
+                0x0F,
+                ( byte ) 0xA1,
+                0x03, // padata-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA2,
+                0x08, // padata-value
+                0x04,
+                0x06,
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a METHOD-DATA Container
@@ -97,29 +119,30 @@ public class MethodDataDecoderTest
         MethodData methodData = ( ( MethodDataContainer ) methodDataContainer ).getMethodData();
 
         assertEquals( 2, methodData.getPaDatas().length );
-        
-        String[] expected = new String[]{ "abcdef", "ghijkl" };
+
+        String[] expected = new String[]
+            { "abcdef", "ghijkl" };
         int i = 0;
-        
+
         for ( PaData paData : methodData.getPaDatas() )
         {
             assertEquals( PaDataType.PA_ENC_TIMESTAMP, paData.getPaDataType() );
-            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i]), paData.getPaDataValue() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8( expected[i] ), paData.getPaDataValue() ) );
             i++;
         }
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( methodData.computeLength() );
-        
+
         try
         {
             bb = methodData.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x24, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -127,18 +150,18 @@ public class MethodDataDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a METHOD-DATA with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfoEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -151,23 +174,23 @@ public class MethodDataDecoderTest
         kerberosDecoder.decode( stream, methodDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a METHOD-DATA with empty PA-DATA in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x02,
-                (byte)0x30, 0x00                  // empty PA-DATA
-            } );
+            {
+                0x30, 0x02,
+                ( byte ) 0x30, 0x00 // empty PA-DATA
+        } );
 
         stream.flip();
 

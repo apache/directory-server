@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.ldap.handlers.bind;
 
+
 import javax.security.sasl.SaslServer;
 
 import org.apache.directory.server.ldap.LdapSession;
@@ -39,7 +40,7 @@ public abstract class AbstractMechanismHandler implements MechanismHandler
     /** A logger for this class **/
     private static final Logger LOG = LoggerFactory.getLogger( AbstractMechanismHandler.class );
 
-    
+
     /**
      * Inject a SaslFilter into the Filter chain, to deal with modified
      * PDU sent when some mechanisms have been negotiated (DIGEST-MD5, GSSAPI, 
@@ -51,16 +52,16 @@ public abstract class AbstractMechanismHandler implements MechanismHandler
     {
         LOG.debug( "Inserting SaslFilter to engage negotiated security layer." );
         IoSession ioSession = ldapSession.getIoSession();
-    
+
         // get the Io chain
         IoFilterChain chain = ioSession.getFilterChain();
-        
+
         if ( !chain.contains( SaslConstants.SASL_FILTER ) )
         {
             SaslServer saslServer = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
             chain.addBefore( "codec", SaslConstants.SASL_FILTER, new SaslFilter( saslServer ) );
         }
-    
+
         /*
          * We disable the SASL security layer once, to write the outbound SUCCESS
          * message without SASL security layer processing.

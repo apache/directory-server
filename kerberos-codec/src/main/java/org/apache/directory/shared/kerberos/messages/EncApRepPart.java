@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.messages;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -26,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -34,7 +35,6 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 
 /**
@@ -60,13 +60,13 @@ public class EncApRepPart extends KerberosMessage
 
     /** The client time */
     private KerberosTime ctime;
-    
+
     /** the microsecond part of the client's timestamp */
     private int cusec;
-    
+
     /** Encryption key */
     private EncryptionKey subkey; //optional
-    
+
     /** Sequence number */
     private Integer seqNumber; //optional
 
@@ -77,6 +77,7 @@ public class EncApRepPart extends KerberosMessage
     private int seqNumberLength;
     private int encApRepPartSeqLength;
     private int encApRepPartLength;
+
 
     /**
      * Creates a new instance of EncApRepPart.
@@ -106,7 +107,7 @@ public class EncApRepPart extends KerberosMessage
         this.ctime = ctime;
     }
 
-    
+
     /**
      * @return the cusec
      */
@@ -193,25 +194,25 @@ public class EncApRepPart extends KerberosMessage
         encApRepPartSeqLength = 1 + TLV.getNbBytes( ctimeLength ) + ctimeLength;
 
         // Compute the cusec length
-        cusecLength = 1 + 1 + Value.getNbBytes( cusec );
+        cusecLength = 1 + 1 + BerValue.getNbBytes( cusec );
         encApRepPartSeqLength += 1 + TLV.getNbBytes( cusecLength ) + cusecLength;
-        
+
         // Compute the subkey length, if any
         if ( subkey != null )
         {
             subKeyLength = subkey.computeLength();
             encApRepPartSeqLength += 1 + TLV.getNbBytes( subKeyLength ) + subKeyLength;
         }
-        
+
         // Compute the sequence size, if any
         if ( seqNumber != null )
         {
-            seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
+            seqNumberLength = 1 + 1 + BerValue.getNbBytes( seqNumber );
             encApRepPartSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
-        
+
         encApRepPartLength = 1 + TLV.getNbBytes( encApRepPartSeqLength ) + encApRepPartSeqLength;
-            
+
         return 1 + TLV.getNbBytes( encApRepPartLength ) + encApRepPartLength;
     }
 
@@ -245,53 +246,53 @@ public class EncApRepPart extends KerberosMessage
         try
         {
             // The EncApRepPart APPLICATION Tag
-            buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_AP_REP_PART_TAG );
             buffer.put( TLV.getBytes( encApRepPartLength ) );
 
             // The EncApRepPart SEQ Tag
-            buffer.put( (byte)UniversalTag.SEQUENCE.getValue() );
+            buffer.put( ( byte ) UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encApRepPartSeqLength ) );
 
             // The ctime ------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_CTIME_TAG );
-            buffer.put( (byte)0x11 );
-            
+            buffer.put( ( byte ) KerberosConstants.ENC_AP_REP_PART_CTIME_TAG );
+            buffer.put( ( byte ) 0x11 );
+
             // The value
-            buffer.put( (byte)UniversalTag.GENERALIZED_TIME.getValue() );
-            buffer.put( (byte)0x0F );
+            buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( ( byte ) 0x0F );
             buffer.put( ctime.getBytes() );
-            
+
             // The cusec ------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_CUSEC_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_AP_REP_PART_CUSEC_TAG );
             buffer.put( TLV.getBytes( cusecLength ) );
-            
+
             // The value
-            Value.encode( buffer, cusec );
-            
+            BerValue.encode( buffer, cusec );
+
             // The subkey if any ----------------------------------------------
             if ( subkey != null )
             {
                 // The tag
-                buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_SUB_KEY_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_AP_REP_PART_SUB_KEY_TAG );
                 buffer.put( TLV.getBytes( subKeyLength ) );
-                
+
                 // The value
                 subkey.encode( buffer );
             }
-            
+
             // The seq-number, if any -----------------------------------------
             if ( seqNumber != null )
             {
                 // The tag
-                buffer.put( (byte)KerberosConstants.ENC_AP_REP_PART_SEQ_NUMBER_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_AP_REP_PART_SEQ_NUMBER_TAG );
                 buffer.put( TLV.getBytes( seqNumberLength ) );
-                
+
                 // The value
-                Value.encode( buffer, seqNumber );
+                BerValue.encode( buffer, seqNumber );
             }
-            
+
         }
         catch ( BufferOverflowException boe )
         {
@@ -302,13 +303,12 @@ public class EncApRepPart extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncApRepPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "EncApRepPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "EncApRepPart initial value : {}", toString() );
         }
 
         return buffer;
     }
-
 
 
     /**
@@ -318,17 +318,16 @@ public class EncApRepPart extends KerberosMessage
     {
         StringBuilder sb = new StringBuilder();
 
-
         sb.append( "EncApRepPart : \n" );
-        
+
         sb.append( "    ctime : " ).append( ctime ).append( '\n' );
         sb.append( "    cusec : " ).append( cusec ).append( '\n' );
-        
+
         if ( subkey != null )
         {
             sb.append( "    subkey : " ).append( subkey ).append( '\n' );
         }
-        
+
         if ( seqNumber != null )
         {
             sb.append( "    seq-number : " ).append( seqNumber ).append( '\n' );

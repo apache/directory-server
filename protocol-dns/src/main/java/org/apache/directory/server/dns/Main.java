@@ -38,6 +38,7 @@ public class Main
 
     private static DnsServer dnsConfiguration;
 
+
     /**
      * Entry point for the DNS server.
      *
@@ -56,7 +57,7 @@ public class Main
     public void go() throws Exception
     {
         LOG.debug( "Starting the DNS server" );
-        
+
         DirectoryService directoryService = new DefaultDirectoryService();
         dnsConfiguration = new DnsServer();
         dnsConfiguration.setDirectoryService( directoryService );

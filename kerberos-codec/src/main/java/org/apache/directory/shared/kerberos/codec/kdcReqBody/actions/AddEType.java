@@ -25,7 +25,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.kdcReqBody.KdcReqBodyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -47,6 +47,7 @@ public class AddEType extends GrammarAction<KdcReqBodyContainer>
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
 
     /**
      * Instantiates a new AddEType action.
@@ -75,7 +76,7 @@ public class AddEType extends GrammarAction<KdcReqBodyContainer>
 
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
 
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
 
         try
         {
@@ -91,7 +92,7 @@ public class AddEType extends GrammarAction<KdcReqBodyContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

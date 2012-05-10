@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -101,14 +101,14 @@ public class NestedFilterTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
@@ -127,15 +127,15 @@ public class NestedFilterTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
 
@@ -152,10 +152,11 @@ public class NestedFilterTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
+        
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -175,23 +176,24 @@ public class NestedFilterTest
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
-
+        
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getValue() );
+        assertEquals( "apache", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -200,7 +202,7 @@ public class NestedFilterTest
     {
         String filter = "(&(&(cn=Jo*)(sn=w*))(!(ou=apache)))";
 
-        ExprNode exprNode = FilterParser.parse(schemaManager, filter);
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
@@ -208,9 +210,10 @@ public class NestedFilterTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -227,17 +230,20 @@ public class NestedFilterTest
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
+        
         assertEquals( 2, set.size() );
         assertTrue( set.contains( 7L ) );
         assertTrue( set.contains( 8L ) );
 
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -250,5 +256,6 @@ public class NestedFilterTest
         optimizer.annotate( exprNode );
 
         IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        cursor.close();
     }
 }

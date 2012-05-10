@@ -82,29 +82,29 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="StartTlsConfidentialityIT-class")
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "StartTlsConfidentialityIT-class")
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     },
-    extendedOpHandlers={ StartTlsHandler.class }
-    )
+    extendedOpHandlers =
+        { StartTlsHandler.class })
 public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsConfidentialityIT.class );
-    private static final String[] CERT_IDS = new String[] { "userCertificate" };
+    private static final String[] CERT_IDS = new String[]
+        { "userCertificate" };
     private File ksFile;
 
-    
     boolean oldConfidentialityRequiredValue;
-    
-    
+
+
     /**
      * Sets up the key store and installs the self signed certificate for the 
      * server (created on first startup) which is to be used by the StartTLS 
@@ -122,7 +122,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         ksFile = File.createTempFile( "testStore", "ks" );
         CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
@@ -137,11 +137,11 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         ks.setCertificateEntry( "apacheds", cert );
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-        
+
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
-    
-    
+
+
     /**
      * Just deletes the generated key store file.
      */
@@ -152,23 +152,23 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
-    
+
 
     private LdapContext getSecuredContext() throws Exception
     {
-        System.setProperty ( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-        System.setProperty ( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-        System.setProperty ( "javax.net.ssl.keyStorePassword", "changeit" );
+        System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
         LOG.debug( "testStartTls() test starting ... " );
-        
+
         // Set up environment for creating initial context
-        Hashtable<String, Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        
+
         // Must use the name of the server that is found in its certificate?
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
 
@@ -180,17 +180,18 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         LOG.debug( "About send startTls extended operation" );
         StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
         LOG.debug( "Extended operation issued" );
-        tls.setHostnameVerifier( new HostnameVerifier() {
+        tls.setHostnameVerifier( new HostnameVerifier()
+        {
             public boolean verify( String hostname, SSLSession session )
             {
                 return true;
-            } 
+            }
         } );
         LOG.debug( "TLS negotion about to begin" );
         tls.negotiate( ReloadableSSLSocketFactory.getDefault() );
         return ctx;
     }
-    
+
 
     /**
      * Checks to make sure insecure binds fail while secure binds succeed.
@@ -209,17 +210,17 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
             ServerIntegrationUtils.getWiredContext( getLdapServer() );
             fail( "Should not get here due to violation of confidentiality requirements" );
         }
-        catch( AuthenticationNotSupportedException e )
+        catch ( AuthenticationNotSupportedException e )
         {
         }
-        
+
         // -------------------------------------------------------------------
         // get anonymous connection with StartTLS (no bind request sent)
         // -------------------------------------------------------------------
 
         LdapContext ctx = getSecuredContext();
         assertNotNull( ctx );
-        
+
         // -------------------------------------------------------------------
         // upgrade connection via bind request (same physical connection - TLS)
         // -------------------------------------------------------------------
@@ -228,14 +229,14 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         ctx.addToEnvironment( Context.SECURITY_CREDENTIALS, "secret" );
         ctx.addToEnvironment( Context.SECURITY_AUTHENTICATION, "simple" );
         ctx.reconnect( null );
-        
+
         // -------------------------------------------------------------------
         // do a search and confirm
         // -------------------------------------------------------------------
 
         NamingEnumeration<SearchResult> results = ctx.search( "ou=system", "(objectClass=*)", new SearchControls() );
         Set<String> names = new HashSet<String>();
-        while( results.hasMore() )
+        while ( results.hasMore() )
         {
             names.add( results.next().getName() );
         }
@@ -245,7 +246,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         assertTrue( names.contains( "ou=configuration" ) );
         assertTrue( names.contains( "uid=admin" ) );
         assertTrue( names.contains( "ou=groups" ) );
-        
+
         // -------------------------------------------------------------------
         // do add and confirm
         // -------------------------------------------------------------------
@@ -255,18 +256,19 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         attrs.put( "cn", "foo bar" );
         ctx.createSubcontext( "cn=foo bar,ou=system", attrs );
         assertNotNull( ctx.lookup( "cn=foo bar,ou=system" ) );
-        
+
         // -------------------------------------------------------------------
         // do modify and confirm
         // -------------------------------------------------------------------
 
-        ModificationItem[] mods = new ModificationItem[] {
+        ModificationItem[] mods = new ModificationItem[]
+            {
                 new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
         };
         ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
         Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
-        
+
         // -------------------------------------------------------------------
         // do rename and confirm 
         // -------------------------------------------------------------------
@@ -282,7 +284,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         }
         reread = ( Attributes ) ctx.getAttributes( "cn=fbar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
-        
+
         // -------------------------------------------------------------------
         // do delete and confirm
         // -------------------------------------------------------------------
@@ -296,7 +298,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         catch ( NameNotFoundException e )
         {
         }
-        
+
         ctx.close();
     }
 }

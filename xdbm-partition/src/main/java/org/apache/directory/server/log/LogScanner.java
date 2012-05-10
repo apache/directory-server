@@ -22,6 +22,7 @@ package org.apache.directory.server.log;
 
 import java.io.IOException;
 
+
 public interface LogScanner
 {
     /**
@@ -34,23 +35,25 @@ public interface LogScanner
      * throws IOException
      * throws InvalidLogException thrown if the log content is invalid 
      */
-    public boolean getNextRecord(UserLogRecord logRecord) throws IOException, InvalidLogException;
-    
-    
+    public boolean getNextRecord( UserLogRecord logRecord ) throws IOException, InvalidLogException;
+
+
     /**
      * Returns the last successfully read log file number
      *
      * @return last successfully read log file number
      */
     public long getLastGoodFileNumber();
-    
+
+
     /**
      * Returns the last successfully read log file number
      *
      * @return last successfully read log file number
      */
     public long getLastGoodOffset();
-    
+
+
     /**
      * Closes the scanner and releases any
      * resources. 

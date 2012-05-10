@@ -1,23 +1,24 @@
-    /*
-     *  Licensed to the Apache Software Foundation (ASF) under one
-     *  or more contributor license agreements.  See the NOTICE file
-     *  distributed with this work for additional information
-     *  regarding copyright ownership.  The ASF licenses this file
-     *  to you under the Apache License, Version 2.0 (the
-     *  "License"); you may not use this file except in compliance
-     *  with the License.  You may obtain a copy of the License at
-     *
-     *    http://www.apache.org/licenses/LICENSE-2.0
-     *
-     *  Unless required by applicable law or agreed to in writing,
-     *  software distributed under the License is distributed on an
-     *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     *  KIND, either express or implied.  See the License for the
-     *  specific language governing permissions and limitations
-     *  under the License.
-     *
-     */
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
 package org.apache.directory.server.schema;
+
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
@@ -42,6 +43,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -52,8 +54,10 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * An integration test class for testing the addition of schema elements
@@ -61,9 +65,12 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( name="SchemaIT-class" )
+@CreateDS(name = "SchemaIT-class")
 public class SchemaIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
     private static final ObjectClassDescriptionSchemaParser OBJECT_CLASS_DESCRIPTION_SCHEMA_PARSER = new ObjectClassDescriptionSchemaParser();
@@ -76,7 +83,7 @@ public class SchemaIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    @CreateDS( name="SchemaAddAT-test" )
+    @CreateDS(name = "SchemaAddAT-test")
     @ApplyLdifs(
         {
             // Inject an AT
@@ -94,7 +101,7 @@ public class SchemaIT extends AbstractLdapTestUnit
             "m-obsolete: FALSE",
             "m-noUserModification: FALSE",
             "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
-            
+
             // Inject an OC
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.1.999,ou=objectClasses,cn=other,ou=schema",
             "objectClass: top",
@@ -109,13 +116,13 @@ public class SchemaIT extends AbstractLdapTestUnit
             "m-typeObjectClass: STRUCTURAL",
             "m-obsolete: FALSE",
             "m-description: A ship"
-        }
+    }
         )
-    public void testAddAttributeTypeObjectClass() throws Exception
+        public void testAddAttributeTypeObjectClass() throws Exception
     {
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.999", "other", true );
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.1.999", "other", true );
-        
+
         // sync operation happens anyway on shutdowns but just to make sure we can do it again
         getService().sync();
 
@@ -125,10 +132,10 @@ public class SchemaIT extends AbstractLdapTestUnit
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.999", "other", true );
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.1.999", "other", true );
     }
-    
-    
+
+
     @Test
-    @CreateDS( name="SchemaAddAT-test" )
+    @CreateDS(name = "SchemaAddAT-test")
     @ApplyLdifs(
         {
             // Inject an AT
@@ -137,20 +144,20 @@ public class SchemaIT extends AbstractLdapTestUnit
             "add: attributeTypes",
             "attributeTypes: ( 1.3.6.1.4.1.65536.0.4.3.2.1 NAME 'templateData' DESC 'template data' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE X-SCHEMA 'other' )",
             "-",
-            
+
             // Inject an OC
             "dn: cn=schema",
             "changetype: modify",
             "add: objectClasses",
             "objectClasses: ( 1.3.6.1.4.1.65536.0.4.3.2.2 NAME 'templateObject' DESC 'test OC' SUP top STRUCTURAL MUST ( templateData $ cn ) X-SCHEMA 'other' )",
             "-"
-        }
+    }
         )
-    public void testAddAttributeTypeObjectClassSubSchemaSubEntry() throws Exception
+        public void testAddAttributeTypeObjectClassSubSchemaSubEntry() throws Exception
     {
         checkAttributeTypePresent( "1.3.6.1.4.1.65536.0.4.3.2.1", "other", true );
         checkObjectClassPresent( "1.3.6.1.4.1.65536.0.4.3.2.2", "other", true );
-        
+
         // sync operation happens anyway on shutdowns but just to make sure we can do it again
         getService().sync();
 
@@ -161,7 +168,7 @@ public class SchemaIT extends AbstractLdapTestUnit
         checkObjectClassPresent( "1.3.6.1.4.1.65536.0.4.3.2.2", "other", true );
     }
 
-    
+
     @Test
     public void testAddBinaryAttributeType() throws Exception
     {
@@ -173,23 +180,23 @@ public class SchemaIT extends AbstractLdapTestUnit
 
         descriptions.add(
             "( 1.3.6.1.4.1.65536.0.4.3.2.1" +
-            " NAME 'templateData'" +
-            " DESC 'template data'" +
-            " SYNTAX 1.3.6.1.4.1.1466.115.121.1.5" +
-            " SINGLE-VALUE" +
-            " X-SCHEMA 'other' )" );
+                " NAME 'templateData'" +
+                " DESC 'template data'" +
+                " SYNTAX 1.3.6.1.4.1.1466.115.121.1.5" +
+                " SINGLE-VALUE" +
+                " X-SCHEMA 'other' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
         descriptions.clear();
         descriptions.add(
             "( 1.3.6.1.4.1.65536.0.4.3.2.2 " +
-            " NAME 'templateObject' " +
-            " DESC 'test OC' " +
-            " SUP top " +
-            " STRUCTURAL " +
-            " MUST ( templateData $ cn ) " +
-            " X-SCHEMA 'other' )");
+                " NAME 'templateObject' " +
+                " DESC 'test OC' " +
+                " SUP top " +
+                " STRUCTURAL " +
+                " MUST ( templateData $ cn ) " +
+                " X-SCHEMA 'other' )" );
 
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "objectClasses" );
 
@@ -214,10 +221,11 @@ public class SchemaIT extends AbstractLdapTestUnit
         attrs.put( "templateData", templateData );
         attrs.put( "cn", "atemplate" );
         getRootContext( getService() ).bind( "cn=atemplate,ou=system", null, attrs );
-        
-        Attributes data = getRootContext( getService() ).getAttributes( "cn=atemplate,ou=system", new String[]{"templateData", "cn"} );
-        
-        assertTrue( Arrays.equals( templateData, (byte[])data.get( "templateData" ).get() ) );
+
+        Attributes data = getRootContext( getService() ).getAttributes( "cn=atemplate,ou=system", new String[]
+            { "templateData", "cn" } );
+
+        assertTrue( Arrays.equals( templateData, ( byte[] ) data.get( "templateData" ).get() ) );
     }
 
 
@@ -255,7 +263,8 @@ public class SchemaIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { SUBSCHEMA_SUBENTRY } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)",
+            controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -324,7 +333,8 @@ public class SchemaIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            attrs = getSchemaContext( getService() ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            attrs = getSchemaContext( getService() ).getAttributes(
+                "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else
@@ -397,7 +407,8 @@ public class SchemaIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            attrs = getSchemaContext( getService() ).getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
+            attrs = getSchemaContext( getService() ).getAttributes(
+                "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else

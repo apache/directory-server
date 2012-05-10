@@ -35,21 +35,21 @@ import org.apache.mina.transport.socket.SocketAcceptor;
  */
 public abstract class AbstractProtocolService implements ProtocolService
 {
-    /** A flag set to indicate if the server is started or not */ 
+    /** A flag set to indicate if the server is started or not */
     private boolean started;
-    
+
     /** A flag set to tell if the server is enabled or not */
     private boolean enabled;
-    
+
     /** The server ID */
     private String serviceId;
-    
+
     /** The service name */
     private String serviceName;
-    
+
     /** The service transports. We may have more than one */
     protected Set<Transport> transports = new HashSet<Transport>();
-    
+
 
     /**
      * {@inheritDoc}
@@ -121,14 +121,15 @@ public abstract class AbstractProtocolService implements ProtocolService
     {
         this.serviceName = name;
     }
-    
-    
+
+
     /**
      * @return the transport
      */
     public Transport[] getTransports()
     {
-        return transports.toArray( new Transport[]{} );
+        return transports.toArray( new Transport[]
+            {} );
     }
 
 
@@ -138,18 +139,18 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public void setTransports( Transport... transports )
     {
-        for ( Transport transport : transports ) 
+        for ( Transport transport : transports )
         {
             this.transports.add( transport );
-            
+
             if ( transport.getAcceptor() == null )
             {
                 transport.init();
             }
         }
     }
-    
-    
+
+
     /**
      * Add underlying transports
      * @param transports The transports
@@ -159,21 +160,21 @@ public abstract class AbstractProtocolService implements ProtocolService
         for ( Transport transport : transports )
         {
             this.transports.add( transport );
-            
+
             if ( transport.getAcceptor() == null )
             {
                 transport.init();
             }
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public DatagramAcceptor getDatagramAcceptor( Transport udpTransport )
     {
-        return (DatagramAcceptor)udpTransport.getAcceptor();
+        return ( DatagramAcceptor ) udpTransport.getAcceptor();
     }
 
 
@@ -182,6 +183,6 @@ public abstract class AbstractProtocolService implements ProtocolService
      */
     public SocketAcceptor getSocketAcceptor( Transport tcpTransport )
     {
-        return (SocketAcceptor)tcpTransport.getAcceptor();
+        return ( SocketAcceptor ) tcpTransport.getAcceptor();
     }
 }

@@ -20,10 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.shared.ldap.codec.api.LdapDecoder;
 import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
@@ -33,9 +34,6 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -45,8 +43,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for 
- * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing 
+ * The MINA IoHandler implementation extending {@link DemuxingIoHandler} for
+ * the LDAP protocol.  THe {@link LdapServer} creates this multiplexing
  * {@link IoHandler} handler and populates it with subordinate handlers for
  * the various kinds of LDAP {@link Request} messages.  This is done in the
  * setXxxHandler() methods of the LdapServer where Xxxx is Add, Modify, etc.
@@ -84,38 +82,23 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // First, create a new LdapSession and store it i the manager
         LdapSession ldapSession = new LdapSession( session );
         ldapServer.getLdapSessionManager().addLdapSession( ldapSession );
-        
-        // Now, we have to store the DirectoryService instance into the session
-        session.setAttribute( "maxPDUSize", ldapServer.getDirectoryService().getMaxPDUSize() );
-        
-        // Last, store the message container
-        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer = 
-            new LdapMessageContainer<MessageDecorator<Message>>( 
-            ldapServer.getDirectoryService().getLdapCodecService(),
-            new BinaryAttributeDetector()
-            {
-                public boolean isBinary( String id )
-                {
-                    SchemaManager schemaManager = ldapServer.getDirectoryService().getSchemaManager();
-    
-                    try
-                    {
-                        AttributeType type = schemaManager.lookupAttributeTypeRegistry( id );
-                        return !type.getSyntax().isHumanReadable();
-                    }
-                    catch ( Exception e )
-                    {
-                        return !Strings.isEmpty(id) && id.endsWith(";binary");
-                    }
-                }
-            } );
 
-        session.setAttribute( "messageContainer", ldapMessageContainer );
+        // Now, we have to store the DirectoryService instance into the session
+        session.setAttribute( LdapDecoder.MAX_PDU_SIZE_ATTR, ldapServer.getDirectoryService().getMaxPDUSize() );
+
+        // Last, store the message container
+        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
+            new LdapMessageContainer<MessageDecorator<Message>>(
+                ldapServer.getDirectoryService().getLdapCodecService(),
+                new SchemaBinaryAttributeDetector(
+                    ldapServer.getDirectoryService().getSchemaManager() ) );
+
+        session.setAttribute( LdapDecoder.MESSAGE_CONTAINER_ATTR, ldapMessageContainer );
     }
 
 
     /**
-     * This method is called when a session is closed. If we have some 
+     * This method is called when a session is closed. If we have some
      * cleanup to do, it's done there.
      * 
      * @param session the closing session
@@ -133,7 +116,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * Explicitly handles {@link LdapSession} and {@link IoSession} cleanup tasks.
      *
-     * @param ldapSession the LdapSession to cleanup after being removed from 
+     * @param ldapSession the LdapSession to cleanup after being removed from
      * the {@link LdapSessionManager}
      */
     private void cleanUpSession( LdapSession ldapSession )
@@ -181,7 +164,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // Translate SSLFilter messages into LDAP extended request
         // defined in RFC #2830, 'Lightweight Directory Access Protocol (v3):
         // Extension for Transport Layer Security'.
-        // 
+        //
         // The RFC specifies the payload should be empty, but we use
         // it to notify the TLS state changes.  This hack should be
         // OK from the viewpointd of security because StartTLS
@@ -191,15 +174,15 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest<?> req = 
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+            ExtendedRequest<?> req =
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest<?> req = 
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037", 
+            ExtendedRequest<?> req =
+                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
@@ -217,7 +200,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
                     resp.getLdapResult().setDiagnosticMessage( "Unsupport critical control: " + control.getOid() );
                     resp.getLdapResult().setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                     session.write( resp );
-                    
+
                     return;
                 }
             }
@@ -232,7 +215,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        if ( cause.getCause() instanceof ResponseCarryingMessageException)
+        if ( cause.getCause() instanceof ResponseCarryingMessageException )
         {
             ResponseCarryingMessageException rcme = ( ResponseCarryingMessageException ) cause.getCause();
 

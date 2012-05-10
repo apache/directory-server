@@ -22,12 +22,17 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +43,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  */
 public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
@@ -49,7 +57,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, Entry, ID> scopeCursor;
+    private final IndexCursor scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
     private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
@@ -69,9 +77,19 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public OneLevelScopeCursor( Store<Entry, ID> db, OneLevelScopeEvaluator<Entry, ID> evaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating OneLevelScopeCursor {}", this );
         this.db = db;
         this.evaluator = evaluator;
-        scopeCursor = db.getOneLevelIndex().forwardCursor( evaluator.getBaseId() );
+
+        // We use the RdnIndex to get all the entries from a starting point
+        // and below up to the number of children
+        IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = db.getRdnIndex().forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), (Rdn[]) null ) );
+        cursor.before( startingPos );
+
+        scopeCursor = new ChildrenCursor( db, evaluator.getBaseId(), cursor );
 
         if ( evaluator.isDereferencing() )
         {
@@ -92,7 +110,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -179,7 +197,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
          * last element.
          */
         setAvailable( cursor.previous() );
-        
+
         if ( !available() )
         {
             cursor = scopeCursor;
@@ -269,7 +287,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public IndexEntry<ID, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return cursor.get();
@@ -282,13 +300,20 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     @Override
     public void close() throws Exception
     {
-        scopeCursor.close();
+        LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
         
+        if ( cursor != null )
+        {
+            cursor.close();
+        }
+        
+        scopeCursor.close();
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
         }
-        
+
         super.close();
     }
 
@@ -296,15 +321,21 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     @Override
     public void close( Exception cause ) throws Exception
     {
-        scopeCursor.close( cause );
+        LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
         
+        if ( cursor != null )
+        {
+            cursor.close( cause );
+        }
+
+        scopeCursor.close( cause );
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close( cause );
         }
-        
+
         super.close( cause );
     }
-    
-    
+
 }

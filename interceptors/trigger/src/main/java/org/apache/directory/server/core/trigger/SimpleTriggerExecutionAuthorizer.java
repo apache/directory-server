@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
 {
     // private static Dn adminName;
-    
+
     static
     {
         //try
@@ -38,13 +38,15 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
         //catch ( LdapInvalidDnException e )
         {
             // TODO Auto-generated catch block
-        //    e.printStackTrace();
+            //    e.printStackTrace();
         }
     }
-    
+
+
     public boolean hasPermission( OperationContext opContext ) throws LdapException
     {
         Dn principalName = opContext.getSession().getEffectivePrincipal().getDn();
-        return principalName.equals( opContext.getSession().getDirectoryService().getAdminSession().getAuthenticatedPrincipal().getDn() );
+        return principalName.equals( opContext.getSession().getDirectoryService().getAdminSession()
+            .getAuthenticatedPrincipal().getDn() );
     }
 }

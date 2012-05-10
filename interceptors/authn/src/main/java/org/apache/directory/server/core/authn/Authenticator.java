@@ -70,7 +70,7 @@ public interface Authenticator
      */
     void destroy();
 
-    
+
     /**
      * Callback used to respond to password changes by invalidating a password
      * cache if implemented.  This is an additional feature of an authenticator
@@ -81,7 +81,7 @@ public interface Authenticator
      */
     void invalidateCache( Dn bindDn );
 
-    
+
     /**
      * Performs authentication and returns the principal if succeeded.
      * 
@@ -89,8 +89,8 @@ public interface Authenticator
      * @exception If the authentication failed
      */
     LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
-    
-    
+
+
     /**
      *  performs checks on the given entry based on the specified password policy configuration
      *
@@ -98,8 +98,7 @@ public interface Authenticator
      * @throws PasswordPolicyException
      */
     void checkPwdPolicy( Entry userEntry ) throws LdapException;
-    
-    
+
     /**
      * Performs an unbind on the given context
      * 

@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -28,12 +29,13 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The EncKrbPrivPart structure is used to store a EncKrbPrivPart associated to a type.
@@ -87,6 +89,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
     private int recipientAddressLen;
     private int encKrbPrivPartSeqLen;
     private int encKrbPrivPartLen;
+
 
     /**
      * @return the userData
@@ -258,14 +261,14 @@ public class EncKrbPrivPart extends AbstractAsn1Object
 
         if ( usec != null )
         {
-            usecLen = Value.getNbBytes( usec );
+            usecLen = BerValue.getNbBytes( usec );
             usecLen = 1 + TLV.getNbBytes( usecLen ) + usecLen;
             encKrbPrivPartSeqLen += 1 + TLV.getNbBytes( usecLen ) + usecLen;
         }
 
         if ( seqNumber != null )
         {
-            seqNumberLen = Value.getNbBytes( seqNumber );
+            seqNumberLen = BerValue.getNbBytes( seqNumber );
             seqNumberLen = 1 + TLV.getNbBytes( seqNumberLen ) + seqNumberLen;
             encKrbPrivPartSeqLen += 1 + TLV.getNbBytes( seqNumberLen ) + seqNumberLen;
         }
@@ -277,7 +280,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         }
 
         encKrbPrivPartLen = 1 + TLV.getNbBytes( encKrbPrivPartSeqLen ) + encKrbPrivPartSeqLen;
-        
+
         return 1 + TLV.getNbBytes( encKrbPrivPartLen ) + encKrbPrivPartLen;
     }
 
@@ -297,14 +300,14 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         {
             buffer.put( ( byte ) KerberosConstants.ENC_KRB_PRIV_PART_TAG );
             buffer.put( TLV.getBytes( encKrbPrivPartLen ) );
-            
+
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encKrbPrivPartSeqLen ) );
 
             // user-data
             buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_USER_DATA_TAG );
             buffer.put( TLV.getBytes( userDataLen ) );
-            Value.encode( buffer, userData );
+            BerValue.encode( buffer, userData );
 
             if ( timestamp != null )
             {
@@ -323,7 +326,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
                 // usec
                 buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_USEC_TAG );
                 buffer.put( TLV.getBytes( usecLen ) );
-                Value.encode( buffer, usec );
+                BerValue.encode( buffer, usec );
             }
 
             if ( seqNumber != null )
@@ -331,7 +334,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
                 // seq-number
                 buffer.put( ( byte ) KerberosConstants.KRB_SAFE_BODY_SEQ_NUMBER_TAG );
                 buffer.put( TLV.getBytes( seqNumberLen ) );
-                Value.encode( buffer, seqNumber );
+                BerValue.encode( buffer, seqNumber );
             }
 
             // s-address
@@ -356,14 +359,14 @@ public class EncKrbPrivPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncKrbPrivPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncKrbPrivPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncKrbPrivPart initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -372,7 +375,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
 
         sb.append( "EncKrbPrivPart : {\n" );
-        sb.append( "    user-data: " ).append( Strings.dumpBytes(userData) ).append( '\n' );
+        sb.append( "    user-data: " ).append( Strings.dumpBytes( userData ) ).append( '\n' );
 
         if ( timestamp != null )
         {

@@ -21,34 +21,36 @@ package org.apache.directory.server.protocol.shared.transport;
 
 import org.apache.mina.core.service.IoAcceptor;
 
+
 public abstract class AbstractTransport implements Transport
 {
     /** The server address */
     private String address;
-    
+
     /** The service's port */
     private int port = -1;
-    
+
     /** A flag set if SSL is enabled */
     private boolean sslEnabled = false;
-    
+
     /** The number of threads to use for the IoAcceptor executor */
     private int nbThreads;
-    
+
     /** The backlog for the transport services */
     private int backlog;
-    
+
     /** The IoAcceptor used to accept requests */
     protected IoAcceptor acceptor;
-    
+
     /** The default backlog queue size */
     protected static final int DEFAULT_BACKLOG_NB = 50;
-    
+
     /** The default hostname */
     protected static final String LOCAL_HOST = "localhost";
-    
+
     /** The default number of threads */
     protected static final int DEFAULT_NB_THREADS = 3;
+
 
     /**
      * Creates an instance of an Abstract Transport class.
@@ -60,8 +62,8 @@ public abstract class AbstractTransport implements Transport
         port = -1;
         backlog = DEFAULT_BACKLOG_NB;
     }
-    
-    
+
+
     /**
      * Creates an instance of an Abstract Transport class, using localhost
      * and port.
@@ -70,11 +72,11 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port )
     {
-       this.address = "localhost";
-       this.port = port;
+        this.address = "localhost";
+        this.port = port;
     }
-    
-    
+
+
     /**
      * Creates an instance of an Abstract Transport class, using localhost
      * and port.
@@ -84,12 +86,12 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port, int nbThreads )
     {
-       this.address = "localhost";
-       this.port = port;
-       this.nbThreads = nbThreads;
+        this.address = "localhost";
+        this.port = port;
+        this.nbThreads = nbThreads;
     }
-    
-    
+
+
     /**
      * Creates an instance of an Abstract Transport class, using the given address
      * and port.
@@ -99,11 +101,11 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( String address, int port )
     {
-       this.address = address;
-       this.port = port;
+        this.address = address;
+        this.port = port;
     }
-    
-    
+
+
     /**
      * Creates an instance of the AbstractTransport class on LocalHost
      * @param port The port
@@ -113,13 +115,13 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port, int nbThreads, int backLog )
     {
-        this.address ="localHost";
+        this.address = "localHost";
         this.port = port;
         this.nbThreads = nbThreads;
         this.backlog = backLog;
     }
-    
-    
+
+
     /**
      * Creates an instance of the AbstractTransport class 
      * @param address The address
@@ -135,14 +137,14 @@ public abstract class AbstractTransport implements Transport
         this.nbThreads = nbThreads;
         this.backlog = backLog;
     }
-    
-    
+
+
     /**
      * Initialize the Acceptor if needed
      */
     public abstract void init();
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -150,8 +152,8 @@ public abstract class AbstractTransport implements Transport
     {
         return port;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -159,8 +161,8 @@ public abstract class AbstractTransport implements Transport
     {
         this.port = port;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -168,8 +170,8 @@ public abstract class AbstractTransport implements Transport
     {
         return address;
     }
-    
-    
+
+
     /**
      * Stores the Address in this transport
      * 
@@ -179,23 +181,23 @@ public abstract class AbstractTransport implements Transport
     {
         this.address = address;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public abstract IoAcceptor getAcceptor();
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public int getNbThreads() 
+    public int getNbThreads()
     {
         return nbThreads;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -203,8 +205,8 @@ public abstract class AbstractTransport implements Transport
     {
         this.nbThreads = nbThreads;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -212,8 +214,8 @@ public abstract class AbstractTransport implements Transport
     {
         return backlog;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -221,8 +223,8 @@ public abstract class AbstractTransport implements Transport
     {
         this.backlog = backLog;
     }
-    
-    
+
+
     /**
      * Enable or disable SSL
      * @param sslEnabled if <code>true</code>, SSL is enabled.
@@ -231,8 +233,8 @@ public abstract class AbstractTransport implements Transport
     {
         this.sslEnabled = sslEnabled;
     }
-    
-    
+
+
     /**
      * Enable or disable SSL
      * @param sslEnabled if <code>true</code>, SSL is enabled.
@@ -241,8 +243,8 @@ public abstract class AbstractTransport implements Transport
     {
         this.sslEnabled = sslEnabled;
     }
-    
-    
+
+
     /**
      * @return <code>true</code> id SSL is enabled for this transport
      */
@@ -251,6 +253,7 @@ public abstract class AbstractTransport implements Transport
         return sslEnabled;
     }
 
+
     /**
      * @return  <code>true</code> id SSL is enabled for this transport
      */
@@ -258,8 +261,8 @@ public abstract class AbstractTransport implements Transport
     {
         return sslEnabled;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -269,14 +272,14 @@ public abstract class AbstractTransport implements Transport
         sb.append( "[<" ).append( address ).append( ':' ).append( port );
         sb.append( ">], backlog=" ).append( backlog );
         sb.append( ", nbThreads = " ).append( nbThreads );
-        
+
         if ( sslEnabled )
         {
             sb.append( ", SSL" );
         }
-        
+
         sb.append( ']' );
-        
-        return sb.toString() ;
+
+        return sb.toString();
     }
 }

@@ -52,7 +52,6 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * A lookup performance test
      */
     @Test
-    //@Ignore("Ignore atm, this is a perf test")
     public void testPerfLookup() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
@@ -111,12 +110,23 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         Dn dn = new Dn( "cn=test,ou=system" );
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        createAccessControlSubentry( "anybodySearch", "{ " + "  identificationTag \"searchAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { allUsers }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " + "      } " + "    } " + "  } "
-            + "}" );
+        createAccessControlSubentry(
+            "anybodySearch", "{ " +
+            "  identificationTag \"searchAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " +
+            "  itemOrUserFirst userFirst: " +
+            "  { " +
+            "    userClasses { allUsers }, " +
+            "    userPermissions " +
+            "    { " +
+            "      { " +
+            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
 

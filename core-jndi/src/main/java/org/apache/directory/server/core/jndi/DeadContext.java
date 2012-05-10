@@ -130,6 +130,7 @@ public class DeadContext implements LdapContext, EventDirContext
         throw new ServiceUnavailableException( EXCEPTION_MSG );
     }
 
+
     public DirContext getSchema( String name ) throws NamingException
     {
         throw new ServiceUnavailableException( EXCEPTION_MSG );
@@ -220,7 +221,8 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes, String[] attributesToReturn )
+    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes,
+        String[] attributesToReturn )
         throws NamingException
     {
         throw new ServiceUnavailableException( EXCEPTION_MSG );
@@ -234,26 +236,30 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration<SearchResult> search( String name, String filter, SearchControls cons ) throws NamingException
-    {
-        throw new ServiceUnavailableException( EXCEPTION_MSG );
-    }
-
-
-    public NamingEnumeration<SearchResult> search( Name name, String filter, SearchControls cons ) throws NamingException
-    {
-        throw new ServiceUnavailableException( EXCEPTION_MSG );
-    }
-
-
-    public NamingEnumeration<SearchResult> search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
+    public NamingEnumeration<SearchResult> search( String name, String filter, SearchControls cons )
         throws NamingException
     {
         throw new ServiceUnavailableException( EXCEPTION_MSG );
     }
 
 
-    public NamingEnumeration<SearchResult> search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
+    public NamingEnumeration<SearchResult> search( Name name, String filter, SearchControls cons )
+        throws NamingException
+    {
+        throw new ServiceUnavailableException( EXCEPTION_MSG );
+    }
+
+
+    public NamingEnumeration<SearchResult> search( String name, String filterExpr, Object[] filterArgs,
+        SearchControls cons )
+        throws NamingException
+    {
+        throw new ServiceUnavailableException( EXCEPTION_MSG );
+    }
+
+
+    public NamingEnumeration<SearchResult> search( Name name, String filterExpr, Object[] filterArgs,
+        SearchControls cons )
         throws NamingException
     {
         throw new ServiceUnavailableException( EXCEPTION_MSG );
@@ -284,7 +290,7 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public Hashtable<String,Object>  getEnvironment() throws NamingException
+    public Hashtable<String, Object> getEnvironment() throws NamingException
     {
         throw new ServiceUnavailableException( EXCEPTION_MSG );
     }

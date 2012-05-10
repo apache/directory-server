@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.integ;
 
+
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -28,41 +29,46 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-@RunWith( FrameworkSuite.class )
-@Suite.SuiteClasses( { TestClassServer.class, TestMultiLevelDS.class } )
-@CreateDS( 
+
+@RunWith(FrameworkSuite.class)
+@Suite.SuiteClasses(
+    {
+        TestClassServer.class,
+        TestMultiLevelDS.class
+    })
+@CreateDS(
     name = "SuiteDS",
     partitions =
-    {
-        @CreatePartition(
-            name = "example",
-            suffix = "dc=example,dc=com",
-            contextEntry = @ContextEntry( 
-                entryLdif =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "dc: example\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes = 
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" )
-            } )
-    } )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ), 
-        @CreateTransport( protocol = "LDAPS" ) 
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                    })
+        })
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     })
 @ApplyLdifs(
     {
         "dn: cn=testSuite,ou=system",
         "objectClass: person",
         "cn: testSuite",
-        "sn: sn_testSuite" 
-    } )
+        "sn: sn_testSuite"
+    })
 public class TestSuiteServer
 {
 }

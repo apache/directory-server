@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
@@ -69,7 +70,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( Store<E, ID> db, ScopeNode<ID> node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -79,7 +80,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
             throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
         }
 
-        baseId = db.getEntryId( node.getBaseDn() );
+        baseId = node.getBaseId();
         baseIsContextEntry = getContextEntryId() == baseId;
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
@@ -95,7 +96,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ((Partition)db).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -112,6 +113,39 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         return contextEntryId;
     }
 
+    
+    /**
+     * Tells if a candidate is a descendant of the base ID. We have to fetch all 
+     * the parentIdAndRdn up to the baseId. If we terminate on the context entry without 
+     * having found the baseId, then the candidate is not a descendant.
+     */
+    private boolean isDescendant( ID candidateId ) throws Exception
+    {
+        ID tmp = candidateId;
+        
+        while ( true )
+        {
+            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( tmp );
+            
+            if ( parentIdAndRdn == null )
+            {
+                return false;
+            }
+            
+            tmp = parentIdAndRdn.getParentId();
+            
+            if ( tmp.equals( db.getRootId() ) )
+            {
+                return false;
+            }
+            
+            if ( tmp.equals( baseId ) )
+            {
+                return true;
+            }
+        }
+    }
+    
 
     /**
      * Asserts whether or not a candidate has sub level scope while taking
@@ -126,7 +160,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     public boolean evaluate( IndexEntry<?, ID> candidate ) throws Exception
     {
         ID id = candidate.getId();
-        
+
         /*
          * This condition catches situations where the candidate is equal to 
          * the base entry and when the base entry is the context entry.  Note
@@ -134,7 +168,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || db.getSubLevelIndex().forward( baseId, id );
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || isDescendant( id );
 
         /*
          * The candidate id could be any entry in the db.  If search

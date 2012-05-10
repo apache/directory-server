@@ -21,8 +21,6 @@ package org.apache.directory.server.core.authz.support;
 
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.naming.directory.SearchControls;
@@ -44,7 +42,6 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-
 
 
 /**
@@ -140,7 +137,8 @@ public class MaxImmSubFilter implements ACITupleFilter
 
         try
         {
-            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(), entryName.getRdn( entryName.size() - 1 ) );
+            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(),
+                entryName.getRdn( entryName.size() - 1 ) );
             SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(),
                 baseDn, childrenFilter, childrenSearchControls );
             searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );

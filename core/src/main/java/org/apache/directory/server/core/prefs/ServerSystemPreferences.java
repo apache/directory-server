@@ -64,11 +64,10 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     /** maps changes based on key: key->list of mods (on same key) */
     private HashMap<String, List<Modification>> keyToChange = new HashMap<String, List<Modification>>( 3 );
-    
+
     private Dn dn;
-    
+
     private DirectoryService directoryService;
-    
 
 
     /**
@@ -81,7 +80,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     {
         super( null, "" );
         super.newNode = false;
-        
+
         try
         {
             dn = directoryService.getDnFactory().create( "prefNodeName=sysPrefRoot,ou=system" );
@@ -90,11 +89,11 @@ public class ServerSystemPreferences extends AbstractPreferences
         {
             // never happens
         }
-        
+
         this.directoryService = directoryService;
     }
 
-    
+
     public void close() throws LdapException
     {
     }
@@ -115,16 +114,16 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             dn = directoryService.getDnFactory().create( "prefNodeName=" + name + "," + parentDn.getName() );
-            
-            if ( ! directoryService.getAdminSession().exists( dn ) )
+
+            if ( !directoryService.getAdminSession().exists( dn ) )
             {
                 Entry entry = directoryService.newEntry( dn );
                 entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
                     ApacheSchemaConstants.PREF_NODE_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
                 entry.add( "prefNodeName", name );
-    
+
                 directoryService.getAdminSession().add( entry );
-                
+
                 super.newNode = false;
             }
         }
@@ -247,12 +246,12 @@ public class ServerSystemPreferences extends AbstractPreferences
             for ( Attribute attr : entry )
             {
                 String oid = attr.getAttributeType().getOid();
-                
+
                 if ( oid.equals( SchemaConstants.OBJECT_CLASS_AT_OID ) )
                 {
                     continue;
                 }
-                
+
                 keys.add( attr.getUpId() );
             }
         }
@@ -265,7 +264,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     }
 
 
-    protected void removeSpi( String key ) 
+    protected void removeSpi( String key )
     {
         AttributeType at;
         try
@@ -287,7 +286,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         String key = mi.getAttribute().getUpId();
         List<Modification> deltas;
         changes.add( mi );
-        
+
         if ( keyToChange.containsKey( key ) )
         {
             deltas = keyToChange.get( key );
@@ -307,7 +306,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         try
         {
             Attribute attr = directoryService.getAdminSession().lookup( dn ).get( key );
-            
+
             if ( keyToChange.containsKey( key ) )
             {
                 for ( Modification mod : keyToChange.get( key ) )

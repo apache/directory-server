@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.flags;
 
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -30,8 +31,8 @@ public interface KerberosFlags
      * Returns the int value associated with the flags
      */
     int getIntValue();
-    
-    
+
+
     /**
      * Check if a flag is set for the actual value
      * 
@@ -39,16 +40,16 @@ public interface KerberosFlags
      * @return True if the flag is set in the list of flags
      */
     boolean isFlagSet( KerberosFlag flag );
-    
-    
+
+
     /**
      * Check if a flag is set
      * @param flag The flags to test
      * @return True if the flag is set in the list of flags
      */
     boolean isFlagSet( int flag );
-    
-    
+
+
     /**
      * Set a flag in a list of flags
      * 
@@ -56,15 +57,15 @@ public interface KerberosFlags
      */
     void setFlag( KerberosFlag flag );
 
-    
+
     /**
      * Set a flag in a list of flags
      * 
      * @param flag The flag to set
      */
     void setFlag( int flag );
-    
-    
+
+
     /**
      * clear a flag in a list of flags
      * 
@@ -72,7 +73,7 @@ public interface KerberosFlags
      */
     void clearFlag( KerberosFlag flag );
 
-    
+
     /**
      * clear a flag in a list of flags
      * 

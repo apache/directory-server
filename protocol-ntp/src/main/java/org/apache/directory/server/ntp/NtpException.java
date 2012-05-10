@@ -46,7 +46,7 @@ public class NtpException extends Exception
      * @param message the message
      * @param cause the cause
      */
-    public NtpException(String message, Throwable cause)
+    public NtpException( String message, Throwable cause )
     {
         super( message, cause );
     }
@@ -57,7 +57,7 @@ public class NtpException extends Exception
      * 
      * @param message the message
      */
-    public NtpException(String message)
+    public NtpException( String message )
     {
         super( message );
     }
@@ -66,7 +66,7 @@ public class NtpException extends Exception
     /**
      * @param cause the cause
      */
-    public NtpException(Throwable cause)
+    public NtpException( Throwable cause )
     {
         super( cause );
     }

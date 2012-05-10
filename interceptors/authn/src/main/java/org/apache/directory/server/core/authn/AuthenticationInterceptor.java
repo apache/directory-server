@@ -96,8 +96,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
-import org.apache.felix.ipojo.annotations.Component;
-import org.apache.felix.ipojo.annotations.Provides;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +122,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private CoreSession adminSession;
 
-    private Set<Dn> pwdResetSet = new HashSet<Dn>();
+    private Set<String> pwdResetSet = new HashSet<String>();
 
     // pwdpolicy state attribute types
     private AttributeType AT_PWD_RESET;
@@ -334,7 +332,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             try
             {
-                username = entry.getDn().getRdn().getUpValue().getString();
+                username = entry.getDn().getRdn().getValue().getString();
                 check( username, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
@@ -670,7 +668,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( isPwdMustReset( userEntry ) )
                 {
                     pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
-                    pwdResetSet.add( dn );
+                    pwdResetSet.add( dn.getNormName() );
                 }
 
                 bindContext.addResponseControl( pwdRespCtrl );
@@ -829,7 +827,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( pwdModDetails.isPwdModPresent() )
         {
-            if ( pwdResetSet.contains( userDn ) )
+            if ( pwdResetSet.contains( userDn.getNormName() ) )
             {
                 if ( pwdModDetails.isOtherModExists() )
                 {
@@ -903,7 +901,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 try
                 {
-                    String userName = entry.getDn().getRdn().getUpValue().getString();
+                    String userName = entry.getDn().getRdn().getValue().getString();
                     check( userName, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )
@@ -1044,7 +1042,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( removeFromPwdResetSet )
             {
-                pwdResetSet.remove( userDn );
+                pwdResetSet.remove( userDn.getNormName() );
             }
         }
         else
@@ -1135,7 +1133,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // cause that requires fetching the ppolicy first, which requires a lookup for user entry
         if ( !directoryService.isPwdPolicyEnabled() )
         {
-            pwdResetSet.remove( unbindContext.getDn() );
+            pwdResetSet.remove( unbindContext.getDn().getNormName() );
         }
     }
 
@@ -1404,7 +1402,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             Dn userDn = session.getAuthenticatedPrincipal().getDn();
 
-            if ( pwdResetSet.contains( userDn ) )
+            if ( pwdResetSet.contains( userDn.getNormName() ) )
             {
                 boolean isPPolicyReqCtrlPresent = opContext
                     .hasRequestControl( PasswordPolicy.OID );

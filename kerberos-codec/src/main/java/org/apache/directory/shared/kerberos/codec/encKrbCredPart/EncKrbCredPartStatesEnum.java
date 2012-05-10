@@ -37,28 +37,28 @@ public enum EncKrbCredPartStatesEnum implements States
 
     // ----- EncKrbPrivPart component --------------------------------------
 
-    ENC_KRB_CRED_PART_TAG_STATE,                    // 1
+    ENC_KRB_CRED_PART_TAG_STATE, // 1
 
-    ENC_KRB_CRED_PART_SEQ_TAG_STATE,                // 2
+    ENC_KRB_CRED_PART_SEQ_TAG_STATE, // 2
 
-    ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE,        // 3
-    ENC_KRB_CRED_PART_TICKET_INFO_STATE,            // 4
+    ENC_KRB_CRED_PART_TICKET_INFO_TAG_STATE, // 3
+    ENC_KRB_CRED_PART_TICKET_INFO_STATE, // 4
 
-    ENC_KRB_CRED_PART_NONCE_TAG_STATE,              // 5
-    ENC_KRB_CRED_PART_NONCE_STATE,                  // 6
+    ENC_KRB_CRED_PART_NONCE_TAG_STATE, // 5
+    ENC_KRB_CRED_PART_NONCE_STATE, // 6
 
-    ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE,          // 7
-    ENC_KRB_CRED_PART_TIMESTAMP_STATE,              // 8
+    ENC_KRB_CRED_PART_TIMESTAMP_TAG_STATE, // 7
+    ENC_KRB_CRED_PART_TIMESTAMP_STATE, // 8
 
-    ENC_KRB_CRED_PART_USEC_TAG_STATE,               // 9
-    ENC_KRB_CRED_PART_USEC_STATE,                   // 10
+    ENC_KRB_CRED_PART_USEC_TAG_STATE, // 9
+    ENC_KRB_CRED_PART_USEC_STATE, // 10
 
-    ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE,     // 11
+    ENC_KRB_CRED_PART_SENDER_ADDRESS_TAG_STATE, // 11
 
-    ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE,  // 12
+    ENC_KRB_CRED_PART_RECIPIENT_ADDRESS_TAG_STATE, // 12
 
     // End
-    LAST_ENC_KRB_CRED_PART_STATE;                   // 13
+    LAST_ENC_KRB_CRED_PART_STATE; // 13
 
     /**
      * Get the grammar name

@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.factory;
 
+
 import org.apache.directory.server.ldap.LdapServer;
+
 
 /**
  * 
@@ -30,6 +32,7 @@ import org.apache.directory.server.ldap.LdapServer;
 public interface LdapServerFactory
 {
     void init();
-    
+
+
     LdapServer getLdapServer();
 }

@@ -33,22 +33,21 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum PrincipalNameStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- PrincipalName message --------------------------------------
-    PRINCIPAL_NAME_SEQ_STATE,               // 1
+    PRINCIPAL_NAME_SEQ_STATE, // 1
 
-    PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,     // 2
-    PRINCIPAL_NAME_NAME_TYPE_STATE,         // 3
+    PRINCIPAL_NAME_NAME_TYPE_TAG_STATE, // 2
+    PRINCIPAL_NAME_NAME_TYPE_STATE, // 3
 
-    PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,   // 4
+    PRINCIPAL_NAME_NAME_STRING_SEQ_STATE, // 4
 
-    PRINCIPAL_NAME_NAME_STRING_TAG_STATE,   // 5
-    PRINCIPAL_NAME_NAME_STRING_STATE,       // 6
+    PRINCIPAL_NAME_NAME_STRING_TAG_STATE, // 5
+    PRINCIPAL_NAME_NAME_STRING_STATE, // 6
 
     // End
-    LAST_PRINCIPAL_NAME_STATE;              // 7
-
+    LAST_PRINCIPAL_NAME_STATE; // 7
 
     /**
      * Get the grammar name

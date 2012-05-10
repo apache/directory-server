@@ -20,7 +20,9 @@
 
 package org.apache.directory.server.core.hash;
 
+
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
+
 
 /**
  * PasswordHashingInterceptor using SHA-384 hashing algorithm.

@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.registries.Registries;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.shared.util.Strings;
@@ -67,12 +66,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     private static final Logger LOG = LoggerFactory.getLogger( SchemaSynchronizer.class );
 
     private final SchemaEntityFactory factory;
-    //private final PartitionSchemaLoader loader;
 
     private final SchemaManager schemaManager;
 
     /** The global registries */
-    private final Registries registries;
+    //private final Registries registries;
 
     /** The m-disable AttributeType */
     private final AttributeType disabledAT;
@@ -86,6 +84,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /** A static Dn referencing ou=schema */
     private final Dn ouSchemaDn;
 
+
     /**
      * Creates and initializes a new instance of Schema synchronizer
      *
@@ -94,13 +93,12 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public SchemaSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        this.registries = schemaManager.getRegistries();
+        //this.registries = schemaManager.getRegistries();
         this.schemaManager = schemaManager;
-        disabledAT = registries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DISABLED_AT );
+        disabledAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT );
         factory = new SchemaEntityFactory();
-        cnAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.CN_AT );
-        dependenciesAT = registries.getAttributeTypeRegistry()
-            .lookup( MetaSchemaConstants.M_DEPENDENCIES_AT );
+        cnAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CN_AT );
+        dependenciesAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DEPENDENCIES_AT );
 
         ouSchemaDn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
     }
@@ -113,7 +111,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
+        throws LdapException
     {
         Entry entry = modifyContext.getEntry();
         List<Modification> mods = modifyContext.getModItems();
@@ -136,15 +135,16 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         else if ( disabledInEntry != null )
         {
-            hasModification = modifyDisable( modifyContext, ModificationOperation.REMOVE_ATTRIBUTE, null, disabledInEntry );
+            hasModification = modifyDisable( modifyContext, ModificationOperation.REMOVE_ATTRIBUTE, null,
+                disabledInEntry );
         }
-
 
         return hasModification;
     }
 
 
-    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn, Entry entry, boolean cascaded ) throws LdapException
+    public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn, Entry entry,
+        boolean cascaded ) throws LdapException
     {
 
     }
@@ -161,10 +161,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Dn dn = entry.getDn();
         Dn parentDn = dn.getParent();
 
-        if ( !parentDn.equals(ouSchemaDn) )
+        if ( !parentDn.equals( ouSchemaDn ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380, ouSchemaDn.getName(),
-                    parentDn.getNormName() ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380,
+                ouSchemaDn.getName(),
+                parentDn.getNormName() ) );
         }
 
         // check if the new schema is enabled or disabled
@@ -176,7 +177,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             // If the attribute is absent, then the schema is enabled by default
             isEnabled = true;
         }
-        else if ( ! disabled.contains( "TRUE" ) )
+        else if ( !disabled.contains( "TRUE" ) )
         {
             isEnabled = true;
         }
@@ -233,7 +234,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         // to make sure it's not depended upon by another schema
         Set<String> dependents = schemaManager.listDependentSchemaNames( schemaName );
 
-        if ( ( dependents != null ) && ! dependents.isEmpty() )
+        if ( ( dependents != null ) && !dependents.isEmpty() )
         {
             String msg = I18n.err( I18n.ERR_381, dependents );
             LOG.warn( msg );
@@ -248,7 +249,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
-
     /**
      * Responds to the rdn (commonName) of the metaSchema object being
      * changed.  Changes all the schema entities associated with the
@@ -260,10 +260,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
-        String rdnAttribute = newRdn.getUpType();
-        String rdnAttributeOid = registries.getAttributeTypeRegistry().getOidByName( rdnAttribute );
+        String rdnAttribute = newRdn.getNormType();
+        String rdnAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName( rdnAttribute );
 
-        if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
+        if ( !rdnAttributeOid.equals( cnAT.getOid() ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                 I18n.err( I18n.ERR_382, rdnAttribute ) );
@@ -364,7 +364,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     // private utility methods
     // -----------------------------------------------------------------------
 
-
     /**
      * Modify the Disable flag (the flag can be set to true or false).
      *
@@ -394,11 +393,11 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         switch ( modOp )
         {
-            /*
-             * If the user is adding a new m-disabled attribute to an enabled schema,
-             * we check that the value is "TRUE" and disable that schema if so.
-             */
-            case ADD_ATTRIBUTE :
+        /*
+         * If the user is adding a new m-disabled attribute to an enabled schema,
+         * we check that the value is "TRUE" and disable that schema if so.
+         */
+            case ADD_ATTRIBUTE:
                 if ( disabledInEntry == null && "TRUE".equalsIgnoreCase( disabledInMods.getString() ) )
                 {
                     return disableSchema( getSchemaName( name ) );
@@ -410,7 +409,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
              * If the user is removing the m-disabled attribute we check if the schema is currently
              * disabled.  If so we enable the schema.
              */
-            case REMOVE_ATTRIBUTE :
+            case REMOVE_ATTRIBUTE:
                 if ( ( disabledInEntry != null ) && ( "TRUE".equalsIgnoreCase( disabledInEntry.getString() ) ) )
                 {
                     return enableSchema( getSchemaName( name ) );
@@ -423,7 +422,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
              * currently disabled and enable it if the new state has it as enabled.  If the
              * schema is not disabled we disable it if the mods set m-disabled to true.
              */
-            case REPLACE_ATTRIBUTE :
+            case REPLACE_ATTRIBUTE:
 
                 boolean isCurrentlyDisabled = false;
 
@@ -476,7 +475,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private boolean disableSchema( String schemaName ) throws LdapException
     {
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
 
         if ( schema == null )
         {
@@ -488,44 +487,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         return schemaManager.disable( schemaName );
 
-        /*
-        // First check that the schema is not already disabled
-        Map<String, Schema> schemas = registries.getLoadedSchemas();
-
-        Schema schema = schemas.get( schemaName );
-
-        if ( ( schema == null ) || schema.isDisabled() )
-        {
-            // The schema is disabled, do nothing
-            return SCHEMA_UNCHANGED;
-        }
-
-        Set<String> dependents = schemaManager.listEnabledDependentSchemaNames( schemaName );
-
-        if ( ! dependents.isEmpty() )
-        {
-            throw new LdapUnwillingToPerformException(
-                "Cannot disable schema with enabled dependents: " + dependents,
-                ResultCodeEnum.UNWILLING_TO_PERFORM );
-        }
-
-        schema.disable();
-
-        // Use brute force right now : iterate through all the schemaObjects
-        // searching for those associated with the disabled schema
-        disableAT( session, schemaName );
-
-        Set<SchemaObjectWrapper> content = registries.getLoadedSchema( schemaName ).getContent();
-
-        for ( SchemaObjectWrapper schemaWrapper : content )
-        {
-            SchemaObject schemaObject = schemaWrapper.get();
-
-            System.out.println( "Disabling " + schemaObject.getName() );
-        }
-
-        return SCHEMA_MODIFIED;
-        */
     }
 
 
@@ -535,7 +496,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     private boolean enableSchema( String schemaName ) throws LdapException
     {
-        Schema schema = registries.getLoadedSchema( schemaName );
+        Schema schema = schemaManager.getLoadedSchema( schemaName );
 
         if ( schema == null )
         {
@@ -568,23 +529,24 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( isEnabled )
         {
             // check to make sure all the dependencies are also enabled
-            Map<String,Schema> loaded = registries.getLoadedSchemas();
+            Map<String, Schema> loaded = schemaManager.getRegistries().getLoadedSchemas();
 
-            for ( Value<?> value:dependencies )
+            for ( Value<?> value : dependencies )
             {
                 String dependency = value.getString();
 
-                if ( ! loaded.containsKey( dependency ) )
+                if ( !loaded.containsKey( dependency ) )
                 {
                     throw new LdapUnwillingToPerformException(
-                        ResultCodeEnum.UNWILLING_TO_PERFORM, "Unwilling to perform operation on enabled schema with disabled or missing dependencies: "
-                        + dependency );
+                        ResultCodeEnum.UNWILLING_TO_PERFORM,
+                        "Unwilling to perform operation on enabled schema with disabled or missing dependencies: "
+                            + dependency );
                 }
             }
         }
         else
         {
-            for ( Value<?> value:dependencies )
+            for ( Value<?> value : dependencies )
             {
                 String dependency = value.getString();
 

@@ -33,23 +33,22 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum EncryptedDataStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- EncryptedData message --------------------------------------
-    ENCRYPTED_DATA_SEQ_STATE,               // 1
+    ENCRYPTED_DATA_SEQ_STATE, // 1
 
-    ENCRYPTED_DATA_ETYPE_TAG_STATE,         // 2
-    ENCRYPTED_DATA_ETYPE_STATE,             // 3
+    ENCRYPTED_DATA_ETYPE_TAG_STATE, // 2
+    ENCRYPTED_DATA_ETYPE_STATE, // 3
 
-    ENCRYPTED_DATA_KVNO_TAG_STATE,          // 4
-    ENCRYPTED_DATA_KVNO_STATE,              // 5
+    ENCRYPTED_DATA_KVNO_TAG_STATE, // 4
+    ENCRYPTED_DATA_KVNO_STATE, // 5
 
-    ENCRYPTED_DATA_CIPHER_TAG_STATE,        // 6
-    ENCRYPTED_DATA_CIPHER_STATE,            // 7
+    ENCRYPTED_DATA_CIPHER_TAG_STATE, // 6
+    ENCRYPTED_DATA_CIPHER_STATE, // 7
 
     // End
-    LAST_ENCRYPTED_DATA_STATE;              // 8
-
+    LAST_ENCRYPTED_DATA_STATE; // 8
 
     /**
      * Get the grammar name

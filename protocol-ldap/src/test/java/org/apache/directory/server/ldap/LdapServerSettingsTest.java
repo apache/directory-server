@@ -79,7 +79,7 @@ public class LdapServerSettingsTest
     public void testSetSaslMechanismHandlers()
     {
         LdapServer server = new LdapServer();
-        Map<String, MechanismHandler> handlers = new HashMap<String,MechanismHandler>();
+        Map<String, MechanismHandler> handlers = new HashMap<String, MechanismHandler>();
         MechanismHandler handler = new PlainMechanismHandler();
         handlers.put( SupportedSaslMechanisms.PLAIN, handler );
         server.setSaslMechanismHandlers( handlers );

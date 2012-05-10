@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.util.Strings;
@@ -57,7 +57,7 @@ public class PaData extends AbstractAsn1Object
 
     /** The Pre-authentication type */
     private PaDataType paDataType;
-    
+
     /** The authentication data */
     private byte[] paDataValue;
 
@@ -65,7 +65,7 @@ public class PaData extends AbstractAsn1Object
     private int paDataTypeTagLength;
     private int paDataValueTagLength;
     private int preAuthenticationDataSeqLength;
-    
+
 
     /**
      * Creates a new instance of PreAuthenticationData.
@@ -74,7 +74,7 @@ public class PaData extends AbstractAsn1Object
     {
     }
 
-    
+
     /**
      * Creates a new instance of PreAuthenticationData.
      *
@@ -109,7 +109,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataType = PaDataType.getTypeByValue( paDataType );
     }
 
-    
+
     /**
      * Set the PA-DATA type
      *
@@ -120,7 +120,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataType = paDataType;
     }
 
-    
+
     /**
      * Returns the raw bytes of the {@link PaData}.
      *
@@ -142,7 +142,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataValue = paDataValue;
     }
 
-    
+
     /**
      * Compute the PreAuthenticationData length
      * <pre>
@@ -168,7 +168,7 @@ public class PaData extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the paDataType. The Length will always be contained in 1 byte
-        int paDataTypeLength = Value.getNbBytes( paDataType.getValue() );
+        int paDataTypeLength = BerValue.getNbBytes( paDataType.getValue() );
         paDataTypeTagLength = 1 + TLV.getNbBytes( paDataTypeLength ) + paDataTypeLength;
         preAuthenticationDataSeqLength = 1 + TLV.getNbBytes( paDataTypeTagLength ) + paDataTypeTagLength;
 
@@ -221,12 +221,12 @@ public class PaData extends AbstractAsn1Object
             // The PaDataType, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PADATA_TYPE_TAG );
             buffer.put( TLV.getBytes( paDataTypeTagLength ) );
-            Value.encode( buffer, paDataType.getValue() );
+            BerValue.encode( buffer, paDataType.getValue() );
 
             // The PaDataValue, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PADATA_VALUE_TAG );
             buffer.put( TLV.getBytes( paDataValueTagLength ) );
-            Value.encode( buffer, paDataValue );
+            BerValue.encode( buffer, paDataValue );
         }
         catch ( BufferOverflowException boe )
         {
@@ -237,13 +237,13 @@ public class PaData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "PreAuthenticationData initial value : {}", toString() );
         }
 
         return buffer;
     }
-    
+
 
     /**
      * @see Object#toString()
@@ -266,7 +266,7 @@ public class PaData extends AbstractAsn1Object
 
         if ( paDataValue != null )
         {
-            sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes(paDataValue) ).append( '\n' );
+            sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes( paDataValue ) ).append( '\n' );
         }
 
         sb.append( tabs + "}\n" );

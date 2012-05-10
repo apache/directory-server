@@ -23,12 +23,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,9 +101,15 @@ public class LdapApiIntegrationUtils
      * @return the pooled admin connection
      * @throws Exception the exception
      */
-    public static LdapNetworkConnection getPooledAdminConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getPooledAdminConnection( LdapServer ldapServer ) throws Exception
     {
-        return getAdminPool( ldapServer ).getConnection();
+        LdapConnection ldapConnection = getAdminPool( ldapServer ).getConnection();
+        
+        ldapConnection.setBinaryAttributeDetector(
+            new SchemaBinaryAttributeDetector(
+                ldapServer.getDirectoryService().getSchemaManager()) );
+        
+        return ldapConnection;
     }
 
 
@@ -112,7 +120,7 @@ public class LdapApiIntegrationUtils
      * @param ldapServer the LDAP server instance, used to obtain the port used
      * @throws Exception the exception
      */
-    public static void releasePooledAdminConnection( LdapNetworkConnection conn, LdapServer ldapServer )
+    public static void releasePooledAdminConnection( LdapConnection conn, LdapServer ldapServer )
         throws Exception
     {
         getAdminPool( ldapServer ).releaseConnection( conn );
@@ -128,6 +136,7 @@ public class LdapApiIntegrationUtils
     private static LdapConnectionPool getAdminPool( LdapServer ldapServer )
     {
         int port = ldapServer.getPort();
+        
         if ( !pools.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();

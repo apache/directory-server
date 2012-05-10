@@ -75,22 +75,23 @@ public class HttpServer
 
     /** Transport for http */
     private TcpTransport httpTransport = null;
-    
+
     /** Transport for https */
     private TcpTransport httpsTransport = null;
-    
+
     /** protocol identifier for http */
     public static final String HTTP_TRANSPORT_ID = "http";
-    
+
     /** protocol identifier for https */
     public static final String HTTPS_TRANSPORT_ID = "https";
-    
+
     /** an internal flag to check the server configuration */
     private boolean configured = false;
 
     private static final Logger LOG = LoggerFactory.getLogger( HttpServer.class );
 
     private DirectoryService dirService;
+
 
     public HttpServer()
     {
@@ -105,7 +106,7 @@ public class HttpServer
     public void start( DirectoryService dirService ) throws Exception
     {
         this.dirService = dirService;
-        
+
         XmlConfiguration jettyConf = null;
 
         if ( confFile != null )
@@ -135,16 +136,16 @@ public class HttpServer
         if ( configured )
         {
             Handler[] handlers = jetty.getHandlers();
-            
-            for( Handler h : handlers )
+
+            for ( Handler h : handlers )
             {
-                if( h instanceof ContextHandler )
+                if ( h instanceof ContextHandler )
                 {
                     ContextHandler ch = ( ContextHandler ) h;
                     ch.setAttribute( HttpDirectoryService.KEY, new HttpDirectoryService( dirService ) );
                 }
             }
-            
+
             LOG.info( "starting jetty http server" );
             jetty.start();
         }
@@ -178,26 +179,28 @@ public class HttpServer
                 // load the admin entry to get the private key and certificate
                 Dn adminDn = dirService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
                 Entry adminEntry = dirService.getAdminSession().lookup( adminDn, "*", "+" );
-                
+
                 File confDir = dirService.getInstanceLayout().getConfDirectory();
                 File ksFile = new File( confDir, "httpserver.generated.ks" );
-                
+
                 String password = UUID.randomUUID().toString();
-                
+
                 KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
                 ks.load( null, null );
-                
+
                 X509CertParser parser = new X509CertParser();
-                
-                parser.engineInit( new ByteArrayInputStream( adminEntry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
-                
+
+                parser.engineInit( new ByteArrayInputStream( adminEntry.get( TlsKeyGenerator.USER_CERTIFICATE_AT )
+                    .getBytes() ) );
+
                 X509Certificate cert = ( X509Certificate ) parser.engineRead();
-                
+
                 ks.setCertificateEntry( "cert", cert );
-                
+
                 KeyPair keyPair = TlsKeyGenerator.getKeyPair( adminEntry );
-                ks.setKeyEntry( "privatekey", keyPair.getPrivate(), password.toCharArray(), new Certificate[]{ cert } );
-                
+                ks.setKeyEntry( "privatekey", keyPair.getPrivate(), password.toCharArray(), new Certificate[]
+                    { cert } );
+
                 OutputStream stream = new FileOutputStream( ksFile );
                 ks.store( stream, password.toCharArray() );
 
@@ -208,10 +211,10 @@ public class HttpServer
                 httpsConnector.setKeystore( ksFile.getAbsolutePath() );
                 httpsConnector.setPassword( password );
                 httpsConnector.setKeyPassword( password );
-                
+
                 jetty.addConnector( httpsConnector );
             }
-            
+
             List<Handler> handlers = new ArrayList<Handler>();
             for ( WebApp w : webApps )
             {
@@ -219,46 +222,46 @@ public class HttpServer
                 webapp.setWar( w.getWarFile() );
                 webapp.setContextPath( w.getContextPath() );
                 handlers.add( webapp );
-                
+
                 webapp.setParentLoaderPriority( true );
             }
 
             // add web apps from the webapps directory inside directory service's working directory
             // the exploded or archived wars
             File webAppDir = new File( dirService.getInstanceLayout().getInstanceDirectory(), "webapps" );
-            
+
             FilenameFilter webAppFilter = new FilenameFilter()
             {
-                
+
                 public boolean accept( File dir, String name )
                 {
                     return name.endsWith( ".war" );
                 }
             };
-            
+
             if ( webAppDir.exists() )
             {
                 File[] appList = webAppDir.listFiles( webAppFilter );
-                for( File app : appList )
+                for ( File app : appList )
                 {
                     WebAppContext webapp = new WebAppContext();
                     webapp.setWar( app.getAbsolutePath() );
                     String ctxName = app.getName();
                     int pos = ctxName.indexOf( '.' );
-                    if( pos > 0 )
+                    if ( pos > 0 )
                     {
                         ctxName = ctxName.substring( 0, pos );
                     }
-                    
+
                     webapp.setContextPath( "/" + ctxName );
                     handlers.add( webapp );
-                    
+
                     webapp.setParentLoaderPriority( true );
                 }
             }
-            
-            jetty.setHandlers( handlers.toArray( new Handler[ handlers.size() ] ) );
-            
+
+            jetty.setHandlers( handlers.toArray( new Handler[handlers.size()] ) );
+
             configured = true;
         }
         catch ( Exception e )

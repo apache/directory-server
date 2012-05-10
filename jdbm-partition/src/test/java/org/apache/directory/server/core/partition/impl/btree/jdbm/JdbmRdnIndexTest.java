@@ -81,7 +81,7 @@ public class JdbmRdnIndexTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -123,7 +123,7 @@ public class JdbmRdnIndexTest
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-            
+
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -149,7 +149,8 @@ public class JdbmRdnIndexTest
             jdbmIdx = new JdbmRdnIndex<Long>();
         }
 
-        jdbmIdx.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+        jdbmIdx.init( schemaManager,
+            schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
         this.idx = jdbmIdx;
     }
 
@@ -176,10 +177,10 @@ public class JdbmRdnIndexTest
         catch ( Exception e )
         {
         }
-        
+
         destroyIndex();
         initIndex();
-        
+
         assertEquals( Index.DEFAULT_INDEX_CACHE_SIZE, idx.getCacheSize() );
     }
 
@@ -196,7 +197,7 @@ public class JdbmRdnIndexTest
 
         // initialized index
         initIndex();
-        
+
         try
         {
             idx.setWkDirPath( wkdir.toURI() );
@@ -205,11 +206,11 @@ public class JdbmRdnIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
-        
+
         jdbmRdnIndex = new JdbmRdnIndex<Long>();
         wkdir.mkdirs();
         jdbmRdnIndex.setWkDirPath( wkdir.toURI() );
@@ -226,7 +227,8 @@ public class JdbmRdnIndexTest
         assertNull( rdnIndex.getAttribute() );
 
         initIndex();
-        assertEquals( schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT ), idx.getAttribute() );
+        assertEquals( schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT ),
+            idx.getAttribute() );
     }
 
 
@@ -247,14 +249,14 @@ public class JdbmRdnIndexTest
 
         // setting a different parentId should make this key a different key
         key = new ParentIdAndRdn<Long>( 1L, new Rdn( "cn=key" ) );
-        
+
         idx.add( key, 1l );
         assertEquals( 2, idx.count() );
 
         //count shouldn't get affected cause of inserting the same key
         idx.add( key, 2l );
         assertEquals( 2, idx.count() );
-        
+
         key = new ParentIdAndRdn<Long>( 2L, new Rdn( "cn=key" ) );
         idx.add( key, 3l );
         assertEquals( 3, idx.count() );
@@ -265,9 +267,9 @@ public class JdbmRdnIndexTest
     public void testCountOneArg() throws Exception
     {
         initIndex();
-        
+
         ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
-        
+
         assertEquals( 0, idx.count( key ) );
 
         idx.add( key, 0l );
@@ -283,15 +285,15 @@ public class JdbmRdnIndexTest
     public void testLookups() throws Exception
     {
         initIndex();
-        
+
         ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=key" ) );
-        
+
         assertNull( idx.forwardLookup( key ) );
 
         idx.add( key, 0l );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
         assertEquals( key, idx.reverseLookup( 0l ) );
-        
+
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
         key = new ParentIdAndRdn<Long>( 0L, new Rdn( schemaManager, "cn=KEY" ) );
@@ -304,15 +306,15 @@ public class JdbmRdnIndexTest
     public void testAddDropById() throws Exception
     {
         initIndex();
-        
+
         ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
-        
+
         assertNull( idx.forwardLookup( key ) );
 
         // test add/drop without adding any duplicates
         idx.add( key, 0l );
         assertEquals( 0, ( long ) idx.forwardLookup( key ) );
-        
+
         idx.drop( key, 0l );
         assertNull( idx.forwardLookup( key ) );
         assertNull( idx.reverseLookup( 0l ) );
@@ -327,23 +329,23 @@ public class JdbmRdnIndexTest
     public void testCursors() throws Exception
     {
         initIndex();
-        
+
         ParentIdAndRdn<Long> key = new ParentIdAndRdn<Long>( 0L, new Rdn( "cn=key" ) );
-        
+
         assertEquals( 0, idx.count() );
 
         idx.add( key, 0l );
         assertEquals( 1, idx.count() );
-        
-        for( long i=1; i< 5; i++ )
+
+        for ( long i = 1; i < 5; i++ )
         {
             key = new ParentIdAndRdn<Long>( i, new Rdn( "cn=key" + i ) );
-            
+
             idx.add( key, ( long ) i );
         }
 
         assertEquals( 5, idx.count() );
-        
+
         // use forward index's cursor
         Cursor<IndexEntry<ParentIdAndRdn<Long>, Long>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
@@ -351,38 +353,39 @@ public class JdbmRdnIndexTest
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e1 = cursor.get();
         assertEquals( 0, ( long ) e1.getId() );
-        assertEquals( "cn=key", e1.getValue().getRdns()[0].getName() );
-        assertEquals( 0, e1.getValue().getParentId().longValue() );
+        assertEquals( "cn=key", e1.getKey().getRdns()[0].getName() );
+        assertEquals( 0, e1.getKey().getParentId().longValue() );
 
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e2 = cursor.get();
         assertEquals( 1, ( long ) e2.getId() );
-        assertEquals( "cn=key1", e2.getValue().getRdns()[0].getName() );
-        assertEquals( 1, e2.getValue().getParentId().longValue() );
-        
+        assertEquals( "cn=key1", e2.getKey().getRdns()[0].getName() );
+        assertEquals( 1, e2.getKey().getParentId().longValue() );
+
         cursor.next();
         IndexEntry<ParentIdAndRdn<Long>, Long> e3 = cursor.get();
         assertEquals( 2, ( long ) e3.getId() );
-        assertEquals( "cn=key2", e3.getValue().getRdns()[0].getName() );
-        assertEquals( 2, e3.getValue().getParentId().longValue() );
+        assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
+        assertEquals( 2, e3.getKey().getParentId().longValue() );
+        
+        cursor.close();
     }
 
-
-//    @Test
-//    public void testStoreRdnWithTwoATAVs() throws Exception
-//    {
-//        initIndex();
-//        
-//        Dn dn = new Dn( "dc=example,dc=com" );
-//        dn.normalize( schemaManager.getNormalizerMapping() );
-//        
-//        Rdn rdn = new Rdn( dn.getName() );
-//        rdn._setParentId( 1 );
-//        idx.add( rdn, 0l );
-//        
-//        Rdn rdn2 = idx.reverseLookup( 0l );
-//        System.out.println( rdn2 );
-//        InternalRdnComparator rdnCom = new InternalRdnComparator( "" );
-//        assertEquals( 0, rdnCom.compare( rdn, rdn2 ) );
-//    }
+    //    @Test
+    //    public void testStoreRdnWithTwoATAVs() throws Exception
+    //    {
+    //        initIndex();
+    //        
+    //        Dn dn = new Dn( "dc=example,dc=com" );
+    //        dn.normalize( schemaManager.getNormalizerMapping() );
+    //        
+    //        Rdn rdn = new Rdn( dn.getName() );
+    //        rdn._setParentId( 1 );
+    //        idx.add( rdn, 0l );
+    //        
+    //        Rdn rdn2 = idx.reverseLookup( 0l );
+    //        System.out.println( rdn2 );
+    //        InternalRdnComparator rdnCom = new InternalRdnComparator( "" );
+    //        assertEquals( 0, rdnCom.compare( rdn, rdn2 ) );
+    //    }
 }

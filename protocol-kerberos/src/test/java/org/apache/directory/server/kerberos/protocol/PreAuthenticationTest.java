@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.protocol;
 
@@ -23,7 +23,8 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -32,6 +33,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -67,8 +69,14 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Before
     public void setUp()
     {
+        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+
         config = new KdcServer();
-        store  = new MapPrincipalStoreImpl();
+
+        config.setEncryptionTypes( encryptionTypes );
+
+        store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
@@ -83,8 +91,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests when the KDC configuration requires pre-authentication by encrypted
      * timestamp that an AS_REQ without pre-authentication is rejected with the
@@ -112,7 +120,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
+        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED,
+            error.getErrorCode() );
     }
 
 
@@ -125,7 +134,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * if the pre-authentication check fails, an error message with the code
      * KDC_ERR_PREAUTH_FAILED is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationIntegrityFailed() throws Exception
@@ -146,11 +155,11 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -161,7 +170,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY, error.getErrorCode() );
+        assertEquals( "Integrity check on decrypted field failed", ErrorType.KRB_AP_ERR_BAD_INTEGRITY,
+            error.getErrorCode() );
     }
 
 
@@ -170,7 +180,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * if the pre-authentication check fails, an error message with the code
      * KDC_ERR_PREAUTH_FAILED is returned."
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationFailed() throws Exception
@@ -192,11 +202,11 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KerberosTime timeStamp = new KerberosTime( 0 );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp, config.getEncryptionTypes() );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -208,7 +218,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "Pre-authentication information was invalid", ErrorType.KDC_ERR_PREAUTH_FAILED, error.getErrorCode() );
+        assertEquals( "Pre-authentication information was invalid", ErrorType.KDC_ERR_PREAUTH_FAILED,
+            error.getErrorCode() );
     }
 
 
@@ -216,7 +227,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      * Tests when pre-authentication is included that is not supported by the KDC, that
      * the correct error message is returned.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testPreAuthenticationNoSupport() throws Exception
@@ -240,7 +251,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -295,9 +306,10 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase, config.getEncryptionTypes() );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

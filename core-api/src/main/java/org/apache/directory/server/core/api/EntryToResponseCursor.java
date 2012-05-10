@@ -38,6 +38,8 @@ import org.apache.directory.shared.ldap.model.message.SearchResultDone;
 import org.apache.directory.shared.ldap.model.message.SearchResultDoneImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -48,6 +50,9 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
  */
 public class EntryToResponseCursor implements SearchCursor
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** the underlying cursor */
     private Cursor<Entry> wrapped;
 
@@ -61,6 +66,7 @@ public class EntryToResponseCursor implements SearchCursor
 
     public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
     {
+        LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -104,12 +110,14 @@ public class EntryToResponseCursor implements SearchCursor
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         wrapped.close();
     }
 
 
     public void close( Exception e ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         wrapped.close( e );
     }
 

@@ -101,7 +101,6 @@ public class AddPaData extends GrammarAction<MethodDataContainer>
         PaData paData = paDataContainer.getPaData();
         methodDataContainer.addPaData( paData );
 
-
         if ( IS_DEBUG )
         {
             LOG.debug( "PA-DATA added : {}", paData );

@@ -85,8 +85,8 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * If the ENC-TKT-IN-SKEY option has been specified and an additional ticket
      * has been included in the request, it indicates that the client is using

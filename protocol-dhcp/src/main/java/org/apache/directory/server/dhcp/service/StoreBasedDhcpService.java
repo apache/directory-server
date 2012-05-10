@@ -50,7 +50,7 @@ public class StoreBasedDhcpService extends AbstractDhcpService
     private final DhcpStore dhcpStore;
 
 
-    public StoreBasedDhcpService(DhcpStore dhcpStore)
+    public StoreBasedDhcpService( DhcpStore dhcpStore )
     {
         this.dhcpStore = dhcpStore;
     }

@@ -155,7 +155,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( LdapException le )
+        catch ( LdapException le )
         {
             // Expected result.
         }
@@ -187,7 +187,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting it" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -216,7 +216,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting it" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -245,7 +245,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getLdapSyntaxRegistry().lookup( OID );
             fail( "syntax lookup should fail after deleting the syntax" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -352,7 +352,6 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     // Test move, rename, and delete when a MR exists and uses the Normalizer
     // ----------------------------------------------------------------------
 
-
     @Test
     public void testDeleteSyntaxWhenInUse() throws Exception
     {
@@ -366,7 +365,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.delete( dn );
             fail( "should not be able to delete a syntax in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -391,7 +390,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a syntax in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -417,7 +416,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.moveAndRename( dn, newDn );
             fail( "should not be able to move a syntax in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -430,15 +429,15 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     private void addDependeeMatchingRule( String oid ) throws Exception
     {
         Dn dn = new Dn( "m-oid=" + MR_OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
-                dn,
-                "objectClass: top",
-                "objectClass: metaTop",
-                "objectClass: metaMatchingRule",
-                "m-oid", MR_OID,
-                "m-syntax", OID,
-                "m-description", MR_DESCRIPTION);
+            dn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", MR_OID,
+            "m-syntax", OID,
+            "m-description", MR_DESCRIPTION );
 
         connection.add( entry );
 
@@ -463,7 +462,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.rename( dn, rdn );
             fail( "should not be able to rename a syntax in use" );
         }
-        catch( LdapUnwillingToPerformException e )
+        catch ( LdapUnwillingToPerformException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
@@ -476,7 +475,6 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
-
 
     @Test
     @Ignore
@@ -493,7 +491,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, top );
             fail( "should not be able to move a syntax up to ou=schema" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -518,7 +516,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a syntax into comparators container" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -606,7 +604,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         Entry rootDse = connection.getRootDse( SUBSCHEMA_SUBENTRY );
 
         String subschemaSubentry = rootDse.get( SUBSCHEMA_SUBENTRY ).getString();
-        
+
         return subschemaSubentry;
     }
 }

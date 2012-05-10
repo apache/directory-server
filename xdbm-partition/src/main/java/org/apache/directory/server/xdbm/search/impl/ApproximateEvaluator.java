@@ -54,7 +54,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
         throws Exception
     {
         super( node, db, schemaManager );
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
@@ -83,7 +83,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
      */
     public ApproximateNode<T> getExpression()
     {
-        return (ApproximateNode<T>)node;
+        return ( ApproximateNode<T> ) node;
     }
 
 

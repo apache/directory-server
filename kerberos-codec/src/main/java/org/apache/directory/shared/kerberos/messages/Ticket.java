@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;
@@ -60,25 +60,25 @@ public class Ticket extends KerberosMessage
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-    
+
     /** Constant for the {@link Ticket} version number (5) */
     public static final int TICKET_VNO = KerberosConstants.KERBEROS_V5;
 
     /** A storage for a byte array representation of the realm */
     private byte[] realmBytes;
-    
+
     /** The server principal name */
     private PrincipalName sName;
-    
+
     /** The server realm */
     private String realm;
-    
+
     /** The encoded part */
     private EncryptedData encPart;
-    
+
     /** The encoded ticket part, stored in its original form (not encoded) */
     private EncTicketPart encTicketPart;
-    
+
     // Storage for computed lengths
     private int tktvnoLength;
     private int realmLength;
@@ -86,6 +86,7 @@ public class Ticket extends KerberosMessage
     private int encPartLength;
     private int ticketSeqLength;
     private int ticketLength;
+
 
     /**
      * Creates a new instance of Ticket.
@@ -108,8 +109,8 @@ public class Ticket extends KerberosMessage
     {
         super( KerberosMessageType.TICKET );
     }
-    
-    
+
+
     /**
      * Creates a new instance of Ticket.
      *
@@ -135,16 +136,16 @@ public class Ticket extends KerberosMessage
         return encPart;
     }
 
-    
+
     /**
      * Set the encrypted ticket part
      * @param encPart the encrypted ticket part
      */
     public void setEncPart( EncryptedData encPart )
     {
-        this.encPart = encPart; 
+        this.encPart = encPart;
     }
-    
+
 
     /**
      * Returns the server realm.
@@ -165,8 +166,8 @@ public class Ticket extends KerberosMessage
     {
         this.realm = realm;
     }
-    
-    
+
+
     /**
      * Returns the server {@link PrincipalName}.
      *
@@ -177,7 +178,7 @@ public class Ticket extends KerberosMessage
         return sName;
     }
 
-    
+
     /**
      * Set the server principalName
      * @param sName the server principalName
@@ -186,8 +187,8 @@ public class Ticket extends KerberosMessage
     {
         this.sName = sName;
     }
-    
-    
+
+
     /**
      * Gets the Ticket Version number
      * @return The ticket version number
@@ -196,8 +197,8 @@ public class Ticket extends KerberosMessage
     {
         return getProtocolVersionNumber();
     }
-    
-    
+
+
     /**
      * Sets the Ticket Version number
      * @param tktVno The new version number
@@ -206,7 +207,7 @@ public class Ticket extends KerberosMessage
     {
         setProtocolVersionNumber( tktVno );
     }
-    
+
 
     /**
      * @return the encTicketPart
@@ -225,7 +226,7 @@ public class Ticket extends KerberosMessage
         this.encTicketPart = encTicketPart;
     }
 
-    
+
     /**
      * Compute the Ticket length
      * <pre>
@@ -251,32 +252,32 @@ public class Ticket extends KerberosMessage
     public int computeLength()
     {
         // Compute the Ticket version length.
-        tktvnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
+        tktvnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
 
         // Compute the Ticket realm length.
-        realmBytes = Strings.getBytesUtf8(realm);
+        realmBytes = Strings.getBytesUtf8( realm );
         realmLength = 1 + TLV.getNbBytes( realmBytes.length ) + realmBytes.length;
 
         // Compute the principal length
         sNameLength = sName.computeLength();
-        
+
         // Compute the encrypted data
         encPartLength = encPart.computeLength();
 
         // Compute the sequence size
-        ticketSeqLength = 
+        ticketSeqLength =
             1 + TLV.getNbBytes( tktvnoLength ) + tktvnoLength +
-            1 + TLV.getNbBytes( realmLength ) + realmLength +
-            1 + TLV.getNbBytes( sNameLength ) + sNameLength + 
-            1 + TLV.getNbBytes( encPartLength ) + encPartLength;
-        
+                1 + TLV.getNbBytes( realmLength ) + realmLength +
+                1 + TLV.getNbBytes( sNameLength ) + sNameLength +
+                1 + TLV.getNbBytes( encPartLength ) + encPartLength;
+
         // compute the global size
         ticketLength = 1 + TLV.getNbBytes( ticketSeqLength ) + ticketSeqLength;
-        
+
         return 1 + TLV.getNbBytes( ticketLength ) + ticketLength;
     }
-    
-    
+
+
     /**
      * Encode the Ticket message to a PDU. 
      * <pre>
@@ -303,7 +304,7 @@ public class Ticket extends KerberosMessage
         try
         {
             // The Ticket APPLICATION Tag
-            buffer.put( (byte)KerberosConstants.TICKET_TAG );
+            buffer.put( ( byte ) KerberosConstants.TICKET_TAG );
             buffer.put( TLV.getBytes( ticketLength ) );
 
             // The Ticket SEQUENCE Tag
@@ -311,43 +312,43 @@ public class Ticket extends KerberosMessage
             buffer.put( TLV.getBytes( ticketSeqLength ) );
 
             // The tkt-vno Tag and value
-            buffer.put( ( byte )KerberosConstants.TICKET_TKT_VNO_TAG );
+            buffer.put( ( byte ) KerberosConstants.TICKET_TKT_VNO_TAG );
             buffer.put( TLV.getBytes( tktvnoLength ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // The realm Tag and value
-            buffer.put( ( byte )KerberosConstants.TICKET_REALM_TAG );
+            buffer.put( ( byte ) KerberosConstants.TICKET_REALM_TAG );
             buffer.put( TLV.getBytes( realmLength ) );
             buffer.put( UniversalTag.GENERAL_STRING.getValue() );
             buffer.put( TLV.getBytes( realmBytes.length ) );
             buffer.put( realmBytes );
 
             // The sname Tag and value
-            buffer.put( ( byte )KerberosConstants.TICKET_SNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.TICKET_SNAME_TAG );
             buffer.put( TLV.getBytes( sNameLength ) );
             sName.encode( buffer );
-            
+
             // The encPartLength Tag and value
-            buffer.put( ( byte )KerberosConstants.TICKET_ENC_PART_TAG );
+            buffer.put( ( byte ) KerberosConstants.TICKET_ENC_PART_TAG );
             buffer.put( TLV.getBytes( encPartLength ) );
             encPart.encode( buffer );
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( ticketLength ) + ticketLength, 
+            LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( ticketLength ) + ticketLength,
                 buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Ticket encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "Ticket encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "Ticket initial value : {}", toString() );
         }
 
         return buffer;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -374,14 +375,14 @@ public class Ticket extends KerberosMessage
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         Ticket other = ( Ticket ) obj;
-        
+
         if ( encPart == null )
         {
             if ( other.encPart != null )
@@ -393,7 +394,7 @@ public class Ticket extends KerberosMessage
         {
             return false;
         }
-        
+
         if ( realm == null )
         {
             if ( other.realm != null )
@@ -405,7 +406,7 @@ public class Ticket extends KerberosMessage
         {
             return false;
         }
-        
+
         if ( sName == null )
         {
             if ( other.sName != null )
@@ -417,7 +418,7 @@ public class Ticket extends KerberosMessage
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -428,13 +429,13 @@ public class Ticket extends KerberosMessage
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "Ticket :\n" );
         sb.append( "  tkt-vno : " ).append( getProtocolVersionNumber() ).append( "\n" );
         sb.append( "  realm : " ).append( realm ).append( "\n" );
         sb.append( "  sname : " ).append( sName ).append( "\n" );
         sb.append( "  enc-part : " ).append( encPart ).append( "\n" );
-        
+
         return sb.toString();
     }
 }

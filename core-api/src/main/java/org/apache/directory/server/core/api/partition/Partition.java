@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.partition;
 
@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import org.apache.directory.server.core.api.entry.ServerSearchResult;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
@@ -45,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
- * Interface for entry stores containing a part of the DIB (Directory 
+ * Interface for entry stores containing a part of the DIB (Directory
  * Information Base).  Partitions are associated with a specific suffix, and
  * all entries contained in the them have the same Dn suffix in common.
  *
@@ -144,7 +143,7 @@ public interface Partition
 
 
     /**
-     * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
+     * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be
      * deleted until this operation has been applied to their children.
      *
      * @param deleteContext the context of the entry to
@@ -166,8 +165,8 @@ public interface Partition
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param modifyContext The context containing the modification operation 
-     * to perform on the entry which is one of constants specified by the 
+     * @param modifyContext The context containing the modification operation
+     * to perform on the entry which is one of constants specified by the
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
      * 
@@ -181,9 +180,9 @@ public interface Partition
 
 
     /**
-     * A specialized form of one level search used to return a minimal set of 
+     * A specialized form of one level search used to return a minimal set of
      * information regarding child entries under a base.  Convenience method
-     * used to optimize operations rather than conducting a full search with 
+     * used to optimize operations rather than conducting a full search with
      * retrieval.
      *
      * @param listContext the context containing the distinguished/absolute name for the search/listing
@@ -203,7 +202,7 @@ public interface Partition
      *
      * @param searchContext The context containing the information used by the operation
      * @throws Exception if there are any problems
-     * @return a NamingEnumeration containing objects of type 
+     * @return a NamingEnumeration containing objects of type
      */
     EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
@@ -271,17 +270,6 @@ public interface Partition
 
 
     /**
-     * Represents a bind operation issued to authenticate a client.  Partitions
-     * need not support this operation.  This operation is here to enable those
-     * interested in implementing virtual directories with ApacheDS.
-     * 
-     * @param bindContext the bind context, containing all the needed informations to bind
-     * @throws LdapException if something goes wrong
-     */
-    void bind( BindOperationContext bindContext ) throws LdapException;
-
-
-    /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
@@ -290,8 +278,8 @@ public interface Partition
      * @throws Exception if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
-    
-    
+
+
     /**
      * Dump the requested index to a given stream
      * @param name The index to dump to stdout

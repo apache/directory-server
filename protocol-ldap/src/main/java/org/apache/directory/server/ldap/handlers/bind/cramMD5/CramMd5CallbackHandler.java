@@ -57,7 +57,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( CramMd5CallbackHandler.class );
 
     private String bindDn;
-    
+
     /** A SchemaManager instance */
     private SchemaManager schemaManager;
 
@@ -84,30 +84,31 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
         {
             ExprNode filter = FilterParser.parse( schemaManager, "(uid=" + username + ")" );
             Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
-            
-            AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
-            returningAttributes.add( new AttributeTypeOptions( passwordAT) );
-            bindDn = (String)ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
-            
+
+            AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager()
+                .lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+            returningAttributes.add( new AttributeTypeOptions( passwordAT ) );
+            bindDn = ( String ) ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+
             Dn baseDn = new Dn( bindDn );
 
-            EntryFilteringCursor cursor = adminSession.search( 
-                baseDn, 
+            EntryFilteringCursor cursor = adminSession.search(
+                baseDn,
                 SearchScope.SUBTREE,
-                filter, 
-                AliasDerefMode.DEREF_ALWAYS, 
+                filter,
+                AliasDerefMode.DEREF_ALWAYS,
                 returningAttributes );
-            
+
             cursor.beforeFirst();
-            
+
             Entry entry = null;
-            
+
             while ( cursor.next() )
             {
                 entry = cursor.get();
-                LdapPrincipal ldapPrincipal = new LdapPrincipal( 
-                    schemaManager, 
-                    entry.getDn(), 
+                LdapPrincipal ldapPrincipal = new LdapPrincipal(
+                    schemaManager,
+                    entry.getDn(),
                     AuthenticationLevel.STRONG,
                     entry.get( SchemaConstants.USER_PASSWORD_AT ).getBytes() );
                 ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );

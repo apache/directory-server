@@ -55,10 +55,13 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class RelatedUserClassFilterTest
 {
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
 
-    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
+        .unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static Dn GROUP_NAME;
     private static Dn USER_NAME;
@@ -70,13 +73,14 @@ public class RelatedUserClassFilterTest
     private static RelatedUserClassFilter filter;
     private static SchemaManager schemaManager;
 
+
     @BeforeClass
     public static void init() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
         SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager( null ) );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
-        
+
         try
         {
             GROUP_NAME = new Dn( schemaManager, "ou=test,ou=groups,ou=system" );
@@ -135,8 +139,8 @@ public class RelatedUserClassFilterTest
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
-    
-    
+
+
     @Test
     public void testParentOfEntry() throws Exception
     {
@@ -269,7 +273,7 @@ public class RelatedUserClassFilterTest
         classes.add( userClass );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( classes, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
+        tuples.add( new ACITuple( classes, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         return tuples;
@@ -279,7 +283,7 @@ public class RelatedUserClassFilterTest
     private static Collection<ACITuple> getTuples( AuthenticationLevel level, boolean grant )
     {
         Collection<UserClass> classes = new ArrayList<UserClass>();
-        
+
         if ( grant )
         {
             classes.add( UserClass.ALL_USERS );
@@ -287,7 +291,7 @@ public class RelatedUserClassFilterTest
         else
         {
             Set<Dn> names = new HashSet<Dn>();
-            
+
             try
             {
                 names.add( new Dn( schemaManager, "cn=dummy" ) );
@@ -301,7 +305,8 @@ public class RelatedUserClassFilterTest
         }
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( classes, level, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, grant, 0 ) );
+        tuples
+            .add( new ACITuple( classes, level, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, grant, 0 ) );
 
         return tuples;
     }

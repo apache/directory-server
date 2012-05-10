@@ -92,6 +92,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
+
     /**
      * Creates an interceptor that is also the exception handling service.
      */
@@ -369,10 +370,16 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
         {
-            LdapEntryAlreadyExistsException e;
-            e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-            //e.setResolvedName( DNFactory.create( newDn.getName() ) );
-            throw e;
+            // Ok, the target entry already exists.
+            // If the target entry has the same name than the modified entry, it's a rename on itself,
+            // we want to allow this.
+            if ( !newDn.equals( dn ) )
+            {
+                LdapEntryAlreadyExistsException e;
+                e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
+                //e.setResolvedName( DNFactory.create( newDn.getName() ) );
+                throw e;
+            }
         }
 
         // Remove the previous entry from the notAnAlias cache
@@ -421,4 +428,37 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw e;
         }
     }
+
+    /**
+     * Asserts that an entry is present and as a side effect if it is not, creates a LdapNoSuchObjectException, which is
+     * used to set the before exception on the invocation - eventually the exception is thrown.
+     *
+     * @param msg        the message to prefix to the distinguished name for explanation
+     * @param dn         the distinguished name of the entry that is asserted
+     * @throws Exception if the entry does not exist
+     * @param nextInterceptor the next interceptor in the chain
+     *
+    private void assertHasEntry( OperationContext opContext, String msg, Dn dn ) throws LdapException
+    {
+        if ( subschemSubentryDn.equals( dn ) )
+        {
+            return;
+        }
+
+        if ( !opContext.hasEntry( dn, ByPassConstants.HAS_ENTRY_BYPASS ) )
+        {
+            LdapNoSuchObjectException e;
+
+            if ( msg != null )
+            {
+                e = new LdapNoSuchObjectException( msg + dn.getName() );
+            }
+            else
+            {
+                e = new LdapNoSuchObjectException( dn.getName() );
+            }
+
+            throw e;
+        }
+    }*/
 }

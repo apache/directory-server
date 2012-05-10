@@ -35,8 +35,6 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
@@ -49,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * A class to copy the default config to the work directory of a DirectoryService instance.
  * 
  * NOTE: much of this class code is duplicated from DefaultSchemaLdifExtractor class
- *       We should create a AbstractLdifExtractor class and move the reusable code there 
- *  
+ *       We should create a AbstractLdifExtractor class and move the reusable code there
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifConfigExtractor
@@ -64,7 +62,7 @@ public class LdifConfigExtractor
 
     // java.util.regex.Pattern is immutable so only one instance is needed for all uses.
     private static final Pattern EXTRACT_PATTERN = Pattern.compile( ".*config"
-                            + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
+        + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
 
 
     /**
@@ -80,7 +78,7 @@ public class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             if ( !outputDirectory.mkdir() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
             }
         }
 
@@ -91,7 +89,7 @@ public class LdifConfigExtractor
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
             if ( !configDirectory.mkdir() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
             }
         }
         else if ( !overwrite )
@@ -119,7 +117,7 @@ public class LdifConfigExtractor
 
 
     /**
-     * Copies a file line by line from the source file argument to the 
+     * Copies a file line by line from the source file argument to the
      * destination file argument.
      *
      * @param source the source file to copy
@@ -134,7 +132,7 @@ public class LdifConfigExtractor
         {
             if ( !destination.getParentFile().mkdirs() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
             }
         }
 
@@ -185,7 +183,8 @@ public class LdifConfigExtractor
             {
                 if ( !destination.getParentFile().mkdirs() )
                 {
-                    throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                        destination.getParentFile() ) );
                 }
             }
 
@@ -227,8 +226,8 @@ public class LdifConfigExtractor
         {
             if ( parent.getName().equals( "config" ) )
             {
-                // All LDIF files besides the config.ldif are under the 
-                // config/config base path. So we need to add one more 
+                // All LDIF files besides the config.ldif are under the
+                // config/config base path. So we need to add one more
                 // schema component to all LDIF files minus this config.ldif
                 fileComponentStack.push( "config" );
 
@@ -268,7 +267,7 @@ public class LdifConfigExtractor
         return destinationFile;
     }
 
-    
+
     /**
      * extracts or overwrites the configuration LDIF file and returns the absolute path of this file
      *
@@ -282,7 +281,7 @@ public class LdifConfigExtractor
         {
             file = LDIF_CONFIG_FILE;
         }
-        
+
         File configFile = new File( configDir, file );
 
         if ( !configDir.exists() )
@@ -291,48 +290,48 @@ public class LdifConfigExtractor
             if ( !configDir.mkdir() )
             {
                 throw new RuntimeException(
-                        new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
+                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
             }
         }
         else
         {
-            if( configFile.exists() && !overwrite )
+            if ( configFile.exists() && !overwrite )
             {
                 LOG.warn( "config file already exists, returning, cause overwrite flag was set to false" );
                 return configFile.getAbsolutePath();
             }
         }
-        
+
         try
         {
-            
+
             URL configUrl = LdifConfigExtractor.class.getClassLoader().getResource( file );
 
             LOG.debug( "URL of the config ldif file {}", configUrl );
 
             InputStream in = configUrl.openStream();
-            byte[] buf = new byte[1024*1024];
-            
+            byte[] buf = new byte[1024 * 1024];
+
             FileWriter fw = new FileWriter( configFile );
-            
-            while( true )
+
+            while ( true )
             {
                 int read = in.read( buf );
-                
-                if( read <= 0 )
+
+                if ( read <= 0 )
                 {
                     break;
                 }
-                
-                String s = Strings.utf8ToString(buf, 0, read);
+
+                String s = Strings.utf8ToString( buf, 0, read );
                 fw.write( s );
             }
-            
+
             fw.close();
             in.close();
-            
+
             LOG.info( "successfully extracted the config file {}", configFile.getAbsoluteFile() );
-            
+
             return configFile.getAbsolutePath();
         }
         catch ( Exception e )

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.schema;
 
+
 import java.io.File;
 
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -26,6 +27,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
+
 
 /**
  * A common class for all the MetaXXXHandler test classes
@@ -35,6 +37,7 @@ import org.junit.Before;
 public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUnit
 {
     protected static String workingDir;
+
 
     @Before
     public void init() throws Exception

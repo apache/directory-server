@@ -91,7 +91,7 @@ public class ConfigPartitionReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 

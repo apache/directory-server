@@ -33,30 +33,29 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbSafeBodyStatesEnum implements States
 {
     // Start
-    START_STATE,                                // 0
+    START_STATE, // 0
 
     // ----- KRB-ERROR component --------------------------------------
-    KRB_SAFE_BODY_SEQ_TAG_STATE,                // 1
+    KRB_SAFE_BODY_SEQ_TAG_STATE, // 1
 
-    KRB_SAFE_BODY_USER_DATA_TAG_STATE,          // 2
-    KRB_SAFE_BODY_USER_DATA_STATE,              // 3
+    KRB_SAFE_BODY_USER_DATA_TAG_STATE, // 2
+    KRB_SAFE_BODY_USER_DATA_STATE, // 3
 
-    KRB_SAFE_BODY_TIMESTAMP_TAG_STATE,          // 4
-    KRB_SAFE_BODY_TIMESTAMP_STATE,              // 5
+    KRB_SAFE_BODY_TIMESTAMP_TAG_STATE, // 4
+    KRB_SAFE_BODY_TIMESTAMP_STATE, // 5
 
-    KRB_SAFE_BODY_USEC_TAG_STATE,               // 6
-    KRB_SAFE_BODY_USEC_STATE,                   // 7
+    KRB_SAFE_BODY_USEC_TAG_STATE, // 6
+    KRB_SAFE_BODY_USEC_STATE, // 7
 
-    KRB_SAFE_BODY_SEQ_NUMBER_TAG_STATE,         // 8
-    KRB_SAFE_BODY_SEQ_NUMBER_STATE,             // 9
+    KRB_SAFE_BODY_SEQ_NUMBER_TAG_STATE, // 8
+    KRB_SAFE_BODY_SEQ_NUMBER_STATE, // 9
 
-    KRB_SAFE_BODY_SENDER_ADDRESS_TAG_STATE,     // 10
+    KRB_SAFE_BODY_SENDER_ADDRESS_TAG_STATE, // 10
 
-    KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG_STATE,  // 11
+    KRB_SAFE_BODY_RECIPIENT_ADDRESS_TAG_STATE, // 11
 
     // End
-    LAST_KRB_SAFE_BODY_STATE;                   // 12
-
+    LAST_KRB_SAFE_BODY_STATE; // 12
 
     /**
      * Get the grammar name

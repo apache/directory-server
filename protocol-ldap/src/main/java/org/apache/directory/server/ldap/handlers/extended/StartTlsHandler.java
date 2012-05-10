@@ -94,7 +94,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>( 
+        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
             LdapApiServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
@@ -145,9 +145,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         LOG.debug( "Setting LDAP Service" );
         Provider provider = Security.getProvider( "SUN" );
         LOG.debug( "provider = {}", provider );
-        
+
         KeyStore keyStore = null;
-        
 
         try
         {
@@ -157,7 +156,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
                 keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
                 {
                 };
-                
+
                 keyStore.load( null, null );
             }
             else
@@ -184,12 +183,12 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         try
         {
             char[] password = null;
-            
+
             if ( ldapServer.getKeystoreFile() != null )
             {
                 password = ldapServer.getCertificatePassword().toCharArray();
             }
-            
+
             keyManagerFactory.init( keyStore, password );
         }
         catch ( Exception e )

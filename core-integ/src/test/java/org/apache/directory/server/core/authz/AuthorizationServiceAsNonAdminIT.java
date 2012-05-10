@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.authz;
 
@@ -30,6 +30,7 @@ import java.util.Arrays;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
@@ -60,7 +61,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith ( FrameworkRunner.class )
 @CreateDS(name = "AuthorizationServiceAsNonAdminIT")
-public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit 
+public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 {
 
     /**
@@ -73,8 +74,8 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
 
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         try
         {
@@ -98,12 +99,12 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
 
-        getService().getAdminSession().add( 
+        getService().getAdminSession().add(
             new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         try
         {
-            getService().getAdminSession().rename( 
+            getService().getAdminSession().rename(
                 new Dn( "uid=admin,ou=system" ),
                 new Rdn( "uid=alex" ),
                 false );
@@ -126,8 +127,8 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
         
         // Read the entry we just created using the akarasuluSession
         Entry readEntry = getService().getAdminSession().lookup( akarasulu.getDn(), new String[]{ "userPassword"} );
@@ -163,13 +164,24 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
     {
         LdifEntry akarasulu = getUserAddLdif();
         
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         try
         {
+            Dn userDn = new Dn( getService().getSchemaManager(), "uid=akarasulu,ou=users,ou=system" );
+            LdapPrincipal principal = new LdapPrincipal( getService().getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
+            CoreSession akarasuluSession = getService().getSession( principal );
+
             ExprNode filter = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
-            getService().getAdminSession().search( new Dn( "ou=system" ), SearchScope.SUBTREE, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            EntryFilteringCursor cursor = akarasuluSession.search( new Dn( "ou=users,ou=system" ), SearchScope.OBJECT, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            
+            while ( cursor.next() )
+            {
+                fail();
+            }
+            
+            cursor.close();
         }
         catch ( LdapNoPermissionException e )
         {

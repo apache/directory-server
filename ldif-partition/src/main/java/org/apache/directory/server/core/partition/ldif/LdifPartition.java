@@ -34,14 +34,19 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
+import org.apache.directory.server.xdbm.SingletonIndexCursor;
+import org.apache.directory.server.xdbm.search.impl.DescendantCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
@@ -134,7 +139,7 @@ public class LdifPartition extends AbstractLdifPartition
         if ( !initialized )
         {
             File partitionDir = new File( getPartitionPath() );
-    
+
             // Initialize the suffixDirectory : it's a composition
             // of the workingDirectory followed by the suffix
             if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
@@ -143,17 +148,17 @@ public class LdifPartition extends AbstractLdifPartition
                 LOG.error( msg );
                 throw new LdapInvalidDnException( msg );
             }
-    
+
             if ( !suffixDn.isSchemaAware() )
             {
                 suffixDn.apply( schemaManager );
             }
-    
+
             String suffixDirName = getFileName( suffixDn );
             suffixDirectory = new File( partitionDir, suffixDirName );
-    
+
             super.doInit();
-    
+
             // Create the context entry now, if it does not exists, or load the
             // existing entries
             if ( suffixDirectory.exists() )
@@ -173,29 +178,29 @@ public class LdifPartition extends AbstractLdifPartition
                     LOG.error( msg );
                     throw se;
                 }
-    
+
                 // And create the context entry too
                 File contextEntryFile = new File( suffixDirectory + CONF_FILE_EXTN );
-    
+
                 LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
-    
+
                 if ( contextEntryFile.exists() )
                 {
                     LdifReader reader = new LdifReader( contextEntryFile );
                     Entry contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
                     reader.close();
-                    
+
                     if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
                     {
                         contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
                     }
-        
+
                     if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
                     {
                         String uuid = UUID.randomUUID().toString();
                         contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
                     }
-        
+
                     // And add this entry to the underlying partition
                     AddOperationContext addContext = new AddOperationContext( null, contextEntry );
                     add( addContext );
@@ -257,7 +262,8 @@ public class LdifPartition extends AbstractLdifPartition
 
         try
         {
-            super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+            super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]
+                {} ) );
         }
         catch ( Exception e )
         {
@@ -265,7 +271,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, modifyContext.getDn() );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
@@ -275,7 +281,7 @@ public class LdifPartition extends AbstractLdifPartition
         try
         {
             FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
-            fw.write( LdifUtils.convertToLdif(modifiedEntry, true) );
+            fw.write( LdifUtils.convertToLdif( modifiedEntry, true ) );
             fw.close();
         }
         catch ( IOException ioe )
@@ -296,9 +302,16 @@ public class LdifPartition extends AbstractLdifPartition
         super.move( moveContext );
 
         // Get the modified entry
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, moveContext.getNewDn() );
 
-        entryMoved( oldDn, modifiedEntry, id );
+        try
+        {
+            entryMoved( oldDn, modifiedEntry, id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
     }
 
 
@@ -313,10 +326,17 @@ public class LdifPartition extends AbstractLdifPartition
         super.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Entry modifiedEntry = lookup( id, moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
-        entryMoved( oldDn, modifiedEntry, id );
+        try
+        {
+            entryMoved( oldDn, modifiedEntry, id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
     }
 
 
@@ -332,12 +352,20 @@ public class LdifPartition extends AbstractLdifPartition
         super.rename( renameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id );
+        Dn newDn = oldDn.getParent().add( renameContext.getNewRdn() );
+        Entry modifiedEntry = lookup( id, newDn );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
         // and remove the old entry
-        entryMoved( oldDn, modifiedEntry, id );
+        try
+        {
+            entryMoved( oldDn, modifiedEntry, id );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
     }
 
 
@@ -351,19 +379,30 @@ public class LdifPartition extends AbstractLdifPartition
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws LdapException
+    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, Long entryIdOld ) throws Exception
     {
         // First, add the new entry
         addEntry( modifiedEntry );
+        
+        Long baseId = getEntryId( modifiedEntry.getDn() );
+
+        ParentIdAndRdn<Long> parentIdAndRdn = getRdnIndex().reverseLookup( baseId ); 
+        IndexEntry indexEntry = new ForwardIndexEntry();
+        
+        indexEntry.setId(baseId);
+        indexEntry.setKey( parentIdAndRdn );
+
+        IndexCursor<ParentIdAndRdn<Long>,Entry, Long> cursor = new SingletonIndexCursor<ParentIdAndRdn<Long>, Long>( indexEntry );
+        Long parentId = parentIdAndRdn.getParentId();
+
+        IndexCursor<Long, Entry, Long> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
 
         // Then, if there are some children, move then to the new place
         try
         {
-            IndexCursor<Long, Entry, Long> cursor = getSubLevelIndex().forwardCursor( entryIdOld );
-
-            while ( cursor.next() )
+            while ( scopeCursor.next() )
             {
-                IndexEntry<Long, Long> entry = cursor.get();
+                IndexEntry<Long, Long> entry = scopeCursor.get();
 
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )
@@ -372,13 +411,13 @@ public class LdifPartition extends AbstractLdifPartition
                 }
             }
 
-            cursor.close();
+            scopeCursor.close();
         }
         catch ( Exception e )
         {
             throw new LdapOperationException( e.getMessage(), e );
         }
-
+        
         // And delete the old entry's LDIF file
         File file = getFile( oldEntryDn, DELETE );
         boolean deleted = deleteFile( file );
@@ -508,7 +547,7 @@ public class LdifPartition extends AbstractLdifPartition
             // We have to create the entry if it does not have a parent
             if ( !dir.mkdir() )
             {
-                throw new LdapException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dir ) );
+                throw new LdapException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dir ) );
             }
         }
 
@@ -535,7 +574,7 @@ public class LdifPartition extends AbstractLdifPartition
         StringBuilder fileName = new StringBuilder( "" );
 
         Iterator<Ava> iterator = rdn.iterator();
-        
+
         while ( iterator.hasNext() )
         {
             Ava ava = iterator.next();
@@ -664,7 +703,7 @@ public class LdifPartition extends AbstractLdifPartition
                 case ']': // 0x5D
                 case '|': // 0x7C
                     sb.append( "%" ).append( Strings.dumpHex( ( byte ) ( c >> 4 ) ) )
-                                    .append( Strings.dumpHex( ( byte ) ( c & 0xF ) ) );
+                        .append( Strings.dumpHex( ( byte ) ( c & 0xF ) ) );
                     break;
 
                 default:

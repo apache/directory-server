@@ -31,12 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.codec.api.ConfigurableBinaryAttributeDetector;
+import org.apache.directory.shared.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -63,7 +67,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
-    private LdapNetworkConnection connection;
+    private LdapConnection connection;
 
 
     @Before
@@ -114,15 +118,16 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     }
 
 
-    @ApplyLdifs({
-        "dn: uid=kayyagari,ou=system",
-        "objectClass: extensibleObject",
-        "objectClass: uidObject",
-        "objectClass: referral",
-        "objectClass: top",
-        "uid: kayyagari",
-        "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
-    })
+    @ApplyLdifs(
+        {
+            "dn: uid=kayyagari,ou=system",
+            "objectClass: extensibleObject",
+            "objectClass: uidObject",
+            "objectClass: referral",
+            "objectClass: top",
+            "uid: kayyagari",
+            "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
+        })
     @Test
     public void testLookup() throws Exception
     {
@@ -132,7 +137,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         // perform lookup with operational attributes
         entry = connection.lookup( ADMIN_DN, "+", "*" );
         assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
-        
+
         entry = connection.lookup( "uid=kayyagari,ou=system" );
         assertNull( entry );
     }
@@ -160,11 +165,34 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testRetrieveBinaryAttibute() throws Exception
     {
-        Entry entry = connection.lookup( "uid=admin,ou=system" );
+        // test with a local connection using a local BinaryAttributeDetector
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localhost" );
+        config.setLdapPort( ldapServer.getPort() );
+        config.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
+        config.setCredentials( "secret" );
+        config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
+
+        LdapConnection myConnection = new LdapNetworkConnection( config );
+        
+        // Remove the UserPassword from the list
+        ((ConfigurableBinaryAttributeDetector)config.getBinaryAttributeDetector()).
+            removeBinaryAttribute( "userPassword" );
+        myConnection.bind( "uid=admin,ou=system", "secret" );
+        Entry entry = myConnection.lookup( "uid=admin,ou=system" );
         assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+        
+        // Now, load a new binary Attribute
+        ((ConfigurableBinaryAttributeDetector)config.getBinaryAttributeDetector()).
+            addBinaryAttribute( "userPassword" );
+        entry = myConnection.lookup( "uid=admin,ou=system" );
+        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
-        connection.loadSchema();
+        // Now, test using the scerver's schema
+        ((LdapNetworkConnection)connection).loadSchema();
+        connection.bind( "uid=admin,ou=system", "secret" );
 
+        // Use the default list of binary Attributes
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
@@ -177,7 +205,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         SchemaManager manager = connection.getSchemaManager();
         assertNotNull( manager );
         assertTrue( manager.isEnabled( "system" ) );
-        assertTrue( manager.isEnabled( "nis" ) );
+        assertFalse( manager.isEnabled( "nis" ) );
         assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
     }
 
@@ -205,14 +233,62 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         assertTrue( map.containsKey( "ou=schema" ) );
     }
 
-    
+
     @Test
     public void testAnonBind() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        
+
         connection.bind();
         assertTrue( connection.isAuthenticated() );
         connection.close();
+    }
+    
+    
+    /**
+     * Test a connection which does not have any schemaManager loaded
+     */
+    @ApplyLdifs(
+        {
+            "dn: uid=kayyagari,ou=system",
+            "objectClass: extensibleObject",
+            "objectClass: uidObject",
+            "objectClass: referral",
+            "objectClass: top",
+            "uid: kayyagari",
+            "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
+        })
+    @Test
+    public void testNoSchemaConnection() throws Exception
+    {
+        LdapConnection ldapConnection = new LdapNetworkConnection( "localHost", ldapServer.getPort() );
+        
+        ldapConnection.bind( "uid=admin,ou=system", "secret" );
+        
+        // Try to retrieve a binary attribute : it should be seen as a String
+        Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
+        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+    }
+    
+    
+    /**
+     * Test a connection which does not have any schemaManager loaded but in which connection we
+     * inject a BinaryAttributeDetector
+     */
+    @Test
+    public void testNoSchemaConnectionWithBinaryDetector() throws Exception
+    {
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localhost" );
+        config.setLdapPort( ldapServer.getPort() );
+        config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
+        
+        LdapConnection ldapConnection = new LdapNetworkConnection( config );
+        
+        ldapConnection.bind( "uid=admin,ou=system", "secret" );
+        
+        // Try to retrieve a binary attribute : it should be seen as a byte[]
+        Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
+        assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
 }

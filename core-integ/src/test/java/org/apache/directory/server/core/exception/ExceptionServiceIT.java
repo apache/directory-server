@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.exception;
 
@@ -87,7 +87,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
         addRequest.setEntryDn( dn );
-        
+
         AddResponse resp = getAdminConnection( getService() ).add( addRequest );
 
         return resp;
@@ -116,6 +116,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         EntryCursor cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
             SearchScope.ONELEVEL, "*" );
         assertFalse( cursor.next() );
+        cursor.close();
     }
 
 
@@ -132,6 +133,8 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
+        
+        cursor.close();
     }
 
 
@@ -149,25 +152,19 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system" );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
-        entry.add( SchemaConstants.OU_AT, "users" );
+        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: OrganizationalUnit",
+            "ou: users" );
 
         connection.add( entry );
-        
-        try
-        {
-            connection.rename( entry.getDn(), new Rdn( "ou=users" ) );
-            fail();
-        }
-        catch( LdapEntryAlreadyExistsException leaee )
-        {
-            assertTrue( true );
-        }
 
-        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system" );
-        userzEntry.add( SchemaConstants.OBJECT_CLASS_AT, "OrganizationalUnit" );
-        userzEntry.add( SchemaConstants.OU_AT, "userz" );
+        connection.rename( entry.getDn(), new Rdn( "ou=users" ) );
+
+        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: OrganizationalUnit",
+            "ou: userz" );
 
         connection.add( userzEntry );
 
@@ -176,7 +173,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             connection.rename( "ou=userz,ou=groups,ou=system", "ou=users", true );
             fail();
         }
-        catch( LdapEntryAlreadyExistsException leaee )
+        catch ( LdapEntryAlreadyExistsException leaee )
         {
             assertTrue( true );
         }
@@ -238,18 +235,43 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
     // ModifyRdn Operation Tests
     // ------------------------------------------------------------------------
-
     /**
-     * Test modifyRdn operation failure when the object renamed is non-existant.
+     * Test modifyRdn operation success when the object is renamed in place.
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapEntryAlreadyExistsException.class )
+    @Test
+    public void testAllowModifyRdnEntry() throws Exception
+    {
+        LdapConnection connection = getAdminConnection( getService() );
+
+        Entry entry = connection.lookup( "ou=users,ou=system" );
+        
+        assertNotNull( entry );
+        assertEquals( 1, entry.get( "ou" ).size() );
+        assertEquals( "users", entry.get( "ou" ).getString() );
+
+        connection.rename( "ou=users,ou=system", "ou=Users" );
+        
+        entry = connection.lookup( "ou=Users,ou=system" );
+        
+        assertNotNull( entry );
+        assertEquals( 1, entry.get( "ou" ).size() );
+        assertEquals( "Users", entry.get( "ou" ).getString() );
+    }
+
+    
+    /**
+     * Test modifyRdn operation failure when the object renamed is existant.
+     *
+     * @throws Exception on error
+     */
+    @Test(expected=LdapEntryAlreadyExistsException.class)
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        connection.rename( "ou=users,ou=system", "ou=groups" );
+        connection.rename( "ou=users,ou=system", "ou=Groups" );
     }
 
 
@@ -258,7 +280,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test(expected = LdapNoSuchObjectException.class)
     public void testFailModifyRdnNoSuchObject() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -426,7 +448,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapAliasException.class )
+    @Test(expected = LdapAliasException.class)
     public void testFailAddOnAlias() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -486,7 +508,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapContextNotEmptyException.class )
+    @Test(expected = LdapContextNotEmptyException.class)
     public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -504,7 +526,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapNoSuchObjectException.class )
+    @Test(expected = LdapNoSuchObjectException.class)
     public void testFailDeleteNoSuchObject() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );

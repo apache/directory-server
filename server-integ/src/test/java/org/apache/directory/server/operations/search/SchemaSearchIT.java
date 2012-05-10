@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.search;
 
@@ -35,152 +35,156 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Test case with different search operations on the cn=schema entry. 
+ * Test case with different search operations on the cn=schema entry.
  * Created to demonstrate DIRSERVER-1055
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
     })
-@ApplyLdifs( {
-    
-    // Bogus AD schema (not real)
-    
-    "dn: cn=active-directory, ou=schema",
-    "objectclass: metaSchema",
-    "objectclass: top",
-    "cn: active-directory",
-    "m-dependencies: core",
-    
-    "dn: ou=attributeTypes, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: attributeTypes",
-    
-    "dn: m-oid=1.1, ou=attributeTypes, cn=active-directory, ou=schema",
-    "objectclass: metaAttributeType",
-    "objectclass: metaTop",
-    "objectclass: top",
-    "m-oid: 1.1",
-    "m-name: sAMAccountName",
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
-    
-    "dn: m-oid=1.2, ou=attributeTypes, cn=active-directory, ou=schema",
-    "objectclass: metaAttributeType",
-    "objectclass: metaTop",
-    "objectclass: top",
-    "m-oid: 1.2",
-    "m-name: pwdLastSet",
-    "m-equality: integerMatch",
-    "m-ordering: integerMatch",
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+@ApplyLdifs(
+    {
 
-    "dn: m-oid=1.4, ou=attributeTypes, cn=active-directory, ou=schema",
-    "objectclass: metaAttributeType",
-    "objectclass: metaTop",
-    "objectclass: top",
-    "m-oid: 1.4",
-    "m-name: useraccountcontrol",
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+        // Bogus AD schema (not real)
 
-    "dn: m-oid=1.5, ou=attributeTypes, cn=active-directory, ou=schema",
-    "objectclass: metaAttributeType",
-    "objectclass: metaTop",
-    "objectclass: top",
-    "m-oid: 1.5",
-    "m-name: SourceAD",
-    "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
-    "m-length: 0",
+        "dn: cn=active-directory, ou=schema",
+        "objectclass: metaSchema",
+        "objectclass: top",
+        "cn: active-directory",
+        "m-dependencies: core",
 
-    "dn: ou=comparators, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: comparators",
+        "dn: ou=attributeTypes, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: attributeTypes",
 
-    "dn: ou=ditContentRules, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: ditContentRules",
+        "dn: m-oid=1.1, ou=attributeTypes, cn=active-directory, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.1",
+        "m-name: sAMAccountName",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
 
-    "dn: ou=ditStructureRules, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: ditStructureRules",
+        "dn: m-oid=1.2, ou=attributeTypes, cn=active-directory, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.2",
+        "m-name: pwdLastSet",
+        "m-equality: integerMatch",
+        "m-ordering: integerMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
 
-    "dn: ou=matchingRules, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: matchingRules",
-    
-    "dn: ou=nameForms, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: nameForms",
+        "dn: m-oid=1.4, ou=attributeTypes, cn=active-directory, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.4",
+        "m-name: useraccountcontrol",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
 
-    "dn: ou=normalizers, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: normalizers",
+        "dn: m-oid=1.5, ou=attributeTypes, cn=active-directory, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.5",
+        "m-name: SourceAD",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15",
+        "m-length: 0",
 
-    "dn: ou=objectClasses, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: objectClasses",
+        "dn: ou=comparators, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: comparators",
 
-    "dn: m-oid=1.3, ou=objectClasses, cn=active-directory, ou=schema",
-    "objectclass: metaObjectClass",
-    "objectclass: metaTop",
-    "objectclass: top",
-    "m-oid: 1.3",
-    "m-name: personActiveDirectory",
-    "m-supObjectClass: person",
-    "m-must: pwdLastSet",
-    "m-must: sAMAccountName",
-    "m-must: useraccountcontrol",
-    "m-must: SourceAD",
+        "dn: ou=ditContentRules, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: ditContentRules",
 
-    "dn: ou=syntaxCheckers, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: syntaxCheckers",
+        "dn: ou=ditStructureRules, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: ditStructureRules",
 
-    "dn: ou=syntaxes, cn=active-directory, ou=schema",
-    "objectclass: organizationalUnit",
-    "objectclass: top",
-    "ou: syntaxes"
-    }
-)
-public class SchemaSearchIT extends AbstractLdapTestUnit 
+        "dn: ou=matchingRules, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: matchingRules",
+
+        "dn: ou=nameForms, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: nameForms",
+
+        "dn: ou=normalizers, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: normalizers",
+
+        "dn: ou=objectClasses, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: objectClasses",
+
+        "dn: m-oid=1.3, ou=objectClasses, cn=active-directory, ou=schema",
+        "objectclass: metaObjectClass",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.3",
+        "m-name: personActiveDirectory",
+        "m-supObjectClass: person",
+        "m-must: pwdLastSet",
+        "m-must: sAMAccountName",
+        "m-must: useraccountcontrol",
+        "m-must: SourceAD",
+
+        "dn: ou=syntaxCheckers, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: syntaxCheckers",
+
+        "dn: ou=syntaxes, cn=active-directory, ou=schema",
+        "objectclass: organizationalUnit",
+        "objectclass: top",
+        "ou: syntaxes"
+})
+public class SchemaSearchIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String DN = "cn=schema";
     private static final String FILTER = "(objectclass=subschema)";
-
-
+    
+    
     protected void checkForAttributes( Attributes attrs, String[] attrNames )
     {
         for ( int i = 0; i < attrNames.length; i++ )
         {
             String attrName = attrNames[i];
-
+    
             assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
         }
     }
-
-
+    
+    
     /**
      * Check if modifyTimestamp and createTimestamp are present in the search result,
      * if they are requested.
@@ -190,15 +194,15 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     {
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls ctls = new SearchControls();
-
+    
         String[] attrNames =
             { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" };
-
+    
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( attrNames );
-
+    
         NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
+    
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
@@ -208,11 +212,11 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         {
             fail( "entry " + DN + " not found" );
         }
-
+    
         result.close();
     }
-
-
+    
+    
     /**
      * Check if modifyTimestamp and createTimestamp are present in the search result,
      * if + is requested.
@@ -222,13 +226,13 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     {
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls ctls = new SearchControls();
-
+    
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "+" } );
-
+    
         NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
+    
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
@@ -240,20 +244,20 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         {
             fail( "entry " + DN + " not found" );
         }
-
+    
         result.close();
     }
-
+    
     
     /**
-     * Test case for DIRSERVER-1083: Search on an custom attribute added to 
-     * the dynamic schema fails when no result is found. 
+     * Test case for DIRSERVER-1083: Search on an custom attribute added to
+     * the dynamic schema fails when no result is found.
      */
     @Test
     public void testSearchingNewSchemaElements() throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
-        
+    
         // create an entry with the schema objectClass personActiveDirectory
         Attributes person = new BasicAttributes( "objectClass", "top", true );
         person.get( "objectClass" ).add( "person" );
@@ -265,12 +269,12 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         person.put( "useraccountcontrol", "7" );
         person.put( "sAMAccountName", "foobar" );
         ctx.createSubcontext( "cn=foobar,ou=system", person );
-        
+    
         // Confirm creation with a lookup
         Attributes read = ctx.getAttributes( "cn=foobar,ou=system" );
         assertNotNull( read );
         assertEquals( "3", read.get( "pwdLastSet" ).get() );
-        
+    
         // Now search for foobar with pwdLastSet value of 3
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -282,7 +286,7 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         Attributes attributes = result.getAttributes();
         assertEquals( "3", attributes.get( "pwdLastSet" ).get() );
         results.close();
-        
+    
         // Now search with bogus value for pwdLastSet
         results = ctx.search( "ou=system", "(pwdLastSet=300)", searchControls );
         assertFalse( results.hasMore() );
@@ -291,26 +295,26 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     
     
     /**
-     * Test case for DIRSERVER-: Ensure that schema entry is returned, 
+     * Test case for DIRSERVER-: Ensure that schema entry is returned,
      * even if no ManageDsaIT decorator is present in the search request.
      */
     @Test
     public void testRequestWithoutManageDsaITControl() throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
-
+    
         // this removes the ManageDsaIT decorator from the search request
         ctx.addToEnvironment( DirContext.REFERRAL, "throw" );
-
+    
         SearchControls ctls = new SearchControls();
         String[] attrNames =
             { "objectClasses", "attributeTypes", "ldapSyntaxes", "matchingRules", "matchingRuleUse", "createTimestamp",
                 "modifyTimestamp" };
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( attrNames );
-
+    
         NamingEnumeration<SearchResult> result = ctx.search( DN, FILTER, ctls );
-
+    
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
@@ -320,43 +324,43 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
         {
             fail( "entry " + DN + " not found" );
         }
-
+    
         result.close();
     }
-
+    
     
     /**
-     * Test a search done on cn=schema 
+     * Test a search done on cn=schema
      */
     @Test
     public void testSubSchemaSubEntrySearch() throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
-
+    
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
         searchControls.setReturningAttributes( new String[]
             { "objectClasses" } );
         NamingEnumeration<SearchResult> results = ctx.search( "cn=schema", "(ObjectClass=*)", searchControls );
-
+    
         assertTrue( results.hasMore() );
         SearchResult result = results.next();
         Attributes entry = result.getAttributes();
-
+    
         Attribute objectClasses = entry.get( "objectClasses" );
         NamingEnumeration<?> ocs = objectClasses.getAll();
-
+    
         while ( ocs.hasMore() )
         {
             String oc = ( String ) ocs.nextElement();
-            if ( oc.contains( "2.5.6.6" ) )
+            if ( oc.startsWith( "( 2.5.6.6" ) )
             {
                 assertEquals(
                     "( 2.5.6.6 NAME 'person' DESC 'RFC2256: a person' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) X-SCHEMA 'core' )",
                     oc );
             }
         }
-
+    
         results.close();
     }
 }

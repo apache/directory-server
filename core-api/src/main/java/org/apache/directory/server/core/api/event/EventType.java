@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.event;
 
+
 import java.util.ArrayList;
 
 import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
@@ -34,32 +35,32 @@ import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.P
  */
 public enum EventType
 {
-    ADD(1), 
-    DELETE(2), 
-    MODIFY(4), 
-    RENAME(8), 
-    MOVE(16);    
-    
+    ADD(1),
+    DELETE(2),
+    MODIFY(4),
+    RENAME(8),
+    MOVE(16);
+
     public static final int ALL_EVENT_TYPES_MASK = getAllEventTypesMask();
     public static final int MOVE_AND_RENAME_MASK = MOVE.mask | RENAME.mask;
     private static final EventType[] EMPTY_EVENT_ARRAY = new EventType[0];
-    
+
     // The internal value
     private int mask;
-    
-    
+
+
     private EventType( int mask )
     {
         this.mask = mask;
     }
-    
-    
+
+
     public int getMask()
     {
         return mask;
     }
 
-    
+
     /**
      * Gets an array of EventTypes from the PSearchControl changeTypes 
      * parameter value.  According to the documentation of the changeTypes 
@@ -81,45 +82,45 @@ public enum EventType
     public static EventType[] getEventTypes( int psearchChangeTypes )
     {
         ArrayList<EventType> types = new ArrayList<EventType>();
-        
+
         if ( isAdd( psearchChangeTypes ) )
         {
             types.add( ADD );
         }
-        
+
         if ( isDelete( psearchChangeTypes ) )
         {
             types.add( DELETE );
         }
-        
+
         if ( isModify( psearchChangeTypes ) )
         {
             types.add( MODIFY );
         }
-        
+
         if ( ( psearchChangeTypes & 8 ) > 0 )
         {
             types.add( MOVE );
             types.add( RENAME );
         }
-        
+
         return types.toArray( EMPTY_EVENT_ARRAY );
     }
-    
-    
+
+
     private static int getAllEventTypesMask()
     {
         int allTypes = 0;
-        
+
         for ( EventType type : values() )
         {
             allTypes |= type.getMask();
         }
-        
+
         return allTypes;
     }
-    
-    
+
+
     /**
      * Tells if the EventType is an ADD
      */
@@ -127,8 +128,8 @@ public enum EventType
     {
         return ( ( mask & ADD.mask ) != 0 );
     }
-    
-    
+
+
     /**
      * Tells if the EventType is a DELETE
      */
@@ -136,8 +137,8 @@ public enum EventType
     {
         return ( ( mask & DELETE.mask ) != 0 );
     }
-    
-    
+
+
     /**
      * Tells if the EventType is a MODIFY
      */
@@ -145,8 +146,8 @@ public enum EventType
     {
         return ( ( mask & MODIFY.mask ) != 0 );
     }
-    
-    
+
+
     /**
      * Tells if the EventType is a MOVE
      */
@@ -154,8 +155,8 @@ public enum EventType
     {
         return ( ( mask & MOVE.mask ) != 0 );
     }
-    
-    
+
+
     /**
      * Tells if the EventType is a RENAME
      */
@@ -163,17 +164,17 @@ public enum EventType
     {
         return ( ( mask & RENAME.mask ) != 0 );
     }
-    
-    
+
+
     /**
      * Tells if the EventType is a MOVE and RENAME
      */
     public static boolean isMoveAndRename( int mask )
     {
-        return ( ( mask & MOVE_AND_RENAME_MASK) != 0 );
+        return ( ( mask & MOVE_AND_RENAME_MASK ) != 0 );
     }
-    
-    
+
+
     /**
      * Compute the mask associated with the given eventTypes
      * 
@@ -183,16 +184,16 @@ public enum EventType
     public static int getMask( EventType... eventTypes )
     {
         int mask = 0;
-        
+
         for ( EventType type : eventTypes )
         {
             mask |= type.getMask();
         }
-        
+
         return mask;
     }
-    
-    
+
+
     /**
      * checks if the given mask value matches with any of the defined
      * standard EventTypes 
@@ -204,21 +205,27 @@ public enum EventType
     {
         switch ( mask )
         {
-            case 1: return ADD;
-            
-            case 2: return DELETE;
-            
-            case 4: return MODIFY;
-            
-            case 8: return RENAME;
-            
-            case 16: return MOVE;
-                        
-            default: throw new IllegalArgumentException( "unknown mask value " + mask );
+            case 1:
+                return ADD;
+
+            case 2:
+                return DELETE;
+
+            case 4:
+                return MODIFY;
+
+            case 8:
+                return RENAME;
+
+            case 16:
+                return MOVE;
+
+            default:
+                throw new IllegalArgumentException( "unknown mask value " + mask );
         }
     }
-    
-    
+
+
     /**
      * Print the flags
      * 
@@ -229,23 +236,32 @@ public enum EventType
     {
         switch ( mask )
         {
-            case 0 : return "no event";
-            
-            case 1: return "ADD";
-            
-            case 2: return "DELETE";
-            
-            case 4: return "MODIFY";
-            
-            case 8: return "RENAME";
-            
-            case 16: return "MOVE";
-            
-            case 24 : return "MOVE_AND_RENAME";
-            
-            case 31 : return "ALL EVENTS"; 
-            
-            default : return "Unknown";
+            case 0:
+                return "no event";
+
+            case 1:
+                return "ADD";
+
+            case 2:
+                return "DELETE";
+
+            case 4:
+                return "MODIFY";
+
+            case 8:
+                return "RENAME";
+
+            case 16:
+                return "MOVE";
+
+            case 24:
+                return "MOVE_AND_RENAME";
+
+            case 31:
+                return "ALL EVENTS";
+
+            default:
+                return "Unknown";
         }
     }
 }

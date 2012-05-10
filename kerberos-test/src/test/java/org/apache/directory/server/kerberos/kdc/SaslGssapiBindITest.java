@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc;
 
@@ -79,6 +79,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * An {@link AbstractServerTest} testing SASL GSSAPI authentication
  * and security layer negotiation.  These tests require both the LDAP
@@ -88,51 +89,51 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith( FrameworkRunner.class )
-@CreateDS( name="SaslGssapiBindITest-class",
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "SaslGssapiBindITest-class",
     partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        },
-        additionalInterceptors =
-        {
-                KeyDerivationInterceptor.class
-        })
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
     },
-    saslHost="localhost",
-    saslPrincipal="ldap/localhost@EXAMPLE.COM",
-        saslMechanisms = 
-            {
-                @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-                @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-                @SaslMechanism( name= SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
-            })
-@CreateKdcServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "UDP", port = 6088 ),
-        @CreateTransport( protocol = "TCP", port = 6088 )
+    additionalInterceptors =
+        {
+            KeyDerivationInterceptor.class
+    })
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    },
+    saslHost = "localhost",
+    saslPrincipal = "ldap/localhost@EXAMPLE.COM",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    })
+@CreateKdcServer(
+    transports =
+        {
+            @CreateTransport(protocol = "UDP", port = 6088),
+            @CreateTransport(protocol = "TCP", port = 6088)
     })
 public class SaslGssapiBindITest extends AbstractLdapTestUnit
 {
@@ -146,6 +147,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     /** the context root for the rootDSE */
     protected CoreSession rootDse;
+
 
     /**
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties.
@@ -169,6 +171,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // isn't resolved to localhost by default. In that case we need
         // to use the IP address for the service principal.
         String hostName;
+        
         try
         {
             InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
@@ -179,6 +182,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
             System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
             hostName = "localhost";
         }
+        
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
         getLdapServer().setSaslPrincipal( servicePrincipal );
 
@@ -193,6 +197,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
         boolean isKrb5KdcDisabled = false;
+        
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -358,7 +363,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     }
 
-    
+
     /**
      * Tear down.
      */
@@ -368,7 +373,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         ctx.close();
         ctx = null;
     }
-    
+
 
     // copied the below two methods from AbstractServerTest
     /**
@@ -391,10 +396,10 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         setContexts( env );
     }
 
-    
+
     /**
      * Sets the contexts of this class taking into account the extras and overrides
-     * properties.  
+     * properties.
      *
      * @param env an environment to use while setting up the system root.
      * @throws NamingException if there is a failure of any kind
@@ -411,8 +416,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
-    
-    
+
     private class CallbackHandlerBean implements CallbackHandler
     {
         private String name;

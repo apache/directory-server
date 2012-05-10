@@ -57,7 +57,7 @@ public class LongSerializer implements Serializer
     public Object deserialize( byte[] bites ) throws IOException
     {
         long id;
-        id = bites[0]  + ( ( bites[0] < 0 ) ? 256 : 0 );
+        id = bites[0] + ( ( bites[0] < 0 ) ? 256 : 0 );
         id <<= 8;
         id += bites[1] + ( ( bites[1] < 0 ) ? 256 : 0 );
         id <<= 8;

@@ -28,10 +28,10 @@ package org.apache.directory.shared.kerberos.codec.types;
 public enum TransitedEncodingType
 {
     /** Constant for the "null" transited encoding type. */
-    NULL( 0 ),
+    NULL(0),
 
     /** Constant for the "Domain X500 compress" transited encoding type. */
-    DOMAIN_X500_COMPRESS( 1 );
+    DOMAIN_X500_COMPRESS(1);
 
     /**
      * The value/code for the transited encoding type.
@@ -58,10 +58,10 @@ public enum TransitedEncodingType
     {
         switch ( type )
         {
-            case 1  : 
+            case 1:
                 return DOMAIN_X500_COMPRESS;
-                
-            default : 
+
+            default:
                 return NULL;
         }
     }
@@ -77,6 +77,7 @@ public enum TransitedEncodingType
         return value;
     }
 
+
     /**
      * @see Object#toString()
      */
@@ -84,10 +85,10 @@ public enum TransitedEncodingType
     {
         switch ( this )
         {
-            case DOMAIN_X500_COMPRESS : 
+            case DOMAIN_X500_COMPRESS:
                 return "Domain X500 compress (1)";
-                
-            default :                   
+
+            default:
                 return "null (0)";
         }
     }

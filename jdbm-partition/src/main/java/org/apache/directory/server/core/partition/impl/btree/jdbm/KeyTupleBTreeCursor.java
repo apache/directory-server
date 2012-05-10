@@ -25,9 +25,11 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,15 +39,18 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
+public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private final Comparator<V> comparator;
     private final BTree btree;
     private final K key;
 
-    private jdbm.helper.Tuple<K,V> valueTuple = new jdbm.helper.Tuple<K,V>();
-    private Tuple<K,V> returnedTuple = new Tuple<K,V>();
-    private TupleBrowser<K,V> browser;
+    private jdbm.helper.Tuple<K, V> valueTuple = new jdbm.helper.Tuple<K, V>();
+    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private TupleBrowser<K, V> browser;
     private boolean valueAvailable;
 
 
@@ -59,6 +64,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
      */
     public KeyTupleBTreeCursor( BTree btree, K key, Comparator<V> comparator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating KeyTupleBTreeCursor {}", this );
         this.key = key;
         this.btree = btree;
         this.comparator = comparator;
@@ -104,7 +110,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        if ( key != null && ! key.equals( this.key ) )
+        if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
@@ -120,7 +126,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     @SuppressWarnings("unchecked")
     public void afterValue( K key, V value ) throws Exception
     {
-        if ( key != null && ! key.equals( this.key ) )
+        if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
@@ -158,7 +164,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
                 }
 
                 clearValue();
-                
+
                 return;
             }
         }
@@ -175,7 +181,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K,V> element ) throws Exception
+    public void before( Tuple<K, V> element ) throws Exception
     {
         checkNotClosed( "before()" );
         this.closeBrowser( browser );
@@ -187,7 +193,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K,V> element ) throws Exception
+    public void after( Tuple<K, V> element ) throws Exception
     {
         afterValue( key, element.getValue() );
     }
@@ -222,7 +228,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -233,7 +239,7 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -245,24 +251,24 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( browser.getPrevious( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
             if ( ( returnedTuple.getValue() != null ) &&
                 ( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
             {
-                browser.getPrevious( valueTuple ) ;
+                browser.getPrevious( valueTuple );
             }
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
-            
+
             return valueAvailable = true;
         }
         else
         {
             clearValue();
-            
+
             return false;
         }
     }
@@ -275,25 +281,25 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( browser.getNext( valueTuple ) )
         {
             // work around to fix direction change problem with jdbm browser
             if ( returnedTuple.getValue() != null &&
-                 comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+                comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
             {
-                browser.getNext( valueTuple ) ;
+                browser.getNext( valueTuple );
             }
-            
+
             returnedTuple.setKey( key );
             returnedTuple.setValue( ( V ) valueTuple.getKey() );
-            
+
             return valueAvailable = true;
         }
         else
         {
             clearValue();
-            
+
             return false;
         }
     }
@@ -302,10 +308,10 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K,V> get() throws Exception
+    public Tuple<K, V> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( valueAvailable )
         {
             return returnedTuple;
@@ -313,15 +319,17 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
 
         throw new InvalidCursorPositionException();
     }
-    
+
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyTupleBTreeCursor {}", this );
         super.close();
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
 
 
@@ -331,12 +339,13 @@ public class KeyTupleBTreeCursor<K,V> extends AbstractTupleCursor<K,V>
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing KeyTupleBTreeCursor {}", this );
         super.close( cause );
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
 
-    
-    private void closeBrowser(TupleBrowser browser)
+
+    private void closeBrowser( TupleBrowser browser )
     {
         if ( browser != null )
         {

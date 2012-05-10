@@ -45,8 +45,8 @@ public class GetRootDseOperationContext extends AbstractOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
         }
     }
-    
-    
+
+
     /**
      * Creates a new instance of GetRootDseOperationContext.
      *
@@ -61,8 +61,8 @@ public class GetRootDseOperationContext extends AbstractOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.GET_ROOT_DSE ) );
         }
     }
-    
-    
+
+
     /**
      * @return the operation name
      */
@@ -71,7 +71,7 @@ public class GetRootDseOperationContext extends AbstractOperationContext
         return "GetRootDse";
     }
 
-    
+
     /**
      * @see Object#toString()
      */

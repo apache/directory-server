@@ -61,25 +61,25 @@ import org.junit.runner.RunWith;
             @CreatePartition(
                 name = "apache",
                 suffix = "dc=Apache,dc=Org",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=Apache,dc=Org\n" +
+                    "dn: dc=Apache,dc=Org\n" +
                         "dc: Apache\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "ou" ),
-                    @CreateIndex( attribute = "uid" )
-                } )
-        } )
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "ou"),
+                        @CreateIndex(attribute = "uid")
+                })
+    })
 public class MixedCaseIT extends AbstractLdapTestUnit
 {
 
     private static final String SUFFIX_DN = "dc=Apache,dc=Org";
 
-    
+
     @Test
     public void testSearch() throws Exception
     {
@@ -130,8 +130,8 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         String dn = "ou=Test";
         String description = "New Value";
 
-        Attributes attributes = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: organizationalUnit",
-                "ou: Test", "description: Old Value");
+        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: organizationalUnit",
+            "ou: Test", "description: Old Value" );
 
         DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );

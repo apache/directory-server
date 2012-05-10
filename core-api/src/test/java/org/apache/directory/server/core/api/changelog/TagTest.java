@@ -130,6 +130,6 @@ public class TagTest
         assertFalse( tagC.equals( tagA ) );
         assertFalse( tagA.equals( tagANull ) );
         assertFalse( tagANull.equals( tagA ) );
-        assertFalse( tagD.equals( tagA ));
+        assertFalse( tagD.equals( tagA ) );
     }
 }

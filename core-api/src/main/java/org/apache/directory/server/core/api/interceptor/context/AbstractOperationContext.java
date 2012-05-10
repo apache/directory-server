@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.Control;
@@ -54,10 +53,10 @@ public abstract class AbstractOperationContext implements OperationContext
     protected Entry originalEntry;
 
     /** The associated request's controls */
-    protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> requestControls = new HashMap<String, Control>( 4 );
 
     /** The associated response's controls */
-    protected Map<String, Control> responseControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> responseControls = new HashMap<String, Control>( 4 );
 
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
@@ -72,10 +71,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The core session */
     protected CoreSession session;
-
-    protected OperationContext next;
-
-    protected OperationContext previous;
 
     /** A flag used to tell if we should consider referrals as standard entries */
     protected boolean throwReferral;
@@ -186,7 +181,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasRequestControls()
     {
-        return ! requestControls.isEmpty();
+        return !requestControls.isEmpty();
     }
 
 
@@ -236,7 +231,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasResponseControls()
     {
-        return ! responseControls.isEmpty();
+        return !responseControls.isEmpty();
     }
 
 
@@ -318,8 +313,8 @@ public abstract class AbstractOperationContext implements OperationContext
 
         return interceptor;
     }
-    
-    
+
+
     /**
      * @return The number of the current interceptor in the list
      */
@@ -327,8 +322,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         return currentInterceptor;
     }
-    
-    
+
+
     /**
      * Sets the current interceptor number to a new value.
      * 
@@ -342,7 +337,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
     private void setup( AbstractOperationContext opContext )
     {
-        next = opContext;
         opContext.setAuthorizedPrincipal( authorizedPrincipal );
     }
 
@@ -363,11 +357,6 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        if ( lookupContext != next )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_319 ) );
-        }
-
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
     }
 
@@ -380,11 +369,11 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
-        
+
         return lookupContext;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

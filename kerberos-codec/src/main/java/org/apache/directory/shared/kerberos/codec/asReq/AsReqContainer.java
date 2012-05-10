@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.asReq;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.kerberos.codec.kdcReq.KdcReqContainer;
@@ -34,6 +35,7 @@ public class AsReqContainer extends KdcReqContainer
 {
     /** An AS-REQ container */
     private AsReq asReq;
+
 
     /**
      * Creates a new AsReqContainer object.
@@ -56,7 +58,7 @@ public class AsReqContainer extends KdcReqContainer
         return asReq;
     }
 
-    
+
     /**
      * Set an AsReq Object into the container. It will be completed by the
      * KerberosDecoder.

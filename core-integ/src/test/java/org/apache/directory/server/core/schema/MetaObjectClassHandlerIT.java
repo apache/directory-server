@@ -67,8 +67,6 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.3.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.3.100002";
 
-
-
     public static SchemaManager schemaManager;
     private static LdapConnection connection;
 
@@ -80,6 +78,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = getService().getSchemaManager();
     }
+
 
     private static ObjectClassRegistry getObjectClassRegistry()
     {
@@ -156,7 +155,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( LdapException le )
+        catch ( LdapException le )
         {
             // Excpected result
         }
@@ -188,7 +187,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             getObjectClassRegistry().lookup( OID );
             fail( "objectClass lookup should fail after deleting it" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -217,7 +216,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             getObjectClassRegistry().lookup( OID );
             fail( "objectClass lookup should fail after deleting it" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -246,7 +245,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             getObjectClassRegistry().lookup( OID );
             fail( "objectClass lookup should fail after renaming the objectClass" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -313,7 +312,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-description", DESCRIPTION1 );
         Modification mod2 = new DefaultModification(
             ModificationOperation.REPLACE_ATTRIBUTE, "m-name", NEW_NAME );
-        
+
         connection.modify( dn, mod1, mod2 );
 
         assertTrue( "objectClass OID should still be present",
@@ -365,7 +364,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     private void addDependeeObjectClass() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + DEPENDEE_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
             dn,
             "objectClass: top",
@@ -399,7 +398,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.delete( dn );
             fail( "should not be able to delete a objectClass in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -424,7 +423,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a objectClass in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -449,7 +448,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move an objectClass in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -525,7 +524,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a objectClass into comparators container" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -596,7 +595,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( "objectClass should be in apachemeta schema after move",
             getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
-    
+
 
     // ----------------------------------------------------------------------
     // Let's test the Abstract, Auiliary and Structural inheritence enforcement
@@ -795,7 +794,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddStructuralOCinheritingFromAbstractOC() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
             dn,
             "objectClass: top",
@@ -823,7 +822,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddStructuralOCinheritingFromAuxiliaryOC() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
             dn,
             "objectClass: top",
@@ -857,7 +856,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testAddStructuralOCinheritingFromStructuralOC() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + NEW_OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
             dn,
             "objectClass: top",

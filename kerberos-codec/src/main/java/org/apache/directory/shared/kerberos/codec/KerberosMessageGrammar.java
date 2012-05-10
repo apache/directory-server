@@ -71,7 +71,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
         public void action( KerberosMessageContainer kerberosMessageContainer ) throws DecoderException
         {
             ByteBuffer stream = kerberosMessageContainer.getStream();
-    
+
             try
             {
                 stream.reset();

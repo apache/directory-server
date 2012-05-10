@@ -53,10 +53,10 @@ public class ModifyHandler extends LdapRequestHandler<ModifyRequest>
             // Call the underlying layer to delete the entry
             CoreSession coreSession = session.getCoreSession();
             coreSession.modify( req );
-            
+
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            
+
             // Write the DeleteResponse message
             session.getIoSession().write( req.getResultResponse() );
         }

@@ -6,24 +6,24 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.Iterator;
 
+import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.shared.i18n.I18n;
@@ -31,7 +31,8 @@ import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,8 +41,11 @@ import org.apache.directory.shared.ldap.model.cursor.TupleCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
+public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
     final ForwardIndexEntry<K, ID> forwardEntry;
@@ -59,8 +63,9 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     @SuppressWarnings("unchecked")
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
+        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
         this.wrappedCursor = wrappedCursor;
-        
+
         if ( forwardIndex )
         {
             forwardEntry = new ForwardIndexEntry<K, ID>();
@@ -77,26 +82,6 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     public boolean available()
     {
         return wrappedCursor.available();
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void beforeValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof TupleCursor )
-        {
-            ( ( TupleCursor ) wrappedCursor ).beforeValue( key, id );
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public void afterValue( ID id, K key ) throws Exception
-    {
-        if ( wrappedCursor instanceof TupleCursor )
-        {
-            ( (TupleCursor) wrappedCursor ).afterValue( key, id );
-        }
     }
 
 
@@ -180,12 +165,14 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         wrappedCursor.close();
     }
 
 
     public void close( Exception reason ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         wrappedCursor.close( reason );
     }
 
@@ -233,5 +220,13 @@ public class IndexCursorAdaptor<K, O, ID> implements IndexCursor<K, O, ID>
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected String getUnsupportedMessage()
+    {
+        return UNSUPPORTED_MSG;
     }
 }

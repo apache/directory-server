@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -82,13 +82,14 @@ public class HostAddress extends AbstractAsn1Object
     private int hostAddressLength;
     private int hostAddressSeqLength;
 
-    
+
     /**
      * Creates an empty HostAdress instance
      */
     public HostAddress()
     {
     }
+
 
     /**
      * Creates a new instance of HostAddress.
@@ -125,12 +126,12 @@ public class HostAddress extends AbstractAsn1Object
     {
         int hash = 37;
         hash = hash * 17 + addrType.hashCode();
-        
+
         if ( address != null )
         {
             hash = hash * 17 + Arrays.hashCode( address );
         }
-        
+
         return hash;
     }
 
@@ -148,14 +149,14 @@ public class HostAddress extends AbstractAsn1Object
         {
             return true;
         }
-        
-        if ( !(that instanceof HostAddress ) )
+
+        if ( !( that instanceof HostAddress ) )
         {
             return false;
         }
-        
-        HostAddress hostAddress = (HostAddress)that;
-        
+
+        HostAddress hostAddress = ( HostAddress ) that;
+
         if ( addrType != hostAddress.addrType || ( address != null && hostAddress.address == null )
             || ( address == null && hostAddress.address != null ) )
         {
@@ -229,7 +230,7 @@ public class HostAddress extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the keyType. The Length will always be contained in 1 byte
-        addrTypeLength = 1 + 1 + Value.getNbBytes( addrType.getValue() );
+        addrTypeLength = 1 + 1 + BerValue.getNbBytes( addrType.getValue() );
         hostAddressLength = 1 + TLV.getNbBytes( addrTypeLength ) + addrTypeLength;
 
         // Compute the keyValue
@@ -245,7 +246,7 @@ public class HostAddress extends AbstractAsn1Object
         hostAddressLength += 1 + TLV.getNbBytes( addressLength ) + addressLength;
 
         // Compute the whole sequence length
-        hostAddressSeqLength = 1 + Value.getNbBytes( hostAddressLength ) + hostAddressLength;
+        hostAddressSeqLength = 1 + BerValue.getNbBytes( hostAddressLength ) + hostAddressLength;
 
         return hostAddressSeqLength;
     }
@@ -282,12 +283,12 @@ public class HostAddress extends AbstractAsn1Object
             // The addr-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( addrTypeLength ) );
-            Value.encode( buffer, addrType.getValue() );
+            BerValue.encode( buffer, addrType.getValue() );
 
             // The address, first the tag, then the value
             buffer.put( ( byte ) 0xA1 );
             buffer.put( TLV.getBytes( addressLength ) );
-            Value.encode( buffer, address );
+            BerValue.encode( buffer, address );
         }
         catch ( BufferOverflowException boe )
         {
@@ -298,7 +299,7 @@ public class HostAddress extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Checksum encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "Checksum initial value : {}", toString() );
         }
 
@@ -350,7 +351,7 @@ public class HostAddress extends AbstractAsn1Object
         }
         catch ( UnknownHostException uhe )
         {
-            return "Unknow host : " + Strings.utf8ToString(address);
+            return "Unknow host : " + Strings.utf8ToString( address );
         }
     }
 }

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M4-SNAPSHOT</version>
+    <version>2.0.0-M7-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core-api</artifactId>
@@ -75,6 +75,11 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-codec-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-extras-aci</artifactId>
     </dependency>
     
     <dependency>

@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
@@ -75,7 +75,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
     {
     }
 
-    
+
     /**
      * Creates a new instance of PaEncTsEnc.
      */
@@ -85,7 +85,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
         this.pausec = pausec;
     }
 
-    
+
     /**
      * Returns the patimestamp value.
      *
@@ -117,7 +117,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
         {
             return -1;
         }
-        
+
         return pausec;
     }
 
@@ -152,19 +152,19 @@ public class PaEncTsEnc extends AbstractAsn1Object
     {
         // The paTimestamp
         paTimestampLength = 0x11;
-        
+
         paEncTsEncLength = 1 + TLV.getNbBytes( paTimestampLength ) + paTimestampLength;
 
         // The pausec, if any
         if ( pausec != null )
         {
-            int pausecLength = Value.getNbBytes( pausec );
+            int pausecLength = BerValue.getNbBytes( pausec );
             paUsecLength = 1 + TLV.getNbBytes( pausecLength ) + pausecLength;
-            paEncTsEncLength += 1 + TLV.getNbBytes( paUsecLength ) + paUsecLength; 
+            paEncTsEncLength += 1 + TLV.getNbBytes( paUsecLength ) + paUsecLength;
         }
 
         // Compute the whole sequence length
-        return 1 + Value.getNbBytes( paEncTsEncLength ) + paEncTsEncLength;
+        return 1 + BerValue.getNbBytes( paEncTsEncLength ) + paEncTsEncLength;
     }
 
 
@@ -199,18 +199,18 @@ public class PaEncTsEnc extends AbstractAsn1Object
 
             // The patimestamp, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.PA_ENC_TS_ENC_PA_TIMESTAMP_TAG );
-            buffer.put( (byte)0x11 );
+            buffer.put( ( byte ) 0x11 );
 
             buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( patimestamp.getBytes() );
-            
+
             // The pausec, first the tag, then the value, if any
             if ( pausec != null )
             {
                 buffer.put( ( byte ) KerberosConstants.PA_ENC_TS_ENC_PA_USEC_TAG );
                 buffer.put( TLV.getBytes( paUsecLength ) );
-                Value.encode( buffer, pausec );
+                BerValue.encode( buffer, pausec );
             }
         }
         catch ( BufferOverflowException boe )
@@ -222,14 +222,14 @@ public class PaEncTsEnc extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "Checksum encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "Checksum initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */

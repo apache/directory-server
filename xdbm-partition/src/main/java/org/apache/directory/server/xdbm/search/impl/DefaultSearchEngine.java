@@ -6,21 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
-
-import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
@@ -54,6 +52,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
+    
     /** the Database this DefaultSearchEngine operates on */
     private final Store<Entry, ID> db;
     /** creates Cursors over entries satisfying filter expressions */
@@ -96,10 +95,10 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
 
     /**
-     * @see SearchEngine#cursor(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, ExprNode, SearchControls)
+     * {@inheritDoc}
      */
     public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
-        SearchControls searchCtls ) throws Exception
+        SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
         ID baseId = db.getEntryId( base );
@@ -107,7 +106,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            if ( ((Partition)db).getSuffixDn().equals( base ) )
+            if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
                 return new EmptyIndexCursor<ID, Entry, ID>();
@@ -134,7 +133,6 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         {
             effectiveBase = base;
         }
-
         /*
          * If the base is an alias and alias dereferencing does occur on
          * finding the base then we set the effective base to the alias target
@@ -148,19 +146,33 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
-
-        if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
+        ID effectiveBaseId = baseId;
+        
+        if ( effectiveBase != base )
         {
-            ID effectiveBaseId = baseId;
-            if ( effectiveBase != base )
-            {
-                effectiveBaseId = db.getEntryId( effectiveBase );
-            }
+            effectiveBaseId = db.getEntryId( effectiveBase );
+        }
 
+        if ( scope == SearchScope.OBJECT )
+        {
             IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
+            
+            // Fetch the entry, as we have only one
+            Entry entry = null;
+            
+            if ( effectiveBase != base )
+            {
+                entry = db.lookup( indexEntry.getId() );
+            }
+            else
+            {
+                entry = db.lookup( indexEntry.getId(), effectiveBase );
+            }
+            
+            indexEntry.setEntry( entry );
 
             if ( evaluator.evaluate( indexEntry ) )
             {
@@ -174,13 +186,13 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, SearchScope.getSearchScope(searchCtls
-                .getSearchScope()) );
+        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
+        
         return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
     }
 

@@ -1,4 +1,3 @@
-
 /*
  *   Licensed to the Apache Software Foundation (ASF) under one
  *   or more contributor license agreements.  See the NOTICE file
@@ -43,6 +42,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -50,6 +50,7 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -67,28 +68,38 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=akarasulu,ou=users,ou=system", "objectClass: uidObject", "objectClass: person",
+        "dn: uid=akarasulu,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: person",
         "objectClass: top",
         "uid: akarasulu",
         "cn: Alex Karasulu",
         "sn: karasulu",
         // Entry # 2
-        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system", "objectClass: organizationalUnit", "objectClass: top",
+        "dn: ou=Computers,uid=akarasulu,ou=users,ou=system",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
         "ou: computers",
         "description: Computers for Alex",
         "seeAlso: ou=Machines,uid=akarasulu,ou=users,ou=system",
         // Entry # 3
-        "dn: uid=akarasuluref,ou=users,ou=system", "objectClass: uidObject", "objectClass: referral",
-        "objectClass: top", "uid: akarasuluref", "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
+        "dn: uid=akarasuluref,ou=users,ou=system",
+        "objectClass: uidObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "uid: akarasuluref",
+        "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class CompareIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control.
      */
     @Test
@@ -110,7 +121,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests normal compare operation on normal non-referral entries without 
+     * Tests normal compare operation on normal non-referral entries without
      * the ManageDsaIT control using an attribute that does not exist in the
      * entry.
      */
@@ -165,7 +176,7 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
+     * Tests compare operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
      * non-success result code.
      */
@@ -199,8 +210,8 @@ public class CompareIT extends AbstractLdapTestUnit
 
 
     /**
-     * Tests compare operation on normal and referral entries without the 
-     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals 
+     * Tests compare operation on normal and referral entries without the
+     * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
      * are sent back to the client with a non-success result code.
      */
     @Test

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -27,12 +28,14 @@ import java.util.Comparator;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+
 
 /**
  * 
@@ -47,43 +50,51 @@ public class KeyTupleArrayCursorTest
 
     ArrayTree<Integer> tree;
     KeyTupleArrayCursor<Integer, Integer> cursor;
-    
+
     private static final Integer KEY = Integer.valueOf( 1 );
-    
+
+
     @Before
     public void createTree()
     {
-        Comparator<Integer> comparator = new Comparator<Integer>() 
+        Comparator<Integer> comparator = new Comparator<Integer>()
         {
 
-          public int compare( Integer i1, Integer i2 )
-          {
-              return i1.compareTo( i2 );
-          }
-        
+            public int compare( Integer i1, Integer i2 )
+            {
+                return i1.compareTo( i2 );
+            }
+
         };
-        
-      tree = new ArrayTree<Integer>( comparator );  
-      
-      cursor = new KeyTupleArrayCursor<Integer, Integer>( tree, KEY );
+
+        tree = new ArrayTree<Integer>( comparator );
+
+        cursor = new KeyTupleArrayCursor<Integer, Integer>( tree, KEY );
     }
     
     
-    @Test( expected = InvalidCursorPositionException.class )
+    @After
+    public void cleanup() throws Exception
+    {
+        cursor.close();
+    }
+
+
+    @Test(expected = InvalidCursorPositionException.class)
     public void testEmptyCursor() throws Exception
     {
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.isClosed() );
-        
+
         assertFalse( cursor.first() );
         assertFalse( cursor.last() );
-        
+
         cursor.get(); // should throw InvalidCursorPositionException
     }
-    
-    
+
+
     @Test
     public void testNonEmptyCursor() throws Exception
     {
@@ -94,34 +105,34 @@ public class KeyTupleArrayCursorTest
         tree.insert( 0 );
         tree.insert( 30 );
         tree.insert( 25 );
-        
-        cursor.before( new Tuple<Integer, Integer>( null, 3) );
+
+        cursor.before( new Tuple<Integer, Integer>( null, 3 ) );
         assertTrue( cursor.next() );
         assertEquals( 3, ( int ) cursor.get().getValue() );
-        
+
         cursor.after( new Tuple<Integer, Integer>( null, 34 ) );
         assertFalse( cursor.next() );
 
         cursor.after( new Tuple<Integer, Integer>( null, 13 ) );
         assertTrue( cursor.next() );
         assertEquals( 25, ( int ) cursor.get().getValue() );
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertEquals( 0, ( int ) cursor.get().getValue() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.next() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
         assertEquals( 0, ( int ) cursor.get().getValue() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
         assertEquals( 30, ( int ) cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertEquals( 25, ( int ) cursor.get().getValue() );
 

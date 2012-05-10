@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -70,37 +70,37 @@ public class EncKdcRepPart extends AbstractAsn1Object
 
     /** The encryption key */
     private EncryptionKey key;
-    
+
     /** The time of the last request */
     private LastReq lastReq;
-    
+
     /** The nonce */
     private int nonce;
-    
+
     /** The KeyExpiration */
     private KerberosTime keyExpiration; //optional
-    
+
     /** The Ticket flags */
     private TicketFlags flags = new TicketFlags();
-    
+
     /** The initial Authentication time */
     private KerberosTime authTime;
-    
+
     /** The ticket's start time */
     private KerberosTime startTime; //optional
-    
+
     /** The Ticket expiration time */
     private KerberosTime endTime;
-    
+
     /** Maximum endtime in a renewal */
     private KerberosTime renewTill; //optional
-    
+
     /** The server's realm */
     private String srealm;
-    
+
     /** The server's principal */
     private PrincipalName sname;
-    
+
     /** The client addresses */
     private HostAddresses caddr; //optional
 
@@ -114,6 +114,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
     private int snameLength;
     private int caddrLength;
     private int encKdcRepPartSeqLength;
+
 
     /**
      * Creates a new instance of EncKdcRepPart.
@@ -452,9 +453,9 @@ public class EncKdcRepPart extends AbstractAsn1Object
         // The last-req
         lastReqLength = lastReq.computeLength();
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( lastReqLength ) + lastReqLength;
-        
+
         // The nonce
-        nonceLength = Value.getNbBytes( nonce );
+        nonceLength = BerValue.getNbBytes( nonce );
         nonceLength = 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( nonceLength ) + nonceLength;
 
@@ -467,7 +468,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
         // The flags
         flagsLength = 1 + 1 + 5;
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( flagsLength ) + flagsLength;
-        
+
         // The authtime
         encKdcRepPartSeqLength += 1 + 1 + 0x11;
 
@@ -476,7 +477,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
         {
             encKdcRepPartSeqLength += 1 + 1 + 0x11;
         }
-        
+
         // The endtime
         encKdcRepPartSeqLength += 1 + 1 + 0x11;
 
@@ -504,8 +505,8 @@ public class EncKdcRepPart extends AbstractAsn1Object
 
         return 1 + TLV.getNbBytes( encKdcRepPartSeqLength ) + encKdcRepPartSeqLength;
     }
-    
-    
+
+
     /**
      * Encode the EncKdcRepPart message to a PDU. 
      * 
@@ -525,7 +526,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The EncKdcRepPart sequence
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encKdcRepPartSeqLength ) );
-            
+
             // The Key
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_KEY_TAG );
             buffer.put( TLV.getBytes( keyLength ) );
@@ -537,37 +538,37 @@ public class EncKdcRepPart extends AbstractAsn1Object
             lastReq.encode( buffer );
 
             // The nonce
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_NONCE_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_NONCE_TAG );
             buffer.put( TLV.getBytes( nonceLength ) );
-            Value.encode( buffer, nonce );
-            
+            BerValue.encode( buffer, nonce );
+
             // The key-expiration, if any
             if ( keyExpiration != null )
             {
-                buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
-                
+
                 buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( keyExpiration.getBytes() );
             }
-            
+
             // The flags
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_FLAGS_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( 0x07 ) );
-            Value.encode( buffer, flags );
-            
+            BerValue.encode( buffer, flags );
+
             // The authtime
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_AUTH_TIME_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_AUTH_TIME_TAG );
             buffer.put( TLV.getBytes( 0x11 ) );
             buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( authTime.getBytes() );
-            
+
             // The starttime if any
             if ( startTime != null )
             {
-                buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_START_TIME_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_START_TIME_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
                 buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
@@ -575,38 +576,38 @@ public class EncKdcRepPart extends AbstractAsn1Object
             }
 
             // The endtime
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_END_TIME_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_END_TIME_TAG );
             buffer.put( TLV.getBytes( 0x11 ) );
             buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( endTime.getBytes() );
-            
+
             // The renew-till if any
             if ( renewTill != null )
             {
-                buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_RENEW_TILL_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_RENEW_TILL_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
                 buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( renewTill.getBytes() );
             }
-            
+
             // The srealm
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_SREALM_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_SREALM_TAG );
             buffer.put( TLV.getBytes( srealmLength ) );
             buffer.put( UniversalTag.GENERAL_STRING.getValue() );
             buffer.put( TLV.getBytes( srealmBytes.length ) );
             buffer.put( srealmBytes );
-            
+
             // The sname
-            buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_SNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_SNAME_TAG );
             buffer.put( TLV.getBytes( snameLength ) );
             sname.encode( buffer );
 
             // The caddr if any
             if ( caddr != null )
             {
-                buffer.put( ( byte )KerberosConstants.ENC_KDC_REP_PART_CADDR_TAG );
+                buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_CADDR_TAG );
                 buffer.put( TLV.getBytes( caddrLength ) );
                 caddr.encode( buffer );
             }
@@ -620,34 +621,34 @@ public class EncKdcRepPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncKdcRepPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncKdcRepPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncKdcRepPart initial value : {}", toString() );
         }
 
         return buffer;
     }
-        
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "EncKdcRepPart : \n" );
         sb.append( "    key : " ).append( key ).append( "\n" );
         sb.append( "    last-req : " ).append( lastReq ).append( "\n" );
         sb.append( "    nonce : " ).append( nonce ).append( "\n" );
-        
+
         if ( keyExpiration != null )
         {
             sb.append( "    key-expiration : " ).append( keyExpiration ).append( "\n" );
         }
-        
+
         sb.append( "    flags : " ).append( flags ).append( "\n" );
         sb.append( "    authtime : " ).append( authTime ).append( "\n" );
-        
+
         if ( startTime != null )
         {
             sb.append( "    starttime : " ).append( startTime ).append( "\n" );
@@ -659,10 +660,10 @@ public class EncKdcRepPart extends AbstractAsn1Object
         {
             sb.append( "    renew-till : " ).append( renewTill ).append( "\n" );
         }
-        
+
         sb.append( "    srealm : " ).append( srealm ).append( "\n" );
         sb.append( "    sname : " ).append( sname ).append( "\n" );
-        
+
         if ( caddr != null )
         {
             sb.append( "    caddr : " ).append( caddr ).append( "\n" );

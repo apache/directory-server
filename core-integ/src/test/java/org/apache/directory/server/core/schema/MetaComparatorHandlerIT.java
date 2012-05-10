@@ -79,7 +79,6 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
 
-    
     @Before
     public void init() throws Exception
     {
@@ -163,7 +162,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: metaTop",
             "objectClass: metaComparator",
             "m-fqcn", StringComparator.class.getName(),
-            "m-oid",  OID,
+            "m-oid", OID,
             "m-description: A test comparator" );
 
         // Pre-checks
@@ -658,7 +657,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is inactive by default
         Dn newDn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=nis,ou=schema" );
 
-        connection.move( dn, newDn);
+        connection.move( dn, newDn );
 
         assertFalse( "comparator OID should no longer be present", schemaManager.getComparatorRegistry().contains( OID ) );
     }

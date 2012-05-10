@@ -25,30 +25,30 @@ package org.apache.directory.server.core.avltree;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LinkedAvlNode<T> 
+public class LinkedAvlNode<T>
 {
     /** The data stored in the node */
     T key;
-    
+
     /** The left child */
     LinkedAvlNode<T> left;
-    
+
     /** The right child */
     LinkedAvlNode<T> right;
-    
+
     /** The next node, superior to the current node */
     LinkedAvlNode<T> next;
 
     /** The previous node, inferior to the current node */
     LinkedAvlNode<T> previous;
-    
+
     int depth;
     int index;
-    
+
     boolean isLeft;
     int height = 1;
-    
-    
+
+
     /**
      * Creates a new instance of LinkedAvlNode, containing a given value.
      *
@@ -86,99 +86,113 @@ public class LinkedAvlNode<T>
     }
 
 
-    public LinkedAvlNode<T> getLeft() {
+    public LinkedAvlNode<T> getLeft()
+    {
         return left;
     }
 
 
-    public LinkedAvlNode<T> getRight() {
+    public LinkedAvlNode<T> getRight()
+    {
         return right;
     }
 
-    public T getKey() {
+
+    public T getKey()
+    {
         return key;
     }
+
 
     public boolean isLeaf()
     {
         return ( right == null && left == null );
     }
-    
-    public int getDepth() {
+
+
+    public int getDepth()
+    {
         return depth;
     }
 
-    public void setDepth( int depth ) {
+
+    public void setDepth( int depth )
+    {
         this.depth = depth;
     }
+
 
     public int getHeight()
     {
         return height;
     }
-    
-    
-   public void setNext( LinkedAvlNode<T> next )
-   {
-      this.next = next;
-   }
 
-   
-   public void setPrevious( LinkedAvlNode<T> previous )
-   {
-      this.previous = previous;
-   }    
-   
-   
+
+    public void setNext( LinkedAvlNode<T> next )
+    {
+        this.next = next;
+    }
+
+
+    public void setPrevious( LinkedAvlNode<T> previous )
+    {
+        this.previous = previous;
+    }
+
+
     public int computeHeight()
     {
 
-        if(right == null && left == null)
+        if ( right == null && left == null )
         {
             height = 1;
             return height;
         }
-        
-        int lh,rh;
-        
-        if( isLeft )
+
+        int lh, rh;
+
+        if ( isLeft )
         {
             lh = ( left == null ? -1 : left.computeHeight() );
             rh = ( right == null ? -1 : right.getHeight() );
         }
-        else 
+        else
         {
             rh = ( right == null ? -1 : right.computeHeight() );
             lh = ( left == null ? -1 : left.getHeight() );
         }
-        
+
         height = 1 + Math.max( lh, rh );
-        
+
         return height;
     }
-    
+
+
     public int getBalance()
     {
         int lh = ( left == null ? 0 : left.computeHeight() );
         int rh = ( right == null ? 0 : right.computeHeight() );
-        
+
         return ( rh - lh );
     }
 
+
     public int getIndex()
     {
-      return index;
+        return index;
     }
 
-    public void setIndex(int index)
+
+    public void setIndex( int index )
     {
         this.index = index;
     }
 
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "[" + key + "]";
     }
-    
+
 }

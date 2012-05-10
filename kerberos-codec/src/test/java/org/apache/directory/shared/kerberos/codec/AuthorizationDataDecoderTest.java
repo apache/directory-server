@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +39,7 @@ import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for AuthorizationData decoder.
  *
@@ -52,27 +54,46 @@ public class AuthorizationDataDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x1F,
-                0x30, 0x0F,
-                  (byte)0xA0, 0x03,                 // ad-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x08,                 // ad-data
-                    0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f',
-                0x30, 0x0C,
-                  (byte)0xA0, 0x03,                 // ad-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x05,                 // ad-data
-                    0x04, 0x03, 'g', 'h', 'i'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x1F,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03, // ad-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x08, // ad-data
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                0x30,
+                0x0C,
+                ( byte ) 0xA0,
+                0x03, // ad-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x05, // ad-data
+                0x04,
+                0x03,
+                'g',
+                'h',
+                'i'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         // Decode the AuthorizationData PDU
         try
         {
@@ -84,32 +105,33 @@ public class AuthorizationDataDecoderTest
         }
 
         AuthorizationData authData = authDataContainer.getAuthorizationData();
-        
+
         assertNotNull( authData.getAuthorizationData().size() );
         assertEquals( 2, authData.getAuthorizationData().size() );
-        
-        String[] expected = new String[]{ "abcdef", "ghi" };
+
+        String[] expected = new String[]
+            { "abcdef", "ghi" };
         int i = 0;
-        
+
         for ( AuthorizationDataEntry ad : authData.getAuthorizationData() )
         {
             assertEquals( AuthorizationType.AD_INTENDED_FOR_SERVER, ad.getAdType() );
-            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i++]), ad.getAdData() ) );
-            
+            assertTrue( Arrays.equals( Strings.getBytesUtf8( expected[i++] ), ad.getAdData() ) );
+
         }
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( authData.computeLength() );
-        
+
         try
         {
             bb = authData.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x21, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -117,192 +139,204 @@ public class AuthorizationDataDecoderTest
             fail();
         }
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataEmptyPdu() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x00,
-            } );
+            {
+                0x30, 0x00,
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataWithNoInnerData() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x02,
-               0x30, 0x00 
-            } );
+            {
+                0x30, 0x02,
+                0x30, 0x00
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataEmptyTypeTag() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x04,
-               0x30, 0x02,
-                (byte)0xA0, 0x00                 // ad-data
-            } );
+            {
+                0x30, 0x04,
+                0x30, 0x02,
+                ( byte ) 0xA0, 0x00 // ad-data
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
 
 
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataEmptyTypeValue() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x06,
-               0x30, 0x04,
-                (byte)0xA0, 0x02,                 // ad-data
-                  0x02, 0x00
-            } );
+            {
+                0x30, 0x06,
+                0x30, 0x04,
+                ( byte ) 0xA0, 0x02, // ad-data
+                0x02,
+                0x00
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataWithoutType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x07,
-               0x30, 0x05,
-                (byte)0xA1, 0x03,                 // ad-data
-                  0x04, 0x01, 'a'
-            } );
+            {
+                0x30, 0x07,
+                0x30, 0x05,
+                ( byte ) 0xA1, 0x03, // ad-data
+                0x04,
+                0x01,
+                'a'
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataWithoutData() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x07,
-               0x30, 0x05,
-                (byte)0xA0, 0x03,                 // ad-data
-                  0x02, 0x01, 0x02
-            } );
+            {
+                0x30, 0x07,
+                0x30, 0x05,
+                ( byte ) 0xA0, 0x03, // ad-data
+                0x02,
+                0x01,
+                0x02
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataWithEmptyDataTag() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xB );
-        
+
         stream.put( new byte[]
-            { 
-               0x30, 0x09,
+            {
+                0x30, 0x09,
                 0x30, 0x07,
-                  (byte)0xA0, 0x03,                 // ad-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x00                  // ad-data
-            } );
+                ( byte ) 0xA0, 0x03, // ad-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x00 // ad-data
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class)
+
+    @Test(expected = DecoderException.class)
     public void testAuthorizationDataWithEmptyData() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xD );
-        
+
         stream.put( new byte[]
-            { 
-               0x30, 0x0B,
+            {
+                0x30, 0x0B,
                 0x30, 0x09,
-                  (byte)0xA0, 0x03,                 // ad-type
-                    0x02, 0x01, 0x02,
-                  (byte)0xA1, 0x02,                 // ad-data
-                    0x04, 0x00
-            } );
+                ( byte ) 0xA0, 0x03, // ad-type
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x02, // ad-data
+                0x04,
+                0x00
+        } );
 
         stream.flip();
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
-        
+
         kerberosDecoder.decode( stream, authDataContainer );
         fail();
     }

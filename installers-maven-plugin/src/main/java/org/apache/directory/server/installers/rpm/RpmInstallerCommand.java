@@ -139,14 +139,14 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
             // Generating tar.gz file
             MojoHelperUtils.exec( new String[]
-                                    {
-                                        "tar",
-                                        "-zcf",
-                                        "apacheds-" + getVersion() + ".tar.gz",
-                                        "apacheds-" + getVersion()
-                                    },
-                                  new File( getTargetDirectory(), "/SOURCES" ),
-                                  false );
+                {
+                    "tar",
+                    "-zcf",
+                    "apacheds-" + getVersion() + ".tar.gz",
+                    "apacheds-" + getVersion()
+            },
+                new File( getTargetDirectory(), "/SOURCES" ),
+                false );
         }
         catch ( Exception e )
         {
@@ -158,20 +158,20 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         log.info( "    Generating Rpm installer" );
 
         MojoHelperUtils.exec( new String[]
-                                {
-                                    mojo.getRpmbuildUtility().getAbsolutePath(),
-                                    "--quiet",
-                                    "-ba",
-                                    "--target",
-                                    target.getOsArch() + "-linux",
-                                    "--define",
-                                    "_topdir " + getTargetDirectory(),
-                                    "--define",
-                                    "_tmppath /tmp",
-                                    "SPECS/apacheds.spec"
-                                },
-                              getTargetDirectory(),
-                              false );
+            {
+                mojo.getRpmbuildUtility().getAbsolutePath(),
+                "--quiet",
+                "-ba",
+                "--target",
+                target.getOsArch() + "-linux",
+                "--define",
+                "_topdir " + getTargetDirectory(),
+                "--define",
+                "_tmppath /tmp",
+                "SPECS/apacheds.spec"
+        },
+            getTargetDirectory(),
+            false );
 
         // Copying the rpm at the final destination
         try

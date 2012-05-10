@@ -36,75 +36,72 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable<Long, E>
+public class JdbmMasterTable<E> extends JdbmTable<Long, E> implements MasterTable<Long, E>
 {
     private static final StringComparator STRCOMP = new StringComparator();
 
-
     private static final SerializableComparator<Long> LONG_COMPARATOR =
-            new SerializableComparator<Long>( "1.3.6.1.4.1.18060.0.4.1.1.2" )
-    {
-        private static final long serialVersionUID = 4048791282048841016L;
-
-
-        public int compare( Long o1, Long o2 )
+        new SerializableComparator<Long>( "1.3.6.1.4.1.18060.0.4.1.1.2" )
         {
-            if ( o1 == null )
-            {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
-            } 
-            else if ( o2 == null )
-            {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
-            }
+            private static final long serialVersionUID = 4048791282048841016L;
 
-            if ( o1 == ( long ) o2 )
+
+            public int compare( Long o1, Long o2 )
             {
-                return 0;
-            }
-            
-            if ( o1 == ( long ) o2 )
-            {
-                return 0;
-            }
-            
-            if ( o1 >= 0 )
-            {
-                if ( o2 >= 0 )
+                if ( o1 == null )
                 {
-                    return ( o1 > ( long ) o2 ) ? 1 : -1;
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_525 ) );
+                }
+                else if ( o2 == null )
+                {
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_526 ) );
+                }
+
+                if ( o1 == ( long ) o2 )
+                {
+                    return 0;
+                }
+
+                if ( o1 == ( long ) o2 )
+                {
+                    return 0;
+                }
+
+                if ( o1 >= 0 )
+                {
+                    if ( o2 >= 0 )
+                    {
+                        return ( o1 > ( long ) o2 ) ? 1 : -1;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                else if ( o2 >= 0 )
+                {
+                    return 1;
                 }
                 else
                 {
-                    return -1;
+                    return ( o1 < ( long ) o2 ) ? -1 : 1;
                 }
             }
-            else if ( o2 >= 0 )
-            {
-                return 1;
-            }
-            else
-            {
-                return ( o1 < ( long ) o2 ) ? -1 : 1;
-            }
-        }
-    };
-
+        };
 
     private static final SerializableComparator<String> STRING_COMPARATOR =
-            new SerializableComparator<String>( "1.3.6.1.4.1.18060.0.4.1.1.3" )
-    {
-        private static final long serialVersionUID = 3258689922792961845L;
-
-
-        public int compare( String o1, String o2 )
+        new SerializableComparator<String>( "1.3.6.1.4.1.18060.0.4.1.1.3" )
         {
-            return STRCOMP.compare( o1, o2 );
-        }
-    };
+            private static final long serialVersionUID = 3258689922792961845L;
 
 
-    protected final JdbmTable<String,String> adminTbl;
+            public int compare( String o1, String o2 )
+            {
+                return STRCOMP.compare( o1, o2 );
+            }
+        };
+
+    protected final JdbmTable<String, String> adminTbl;
 
 
     /**
@@ -116,24 +113,26 @@ public class JdbmMasterTable<E> extends JdbmTable<Long,E> implements MasterTable
      */
     public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
     {
-        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new EntrySerializer( schemaManager ) );
-        adminTbl = new JdbmTable<String,String>( schemaManager, "admin", recMan, STRING_COMPARATOR, null, null );
+        super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE,
+            new EntrySerializer( schemaManager ) );
+        adminTbl = new JdbmTable<String, String>( schemaManager, "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
         {
             adminTbl.put( SEQPROP_KEY, "0" );
         }
-        
+
         LONG_COMPARATOR.setSchemaManager( schemaManager );
         STRING_COMPARATOR.setSchemaManager( schemaManager );
     }
 
 
-    protected JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager, String dbName, Serializer serializer ) throws Exception
+    protected JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager, String dbName, Serializer serializer )
+        throws Exception
     {
         super( schemaManager, DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, serializer );
-        adminTbl = new JdbmTable<String,String>( schemaManager, dbName, recMan, STRING_COMPARATOR, null, null );
+        adminTbl = new JdbmTable<String, String>( schemaManager, dbName, recMan, STRING_COMPARATOR, null, null );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )

@@ -20,8 +20,6 @@
 package org.apache.directory.shared.kerberos.components;
 
 
-
-
 /**
  * The PaEncTimestamp structure is used to store a PA-ENC-TIMESTAMP associated to a type.
  * 
@@ -41,7 +39,7 @@ public class PaEncTimestamp extends EncryptedData
         super();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -59,7 +57,7 @@ public class PaEncTimestamp extends EncryptedData
         StringBuilder sb = new StringBuilder();
 
         sb.append( tabs ).append( "PA-ENC-TIMESTAMP : {\n" );
-        sb.append( tabs ).append( super.toString( "    " + tabs) ).append( '\n' );
+        sb.append( tabs ).append( super.toString( "    " + tabs ) ).append( '\n' );
 
         sb.append( tabs + "}\n" );
 

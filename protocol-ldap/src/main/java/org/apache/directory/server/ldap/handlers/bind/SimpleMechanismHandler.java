@@ -51,36 +51,37 @@ public class SimpleMechanismHandler implements MechanismHandler
     /** The logger instance */
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
-    
+
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
-        
+
         // Stores the Dn of the user to check, and its password
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setInterceptors( ldapSession.getLdapServer().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
+        bindContext.setInterceptors( ldapSession.getLdapServer().getDirectoryService()
+            .getInterceptors( OperationEnum.BIND ) );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
-        
+
         try
         {
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 
             // And call the OperationManager bind operation.
             adminSession.getDirectoryService().getOperationManager().bind( bindContext );
-            
+
             // As a result, store the created session in the Core Session
             ldapSession.setCoreSession( bindContext.getSession() );
-            
+
             // Return the successful response
             BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
             response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
             LdapProtocolUtils.setResponseControls( bindContext, response );
-            
+
             // Write it back to the client
             ldapSession.getIoSession().write( response );
             LOG.debug( "Returned SUCCESS message: {}.", response );
@@ -93,7 +94,7 @@ public class SimpleMechanismHandler implements MechanismHandler
 
             if ( e instanceof LdapOperationException )
             {
-                code = ( (LdapOperationException) e ).getResultCode();
+                code = ( ( LdapOperationException ) e ).getResultCode();
                 result.setResultCode( code );
             }
             else
@@ -111,12 +112,12 @@ public class SimpleMechanismHandler implements MechanismHandler
             }
 
             Dn name = null;
-            
-            if ( e instanceof LdapAuthenticationException)
+
+            if ( e instanceof LdapAuthenticationException )
             {
-                name = ((LdapAuthenticationException)e).getResolvedDn();
+                name = ( ( LdapAuthenticationException ) e ).getResolvedDn();
             }
-            
+
             if ( ( name != null )
                 && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
                     || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
@@ -127,11 +128,11 @@ public class SimpleMechanismHandler implements MechanismHandler
             result.setDiagnosticMessage( msg );
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

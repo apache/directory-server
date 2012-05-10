@@ -33,38 +33,37 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum AuthenticatorStatesEnum implements States
 {
     // Start
-    START_STATE,                                // 0
+    START_STATE, // 0
 
     // ----- AUTHENTICATOR message --------------------------------------
-    AUTHENTICATOR_STATE,                        // 1
-    AUTHENTICATOR_SEQ_STATE,                    // 2
+    AUTHENTICATOR_STATE, // 1
+    AUTHENTICATOR_SEQ_STATE, // 2
 
-    AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE,  // 3
-    AUTHENTICATOR_AUTHENTICATOR_VNO_STATE,      // 4
+    AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE, // 3
+    AUTHENTICATOR_AUTHENTICATOR_VNO_STATE, // 4
 
-    AUTHENTICATOR_CREALM_TAG_STATE,             // 5
-    AUTHENTICATOR_CREALM_STATE,                 // 6
+    AUTHENTICATOR_CREALM_TAG_STATE, // 5
+    AUTHENTICATOR_CREALM_STATE, // 6
 
-    AUTHENTICATOR_CNAME_STATE,                  // 7
+    AUTHENTICATOR_CNAME_STATE, // 7
 
-    AUTHENTICATOR_CKSUM_STATE,                  // 8
+    AUTHENTICATOR_CKSUM_STATE, // 8
 
-    AUTHENTICATOR_CUSEC_TAG_STATE,              // 9
-    AUTHENTICATOR_CUSEC_STATE,                  // 10
+    AUTHENTICATOR_CUSEC_TAG_STATE, // 9
+    AUTHENTICATOR_CUSEC_STATE, // 10
 
-    AUTHENTICATOR_CTIME_TAG_STATE,              // 11
-    AUTHENTICATOR_CTIME_STATE,                  // 12
+    AUTHENTICATOR_CTIME_TAG_STATE, // 11
+    AUTHENTICATOR_CTIME_STATE, // 12
 
-    AUTHENTICATOR_SUBKEY_STATE,                 // 13
+    AUTHENTICATOR_SUBKEY_STATE, // 13
 
-    AUTHENTICATOR_SEQ_NUMBER_TAG_STATE,         // 14
-    AUTHENTICATOR_SEQ_NUMBER_STATE,             // 15
+    AUTHENTICATOR_SEQ_NUMBER_TAG_STATE, // 14
+    AUTHENTICATOR_SEQ_NUMBER_STATE, // 15
 
-    AUTHENTICATOR_AUTHORIZATION_DATA_STATE,     // 16
+    AUTHENTICATOR_AUTHORIZATION_DATA_STATE, // 16
 
     // End
-    LAST_AUTHENTICATOR_STATE;                   // 17
-
+    LAST_AUTHENTICATOR_STATE; // 17
 
     /**
      * Get the grammar name

@@ -19,35 +19,36 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
  * Interface for index entries. An index entry associate an Entry with 
- * a value (the key) and the Entry ID in the table where it's stored. The Entry
+ * a key and the Entry ID in the table where it's stored. The Entry
  * may be present in this instance once we read it from the table.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public interface IndexEntry<V, ID>
+public interface IndexEntry<K, ID>
 {
     /**
-     * Gets the value referred to by this IndexEntry.
+     * Gets the key referred to by this IndexEntry.
      *
-     * @return the value of the Entry referred to
+     * @return the key of the Entry referred to
      */
-    V getValue();
+    K getKey();
 
 
     /**
-     * Sets the value referred to by this IndexEntry.
+     * Sets the key referred to by this IndexEntry.
      *
-     * @param value the value of the Entry referred to
+     * @param key the key of the Entry referred to
      */
-    void setValue( V value );
+    void setKey( K key );
 
 
     /**
@@ -101,5 +102,5 @@ public interface IndexEntry<V, ID>
      *
      * @param entry the entry to copy fields of
      */
-    void copy( IndexEntry<V, ID> entry );
+    void copy( IndexEntry<K, ID> entry );
 }

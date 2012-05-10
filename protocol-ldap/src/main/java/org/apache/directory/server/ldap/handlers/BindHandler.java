@@ -109,7 +109,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         BindOperationContext bindContext = new BindOperationContext( null );
 
         // Stores the Dn of the user to check, and its password
-        bindContext.setDn( bindRequest.getName() );
+        bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );
         bindContext.setInterceptors( ldapServer.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
@@ -140,7 +140,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
             try
             {
-                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getName() );
+                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getDn() );
             }
             catch ( LdapException le )
             {
@@ -151,7 +151,8 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             {
                 LOG.info( "The {} principalDN cannot be found in the server : bind failure.", bindRequest.getName() );
             }
-            else if ( ( ( ClonedServerEntry ) principalEntry ).getOriginalEntry().contains( SchemaConstants.OBJECT_CLASS_AT,
+            else if ( ( ( ClonedServerEntry ) principalEntry ).getOriginalEntry().contains(
+                SchemaConstants.OBJECT_CLASS_AT,
                 SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );
@@ -203,7 +204,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
                 code = ResultCodeEnum.UNWILLING_TO_PERFORM;
                 result.setResultCode( code );
             }
-            else if ( e instanceof LdapInvalidDnException)
+            else if ( e instanceof LdapInvalidDnException )
             {
                 code = ResultCodeEnum.INVALID_DN_SYNTAX;
                 result.setResultCode( code );
@@ -224,7 +225,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
 
             Dn dn = null;
 
-            if ( e instanceof LdapAuthenticationException)
+            if ( e instanceof LdapAuthenticationException )
             {
                 dn = ( ( LdapAuthenticationException ) e ).getResolvedDn();
             }
@@ -454,7 +455,7 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
         String saslMechanism = bindRequest.getSaslMechanism();
 
         // The empty mechanism is also a request for a new Bind session
-        if ( Strings.isEmpty(saslMechanism)
+        if ( Strings.isEmpty( saslMechanism )
             || !ldapSession.getSaslProperty( SaslConstants.SASL_MECH ).equals( saslMechanism ) )
         {
             sendAuthMethNotSupported( ldapSession, bindRequest );
@@ -538,28 +539,28 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
             {
                 // get out !
                 sendAuthMethNotSupported( ldapSession, bindRequest );
-                
+
                 return;
             }
-            
+
             // Store the mechanism in the ldap session
             ldapSession.putSaslProperty( SaslConstants.SASL_MECH, saslMechanism );
-            
+
             // Get the handler for this mechanism
             MechanismHandler mechanismHandler = handlers.get( saslMechanism );
-            
+
             // Store the mechanism handler in the salsProperties
             ldapSession.putSaslProperty( SaslConstants.SASL_MECH_HANDLER, mechanismHandler );
-            
+
             // Initialize the mechanism specific data
             mechanismHandler.init( ldapSession );
-            
+
             // Get the SaslServer instance which manage the C/R exchange
             SaslServer ss = mechanismHandler.handleMechanism( ldapSession, bindRequest );
-            
+
             // We have to generate a challenge
             generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
-            
+
             // And get back
             return;
         }

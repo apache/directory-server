@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
@@ -26,9 +26,11 @@ import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,22 +41,25 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  * @param K The Key
  * @param V The associated value
  */
-public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContainer<V>>
+public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The JDBM table we are building a cursor over */
-    private final JdbmTable<K,V> table;
+    private final JdbmTable<K, V> table;
 
     /** A container to pass to the underlying JDBM to get back a tuple */
-    private jdbm.helper.Tuple<K,V> jdbmTuple = new jdbm.helper.Tuple<K, V>();
-    
-    private Tuple<K,DupsContainer<V>> returnedTuple = new Tuple<K,DupsContainer<V>>();
-    
+    private jdbm.helper.Tuple<K, V> jdbmTuple = new jdbm.helper.Tuple<K, V>();
+
+    private Tuple<K, DupsContainer<V>> returnedTuple = new Tuple<K, DupsContainer<V>>();
+
     /** A browser over the JDBM Table */
-    private TupleBrowser<K,V> browser;
-    
+    private TupleBrowser<K, V> browser;
+
     /** Tells if we have a tuple to return */
     private boolean valueAvailable;
-    
+
     /** TODO : do we need this flag ??? */
     private Boolean forwardDirection;
 
@@ -66,9 +71,11 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
      * @throws java.io.IOException of there are problems accessing the BTree or if this table
      * does not allow duplicate values
      */
-    public DupsContainerCursor( JdbmTable<K,V> table ) throws IOException
+    public DupsContainerCursor( JdbmTable<K, V> table ) throws IOException
     {
-        if ( ! table.isDupsEnabled() )
+        LOG_CURSOR.debug( "Creating DupsContainerCursor {}", this );
+        
+        if ( !table.isDupsEnabled() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_572 ) );
         }
@@ -107,7 +114,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     {
         checkNotClosed( "beforeKey()" );
         this.closeBrowser( browser );
-        browser = ((BTree<K,V>)table.getBTree()).browse( key );
+        browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
         forwardDirection = null;
         clearValue();
     }
@@ -122,7 +129,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
         checkNotClosed( "afterKey()" );
 
         this.closeBrowser( browser );
-        browser = ((BTree<K,V>)table.getBTree()).browse( key );
+        browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
         forwardDirection = null;
 
         /*
@@ -135,7 +142,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
         while ( browser.getNext( jdbmTuple ) )
         {
             checkNotClosed( "afterKey()" );
-            K next = ( K ) jdbmTuple.getKey();
+            K next = jdbmTuple.getKey();
 
             int nextCompared = table.getKeyComparator().compare( next, key );
 
@@ -149,7 +156,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
                 browser.getPrevious( jdbmTuple );
                 forwardDirection = false;
                 clearValue();
-                
+
                 return;
             }
         }
@@ -182,7 +189,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K,DupsContainer<V>> element ) throws Exception
+    public void before( Tuple<K, DupsContainer<V>> element ) throws Exception
     {
         beforeKey( element.getKey() );
     }
@@ -191,7 +198,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K,DupsContainer<V>> element ) throws Exception
+    public void after( Tuple<K, DupsContainer<V>> element ) throws Exception
     {
         afterKey( element.getKey() );
     }
@@ -231,7 +238,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -242,7 +249,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -253,7 +260,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( browser == null )
         {
             afterLast();
@@ -265,14 +272,14 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
         // are not at front
         if ( forwardDirection == null )
         {
-            if ( advanceSuccess)
+            if ( advanceSuccess )
             {
                 forwardDirection = false;
             }
             else
             {
                 clearValue();
-                
+
                 return false;
             }
         }
@@ -283,17 +290,17 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
         }
 
         valueAvailable = advanceSuccess;
-        
+
         if ( valueAvailable )
         {
-            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+            returnedTuple.setKey( jdbmTuple.getKey() );
             returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
         }
         else
         {
             clearValue();
         }
-        
+
         return valueAvailable;
     }
 
@@ -304,7 +311,7 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( browser == null )
         {
             // The tuple browser is not initialized : set it to the beginning of the cursor
@@ -325,13 +332,13 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
             else
             {
                 clearValue();
-                
+
                 // No value available
                 return false;
             }
         }
 
-        if ( ! forwardDirection )
+        if ( !forwardDirection )
         {
             advanceSuccess = browser.getNext( jdbmTuple );
             forwardDirection = true;
@@ -357,10 +364,10 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     /**
      * {@inheritDoc}
      */
-    public Tuple<K,DupsContainer<V>> get() throws Exception
+    public Tuple<K, DupsContainer<V>> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( valueAvailable )
         {
             return returnedTuple;
@@ -368,15 +375,17 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
 
         throw new InvalidCursorPositionException();
     }
-    
+
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         super.close();
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
 
 
@@ -386,11 +395,13 @@ public class DupsContainerCursor<K,V> extends AbstractTupleCursor<K, DupsContain
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         super.close( cause );
-        this.closeBrowser( browser );
+        closeBrowser( browser );
     }
-    
-    private void closeBrowser(TupleBrowser browser)
+
+
+    private void closeBrowser( TupleBrowser browser )
     {
         if ( browser != null )
         {

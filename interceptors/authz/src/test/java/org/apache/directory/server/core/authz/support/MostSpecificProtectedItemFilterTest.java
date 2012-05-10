@@ -59,7 +59,8 @@ import org.junit.runner.RunWith;
 @Concurrency()
 public class MostSpecificProtectedItemFilterTest
 {
-    private static final Set<AttributeType> EMPTY_STRING_COLLECTION = Collections.unmodifiableSet( new HashSet<AttributeType>() );
+    private static final Set<AttributeType> EMPTY_STRING_COLLECTION = Collections
+        .unmodifiableSet( new HashSet<AttributeType>() );
 
     private static final Set<Attribute> EMPTY_ATTRIBUTE_COLLECTION = Collections
         .unmodifiableSet( new HashSet<Attribute>() );
@@ -75,14 +76,14 @@ public class MostSpecificProtectedItemFilterTest
 
     private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
         .unmodifiableSet( new HashSet<MicroOperation>() );
-    
+
     private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_C = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_D = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_E = new ArrayList<ACITuple>();
 
-    
+
     @BeforeClass
     public static void init()
     {
@@ -98,29 +99,33 @@ public class MostSpecificProtectedItemFilterTest
         allAttributeValues.add( new AllAttributeValuesItem( EMPTY_STRING_COLLECTION ) );
         selfValue.add( new SelfValueItem( EMPTY_STRING_COLLECTION ) );
         attributeValue.add( new AttributeValueItem( EMPTY_ATTRIBUTE_COLLECTION ) );
-        rangeOfValues.add( new RangeOfValuesItem( new PresenceNode( (String)null ) ) );
+        rangeOfValues.add( new RangeOfValuesItem( new PresenceNode( ( String ) null ) ) );
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
-        ACITuple attributeTypeTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, attributeType,
+        ACITuple attributeTypeTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            attributeType,
             EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
+
         ACITuple allAttributeValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
             allAttributeValues, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
-        ACITuple selfValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, selfValue, 
-                EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
-        ACITuple attributeValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, attributeValue,
-                EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
-        ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
-                EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
+
+        ACITuple selfValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, selfValue,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+
+        ACITuple attributeValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            attributeValue,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+
+        ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            rangeOfValues,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+
         ACITuple allUserAttributeTypesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
             allUserAttributeTypes, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        
-        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+
+        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION,
+            AuthenticationLevel.NONE,
             allUserAttributeTypesAndValues, EMPTY_MICRO_OPERATION_SET, true, 0 );
 
         TUPLES_A.add( attributeTypeTuple );
@@ -153,6 +158,7 @@ public class MostSpecificProtectedItemFilterTest
         TUPLES_E.add( allUserAttributeTypesAndValuesTuple );
     }
 
+
     @Test
     public void testZeroOrOneTuple() throws Exception
     {
@@ -164,7 +170,8 @@ public class MostSpecificProtectedItemFilterTest
         assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -179,11 +186,11 @@ public class MostSpecificProtectedItemFilterTest
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_A );
-        
+
         AciContext aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
 
-        tuples = ( List<ACITuple> ) filter.filter(  aciContext, OperationScope.ENTRY, null );
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 4, tuples.size() );
         assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );

@@ -45,15 +45,15 @@ public final class LdapPrincipal implements Principal, Cloneable
 
     /** the authentication level for this principal */
     private AuthenticationLevel authenticationLevel;
-    
+
     /** The userPassword
      * @todo security risk remove this immediately
      */
     private byte[] userPassword;
-    
+
     /** The SchemaManager */
     private SchemaManager schemaManager;
-    
+
     private SocketAddress clientAddress;
     private SocketAddress serverAddress;
 
@@ -70,16 +70,16 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         this.schemaManager = schemaManager;
         this.dn = dn;
-        
-        if ( ! dn.isSchemaAware() )
+
+        if ( !dn.isSchemaAware() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_436 ) );
         }
-        
+
         this.authenticationLevel = authenticationLevel;
         this.userPassword = null;
     }
-    
+
 
     /**
      * Creates a new LDAP/X500 principal without any group associations.  Keep
@@ -90,14 +90,15 @@ public final class LdapPrincipal implements Principal, Cloneable
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    public LdapPrincipal(  SchemaManager schemaManager, Dn dn, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal( SchemaManager schemaManager, Dn dn, AuthenticationLevel authenticationLevel,
+        byte[] userPassword )
     {
         this.dn = dn;
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = new byte[ userPassword.length ];
+        this.userPassword = new byte[userPassword.length];
         System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
         this.schemaManager = schemaManager;
-}
+    }
 
 
     /**
@@ -163,28 +164,28 @@ public final class LdapPrincipal implements Principal, Cloneable
 
     public void setUserPassword( byte[] userPassword )
     {
-        this.userPassword = new byte[ userPassword.length ];
+        this.userPassword = new byte[userPassword.length];
         System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
     }
-    
-    
+
+
     /**
      * Clone the object. This is done so that we don't store the 
      * password in a LdapPrincipal more than necessary.
      */
     public Object clone() throws CloneNotSupportedException
     {
-        LdapPrincipal clone = (LdapPrincipal)super.clone();
-        
+        LdapPrincipal clone = ( LdapPrincipal ) super.clone();
+
         if ( userPassword != null )
         {
             clone.setUserPassword( userPassword );
         }
-        
+
         return clone;
     }
-    
-    
+
+
     /**
      * @return the schemaManager
      */
@@ -200,7 +201,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     public void setSchemaManager( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        
+
         try
         {
             dn.apply( schemaManager );
@@ -255,7 +256,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         if ( dn.isSchemaAware() )
         {
             sb.append( "(n)" );
@@ -264,21 +265,21 @@ public final class LdapPrincipal implements Principal, Cloneable
         sb.append( "['" );
         sb.append( dn.getName() );
         sb.append( "'" );
-        
+
         if ( clientAddress != null )
         {
             sb.append( ", client@" );
             sb.append( clientAddress );
         }
-        
+
         if ( serverAddress != null )
         {
             sb.append( ", server@" );
             sb.append( serverAddress );
         }
-        
+
         sb.append( "]" );
-        
+
         return sb.toString();
     }
 }

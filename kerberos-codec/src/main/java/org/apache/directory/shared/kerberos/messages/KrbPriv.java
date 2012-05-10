@@ -28,7 +28,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
@@ -77,6 +77,7 @@ public class KrbPriv extends KerberosMessage
         super( 5, KerberosMessageType.KRB_PRIV );
     }
 
+
     /**
      * @return the encPart
      */
@@ -120,7 +121,7 @@ public class KrbPriv extends KerberosMessage
         pvnoLen = 1 + 1 + 1;
         krbPrivSeqLen = 1 + TLV.getNbBytes( pvnoLen ) + pvnoLen;
 
-        msgTypeLength = 1 + 1 + Value.getNbBytes( getMessageType().getValue() );
+        msgTypeLength = 1 + 1 + BerValue.getNbBytes( getMessageType().getValue() );
         krbPrivSeqLen += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         encPartLen = encPart.computeLength();
@@ -156,12 +157,12 @@ public class KrbPriv extends KerberosMessage
             // pvno tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_PRIV_PVNO_TAG );
             buffer.put( TLV.getBytes( pvnoLen ) );
-            Value.encode( buffer, getProtocolVersionNumber() );
+            BerValue.encode( buffer, getProtocolVersionNumber() );
 
             // msg-type tag and value
             buffer.put( ( byte ) KerberosConstants.KRB_PRIV_MSGTYPE_TAG );
             buffer.put( TLV.getBytes( msgTypeLength ) );
-            Value.encode( buffer, getMessageType().getValue() );
+            BerValue.encode( buffer, getMessageType().getValue() );
 
             // enc-part
             buffer.put( ( byte ) KerberosConstants.KRB_PRIV_ENC_PART_TAG );
@@ -177,7 +178,7 @@ public class KrbPriv extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbPriv encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "KrbPriv encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "KrbPriv initial value : {}", toString() );
         }
 

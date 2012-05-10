@@ -124,7 +124,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
 
         oldSuperior = modifyDnRequest.getName().getParent();
-        rdn = (modifyDnRequest.getName().getRdn().clone());
+        rdn = ( modifyDnRequest.getName().getRdn().clone() );
 
         try
         {

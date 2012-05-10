@@ -50,7 +50,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( aciContext.getAciTuples().size() <= 1 )
         {
@@ -61,9 +62,9 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
 
         // If the protected item is an attribute and there are tuples that
         // specify the attribute type explicitly, discard all other tuples.
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
-            for ( ProtectedItem item:tuple.getProtectedItems() )
+            for ( ProtectedItem item : tuple.getProtectedItems() )
             {
                 if ( item instanceof AttributeTypeItem || item instanceof AllAttributeValuesItem
                     || item instanceof SelfValueItem || item instanceof AttributeValueItem )
@@ -83,11 +84,11 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
         // that specify the attribute value explicitly, discard all other tuples.
         // A protected item which is a rangeOfValues is to be treated as
         // specifying an attribute value explicitly. 
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
-            for ( ProtectedItem item:tuple.getProtectedItems() )
+            for ( ProtectedItem item : tuple.getProtectedItems() )
             {
-                if ( item instanceof RangeOfValuesItem)
+                if ( item instanceof RangeOfValuesItem )
                 {
                     filteredTuples.add( tuple );
                 }

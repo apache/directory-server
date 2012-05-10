@@ -24,9 +24,7 @@ package org.apache.directory.server.core.partition.ldif;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.naming.InvalidNameException;
@@ -37,8 +35,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifReader;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -95,18 +96,18 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 throw new IllegalArgumentException( "Partition path cannot be null" );
             }
-    
+
             File partitionFile = new File( getPartitionPath() );
-            
+
             if ( partitionFile.exists() && !partitionFile.isFile() )
             {
                 throw new IllegalArgumentException( "Partition path must be a LDIF file" );
             }
-    
+
             ldifFile = new RandomAccessFile( partitionFile, "rws" );
-    
+
             LOG.debug( "id is : {}", getId() );
-    
+
             // Initialize the suffixDirectory : it's a composition
             // of the workingDirectory followed by the suffix
             if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
@@ -115,14 +116,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 LOG.error( msg );
                 throw new LdapInvalidDnException( msg );
             }
-    
+
             if ( !suffixDn.isSchemaAware() )
             {
                 suffixDn.apply( schemaManager );
             }
-    
+
             super.doInit();
-            
+
             loadEntries();
         }
     }
@@ -202,7 +203,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             try
             {
-                Entry modifiedEntry = super.modify( modifyContext.getDn(), modifyContext.getModItems().toArray( new Modification[]{} ) );
+                Entry modifiedEntry = super.modify( modifyContext.getDn(),
+                    modifyContext.getModItems().toArray( new Modification[]
+                        {} ) );
                 modifyContext.setAlteredEntry( modifiedEntry );
             }
             catch ( Exception e )
@@ -291,28 +294,23 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                 Long suffixId = getEntryId( suffixDn );
 
-                if( suffixId == null )
+                if ( suffixId == null )
                 {
                     return;
                 }
+
+                ParentIdAndRdn<Long> suffixEntry = rdnIdx.reverseLookup( suffixId );
                 
-                IndexCursor<Long, Entry, Long> cursor = getOneLevelIndex().forwardCursor( suffixId );
-
-
-                appendLdif( lookup( suffixId ) );
-
-                while ( cursor.next() )
+                if ( suffixEntry != null )
                 {
-                    Long childId = cursor.get().getId();
-
-                    Entry entry = lookup( childId );
+                    Entry entry = master.get( suffixId );
+                    entry.setDn( suffixDn );
 
                     appendLdif( entry );
-
-                    appendRecursive( childId, null );
+                    
+                    appendRecursive( suffixId, suffixEntry.getNbChildren() );
                 }
 
-                cursor.close();
                 dirty = false;
             }
             catch ( LdapException e )
@@ -326,57 +324,37 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
     }
 
-
-    /**
-     * appends all the entries present under a given entry, recursively
-     *
-     * @param entryId the base entry's id
-     * @param cursorMap the open cursor map
-     * @throws Exception
-     */
-    private void appendRecursive( Long entryId, Map<Long, IndexCursor<Long, Entry, Long>> cursorMap ) throws Exception
+    
+    private void appendRecursive( Long id, int nbSibbling ) throws Exception
     {
-        synchronized ( lock )
+        // Start with the root
+        IndexCursor<ParentIdAndRdn<Long>,Entry,Long> cursor = rdnIdx.forwardCursor();
+        
+        IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
+        startingPos.setKey( new ParentIdAndRdn<Long>( id, (Rdn[]) null ) );
+        cursor.before( startingPos );
+        int countChildren = 0;
+        
+        while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
+            IndexEntry<ParentIdAndRdn<Long>, Long> element = cursor.get();
+            Long childId = element.getId();
+            Entry entry = lookup( childId );
 
-            IndexCursor<Long, Entry, Long> cursor = null;
-            if ( cursorMap == null )
+            appendLdif( entry );
+
+            countChildren++;
+            
+            // And now, the children
+            int nbChildren = element.getKey().getNbChildren();
+            
+            if ( nbChildren > 0 )
             {
-                cursorMap = new HashMap<Long, IndexCursor<Long, Entry, Long>>();
-            }
-
-            cursor = cursorMap.get( entryId );
-
-            if ( cursor == null )
-            {
-                cursor = getOneLevelIndex().forwardCursor( entryId );
-                cursor.beforeFirst();
-                cursorMap.put( entryId, cursor );
-            }
-
-            if ( !cursor.next() ) // if this is a leaf entry's Dn
-            {
-                cursorMap.remove( entryId );
-                cursor.close();
-            }
-            else
-            {
-                do
-                {
-                    IndexEntry<Long, Long> idxEntry = cursor.get();
-                    Entry entry = lookup( idxEntry.getId() );
-
-                    Long childId = getEntryId( entry.getDn() );
-
-                    appendLdif( entry );
-
-                    appendRecursive( childId, cursorMap );
-                }
-                while ( cursor.next() );
-                cursorMap.remove( entryId );
-                cursor.close();
+                appendRecursive( childId, nbChildren );
             }
         }
+        
+        cursor.close();
     }
 
 
@@ -391,7 +369,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         synchronized ( lock )
         {
             String ldif = LdifUtils.convertToLdif( entry );
-            ldifFile.write( Strings.getBytesUtf8(ldif + "\n") );
+            ldifFile.write( Strings.getBytesUtf8( ldif + "\n" ) );
         }
     }
 
@@ -461,7 +439,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         ldifFile.close();
     }
 
-    
+
     /**
      * enable/disable the re-writing of partition data.
      * This method internally calls the @see {@link #rewritePartitionData()} to save any dirty data if present

@@ -114,7 +114,7 @@ public class SimpleDhcpStore extends AbstractDhcpStore
         try
         {
             DirContext ctx = getContext();
-            
+
             try
             {
                 String filter = "(&(objectclass=ipHost)(objectclass=ieee802Device)(macaddress={0}))";
@@ -129,12 +129,12 @@ public class SimpleDhcpStore extends AbstractDhcpStore
                     SearchResult sr = ( SearchResult ) ne.next();
                     Attributes att = sr.getAttributes();
                     Attribute ipHostNumberAttribute = att.get( "iphostnumber" );
-                    
+
                     if ( ipHostNumberAttribute != null )
                     {
                         InetAddress clientAddress = InetAddress.getByName( ( String ) ipHostNumberAttribute.get() );
                         Attribute cnAttribute = att.get( SchemaConstants.CN_AT );
-                        
+
                         return new Host( cnAttribute != null ? ( String ) cnAttribute.get() : "unknown", clientAddress,
                             hardwareAddress );
                     }

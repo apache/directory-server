@@ -189,11 +189,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 LOG.warn( "This server does not allow replication" );
                 // Replication is not allowed on this server. generate a error message
                 LdapResult result = req.getResultResponse().getLdapResult();
-                
+
                 result.setDiagnosticMessage( "Replicztion is not allowed on this server" );
                 result.setResultCode( ResultCodeEnum.OTHER );
                 session.getIoSession().write( req.getResultResponse() );
-                
+
                 return;
             }
         }
@@ -518,10 +518,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     private SearchResultDone abandonPagedSearch( LdapSession session, SearchRequest req ) throws Exception
     {
-        PagedResults pagedSearchControl = (PagedResults)req.getControls().get( PagedResults.OID );
+        PagedResults pagedSearchControl = ( PagedResults ) req.getControls().get( PagedResults.OID );
         byte[] cookie = pagedSearchControl.getCookie();
 
-        if ( !Strings.isEmpty(cookie) )
+        if ( !Strings.isEmpty( cookie ) )
         {
             // If the cookie is not null, we have to destroy the associated
             // cursor stored into the session (if any)
@@ -615,7 +615,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         byte[] cookie = pagedSearchControl.getCookie();
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
 
-        if ( Strings.isEmpty(cookie) )
+        if ( Strings.isEmpty( cookie ) )
         {
             // This is a new search. We have a special case when the paged size
             // is above the server size limit : in this case, we default to a
@@ -863,7 +863,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
 
                 LdapUrl ldapUrl = null;
-                
+
                 try
                 {
                     ldapUrl = new LdapUrl( url );
@@ -1033,7 +1033,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             // Handle psearch differently
             // ===============================================================
 
-            PersistentSearch psearch = (PersistentSearch)req.getControls().get( PersistentSearch.OID );
+            PersistentSearch psearch = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
 
             if ( psearch != null )
             {
@@ -1070,7 +1070,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              *
              * SO DON'T SEND BACK ANYTHING!!!!!
              */
-            if ( e instanceof OperationAbandonedException)
+            if ( e instanceof OperationAbandonedException )
             {
                 return;
             }
@@ -1248,7 +1248,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         result.setDiagnosticMessage( "Encountered referral attempting to handle request." );
         result.setMatchedDn( req.getBase() );
 
-        Attribute refAttr = ((ClonedServerEntry)entry).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
 
         for ( Value<?> refval : refAttr )
         {
@@ -1263,7 +1263,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // parse the ref value and normalize the Dn
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( refstr );
@@ -1309,7 +1309,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             if ( filter.isSchemaAware() )
             {
-                AttributeType attributeType = ( (PresenceNode) req.getFilter() ).getAttributeType();
+                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
                 isRootDseFilter = attributeType.equals( OBJECT_CLASS_AT );
             }
             else
@@ -1375,7 +1375,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1393,7 +1393,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // Parse the ref value
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( ref );
@@ -1423,7 +1423,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
              */
             Dn suffix = req.getBase().getDescendantOf( referralAncestor.getDn() );
             Dn refDn = urlDn.add( suffix );
-            
+
             ldapUrl.setDn( refDn );
             ldapUrl.setForceScopeRendering( true );
             ldapUrl.setAttributes( req.getAttributes() );
@@ -1448,7 +1448,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         LOG.debug( "Inside getReferralOnAncestor()" );
 
-        Attribute refAttr = ((ClonedServerEntry)referralAncestor).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
         for ( Value<?> value : refAttr )
@@ -1466,7 +1466,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             // parse the ref value and normalize the Dn
             LdapUrl ldapUrl = null;
-            
+
             try
             {
                 ldapUrl = new LdapUrl( ref );
@@ -1537,7 +1537,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         if ( e instanceof LdapOperationException )
         {
-            code = ( (LdapOperationException) e ).getResultCode();
+            code = ( ( LdapOperationException ) e ).getResultCode();
         }
         else
         {

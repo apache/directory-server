@@ -53,11 +53,16 @@ import org.junit.runner.RunWith;
 public class MostSpecificUserClassFilterTest
 {
     private static final Set<Dn> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<Dn>() );
-    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
-    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Set<SubtreeSpecification> EMPTY_SUBTREE_SPECIFICATION_COLLECTION = Collections.unmodifiableSet( new HashSet<SubtreeSpecification>() );
-    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
+        .unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Set<SubtreeSpecification> EMPTY_SUBTREE_SPECIFICATION_COLLECTION = Collections
+        .unmodifiableSet( new HashSet<SubtreeSpecification>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
 
     private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
@@ -79,11 +84,16 @@ public class MostSpecificUserClassFilterTest
         subtree.add( new UserClass.Subtree( EMPTY_SUBTREE_SPECIFICATION_COLLECTION ) );
         allUsers.add( UserClass.ALL_USERS );
 
-        ACITuple nameTuple = new ACITuple( name, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        ACITuple thisEntryTuple = new ACITuple( thisEntry, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        ACITuple userGroupTuple = new ACITuple( userGroup, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        ACITuple subtreeTuple = new ACITuple( subtree, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
-        ACITuple allUsersTuple = new ACITuple( allUsers, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple nameTuple = new ACITuple( name, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple thisEntryTuple = new ACITuple( thisEntry, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple userGroupTuple = new ACITuple( userGroup, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple subtreeTuple = new ACITuple( subtree, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple allUsersTuple = new ACITuple( allUsers, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
 
         TUPLES_A.add( nameTuple );
         TUPLES_A.add( thisEntryTuple );
@@ -119,7 +129,8 @@ public class MostSpecificUserClassFilterTest
         assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -202,7 +213,7 @@ public class MostSpecificUserClassFilterTest
         AciContext aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
 
-        tuples = (List<ACITuple>)filter.filter( aciContext, OperationScope.ENTRY, null );
+        tuples = ( List<ACITuple> ) filter.filter( aciContext, OperationScope.ENTRY, null );
 
         assertEquals( 2, tuples.size() );
         assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );

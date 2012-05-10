@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( name="SchemaPersistenceIT-class" )
+@CreateDS(name = "SchemaPersistenceIT-class")
 public class SchemaPersistenceIT extends AbstractLdapTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
@@ -88,23 +88,23 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
             descriptions.add(
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
-                "  NAME 'type0' " +
-                "  OBSOLETE SUP 2.5.4.41 " +
-                "  EQUALITY caseExactIA5Match " +
-                "  ORDERING octetStringOrderingMatch " +
-                "  SUBSTR caseExactIA5SubstringsMatch " +
-                "  COLLECTIVE " +
-                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "  USAGE userApplications " +
-                "  X-SCHEMA 'nis' )" );
+                    "  NAME 'type0' " +
+                    "  OBSOLETE SUP 2.5.4.41 " +
+                    "  EQUALITY caseExactIA5Match " +
+                    "  ORDERING octetStringOrderingMatch " +
+                    "  SUBSTR caseExactIA5SubstringsMatch " +
+                    "  COLLECTIVE " +
+                    "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                    "  USAGE userApplications " +
+                    "  X-SCHEMA 'nis' )" );
 
             descriptions.add(
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
-                "  NAME ( 'type1' 'altName' ) " +
-                "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
-                "  SUP 2.5.4.41 " +
-                "  USAGE userApplications " +
-                "  X-SCHEMA 'nis' )" );
+                    "  NAME ( 'type1' 'altName' ) " +
+                    "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
+                    "  SUP 2.5.4.41 " +
+                    "  USAGE userApplications " +
+                    "  X-SCHEMA 'nis' )" );
 
             modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
 
@@ -175,7 +175,8 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { SUBSCHEMA_SUBENTRY } );
 
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)",
+            controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -244,7 +245,8 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
         if ( isPresent )
         {
-            attrs = getSchemaContext( getService() ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            attrs = getSchemaContext( getService() ).getAttributes(
+                "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else

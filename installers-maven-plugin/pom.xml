@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M4-SNAPSHOT</version>
+    <version>2.0.0-M7-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-installers-maven-plugin</artifactId>
@@ -90,6 +90,8 @@
               <exclude>src/main/resources/org/apache/directory/server/installers/macosxpkg/License.rtf</exclude>
               <exclude>src/main/resources/org/apache/directory/server/installers/solarispkg/pkginfo</exclude>
               <exclude>src/main/resources/org/apache/directory/server/installers/solarispkg/Prototype</exclude>
+              <!-- BMP_IMAGES_EXCLUDES -->
+              <exclude>**/*.bmp</exclude>
             </excludes>
           </configuration>
          </plugin>

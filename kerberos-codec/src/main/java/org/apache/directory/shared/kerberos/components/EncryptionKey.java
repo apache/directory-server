@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
@@ -63,7 +63,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
     /** The encrypted value */
     private byte[] keyValue;
-    
+
     /** The key version */
     private int keyVersion;
 
@@ -72,13 +72,14 @@ public class EncryptionKey extends AbstractAsn1Object
     private int keyValueLength;
     private int encryptionKeyLength;
 
+
     /**
      * Creates a new instance of EncryptionKey.
      */
     public EncryptionKey()
     {
     }
-    
+
 
     /**
      * Creates a new instance of EncryptionKey.
@@ -135,7 +136,7 @@ public class EncryptionKey extends AbstractAsn1Object
      * Set the encryption type
      * @param keyType The encryption type
      */
-    public void setKeyType( EncryptionType keyType ) 
+    public void setKeyType( EncryptionType keyType )
     {
         this.keyType = keyType;
     }
@@ -162,22 +163,22 @@ public class EncryptionKey extends AbstractAsn1Object
         return keyVersion;
     }
 
-    
+
     /**
      * Set the key value
      * @param keyVersion The key version
      */
-    public void setKeyVersion( int keyVersion)
+    public void setKeyVersion( int keyVersion )
     {
         this.keyVersion = keyVersion;
     }
 
-    
+
     /**
      * Set the key value
      * @param keyValue The key value
      */
-    public void setKeyValue( byte[] keyValue ) 
+    public void setKeyValue( byte[] keyValue )
     {
         this.keyValue = keyValue;
     }
@@ -192,7 +193,7 @@ public class EncryptionKey extends AbstractAsn1Object
         int hash = 37;
         hash = hash * 17 + keyType.hashCode();
         hash = hash * 17 + Arrays.hashCode( keyValue );
-        
+
         return hash;
     }
 
@@ -243,7 +244,7 @@ public class EncryptionKey extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the keyType. The Length will always be cobntained in 1 byte
-        keyTypeLength = 1 + 1 + Value.getNbBytes( keyType.getValue() );
+        keyTypeLength = 1 + 1 + BerValue.getNbBytes( keyType.getValue() );
         encryptionKeyLength = 1 + TLV.getNbBytes( keyTypeLength ) + keyTypeLength;
 
         // Compute the keyValue
@@ -259,7 +260,7 @@ public class EncryptionKey extends AbstractAsn1Object
         encryptionKeyLength += 1 + TLV.getNbBytes( keyValueLength ) + keyValueLength;
 
         // Compute the whole sequence length
-        int encryptionKeySeqLength = 1 + Value.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
+        int encryptionKeySeqLength = 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
 
         return encryptionKeySeqLength;
 
@@ -297,12 +298,12 @@ public class EncryptionKey extends AbstractAsn1Object
             // The keyType, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_TYPE_TAG );
             buffer.put( TLV.getBytes( keyTypeLength ) );
-            Value.encode( buffer, keyType.getValue() );
+            BerValue.encode( buffer, keyType.getValue() );
 
             // The keyValue, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ENCRYPTION_KEY_VALUE_TAG );
             buffer.put( TLV.getBytes( keyValueLength ) );
-            Value.encode( buffer, keyValue );
+            BerValue.encode( buffer, keyValue );
         }
         catch ( BufferOverflowException boe )
         {
@@ -313,7 +314,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncryptionKey initial value : {}", toString() );
         }
 

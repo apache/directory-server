@@ -25,3 +25,5 @@
  */
 
 package org.apache.directory.server.dns.io.encoder;
+
+

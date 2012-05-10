@@ -48,10 +48,10 @@ import org.apache.directory.shared.util.Strings;
 public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     /** The default byte[] comparator if no comparator has been defined */
-    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( "" );
+    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
 
     /** The default String comparator if no comparator has been defined */
-    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( "" );
+    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
 
 
     @SuppressWarnings("unchecked")
@@ -88,7 +88,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
 
     public EqualityNode<T> getExpression()
     {
-        return (EqualityNode<T>)node;
+        return ( EqualityNode<T> ) node;
     }
 
 
@@ -187,7 +187,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
                 }
                 else
                 {
-                    nodeValue = Strings.utf8ToString(((Value<byte[]>) node.getValue()).getNormValue());
+                    nodeValue = Strings.utf8ToString( ( ( Value<byte[]> ) node.getValue() ).getNormValue() );
                 }
 
                 if ( ldapComparator != null )
@@ -208,12 +208,12 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
             else
             {
                 // Deal with a binary value
-                byte[] serverValue = ( (Value<byte[]>) value ).getNormValue();
+                byte[] serverValue = ( ( Value<byte[]> ) value ).getNormValue();
                 byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormValue();
 
                 if ( ldapComparator != null )
                 {
-                    if ( ldapComparator.compare( (Object)serverValue, (Object)nodeValue ) == 0 )
+                    if ( ldapComparator.compare( ( Object ) serverValue, ( Object ) nodeValue ) == 0 )
                     {
                         return true;
                     }

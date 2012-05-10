@@ -60,22 +60,26 @@ public final class KeyUsage implements Comparable<KeyUsage>
     /**
      * TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with the TGS session key (Section 5.4.1)
      */
-    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY = new KeyUsage( 4, I18n.err( I18n.ERR_606 ) );
+    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY = new KeyUsage( 4,
+        I18n.err( I18n.ERR_606 ) );
 
     /**
      * TGS-REQ KDC-REQ-BODY AuthorizationData, encrypted with the TGS authenticator subkey (Section 5.4.1)
      */
-    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY = new KeyUsage( 5, I18n.err( I18n.ERR_607 ) );
+    public static final KeyUsage TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY = new KeyUsage( 5,
+        I18n.err( I18n.ERR_607 ) );
 
     /**
      * TGS-REQ PA-TGS-REQ padata AP-REQ Authenticator cksum, keyed with the TGS session key (Section 5.5.1)
      */
-    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY = new KeyUsage( 6, I18n.err( I18n.ERR_608 ) );
+    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY = new KeyUsage( 6,
+        I18n.err( I18n.ERR_608 ) );
 
     /**
      * TGS-REQ PA-TGS-REQ padata AP-REQ Authenticator (includes TGS authenticator subkey), encrypted with the TGS session key (Section 5.5.1)
      */
-    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY = new KeyUsage( 7, I18n.err( I18n.ERR_609 ) );
+    public static final KeyUsage TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY = new KeyUsage( 7,
+        I18n.err( I18n.ERR_609 ) );
 
     /**
      * TGS-REP encrypted part (includes application session key), encrypted with the TGS session key (Section 5.4.2)
@@ -111,8 +115,20 @@ public final class KeyUsage implements Comparable<KeyUsage>
      * These two lines are all that's necessary to export a List of VALUES.
      */
     private static final KeyUsage[] values =
-        { AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY, AS_OR_TGS_REP_TICKET_WITH_SRVKEY, AS_REP_ENC_PART_WITH_CKEY, TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY, TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY, TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY, TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY, TGS_REP_ENC_PART_TGS_SESS_KEY, TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY, AP_REQ_AUTHNT_CKSUM_SESS_KEY, AP_REQ_AUTHNT_SESS_KEY,
-            AP_REP_ENC_PART_SESS_KEY, KRB_PRIV_ENC_PART_CHOSEN_KEY };
+        {
+            AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY,
+            AS_OR_TGS_REP_TICKET_WITH_SRVKEY,
+            AS_REP_ENC_PART_WITH_CKEY,
+            TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_TGS_SESS_KEY,
+            TGS_REQ_KDC_REQ_BODY_AUTHZ_DATA_ENC_WITH_AUTHNT_SUB_KEY,
+            TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY,
+            TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY,
+            TGS_REP_ENC_PART_TGS_SESS_KEY,
+            TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY,
+            AP_REQ_AUTHNT_CKSUM_SESS_KEY,
+            AP_REQ_AUTHNT_SESS_KEY,
+            AP_REP_ENC_PART_SESS_KEY,
+            KRB_PRIV_ENC_PART_CHOSEN_KEY };
 
     /**
      * VALUES needs to be located here, otherwise illegal forward reference.

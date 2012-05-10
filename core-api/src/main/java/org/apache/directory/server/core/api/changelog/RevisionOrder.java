@@ -28,12 +28,11 @@ package org.apache.directory.server.core.api.changelog;
  */
 public enum RevisionOrder
 {
-    AscendingOrder( true ),
-    DescendingOrder( false );
-    
+    AscendingOrder(true),
+    DescendingOrder(false);
 
     private final boolean ascending;
-    
+
 
     private RevisionOrder( boolean ascending )
     {

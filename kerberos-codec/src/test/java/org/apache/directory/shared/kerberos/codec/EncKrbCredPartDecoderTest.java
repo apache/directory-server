@@ -114,8 +114,8 @@ public class EncKrbCredPartDecoderTest
         recipientAddress = new HostAddress( InetAddress.getByName( "localhost" ) );
         optionalFieldValueList.add( new FieldValueHolder( "recipientAddress", recipientAddress ) );
     }
-    
-    
+
+
     @Test
     public void testEncKrbCredPart() throws Exception
     {
@@ -124,7 +124,7 @@ public class EncKrbCredPartDecoderTest
         {
             EncKrbCredPart expected = new EncKrbCredPart();
             expected.setTicketInfo( ticketInfo );
-            
+
             Map<String, Field> EncKrbCrePartFieldNameMap = getFieldMap( expected );
 
             List<FieldValueHolder> presentFieldList = new ArrayList<FieldValueHolder>();
@@ -165,8 +165,8 @@ public class EncKrbCredPartDecoderTest
             assertValues( presentFieldList, actual );
         }
     }
-    
-    
+
+
     @Test
     public void testKrbCredInfoWithEachOptElement() throws Exception
     {
@@ -210,6 +210,7 @@ public class EncKrbCredPartDecoderTest
             assertValues( presentFieldList, actual );
         }
     }
+
 
     /**
      * compare the values that are inserted into the EncKrbCredPart objects before encoding to

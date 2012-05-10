@@ -19,12 +19,14 @@
  */
 package org.apache.directory.shared.kerberos.codec.options;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
+
 
 /**
  * Test the Options class
@@ -42,13 +44,15 @@ public class OptionsTest
         }
     }
 
+
     @Test
     public void testAddBytes()
     {
         MyOptions myOptions = new MyOptions();
 
         // Set the bits 10-0100 1010-1100 0000-0110
-        myOptions.setBytes( new byte[]{ 0x02, (byte)0x92, (byte)0xB0, 0x18} );
+        myOptions.setBytes( new byte[]
+            { 0x02, ( byte ) 0x92, ( byte ) 0xB0, 0x18 } );
 
         assertEquals( "1001001010110000000110", myOptions.toString() );
         assertFalse( myOptions.get( 21 ) );

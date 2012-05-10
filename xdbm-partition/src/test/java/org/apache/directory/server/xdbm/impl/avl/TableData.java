@@ -35,40 +35,40 @@ public class TableData
      *
      * @return
      */
-    public static void injectNoDupsData( Table<Integer,Integer> table ) throws Exception
+    public static void injectNoDupsData( Table<Integer, Integer> table ) throws Exception
     {
         if ( table.isDupsEnabled() )
         {
             throw new IllegalArgumentException( "table must NOT support duplicates" );
         }
-        
-        table.put( 0 , 3 );
-        table.put( 1 , 2 );
-        table.put( 2 , 0 ); // overwritten
-        table.put( 2 , 1 );
-        table.put( 2 , 1 ); // has no effect
-        table.put( 3 , 0 );
+
+        table.put( 0, 3 );
+        table.put( 1, 2 );
+        table.put( 2, 0 ); // overwritten
+        table.put( 2, 1 );
+        table.put( 2, 1 ); // has no effect
+        table.put( 3, 0 );
         table.put( 23, 8934 );
     }
 
 
-    public static void injectDupsData( Table<Integer,Integer> table ) throws Exception
+    public static void injectDupsData( Table<Integer, Integer> table ) throws Exception
     {
-        if ( ! table.isDupsEnabled() )
+        if ( !table.isDupsEnabled() )
         {
             throw new IllegalArgumentException( "table MUST support duplicates" );
         }
-        
-        table.put( 0 , 3 ); // 1 
-        table.put( 1 , 2 ); // 2 - 3 duplicates
-        table.put( 1 , 4 ); // 3
-        table.put( 1 , 6 ); // 4
-        table.put( 2 , 1 ); // 5
-        table.put( 3 , 0 ); // 6
-        table.put( 3 , 0 ); // has no effect
-        table.put( 3 , 8 ); // 7
-        table.put( 3 , 9 ); // 8
-        table.put( 3 , 10 ); // 9
+
+        table.put( 0, 3 ); // 1 
+        table.put( 1, 2 ); // 2 - 3 duplicates
+        table.put( 1, 4 ); // 3
+        table.put( 1, 6 ); // 4
+        table.put( 2, 1 ); // 5
+        table.put( 3, 0 ); // 6
+        table.put( 3, 0 ); // has no effect
+        table.put( 3, 8 ); // 7
+        table.put( 3, 9 ); // 8
+        table.put( 3, 10 ); // 9
         table.put( 23, 8934 ); // 10
     }
 }

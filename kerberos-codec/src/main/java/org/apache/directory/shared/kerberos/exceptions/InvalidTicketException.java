@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.exceptions;
 /**
  * A exception used when there was an error while creating a Ticket
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- */ 
+ */
 public class InvalidTicketException extends KerberosException
 {
     static final long serialVersionUID = 1L;

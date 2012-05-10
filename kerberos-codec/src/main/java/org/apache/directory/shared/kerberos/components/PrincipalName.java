@@ -19,7 +19,6 @@
  */
 //package org.apache.directory.server.kerberos.shared.messages.value;
 
-
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
@@ -99,7 +98,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.util.StringConstants;
@@ -131,10 +130,10 @@ public class PrincipalName extends AbstractAsn1Object
 
     /** The principal name - we may have more than one - */
     private List<String> nameString = new ArrayList<String>();
-    
+
     /** The principal name as a byte[], for encoding purpose */
     private List<byte[]> nameBytes;
-    
+
     // Storage for computed lengths
     private int principalNameSeqLength;
     private int principalTypeTagLength;
@@ -142,12 +141,14 @@ public class PrincipalName extends AbstractAsn1Object
     private int principalStringsTagLength;
     private int principalStringsSeqLength;
 
+
     /**
      * Creates a new empty instance of PrincipalName.
      */
     public PrincipalName()
     {
     }
+
 
     /**
      * Creates a new instance of PrincipalName, given a KerberosPrincipal.
@@ -170,7 +171,8 @@ public class PrincipalName extends AbstractAsn1Object
 
         this.nameType = PrincipalNameType.getTypeByValue( principal.getNameType() );
     }
-    
+
+
     /**
      * Creates a new instance of PrincipalName given a String and an 
      * prinipal type.
@@ -178,7 +180,7 @@ public class PrincipalName extends AbstractAsn1Object
      * @param nameString The name string, which can contains more than one nameComponent
      * @param nameType The principal name
      */
-    public PrincipalName( String nameString, PrincipalNameType nameType )  throws ParseException
+    public PrincipalName( String nameString, PrincipalNameType nameType ) throws ParseException
     {
         this.nameString.add( nameString );
         this.nameType = nameType;
@@ -201,7 +203,7 @@ public class PrincipalName extends AbstractAsn1Object
         {
             throw new IllegalArgumentException( pe );
         }
-        
+
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
@@ -215,7 +217,8 @@ public class PrincipalName extends AbstractAsn1Object
     {
         return nameType;
     }
-                    
+
+
     /** 
      * Set the Principal name Type
      * @param nameType the Principal name Type
@@ -225,6 +228,7 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = nameType;
     }
 
+
     /** 
      * Set the Principal name Type
      * @param nameType the Principal name Type
@@ -233,6 +237,7 @@ public class PrincipalName extends AbstractAsn1Object
     {
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
+
 
     /**
      * Returns the name components.
@@ -320,9 +325,9 @@ public class PrincipalName extends AbstractAsn1Object
     public int computeLength()
     {
         // The principalName can't be empty.
-        principalTypeLength = Value.getNbBytes( nameType.getValue() );
+        principalTypeLength = BerValue.getNbBytes( nameType.getValue() );
         principalTypeTagLength = 1 + 1 + principalTypeLength;
-        
+
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
 
         // Compute the keyValue
@@ -339,7 +344,7 @@ public class PrincipalName extends AbstractAsn1Object
             {
                 if ( name != null )
                 {
-                    byte[] bytes = Strings.getBytesUtf8(name);
+                    byte[] bytes = Strings.getBytesUtf8( name );
                     nameBytes.add( bytes );
                     principalStringsSeqLength += 1 + TLV.getNbBytes( bytes.length ) + bytes.length;
                 }
@@ -394,7 +399,7 @@ public class PrincipalName extends AbstractAsn1Object
             // The name-type, first the tag, then the value
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( principalTypeTagLength ) );
-            Value.encode( buffer, nameType.getValue() );
+            BerValue.encode( buffer, nameType.getValue() );
 
             // The name-string tag
             buffer.put( ( byte ) 0xA1 );
@@ -437,7 +442,7 @@ public class PrincipalName extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrinipalName encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "PrinipalName encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "PrinipalName initial value : {}", toString() );
         }
 
@@ -504,12 +509,12 @@ public class PrincipalName extends AbstractAsn1Object
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         PrincipalName other = ( PrincipalName ) obj;
 
         if ( nameString == null )
@@ -528,8 +533,8 @@ public class PrincipalName extends AbstractAsn1Object
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
 }

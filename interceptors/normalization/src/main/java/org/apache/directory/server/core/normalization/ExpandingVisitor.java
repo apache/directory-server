@@ -50,8 +50,8 @@ public class ExpandingVisitor implements FilterVisitor
 {
     /** The schemaManager */
     private SchemaManager schemaManager;
-    
-    
+
+
     /**
      * 
      * Creates a new instance of ExpandingVisitor.
@@ -112,7 +112,8 @@ public class ExpandingVisitor implements FilterVisitor
                         children.set( childNumber++, orNode );
 
                         // iterate through descendants adding them to the orNode
-                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( leaf.getAttributeType() );
+                        Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants(
+                            leaf.getAttributeType() );
 
                         while ( descendants.hasNext() )
                         {
@@ -131,7 +132,7 @@ public class ExpandingVisitor implements FilterVisitor
                             }
                             else if ( leaf instanceof EqualityNode )
                             {
-                                EqualityNode equalityNode = (EqualityNode) leaf;
+                                EqualityNode equalityNode = ( EqualityNode ) leaf;
 
                                 newLeaf = new EqualityNode( descendant, equalityNode.getValue() );
                             }

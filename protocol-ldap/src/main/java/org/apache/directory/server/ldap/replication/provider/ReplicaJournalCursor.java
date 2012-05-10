@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.ldap.replication.provider;
 
+
 import java.util.Iterator;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
@@ -31,6 +32,7 @@ import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Define a cursor on top of a replication journal.
  *
@@ -40,10 +42,13 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
 {
     /** Logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaJournalCursor.class );
-    
+
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** the underlying journal's cursor */
     private Cursor<Tuple<String, ReplicaEventMessage>> tupleCursor;
-    
+
     /** the event log journal */
     private JdbmTable<String, ReplicaEventMessage> journal;
 
@@ -51,7 +56,8 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     private String consumerCsn;
 
     private ReplicaEventMessage qualifiedEvtMsg;
-    
+
+
     /**
      * Creates a cursor on top of the given journal
      * @param journal the log journal
@@ -60,6 +66,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      */
     public ReplicaJournalCursor( JdbmTable<String, ReplicaEventMessage> journal, String consumerCsn ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating ReplicaJournalCursor {}", this );
         this.journal = journal;
         this.tupleCursor = journal.cursor();
         this.consumerCsn = consumerCsn;
@@ -127,7 +134,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
         return qualifiedEvtMsg;
     }
 
-    
+
     /**
      * selects the current queue entry if qualified for sending to the consumer
      * 
@@ -136,33 +143,33 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     private void selectQualified() throws Exception
     {
         Tuple<String, ReplicaEventMessage> t = tupleCursor.get();
-        
+
         qualifiedEvtMsg = t.getValue();
-        
+
         LOG.debug( "ReplicaEventMessage: {}", qualifiedEvtMsg );
-        
+
         if ( qualifiedEvtMsg.isEventOlderThan( consumerCsn ) )
         {
-            if( LOG.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
                 String evt = "MODDN"; // take this as default cause the event type for MODDN is null
-                
+
                 ChangeType changeType = qualifiedEvtMsg.getChangeType();
-                
+
                 if ( changeType != null )
                 {
                     evt = changeType.name();
                 }
-                
+
                 LOG.debug( "event {} for dn {} is not qualified for sending", evt, qualifiedEvtMsg.getEntry().getDn() );
             }
-            
+
             // TODO need to be checked if this causes issues in JDBM
             journal.remove( t.getKey() );
             qualifiedEvtMsg = null;
         }
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -178,18 +185,18 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      */
     public boolean next() throws Exception
     {
-        while( tupleCursor.next() )
+        while ( tupleCursor.next() )
         {
             selectQualified();
-            
+
             if ( qualifiedEvtMsg != null )
             {
                 return true;
             }
         }
-        
+
         qualifiedEvtMsg = null;
-        
+
         return false;
     }
 
@@ -209,6 +216,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     @Override
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         tupleCursor.close();
         super.close();
     }
@@ -220,6 +228,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     @Override
     public void close( Exception cause ) throws Exception
     {
+        LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         tupleCursor.close();
         super.close( cause );
     }

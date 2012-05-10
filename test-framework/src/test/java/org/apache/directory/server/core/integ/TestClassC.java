@@ -27,7 +27,8 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
+
+@RunWith(FrameworkRunner.class)
 public class TestClassC extends AbstractLdapTestUnit
 {
     @Test
@@ -39,15 +40,15 @@ public class TestClassC extends AbstractLdapTestUnit
         }
 
         assertFalse( getService().getAdminSession().exists( new Dn( "cn=testClassC,ou=system" ) ) );
-        
+
         // the below Dn will be injected in TestClassB when ran as suite, but that Dn
         // shouldn't be present in the suite level DS cause of revert operation
         assertFalse( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
-    
-    
+
+
     @Test
-    @ApplyLdifFiles( "test-entry.ldif" )
+    @ApplyLdifFiles("test-entry.ldif")
     public void testWithApplyLdifFiles() throws Exception
     {
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );

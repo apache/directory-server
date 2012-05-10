@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api;
 
+
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -39,25 +40,28 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
+
 public class MockOperationManager implements OperationManager
 {
     int count;
-    
+
+
     public MockOperationManager( int count )
     {
         this.count = count;
     }
-    
+
+
     public void add( AddOperationContext addContext ) throws LdapException
     {
     }
 
-    
+
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
     }
 
-    
+
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         return false;
@@ -68,41 +72,50 @@ public class MockOperationManager implements OperationManager
     {
     }
 
+
     public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         return null;
     }
+
 
     public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         return false;
     }
 
+
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         return null;
     }
+
 
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return null;
     }
 
+
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
     }
+
 
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
     }
 
+
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
     }
 
+
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
     }
+
 
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {

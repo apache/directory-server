@@ -38,7 +38,7 @@ public class DSBasedServerBean extends ServerBean
      * configuration for catalog entries.  Otherwise it will use this
      * search base as a single point of searching the DIT.
      */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_SEARCH_BASE_DN )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_SEARCH_BASE_DN)
     private Dn searchBaseDn;
 
 
@@ -78,7 +78,7 @@ public class DSBasedServerBean extends ServerBean
         StringBuilder sb = new StringBuilder();
 
         sb.append( super.toString( tabs ) );
-        sb.append( toString( tabs, SchemaConstants.ADS_SEARCH_BASE_DN, searchBaseDn) );
+        sb.append( toString( tabs, SchemaConstants.ADS_SEARCH_BASE_DN, searchBaseDn ) );
 
         return sb.toString();
     }

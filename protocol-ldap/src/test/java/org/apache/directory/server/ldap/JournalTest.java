@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.ldap;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -52,6 +53,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+
 /**
  * A test to check that we can correctly create a Journal to store the ReplicaEventMessages.
  * 
@@ -64,18 +66,19 @@ public class JournalTest
 
     /** the underlying file  */
     private File dbFile;
-    
+
     /** The record manager*/
     private RecordManager recman;
-    
+
     /** The SchemaManager instance */
     private static SchemaManager schemaManager;
 
     /** The Journal */
     private JdbmTable<String, ReplicaEventMessage> journal;
-    
+
     /** The CsnFactory */
     private static CsnFactory csnFactory;
+
 
     /**
      * Load the SchemaManager
@@ -103,13 +106,13 @@ public class JournalTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         csnFactory = new CsnFactory( 0 );
     }
 
-    
+
     /**
      * Create the JdbmTable
      */
@@ -118,7 +121,7 @@ public class JournalTest
     {
         destroyTable();
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -126,15 +129,17 @@ public class JournalTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        ((BaseRecordManager)recman).disableTransactions();
+        ( ( BaseRecordManager ) recman ).disableTransactions();
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        
-        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "test", recman, comparator, 
+
+        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "test", recman, comparator,
             new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
-        
+
     }
+
 
     /**
      * Delete the files on disk
@@ -164,10 +169,10 @@ public class JournalTest
 
             dbFile.delete();
         }
-        
+
         dbFile = null;
     }
-    
+
 
     /**
      * test that we can write 1000 ReplicaEventMessages, and read them back in the right order 
@@ -177,7 +182,7 @@ public class JournalTest
     public void testJournalWriting() throws Exception
     {
         Csn entryCsn = csnFactory.newInstance();
-        Csn firstCsn = entryCsn; 
+        Csn firstCsn = entryCsn;
         Csn csn100 = null;
 
         for ( int i = 0; i < 1000; i++ )
@@ -186,41 +191,43 @@ public class JournalTest
             {
                 csn100 = entryCsn;
             }
-            
-            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system", 
+
+            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system",
                 "ObjectClass: top",
                 "ObjectClass: organizationalUnit",
                 "ou", "test" + i,
                 "entryCsn", entryCsn.toString()
                 );
-            
+
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
             journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
 
             entryCsn = csnFactory.newInstance();
         }
-        
+
         // Now check that the ReplicaEventMessages has been written
         ReplicaEventMessage firstMessage = journal.get( firstCsn.toString() );
-        
-        assertEquals( ChangeType.ADD, firstMessage.getChangeType());
+
+        assertEquals( ChangeType.ADD, firstMessage.getChangeType() );
         assertEquals( "test0", firstMessage.getEntry().get( "ou" ).getString() );
-        
+
         // Read entry from the 100th element
         Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( csn100.toString() );
         int pos = 100;
-        
+
         while ( cursor.next() )
         {
             Tuple<String, ReplicaEventMessage> tuple = cursor.get();
             ReplicaEventMessage replicaEventMessage = tuple.getValue();
-            
-            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + pos, replicaEventMessage.getEntry().get( "ou" ).getString() );
-            
+
             pos++;
         }
+        
+        cursor.close();
     }
 
 
@@ -235,20 +242,20 @@ public class JournalTest
 
         for ( int i = 0; i < 1000; i++ )
         {
-            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system", 
+            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system",
                 "ObjectClass: top",
                 "ObjectClass: organizationalUnit",
                 "ou", "test" + i,
                 "entryCsn", entryCsn.toString()
                 );
-            
+
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
             journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
 
             entryCsn = csnFactory.newInstance();
         }
-        
+
         // Remove the first 500 ReplicaEventMessages
         Cursor<Tuple<String, ReplicaEventMessage>> deleteCursor = journal.cursor();
         int deleted = 0;
@@ -257,26 +264,30 @@ public class JournalTest
         {
             Tuple<String, ReplicaEventMessage> tuple = deleteCursor.get();
             ReplicaEventMessage replicaEventMessage = tuple.getValue();
-            
+
             assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
-            
+
             journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
             journal.sync();
             deleted++;
         }
         
+        deleteCursor.close();
+
         // Now check that the first mod is the 501th
         assertEquals( 500, journal.count() );
-        
+
         Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor();
-        
+
         cursor.next();
 
         Tuple<String, ReplicaEventMessage> tuple = cursor.get();
         ReplicaEventMessage replicaEventMessage = tuple.getValue();
         assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
         assertEquals( "test500", replicaEventMessage.getEntry().get( "ou" ).getString() );
+        
+        cursor.close();
     }
 
 
@@ -291,7 +302,7 @@ public class JournalTest
      * 
      */
     @Test
-    @Ignore( "Performance test" )
+    @Ignore("Performance test")
     public void testJournalPerf() throws Exception
     {
         Csn entryCsn = csnFactory.newInstance();
@@ -301,13 +312,13 @@ public class JournalTest
 
         for ( int i = 0; i < 100000; i++ )
         {
-            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system", 
+            Entry entry = new DefaultEntry( schemaManager, "ou=test" + i + ",ou=system",
                 "ObjectClass: top",
                 "ObjectClass: organizationalUnit",
                 "ou", "test" + i,
                 "entryCsn", entryCsn.toString()
                 );
-            
+
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
             journal.put( entryCsn.toString(), replicaEventMessage );
             journal.sync();
@@ -315,36 +326,36 @@ public class JournalTest
 
             entryCsn = csnFactory.newInstance();
         }
-        
+
         long t1 = System.currentTimeMillis();
-        
+
         System.out.println( "Time to write 100 000 ReplicaEventMessages : " + ( t1 - t0 ) );
-        
+
         // The read perf
         long t2 = System.currentTimeMillis();
-        
+
         Cursor<Tuple<String, ReplicaEventMessage>> readCursor = journal.cursor();
 
         int pos = 0;
-        
+
         while ( readCursor.next() )
         {
             Tuple<String, ReplicaEventMessage> tuple = readCursor.get();
             ReplicaEventMessage replicaEventMessage = tuple.getValue();
-            
-            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + pos, replicaEventMessage.getEntry().get( "ou" ).getString() );
-            
+
             pos++;
         }
-        
+
         long t3 = System.currentTimeMillis();
-        
+
         System.out.println( "Time to read 100 000 ReplicaEventMessages : " + ( t3 - t2 ) );
 
         // The delete perf
         long t4 = System.currentTimeMillis();
-        
+
         Cursor<Tuple<String, ReplicaEventMessage>> deleteCursor = journal.cursor();
         int deleted = 0;
 
@@ -352,10 +363,10 @@ public class JournalTest
         {
             Tuple<String, ReplicaEventMessage> tuple = deleteCursor.get();
             ReplicaEventMessage replicaEventMessage = tuple.getValue();
-            
-            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType());
+
+            assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
-            
+
             journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
             journal.sync();
             recman.commit();

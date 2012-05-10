@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.EncKdcRepPart;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class EncKdcRepPartContainer extends AbstractContainer
 {
     /** An EncKdcRepPart container */
     private EncKdcRepPart encKdcRepPart;
-    
+
+
     /**
      * Creates a new EncKdcRepPartContainer object.
      * @param stream The stream containing the data to decode
@@ -56,7 +58,7 @@ public class EncKdcRepPartContainer extends AbstractContainer
         return encKdcRepPart;
     }
 
-    
+
     /**
      * Set a EncKdcRepPart Object into the container. It will be completed by the
      * KerberosDecoder.

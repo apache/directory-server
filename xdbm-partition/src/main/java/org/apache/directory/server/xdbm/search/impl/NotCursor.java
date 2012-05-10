@@ -29,6 +29,8 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +40,9 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  */
 public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<V, Entry, ID> uuidCursor;
     private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
@@ -47,6 +52,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public NotCursor( Store<Entry, ID> store, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
         throws Exception
     {
+        LOG_CURSOR.debug( "Creating NotCursor {}", this );
         this.childEvaluator = childEvaluator;
         this.uuidCursor = ( IndexCursor<V, Entry, ID> ) store.getEntryUuidIndex().forwardCursor();
     }
@@ -60,7 +66,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -80,7 +86,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -88,7 +94,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -99,7 +105,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -116,7 +122,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -130,7 +136,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return uuidCursor.get();
@@ -142,7 +148,16 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
 
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing NotCursor {}", this );
         super.close();
         uuidCursor.close();
+    }
+
+
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing NotCursor {}", this );
+        super.close( cause );
+        uuidCursor.close( cause );
     }
 }

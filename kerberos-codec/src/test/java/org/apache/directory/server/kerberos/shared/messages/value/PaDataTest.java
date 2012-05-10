@@ -32,6 +32,7 @@ import org.apache.directory.shared.kerberos.components.PaData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the PaData encoding and decoding
  * 
@@ -52,14 +53,14 @@ public class PaDataTest
         pad.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-            0x30, 0x0c, 
-              ( byte ) 0xA1, 0x03, 
-                0x02, 0x01, 0x0A, 
-              ( byte ) 0xA2, 0x05, 
-                0x04, 0x03, 
-                  0x01, 0x02, 0x03 
-            };
+            {
+                0x30, 0x0c,
+                ( byte ) 0xA1, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA2, 0x05,
+                0x04, 0x03,
+                0x01, 0x02, 0x03
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -75,13 +76,13 @@ public class PaDataTest
         pad.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-                0x30, 0x09, 
-                  ( byte ) 0xA1, 0x03, 
-                    0x02, 0x01, 0x0A, 
-                  ( byte ) 0xA2, 0x02, 
-                    0x04, 0x00 
-            };
+            {
+                0x30, 0x09,
+                ( byte ) 0xA1, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA2, 0x02,
+                0x04, 0x00
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }

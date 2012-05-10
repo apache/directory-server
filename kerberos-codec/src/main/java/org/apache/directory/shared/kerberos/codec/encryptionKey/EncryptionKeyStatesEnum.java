@@ -33,21 +33,20 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum EncryptionKeyStatesEnum implements States
 {
     // Start
-    START_STATE,                     // 0
+    START_STATE, // 0
 
-    ENCRYPTION_KEY_SEQ_STATE,        // 1
+    ENCRYPTION_KEY_SEQ_STATE, // 1
 
-    ENCRYPTION_KEY_TYPE_TAG_STATE,   // 2
+    ENCRYPTION_KEY_TYPE_TAG_STATE, // 2
 
-    ENCRYPTION_KEY_TYPE_STATE,       // 3
+    ENCRYPTION_KEY_TYPE_STATE, // 3
 
-    ENCRYPTION_KEY_VALUE_TAG_STATE,  // 4
+    ENCRYPTION_KEY_VALUE_TAG_STATE, // 4
 
-    ENCRYPTION_KEY_VALUE_STATE,      // 5
+    ENCRYPTION_KEY_VALUE_STATE, // 5
 
     // End
-    LAST_ENCRYPTION_KEY_STATE;       // 6
-
+    LAST_ENCRYPTION_KEY_STATE; // 6
 
     /**
      * Get the grammar name

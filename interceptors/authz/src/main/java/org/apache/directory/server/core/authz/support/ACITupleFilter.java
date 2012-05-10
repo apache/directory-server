@@ -42,6 +42,7 @@ public interface ACITupleFilter
     /** the dedicated logger for ACI */
     static final Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
 
+
     /**
      * Returns the collection of the filtered tuples using the specified
      * extra information.

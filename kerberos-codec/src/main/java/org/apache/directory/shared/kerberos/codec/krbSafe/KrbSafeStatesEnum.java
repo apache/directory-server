@@ -33,26 +33,25 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbSafeStatesEnum implements States
 {
     // Start
-    START_STATE,                       // 0
+    START_STATE, // 0
 
     // ----- KRB-SAFE component --------------------------------------
-    KRB_SAFE_TAG_STATE,               // 1
+    KRB_SAFE_TAG_STATE, // 1
 
-    KRB_SAFE_SEQ_STATE,               // 2
+    KRB_SAFE_SEQ_STATE, // 2
 
-    KRB_SAFE_PVNO_TAG_STATE,          // 3
-    KRB_SAFE_PVNO_STATE,              // 4
+    KRB_SAFE_PVNO_TAG_STATE, // 3
+    KRB_SAFE_PVNO_STATE, // 4
 
-    KRB_SAFE_MSGTYPE_TAG_STATE,       // 5
-    KRB_SAFE_MSGTYPE_STATE,           // 6
+    KRB_SAFE_MSGTYPE_TAG_STATE, // 5
+    KRB_SAFE_MSGTYPE_STATE, // 6
 
-    KRB_SAFE_SAFE_BODY_TAG_STATE,     // 7
+    KRB_SAFE_SAFE_BODY_TAG_STATE, // 7
 
-    KRB_SAFE_CKSUM_TAG_STATE,         // 8
+    KRB_SAFE_CKSUM_TAG_STATE, // 8
 
     // End
-    LAST_KRB_SAFE_STATE;              // 9
-
+    LAST_KRB_SAFE_STATE; // 9
 
     /**
      * Get the grammar name

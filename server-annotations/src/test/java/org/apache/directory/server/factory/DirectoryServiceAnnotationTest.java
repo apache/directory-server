@@ -58,7 +58,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@CreateDS( name = "classDS" )
+@CreateDS(name = "classDS")
 public class DirectoryServiceAnnotationTest
 {
     /**
@@ -81,74 +81,74 @@ public class DirectoryServiceAnnotationTest
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         return new InitialLdapContext( env, JndiUtils.toJndiControls( LdapApiServiceFactory.getSingleton(), controls ) );
     }
-    
+
 
     @Test
     public void testCreateDS() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "classDS", service.getInstanceId() );
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 
     @Test
-    @CreateDS( name = "methodDS" )
+    @CreateDS(name = "methodDS")
     public void testCreateMethodDS() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "methodDS", service.getInstanceId() );
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
-    
-    
+
+
     @Test
-    @CreateDS( 
+    @CreateDS(
         name = "MethodDSWithPartition",
         partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
-                    entryLdif =
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    contextEntry = @ContextEntry(
+                        entryLdif =
                         "dn: dc=example,dc=com\n" +
-                        "dc: example\n" +
-                        "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        } )
+                            "dc: example\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n"),
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    })
+        })
     public void testCreateMethodDSWithPartition() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "MethodDSWithPartition", service.getInstanceId() );
-        
+
         Set<String> expectedNames = new HashSet<String>();
-        
+
         expectedNames.add( "example" );
         expectedNames.add( "schema" );
-        
+
         assertEquals( 2, service.getPartitions().size() );
-        
+
         for ( Partition partition : service.getPartitions() )
         {
             assertTrue( expectedNames.contains( partition.getId() ) );
-            
+
             if ( "example".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
@@ -160,62 +160,61 @@ public class DirectoryServiceAnnotationTest
                 assertEquals( "ou=schema", partition.getSuffixDn().getName() );
             }
         }
-        
+
         assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
-    
-    
+
+
     @Test
-    @CreateDS( 
+    @CreateDS(
         name = "MethodDSWithPartitionAndServer",
         partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
-                    entryLdif =
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    contextEntry = @ContextEntry(
+                        entryLdif =
                         "dn: dc=example,dc=com\n" +
-                        "dc: example\n" +
-                        "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        } )
-    @CreateLdapServer ( 
-        transports = 
-        {
-            @CreateTransport( protocol = "LDAP" ), 
-            @CreateTransport( protocol = "LDAPS" ) 
+                            "dc: example\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n"),
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    })
+        })
+    @CreateLdapServer(
+        transports =
+            {
+                @CreateTransport(protocol = "LDAP"),
+                @CreateTransport(protocol = "LDAPS")
         })
     public void testCreateLdapServer() throws Exception
     {
         // First, get the service
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         // Check that the service is running
         assertTrue( service.isStarted() );
         assertEquals( "MethodDSWithPartitionAndServer", service.getInstanceId() );
-        
-        
+
         Set<String> expectedNames = new HashSet<String>();
-        
+
         expectedNames.add( "example" );
         expectedNames.add( "schema" );
-        
+
         assertEquals( 2, service.getPartitions().size() );
-        
+
         for ( Partition partition : service.getPartitions() )
         {
             assertTrue( expectedNames.contains( partition.getId() ) );
-            
+
             if ( "example".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
@@ -227,7 +226,7 @@ public class DirectoryServiceAnnotationTest
                 assertEquals( "ou=schema", partition.getSuffixDn().getName() );
             }
         }
-        
+
         assertTrue( service.getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
 
         // Now, get the server
@@ -235,24 +234,25 @@ public class DirectoryServiceAnnotationTest
 
         // Check that the server is running
         assertTrue( ldapServer.isStarted() );
-        
+
         // Try to read an entry in the server
         LdapContext ctx = ( LdapContext ) getWiredContext( ldapServer, null ).lookup( "dc=example,dc=com" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{"*"} );
-        
+        controls.setReturningAttributes( new String[]
+            { "*" } );
+
         NamingEnumeration<SearchResult> enumeration = ctx.search( "", "(objectClass=*)", controls );
-        
+
         // collect all results 
         HashSet<String> results = new HashSet<String>();
-        
+
         while ( enumeration.hasMore() )
         {
             SearchResult result = enumeration.next();
             results.add( result.getNameInNamespace() );
         }
-        
+
         assertEquals( 1, results.size() );
         assertTrue( results.contains( "dc=example,dc=com" ) );
 
@@ -260,7 +260,7 @@ public class DirectoryServiceAnnotationTest
         ctx.close();
         ldapServer.stop();
         service.shutdown();
-        
+
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 }

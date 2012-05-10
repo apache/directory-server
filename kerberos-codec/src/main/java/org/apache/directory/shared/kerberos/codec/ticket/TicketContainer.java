@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.ticket;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -36,7 +37,8 @@ public class TicketContainer extends AbstractContainer
 {
     /** The ticket */
     private Ticket ticket;
-    
+
+
     /**
      * Creates a new TicketContainer object. We will store one grammars,
      * it's enough ...
@@ -59,7 +61,7 @@ public class TicketContainer extends AbstractContainer
         return ticket;
     }
 
-    
+
     /**
      * Set a Ticket into the container. It will be completed by the
      * KerberosDecoder.

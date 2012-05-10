@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
@@ -97,7 +97,6 @@ public class EncTicketPart extends AbstractAsn1Object
     /** the authorization data */
     private AuthorizationData authorizationData;
 
-
     private int flagsLen;
     private int keyLen;
     private int cRealmLen;
@@ -116,6 +115,7 @@ public class EncTicketPart extends AbstractAsn1Object
     private int authzDataLen;
     private int encTikcetPartSeqLen;
     private int encTikcetPartLen;
+
 
     /**
      * compute length for EncTicketPart:
@@ -180,7 +180,7 @@ public class EncTicketPart extends AbstractAsn1Object
         keyLen = key.computeLength();
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( keyLen ) + keyLen;
 
-        cRealmBytes = Strings.getBytesUtf8(cRealm);
+        cRealmBytes = Strings.getBytesUtf8( cRealm );
         cRealmLen = 1 + TLV.getNbBytes( cRealmBytes.length ) + cRealmBytes.length;
         encTikcetPartSeqLen += 1 + TLV.getNbBytes( cRealmLen ) + cRealmLen;
 
@@ -250,7 +250,7 @@ public class EncTicketPart extends AbstractAsn1Object
             // flags tag and int value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_FLAGS_TAG );
             buffer.put( TLV.getBytes( flagsLen ) );
-            Value.encode( buffer, flags );
+            BerValue.encode( buffer, flags );
 
             // key tag and value
             buffer.put( ( byte ) KerberosConstants.ENC_TICKET_PART_KEY_TAG );
@@ -333,7 +333,7 @@ public class EncTicketPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncTicketPart initial value : {}", toString() );
         }
 
@@ -552,11 +552,11 @@ public class EncTicketPart extends AbstractAsn1Object
         {
             flags = new TicketFlags();
         }
-        
+
         flags.setFlag( flag.getValue() );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

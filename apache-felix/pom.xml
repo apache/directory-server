@@ -59,7 +59,7 @@
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.gogo.shell</artifactId>
                   <version>0.10.0</version>
-                  <overWrite>true</overWrite>   
+                  <overWrite>true</overWrite>                  
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
@@ -81,12 +81,6 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
-                  <artifactId>org.apache.felix.eventadmin</artifactId>
-                  <version>1.2.14</version>
-                  <overWrite>true</overWrite>                  
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.ipojo</artifactId>
                   <version>1.8.0</version>
                   <overWrite>true</overWrite>                  
@@ -95,12 +89,6 @@
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.ipojo.arch.gogo</artifactId>
                   <version>1.0.1</version>
-                  <overWrite>true</overWrite>                  
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.apache.felix</groupId>
-                  <artifactId>org.apache.felix.ipojo.handler.whiteboard</artifactId>
-                  <version>1.6.0</version>
                   <overWrite>true</overWrite>                  
                 </artifactItem>
                 <artifactItem>
@@ -172,7 +160,6 @@
                 <include>bin/</include>
                 <include>bundle/</include>
                 <include>felix-cache/</include>
-                <include>default/</include>
               </includes>
             </fileset>
           </filesets>

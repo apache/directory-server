@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -127,8 +127,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     @SuppressWarnings("unchecked")
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-
-        if ( idx == null )
+        if ( ( idx == null ) || ( !idx.hasReverse() ) )
         {
             return evaluateWithoutIndex( ( IndexEntry<String, ID> ) indexEntry );
         }
@@ -163,7 +162,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
         else
         {
-            return evaluateWithIndex( );
+            return evaluateWithIndex();
         }
     }
 
@@ -196,7 +195,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
-            if ( regex.matcher( ( String ) rec.getValue() ).matches() )
+            if ( regex.matcher( rec.getKey() ).matches() )
             {
                 entries.close();
                 return true;
@@ -204,13 +203,13 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
 
 
-    private boolean evaluateWithIndex( ) throws Exception
+    private boolean evaluateWithIndex() throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -232,7 +231,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
             IndexEntry<String, ID> rec = entries.get();
 
             // once match is found cleanup and return true
-            if ( regex.matcher( ( String ) rec.getValue() ).matches() )
+            if ( regex.matcher( rec.getKey() ).matches() )
             {
                 entries.close();
                 return true;
@@ -240,7 +239,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
@@ -364,12 +363,12 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                 for ( Value<?> value : attr )
                 {
                     String strValue = ( String ) value.getNormValue();
-    
+
                     // Once match is found cleanup and return true
                     if ( regex.matcher( strValue ).matches() )
                     {
                         // before returning we set the normalized value
-                        indexEntry.setValue( strValue );
+                        indexEntry.setKey( strValue );
                         return true;
                     }
                 }
@@ -380,15 +379,15 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                 // the value.
                 for ( Value<?> value : attr )
                 {
-                    byte[] byteValue = (byte[])value.getNormValue();
-    
+                    byte[] byteValue = ( byte[] ) value.getNormValue();
+
                     // Once match is found cleanup and return true
                     // @TODO : implement this check.
                     /*
                     if ( check( byteValue ) )
                     {
                         // before returning we set the normalized value
-                        indexEntry.setValue( byteValue );
+                        indexEntry.setKey( byteValue );
                         return true;
                     }
                     */
@@ -431,7 +430,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
                         if ( regex.matcher( strValue ).matches() )
                         {
                             // before returning we set the normalized value
-                            indexEntry.setValue( strValue );
+                            indexEntry.setKey( strValue );
                             return true;
                         }
                     }

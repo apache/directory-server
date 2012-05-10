@@ -51,7 +51,7 @@ public abstract class AdsBaseBean
     /** the DN of the entry with which this bean is associated */
     private Dn dn;
 
-    
+
     /**
      * Create a new BaseBean instance
      */
@@ -184,11 +184,11 @@ public abstract class AdsBaseBean
 
         sb.append( toString( tabs, "enabled", enabled ) );
 
-        if ( !Strings.isEmpty(description) )
+        if ( !Strings.isEmpty( description ) )
         {
             sb.append( tabs ).append( "description : '" ).append( description ).append( "'\n" );
         }
-        
+
         if ( dn != null )
         {
             sb.append( tabs ).append( "DN: " ).append( dn ).append( "'\n" );
@@ -207,9 +207,9 @@ public abstract class AdsBaseBean
     }
 
 
-     /**
-      * {@inheritDoc}
-      */
+    /**
+     * {@inheritDoc}
+     */
     public Dn getDn()
     {
         return dn;

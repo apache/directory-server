@@ -56,7 +56,7 @@ public final class HardwareAddress
      * @param length
      * @param address
      */
-    public HardwareAddress(short type, short length, byte[] address)
+    public HardwareAddress( short type, short length, byte[] address )
     {
         this.type = type;
         this.length = length;

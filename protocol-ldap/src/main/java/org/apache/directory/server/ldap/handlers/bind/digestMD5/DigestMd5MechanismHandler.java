@@ -54,7 +54,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
         StringBuilder realms = new StringBuilder();
         boolean isFirst = true;
 
-        for ( String realm:ldapServer.getSaslRealms() )
+        for ( String realm : ldapServer.getSaslRealms() )
         {
             if ( isFirst )
             {
@@ -64,7 +64,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
             {
                 realms.append( ' ' );
             }
-            
+
             realms.append( realm );
         }
 
@@ -72,10 +72,9 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
     }
 
 
-    
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
+        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
         if ( ss == null )
         {
@@ -83,11 +82,11 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
 
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
-            ss = Sasl.createSaslServer( 
+            ss = Sasl.createSaslServer(
                 SupportedSaslMechanisms.DIGEST_MD5,
-                SaslConstants.LDAP_PROTOCOL, 
-                (String)ldapSession.getSaslProperty( SaslConstants.SASL_HOST ),
-                (Map<String, String>)ldapSession.getSaslProperty( SaslConstants.SASL_PROPS ),
+                SaslConstants.LDAP_PROTOCOL,
+                ( String ) ldapSession.getSaslProperty( SaslConstants.SASL_HOST ),
+                ( Map<String, String> ) ldapSession.getSaslProperty( SaslConstants.SASL_PROPS ),
                 callbackHandler );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
@@ -95,7 +94,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
         return ss;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -105,7 +104,6 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
         String saslHost = ldapSession.getLdapServer().getSaslHost();
         String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
 
-
         ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
         ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
 
@@ -114,8 +112,8 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
         saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
         ldapSession.putSaslProperty( SaslConstants.SASL_PROPS, saslProps );
     }
-    
-    
+
+
     /**
      * Remove the Host, UserBaseDn, props and Mechanism property.
      * 
@@ -125,7 +123,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
     {
         // Inject the Sasl Filter
         insertSaslFilter( ldapSession );
-        
+
         // and cleanup the useless informations
         ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
         ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );

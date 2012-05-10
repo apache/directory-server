@@ -26,7 +26,7 @@ import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
@@ -48,6 +48,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
 
     /** The msgType to decode */
     private KerberosMessageType msgType = null;
+
 
     /**
      * Instantiates a new StoreMsgType action.
@@ -84,7 +85,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
             throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
         }
 
-        Value value = tlv.getValue();
+        BerValue value = tlv.getValue();
 
         try
         {
@@ -99,7 +100,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
                     return;
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -111,20 +112,20 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
 
                 if ( container instanceof KdcReqContainer )
                 {
-                    if ( ((KdcReqContainer)container).getKdcReq().getMessageType() == messageType )
+                    if ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType )
                     {
                         return;
                     }
                 }
                 else if ( container instanceof KdcRepContainer )
                 {
-                    if ( ((KdcRepContainer)container).getKdcRep().getMessageType() == messageType )
+                    if ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType )
                     {
                         return;
                     }
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()) );
+                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -133,7 +134,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

@@ -56,38 +56,37 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="LdapsIT-class")
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "LdapsIT-class")
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     },
-    saslHost="localhost",
-    saslMechanisms = 
-    {
-        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-        @SaslMechanism( name= SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+    saslHost = "localhost",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
     },
-    extendedOpHandlers = 
-    {
-        StoredProcedureExtendedOperationHandler.class
+    extendedOpHandlers =
+        {
+            StoredProcedureExtendedOperationHandler.class
     },
-    ntlmProvider=BogusNtlmProvider.class
-    )
+    ntlmProvider = BogusNtlmProvider.class)
 public class LdapsIT extends AbstractLdapTestUnit
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
     private static final String RDN = "cn=The Person";
-    
-    
+
+
     /**
      * Create a secure connection on ou=system.
      */
@@ -114,11 +113,11 @@ public class LdapsIT extends AbstractLdapTestUnit
     {
         // Create a person
         Attributes attributes = LdifUtils.createJndiAttributes(
-                "objectClass: top",
-                "objectClass: person",
-                "cn: The Person",
-                "sn: Person",
-                "description: this is a person");
+            "objectClass: top",
+            "objectClass: person",
+            "cn: The Person",
+            "sn: Person",
+            "description: this is a person" );
         DirContext ctx = getSecureConnectionSystem();
         DirContext person = ctx.createSubcontext( RDN, attributes );
 

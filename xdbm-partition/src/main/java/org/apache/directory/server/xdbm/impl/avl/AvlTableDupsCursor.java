@@ -24,7 +24,7 @@ import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
-import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
@@ -35,24 +35,27 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Cursor which walks and advance over AvlTables that may contain duplicate
- * keys with values stored in an AvlTree.  All duplicate keys are traversed 
+ * keys with values stored in an AvlTree.  All duplicate keys are traversed
  * returning the key and the value in a Tuple.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
+public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlTableDupsCursor.class.getSimpleName() );
-    
+
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The AVL backed table this Cursor traverses over. */
-    private final AvlTable<K,V> table;
-    
+    private final AvlTable<K, V> table;
+
     /**
      * The underlying wrapped cursor which returns Tuples whose values are
      * either V objects or AvlTree objects.
      */
     private final AvlSingletonOrOrderedSetCursor<K, V> wrappedCursor;
-    
+
     /**
      * A Cursor over a set of value objects for the current key held in the
      * containerTuple.  A new Cursor will be set for each new key as we
@@ -63,26 +66,27 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     private Cursor<V> dupsCursor;
 
     /** The current Tuple returned from the wrapped cursor. */
-    private final Tuple<K,SingletonOrOrderedSet<V>> wrappedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
+    private final Tuple<K, SingletonOrOrderedSet<V>> wrappedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
 
     /**
      * The Tuple that is used to return values via the get() method. This
      * same Tuple instance will be returned every time.  At different
      * positions it may return different values for the same key.
      */
-    private final Tuple<K,V> returnedTuple = new Tuple<K,V>();
+    private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
 
     /** Whether or not a value is available when get() is called. */
     private boolean valueAvailable;
 
-    
+
     /**
      * Creates a new instance of AvlTableDupsCursor.
      *
      * @param table the AvlTable to build a Cursor on.
      */
-    public AvlTableDupsCursor( AvlTable<K,V> table )
+    public AvlTableDupsCursor( AvlTable<K, V> table )
     {
+        LOG_CURSOR.debug( "Creating AvlTableDupsCursor {}", this );
         this.table = table;
         this.wrappedCursor = new AvlSingletonOrOrderedSetCursor<K, V>( table.getAvlTreeMap() );
         LOG.debug( "Created on table {}", table.getName() );
@@ -115,10 +119,15 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         checkNotClosed( "beforeValue()" );
         wrappedCursor.beforeKey( key );
         
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
         if ( wrappedCursor.next() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
-            
+
             if ( wrappedTuple.getValue().isOrderedSet() )
             {
                 AvlTree<V> avlTree = wrappedTuple.getValue().getOrderedSet();
@@ -126,36 +135,36 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             }
             else
             {
-                dupsCursor = new SingletonCursor<V>( 
+                dupsCursor = new SingletonCursor<V>(
                     wrappedTuple.getValue().getSingleton(), wrappedCursor.getValuComparator() );
             }
-            
+
             if ( value == null )
             {
                 clearValue();
                 return;
             }
-    
-            /* 
-             * The cursor over the values is only advanced if we're on the 
+
+            /*
+             * The cursor over the values is only advanced if we're on the
              * same key as the primary cursor.  This is because we want this
-             * method to really position us within a set of duplicate key 
+             * method to really position us within a set of duplicate key
              * entries at the proper value.
              */
             if ( table.getKeyComparator().compare( wrappedTuple.getKey(), key ) == 0 )
             {
                 dupsCursor.before( value );
             }
-            
+
             clearValue();
             return;
         }
-        
+
         clearValue();
         wrappedTuple.setKey( null );
         wrappedTuple.setValue( null );
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -165,13 +174,19 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         afterValue( key, null );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void afterValue( K key, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
+
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
         /*
          * There is a subtle difference between after and before handling
          * with dupicate key values.  Say we have the following tuples:
@@ -220,6 +235,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             if ( value == null )
             {
                 clearValue();
+                
                 return;
             }
 
@@ -238,7 +254,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         wrappedTuple.setValue( null );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -247,7 +263,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         afterValue( element.getKey(), element.getValue() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -258,6 +274,12 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         wrappedCursor.afterLast();
         wrappedTuple.setKey( null );
         wrappedTuple.setValue( null );
+
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
         dupsCursor = null;
     }
 
@@ -270,7 +292,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         beforeValue( element.getKey(), element.getValue() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -281,10 +303,16 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         wrappedCursor.beforeFirst();
         wrappedTuple.setKey( null );
         wrappedTuple.setValue( null );
+
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
         dupsCursor = null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -292,6 +320,12 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     {
         checkNotClosed( "first()" );
         clearValue();
+
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
         dupsCursor = null;
 
         if ( wrappedCursor.first() )
@@ -314,16 +348,17 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
              * call to last() will always return true.
              */
             dupsCursor.first();
-            valueAvailable =  true;
+            valueAvailable = true;
             returnedTuple.setKey( wrappedTuple.getKey() );
             returnedTuple.setValue( dupsCursor.get() );
+            
             return true;
         }
 
         return false;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -331,7 +366,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     {
         checkNotClosed( "get()" );
 
-        if ( ! valueAvailable )
+        if ( !valueAvailable )
         {
             throw new InvalidCursorPositionException();
         }
@@ -339,7 +374,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
         return returnedTuple;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -347,8 +382,12 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
     {
         checkNotClosed( "last()" );
         clearValue();
-        dupsCursor = null;
-
+        
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+        
         if ( wrappedCursor.last() )
         {
             wrappedTuple.setBoth( wrappedCursor.get() );
@@ -372,25 +411,32 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             valueAvailable = true;
             returnedTuple.setKey( wrappedTuple.getKey() );
             returnedTuple.setValue( dupsCursor.get() );
+            
             return true;
         }
 
         return false;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
+        
         /*
          * If the cursor over the values of the current key is null or is
          * extinguished then we need to advance to the next key.
          */
-        if ( null == dupsCursor || ! dupsCursor.next() )
+        if ( null == dupsCursor || !dupsCursor.next() )
         {
+            if ( dupsCursor != null )
+            {
+                dupsCursor.close();
+            }
+            
             /*
              * If the wrappedCursor cursor has more elements we get the next
              * key/AvlTree Tuple to work with and get a cursor over it.
@@ -400,7 +446,7 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
                 wrappedTuple.setBoth( wrappedCursor.get() );
                 SingletonOrOrderedSet<V> values = wrappedTuple.getValue();
 
-                if ( values.isOrderedSet())
+                if ( values.isOrderedSet() )
                 {
                     dupsCursor = new AvlTreeCursor<V>( values.getOrderedSet() );
                 }
@@ -421,23 +467,25 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             else
             {
                 dupsCursor = null;
+                
                 return false;
             }
         }
 
         /*
          * If we get to this point then cursor has more elements and
-         * wrappedTuple holds the Tuple containing the key and the 
+         * wrappedTuple holds the Tuple containing the key and the
          * AvlTree of values for that key which the Cursor traverses.  All we
          * need to do is populate our tuple object with the key and the value
          * in the cursor.
          */
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
+        
         return valueAvailable = true;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -448,8 +496,13 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
          * If the cursor over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.
          */
-        if ( null == dupsCursor || ! dupsCursor.previous() )
+        if ( ( null == dupsCursor ) || !dupsCursor.previous() )
         {
+            if ( dupsCursor != null )
+            {
+                dupsCursor.close();
+            }
+            
             /*
              * If the wrappedCursor cursor has more elements we get the previous
              * key/AvlTree Tuple to work with and get a cursor over it's
@@ -481,14 +534,43 @@ public class AvlTableDupsCursor<K,V> extends AbstractTupleCursor<K, V>
             else
             {
                 dupsCursor = null;
+                
                 return false;
             }
         }
 
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
+        
         return valueAvailable = true;
     }
+
+    
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
+        
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+        
+        wrappedCursor.close();
+    }
+
+
+    public void close( Exception reason ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
+
+        if ( dupsCursor != null )
+        {
+            dupsCursor.close();
+        }
+
+        wrappedCursor.close();
+    }
+
 
 
     /**

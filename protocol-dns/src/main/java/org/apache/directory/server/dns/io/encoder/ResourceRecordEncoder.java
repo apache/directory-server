@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 
 package org.apache.directory.server.dns.io.encoder;
@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 
@@ -80,16 +81,21 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      */
     protected void putDomainName( IoBuffer byteBuffer, String domainName )
     {
-        String[] labels = domainName.split( "\\." );
-
-        for ( int ii = 0; ii < labels.length; ii++ )
+        if ( ! Strings.isEmpty( domainName ) )
         {
-            byteBuffer.put( ( byte ) labels[ii].length() );
+            String[] labels = domainName.split( "\\." );
+        
 
-            char[] characters = labels[ii].toCharArray();
-            for ( int jj = 0; jj < characters.length; jj++ )
+            for ( String label : labels )
             {
-                byteBuffer.put( ( byte ) characters[jj] );
+                byteBuffer.put( ( byte ) label.length() );
+    
+                char[] characters = label.toCharArray();
+                
+                for ( char c : characters )
+                {
+                    byteBuffer.put( ( byte ) c );
+                }
             }
         }
 

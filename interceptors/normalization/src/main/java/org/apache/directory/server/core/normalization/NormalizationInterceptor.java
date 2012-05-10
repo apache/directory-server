@@ -79,6 +79,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     /** a filter node value normalizer and undefined node remover */
     private FilterNormalizingVisitor normVisitor;
 
+
     /**
      * Creates a new instance of a NormalizationInterceptor.
      */
@@ -86,7 +87,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.NORMALIZATION_INTERCEPTOR );
     }
-    
+
 
     /**
      * Initialize the registries, normalizers.
@@ -418,8 +419,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         for ( Ava ava : rdn )
         {
             Value<?> value = ava.getNormValue();
-            Value<?> upValue = ava.getUpValue();
-            String upId = ava.getUpType();
+            Value<?> upValue = ava.getValue();
+            String upId = ava.getType();
 
             // Check that the entry contains this Ava
             if ( !entry.contains( upId, value ) )
@@ -432,7 +433,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // 1) The attribute does not exist
                 if ( !entry.containsAttribute( upId ) )
                 {
-                    entry.add( upId, value );
+                    entry.add( upId, upValue );
                 }
                 // 2) The attribute exists
                 else
@@ -443,12 +444,12 @@ public class NormalizationInterceptor extends BaseInterceptor
                     if ( at.isSingleValued() )
                     {
                         entry.removeAttributes( upId );
-                        entry.add( upId, value );
+                        entry.add( upId, upValue );
                     }
                     // 2.2 the attribute is multi-valued : add the missing value
                     else
                     {
-                        entry.add( upId, value );
+                        entry.add( upId, upValue );
                     }
                 }
             }

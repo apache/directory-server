@@ -23,8 +23,6 @@ package org.apache.directory.server.core.api.event;
 import java.util.List;
 
 
-
-
 /**
  * Interface used by the DirectoryService to manage subscriptions for DIT 
  * change notifications.
@@ -42,8 +40,8 @@ public interface EventService
      * @throws Exception 
      */
     void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception;
-    
-    
+
+
     /**
      * Removes the listener from this EventService preventing all events 
      * registered from being delivered to it.
@@ -51,8 +49,8 @@ public interface EventService
      * @param listener the DirectoryListener to stop delivering notifications to
      */
     void removeListener( DirectoryListener listener );
-    
-    
+
+
     /**
      * Lists the listeners registered with this EventService.
      */

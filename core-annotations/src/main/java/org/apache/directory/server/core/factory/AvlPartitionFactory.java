@@ -42,7 +42,8 @@ public class AvlPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public AvlPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory )
+    public AvlPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+        File workingDirectory )
         throws Exception
     {
         AvlPartition partition = new AvlPartition( schemaManager );
@@ -50,7 +51,7 @@ public class AvlPartitionFactory implements PartitionFactory
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
         partition.setPartitionPath( workingDirectory.toURI() );
-        
+
         return partition;
     }
 

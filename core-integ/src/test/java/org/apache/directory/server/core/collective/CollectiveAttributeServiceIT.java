@@ -66,10 +66,10 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestEntry( String dn, String cn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = new DefaultEntry( 
-            dn, 
-            "objectClass: top", 
-            "objectClass: person", 
+        Entry subentry = new DefaultEntry(
+            dn,
+            "objectClass: top",
+            "objectClass: person",
             "cn", cn,
             "sn: testentry" );
 
@@ -79,13 +79,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = new DefaultEntry( 
-            dn, 
-            "objectClass: top", 
+        Entry subentry = new DefaultEntry(
+            dn,
+            "objectClass: top",
             "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", 
+            "objectClass: collectiveAttributeSubentry",
             "c-ou: configuration",
-            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "subtreeSpecification: { base \"ou=configuration\" }",
             "cn: testsubentry" );
 
         return subentry;
@@ -95,13 +95,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     private Entry getTestSubentry2( String dn ) throws LdapLdifException, LdapException
     {
         Entry subentry = new DefaultEntry(
-            dn, 
-            "objectClass: top", 
+            dn,
+            "objectClass: top",
             "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", 
+            "objectClass: collectiveAttributeSubentry",
             "c-ou: configuration2",
-            "subtreeSpecification: { base \"ou=configuration\" }", 
-            "cn: testsubentry2");
+            "subtreeSpecification: { base \"ou=configuration\" }",
+            "cn: testsubentry2" );
 
         return subentry;
     }
@@ -109,13 +109,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
     private Entry getTestSubentry3( String dn ) throws LdapLdifException, LdapException
     {
-        Entry subentry = new DefaultEntry( 
-            dn, 
-            "objectClass: top", 
+        Entry subentry = new DefaultEntry(
+            dn,
+            "objectClass: top",
             "objectClass: subentry",
-            "objectClass: collectiveAttributeSubentry", 
+            "objectClass: collectiveAttributeSubentry",
             "c-st: FL",
-            "subtreeSpecification: { base \"ou=configuration\" }", 
+            "subtreeSpecification: { base \"ou=configuration\" }",
             "cn: testsubentry3" );
 
         return subentry;
@@ -143,6 +143,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
             resultMap.put( entry.getDn().getName(), entry );
         }
+        
+        cursor.close();
 
         return resultMap;
     }
@@ -159,6 +161,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             Entry entry = cursor.get();
             resultMap.put( entry.getDn().getName(), entry );
         }
+        
+        cursor.close();
 
         return resultMap;
     }
@@ -177,6 +181,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
             resultMap.put( entry.getDn().getName(), entry );
         }
+        
+        cursor.close();
 
         return resultMap;
     }
@@ -323,7 +329,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore( "This test is failing until we fix the handling of collective attributes in filters" )
+    @Ignore("This test is failing until we fix the handling of collective attributes in filters")
     public void testSearchFilterCollectiveAttribute() throws Exception
     {
         // -------------------------------------------------------------------
@@ -331,12 +337,12 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
         connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
-        
+
         EntryCursor cursor = connection.search( "ou=system", "(c-ou=configuration)", SearchScope.SUBTREE, "+",
             "*" );
 
         boolean found = false;
-        
+
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
@@ -345,6 +351,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             break;
         }
         
+        cursor.close();
+
         assertTrue( found );
     }
 
@@ -383,6 +391,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             assertTrue( entry.contains( "ou", "services" ) );
             assertTrue( entry.contains( "c-ou", "configuration" ) );
         }
+        
+        responses.close();
 
         // ------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou,
@@ -505,7 +515,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test(expected = LdapSchemaViolationException.class)
     public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
@@ -515,7 +525,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test( expected = LdapSchemaViolationException.class )
+    @Test(expected = LdapSchemaViolationException.class)
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
         Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );

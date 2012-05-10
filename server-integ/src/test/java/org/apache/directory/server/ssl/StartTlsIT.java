@@ -74,31 +74,31 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="StartTlsIT-class")
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "StartTlsIT-class")
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     },
-    extendedOpHandlers={ StartTlsHandler.class }
-    )
+    extendedOpHandlers =
+        { StartTlsHandler.class })
 public class StartTlsIT extends AbstractLdapTestUnit
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
-    private static final String[] CERT_IDS = new String[] { "userCertificate" };
+    private static final String[] CERT_IDS = new String[]
+        { "userCertificate" };
     private static final int CONNECT_ITERATIONS = 10;
     private static final boolean VERBOSE = false;
     private File ksFile;
 
-    
     boolean oldConfidentialityRequiredValue;
-    
-    
+
+
     /**
      * Sets up the key store and installs the self signed certificate for the 
      * server (created on first startup) which is to be used by the StartTLS 
@@ -116,7 +116,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         ksFile = File.createTempFile( "testStore", "ks" );
         CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
@@ -131,11 +131,11 @@ public class StartTlsIT extends AbstractLdapTestUnit
         ks.setCertificateEntry( "apacheds", cert );
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-        
+
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
-    
-    
+
+
     /**
      * Just deletes the generated key store file.
      */
@@ -146,29 +146,29 @@ public class StartTlsIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
-    
+
 
     private void search( int ii, LdapContext securedContext ) throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        
+
         if ( VERBOSE )
         {
             System.out.println( "Searching on " + ii + "-th iteration:" );
         }
-        
+
         List<String> results = new ArrayList<String>();
         NamingEnumeration<SearchResult> ne = securedContext.search( "ou=system", "(objectClass=*)", controls );
         while ( ne.hasMore() )
         {
             String dn = ne.next().getNameInNamespace();
             results.add( dn );
-            
+
             if ( VERBOSE )
             {
                 System.out.println( "\tSearch Result = " + dn );
@@ -181,15 +181,20 @@ public class StartTlsIT extends AbstractLdapTestUnit
         assertTrue( "Results must contain uid=admin,ou=system", results.contains( "uid=admin,ou=system" ) );
         assertTrue( "Results must contain ou=users,ou=system", results.contains( "ou=users,ou=system" ) );
         assertTrue( "Results must contain ou=groups,ou=system", results.contains( "ou=groups,ou=system" ) );
-        assertTrue( "Results must contain cn=Administrators,ou=groups,ou=system", results.contains( "cn=Administrators,ou=groups,ou=system" ) );
+        assertTrue( "Results must contain cn=Administrators,ou=groups,ou=system",
+            results.contains( "cn=Administrators,ou=groups,ou=system" ) );
         assertTrue( "Results must contain ou=configuration,ou=system", results.contains( "ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=partitions,ou=configuration,ou=system", results.contains( "ou=partitions,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=services,ou=configuration,ou=system", results.contains( "ou=services,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=interceptors,ou=configuration,ou=system", results.contains( "ou=interceptors,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain prefNodeName=sysPrefRoot,ou=system", results.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
+        assertTrue( "Results must contain ou=partitions,ou=configuration,ou=system",
+            results.contains( "ou=partitions,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain ou=services,ou=configuration,ou=system",
+            results.contains( "ou=services,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain ou=interceptors,ou=configuration,ou=system",
+            results.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+        assertTrue( "Results must contain prefNodeName=sysPrefRoot,ou=system",
+            results.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
     }
-    
-    
+
+
     /**
      * Tests StartTLS by creating a JNDI connection using the generated key 
      * store with the installed self signed certificate.  It then searches 
@@ -209,34 +214,35 @@ public class StartTlsIT extends AbstractLdapTestUnit
                 System.out.println( "Performing " + ii + "-th iteration to connect via StartTLS." );
             }
 
-            System.setProperty ( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-            System.setProperty ( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-            System.setProperty ( "javax.net.ssl.keyStorePassword", "changeit" );
+            System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
+            System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
+            System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
             LOG.debug( "testStartTls() test starting ... " );
-            
+
             // Set up environment for creating initial context
-            Hashtable<String, Object> env = new Hashtable<String,Object>();
+            Hashtable<String, Object> env = new Hashtable<String, Object>();
             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
             env.put( "java.naming.security.principal", "uid=admin,ou=system" );
             env.put( "java.naming.security.credentials", "secret" );
             env.put( "java.naming.security.authentication", "simple" );
-            
+
             // Must use the name of the server that is found in its certificate?
             env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
-    
+
             // Create initial context
             LOG.debug( "About to get initial context" );
             LdapContext ctx = new InitialLdapContext( env, null );
-    
+
             // Start TLS
             LOG.debug( "About send startTls extended operation" );
             StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
             LOG.debug( "Extended operation issued" );
-            tls.setHostnameVerifier( new HostnameVerifier() {
+            tls.setHostnameVerifier( new HostnameVerifier()
+            {
                 public boolean verify( String hostname, SSLSession session )
                 {
                     return true;
-                } 
+                }
             } );
             LOG.debug( "TLS negotion about to begin" );
             tls.negotiate( ReloadableSSLSocketFactory.getDefault() );

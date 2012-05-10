@@ -33,21 +33,20 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum ChecksumStatesEnum implements States
 {
     // Start
-    START_STATE,                  // 0
+    START_STATE, // 0
 
-    CHECKSUM_SEQ_STATE,           // 1
+    CHECKSUM_SEQ_STATE, // 1
 
-    CHECKSUM_TYPE_TAG_STATE,      // 2
+    CHECKSUM_TYPE_TAG_STATE, // 2
 
-    CHECKSUM_TYPE_STATE,          // 3
+    CHECKSUM_TYPE_STATE, // 3
 
-    CHECKSUM_CHECKSUM_TAG_STATE,  // 4
+    CHECKSUM_CHECKSUM_TAG_STATE, // 4
 
-    CHECKSUM_CHECKSUM_STATE,      // 5
+    CHECKSUM_CHECKSUM_STATE, // 5
 
     // End
     LAST_CHECKSUM_STATE; // 6
-
 
     /**
      * Get the grammar name

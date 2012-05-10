@@ -43,6 +43,7 @@ public class TgsReq extends KdcReq
     private int kdcReqLength;
     private int tgsReqLength;
 
+
     /**
      * Creates a new instance of TGS-REQ.
      */
@@ -51,7 +52,7 @@ public class TgsReq extends KdcReq
         super( KerberosMessageType.TGS_REQ );
     }
 
-    
+
     /**
      * Compute the TGS-REQ length
      * <pre>
@@ -66,14 +67,14 @@ public class TgsReq extends KdcReq
     {
         kdcReqLength = 0;
         tgsReqLength = 0;
-        
+
         kdcReqLength = super.computeLength();
         tgsReqLength = 1 + TLV.getNbBytes( kdcReqLength ) + kdcReqLength;
-        
+
         return tgsReqLength;
     }
-    
-    
+
+
     /**
      * Encode the TGS-REQ component
      * 
@@ -87,14 +88,14 @@ public class TgsReq extends KdcReq
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         // The TGS-REQ SEQ Tag
-        buffer.put( (byte)KerberosConstants.TGS_REQ_TAG );
+        buffer.put( ( byte ) KerberosConstants.TGS_REQ_TAG );
         buffer.put( TLV.getBytes( kdcReqLength ) );
-        
+
         // The KDC-REQ --------------------------------------------------------
         super.encode( buffer );
-        
+
         return buffer;
     }
 }

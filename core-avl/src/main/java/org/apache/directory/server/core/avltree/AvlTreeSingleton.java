@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -35,14 +36,14 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
 {
     private final LinkedAvlNode<K> singleton;
     private final Comparator<K> comparator;
-    
-    
+
+
     public AvlTreeSingleton( K key, Comparator<K> comparator )
     {
         this.singleton = new LinkedAvlNode<K>( key );
         this.comparator = comparator;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -57,7 +58,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -71,7 +72,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -84,7 +85,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
 
         return null;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -99,7 +100,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return null;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -121,7 +122,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
     {
         return comparator;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -131,7 +132,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return singleton;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -140,7 +141,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return Collections.singletonList( singleton.getKey() );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -148,7 +149,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
     {
         return singleton;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -167,25 +168,25 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
         return 1;
     }
 
-    
+
     public K insert( K key )
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );
     }
 
-    
+
     public boolean isEmpty()
     {
         return false;
     }
 
-    
+
     public void printTree()
     {
         System.out.println( "[ " + singleton + " ]" );
     }
 
-    
+
     public K remove( K key )
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );

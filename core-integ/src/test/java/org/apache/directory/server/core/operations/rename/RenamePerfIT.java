@@ -40,26 +40,26 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "RenamePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+@CreateDS(name = "RenamePerfDS",
+    partitions =
+    {
+        @CreatePartition(
+            name = "example",
+            suffix = "dc=example,dc=com",
+            contextEntry =
                 @ContextEntry(
-                    entryLdif = 
+                    entryLdif =
                         "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
             indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
+            {
+                @CreateIndex(attribute = "objectClass"),
                 @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
+                @CreateIndex(attribute = "cn")
             })
-    }, 
+    },
     enableChangeLog = false)
 public class RenamePerfIT extends AbstractLdapTestUnit
 {
@@ -107,7 +107,7 @@ public class RenamePerfIT extends AbstractLdapTestUnit
             connection.rename( oldDn, newRdn, true );
             long ttt1 = System.nanoTime();
 
-            oldDn = newRdn + ",ou=system"; 
+            oldDn = newRdn + ",ou=system";
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
@@ -117,5 +117,4 @@ public class RenamePerfIT extends AbstractLdapTestUnit
         System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
-
 }

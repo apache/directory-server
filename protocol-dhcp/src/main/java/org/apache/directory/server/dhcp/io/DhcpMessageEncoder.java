@@ -143,7 +143,7 @@ public class DhcpMessageEncoder
             bytes = new byte[]
                 {};
 
-        byteBuffer.put( bytes, 0, Math.min(len, bytes.length) );
+        byteBuffer.put( bytes, 0, Math.min( len, bytes.length ) );
 
         // pad as necessary
         int remain = len - bytes.length;

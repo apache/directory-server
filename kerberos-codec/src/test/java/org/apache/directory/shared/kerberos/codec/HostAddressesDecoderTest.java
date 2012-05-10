@@ -61,28 +61,77 @@ public class HostAddressesDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x44 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x42,
-                0x30, 0x14,
-                  (byte)0xA0, 0x03,                 // addr-type
-                    0x02, 0x01, 0x02,               // IPV4
-                  (byte)0xA1, 0x0D,                 // address : 192.168.0.1
-                    0x04, 0x0B, '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1',
-                0x30, 0x14,
-                  (byte)0xA0, 0x03,                 // addr-type
-                    0x02, 0x01, 0x02,               // IPV4
-                  (byte)0xA1, 0x0D,                 // address : 192.168.0.2
-                    0x04, 0x0B, '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '2',
-                0x30, 0x14,
-                  (byte)0xA0, 0x03,                 // addr-type
-                    0x02, 0x01, 0x02,               // IPV4
-                  (byte)0xA1, 0x0D,                 // address : 192.168.0.3
-                    0x04, 0x0B, '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '3'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x42,
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03, // addr-type
+                0x02,
+                0x01,
+                0x02, // IPV4
+                ( byte ) 0xA1,
+                0x0D, // address : 192.168.0.1
+                0x04,
+                0x0B,
+                '1',
+                '9',
+                '2',
+                '.',
+                '1',
+                '6',
+                '8',
+                '.',
+                '0',
+                '.',
+                '1',
+                0x30,
+                0x14,
+                ( byte ) 0xA0,
+                0x03, // addr-type
+                0x02,
+                0x01,
+                0x02, // IPV4
+                ( byte ) 0xA1,
+                0x0D, // address : 192.168.0.2
+                0x04,
+                0x0B,
+                '1',
+                '9',
+                '2',
+                '.',
+                '1',
+                '6',
+                '8',
+                '.',
+                '0',
+                '.',
+                '2',
+                0x30,
+                0x14,
+                ( byte ) 0xA0,
+                0x03, // addr-type
+                0x02,
+                0x01,
+                0x02, // IPV4
+                ( byte ) 0xA1,
+                0x0D, // address : 192.168.0.3
+                0x04,
+                0x0B,
+                '1',
+                '9',
+                '2',
+                '.',
+                '1',
+                '6',
+                '8',
+                '.',
+                '0',
+                '.',
+                '3'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a HostAddresses Container
@@ -103,29 +152,30 @@ public class HostAddressesDecoderTest
         HostAddresses hostAddresses = ( ( HostAddressesContainer ) hostAddressesContainer ).getHostAddresses();
 
         assertEquals( 3, hostAddresses.getAddresses().length );
-        
-        String[] expected = new String[]{ "192.168.0.1", "192.168.0.2", "192.168.0.3" };
+
+        String[] expected = new String[]
+            { "192.168.0.1", "192.168.0.2", "192.168.0.3" };
         int i = 0;
-        
+
         for ( HostAddress hostAddress : hostAddresses.getAddresses() )
         {
             assertEquals( HostAddrType.ADDRTYPE_INET, hostAddress.getAddrType() );
-            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i]), hostAddress.getAddress() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8( expected[i] ), hostAddress.getAddress() ) );
             i++;
         }
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( hostAddresses.computeLength() );
-        
+
         try
         {
             bb = hostAddresses.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x44, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -133,18 +183,18 @@ public class HostAddressesDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a HostAddresses with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testHostAddressEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -157,22 +207,22 @@ public class HostAddressesDecoderTest
         kerberosDecoder.decode( stream, hostAddressesContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a HostAddresses with empty hostAddress in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testHostAddressesNoHostAddress() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x02,
-                (byte)0x30, 0x00                  // empty HostAddress
-            } );
+                ( byte ) 0x30, 0x00 // empty HostAddress
+        } );
 
         stream.flip();
 

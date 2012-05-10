@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
+
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
@@ -30,6 +31,7 @@ import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEnc
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Store the transited value of EncTicketPart.
@@ -50,7 +52,7 @@ public class StoreTransited extends GrammarAction<EncTicketPartContainer>
      */
     public StoreTransited()
     {
-        super( "EncTicketPart transited");
+        super( "EncTicketPart transited" );
     }
 
 

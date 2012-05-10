@@ -33,20 +33,19 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum PaEncTsEncStatesEnum implements States
 {
     // Start
-    START_STATE,                              // 0
+    START_STATE, // 0
 
     // ----- PA-ENC-TS-ENC message --------------------------------------
-    PA_ENC_TS_ENC_STATE,                      // 1
+    PA_ENC_TS_ENC_STATE, // 1
 
-    PA_ENC_TS_ENC_PA_TIMESTAMP_TAG_STATE,     // 2
-    PA_ENC_TS_PA_TIMESTAMP_STATE,             // 3
+    PA_ENC_TS_ENC_PA_TIMESTAMP_TAG_STATE, // 2
+    PA_ENC_TS_PA_TIMESTAMP_STATE, // 3
 
-    PA_ENC_TS_ENC_PA_USEC_TAG_STATE,          // 4
-    PA_ENC_TS_ENC_PA_USEC_STATE,              // 4
+    PA_ENC_TS_ENC_PA_USEC_TAG_STATE, // 4
+    PA_ENC_TS_ENC_PA_USEC_STATE, // 4
 
     // End
-    LAST_PA_ENC_TS_ENC_STATE;                 // 5
-
+    LAST_PA_ENC_TS_ENC_STATE; // 5
 
     /**
      * Get the grammar name

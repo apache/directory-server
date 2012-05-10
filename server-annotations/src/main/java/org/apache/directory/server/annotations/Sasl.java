@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.annotations;
 
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -46,29 +47,36 @@ import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
  */
 @Documented
 @Inherited
-@Retention ( RetentionPolicy.RUNTIME )
-@Target ( { ElementType.METHOD, ElementType.TYPE } )
+@Retention(RetentionPolicy.RUNTIME)
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface Sasl
 {
     /** The SASL host, default to localhost */
     String host() default "localhost";
-    
+
+
     /** The principal */
     String principal();
-    
+
+
     /** The SASL QOP list */
-    String[] qop() default { "auth", "auth-int", "auth-conf" };
-    
+    String[] qop() default
+        { "auth", "auth-int", "auth-conf" };
+
+
     /** The SASL realms */
-    String[] realms() default {};
-    
+    String[] realms() default
+        {};
+
+
     /** The mechanism handlers.*/
-    Class<?>[] mechanismHandler() default 
-        { 
+    Class<?>[] mechanismHandler() default
+        {
             SimpleMechanismHandler.class,
             CramMd5MechanismHandler.class,
             DigestMd5MechanismHandler.class,
             GssapiMechanismHandler.class,
             NtlmMechanismHandler.class
-        };
+    };
 }

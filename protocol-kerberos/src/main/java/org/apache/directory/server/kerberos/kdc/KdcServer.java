@@ -6,24 +6,23 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.kerberos.kdc;
 
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import net.sf.ehcache.Cache;
@@ -63,8 +62,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KdcServer.class.getName() );
-    
-    
+
     /** The default kdc port */
     private static final int DEFAULT_IP_PORT = 88;
 
@@ -85,7 +83,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** The default encryption types */
     private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
-        { "des-cbc-md5" };
+        { "aes128-cts-hmac-sha1-96", "des3-cbc-sha1-kd", "des-cbc-md5" };
 
     /** The default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -115,7 +113,7 @@ public class KdcServer extends DirectoryBackedService
     private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
 
     /** The encryption types. */
-    private Set<EncryptionType> encryptionTypes;
+    private List<EncryptionType> encryptionTypes;
 
     /** The primary realm */
     private String primaryRealm = DEFAULT_REALM;
@@ -155,6 +153,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** the cache used for storing AS and TGS requests */
     private ReplayCache replayCache;
+
 
     /**
      * Creates a new instance of KdcConfiguration.
@@ -262,8 +261,8 @@ public class KdcServer extends DirectoryBackedService
         if ( encryptionTypes != null )
         {
             this.encryptionTypes.clear();
-            
-            for ( EncryptionType encryptionType:encryptionTypes )
+
+            for ( EncryptionType encryptionType : encryptionTypes )
             {
                 this.encryptionTypes.add( encryptionType );
             }
@@ -276,7 +275,7 @@ public class KdcServer extends DirectoryBackedService
      * 
      * @param encryptionTypes the encryptionTypes to set
      */
-    public void setEncryptionTypes( Set<EncryptionType> encryptionTypes )
+    public void setEncryptionTypes( List<EncryptionType> encryptionTypes )
     {
         this.encryptionTypes = encryptionTypes;
     }
@@ -399,7 +398,7 @@ public class KdcServer extends DirectoryBackedService
      *
      * @return The encryption types.
      */
-    public Set<EncryptionType> getEncryptionTypes()
+    public List<EncryptionType> getEncryptionTypes()
     {
         return encryptionTypes;
     }
@@ -451,86 +450,86 @@ public class KdcServer extends DirectoryBackedService
         PrincipalStore store;
 
         // TODO - for now ignoring this catalog crap
-        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn(this.getSearchBaseDn())  );
-        
+        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn( this.getSearchBaseDn() ) );
+
         LOG.debug( "initializing the kerberos replay cache" );
 
         Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
         replayCache = new ReplayCacheImpl( cache, allowableClockSkew );
-        
+
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 88
             // We have to create a DatagramAcceptor
             UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
             setTransports( transport );
-            
-            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
+            DatagramAcceptor acceptor = transport.getAcceptor();
 
             // Inject the chain
             IoFilterChainBuilder udpChainBuilder = new DefaultIoFilterChainBuilder();
 
-            ((DefaultIoFilterChainBuilder)udpChainBuilder).addFirst( "codec", 
-                    new ProtocolCodecFilter( 
-                            KerberosProtocolCodecFactory.getInstance() ) );
+            ( ( DefaultIoFilterChainBuilder ) udpChainBuilder ).addFirst( "codec",
+                new ProtocolCodecFilter(
+                    KerberosProtocolCodecFactory.getInstance() ) );
 
             acceptor.setFilterChainBuilder( udpChainBuilder );
 
             // Inject the protocol handler
             acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-            
+
             // Bind to the configured address
             acceptor.bind();
         }
         else
         {
             // Kerberos can use UDP or TCP
-            for ( Transport transport:transports )
+            for ( Transport transport : transports )
             {
                 IoAcceptor acceptor = transport.getAcceptor();
-                
+
                 // Now, configure the acceptor
                 // Inject the chain
                 IoFilterChainBuilder chainBuilder = new DefaultIoFilterChainBuilder();
-    
+
                 if ( transport instanceof TcpTransport )
                 {
                     // Now, configure the acceptor
                     // Disable the disconnection of the clients on unbind
                     acceptor.setCloseOnDeactivation( false );
-                    
+
                     // No Nagle's algorithm
-                    ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
-                    
+                    ( ( NioSocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
+
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((NioSocketAcceptor)acceptor).setReuseAddress( true );
+                    ( ( NioSocketAcceptor ) acceptor ).setReuseAddress( true );
                 }
-                
+
                 // Inject the codec
-                ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                    new ProtocolCodecFilter( 
+                ( ( DefaultIoFilterChainBuilder ) chainBuilder ).addFirst( "codec",
+                    new ProtocolCodecFilter(
                         KerberosProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
-                
+
                 // Inject the protocol handler
                 acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-                
+
                 // Bind to the configured address
                 acceptor.bind();
             }
         }
-        
+
         LOG.info( "Kerberos service started." );
     }
 
-    
+
     public void stop()
     {
-        for ( Transport transport :getTransports() )
+        for ( Transport transport : getTransports() )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             if ( acceptor != null )
             {
                 acceptor.dispose();
@@ -541,7 +540,7 @@ public class KdcServer extends DirectoryBackedService
         {
             replayCache.clear();
         }
-        
+
         LOG.info( "Kerberos service stopped." );
     }
 
@@ -553,38 +552,37 @@ public class KdcServer extends DirectoryBackedService
     {
         String[] encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
 
-        encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes = new ArrayList<EncryptionType>();
 
         for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.getEncryptionTypes() )
+            EncryptionType type = EncryptionType.getByName( enc );
+
+            if ( !EncryptionType.UNKNOWN.equals( type ) )
             {
-                if ( type.getName().equalsIgnoreCase( enc ) )
-                {
-                    encryptionTypes.add( type );
-                }
+                encryptionTypes.add( type );
             }
         }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "KDCServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }

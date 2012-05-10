@@ -45,7 +45,7 @@ public abstract class AbstractLdifPartition extends AvlPartition
     public AbstractLdifPartition( SchemaManager schemaManager )
     {
         super( schemaManager );
-        
+
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
@@ -60,7 +60,7 @@ public abstract class AbstractLdifPartition extends AvlPartition
         return 1L;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

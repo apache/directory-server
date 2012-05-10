@@ -37,6 +37,7 @@ import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
+import org.apache.directory.server.core.operations.move.MoveIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -46,9 +47,10 @@ import org.junit.runners.Suite;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkSuite.class )
-@CreateDS( enableAccessControl=true, name="MigratedStockCoreISuite-DS" )
-@Suite.SuiteClasses ( {
+@RunWith(FrameworkSuite.class)
+@CreateDS(enableAccessControl = true, name = "MigratedStockCoreISuite-DS")
+@Suite.SuiteClasses(
+    {
 
         // authn
         SimpleAuthenticationIT.class,
@@ -70,9 +72,11 @@ import org.junit.runners.Suite;
         SearchAuthorizationIT.class,
 
         // exception
-        ExceptionServiceIT.class
-
-        } )
+        ExceptionServiceIT.class,
+        
+        // Operations
+        MoveIT.class
+})
 public class MigratedStockCoreISuite
 {
 }

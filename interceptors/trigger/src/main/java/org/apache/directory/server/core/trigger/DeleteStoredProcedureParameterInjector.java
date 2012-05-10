@@ -37,7 +37,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     private Dn deletedEntryName;
     private Entry deletedEntry;
 
-    
+
     public DeleteStoredProcedureParameterInjector( OperationContext opContext, Dn deletedEntryName )
         throws LdapException
     {
@@ -48,7 +48,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
         injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }
-    
+
     MicroInjector $nameInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
@@ -57,7 +57,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
             return opContext.getSession().getDirectoryService().getDnFactory().create( deletedEntryName.getName() );
         }
     };
-    
+
     MicroInjector $deletedEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
@@ -65,7 +65,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
             return deletedEntry;
         }
     };
-    
+
 
     private Entry getDeletedEntry( OperationContext opContext ) throws LdapException
     {
@@ -74,7 +74,8 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
          * especially subentry related ones like "triggerExecutionSubentries".
          */
         CoreSession session = opContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, deletedEntryName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, deletedEntryName,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
         return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }

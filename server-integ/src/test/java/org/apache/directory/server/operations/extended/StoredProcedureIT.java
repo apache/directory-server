@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.extended;
 
@@ -32,6 +32,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLower
 import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.Ignore;
@@ -68,6 +70,8 @@ import org.junit.Ignore;
     { StoredProcedureExtendedOperationHandler.class })
 public class StoredProcedureIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private LdapContext ctx;
     private LdapContext spCtx;
     private Map<String, OidNormalizer> oids;
@@ -132,7 +136,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
             "ou: People\n" +
             "objectclass: organizationalUnit\n" +
             "objectclass: top\n" +
-            "\n" + 
+            "\n" +
             "dn: cn=John,ou=People,ou=system\n" +
             "objectclass: person\n" +
             "objectclass: top\n" +
@@ -147,12 +151,12 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
         
         injectEntries( ldif );
         
-        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DitUtilitiesProcedure.class );
         
         Dn people = new Dn( "ou=People" );
         people = Dn.normalize(  people, oids );
         
-        String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
+        String spName = DitUtilitiesProcedure.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
                                          people };
         

@@ -103,14 +103,14 @@ public class NotCursorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -126,18 +126,18 @@ public class NotCursorTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
-        
+        ( ( Partition ) store ).initialize();
+
         StoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
@@ -152,11 +152,11 @@ public class NotCursorTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
-        
+
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -180,12 +180,14 @@ public class NotCursorTest
         cursor.beforeFirst();
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -207,7 +209,7 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( (SubstringNode) exprNode, store,
+        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
             schemaManager );
         notNode.addNode( exprNode );
 
@@ -215,12 +217,14 @@ public class NotCursorTest
         cursor.beforeFirst();
 
         Set<Long> set = new HashSet<Long>();
+        
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -234,12 +238,14 @@ public class NotCursorTest
         cursor.afterLast();
 
         set.clear();
+        
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getValue() ) );
+            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
+        
         assertEquals( 5, set.size() );
         assertTrue( set.contains( 1L ) );
         assertTrue( set.contains( 2L ) );
@@ -276,6 +282,7 @@ public class NotCursorTest
         catch ( UnsupportedOperationException uoe )
         {
         }
+        
+        cursor.close();
     }
-
 }

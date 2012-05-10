@@ -19,11 +19,13 @@
  */
 package org.apache.directory.server.config;
 
+
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+
 
 /**
  * An exception used when we cannot read the configuration, or when an error
- * occured while reading it from the DIT.
+ * occurred while reading it from the DIT.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -32,7 +34,7 @@ public class ConfigurationException extends LdapException
     /** The serial version UUID */
     private static final long serialVersionUID = 1L;
 
-    
+
     /**
      * Creates a new instance of ConfigurationException.
      *
@@ -43,7 +45,7 @@ public class ConfigurationException extends LdapException
         super( message );
     }
 
-    
+
     /**
      * Creates a new instance of ConfigurationException.
      *

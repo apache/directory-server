@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.kdcReqBody;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class KdcReqBodyContainer extends AbstractContainer
 {
     /** An KDC-REQ-BODY container */
     private KdcReqBody kdcReqBody;
-    
+
+
     /**
      * Creates a new KdcReqBodyContainer object.
      */
@@ -55,7 +57,7 @@ public class KdcReqBodyContainer extends AbstractContainer
         return kdcReqBody;
     }
 
-    
+
     /**
      * Set a KdcReqBody Object into the container. It will be completed by the
      * KerberosDecoder.

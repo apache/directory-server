@@ -61,33 +61,80 @@ public class TicketDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x46 );
-        
-        stream.put( new byte[]
-            { 0x61, 0x44,                               // Ticket
-                0x30, 0x42,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x14,                     // sname
-                    0x30, 0x12,
-                      (byte)0xA0, 0x03,                 // name-type
-                        0x02, 0x01, 0x01,
-                      (byte)0xA1, 0x0B,                 // name-string
-                        0x30, 0x09,
-                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-                  (byte)0xA3, 0x16,                     // enc-part
-                    0x030, 0x14,
-                      (byte)0xA0, 0x03,                 // etype
-                        0x02, 0x01, 0x12,
-                      (byte)0xA1, 0x03,                 // kvno
-                        0x02, 0x01, 0x05,
-                      (byte)0xA2, 0x08,                 // cipher
-                        0x04, 0x06,
-                          'a', 'b', 'c', 'd', 'e', 'f'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            { 0x61, 0x44, // Ticket
+                0x30,
+                0x42,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x14, // sname
+                0x30,
+                0x12,
+                ( byte ) 0xA0,
+                0x03, // name-type
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0B, // name-string
+                0x30,
+                0x09,
+                0x1B,
+                0x07,
+                'h',
+                'n',
+                'e',
+                'l',
+                's',
+                'o',
+                'n',
+                ( byte ) 0xA3,
+                0x16, // enc-part
+                0x030,
+                0x14,
+                ( byte ) 0xA0,
+                0x03, // etype
+                0x02,
+                0x01,
+                0x12,
+                ( byte ) 0xA1,
+                0x03, // kvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA2,
+                0x08, // cipher
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a Ticket Container
@@ -104,23 +151,23 @@ public class TicketDecoderTest
         }
 
         // Check the decoded BindRequest
-        Ticket ticket = ( ( TicketContainer ) ticketContainer).getTicket();
+        Ticket ticket = ( ( TicketContainer ) ticketContainer ).getTicket();
 
         assertEquals( 5, ticket.getTktVno() );
         assertEquals( "EXAMPLE.COM", ticket.getRealm() );
-        
+
         PrincipalName principalName = ticket.getSName();
 
         assertNotNull( principalName );
         assertEquals( PrincipalNameType.KRB_NT_PRINCIPAL, principalName.getNameType() );
         assertTrue( principalName.getNames().contains( "hnelson" ) );
-        
+
         EncryptedData encryptedData = ticket.getEncPart();
-        
+
         assertNotNull( encryptedData );
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptedData.getEType() );
         assertEquals( 5, encryptedData.getKvno() );
-        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), encryptedData.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( "abcdef" ), encryptedData.getCipher() ) );
 
         // Check the encoding
         try
@@ -130,7 +177,7 @@ public class TicketDecoderTest
             // Check the length
             assertEquals( 0x46, bb.limit() );
 
-            String encodedPdu = Strings.dumpBytes(bb.array());
+            String encodedPdu = Strings.dumpBytes( bb.array() );
 
             assertEquals( encodedPdu, decodedPdu );
         }
@@ -145,15 +192,15 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty Ticket message
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmpty() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
-            { 0x61, 0x00 });
+            { 0x61, 0x00 } );
 
         stream.flip();
 
@@ -168,18 +215,18 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty Ticket sequence
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySEQ() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x02,
-                  0x30, 0x00
-            });
+                0x30, 0x00
+        } );
 
         stream.flip();
 
@@ -194,19 +241,19 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty tktvno tag
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyTktVnoTag() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x04,
-                  0x30, 0x02,
-                    (byte)0xA0, 0x00
-            });
+                0x30, 0x02,
+                ( byte ) 0xA0, 0x00
+        } );
 
         stream.flip();
 
@@ -221,20 +268,20 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty tktvno value
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyTktVnoValue() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x06,
-                  0x30, 0x04,
-                    (byte)0xA0, 0x02,
-                      0x02, 0x00
-            });
+                0x30, 0x04,
+                ( byte ) 0xA0, 0x02,
+                0x02, 0x00
+        } );
 
         stream.flip();
 
@@ -249,20 +296,20 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an bad tktvno value
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketBadTktVnoValue() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x07,
-                  0x30, 0x05,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x02
-            });
+                0x30, 0x05,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x02
+        } );
 
         stream.flip();
 
@@ -277,20 +324,20 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with no realm
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketNoRealm() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x07,
-                  0x30, 0x05,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05
-            });
+                0x30, 0x05,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05
+        } );
 
         stream.flip();
 
@@ -305,21 +352,21 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty realm tag
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyRealmTag() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x09,
-                  0x30, 0x07,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05,
-                    (byte)0xA1, 0x00
-            });
+                0x30, 0x07,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x00
+        } );
 
         stream.flip();
 
@@ -334,22 +381,22 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty realm value
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyRealmValue() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0D );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x0B,
-                  0x30, 0x09,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05,
-                    (byte)0xA1, 0x02,
-                      0x1B, 0x00
-            });
+                0x30, 0x09,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x02,
+                0x1B, 0x00
+        } );
 
         stream.flip();
 
@@ -364,22 +411,22 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with no sname
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketNoSname() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x18 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x16,
-                  0x30, 0x14,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05,
-                    (byte)0xA1, 0x0D,
-                      0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-            });
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+        } );
 
         stream.flip();
 
@@ -394,23 +441,23 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with an empty sname tag
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySnameTag() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1A );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x18,
-                  0x30, 0x16,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05,
-                    (byte)0xA1, 0x0D,
-                      0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                    (byte)0xA2, 0x00
-            });
+                0x30, 0x16,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x00
+        } );
 
         stream.flip();
 
@@ -425,24 +472,24 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with an empty sname value
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySnameValue() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1C );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x61, 0x1A,
-                  0x30, 0x18,
-                    (byte)0xA0, 0x03,
-                      0x02, 0x01, 0x05,
-                    (byte)0xA1, 0x0D,
-                      0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                    (byte)0xA2, 0x02,
-                      0x30, 0x00
-            });
+                0x30, 0x18,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x02,
+                0x30, 0x00
+        } );
 
         stream.flip();
 
@@ -457,26 +504,47 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with a bad principalName
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketBadSName() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
-        
+
         stream.put( new byte[]
-            { 
-              0x61, 0x1E,                               // Ticket
-                0x30, 0x1C,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x06,                     // sname
-                    0x30, 0x04,
-                      (byte)0xA0, 0x02,                 // name-type
-                        0x02, 0x00
-            });
+            {
+                0x61, 0x1E, // Ticket
+                0x30,
+                0x1C,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x06, // sname
+                0x30,
+                0x04,
+                ( byte ) 0xA0,
+                0x02, // name-type
+                0x02,
+                0x00
+        } );
 
         stream.flip();
 
@@ -491,29 +559,61 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with no enc-part
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketNoEncPart() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2E );
-        
+
         stream.put( new byte[]
-            { 
-              0x61, 0x2C,                               // Ticket
-                0x30, 0x2A,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x14,                     // sname
-                    0x30, 0x12,
-                      (byte)0xA0, 0x03,                 // name-type
-                        0x02, 0x01, 0x01,
-                      (byte)0xA1, 0x0B,                 // name-string
-                        0x30, 0x09,
-                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-            });
+            {
+                0x61, 0x2C, // Ticket
+                0x30,
+                0x2A,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x14, // sname
+                0x30,
+                0x12,
+                ( byte ) 0xA0,
+                0x03, // name-type
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0B, // name-string
+                0x30,
+                0x09,
+                0x1B,
+                0x07,
+                'h',
+                'n',
+                'e',
+                'l',
+                's',
+                'o',
+                'n',
+        } );
 
         stream.flip();
 
@@ -528,30 +628,63 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with an empty enc-part tag
      */
-    @Test(expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyEncPartTag() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x30 );
-        
+
         stream.put( new byte[]
-            { 
-              0x61, 0x2E,                               // Ticket
-                0x30, 0x2C,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x14,                     // sname
-                    0x30, 0x12,
-                      (byte)0xA0, 0x03,                 // name-type
-                        0x02, 0x01, 0x01,
-                      (byte)0xA1, 0x0B,                 // name-string
-                        0x30, 0x09,
-                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-                  (byte)0xA3, 0x00
-            });
+            {
+                0x61, 0x2E, // Ticket
+                0x30,
+                0x2C,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x14, // sname
+                0x30,
+                0x12,
+                ( byte ) 0xA0,
+                0x03, // name-type
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0B, // name-string
+                0x30,
+                0x09,
+                0x1B,
+                0x07,
+                'h',
+                'n',
+                'e',
+                'l',
+                's',
+                'o',
+                'n',
+                ( byte ) 0xA3,
+                0x00
+        } );
 
         stream.flip();
 
@@ -566,31 +699,65 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with an empty enc-part
      */
-    @Test(expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyEncPart() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x32 );
-        
+
         stream.put( new byte[]
-            { 
-              0x61, 0x30,                               // Ticket
-                0x30, 0x2E,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x14,                     // sname
-                    0x30, 0x12,
-                      (byte)0xA0, 0x03,                 // name-type
-                        0x02, 0x01, 0x01,
-                      (byte)0xA1, 0x0B,                 // name-string
-                        0x30, 0x09,
-                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-                  (byte)0xA3, 0x02,
-                    0x30, 0x00
-            });
+            {
+                0x61, 0x30, // Ticket
+                0x30,
+                0x2E,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x14, // sname
+                0x30,
+                0x12,
+                ( byte ) 0xA0,
+                0x03, // name-type
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0B, // name-string
+                0x30,
+                0x09,
+                0x1B,
+                0x07,
+                'h',
+                'n',
+                'e',
+                'l',
+                's',
+                'o',
+                'n',
+                ( byte ) 0xA3,
+                0x02,
+                0x30,
+                0x00
+        } );
 
         stream.flip();
 
@@ -605,32 +772,67 @@ public class TicketDecoderTest
     /**
      * Test the decoding of a ticket with a bad enc-part
      */
-    @Test(expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeTicketBadEncPart() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x34 );
-        
+
         stream.put( new byte[]
-            { 
-              0x61, 0x32,                               // Ticket
-                0x30, 0x30,
-                  (byte)0xA0, 0x03,                     // tkt-vno
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x0D,                     // realm
-                    0x1B, 0x0B, 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                  (byte)0xA2, 0x14,                     // sname
-                    0x30, 0x12,
-                      (byte)0xA0, 0x03,                 // name-type
-                        0x02, 0x01, 0x01,
-                      (byte)0xA1, 0x0B,                 // name-string
-                        0x30, 0x09,
-                          0x1B, 0x07, 'h', 'n', 'e', 'l', 's', 'o', 'n',
-                  (byte)0xA3, 0x04,
-                    0x30, 0x02,
-                      0x01, 0x02
-            });
+            {
+                0x61, 0x32, // Ticket
+                0x30,
+                0x30,
+                ( byte ) 0xA0,
+                0x03, // tkt-vno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x0D, // realm
+                0x1B,
+                0x0B,
+                'E',
+                'X',
+                'A',
+                'M',
+                'P',
+                'L',
+                'E',
+                '.',
+                'C',
+                'O',
+                'M',
+                ( byte ) 0xA2,
+                0x14, // sname
+                0x30,
+                0x12,
+                ( byte ) 0xA0,
+                0x03, // name-type
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x0B, // name-string
+                0x30,
+                0x09,
+                0x1B,
+                0x07,
+                'h',
+                'n',
+                'e',
+                'l',
+                's',
+                'o',
+                'n',
+                ( byte ) 0xA3,
+                0x04,
+                0x30,
+                0x02,
+                0x01,
+                0x02
+        } );
 
         stream.flip();
 

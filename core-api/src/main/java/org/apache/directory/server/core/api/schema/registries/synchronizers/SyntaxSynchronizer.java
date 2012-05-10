@@ -128,7 +128,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the addition and get out
                 String msg = I18n.err( I18n.ERR_399, entry.getDn().getName(),
-                    Strings.listToString(schemaManager.getErrors()) );
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -209,13 +209,13 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        
+
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The Syntax {} cannot be removed from the disabled schema {}.", 
+            LOG.debug( "The Syntax {} cannot be removed from the disabled schema {}.",
                 dn.getName(), schemaName );
-            
+
             return;
         }
 
@@ -233,8 +233,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = I18n.err( I18n.ERR_400, entry.getDn().getName(), 
-                    Strings.listToString(errors) );
+                String msg = I18n.err( I18n.ERR_400, entry.getDn().getName(),
+                    Strings.listToString( errors ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -259,8 +259,9 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( dependees.size() != 0 )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_401, oldOid,
-                    getNames( dependees ) ) );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_401,
+                oldOid,
+                getNames( dependees ) ) );
         }
 
         Entry targetEntry = ( Entry ) entry.clone();

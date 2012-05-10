@@ -31,7 +31,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -158,8 +158,8 @@ public class TypedData extends AbstractAsn1Object
     {
         return typedDataList;
     }
-    
-    
+
+
     /**
      * Compute the TypedData length
      * <pre>
@@ -187,10 +187,10 @@ public class TypedData extends AbstractAsn1Object
 
         for ( TD td : typedDataList )
         {
-            int adTypeLen = Value.getNbBytes( td.dataType );
+            int adTypeLen = BerValue.getNbBytes( td.dataType );
             dataTypeTagLength[i] = 1 + TLV.getNbBytes( adTypeLen ) + adTypeLen;
             typedDataSeqLength[i] = 1 + TLV.getNbBytes( dataTypeTagLength[i] ) + dataTypeTagLength[i];
-            
+
             if ( td.dataValue != null )
             {
                 dataValueTagLength[i] = 1 + TLV.getNbBytes( td.dataValue.length ) + td.dataValue.length;
@@ -231,16 +231,16 @@ public class TypedData extends AbstractAsn1Object
                 // the tdType
                 buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDTYPE_TAG );
                 buffer.put( TLV.getBytes( dataTypeTagLength[i] ) );
-                Value.encode( buffer, td.dataType );
+                BerValue.encode( buffer, td.dataType );
 
                 if ( td.dataValue != null )
                 {
                     // the tdData
                     buffer.put( ( byte ) KerberosConstants.TYPED_DATA_TDDATA_TAG );
                     buffer.put( TLV.getBytes( dataValueTagLength[i] ) );
-                    Value.encode( buffer, td.dataValue );
+                    BerValue.encode( buffer, td.dataValue );
                 }
-                
+
                 i++;
             }
         }
@@ -253,7 +253,7 @@ public class TypedData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "TypedData encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "TypedData encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "TypedData initial value : {}", toString() );
         }
 
@@ -285,7 +285,8 @@ public class TypedData extends AbstractAsn1Object
             sb.append( tabs ).append( "        tdType: " ).append( td.dataType ).append( '\n' );
             if ( td.dataValue != null )
             {
-                sb.append( tabs ).append( "        tdData: " ).append( Strings.dumpBytes(td.dataValue) ).append( '\n' );
+                sb.append( tabs ).append( "        tdData: " ).append( Strings.dumpBytes( td.dataValue ) )
+                    .append( '\n' );
             }
             sb.append( tabs ).append( "    }\n" );
         }

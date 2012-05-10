@@ -34,10 +34,9 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
  */
 public interface StoredProcedureParameterInjector
 {
-    List<Object> getArgumentsToInject( OperationContext opContext, 
+    List<Object> getArgumentsToInject( OperationContext opContext,
         List<StoredProcedureParameter> parameterList ) throws LdapException;
-    
-    
+
     public interface MicroInjector
     {
         Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException;

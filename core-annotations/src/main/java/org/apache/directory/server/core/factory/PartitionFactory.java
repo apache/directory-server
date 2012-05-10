@@ -45,7 +45,8 @@ public interface PartitionFactory
      * @return the partition
      * @throws Exception the exception
      */
-    Partition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize, File workingDirectory ) throws Exception;
+    Partition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+        File workingDirectory ) throws Exception;
 
 
     /**

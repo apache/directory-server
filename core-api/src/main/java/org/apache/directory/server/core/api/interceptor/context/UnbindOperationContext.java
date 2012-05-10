@@ -46,7 +46,7 @@ public class UnbindOperationContext extends AbstractOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
         }
     }
-    
+
 
     public UnbindOperationContext( CoreSession session, UnbindRequest unbindRequest )
     {
@@ -59,7 +59,7 @@ public class UnbindOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * @return the operation name
      */
@@ -68,7 +68,7 @@ public class UnbindOperationContext extends AbstractOperationContext
         return MessageTypeEnum.UNBIND_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */

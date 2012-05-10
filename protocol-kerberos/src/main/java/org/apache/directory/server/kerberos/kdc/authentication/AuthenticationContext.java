@@ -98,7 +98,6 @@ public class AuthenticationContext extends KdcContext
     }
     */
 
-
     /**
      * @return Returns the clientKey.
      */

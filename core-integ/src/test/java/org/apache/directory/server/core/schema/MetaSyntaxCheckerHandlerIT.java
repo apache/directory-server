@@ -66,6 +66,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
     private static SchemaManager schemaManager;
 
+
     @Before
     public void setup() throws Exception
     {
@@ -167,7 +168,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
-        
+
         Entry entry = new DefaultEntry(
             dn,
             "objectClass: top",
@@ -183,7 +184,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
+        assertEquals( clazz.getName(),
+            "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -209,7 +211,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-fqcn", "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
-            "m-description: A test syntaxChecker");
+            "m-description: A test syntaxChecker" );
 
         connection.add( entry );
 

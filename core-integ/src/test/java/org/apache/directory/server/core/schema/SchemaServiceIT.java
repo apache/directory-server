@@ -62,25 +62,25 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@ApplyLdifs( {
-    // Entry # 1
-    "dn: cn=person0,ou=system",
-    "objectClass: person",
-    "cn: person0",
-    "sn: sn_person0\n",
-    // Entry # 2
-    "dn: cn=person1,ou=system",
-    "objectClass: organizationalPerson",
-    "cn: person1",
-    "sn: sn_person1",
-    "seealso: cn=Good One,ou=people,o=sevenSeas",
-    //"seealso:: Y249QmFkIEXDqWvDoCxvdT1wZW9wbGUsbz1zZXZlblNlYXM=\n",
-    // Entry # 3
-    "dn: cn=person2,ou=system",
-    "objectClass: inetOrgPerson",
-    "cn: person2",
-    "sn: sn_person2" }
-    )
+@ApplyLdifs(
+    {
+        // Entry # 1
+        "dn: cn=person0,ou=system",
+        "objectClass: person",
+        "cn: person0",
+        "sn: sn_person0\n",
+        // Entry # 2
+        "dn: cn=person1,ou=system",
+        "objectClass: organizationalPerson",
+        "cn: person1",
+        "sn: sn_person1",
+        "seealso: cn=Good One,ou=people,o=sevenSeas",
+        //"seealso:: Y249QmFkIEXDqWvDoCxvdT1wZW9wbGUsbz1zZXZlblNlYXM=\n",
+        // Entry # 3
+        "dn: cn=person2,ou=system",
+        "objectClass: inetOrgPerson",
+        "cn: person2",
+        "sn: sn_person2" })
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "SchemaServiceIT")
 public class SchemaServiceIT extends AbstractLdapTestUnit
@@ -97,7 +97,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         Attributes attrs = new BasicAttributes( "objectClass", "top", true );
         attrs.get( "objectClass" ).add( "uidObject" );
         attrs.put( "uid", "invalid" );
-        
+
         try
         {
             getSystemContext( getService() ).createSubcontext( "uid=invalid", attrs );
@@ -106,8 +106,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         {
         }
     }
-    
-    
+
+
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
      *
@@ -122,7 +122,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         attrs.put( "ou", "comedy" );
         attrs.put( "cn", "Jack Black" );
         attrs.put( "sn", "Black" );
-        
+
         try
         {
             getSystemContext( getService() ).createSubcontext( "cn=Jack Black", attrs );
@@ -131,8 +131,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         {
         }
     }
-    
-    
+
+
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-904">DIRSERVER-904</a>.
      *
@@ -174,26 +174,26 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         LdifEntry numberOfGunsAttrEntry = ldifReader.next();
         LdifEntry shipOCEntry = ldifReader.next();
         assertFalse( ldifReader.hasNext() );
-        
+
         // should be fine with unique OID
-        getService().getAdminSession().add( 
-            new DefaultEntry( getService().getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) ); 
+        getService().getAdminSession().add(
+            new DefaultEntry( getService().getSchemaManager(), numberOfGunsAttrEntry.getEntry() ) );
 
         // should blow chuncks using same OID
         try
         {
-            getService().getAdminSession().add( 
-                new DefaultEntry( getService().getSchemaManager(), shipOCEntry.getEntry() ) ); 
-            
+            getService().getAdminSession().add(
+                new DefaultEntry( getService().getSchemaManager(), shipOCEntry.getEntry() ) );
+
             fail( "Should not be possible to create two schema entities with the same OID." );
         }
-        catch( LdapOtherException e )
+        catch ( LdapOtherException e )
         {
             assertTrue( true );
         }
     }
-    
-    
+
+
     /**
      * Test that we have all the needed ObjectClasses
      * 
@@ -237,12 +237,14 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*person)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -281,12 +283,14 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> orgPersons = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=organizationalPerson)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             orgPersons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 3, orgPersons.size() );
@@ -318,12 +322,14 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> inetOrgPersons = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=inetOrgPerson)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             inetOrgPersons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 2, inetOrgPersons.size() );
@@ -344,9 +350,10 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "cn=schema",
+            "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -354,20 +361,22 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         // We should have 2 attributes in the result :
         // - attributeTypes
         // - cn
         // - objectClass
         assertEquals( 2, attrs.size() );
-        
+
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
     }
@@ -378,11 +387,12 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "*", "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() ).search(
-                "cn=schema", "(objectClass=*)", controls );
+            "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -390,28 +400,31 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         assertNotNull( attrs.get( "nameForms" ) );
     }
 
-    
+
     @Test
     public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "nameForms" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "nameForms" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(objectClass=*)", controls );
+            .search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -419,18 +432,20 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         // We should have 1 attribute in the result :
         // - nameForms
         assertEquals( 1, attrs.size() );
-        
+
         assertNull( attrs.get( "attributeTypes" ) );
         assertNull( attrs.get( "cn" ) );
         assertNull( attrs.get( "creatorsName" ) );
@@ -447,7 +462,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNull( attrs.get( "objectClasses" ) );
     }
 
-    
+
     /**
      * Test for DIRSERVER-1055.
      * Check if modifyTimestamp and createTimestamp are present in the search result,
@@ -460,28 +475,30 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
             { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" } );
-        
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-        .search( "cn=schema", "(objectClass=subschema)", controls );
-        
+            .search( "cn=schema", "(objectClass=subschema)", controls );
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
-        
+
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         // We should have 4 attribute in the result :
         assertEquals( 4, attrs.size() );
-        
+
         assertNull( attrs.get( "attributeTypes" ) );
         assertNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
@@ -504,17 +521,20 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(objectClass=nothing)", controls );
+            .search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -526,11 +546,12 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "*", "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(objectClass=top)", controls );
+            .search( "cn=schema", "(objectClass=top)", controls );
 
         while ( results.hasMore() )
         {
@@ -538,21 +559,23 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         // We should have 18 attribute in the result :
         // - nameForms
         // - comparators
         // - normalizers
         // - syntaxCheckers
         assertEquals( 18, attrs.size() );
-        
+
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "comparators" ) );
@@ -579,11 +602,12 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]{ "*", "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(objectClass=subSchema)", controls );
+            .search( "cn=schema", "(objectClass=subSchema)", controls );
 
         while ( results.hasMore() )
         {
@@ -591,21 +615,23 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
+        results.close();
+
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
-        
+
         // It should be the normalized form of cn=schema
         Attributes attrs = subSchemaEntry.get( "cn=schema" );
-        
+
         assertNotNull( attrs );
-        
+
         // We should have 18 attribute in the result :
         // - nameForms
         // - comparators
         // - normalizers
         // - syntaxCheckers
         assertEquals( 18, attrs.size() );
-        
+
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "subtreeSpecification" ) );
@@ -629,17 +655,20 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(objectClass=nothing)", controls );
+            .search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -651,17 +680,20 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]{ "+" } );
-        
+        controls.setReturningAttributes( new String[]
+            { "+" } );
+
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
-                .search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
+            .search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
 
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -680,13 +712,15 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-                    .search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
+            .search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
 
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 1, persons.size() );
@@ -702,7 +736,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertTrue( ocs.contains( "person" ) );
         assertTrue( ocs.contains( "organizationalPerson" ) );
 
-        Attribute seeAlso = person.get(  "seeAlso"  );
+        Attribute seeAlso = person.get( "seeAlso" );
         assertTrue( seeAlso.contains( "cn=Good One,ou=people,o=sevenSeas" ) );
         //assertTrue( seeAlso.contains( "cn=Bad E\u00e9k\u00e0,ou=people,o=sevenSeas" ) );
     }
@@ -720,16 +754,19 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[] { "9.9.9" } );
+        controls.setReturningAttributes( new String[]
+            { "9.9.9" } );
 
         NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-                .search( "", "(objectClass=person)", controls );
-        
+            .search( "", "(objectClass=person)", controls );
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -741,7 +778,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertNull( ocs );
-        
+
         ocs = person.get( "9.9.9" );
         assertNull( ocs );
 
@@ -756,7 +793,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNull( ocs );
     }
 
-    
+
     /**
      * Check that if we request a Attribute which is not an AttributeType,
      * we still get a result
@@ -769,16 +806,19 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[] { "2.5.6.6" } );
+        controls.setReturningAttributes( new String[]
+            { "2.5.6.6" } );
 
         NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-                .search( "", "(objectClass=person)", controls );
-        
+            .search( "", "(objectClass=person)", controls );
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -790,7 +830,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertNull( ocs );
-        
+
         // We should not get this attribute (it's an ObjectClass)
         ocs = person.get( "2.5.6.6" );
         assertNull( ocs );
@@ -806,7 +846,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNull( ocs );
     }
 
-    
+
     /**
      * Check that if we request a Attribute which is an ObjectClass.
      *
@@ -818,16 +858,19 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[] { "person" } );
+        controls.setReturningAttributes( new String[]
+            { "person" } );
 
         NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-                .search( "", "(objectClass=person)", controls );
-        
+            .search( "", "(objectClass=person)", controls );
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
@@ -839,7 +882,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNotNull( person );
         ocs = person.get( "objectClass" );
         assertNull( ocs );
-        
+
         // We should not get this attrinute (it's an ObjectClass)
         ocs = person.get( "2.5.4.46" );
         assertNull( ocs );
@@ -872,12 +915,14 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
 
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(name=person*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
+        
+        results.close();
 
         assertEquals( 3, persons.size() );
 
@@ -905,9 +950,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertTrue( ocs.contains( "organizationalPerson" ) );
         assertTrue( ocs.contains( "inetOrgPerson" ) );
     }
-    
-    
-    
+
+
     /**
      * Search all the entries with a 'metaTop' ObjectClass, or an ObjectClass
      * inheriting from 'metaTop' 
@@ -918,21 +962,23 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     public void testSearchForMetaTop() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( getService() );
-        
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> results = schemaRoot.search( "", "(objectClass=top)", controls );
         assertTrue( "Expected some results", results.hasMore() );
-        
+        results.close();
+
         controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         results = schemaRoot.search( "", "(objectClass=metaAttributeType)", controls );
         assertTrue( "Expected some results", results.hasMore() );
-        
+        results.close();
+
         controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         results = schemaRoot.search( "", "(objectClass=metaTop)", controls );
         assertTrue( "Expected some results", results.hasMore() );
+        results.close();
     }
-    
 }

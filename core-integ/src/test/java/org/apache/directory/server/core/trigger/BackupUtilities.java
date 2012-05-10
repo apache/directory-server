@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.trigger;
 
+
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -37,7 +38,7 @@ public class BackupUtilities
 
 
     public static void backupDeleted( LdapContext ctx, Name deletedEntryName,
-                                      Name operationPrincipal, Attributes deletedEntry ) throws NamingException
+        Name operationPrincipal, Attributes deletedEntry ) throws NamingException
     {
         LOG.info( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
         LOG.info( "Entry content was: " + deletedEntry );
@@ -45,11 +46,12 @@ public class BackupUtilities
         String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );
         backupCtx.createSubcontext( deletedEntryRdn, deletedEntry );
         LOG.info( "Backed up deleted entry to \"" +
-                ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
+            ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
     }
-    
+
+
     public static void duplicateDeletedEntry( LdapContext ctx, Name deletedEntryName, Name operationPrincipal,
-                                              Attributes deletedEntry ) throws NamingException
+        Attributes deletedEntry ) throws NamingException
     {
         LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );

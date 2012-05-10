@@ -6,30 +6,30 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.shared.kerberos;
+
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.util.Strings;
+
 
 /**
  * An utility class for Kerberos.
@@ -43,7 +43,8 @@ public class KerberosUtils
 
     /** An empty list of principal names */
     public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
-    
+
+
     /**
      * Parse a KerberosPrincipal instance and return the names. The Principal name
      * is described in RFC 1964 : <br/>
@@ -96,17 +97,18 @@ public class KerberosUtils
         {
             return EMPTY_PRINCIPAL_NAME;
         }
-        
+
         String names = principal.getName();
-        
-        if ( Strings.isEmpty(names) )
+
+        if ( Strings.isEmpty( names ) )
         {
             // Empty name...
             return EMPTY_PRINCIPAL_NAME;
         }
-        
+
         return getNames( names );
     }
+
 
     /**
      * Parse a PrincipalName and return the names.
@@ -117,33 +119,33 @@ public class KerberosUtils
         {
             return EMPTY_PRINCIPAL_NAME;
         }
-        
+
         List<String> nameComponents = new ArrayList<String>();
-        
+
         // Start the parsing. Another State Machine :)
         char[] chars = principalNames.toCharArray();
-        
+
         boolean escaped = false;
         boolean done = false;
         int start = 0;
         int pos = 0;
-        
+
         for ( int i = 0; i < chars.length; i++ )
         {
             pos = i;
-            
+
             switch ( chars[i] )
             {
-                case '\\' :
+                case '\\':
                     escaped = !escaped;
                     break;
-                    
-                case '/'  :
+
+                case '/':
                     if ( escaped )
                     {
                         escaped = false;
                     }
-                    else 
+                    else
                     {
                         // We have a new name component
                         if ( i - start > 0 )
@@ -157,10 +159,10 @@ public class KerberosUtils
                             throw new ParseException( I18n.err( I18n.ERR_628 ), i );
                         }
                     }
-                    
+
                     break;
-                    
-                case '@'  :
+
+                case '@':
                     if ( escaped )
                     {
                         escaped = false;
@@ -182,29 +184,29 @@ public class KerberosUtils
                             throw new ParseException( I18n.err( I18n.ERR_628 ), i );
                         }
                     }
-                    
+
                     break;
-                    
-                default :
+
+                default:
             }
-            
+
             if ( done )
             {
                 break;
             }
-        } 
-        
+        }
+
         if ( escaped )
         {
             throw new ParseException( I18n.err( I18n.ERR_629 ), pos );
         }
-        
+
         return nameComponents;
     }
-    
-    
+
+
     /**
-     * Constructs a KerberosPrincipal from a PrincipalName and an 
+     * Constructs a KerberosPrincipal from a PrincipalName and an
      * optional realm
      *
      * @param principal The principal name and type
@@ -214,13 +216,13 @@ public class KerberosUtils
      */
     public static KerberosPrincipal getKerberosPrincipal( PrincipalName principal, String realm )
     {
-        String name = principal.getNameString(); 
-        
-        if ( !Strings.isEmpty(realm) )
+        String name = principal.getNameString();
+
+        if ( !Strings.isEmpty( realm ) )
         {
             name += '@' + realm;
         }
-        
+
         return new KerberosPrincipal( name, principal.getNameType().getValue() );
     }
 
@@ -233,9 +235,10 @@ public class KerberosUtils
      * @param configuredTypes The configured encryption types
      * @return The first matching encryption type.
      */
-    public static EncryptionType getBestEncryptionType( Set<EncryptionType> requestedTypes, Set<EncryptionType> configuredTypes )
+    public static EncryptionType getBestEncryptionType( List<EncryptionType> requestedTypes,
+        List<EncryptionType> configuredTypes )
     {
-        for ( EncryptionType encryptionType:requestedTypes )
+        for ( EncryptionType encryptionType : requestedTypes )
         {
             if ( configuredTypes.contains( encryptionType ) )
             {
@@ -245,20 +248,20 @@ public class KerberosUtils
 
         return null;
     }
-    
-    
+
+
     /**
      * Build a list of encryptionTypes
      *
      * @param encryptionTypes The encryptionTypes
      * @return A list comma separated of the encryptionTypes
      */
-    public static String getEncryptionTypesString( Set<EncryptionType> encryptionTypes )
+    public static String getEncryptionTypesString( List<EncryptionType> encryptionTypes )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
 
-        for ( EncryptionType etype:encryptionTypes )
+        for ( EncryptionType etype : encryptionTypes )
         {
             if ( isFirst )
             {
@@ -268,21 +271,21 @@ public class KerberosUtils
             {
                 sb.append( ", " );
             }
-            
+
             sb.append( etype );
         }
 
         return sb.toString();
     }
-    
-    
+
+
     public static boolean isKerberosString( byte[] value )
     {
         if ( value == null )
         {
             return false;
         }
-        
+
         for ( byte b : value )
         {
             if ( ( b < 0x20 ) || ( b > 0x7E ) )
@@ -290,10 +293,9 @@ public class KerberosUtils
                 return false;
             }
         }
-        
+
         return true;
     }
-
 
     /**
      * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."

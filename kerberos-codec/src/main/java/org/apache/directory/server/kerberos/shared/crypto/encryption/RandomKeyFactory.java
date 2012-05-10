@@ -112,7 +112,8 @@ public class RandomKeyFactory
 
         if ( algorithm == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, I18n.err( I18n.ERR_616, encryptionType.getName() ) );
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, I18n.err( I18n.ERR_616,
+                encryptionType.getName() ) );
         }
 
         try

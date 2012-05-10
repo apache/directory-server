@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.typedData;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.TypedData;
 
@@ -32,6 +33,7 @@ public class TypedDataContainer extends AbstractContainer
 {
     /** An TypedData container */
     private TypedData typedData;
+
 
     /**
      * Creates a new TypedDataContainer object.
@@ -53,7 +55,7 @@ public class TypedDataContainer extends AbstractContainer
         return typedData;
     }
 
-    
+
     /**
      * Set a TypedData Object into the container. It will be completed by the
      * KerberosDecoder.

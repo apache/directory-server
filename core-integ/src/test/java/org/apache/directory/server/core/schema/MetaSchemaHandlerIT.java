@@ -96,10 +96,10 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 {
     /** a test attribute in the test schema: uidNumber in nis schema */
     private static final String UID_NUMBER_ATTR = "uidnumber";
-    
+
     /** Another test attribute : krb5principalName taken from the Krb5Kdc schema */
     private static final String KRB5_PRINCIPAL_NAME_ATTR = "krb5PrincipalName";
-    
+
     public static SchemaManager schemaManager;
     private static LdapConnection connection;
 
@@ -118,16 +118,16 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         entry = connection.lookup( "ou=attributeTypes,cn=samba,ou=schema" );
         assertNotNull( entry );
         assertTrue( entry.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
-        
+
         // Disable the NIS schema
         IntegrationUtils.disableSchema( getService(), "nis" );
     }
 
-    
+
     private void createDisabledBrokenSchema() throws Exception
     {
         Dn dn = new Dn( "cn=broken,ou=schema" );
-    
+
         // Create the schema
         Entry dummySchema = new DefaultEntry(
             dn,
@@ -135,11 +135,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: broken",
             MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        
+
         connection.add( dummySchema );
     }
 
-    
+
     private void createEnabledValidSchema( String schemaName ) throws Exception
     {
         Dn dn = new Dn( "cn=" + schemaName + ",ou=schema" );
@@ -150,9 +150,10 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn", schemaName );
-        
+
         connection.add( entry );
     }
+
 
     // -----------------------------------------------------------------------
     // Enabling Schema tests
@@ -172,17 +173,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // check that the nis schema is not enabled
         assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // not in the AttributeTypeRegistry
         assertFalse( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
+
         // now enable the test schema
         IntegrationUtils.enableSchema( getService(), "nis" );
-        
+
         // now test that the schema is loaded
         assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
-        
+
         // double check and make sure the test attribute from the
         // test schema is now loaded and present within the attr registry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
@@ -199,7 +200,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         // check that the 'wrong' schema is not loaded
         assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
-        
+
         // now enable the 'wrong' schema
         try
         {
@@ -211,12 +212,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // Expected
             assertTrue( true );
         }
-        
+
         // Test again that the schema is not loaded
         assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
     }
 
-    
+
     /**
      * Checks to make sure that if we try to enable an already enabled
      * schema, we don't do anything.
@@ -227,30 +228,30 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testEnableSchemaAlreadyEnabled() throws Exception
     {
         // check that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded(  getService(), "nis" ) );
-        
+        assertTrue( IntegrationUtils.isLoaded( getService(), "nis" ) );
+
         // Ceck that it's not enabled
         assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // not in the AttributeTypeRegistry
         assertFalse( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
+
         // now enable the test schema
         IntegrationUtils.enableSchema( getService(), "nis" );
-        
+
         // and enable it again (it should not do anything)
         IntegrationUtils.enableSchema( getService(), "nis" );
-        
+
         // now test that the schema is loaded
         assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
-        
+
         // double check and make sure the test attribute from the
         // test schema is now loaded and present within the attr registry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
-    
+
     /**
      * Checks that if we enable a schema which will break the registries, we get
      * an error.
@@ -263,7 +264,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         // TODO : create a special Schema colliding with an existing one
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Disabling Schema tests
     // -----------------------------------------------------------------------
@@ -282,17 +283,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // check that the krb5kdc schema is enabled
         assertTrue( IntegrationUtils.isEnabled( getService(), "krb5kdc" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // in the AttributeTypeRegistry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
-        
+
         // now disable the krb5kdc schema
         IntegrationUtils.disableSchema( getService(), "krb5kdc" );
-        
+
         // now test that the schema is not enabled
         assertTrue( IntegrationUtils.isDisabled( getService(), "krb5kdc" ) );
-        
+
         // double check and make sure the test attribute from the
         // test schema is now loaded and present within the attr registry
         assertFalse( schemaManager.getAttributeTypeRegistry().contains( KRB5_PRINCIPAL_NAME_ATTR ) );
@@ -309,7 +310,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         // check that the 'wrong' schema is not loaded
         assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
-        
+
         // now disable the 'wrong' schema
         try
         {
@@ -321,12 +322,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             // Expected
             assertTrue( true );
         }
-        
+
         // Test again that the schema is not loaded
         assertFalse( IntegrationUtils.isLoaded( getService(), "wrong" ) );
     }
 
-    
+
     /**
      * Checks to make sure that if we try to disable an already disabled
      * schema, we don't do anything.
@@ -338,26 +339,26 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         // check that the nis schema is loaded
         assertTrue( IntegrationUtils.isLoaded( getService(), "nis" ) );
-        
+
         // Check that it's not enabled
         assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // not in the AttributeTypeRegistry
         assertFalse( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
+
         // now disable the test schema again
         IntegrationUtils.disableSchema( getService(), "nis" );
 
         // now test that the schema is not loaded
         assertTrue( IntegrationUtils.isDisabled( getService(), "nis" ) );
-        
+
         // double check and make sure the test attribute from the
         // test schema is not loaded and present within the attr registry
         assertFalse( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
 
-    
+
     /**
      * Checks that if we disable a schema which will break the registries, we get
      * an error.
@@ -368,25 +369,26 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDisableSchemaBreakingRegistries() throws Exception
     {
         // check that the nis schema is loaded
-        assertTrue( IntegrationUtils.isLoaded(  getService(), "system" ) );
-        
+        assertTrue( IntegrationUtils.isLoaded( getService(), "system" ) );
+
         // Check that it's enabled
         assertTrue( IntegrationUtils.isEnabled( getService(), "system" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // in the AttributeTypeRegistry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( "cn" ) );
-        
+
         // now disable the system schema : it should break the registries, thus being rejected
         IntegrationUtils.disableSchema( getService(), "system" );
 
         // now test that the schema is not loaded
         assertTrue( IntegrationUtils.isEnabled( getService(), "system" ) );
-        
+
         // double check and make sure the test attribute from the
         // test schema is loaded and present within the attr registry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( "cn" ) );
     }
+
 
     // -----------------------------------------------------------------------
     // Schema Add Tests
@@ -402,14 +404,14 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
 
         createEnabledValidSchema( "dummy" );
-        
+
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
-        
+
         assertTrue( isOnDisk( dn ) );
     }
-    
-    
+
+
     /**
      * Add a valid and enabled schema with existing enabled deps
      */
@@ -427,17 +429,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "cn: dummy",
             "m-dependencies: core",
             "m-dependencies: system",
-            MetaSchemaConstants.M_DISABLED_AT, "FALSE");
-        
+            MetaSchemaConstants.M_DISABLED_AT, "FALSE" );
+
         connection.add( dummySchema );
-        
+
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( connection.lookup( "cn=dummy, ou=schema" ) );
-        
+
         assertTrue( isOnDisk( dn ) );
     }
-    
-    
+
+
     /**
      * Add a valid and enabled schema with existing disabled deps. It should not be loaded.
      */
@@ -456,7 +458,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-dependencies: core",
             "m-dependencies: nis",
             MetaSchemaConstants.M_DISABLED_AT, "FALSE" );
-        
+
         try
         {
             connection.add( dummySchema );
@@ -466,12 +468,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             // expected
         }
-        
+
         assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
         assertFalse( isOnDisk( dn ) );
     }
-    
-    
+
+
     /**
      * Add a valid and enabled schema with not existing deps. It should not be loaded.
      */
@@ -490,7 +492,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-dependencies: core",
             "m-dependencies: wrong",
             MetaSchemaConstants.M_DISABLED_AT, "FALSE" );
-        
+
         try
         {
             connection.add( dummySchema );
@@ -500,12 +502,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             // expected
         }
-        
+
         assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
         assertFalse( isOnDisk( dn ) );
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Schema Delete Tests
     // -----------------------------------------------------------------------
@@ -516,7 +518,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteEnabledValidSchema() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
-        
+
         // Create a schema we will delete
         createEnabledValidSchema( "dummy" );
         assertTrue( isOnDisk( dn ) );
@@ -528,8 +530,8 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         assertFalse( isOnDisk( dn ) );
         assertFalse( IntegrationUtils.isLoaded( getService(), "dummy" ) );
     }
-    
-    
+
+
     /**
      * Tests the addition of a new metaSchema object that is disabled
      * on addition and has no dependencies.
@@ -548,14 +550,14 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
             MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        
+
         connection.add( dummySchema );
-        
+
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
     }
-    
-    
+
+
     /**
      * Tests the addition of a new metaSchema object that is disabled
      * on addition and has dependencies.
@@ -576,14 +578,14 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             MetaSchemaConstants.M_DISABLED_AT, "TRUE",
             "m-dependencies: nis",
             "m-dependencies: core" );
-        
+
         connection.add( dummySchema );
-        
+
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
     }
-    
-    
+
+
     /**
      * Tests the rejection of a new metaSchema object that is disabled
      * on addition and has missing dependencies.
@@ -604,16 +606,16 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             MetaSchemaConstants.M_DISABLED_AT, "TRUE",
             "m-dependencies: missing",
             "m-dependencies: core" );
-        
+
         try
         {
             connection.add( dummySchema );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             // expected
         }
-        
+
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
@@ -622,12 +624,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=dummy,ou=schema" );
             fail( "schema should not be added to schema partition" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
-    
-    
+
+
     /**
      * Tests the addition of a new metaSchema object that is enabled
      * on addition and has no dependencies.
@@ -648,12 +650,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             );
 
         connection.add( dummySchema );
-        
+
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
         assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
     }
-    
-    
+
+
     /**
      * Tests the rejection of a metaSchema object add that is enabled
      * on addition yet has disabled dependencies.
@@ -672,17 +674,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
             "m-dependencies: nis" );
-        
+
         try
         {
             connection.add( dummySchema );
             fail( "should not be able to add enabled schema with deps on disabled schemas" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             // expected
         }
-        
+
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
@@ -691,17 +693,16 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=dummy,ou=schema" );
             fail( "schema should not be added to schema partition" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Schema Delete Tests
     // -----------------------------------------------------------------------
 
-    
     /**
      * Makes sure we can delete schemas that have no dependents.
      *
@@ -716,13 +717,13 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
-        
+
         // delete it now
         connection.delete( dn );
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
     }
-    
-    
+
+
     /**
      * Makes sure we can NOT delete schemas that have dependents.
      *
@@ -735,11 +736,11 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
-        
+
         // make the nis schema depend on the dummy schema
         connection.modify( "cn=nis,ou=schema",
             new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "m-dependencies", "dummy" ) );
-        
+
         // attempt to delete it now & it should fail
         try
         {
@@ -753,8 +754,8 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
     }
-    
-    
+
+
     /**
      * Tests the rejection of a new metaSchema object that is enabled
      * on addition and missing dependencies.
@@ -773,17 +774,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
             "m-dependencies: missing" );
-        
+
         try
         {
             connection.add( dummySchema );
             fail( "should not be able to add enabled schema with deps on missing schemas" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             // expected
         }
-        
+
         assertFalse( IntegrationUtils.isEnabled( getService(), "dummy" ) );
 
         //noinspection EmptyCatchBlock
@@ -792,12 +793,12 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=dummy,ou=schema" );
             fail( "schema should not be added to schema partition" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
 
-    
+
     /**
      * Checks to make sure updates disabling a metaSchema object in
      * the schema partition triggers the unloading of that schema from
@@ -811,30 +812,30 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         // let's enable the test schema and add the dummy schema
         // as enabled by default and dependends on the test schema
-        
+
         // enables the test schema and samba
         testEnableExistingSchema();
-        
+
         // adds enabled dummy schema that depends on the test schema
         Dn dn = new Dn( "cn=dummy, ou=schema" );
-        
+
         Entry dummySchema = new DefaultEntry(
             dn,
             "objectClass: top",
             "objectClass", MetaSchemaConstants.META_SCHEMA_OC,
             "cn: dummy",
             "m-dependencies: nis" );
-        
+
         connection.add( dummySchema );
-        
+
         // check that the nis schema is loaded and the dummy schema is loaded
         assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
-        
+
         // double check and make sure an attribute from that schema is
         // in the AttributeTypeRegistry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
-        
+
         // now try to disable the test schema which should fail
         // since it's dependent, the dummy schema, is enabled
         try
@@ -847,17 +848,17 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             // expected
         }
-        
+
         // now test that both schema are still loaded
         assertTrue( IntegrationUtils.isEnabled( getService(), "nis" ) );
         assertTrue( IntegrationUtils.isEnabled( getService(), "dummy" ) );
-        
+
         // double check and make sure the test attribute from the test
         // schema is still loaded and present within the attr registry
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( UID_NUMBER_ATTR ) );
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Schema Rename Tests
     // -----------------------------------------------------------------------
@@ -889,7 +890,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=samba,ou=schema" );
             fail( "the samba schema should not be present after a rename to foo" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
@@ -915,7 +916,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         {
             // expected
         }
-        
+
         assertNotNull( connection.lookup( "cn=nis,ou=schema" ) );
 
         //noinspection EmptyCatchBlock
@@ -924,7 +925,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=foo,ou=schema" );
             fail( "the foo schema should not be present after rejecting the rename" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
@@ -944,7 +945,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         IntegrationUtils.enableSchema( getService(), "samba" );
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
         assertEquals( "samba", schemaManager.getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
-        
+
         connection.rename( "cn=samba,ou=schema", "cn=foo" );
         assertNotNull( connection.lookup( "cn=foo, ou=schema" ) );
         assertTrue( schemaManager.getAttributeTypeRegistry().contains( "sambaNTPassword" ) );
@@ -956,7 +957,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.lookup( "cn=samba, ou=schema" );
             fail( "the samba schema should not be present after a rename to foo" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
     }
@@ -978,7 +979,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
         try
         {
             connection.modify( "cn=nis,ou=schema",
-                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "m-dependencies", "bogus" ));
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "m-dependencies", "bogus" ) );
             fail( "Should not be able to add bogus dependency to schema" );
         }
         catch ( LdapException onse )
@@ -1001,7 +1002,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
         IntegrationUtils.enableSchema( getService(), "nis" );
-        
+
         try
         {
             connection.modify( "cn=nis,ou=schema",

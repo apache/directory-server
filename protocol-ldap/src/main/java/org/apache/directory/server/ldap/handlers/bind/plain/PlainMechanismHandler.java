@@ -36,14 +36,14 @@ import org.apache.directory.shared.ldap.model.message.BindRequest;
  */
 public class PlainMechanismHandler extends AbstractMechanismHandler
 {
-    
+
     /**
      * {@inheritDoc}
      */
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
-        
+
         if ( ss == null )
         {
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
@@ -64,7 +64,7 @@ public class PlainMechanismHandler extends AbstractMechanismHandler
         // Do nothing
     }
 
-    
+
     /**
      * Remove the SaslServer and Mechanism property.
      * 

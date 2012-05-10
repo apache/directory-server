@@ -268,9 +268,9 @@ cd ..
 verifyExitCode
 rm -rf sh
 verifyExitCode
-rm -rd instance
+rm -rf instance
 verifyExitCode
-rm -rd server
+rm -rf server
 verifyExitCode
 rm -f $archiveName
 verifyExitCode

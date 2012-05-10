@@ -30,6 +30,8 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,6 +47,9 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  */
 public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 
@@ -57,6 +62,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String, Entry, ID> uuidIdxCursor;
 
+
     /**
      * Creates a new instance of ApproximateCursor
      * @param db The Store we want to build a cursor on
@@ -66,11 +72,12 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     @SuppressWarnings("unchecked")
     public ApproximateCursor( Store<Entry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
     {
+        LOG_CURSOR.debug( "Creating ApproximateCursor {}", this );
         this.approximateEvaluator = approximateEvaluator;
 
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();
         Value<V> value = approximateEvaluator.getExpression().getValue();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<V, Entry, ID> index = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
@@ -93,7 +100,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -114,7 +121,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void beforeValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -132,7 +139,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void afterValue( ID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterValue( id, value );
@@ -150,7 +157,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -169,7 +176,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void after( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -205,7 +212,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -224,7 +231,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -235,7 +242,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -254,7 +261,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "previous()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -279,7 +286,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = uuidIdxCursor.get();
-            
+
             if ( approximateEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -289,6 +296,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         return setAvailable( false );
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -296,7 +304,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     public IndexEntry<V, ID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();
@@ -316,6 +324,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
      */
     public void close() throws Exception
     {
+        LOG_CURSOR.debug( "Closing ApproximateCursor {}", this );
         super.close();
 
         if ( userIdxCursor != null )
@@ -327,4 +336,25 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
             uuidIdxCursor.close();
         }
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing ApproximateCursor {}", this );
+        super.close( cause );
+
+        if ( userIdxCursor != null )
+        {
+            userIdxCursor.close( cause );
+        }
+        else
+        {
+            uuidIdxCursor.close( cause );
+        }
+    }
+
+
 }

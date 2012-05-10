@@ -107,7 +107,8 @@ public final class AdKDCIssuedGrammar extends AbstractGrammar<AdKdcIssuedContain
                 KerberosConstants.AD_KDC_ISSUED_ELEMENTS_TAG,
                 new StoreElements() );
 
-        super.transitions[AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
+        super.transitions[AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING
+            .getValue()] =
             new GrammarTransition<AdKdcIssuedContainer>(
                 AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_TAG_STATE,
                 AdKDCIssuedStatesEnum.AD_KDC_ISSUED_I_REALM_STATE,

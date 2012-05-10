@@ -33,20 +33,19 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum TransitedEncodingStatesEnum implements States
 {
     // Start
-    START_STATE,                                // 0
+    START_STATE, // 0
 
     // ----- TransitedEncoding message --------------------------------------
-    TRANSITED_ENCODING_SEQ_STATE,               // 1
+    TRANSITED_ENCODING_SEQ_STATE, // 1
 
-    TRANSITED_ENCODING_TR_TYPE_TAG_STATE,       // 2
-    TRANSITED_ENCODING_TR_TYPE_STATE,           // 3
+    TRANSITED_ENCODING_TR_TYPE_TAG_STATE, // 2
+    TRANSITED_ENCODING_TR_TYPE_STATE, // 3
 
-    TRANSITED_ENCODING_CONTENTS_TAG_STATE,      // 4
-    TRANSITED_ENCODING_CONTENTS_STATE,          // 5
+    TRANSITED_ENCODING_CONTENTS_TAG_STATE, // 4
+    TRANSITED_ENCODING_CONTENTS_STATE, // 5
 
     // End
-    LAST_TRANSITED_ENCODING_STATE;              // 6
-
+    LAST_TRANSITED_ENCODING_STATE; // 6
 
     /**
      * Get the grammar name

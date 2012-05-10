@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.ldap.replication;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+
 
 /**
  * A Modification serializer/deserializer.
@@ -59,7 +61,8 @@ public class ReplicaEventMessageSerializer implements Serializer
     private transient LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
     private transient SchemaManager schemaManager;
-    
+
+
     /**
      * Creates a new instance of ReplicaEventMessageSerializer.
      *
@@ -77,35 +80,35 @@ public class ReplicaEventMessageSerializer implements Serializer
      */
     public byte[] serialize( Object object ) throws IOException
     {
-        ReplicaEventMessage replicaEventMessage = (ReplicaEventMessage)object;
-    
+        ReplicaEventMessage replicaEventMessage = ( ReplicaEventMessage ) object;
+
         Entry entry = replicaEventMessage.getEntry();
         ChangeType changeType = replicaEventMessage.getChangeType();
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutput out = new ObjectOutputStream( baos );
 
         // The entry DN
         entry.getDn().writeExternal( out );
-        
+
         // The entry
         byte[] data = entrySerializer.serialize( entry );
 
         // Entry's length
         out.writeInt( data.length );
-        
+
         // Entry's data
         out.write( data );
 
         // The change type
         out.writeByte( changeType.getValue() );
-        
+
         out.flush();
 
         return baos.toByteArray();
     }
 
-    
+
     /**
      *  Deserialize a ReplicaEventMessage.
      *  
@@ -129,7 +132,7 @@ public class ReplicaEventMessageSerializer implements Serializer
             int length = in.readInt();
 
             byte[] data = new byte[length];
-            
+
             // The entry itself
             in.readFully( data );
 
@@ -147,7 +150,7 @@ public class ReplicaEventMessageSerializer implements Serializer
         {
             // there is nothing we can do here...
         }
-        
+
         return replicaEventMessage;
     }
 }

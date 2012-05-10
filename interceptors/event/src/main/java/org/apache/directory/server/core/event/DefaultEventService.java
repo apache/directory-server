@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.event;
 
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +35,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
 
+
 /**
  * A class implementing the EventService interface. It stores all the Listener 
  * associated with a DirectoryService.
@@ -44,12 +46,13 @@ class DefaultEventService implements EventService
 {
     /** The list of RegistrationEntries being registered */
     private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
-    
+
     /** The DirectoryService instance */
     private DirectoryService directoryService;
-    
+
     /** A normalizer used for filters */
     private FilterNormalizingVisitor filterNormalizer;
+
 
     /**
      * Create an instance of EventService
@@ -58,13 +61,13 @@ class DefaultEventService implements EventService
      */
     public DefaultEventService( DirectoryService directoryService )
     {
-        this.directoryService= directoryService;
+        this.directoryService = directoryService;
         SchemaManager schemaManager = directoryService.getSchemaManager();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         filterNormalizer = new FilterNormalizingVisitor( ncn, schemaManager );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

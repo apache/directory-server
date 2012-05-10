@@ -50,9 +50,12 @@ import org.junit.runner.RunWith;
 @Concurrency()
 public class HighestPrecedenceFilterTest
 {
-    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
-    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
     private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
 
@@ -72,10 +75,11 @@ public class HighestPrecedenceFilterTest
     {
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true, 10 ) );
+
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true, 10 ) );
         tuples = Collections.unmodifiableCollection( tuples );
-        
+
         AciContext aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
 
@@ -89,14 +93,18 @@ public class HighestPrecedenceFilterTest
         final int MAX_PRECEDENCE = 10;
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true,
             MAX_PRECEDENCE ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true,
             MAX_PRECEDENCE / 2 ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true,
             MAX_PRECEDENCE ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET,
+            true,
             MAX_PRECEDENCE / 3 ) );
 
         AciContext aciContext = new AciContext( null, null );
@@ -104,7 +112,7 @@ public class HighestPrecedenceFilterTest
 
         tuples = filter.filter( aciContext, null, null );
 
-        for ( ACITuple tuple:tuples )
+        for ( ACITuple tuple : tuples )
         {
             assertNotNull( tuple.getPrecedence() );
             assertEquals( MAX_PRECEDENCE, tuple.getPrecedence().intValue() );

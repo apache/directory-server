@@ -22,6 +22,8 @@ package org.apache.directory.server.core.avltree;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +33,9 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class AvlTreeCursor<E> extends AbstractCursor<E>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
     /** The underlying AVL tree */
     private AvlTree<E> tree;
 
@@ -43,6 +48,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
 
     public AvlTreeCursor( AvlTree<E> tree )
     {
+        LOG_CURSOR.debug( "Creating AvlTreeCursor {}", this );
         this.tree = tree;
     }
 
@@ -241,5 +247,25 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
             default:
                 throw new IllegalStateException( "Unexpected position " + position );
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception reason ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
+        super.close( reason );
     }
 }

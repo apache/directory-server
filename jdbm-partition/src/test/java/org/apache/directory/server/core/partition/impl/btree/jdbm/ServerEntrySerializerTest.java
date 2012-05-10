@@ -92,7 +92,7 @@ public class ServerEntrySerializerTest
 
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(errors) );
+            fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
         oids = new HashMap<String, OidNormalizer>();
@@ -179,7 +179,7 @@ public class ServerEntrySerializerTest
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", "Test" );
-        entry.add( "userPassword", Strings.getBytesUtf8("password") );
+        entry.add( "userPassword", Strings.getBytesUtf8( "password" ) );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
 
@@ -198,7 +198,7 @@ public class ServerEntrySerializerTest
         entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
         entry.add( "cn", "text", "test" );
         entry.add( "SN", "Test" );
-        entry.add( "userPassword", Strings.getBytesUtf8("password") );
+        entry.add( "userPassword", Strings.getBytesUtf8( "password" ) );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
 
@@ -265,7 +265,7 @@ public class ServerEntrySerializerTest
         Entry entry = new DefaultEntry( schemaManager );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
-        entry.add( "userPassword", Strings.getBytesUtf8("secret") );
+        entry.add( "userPassword", Strings.getBytesUtf8( "secret" ) );
 
         byte[] data = ses.serialize( entry );
 

@@ -45,10 +45,11 @@ public class TgsRep extends KdcRep
     // Storage for computed lengths
     private int kdcRepLength;
 
+
     /**
      * Creates a new instance of TGS-REP.
      */
-    public TgsRep() 
+    public TgsRep()
     {
         super( KerberosMessageType.TGS_REP );
     }
@@ -64,7 +65,7 @@ public class TgsRep extends KdcRep
         return encKdcRepPart.getEndTime();
     }
 
-    
+
     /**
      * Returns the {@link TicketFlags}.
      *
@@ -107,8 +108,8 @@ public class TgsRep extends KdcRep
     {
         return encKdcRepPart.getStartTime();
     }
-    
-    
+
+
     /**
      * Returns the server {@link PrincipalName}.
      *
@@ -119,7 +120,7 @@ public class TgsRep extends KdcRep
         return encKdcRepPart.getSName();
     }
 
-    
+
     /**
      * Compute the TGS-REP length
      * <pre>
@@ -133,11 +134,11 @@ public class TgsRep extends KdcRep
     public int computeLength()
     {
         kdcRepLength = super.computeLength();
-        
+
         return 1 + TLV.getNbBytes( kdcRepLength ) + kdcRepLength;
     }
-    
-    
+
+
     /**
      * Encode the TGS-REP component
      * 
@@ -151,14 +152,14 @@ public class TgsRep extends KdcRep
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         // The TGS-REP SEQ Tag
-        buffer.put( (byte)KerberosConstants.TGS_REP_TAG );
+        buffer.put( ( byte ) KerberosConstants.TGS_REP_TAG );
         buffer.put( TLV.getBytes( kdcRepLength ) );
-        
+
         // The KDC-REP --------------------------------------------------------
         super.encode( buffer );
-        
+
         return buffer;
     }
 }

@@ -33,23 +33,22 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum AdKDCIssuedStatesEnum implements States
 {
     // Start
-    START_STATE,                          // 0
+    START_STATE, // 0
 
     // ----- AdKDCIssued message --------------------------------------
-    AD_KDC_ISSUED_SEQ_STATE,              // 1
+    AD_KDC_ISSUED_SEQ_STATE, // 1
 
-    AD_KDC_ISSUED_AD_CHECKSUM_TAG_STATE,  // 2
+    AD_KDC_ISSUED_AD_CHECKSUM_TAG_STATE, // 2
 
-    AD_KDC_ISSUED_I_REALM_TAG_STATE,      // 3
-    AD_KDC_ISSUED_I_REALM_STATE,          // 4
+    AD_KDC_ISSUED_I_REALM_TAG_STATE, // 3
+    AD_KDC_ISSUED_I_REALM_STATE, // 4
 
-    AD_KDC_ISSUED_I_SNAME_TAG_STATE,      // 5
+    AD_KDC_ISSUED_I_SNAME_TAG_STATE, // 5
 
-    AD_KDC_ISSUED_ELEMENTS_TAG_STATE,     // 6
+    AD_KDC_ISSUED_ELEMENTS_TAG_STATE, // 6
 
     // End
-    LAST_AD_KDC_ISSUED_STATE;             // 7
-
+    LAST_AD_KDC_ISSUED_STATE; // 7
 
     /**
      * Get the grammar name

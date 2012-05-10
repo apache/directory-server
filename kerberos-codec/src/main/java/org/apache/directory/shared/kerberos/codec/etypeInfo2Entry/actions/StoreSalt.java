@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.actions;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.ETypeInfo2EntryContainer;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
 import org.apache.directory.shared.util.Strings;
@@ -65,12 +65,12 @@ public class StoreSalt extends GrammarAction<ETypeInfo2EntryContainer>
         // The Length may be null
         if ( tlv.getLength() != 0 )
         {
-            Value value = tlv.getValue();
+            BerValue value = tlv.getValue();
 
             // The encrypted data may be null
             if ( value.getData() != null )
             {
-                String salt = Strings.utf8ToString(value.getData());
+                String salt = Strings.utf8ToString( value.getData() );
                 etypeInfo2Entry.setSalt( salt );
             }
         }

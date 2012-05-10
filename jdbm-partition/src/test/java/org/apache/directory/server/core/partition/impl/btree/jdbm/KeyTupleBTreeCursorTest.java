@@ -55,12 +55,12 @@ import org.junit.Test;
  */
 public class KeyTupleBTreeCursorTest
 {
-    JdbmTable<String,String> table;
+    JdbmTable<String, String> table;
     Comparator<String> comparator;
     KeyTupleBTreeCursor<String, String> cursor;
     File dbFile;
     RecordManager recman;
-    
+
     private static final String KEY = "1";
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static SchemaManager schemaManager;
@@ -88,14 +88,15 @@ public class KeyTupleBTreeCursorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
-    
+
+
     @Before
     public void createTree() throws Exception
     {
-        comparator = new Comparator<String>() 
+        comparator = new Comparator<String>()
         {
             public int compare( String i1, String i2 )
             {
@@ -104,7 +105,7 @@ public class KeyTupleBTreeCursorTest
         };
 
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -112,18 +113,19 @@ public class KeyTupleBTreeCursorTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        table = new JdbmTable<String,String>( schemaManager, "test", 6, recman,
-                comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
+        table = new JdbmTable<String, String>( schemaManager, "test", 6, recman,
+            comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
 
         cursor = new KeyTupleBTreeCursor<String, String>( table.getBTree(), KEY, comparator );
     }
-    
-    
-    @After 
+
+
+    @After
     public void destroyTable() throws Exception
     {
         recman.close();
@@ -135,23 +137,24 @@ public class KeyTupleBTreeCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
+        cursor.close();
     }
-    
 
-    @Test( expected = InvalidCursorPositionException.class )
+
+    @Test(expected = InvalidCursorPositionException.class)
     public void testEmptyCursor() throws Exception
     {
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.isClosed() );
-        
+
         assertFalse( cursor.first() );
         assertFalse( cursor.last() );
-        
+
         cursor.get(); // should throw InvalidCursorPositionException
     }
-    
+
 
     @Test
     public void testNonEmptyCursor() throws Exception
@@ -163,51 +166,53 @@ public class KeyTupleBTreeCursorTest
         table.put( KEY, "0" );
         table.put( KEY, "30" );
         table.put( KEY, "25" );
-       
-        cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
-   
+
+        KeyTupleBTreeCursor<String, String> cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
+
         cursor.before( new Tuple<String, String>( KEY, "3" ) );
         assertTrue( cursor.next() );
         assertEquals( "3", cursor.get().getValue() );
-        
+
         cursor.after( new Tuple<String, String>( KEY, "100" ) );
         assertFalse( cursor.next() );
-        
+
         cursor.beforeFirst();
         cursor.after( new Tuple<String, String>( KEY, "13" ) );
         assertTrue( cursor.next() );
         assertEquals( "25", cursor.get().getValue() );
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertEquals( "0", cursor.get().getValue() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.next() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
         assertEquals( "0", cursor.get().getValue() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
         assertEquals( "30", cursor.get().getValue() );
-        
+
         assertTrue( cursor.previous() );
         assertEquals( "25", cursor.get().getValue() );
-    
+
         assertTrue( cursor.next() );
-        assertEquals( "30", cursor.get().getValue() ); 
-    
+        assertEquals( "30", cursor.get().getValue() );
+
+        cursor.close();
     }
+
 
     private BTree getDupsContainer() throws Exception
     {
         BTree tree = table.getBTree();
-        
+
         DupsContainer<String> values = table.getDupsContainer( ( byte[] ) tree.find( KEY ) );
-        
-        return table.getBTree( values.getBTreeRedirect() );   
+
+        return table.getBTree( values.getBTreeRedirect() );
     }
 }

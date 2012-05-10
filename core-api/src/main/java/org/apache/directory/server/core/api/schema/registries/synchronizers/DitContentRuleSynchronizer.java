@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.DITContentRule;
+import org.apache.directory.shared.ldap.model.schema.DitContentRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -54,7 +54,7 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
      * {@inheritDoc}
      */
     @Override
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade ) 
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
         // TODO Auto-generated method stub
@@ -109,13 +109,13 @@ public class DitContentRuleSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
-    public void add( DITContentRule dcr )
+    public void add( DitContentRule dcr )
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( DITContentRule dcr, boolean cascade )
+    public void delete( DitContentRule dcr, boolean cascade )
     {
         // TODO Auto-generated method stub
     }

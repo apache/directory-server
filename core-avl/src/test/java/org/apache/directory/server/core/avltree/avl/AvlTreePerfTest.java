@@ -48,221 +48,224 @@ import org.slf4j.LoggerFactory;
 public class AvlTreePerfTest
 {
     AvlTreeSet<Integer> tree;
-    
+
     static String tempDir = System.getProperty( "java.io.tmpdir" );
-   
+
     static File setSerialFile = new File( tempDir + File.separator + "hashset.ser" );
     static File treeSerialFile = new File( tempDir + File.separator + "avltree.ser" );
-    
+
     Set<Integer> set;
-    
+
     long start, end;
 
     int numKeys = 1000000;
 
-    Comparator<Integer> comparator = new Comparator<Integer>() 
+    Comparator<Integer> comparator = new Comparator<Integer>()
     {
-      public int compare( Integer i1, Integer i2 )
-      {
-          return i1.compareTo( i2 );
-      }
-    
+        public int compare( Integer i1, Integer i2 )
+        {
+            return i1.compareTo( i2 );
+        }
+
     };
-    
+
     AvlTreeMarshaller<Integer> treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
 
     private final static Logger LOG = LoggerFactory.getLogger( AvlTreePerfTest.class );
-    
+
+
     @Before
     public void createTree()
     {
-      tree = new AvlTreeSet<Integer>();  
-      
-      set = new HashSet<Integer>();
-      
-      start = end = 0;
+        tree = new AvlTreeSet<Integer>();
+
+        set = new HashSet<Integer>();
+
+        start = end = 0;
     }
-    
-    
+
+
     @AfterClass
     public static void deleteFiles()
     {
         setSerialFile.delete();
         treeSerialFile.delete();
     }
-    
-    
+
+
     @Test
     public void testRBTreeInsertPerf()
     {
         start = System.nanoTime();
-        
-        for( int i=0; i < numKeys; i++ )
+
+        for ( int i = 0; i < numKeys; i++ )
         {
             set.add( i );
         }
-        
+
         end = System.nanoTime();
-     
-        System.out.println( "total time for inserting " + numKeys + " items into the RBTree-->" +  getTime( start, end ) );
-        
+
+        System.out
+            .println( "total time for inserting " + numKeys + " items into the RBTree-->" + getTime( start, end ) );
+
     }
 
-    
+
     @Test
     @Ignore
     public void testRBTreeLookupPerf()
     {
-        for( int i=0; i < numKeys; i++ )
+        for ( int i = 0; i < numKeys; i++ )
         {
             set.add( i );
         }
-        
+
         start = System.nanoTime();
-       
+
         set.contains( 70 );
         set.contains( -1000 );
         set.contains( 10 );
         set.contains( 90 );
         set.contains( 9999 );
-        
-       end = System.nanoTime();
-       
-       System.out.println( "total time took to read an item from set " + getTime( start, end ) ) ;
+
+        end = System.nanoTime();
+
+        System.out.println( "total time took to read an item from set " + getTime( start, end ) );
     }
-    
-    
+
+
     @Test
     @Ignore
     public void testRemoveFromRBTree()
     {
-        for( int i=0; i < numKeys; i++ )
+        for ( int i = 0; i < numKeys; i++ )
         {
             set.add( i );
         }
-        
+
         start = System.nanoTime();
-        
+
         set.remove( 90 );
         set.remove( 912 );
         set.remove( -1 );
         set.remove( 192 );
-        
+
         end = System.nanoTime();
-        
-        System.out.println( "total time took to remove an item from set " + getTime( start, end ) ) ;
+
+        System.out.println( "total time took to remove an item from set " + getTime( start, end ) );
 
     }
-    
-    
+
+
     @Test
     public void testAvlTreeInsertPerf()
     {
         start = System.nanoTime();
-        
-        for( int i=0; i < numKeys; i++ )
+
+        for ( int i = 0; i < numKeys; i++ )
         {
             tree.insert( i );
         }
 
         end = System.nanoTime();
-        
-        System.out.println("total time for inserting " + numKeys + " items into the AVLTree-->" + getTime(start, end));
+
+        System.out
+            .println( "total time for inserting " + numKeys + " items into the AVLTree-->" + getTime( start, end ) );
     }
-    
-    
+
+
     @Test
     @Ignore
     public void testAVLTreeLookupPerf()
     {
-        
-        for( int i=0; i < numKeys; i++ )
+
+        for ( int i = 0; i < numKeys; i++ )
         {
             tree.insert( i );
         }
-        
+
         start = System.nanoTime();
-        
+
         tree.contains( 70 );
         tree.contains( -1000 );
         tree.contains( 10 );
         tree.contains( 90 );
         tree.contains( 9999 );
-        
+
         end = System.nanoTime();
-        
-        System.out.println("total time took to read an item from tree " + getTime( start, end ) ) ;
+
+        System.out.println( "total time took to read an item from tree " + getTime( start, end ) );
     }
-    
-    
+
+
     @Test
     @Ignore
     public void testAVLTreeRemovePerf()
     {
-        for( int i=0; i < numKeys; i++ )
+        for ( int i = 0; i < numKeys; i++ )
         {
             tree.insert( i );
         }
-        
+
         start = System.nanoTime();
-        
+
         tree.remove( 90 );
         tree.remove( 912 );
         tree.remove( -1 );
         tree.remove( 192 );
-        
+
         end = System.nanoTime();
-        
-        System.out.println("total time took to remove an item from AVLTree " + getTime( start, end ) ) ;
+
+        System.out.println( "total time took to remove an item from AVLTree " + getTime( start, end ) );
 
     }
-    
-    
+
+
     @Test
     @Ignore
     public void testRBTreeSerializationPerf() throws Exception
     {
         FileOutputStream fout = new FileOutputStream( setSerialFile );
         ObjectOutputStream objOut = new ObjectOutputStream( fout );
-        
+
         Set<Integer> set = new HashSet<Integer>();
-        
-        for( int i=0; i < numKeys; i++ )
+
+        for ( int i = 0; i < numKeys; i++ )
         {
             set.add( i );
         }
-        
+
         long start = System.nanoTime();
-        
+
         objOut.writeObject( set );
         objOut.flush();
         objOut.close();
-        
+
         long end = System.nanoTime();
-        
+
         System.out.println( "total time taken for serializing HashSet ->" + getTime( start, end ) );
     }
-    
-    
+
+
     @SuppressWarnings("unchecked")
     @Test
     @Ignore
     public void testRBTreeDeserializationPerf() throws Exception
     {
-     // read test
+        // read test
         FileInputStream fin = new FileInputStream( setSerialFile );
         ObjectInputStream objIn = new ObjectInputStream( fin );
-        
+
         start = System.nanoTime();
-        
+
         set = ( HashSet ) objIn.readObject();
-        
+
         end = System.nanoTime();
-        
-        System.out.println("total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
+
+        System.out.println( "total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
     }
-    
-    
+
+
     /*
     @Test
     public void testAVLTreeSerializationPerf() throws Exception
@@ -303,22 +306,21 @@ public class AvlTreePerfTest
         System.out.println("total time taken for reconstructing a serialized AVLTree ->" + getTime( start, end ) );
     }
     */
-    
-    
+
     /**
      * calculates the total time taken in milli seconds by taking the start and end time in nano seconds. 
      */
-    private String getTime(long nanoStartTime, long nanoEndTime)
+    private String getTime( long nanoStartTime, long nanoEndTime )
     {
         long temp = nanoEndTime - nanoStartTime;
-        
-        if( temp == 0)
+
+        if ( temp == 0 )
         {
             return "0 msec";
         }
-        
-       double d = temp / (1000 * 1000);
-        
-       return String.valueOf( d ) + " msec";
+
+        double d = temp / ( 1000 * 1000 );
+
+        return String.valueOf( d ) + " msec";
     }
 }

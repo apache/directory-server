@@ -63,6 +63,7 @@ public class JournalInterceptor extends BaseInterceptor
     /** the Journal service to log changes to */
     private Journal journal;
 
+
     /**
      * Creates a new instance of a JournalInterceptor.
      */
@@ -71,7 +72,7 @@ public class JournalInterceptor extends BaseInterceptor
         super( InterceptorEnum.JOURNAL_INTERCEPTOR );
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
@@ -124,10 +125,10 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setChangeType( ChangeType.Add );
             ldif.setDn( addContext.getDn() );
 
-            for ( Attribute attribute:addEntry.getAttributes() )
+            for ( Attribute attribute : addEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                ldif.addAttribute( addEntry.get( attributeType).clone() );
+                ldif.addAttribute( addEntry.get( attributeType ).clone() );
             }
 
             log( addContext, opRevision, ldif );
@@ -143,7 +144,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException le )
+        catch ( LdapException le )
         {
             if ( journalEnabled )
             {
@@ -185,7 +186,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             if ( journalEnabled )
             {
@@ -215,7 +216,7 @@ public class JournalInterceptor extends BaseInterceptor
             ldif.setDn( modifyContext.getDn() );
 
             // Store the modifications
-            for ( Modification modification:modifyContext.getModItems() )
+            for ( Modification modification : modifyContext.getModItems() )
             {
                 ldif.addModification( modification );
             }
@@ -233,7 +234,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             if ( journalEnabled )
             {
@@ -275,7 +276,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             if ( journalEnabled )
             {
@@ -320,7 +321,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             if ( journalEnabled )
             {
@@ -364,7 +365,7 @@ public class JournalInterceptor extends BaseInterceptor
                 journal.ack( opRevision );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             if ( journalEnabled )
             {

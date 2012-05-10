@@ -100,13 +100,13 @@ public class EntryNode implements TreeNode
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( (Long)rec.getId() ) == 0 )
+                    if ( db.getChildCount( ( Long ) rec.getId() ) == 0 )
                     {
                         Evaluator evaluator = engine.evaluator( exprNode );
-                        
+
                         if ( evaluator.evaluate( rec ) )
                         {
-                            Entry newEntry = db.lookup( (Long)rec.getId() );
+                            Entry newEntry = db.lookup( ( Long ) rec.getId() );
                             EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
@@ -118,7 +118,7 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Entry newEntry = db.lookup( (Long)rec.getId() );
+                        Entry newEntry = db.lookup( ( Long ) rec.getId() );
                         EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
                             engine );
                         children.add( child );

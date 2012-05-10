@@ -104,7 +104,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         boolean result;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry(entryDn);
+        Entry testEntry = new DefaultEntry( entryDn );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -120,7 +120,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         // modify the entry as the user
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName(entryDn);
+        modReq.setName( entryDn );
 
         for ( Modification modification : mods )
         {
@@ -139,7 +139,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         }
 
         // let's clean up
-        adminConnection.delete(entryDn);
+        adminConnection.delete( entryDn );
 
         return result;
     }
@@ -171,7 +171,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         boolean result;
 
         // create the entry with the telephoneNumber attribute to compare
-        Entry testEntry = new DefaultEntry(entryDn);
+        Entry testEntry = new DefaultEntry( entryDn );
         testEntry.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
         testEntry.add( SchemaConstants.OU_AT, "testou" );
         testEntry.add( "telephoneNumber", "867-5309" ); // jenny don't change your number
@@ -185,7 +185,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // modify the entry as the user
         LdapConnection userConnection = getConnectionAs( userName, password );
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName(entryDn);
+        modReq.setName( entryDn );
         modReq.addModification( attr, modOp );
 
         ModifyResponse resp = userConnection.modify( modReq );
@@ -200,7 +200,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         }
 
         // let's clean up
-        adminConnection.delete(entryDn);
+        adminConnection.delete( entryDn );
 
         return result;
     }
@@ -222,10 +222,10 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     {
         // modify the entry as the user
         Dn userDn = new Dn( "uid=" + uid + ",ou=users,ou=system" );
-        LdapConnection connection = getConnectionAs(userDn, password );
+        LdapConnection connection = getConnectionAs( userDn, password );
 
         ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName(userDn);
+        modReq.setName( userDn );
 
         for ( Modification modification : mods )
         {

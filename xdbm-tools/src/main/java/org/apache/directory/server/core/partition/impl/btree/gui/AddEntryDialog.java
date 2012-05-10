@@ -81,7 +81,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
      * @param parent the parent frame
      * @param modal whether or not to go modal on the dialog
      */
-    public AddEntryDialog(Frame parent, boolean modal, SchemaManager schemaManager )
+    public AddEntryDialog( Frame parent, boolean modal, SchemaManager schemaManager )
     {
         super( parent, modal );
         childEntry = new DefaultEntry( schemaManager );
@@ -210,7 +210,7 @@ public class AddEntryDialog extends JDialog implements ActionListener
                 {
                     log.debug( "Editor returning '" + l_textField.getText() + "'" );
                 }
-                
+
                 return l_textField.getText();
             }
         };

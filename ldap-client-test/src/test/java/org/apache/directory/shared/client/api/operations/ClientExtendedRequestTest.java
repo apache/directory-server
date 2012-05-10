@@ -53,11 +53,12 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { 
-      @CreateTransport(protocol = "LDAP"), 
-      @CreateTransport(protocol = "LDAPS") 
-    }, 
-    extendedOpHandlers = { StartTlsHandler.class })
+    {
+        @CreateTransport(protocol = "LDAP"),
+        @CreateTransport(protocol = "LDAPS")
+},
+    extendedOpHandlers =
+        { StartTlsHandler.class })
 public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
@@ -66,7 +67,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 

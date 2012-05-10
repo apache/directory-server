@@ -33,21 +33,20 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum PaDataStatesEnum implements States
 {
     // Start
-    START_STATE,                  // 0
+    START_STATE, // 0
 
-    PADATA_SEQ_STATE,             // 1
+    PADATA_SEQ_STATE, // 1
 
-    PADATA_TYPE_TAG_STATE,        // 2
+    PADATA_TYPE_TAG_STATE, // 2
 
-    PADATA_TYPE_STATE,            // 3
+    PADATA_TYPE_STATE, // 3
 
-    PADATA_VALUE_TAG_STATE,       // 4
+    PADATA_VALUE_TAG_STATE, // 4
 
-    PADATA_VALUE_STATE,           // 5
+    PADATA_VALUE_STATE, // 5
 
     // End
-    LAST_PADATA_STATE;            // 6
-
+    LAST_PADATA_STATE; // 6
 
     /**
      * Get the grammar name

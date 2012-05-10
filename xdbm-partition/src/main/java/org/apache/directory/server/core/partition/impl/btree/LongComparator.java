@@ -34,6 +34,7 @@ public class LongComparator extends SerializableComparator<Long>
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
 
+
     public LongComparator()
     {
         super( "1.3.6.1.4.1.18060.0.4.1.1.2" );

@@ -65,7 +65,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /** The logger instance */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
-    /** An empty control array */ 
+    /** An empty control array */
     private static final Control[] EMPTY = new Control[0];
 
     private String username;
@@ -73,13 +73,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
     /** The reference on the user ldap session */
     protected LdapSession ldapSession;
-    
+
     /** The admin core session */
     protected CoreSession adminSession;
 
     /** A reference on the DirectoryService instance */
     protected final DirectoryService directoryService;
-    
+
     /** The associated BindRequest */
     protected final BindRequest bindRequest;
 
@@ -116,6 +116,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     {
         return realm;
     }
+
 
     /**
      * Implementors set the password based on a lookup, using the username and
@@ -184,8 +185,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 {
                     // We assume that we have only one password available
                     byte[] password = userPassword.get().getBytes();
-                    
-                    String strPassword = Strings.utf8ToString(password);
+
+                    String strPassword = Strings.utf8ToString( password );
                     passwordCB.setPassword( strPassword.toCharArray() );
                 }
             }
@@ -240,7 +241,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         {
             Control[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
-            ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( directoryService.getLdapCodecService(), 
+            ctx = new InitialLdapContext( env, JndiUtils.toJndiControls( directoryService.getLdapCodecService(),
                 connCtls ) );
         }
         catch ( Exception e )
@@ -250,13 +251,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
             if ( e instanceof LdapOperationException )
             {
-                code = ( (LdapOperationException) e ).getResultCode();
+                code = ( ( LdapOperationException ) e ).getResultCode();
                 result.setResultCode( code );
                 dn = ( ( LdapOperationException ) e ).getResolvedDn();
             }
             else
             {
-                code = ResultCodeEnum.getBestEstimate(e, bindRequest.getType());
+                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
                 result.setResultCode( code );
             }
 

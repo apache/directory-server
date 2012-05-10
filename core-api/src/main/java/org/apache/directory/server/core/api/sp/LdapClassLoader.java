@@ -62,33 +62,33 @@ public class LdapClassLoader extends ClassLoader
 {
     private static final Logger LOG = LoggerFactory.getLogger( LdapClassLoader.class );
     public static final String DEFAULT_SEARCH_CONTEXTS_CONFIG = "cn=classLoaderDefaultSearchContext,ou=configuration,ou=system";
-    
+
     private Dn defaultSearchDn;
     private DirectoryService directoryService;
 
     /** A storage for the ObjectClass attributeType */
     private AttributeType OBJECT_CLASS_AT;
 
-    
+
     public LdapClassLoader( DirectoryService directoryService ) throws LdapException
     {
         super( LdapClassLoader.class.getClassLoader() );
         this.directoryService = directoryService;
         defaultSearchDn = directoryService.getDnFactory().create( DEFAULT_SEARCH_CONTEXTS_CONFIG );
-        
+
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
-    
+
     private byte[] findClassInDIT( List<Dn> searchContexts, String name ) throws ClassNotFoundException
     {
         // Set up the search filter
-        BranchNode filter = new AndNode( );
+        BranchNode filter = new AndNode();
         AttributeType fqjcnAt = directoryService.getSchemaManager().getAttributeType( "fullyQualifiedJavaClassName" );
         filter.addNode( new EqualityNode<String>( fqjcnAt, new StringValue( name ) ) );
         filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
             new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
-        
+
         try
         {
             for ( Dn base : searchContexts )
@@ -98,7 +98,7 @@ public class LdapClassLoader extends ClassLoader
                 {
                     cursor = directoryService.getAdminSession()
                         .search( base, SearchScope.SUBTREE, filter, AliasDerefMode.DEREF_ALWAYS, null );
-                    
+
                     cursor.beforeFirst();
                     if ( cursor.next() ) // there should be only one!
                     {
@@ -108,7 +108,7 @@ public class LdapClassLoader extends ClassLoader
                         if ( cursor.next() )
                         {
                             Entry other = cursor.get();
-                            LOG.warn( "More than one class found on classpath at locations: {} \n\tand {}", 
+                            LOG.warn( "More than one class found on classpath at locations: {} \n\tand {}",
                                 classEntry, other );
                         }
 
@@ -131,21 +131,21 @@ public class LdapClassLoader extends ClassLoader
 
         throw new ClassNotFoundException();
     }
-    
-    
+
+
     public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes = null;
 
-        try 
-        {   
+        try
+        {
             // TODO we should cache this information and register with the event
             // service to get notified if this changes so we can update the cached
             // copy - there's absolutely no reason why we should be performing this
             // lookup every time!!!
-            
+
             Entry configEntry = null;
-            
+
             try
             {
                 configEntry = directoryService.getAdminSession().lookup( defaultSearchDn );
@@ -154,22 +154,22 @@ public class LdapClassLoader extends ClassLoader
             {
                 LOG.debug( "No configuration data found for class loader default search contexts." );
             }
-            
+
             if ( configEntry != null )
             {
                 List<Dn> searchContexts = new ArrayList<Dn>();
                 Attribute attr = configEntry.get( "classLoaderDefaultSearchContext" );
-                
+
                 for ( Value<?> val : attr )
                 {
                     Dn dn = directoryService.getDnFactory().create( val.getString() );
                     searchContexts.add( dn );
                 }
-                
+
                 try
                 {
                     classBytes = findClassInDIT( searchContexts, name );
-                    
+
                     LOG.debug( "Class " + name + " found under default search contexts." );
                 }
                 catch ( ClassNotFoundException e )
@@ -177,35 +177,35 @@ public class LdapClassLoader extends ClassLoader
                     LOG.debug( "Class " + name + " could not be found under default search contexts." );
                 }
             }
-            
+
             if ( classBytes == null )
             {
                 List<Dn> namingContexts = new ArrayList<Dn>();
-                
+
                 Set<String> suffixes = directoryService.getPartitionNexus().listSuffixes();
 
-                for ( String suffix:suffixes )
+                for ( String suffix : suffixes )
                 {
                     Dn dn = directoryService.getDnFactory().create( suffix );
                     namingContexts.add( dn );
                 }
-                
+
                 classBytes = findClassInDIT( namingContexts, name );
             }
-        } 
+        }
         catch ( ClassNotFoundException e )
         {
             String msg = I18n.err( I18n.ERR_293, name );
             LOG.debug( msg );
             throw new ClassNotFoundException( msg );
         }
-        catch ( Exception e ) 
+        catch ( Exception e )
         {
             String msg = I18n.err( I18n.ERR_70, name );
             LOG.error( msg, e );
             throw new ClassNotFoundException( msg );
         }
-        
+
         return defineClass( name, classBytes, 0, classBytes.length );
     }
 }

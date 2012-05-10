@@ -52,8 +52,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( allowAnonAccess=true, name = "DIRSERVER169IT" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "DIRSERVER169IT")
 public class DIRSERVER169IT extends AbstractLdapTestUnit
 {
 
@@ -98,7 +98,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
 
         LdapContext sysRoot = getSystemContext( getService() );
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -126,7 +126,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
             userDn.append( "," );
             userDn.append( ctx.getNameInNamespace() );
         }
-        
+
         assertEquals( "uid=bob,ou=people," + sysRoot.getNameInNamespace(), userDn.toString() );
     }
 
@@ -143,7 +143,7 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
         // @todo replace with ldif tags
         createData();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -154,10 +154,13 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String filter = "(userPassword={0})";
-        NamingEnumeration<SearchResult> results = 
-            ctx.search( "uid=bob,ou=people", filter, new Object[] { "bobspassword" }, ctls );
+        NamingEnumeration<SearchResult> results =
+            ctx.search( "uid=bob,ou=people", filter, new Object[]
+                { "bobspassword" }, ctls );
 
         // We should have a match
         assertTrue( results.hasMore() );
+        
+        results.close();
     }
 }

@@ -80,7 +80,7 @@ public class LdapServerBean extends DSBasedServerBean
     /** The list of supported extended operation handlers */
     @ConfigurationElement(attributeType = "ads-extendedOpHandlers", container = "extendedOpHandlers")
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
-    
+
 
     /**
      * Create a new LdapServerBean instance
@@ -307,7 +307,6 @@ public class LdapServerBean extends DSBasedServerBean
     }
 
 
-    
     /**
      * @param extendedOps the extendedOps to set
      */
@@ -352,12 +351,12 @@ public class LdapServerBean extends DSBasedServerBean
      */
     public void addReplConsumers( ReplConsumerBean... replConsumers )
     {
-        for( ReplConsumerBean bean : replConsumers )
+        for ( ReplConsumerBean bean : replConsumers )
         {
             this.replConsumers.add( bean );
         }
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -416,7 +415,7 @@ public class LdapServerBean extends DSBasedServerBean
                 sb.append( replConsumer.toString( tabs + "    " ) );
             }
         }
-        
+
         return sb.toString();
     }
 

@@ -29,7 +29,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
@@ -76,6 +76,7 @@ public class EncryptedData extends AbstractAsn1Object
     private int cipherTagLength;
     private int encryptedDataSeqLength;
 
+
     /**
      * Creates a new instance of EncryptedData.
      */
@@ -83,7 +84,8 @@ public class EncryptedData extends AbstractAsn1Object
     {
         hasKvno = !HAS_KVNO;
     }
-    
+
+
     /**
      * Creates a new instance of EncryptedData.
      *
@@ -135,6 +137,7 @@ public class EncryptedData extends AbstractAsn1Object
         this.eType = eType;
     }
 
+
     /**
      * Returns the key version.
      *
@@ -145,6 +148,7 @@ public class EncryptedData extends AbstractAsn1Object
         return hasKvno ? kvno : -1;
     }
 
+
     /**
      * Set the key version
      * @param kvno The key version
@@ -154,6 +158,7 @@ public class EncryptedData extends AbstractAsn1Object
         this.kvno = kvno;
         hasKvno = true;
     }
+
 
     /**
      * Tells if there is a key version.
@@ -176,6 +181,7 @@ public class EncryptedData extends AbstractAsn1Object
         return cipher;
     }
 
+
     /**
      * Set the cipher text
      * @param cipher The cipher text
@@ -184,7 +190,7 @@ public class EncryptedData extends AbstractAsn1Object
     {
         this.cipher = cipher;
     }
-    
+
 
     /**
      * Compute the EncryptedData length
@@ -211,15 +217,14 @@ public class EncryptedData extends AbstractAsn1Object
         encryptedDataSeqLength = 0;
 
         // Compute the encryption Type length
-        int eTypeLength = Value.getNbBytes( eType.getValue() );
+        int eTypeLength = BerValue.getNbBytes( eType.getValue() );
         eTypeTagLength = 1 + TLV.getNbBytes( eTypeLength ) + eTypeLength;
-        encryptedDataSeqLength = 1 + TLV.getNbBytes( eTypeTagLength ) + eTypeTagLength; 
-
+        encryptedDataSeqLength = 1 + TLV.getNbBytes( eTypeTagLength ) + eTypeTagLength;
 
         // Compute the kvno length if any
         if ( hasKvno )
         {
-            int kvnoLength = Value.getNbBytes( kvno );
+            int kvnoLength = BerValue.getNbBytes( kvno );
             kvnoTagLength = 1 + TLV.getNbBytes( kvnoLength ) + kvnoLength;
             encryptedDataSeqLength += 1 + TLV.getNbBytes( kvnoTagLength ) + kvnoTagLength;
         }
@@ -279,7 +284,7 @@ public class EncryptedData extends AbstractAsn1Object
             buffer.put( ( byte ) 0xA0 );
             buffer.put( TLV.getBytes( eTypeTagLength ) );
 
-            Value.encode( buffer, eType.getValue() );
+            BerValue.encode( buffer, eType.getValue() );
 
             // The kvno, if any, first the tag, then the value
             if ( hasKvno )
@@ -287,24 +292,24 @@ public class EncryptedData extends AbstractAsn1Object
                 buffer.put( ( byte ) 0xA1 );
                 buffer.put( TLV.getBytes( kvnoTagLength ) );
 
-                Value.encode( buffer, kvno );
+                BerValue.encode( buffer, kvno );
             }
 
             // The cipher tag
             buffer.put( ( byte ) 0xA2 );
             buffer.put( TLV.getBytes( cipherTagLength ) );
-            Value.encode( buffer, cipher );
+            BerValue.encode( buffer, cipher );
         }
         catch ( BufferOverflowException boe )
         {
-            log.error( I18n.err( I18n.ERR_141, 1 + TLV.getNbBytes( encryptedDataSeqLength ) 
+            log.error( I18n.err( I18n.ERR_141, 1 + TLV.getNbBytes( encryptedDataSeqLength )
                 + encryptedDataSeqLength, buffer.capacity() ) );
             throw new EncoderException( I18n.err( I18n.ERR_138 ) );
         }
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncryptedData encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncryptedData encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncryptedData initial value : {}", toString() );
         }
 
@@ -326,7 +331,7 @@ public class EncryptedData extends AbstractAsn1Object
         return result;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -337,33 +342,33 @@ public class EncryptedData extends AbstractAsn1Object
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         EncryptedData other = ( EncryptedData ) obj;
-        
+
         if ( !Arrays.equals( cipher, other.cipher ) )
         {
             return false;
         }
-        
+
         if ( eType != other.eType )
         {
             return false;
         }
-        
+
         if ( kvno != other.kvno )
         {
             return false;
         }
-        
+
         return true;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -371,8 +376,8 @@ public class EncryptedData extends AbstractAsn1Object
     {
         return toString( "" );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -388,7 +393,7 @@ public class EncryptedData extends AbstractAsn1Object
             sb.append( tabs ).append( "    kvno: " ).append( kvno ).append( '\n' );
         }
 
-        sb.append( tabs ).append( "    cipher: " ).append( Strings.dumpBytes(cipher) ).append( "\n}\n" );
+        sb.append( tabs ).append( "    cipher: " ).append( Strings.dumpBytes( cipher ) ).append( "\n}\n" );
 
         return sb.toString();
     }

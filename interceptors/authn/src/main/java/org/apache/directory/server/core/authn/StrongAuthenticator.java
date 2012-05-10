@@ -55,10 +55,11 @@ public class StrongAuthenticator extends AbstractAuthenticator
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapAuthenticationException
     {
         // Possibly check if user account is disabled, other account checks.
-        LdapPrincipal principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.STRONG );
-        
+        LdapPrincipal principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
+            AuthenticationLevel.STRONG );
+
         IoSession session = bindContext.getIoSession();
-        
+
         if ( session != null )
         {
             SocketAddress clientAddress = session.getRemoteAddress();
@@ -66,7 +67,7 @@ public class StrongAuthenticator extends AbstractAuthenticator
             SocketAddress serverAddress = session.getServiceAddress();
             principal.setServerAddress( serverAddress );
         }
-        
+
         return principal;
     }
 }

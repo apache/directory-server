@@ -44,7 +44,7 @@ public class CramMd5MechanismHandler extends AbstractMechanismHandler
 {
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
-        SaslServer ss = (SaslServer)ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
+        SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
         // TODO - don't use session properties anymore
         if ( ss == null )
@@ -54,18 +54,19 @@ public class CramMd5MechanismHandler extends AbstractMechanismHandler
             ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
             ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
             Map<String, String> saslProps = new HashMap<String, String>();
-            
+
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 
             CallbackHandler callbackHandler = new CramMd5CallbackHandler( ldapSession, adminSession, bindRequest );
 
-            ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost,
+                saslProps, callbackHandler );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -76,7 +77,7 @@ public class CramMd5MechanismHandler extends AbstractMechanismHandler
         String saslHost = ldapSession.getLdapServer().getSaslHost();
         ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
     }
-    
+
 
     /**
      * Remove the SaslServer and Mechanism property.

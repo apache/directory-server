@@ -74,7 +74,6 @@ public class TypedDataInit extends GrammarAction<TypedDataContainer>
             TypedData typedData = new TypedData();
             typedDataContainer.setTypedData( typedData );
 
-
             if ( IS_DEBUG )
             {
                 LOG.debug( "TypedData created" );

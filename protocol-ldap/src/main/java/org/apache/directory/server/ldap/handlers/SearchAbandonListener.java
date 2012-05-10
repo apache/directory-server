@@ -43,33 +43,33 @@ public class SearchAbandonListener implements AbandonListener
     private final LdapServer ldapServer;
     private EntryFilteringCursor cursor;
     private DirectoryListener listener;
-    
-    
+
+
     public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor, DirectoryListener listener )
     {
         if ( ldapServer == null )
         {
             throw new IllegalArgumentException( "ldapServer" );
         }
-        
+
         this.ldapServer = ldapServer;
         this.cursor = cursor;
         this.listener = listener;
     }
-    
-    
+
+
     public SearchAbandonListener( LdapServer ldapServer, DirectoryListener listener )
     {
-        this ( ldapServer, null, listener );
+        this( ldapServer, null, listener );
     }
-    
-    
+
+
     public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor )
     {
-        this ( ldapServer, cursor, null );
+        this( ldapServer, cursor, null );
     }
-    
-    
+
+
     public void requestAbandoned( AbandonableRequest req )
     {
         if ( listener != null )
@@ -97,5 +97,3 @@ public class SearchAbandonListener implements AbandonListener
         }
     }
 }
-
-

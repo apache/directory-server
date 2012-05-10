@@ -89,14 +89,14 @@ public class SubstringTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -112,21 +112,21 @@ public class SubstringTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        
-        Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
-        ((Partition)store).setSuffixDn( suffixDn );
 
-        ((Partition)store).initialize();
+        Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
+        ( ( Partition ) store ).setSuffixDn( suffixDn );
+
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -136,7 +136,7 @@ public class SubstringTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -163,29 +163,29 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -201,32 +201,33 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -237,32 +238,33 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 11, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -271,32 +273,33 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( 11, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getValue() );
+        assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getValue() );
+        assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -314,18 +317,19 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -334,18 +338,19 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -356,18 +361,19 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -376,18 +382,19 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -405,18 +412,20 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -425,18 +434,19 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -447,18 +457,19 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -467,18 +478,19 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( 10, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getValue() );
+        assertEquals( "jim bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -496,7 +508,7 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getValue() );
+        assertEquals( "bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -509,10 +521,11 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getValue() );
+        assertEquals( "bean", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -523,10 +536,11 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getValue() );
+        assertEquals( "bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -536,10 +550,11 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getValue() );
+        assertEquals( "bean", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -557,10 +572,11 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test first ----------
 
@@ -569,10 +585,11 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test afterLast ----------
 
@@ -583,10 +600,11 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // ---------- test last ----------
 
@@ -596,10 +614,11 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( 5L, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getValue() );
+        assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
@@ -692,47 +711,83 @@ public class SubstringTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-        cursor.get();
+        SubstringCursor<Long> cursor = null;
+    
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException2() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-        cursor.get();
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
-        entry.setValue( SchemaConstants.SN_AT_OID );
-        cursor.before( entry );
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
+            entry.setKey( SchemaConstants.SN_AT_OID );
+            cursor.before( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
-        SubstringCursor<Long> cursor = new SubstringCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
-        entry.setValue( SchemaConstants.SN_AT_OID );
-        cursor.after( entry );
+        SubstringCursor<Long> cursor = null;
+        
+        try
+        {
+            SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
+            SubstringEvaluator<Long> evaluator = new SubstringEvaluator<Long>( node, store, schemaManager );
+            cursor = new SubstringCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<String, Long> entry = new ForwardIndexEntry<String, Long>();
+            entry.setKey( SchemaConstants.SN_AT_OID );
+            cursor.after( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.api.entry;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.util.EmptyEnumeration;
 import org.apache.directory.shared.util.Strings;
 
+
 /**
  * A helper class used to manipulate Entries, Attributes and Values.
  *
@@ -70,18 +72,18 @@ public class ServerEntryUtils
     public static javax.naming.directory.Attribute toBasicAttribute( Attribute entryAttribute )
     {
         AttributeType attributeType = entryAttribute.getAttributeType();
-        
+
         javax.naming.directory.Attribute attribute = new BasicAttribute( attributeType.getName() );
-        
-        for ( Value<?> value: entryAttribute )
+
+        for ( Value<?> value : entryAttribute )
         {
             attribute.add( value.getValue() );
         }
-        
+
         return attribute;
     }
-    
-    
+
+
     /**
      * Convert a ServerEntry into a BasicAttributes. The Dn is lost
      * during this conversion, as the Attributes object does not store
@@ -95,24 +97,24 @@ public class ServerEntryUtils
         {
             return null;
         }
-        
+
         Attributes attributes = new BasicAttributes( true );
 
-        for ( Attribute attribute:entry.getAttributes() )
+        for ( Attribute attribute : entry.getAttributes() )
         {
             AttributeType attributeType = attribute.getAttributeType();
             Attribute attr = entry.get( attributeType );
-            
+
             // Deal with a special case : an entry without any ObjectClass
             if ( attributeType.getOid().equals( SchemaConstants.OBJECT_CLASS_AT_OID ) && attr.size() == 0 )
             {
                 // We don't have any objectClass, just dismiss this element
                 continue;
             }
-            
+
             attributes.put( toBasicAttribute( attr ) );
         }
-        
+
         return attributes;
     }
 
@@ -126,36 +128,37 @@ public class ServerEntryUtils
      * 
      * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
      */
-    public static Attribute toServerAttribute( javax.naming.directory.Attribute attribute, AttributeType attributeType ) throws LdapException
+    public static Attribute toServerAttribute( javax.naming.directory.Attribute attribute, AttributeType attributeType )
+        throws LdapException
     {
         if ( attribute == null )
         {
             return null;
         }
-        
-        try 
+
+        try
         {
             Attribute serverAttribute = new DefaultAttribute( attributeType );
-            
+
             for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
                 int nbAdded = 0;
-                
+
                 if ( value == null )
                 {
                     continue;
                 }
-                
+
                 if ( serverAttribute.isHumanReadable() )
                 {
                     if ( value instanceof String )
                     {
-                        nbAdded = serverAttribute.add( (String)value );
+                        nbAdded = serverAttribute.add( ( String ) value );
                     }
                     else if ( value instanceof byte[] )
                     {
-                        nbAdded = serverAttribute.add( Strings.utf8ToString((byte[]) value) );
+                        nbAdded = serverAttribute.add( Strings.utf8ToString( ( byte[] ) value ) );
                     }
                     else
                     {
@@ -166,24 +169,24 @@ public class ServerEntryUtils
                 {
                     if ( value instanceof String )
                     {
-                        nbAdded = serverAttribute.add( Strings.getBytesUtf8((String) value) );
+                        nbAdded = serverAttribute.add( Strings.getBytesUtf8( ( String ) value ) );
                     }
                     else if ( value instanceof byte[] )
                     {
-                        nbAdded = serverAttribute.add( (byte[])value );
+                        nbAdded = serverAttribute.add( ( byte[] ) value );
                     }
                     else
                     {
                         throw new LdapInvalidAttributeTypeException();
                     }
                 }
-                
+
                 if ( nbAdded == 0 )
                 {
                     throw new LdapInvalidAttributeTypeException();
                 }
             }
-            
+
             return serverAttribute;
         }
         catch ( NamingException ne )
@@ -204,15 +207,16 @@ public class ServerEntryUtils
      * @throws LdapInvalidAttributeTypeException If we get an invalid attribute
      */
     public static Entry toServerEntry( Attributes attributes, Dn dn, SchemaManager schemaManager )
-            throws LdapInvalidAttributeTypeException
+        throws LdapInvalidAttributeTypeException
     {
         if ( attributes instanceof BasicAttributes )
         {
-            try 
+            try
             {
                 Entry entry = new DefaultEntry( schemaManager, dn );
-    
-                for ( NamingEnumeration<? extends javax.naming.directory.Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
+
+                for ( NamingEnumeration<? extends javax.naming.directory.Attribute> attrs = attributes.getAll(); attrs
+                    .hasMoreElements(); )
                 {
                     javax.naming.directory.Attribute attr = attrs.nextElement();
 
@@ -222,13 +226,13 @@ public class ServerEntryUtils
                     // TODO : handle options.
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
                     Attribute serverAttribute = ServerEntryUtils.toServerAttribute( attr, attributeType );
-                    
+
                     if ( serverAttribute != null )
                     {
                         entry.put( serverAttribute );
                     }
                 }
-                
+
                 return entry;
             }
             catch ( LdapException ne )
@@ -252,20 +256,21 @@ public class ServerEntryUtils
      * @return the resultant entry after the modification has taken place
      * @throws LdapException if there are problems accessing attributes
      */
-    public static Entry getTargetEntry( Modification mod, Entry entry, SchemaManager schemaManager ) throws LdapException
+    public static Entry getTargetEntry( Modification mod, Entry entry, SchemaManager schemaManager )
+        throws LdapException
     {
         Entry targetEntry = ( Entry ) entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getUpId();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-        
+
         switch ( modOp )
         {
-            case REPLACE_ATTRIBUTE :
+            case REPLACE_ATTRIBUTE:
                 targetEntry.put( mod.getAttribute() );
                 break;
-                
-            case REMOVE_ATTRIBUTE :
+
+            case REMOVE_ATTRIBUTE:
                 Attribute toBeRemoved = mod.getAttribute();
 
                 if ( toBeRemoved.size() == 0 )
@@ -278,35 +283,35 @@ public class ServerEntryUtils
 
                     if ( existing != null )
                     {
-                        for ( Value<?> value:toBeRemoved )
+                        for ( Value<?> value : toBeRemoved )
                         {
                             existing.remove( value );
                         }
                     }
                 }
                 break;
-                
-            case ADD_ATTRIBUTE :
+
+            case ADD_ATTRIBUTE:
                 Attribute combined = new DefaultAttribute( id, attributeType );
                 Attribute toBeAdded = mod.getAttribute();
                 Attribute existing = entry.get( id );
 
                 if ( existing != null )
                 {
-                    for ( Value<?> value:existing )
+                    for ( Value<?> value : existing )
                     {
                         combined.add( value );
                     }
                 }
 
-                for ( Value<?> value:toBeAdded )
+                for ( Value<?> value : toBeAdded )
                 {
                     combined.add( value );
                 }
-                
+
                 targetEntry.put( combined );
                 break;
-                
+
             default:
                 throw new IllegalStateException( I18n.err( I18n.ERR_464, modOp ) );
         }
@@ -349,15 +354,15 @@ public class ServerEntryUtils
 
         Attribute attr = attr0.clone();
 
-        for ( Value<?> value:attr1 )
+        for ( Value<?> value : attr1 )
         {
             attr.add( value );
         }
 
         return attr;
     }
-    
-    
+
+
     /**
      * Convert a ModificationItem to an instance of a ServerModification object
      *
@@ -365,36 +370,37 @@ public class ServerEntryUtils
      * @param attributeType the associated attributeType
      * @return a instance of a ServerModification object
      */
-    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType ) throws LdapException
+    private static Modification toServerModification( ModificationItem modificationImpl, AttributeType attributeType )
+        throws LdapException
     {
         ModificationOperation operation;
-        
+
         switch ( modificationImpl.getModificationOp() )
         {
-            case DirContext.REMOVE_ATTRIBUTE :
+            case DirContext.REMOVE_ATTRIBUTE:
                 operation = ModificationOperation.REMOVE_ATTRIBUTE;
                 break;
-                
-            case DirContext.REPLACE_ATTRIBUTE :
+
+            case DirContext.REPLACE_ATTRIBUTE:
                 operation = ModificationOperation.REPLACE_ATTRIBUTE;
                 break;
 
-            case DirContext.ADD_ATTRIBUTE :
-            default :
+            case DirContext.ADD_ATTRIBUTE:
+            default:
                 operation = ModificationOperation.ADD_ATTRIBUTE;
                 break;
-                
+
         }
-        
-        Modification modification = new DefaultModification( 
+
+        Modification modification = new DefaultModification(
             operation,
-            ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) ); 
-        
+            ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) );
+
         return modification;
-        
+
     }
 
-    
+
     /**
      * 
      * Convert a list of ModificationItemImpl to a list of 
@@ -404,19 +410,20 @@ public class ServerEntryUtils
      * @return
      * @throws LdapException
      */
-    public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems, 
+    public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems,
         SchemaManager schemaManager ) throws LdapException
     {
         if ( modificationItems != null )
         {
             List<Modification> modifications = new ArrayList<Modification>( modificationItems.size() );
 
-            for ( ModificationItem modificationItem: modificationItems )
+            for ( ModificationItem modificationItem : modificationItems )
             {
-                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( modificationItem.getAttribute().getID() );
+                AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( modificationItem
+                    .getAttribute().getID() );
                 modifications.add( toServerModification( modificationItem, attributeType ) );
             }
-        
+
             return modifications;
         }
         else
@@ -424,8 +431,8 @@ public class ServerEntryUtils
             return null;
         }
     }
-    
-    
+
+
     /**
      * Convert a Modification to an instance of a ServerModification object.
      *
@@ -436,23 +443,23 @@ public class ServerEntryUtils
     private static Modification toServerModification( Modification modification, AttributeType attributeType )
         throws LdapException
     {
-        Modification serverModification = new DefaultModification( 
+        Modification serverModification = new DefaultModification(
             modification.getOperation(),
-            new DefaultAttribute( attributeType, modification.getAttribute() ) ); 
-        
+            new DefaultAttribute( attributeType, modification.getAttribute() ) );
+
         return serverModification;
-        
+
     }
 
-    
-    public static List<Modification> toServerModification( Modification[] modifications, 
+
+    public static List<Modification> toServerModification( Modification[] modifications,
         SchemaManager schemaManager ) throws LdapException
     {
         if ( modifications != null )
         {
             List<Modification> modificationsList = new ArrayList<Modification>();
-    
-            for ( Modification modification: modifications )
+
+            for ( Modification modification : modifications )
             {
                 String attributeId = modification.getAttribute().getUpId();
                 String id = stripOptions( attributeId );
@@ -463,9 +470,9 @@ public class ServerEntryUtils
                 // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
                 // (deletion) causes an error
                 // -------------------------------------------------------------------
-                if ( ! schemaManager.getAttributeTypeRegistry().contains( id ) 
-                     && modification.getAttribute().size() == 0 
-                     && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
+                if ( !schemaManager.getAttributeTypeRegistry().contains( id )
+                    && modification.getAttribute().size() == 0
+                    && modification.getOperation() == ModificationOperation.REPLACE_ATTRIBUTE )
                 {
                     // The attributeType does not exist in the schema.
                     // It's an error
@@ -479,7 +486,7 @@ public class ServerEntryUtils
                     modificationsList.add( toServerModification( modification, attributeType ) );
                 }
             }
-        
+
             return modificationsList;
         }
         else
@@ -489,14 +496,14 @@ public class ServerEntryUtils
     }
 
 
-    public static List<Modification> toServerModification( ModificationItem[] modifications, 
+    public static List<Modification> toServerModification( ModificationItem[] modifications,
         SchemaManager schemaManager ) throws LdapException
     {
         if ( modifications != null )
         {
             List<Modification> modificationsList = new ArrayList<Modification>();
-    
-            for ( ModificationItem modification: modifications )
+
+            for ( ModificationItem modification : modifications )
             {
                 String attributeId = modification.getAttribute().getID();
                 String id = stripOptions( attributeId );
@@ -506,13 +513,13 @@ public class ServerEntryUtils
                 // DIRSERVER-646 Fix: Replacing an unknown attribute with no values 
                 // (deletion) causes an error
                 // -------------------------------------------------------------------
-                
+
                 // TODO - after removing JNDI we need to make the server handle 
                 // this in the codec
-                
-                if ( ! schemaManager.getAttributeTypeRegistry().contains( id ) 
-                     && modification.getAttribute().size() == 0 
-                     && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
+
+                if ( !schemaManager.getAttributeTypeRegistry().contains( id )
+                    && modification.getAttribute().size() == 0
+                    && modification.getModificationOp() == DirContext.REPLACE_ATTRIBUTE )
                 {
                     continue;
                 }
@@ -520,13 +527,12 @@ public class ServerEntryUtils
                 // -------------------------------------------------------------------
                 // END DIRSERVER-646 Fix
                 // -------------------------------------------------------------------
-                
-                
+
                 // TODO : handle options
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-                modificationsList.add( toServerModification( (ModificationItem)modification, attributeType ) );
+                modificationsList.add( toServerModification( ( ModificationItem ) modification, attributeType ) );
             }
-        
+
             return modificationsList;
         }
         else
@@ -545,20 +551,20 @@ public class ServerEntryUtils
      */
     public static final Modification getModificationItem( List<Modification> mods, AttributeType type )
     {
-        for ( Modification modification:mods )
+        for ( Modification modification : mods )
         {
             Attribute attribute = modification.getAttribute();
-            
+
             if ( attribute.getAttributeType() == type )
             {
                 return modification;
             }
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * Utility method to extract an attribute from a list of modifications.
      * 
@@ -569,16 +575,16 @@ public class ServerEntryUtils
     public static Attribute getAttribute( List<Modification> mods, AttributeType type )
     {
         Modification mod = getModificationItem( mods, type );
-        
+
         if ( mod != null )
         {
             return mod.getAttribute();
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * Encapsulate a ServerSearchResult enumeration into a SearchResult enumeration
      * @param result The ServerSearchResult enumeration
@@ -590,8 +596,8 @@ public class ServerEntryUtils
         {
             return new EmptyEnumeration<SearchResult>();
         }
-        
-        return new NamingEnumeration<SearchResult> ()
+
+        return new NamingEnumeration<SearchResult>()
         {
             public void close() throws NamingException
             {
@@ -614,17 +620,17 @@ public class ServerEntryUtils
             public SearchResult next() throws NamingException
             {
                 ServerSearchResult rec = result.next();
-                
-                SearchResult searchResult = new SearchResult( 
-                        rec.getDn().getName(), 
-                        rec.getObject(), 
-                        toBasicAttributes( rec.getServerEntry() ), 
-                        rec.isRelative() );
-                
+
+                SearchResult searchResult = new SearchResult(
+                    rec.getDn().getName(),
+                    rec.getObject(),
+                    toBasicAttributes( rec.getServerEntry() ),
+                    rec.isRelative() );
+
                 return searchResult;
             }
-            
-            
+
+
             /**
              * @see java.util.Enumeration#hasMoreElements()
              */
@@ -642,18 +648,18 @@ public class ServerEntryUtils
                 try
                 {
                     ServerSearchResult rec = result.next();
-    
-                    SearchResult searchResult = new SearchResult( 
-                            rec.getDn().getName(), 
-                            rec.getObject(), 
-                            toBasicAttributes( rec.getServerEntry() ), 
-                            rec.isRelative() );
-                    
+
+                    SearchResult searchResult = new SearchResult(
+                        rec.getDn().getName(),
+                        rec.getObject(),
+                        toBasicAttributes( rec.getServerEntry() ),
+                        rec.isRelative() );
+
                     return searchResult;
                 }
                 catch ( NamingException ne )
                 {
-                    NoSuchElementException nsee = 
+                    NoSuchElementException nsee =
                         new NoSuchElementException( I18n.err( I18n.ERR_468 ) );
                     nsee.initCause( ne );
                     throw nsee;
@@ -661,8 +667,8 @@ public class ServerEntryUtils
             }
         };
     }
-    
-    
+
+
     /**
      * Remove the options from the attributeType, and returns the ID.
      * 
@@ -674,8 +680,8 @@ public class ServerEntryUtils
      */
     private static String stripOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" ); 
-        
+        int optionsPos = attributeId.indexOf( ";" );
+
         if ( optionsPos != -1 )
         {
             return attributeId.substring( 0, optionsPos );
@@ -685,7 +691,7 @@ public class ServerEntryUtils
             return attributeId;
         }
     }
-    
+
 
     /**
      * Get the options from the attributeType.
@@ -697,22 +703,22 @@ public class ServerEntryUtils
      */
     private static Set<String> getOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" ); 
+        int optionsPos = attributeId.indexOf( ";" );
 
         if ( optionsPos != -1 )
         {
             Set<String> options = new HashSet<String>();
-            
+
             String[] res = attributeId.substring( optionsPos + 1 ).split( ";" );
-            
-            for ( String option:res )
+
+            for ( String option : res )
             {
-                if ( !Strings.isEmpty(option) )
+                if ( !Strings.isEmpty( option ) )
                 {
                     options.add( option );
                 }
             }
-            
+
             return options;
         }
         else

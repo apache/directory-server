@@ -101,7 +101,6 @@ public class AddETypeInfo2Entry extends GrammarAction<ETypeInfo2Container>
         ETypeInfo2Entry etypeInfo2Entry = etypeInfo2EntryContainer.getETypeInfo2Entry();
         eTypeInfo2Container.addEtypeInfo2Entry( etypeInfo2Entry );
 
-
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO2-ENTRY added : {}", etypeInfo2Entry );

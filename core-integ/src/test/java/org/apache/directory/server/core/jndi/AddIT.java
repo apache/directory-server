@@ -107,9 +107,9 @@ public class AddIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
 
         Attributes attrs = LdifUtils.createJndiAttributes(
-                "ObjectClass: top",
-                "cn: kevin Spacey",
-                "dc: ke");
+            "ObjectClass: top",
+            "cn: kevin Spacey",
+            "dc: ke" );
 
         String base = "uid=kevin";
 
@@ -136,12 +136,12 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( getService() );
 
-        Attributes attrs = LdifUtils.createJndiAttributes( 
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "ObjectClass: top",
             "ObjectClass: person",
             "cn: kevin Spacey",
             "sn: ke",
-            "telephoneNumber: 0123456abc");
+            "telephoneNumber: 0123456abc" );
 
         String base = "sn=kevin";
 
@@ -164,39 +164,39 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeWithEscapedPlusCharacter() throws Exception
     {
-        Attributes entry = LdifUtils.createJndiAttributes( 
+        Attributes entry = LdifUtils.createJndiAttributes(
             "ObjectClass: top",
             "ObjectClass: inetorgperson",
             "cn: John+Doe",
             "sn: +Name+" );
-        
+
         LdapContext sysRoot = getSystemContext( getService() );
         DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", entry );
-        
+
         ServerLdapContext sc = ( ServerLdapContext ) dc;
-        
+
         assertTrue( sc.getDn().toString().contains( "+" ) );
 
         try
         {
-           Object obj = sysRoot.lookup( "cn=John\\+Doe" );
-           assertNotNull( obj );
+            Object obj = sysRoot.lookup( "cn=John\\+Doe" );
+            assertNotNull( obj );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             fail( e.getMessage() );
         }
-        
+
         try
         {
-           Attributes result = sysRoot.getAttributes( "cn=John\\+Doe" );
-           assertNotNull( result );
-           
-           Attribute cn = result.get( "cn" );
-           assertNotNull( cn );
-           assertEquals( 1, cn.size() );
+            Attributes result = sysRoot.getAttributes( "cn=John\\+Doe" );
+            assertNotNull( result );
+
+            Attribute cn = result.get( "cn" );
+            assertNotNull( cn );
+            assertEquals( 1, cn.size() );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             fail( e.getMessage() );
         }

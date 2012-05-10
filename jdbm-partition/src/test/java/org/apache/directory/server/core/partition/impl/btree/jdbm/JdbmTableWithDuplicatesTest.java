@@ -70,8 +70,8 @@ public class JdbmTableWithDuplicatesTest
     private static final String SIZE2_MINUS_ONE_STR = "29";
     private static final String SIZE2_STR = "30";
     private static final String SIZE2_PLUS_ONE_STR = "31";
-    
-    JdbmTable<String,String> table;
+
+    JdbmTable<String, String> table;
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
@@ -99,17 +99,17 @@ public class JdbmTableWithDuplicatesTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
-    @Before 
+
+    @Before
     public void createTable() throws Exception
     {
         destroyTable();
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -118,11 +118,12 @@ public class JdbmTableWithDuplicatesTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
-                comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
+        table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
+            comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -161,7 +162,7 @@ public class JdbmTableWithDuplicatesTest
     public void testSerializers() throws Exception
     {
         assertNotNull( table.getKeySerializer() );
-        assertNotNull( ( ( JdbmTable<?,?> ) table ).getValueSerializer() );
+        assertNotNull( ( ( JdbmTable<?, ?> ) table ).getValueSerializer() );
     }
 
 
@@ -173,28 +174,30 @@ public class JdbmTableWithDuplicatesTest
     }
 
 
-    @Test( expected = IllegalArgumentException.class )
+    @Test(expected = IllegalArgumentException.class)
     public void testNullKeyComparator() throws Exception
     {
         assertNotNull( table.getKeyComparator() );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
+        new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             null, comparator, null, new IntegerSerializer() );
     }
 
 
-    @Test( expected = IllegalArgumentException.class )
+    @Test(expected = IllegalArgumentException.class)
     public void testNullValueComparator() throws Exception
     {
         assertNotNull( table.getValueComparator() );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
+        new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, null, null, new IntegerSerializer() );
     }
 
@@ -205,16 +208,17 @@ public class JdbmTableWithDuplicatesTest
         table.put( "1", "2" );
         assertEquals( "2", table.get( "1" ) );
         table.close();
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
-                comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
+        table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
+            comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
         assertEquals( "2", table.get( "1" ) );
     }
 
-    
-    @Test 
+
+    @Test
     public void testConfigMethods() throws Exception
     {
         assertTrue( table.isDupsEnabled() );
@@ -222,7 +226,7 @@ public class JdbmTableWithDuplicatesTest
         assertNotNull( table.getKeyComparator() );
     }
 
-    
+
     @Test
     public void testWhenEmpty() throws Exception
     {
@@ -237,7 +241,7 @@ public class JdbmTableWithDuplicatesTest
         // Test remove methods
         table.remove( "1" );
         assertFalse( table.has( "1" ) );
-        
+
         // Test has operations
         assertFalse( table.has( "1" ) );
         assertFalse( table.has( "1", "0" ) );
@@ -258,23 +262,23 @@ public class JdbmTableWithDuplicatesTest
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertEquals( SIZE, table.count() );
         table.put( "0", "0" );
         assertTrue( table.has( "0", "0" ) );
 
         // add some duplicates
-        for ( int i = 0; i < SIZE*2; i++ )
+        for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
             table.put( SIZE2_STR, istr );
         }
-        
-        assertEquals( SIZE*3, table.count() );
-        
+
+        assertEquals( SIZE * 3, table.count() );
+
         table.put( "0", "0" );
         assertTrue( table.has( "0", "0" ) );
-        
+
         table.put( SIZE2_STR, "0" );
         assertTrue( table.has( SIZE2_STR, "0" ) );
     }
@@ -284,13 +288,13 @@ public class JdbmTableWithDuplicatesTest
     public void testHas() throws Exception
     {
         assertFalse( table.has( "1" ) );
-        
-        for ( int i = 0; i < SIZE*2; i++ )
+
+        for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
             table.put( "1", istr );
         }
-        
+
         assertEquals( SIZE2, table.count() );
 
         assertTrue( table.has( "1" ) );
@@ -328,7 +332,7 @@ public class JdbmTableWithDuplicatesTest
         assertTrue( table.hasLessOrEqual( "1", SIZE2_STR ) );
         assertFalse( table.hasGreaterOrEqual( "1", SIZE2_PLUS_ONE_STR ) );
         assertFalse( table.has( "1", SIZE2_PLUS_ONE_STR ) );
-        
+
         // now do not add duplicates and check has( key, boolean )
         for ( int i = 0; i < SIZE; i++ )
         {
@@ -336,19 +340,19 @@ public class JdbmTableWithDuplicatesTest
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertFalse( table.has( "-1" ) );
         assertTrue( table.hasGreaterOrEqual( "-1" ) );
         assertFalse( table.hasLessOrEqual( "-1" ) );
-        
+
         assertTrue( table.has( "0" ) );
         assertTrue( table.hasGreaterOrEqual( "0" ) );
         assertTrue( table.hasLessOrEqual( "0" ) );
-        
+
         assertTrue( table.has( SIZE_MINUS_ONE_STR ) );
         assertTrue( table.hasGreaterOrEqual( SIZE_MINUS_ONE_STR ) );
         assertTrue( table.hasLessOrEqual( SIZE_MINUS_ONE_STR ) );
-        
+
         assertFalse( table.has( SIZE_STR ) );
         assertFalse( table.hasGreaterOrEqual( SIZE_STR ) );
         assertTrue( table.hasLessOrEqual( SIZE_STR ) );
@@ -359,11 +363,11 @@ public class JdbmTableWithDuplicatesTest
             {
                 continue;
             }
-            
+
             String istr = Integer.toString( i );
             table.remove( istr, istr );
         }
-        
+
         // delete all values of the duplicate key one by one
         for ( int i = 0; i < SIZE * 2 + 1; i++ )
         {
@@ -374,11 +378,13 @@ public class JdbmTableWithDuplicatesTest
         Cursor<Tuple<String, String>> cursor = table.cursor();
 
         cursor.beforeFirst();
-        
+
         while ( cursor.next() )
         {
             //System.out.println( cursor.get() );
         }
+        
+        cursor.close();
 
         assertFalse( table.hasLessOrEqual( "1" ) );
         assertFalse( table.hasLessOrEqual( "1", "10" ) );
@@ -389,7 +395,7 @@ public class JdbmTableWithDuplicatesTest
 
     }
 
-    
+
     @Test
     public void testRemove() throws Exception
     {
@@ -412,22 +418,22 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( 0, table.count() );
 
         // add duplicates
-        for ( int i = 0; i < SIZE*2; i++ )
+        for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
             table.put( "0", istr );
         }
 
-        assertEquals( SIZE*2, table.count() );
+        assertEquals( SIZE * 2, table.count() );
         table.remove( "0", "100" );
         assertFalse( table.has( "0", "100" ) );
-        assertEquals( SIZE*2, table.count() );
-        
+        assertEquals( SIZE * 2, table.count() );
+
         table.remove( "0" );
         assertNull( table.get( "0" ) );
     }
-    
-    
+
+
     @Test
     public void testLoadData() throws Exception
     {
@@ -437,26 +443,26 @@ public class JdbmTableWithDuplicatesTest
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertEquals( 15, table.count() );
         assertEquals( 1, table.count( "0" ) );
-        
+
         /*
          * If counts are exact then we can test for exact values.  Again this 
          * is not a critical function but one used for optimization so worst 
          * case guesses are allowed.
          */
-        
+
         assertEquals( SIZE, table.lessThanCount( "5" ) );
         assertEquals( SIZE, table.greaterThanCount( "5" ) );
     }
-    
+
 
     @Test
     public void testDuplicateLimit() throws Exception
     {
         assertFalse( table.isKeyUsingBTree( "1" ) );
-        
+
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
@@ -465,7 +471,7 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( SIZE, table.count() );
         assertEquals( SIZE, table.count( "1" ) );
         assertFalse( table.isKeyUsingBTree( "1" ) );
-        
+
         // this switches to B+Trees from AvlTree
         table.put( "1", SIZE_STR );
         assertEquals( SIZE + 1, table.count() );
@@ -478,7 +484,7 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( SIZE + 2, table.count( "1" ) );
         assertEquals( "0", table.get( "1" ) );
         assertTrue( table.isKeyUsingBTree( "1" ) );
-        
+
         // now start removing and see what happens 
         table.remove( "1", SIZE_PLUS_ONE_STR );
         assertFalse( table.has( "1", SIZE_PLUS_ONE_STR ) );
@@ -494,14 +500,14 @@ public class JdbmTableWithDuplicatesTest
         assertEquals( SIZE, table.count( "1" ) );
         assertEquals( "0", table.get( "1" ) );
         assertFalse( table.isKeyUsingBTree( "1" ) );
-    
+
         for ( int i = SIZE - 1; i >= 0; i-- )
         {
             String istr = Integer.toString( i );
             table.remove( "1", istr );
             assertFalse( table.isKeyUsingBTree( "1" ) );
         }
-        
+
         assertEquals( 0, table.count() );
 
         for ( int i = 0; i < SIZE - 1; i++ )
@@ -510,18 +516,18 @@ public class JdbmTableWithDuplicatesTest
             table.put( "1", istr );
             assertFalse( table.isKeyUsingBTree( "1" ) );
         }
-        
+
         // this switches back to using B+Trees from AvlTree
-        table.put( "1", SIZE_STR ) ;
+        table.put( "1", SIZE_STR );
         table.put( "1", SIZE_PLUS_ONE_STR );
         assertTrue( table.isKeyUsingBTree( "1" ) );
-        
+
         assertEquals( SIZE + 1, table.count() );
         table.remove( "1" );
         assertEquals( 0, table.count() );
     }
-    
-    
+
+
     /**
      * Let's test keys with a null or lack of any values.
      * @throws Exception on error
@@ -531,30 +537,30 @@ public class JdbmTableWithDuplicatesTest
     {
         testDuplicateLimit();
         assertEquals( 0, table.count() );
-        
+
         try
         {
             table.put( "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         try
         {
             table.put( null, "1" );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         assertEquals( 0, table.count() );
         assertEquals( null, table.get( "1" ) );
-        
+
         // Let's add the key with two valid values and remove all values
         table.remove( "1" );
         table.put( "1", "1" );
@@ -578,24 +584,25 @@ public class JdbmTableWithDuplicatesTest
         table.close();
 
         // test value btree creation without serializer
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        table = new JdbmTable<String,String>( schemaManager, "test", SIZE, recman,
-                comparator, comparator, new DefaultSerializer(), null );
+        table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
+            comparator, comparator, new DefaultSerializer(), null );
         assertNull( table.getValueSerializer() );
-        
+
         for ( int i = 0; i < SIZE + 1; i++ )
         {
             String istr = Integer.toString( i );
             table.put( "0", istr );
         }
-        
+
         table.remove( "0" );
         assertFalse( table.has( "0" ) );
     }
 
-    
+
     /**
      * Let's test keys with a null or lack of any values.
      * @throws Exception on error
@@ -604,30 +611,30 @@ public class JdbmTableWithDuplicatesTest
     public void testNullOrEmptyKeyValue() throws Exception
     {
         assertEquals( 0, table.count() );
-        
+
         try
         {
             table.put( "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         try
         {
             table.put( null, "2" );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         assertEquals( 0, table.count() );
         assertEquals( null, table.get( "1" ) );
-        
+
         // Let's add the key with two valid values and remove all values
         table.remove( "1" );
         table.put( "1", "1" );

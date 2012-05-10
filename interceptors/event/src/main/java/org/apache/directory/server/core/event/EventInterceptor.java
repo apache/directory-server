@@ -71,6 +71,7 @@ public class EventInterceptor extends BaseInterceptor
     private Evaluator evaluator;
     private ExecutorService executor;
 
+
     /**
      * Creates a new instance of a EventInterceptor.
      */
@@ -78,8 +79,8 @@ public class EventInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.EVENT_INTERCEPTOR );
     }
-    
-    
+
+
     /**
      * Initialize the event interceptor. It creates a pool of executor which will be used
      * to call the listeners in separate threads.
@@ -304,7 +305,7 @@ public class EventInterceptor extends BaseInterceptor
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        Entry oriEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        Entry oriEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
         List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
         next( renameContext );

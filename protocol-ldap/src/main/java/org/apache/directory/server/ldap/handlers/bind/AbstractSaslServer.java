@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.ldap.handlers.bind;
 
+
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
@@ -34,18 +35,18 @@ import org.apache.directory.shared.util.StringConstants;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractSaslServer implements SaslServer 
+public abstract class AbstractSaslServer implements SaslServer
 {
     /** The associated BindRequest */
     private final BindRequest bindRequest;
-    
+
     /** The associated LdapSession instance */
     private final LdapSession ldapSession;
-    
-    /** The admin session, used to authenticate users against the LDAP server */ 
+
+    /** The admin session, used to authenticate users against the LDAP server */
     private CoreSession adminSession;
-    
-    
+
+
     public AbstractSaslServer( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {
         this.bindRequest = bindRequest;
@@ -53,7 +54,7 @@ public abstract class AbstractSaslServer implements SaslServer
         this.adminSession = adminSession;
     }
 
-    
+
     /**
      * {@inheritDoc}
      * 
@@ -75,7 +76,7 @@ public abstract class AbstractSaslServer implements SaslServer
         return new byte[0];
     }
 
-    
+
     /**
      *  @return the associated BindRequest object
      */
@@ -84,7 +85,7 @@ public abstract class AbstractSaslServer implements SaslServer
         return bindRequest;
     }
 
-    
+
     /**
      *  @return the associated ioSession
      */

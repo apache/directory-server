@@ -53,7 +53,7 @@ public class MatchingRuleUseSynchronizer extends AbstractRegistrySynchronizer
      * {@inheritDoc}
      */
     @Override
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, 
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry,
         boolean cascade ) throws LdapException
     {
         // TODO Auto-generated method stub

@@ -24,8 +24,10 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,15 +50,24 @@ public class SingletonIndexCursorTest
         indexEntry = new ForwardIndexEntry<String, Long>();
         indexEntry.setId( 1L );
         indexEntry.setEntry( new DefaultEntry() );
-        indexEntry.setValue( "test" );
+        indexEntry.setKey( "test" );
         indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
+    }
+    
+    
+    @After
+    public void cleanup() throws Exception
+    {
+        indexCursor.close();
     }
 
 
     @Test
-    public void testConstructor()
+    public void testConstructor() throws Exception
     {
-        new SingletonIndexCursor<String, Long>( indexEntry );
+        Cursor cursor = new SingletonIndexCursor<String, Long>( indexEntry );
+        
+        cursor.close();
     }
 
 

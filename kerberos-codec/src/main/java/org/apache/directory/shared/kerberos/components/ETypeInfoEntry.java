@@ -28,7 +28,7 @@ import org.apache.directory.shared.asn1.AbstractAsn1Object;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.ber.tlv.BerValue;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.util.Strings;
@@ -58,7 +58,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
     /** The encryption type */
     private EncryptionType etype;
-    
+
     /** The salt */
     private byte[] salt;
 
@@ -66,6 +66,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
     private int etypeTagLength;
     private int saltTagLength;
     private int etypeInfoEntrySeqLength;
+
 
     /**
      * Creates a new instance of ETypeInfoEntry.
@@ -107,7 +108,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
         this.salt = salt;
     }
 
-    
+
     /**
      * Returns the {@link EncryptionType}.
      *
@@ -153,7 +154,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
     public int computeLength()
     {
         // Compute the etype. The Length will always be contained in 1 byte
-        int etypeLength = Value.getNbBytes( etype.getValue() );
+        int etypeLength = BerValue.getNbBytes( etype.getValue() );
         etypeTagLength = 1 + TLV.getNbBytes( etypeLength ) + etypeLength;
         etypeInfoEntrySeqLength = 1 + TLV.getNbBytes( etypeTagLength ) + etypeTagLength;
 
@@ -199,14 +200,14 @@ public class ETypeInfoEntry extends AbstractAsn1Object
             // The etype, first the tag, then the value
             buffer.put( ( byte ) KerberosConstants.ETYPE_INFO_ENTRY_ETYPE_TAG );
             buffer.put( TLV.getBytes( etypeTagLength ) );
-            Value.encode( buffer, etype.getValue() );
+            BerValue.encode( buffer, etype.getValue() );
 
             // The salt, first the tag, then the value, if salt is not null
             if ( salt != null )
             {
                 buffer.put( ( byte ) KerberosConstants.ETYPE_INFO_ENTRY_SALT_TAG );
                 buffer.put( TLV.getBytes( saltTagLength ) );
-                Value.encode( buffer, salt );
+                BerValue.encode( buffer, salt );
             }
         }
         catch ( BufferOverflowException boe )
@@ -218,14 +219,14 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO-ENTRY encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "ETYPE-INFO-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "ETYPE-INFO-ENTRY initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -238,7 +239,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
         if ( salt != null )
         {
-            sb.append( "    salt: " ).append( Strings.dumpBytes(salt) ).append( '\n' );
+            sb.append( "    salt: " ).append( Strings.dumpBytes( salt ) ).append( '\n' );
         }
 
         sb.append( "}\n" );

@@ -48,10 +48,9 @@ import org.slf4j.LoggerFactory;
 public class AvlTreeMapTest
 {
 
-
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeTest.class );
 
-    Comparator<Integer> comparator  = new Comparator<Integer>()
+    Comparator<Integer> comparator = new Comparator<Integer>()
     {
 
         public int compare( Integer i1, Integer i2 )
@@ -61,7 +60,7 @@ public class AvlTreeMapTest
 
     };
 
-    
+
     private AvlTreeMapImpl<Integer, Integer> createTree()
     {
         return new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, true );
@@ -82,7 +81,7 @@ public class AvlTreeMapTest
 
         if ( LOG.isDebugEnabled() )
         {
-            
+
         }
     }
 
@@ -97,7 +96,7 @@ public class AvlTreeMapTest
         assertNotNull( tree.getLast() );
         assertTrue( tree.getFirst().getKey().equals( 7 ) );
         assertTrue( tree.getFirst().getValue().getSingleton().equals( 1 ) );
-        
+
         tree.insert( 10, 2 );
         assertEquals( 2, tree.getSize() );
         assertNotNull( tree.getFirst() );
@@ -122,14 +121,14 @@ public class AvlTreeMapTest
         AvlTreeMap<Integer, Integer> tree = createTree();
         // to override the value tree should disable duplicate keys
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
-        
+
         assertNull( tree.insert( 43, 891 ) );
         assertEquals( 891, tree.find( 43 ).getValue().getSingleton().intValue() );
-        
+
         assertNotNull( tree.insert( 43, 16 ) );
         assertEquals( 16, tree.find( 43 ).getValue().getSingleton().intValue() );
     }
-    
+
 
     @Test
     public void testInsert()
@@ -137,7 +136,7 @@ public class AvlTreeMapTest
         AvlTreeMap<Integer, Integer> tree = createTree();
         assertNull( tree.insert( 3, 1 ) );
         assertFalse( tree.isEmpty() );
-        
+
         assertTrue( 1 == tree.insert( 3, 1 ) );
         assertTrue( 1 == tree.getSize() );
 
@@ -176,23 +175,23 @@ public class AvlTreeMapTest
         assertNull( tree.insert( 3, 3 ) );
         assertFalse( tree.isEmpty() );
 
-        if( LOG.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            
+
         }
-        
+
         assertTrue( 1 == tree.insert( 3, 1 ) );// should be ignored
         assertTrue( 1 == tree.getSize() );
-        
+
         LinkedAvlMapNode node = tree.find( 3 );
         assertNotNull( node );
-     
-        assertTrue( node.value.getOrderedSet().getClass() ==  AvlTreeImpl.class );
-        
+
+        assertTrue( node.value.getOrderedSet().getClass() == AvlTreeImpl.class );
+
         AvlTree dupsTree = ( ( SingletonOrOrderedSet ) node.value ).getOrderedSet();
         assertEquals( 3, dupsTree.getSize() );
     }
-    
+
 
     @Test
     public void testRemove()
@@ -201,18 +200,18 @@ public class AvlTreeMapTest
         tree.insert( 3, 3 );
         tree.insert( 2, 2 );
         tree.insert( 1, 1 );
-        
+
         tree.remove( 2, 2 );
-        assertEquals("1,3", getInorderForm( tree ));
-        
+        assertEquals( "1,3", getInorderForm( tree ) );
+
         tree.remove( 1, 1 );
-        assertEquals("3", getInorderForm( tree ));
+        assertEquals( "3", getInorderForm( tree ) );
         assertTrue( 3 == tree.getRoot().key );
-        
+
         assertNull( tree.remove( 777, 0 ) );// key not present
         assertTrue( 3 == tree.remove( 3, 3 ) );
-        assertTrue(tree.isEmpty());
-        
+        assertTrue( tree.isEmpty() );
+
         tree.insert( 37, 37 );
         tree.insert( 39, 39 );
         tree.insert( 27, 27 );
@@ -230,64 +229,64 @@ public class AvlTreeMapTest
 
         tree.remove( 39, 39 );
         assertEquals( "21,27,37,38", getInorderForm( tree ) );
-        
+
         assertTrue( 37 == tree.getRoot().key ); // check the root value
-        
+
         tree.remove( 38, 38 ); // a double right rotation has to happen after this
         assertTrue( 27 == tree.getRoot().key ); // check the root value after double right rotation
         assertEquals( "21,27,37", getInorderForm( tree ) );
-        
-        if( LOG.isDebugEnabled() ) 
+
+        if ( LOG.isDebugEnabled() )
         {
-            
+
         }
     }
 
-    
+
     @Test
     public void testRemoveWithDuplicateKeys()
     {
         AvlTreeMap<Integer, Integer> tree = createTree();
         tree.insert( 1, 1 );
-        
+
         // insert duplicates
         tree.insert( 3, 3 );
         tree.insert( 3, 2 );
         tree.insert( 3, 1 );
-        
+
         tree.insert( 2, 3 );
-        
+
         tree.remove( 2, 3 );
-        assertEquals("1,3", getInorderForm( tree ));
+        assertEquals( "1,3", getInorderForm( tree ) );
         assertEquals( 2, tree.getSize() );
-        
+
         tree.remove( 3, 3 );
         // removing a duplicate key,value shouldn't change the size  
-        assertEquals("1,3", getInorderForm( tree ));
+        assertEquals( "1,3", getInorderForm( tree ) );
         assertEquals( 2, tree.getSize() );
-        
+
         tree.remove( 3, 3 );
-        assertEquals("1,3", getInorderForm( tree ));
+        assertEquals( "1,3", getInorderForm( tree ) );
         assertEquals( 2, tree.getSize() );
-        
+
         // add some more
         tree.insert( 3, 3 );
         tree.insert( 3, 4 );
         assertEquals( 2, tree.getSize() );
-        
+
         tree.remove( 3, 3 );
-        assertEquals("1,3", getInorderForm( tree ));
+        assertEquals( "1,3", getInorderForm( tree ) );
         assertEquals( 2, tree.getSize() );
-        
+
         tree.remove( 3, 2 );
         tree.remove( 3, 1 );
         tree.remove( 3, 4 ); // is the last value in the dupsTree should remove the whole
         // node with key 3
-        
+
         assertEquals( 1, tree.getSize() );
     }
-    
-    
+
+
     /**
      * checks the root node value(s) when duplicates are allowed and
      * only single node(size one) is present 
@@ -299,43 +298,43 @@ public class AvlTreeMapTest
         assertTrue( tree.isDupsAllowed() );
         tree.insert( 3, 4 );
         tree.insert( 3, 5 );
-        
+
         assertEquals( 1, tree.getSize() );
-        
+
         assertTrue( 4 == tree.remove( 3, 4 ) );
         assertNotNull( tree.getRoot() ); // still root should be not null
         assertEquals( 1, tree.getSize() );
-        
+
         assertTrue( 5 == tree.remove( 3, 5 ) );
         assertNull( tree.getRoot() );
-        
+
         tree.insert( 1, 1 );
         tree.insert( 1, 2 );
         tree.insert( 1, 3 );
         assertNotNull( tree.getRoot() );
         assertEquals( 1, tree.getSize() );
-        
+
         tree.remove( 1 );
         assertNull( tree.getRoot() );
     }
-    
-    
+
+
     @Test
     public void testRemoveWithoutDupKeys()
     {
         AvlTreeMap<Integer, Integer> tree = createTree();
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         assertFalse( tree.isDupsAllowed() );
-        
+
         tree.insert( 3, 4 );
         assertTrue( 4 == tree.insert( 3, 5 ) );
         assertEquals( 1, tree.getSize() );
-        
+
         assertNotNull( tree.remove( 3, 5 ) );
         assertNull( tree.getRoot() );
     }
-    
-    
+
+
     @Test
     public void testRemoveWithKeyOnly()
     {
@@ -344,27 +343,27 @@ public class AvlTreeMapTest
         tree.insert( 3, 1 );
         tree.insert( 3, 2 );
         tree.insert( 4, 4 );
-        
+
         SingletonOrOrderedSet<Integer> set = tree.remove( 3 );
         assertNotNull( set );
         assertNull( tree.find( 3 ) );
-        
+
         AvlTree<Integer> valueTree = set.getOrderedSet();
         assertNotNull( valueTree );
         assertTrue( 2 == valueTree.getSize() );
         assertNotNull( valueTree.find( 1 ) );
         assertNotNull( valueTree.find( 2 ) );
-        
+
         tree = new AvlTreeMapImpl<Integer, Integer>( comparator, comparator, false );
         tree.insert( 7, 4 );
-        
+
         set = tree.remove( 7 );
         assertNotNull( set );
         assertNull( tree.find( 7 ) );
         assertTrue( 4 == set.getSingleton() );
     }
 
-    
+
     @Test
     public void testSingleRightRotation()
     {
@@ -377,7 +376,7 @@ public class AvlTreeMapTest
         assertEquals( "1,2,3", getInorderForm( tree ) );
     }
 
-    
+
     @Test
     public void testRemoveAll()
     {
@@ -387,15 +386,15 @@ public class AvlTreeMapTest
 
         assertFalse( tree.isEmpty() );
         assertEquals( 2, tree.getSize() );
-        
+
         tree.removeAll();
-        
+
         assertTrue( tree.isEmpty() );
         assertEquals( 0, tree.getSize() );
         assertNull( tree.getFirst() );
         assertNull( tree.getLast() );
         assertNull( tree.getRoot() );
-        
+
         // re-insert
         assertNull( tree.insert( 3, 1 ) );
         tree.insert( 37, 2 );
@@ -403,42 +402,42 @@ public class AvlTreeMapTest
         assertEquals( 2, tree.getSize() );
     }
 
-    
+
     private String getInorderForm( AvlTreeMap<Integer, Integer> tree )
     {
-      StringBuilder sb = new StringBuilder();
-      List<LinkedAvlMapNode<Integer,Integer>> path = new ArrayList<LinkedAvlMapNode<Integer,Integer>>();
-      
-      traverse( tree.getRoot(), path );
-      int i;
-      for( i=0; i < path.size() -1; i++ )
-      {
-          sb.append( path.get( i ).key )
-            .append( ',' );
-      }
-      
-      sb.append( path.get( i ).key );
-      
-      return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        List<LinkedAvlMapNode<Integer, Integer>> path = new ArrayList<LinkedAvlMapNode<Integer, Integer>>();
+
+        traverse( tree.getRoot(), path );
+        int i;
+        for ( i = 0; i < path.size() - 1; i++ )
+        {
+            sb.append( path.get( i ).key )
+                .append( ',' );
+        }
+
+        sb.append( path.get( i ).key );
+
+        return sb.toString();
     }
 
-    
-    private void traverse( LinkedAvlMapNode<Integer,Integer> startNode, List<LinkedAvlMapNode<Integer,Integer>> path )
-    {
-      //1. pre-order
-        
-      if( startNode.left != null )
-      {
-          traverse( startNode.left, path );
-      }
-      
-      path.add( startNode ); //2. in-order NOTE: change this line's position to change the type of traversal
 
-      if( startNode.right != null )
-      {
-         traverse( startNode.right, path ); 
-      }
-      //3. post-order
+    private void traverse( LinkedAvlMapNode<Integer, Integer> startNode, List<LinkedAvlMapNode<Integer, Integer>> path )
+    {
+        //1. pre-order
+
+        if ( startNode.left != null )
+        {
+            traverse( startNode.left, path );
+        }
+
+        path.add( startNode ); //2. in-order NOTE: change this line's position to change the type of traversal
+
+        if ( startNode.right != null )
+        {
+            traverse( startNode.right, path );
+        }
+        //3. post-order
     }
 
 }

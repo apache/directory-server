@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -98,14 +99,14 @@ public class SubtreeScopeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -121,20 +122,20 @@ public class SubtreeScopeTest
 
         // initialize the store
         store = new AvlPartition( schemaManager );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( true );
 
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -144,7 +145,7 @@ public class SubtreeScopeTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -160,164 +161,116 @@ public class SubtreeScopeTest
     @Test
     public void testCursorNoDeref() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, 
+            SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
+        long[] expected = new long[]{ 3L, 3L, 7L, 3L, 9L, 3L, 10L, 3L };
+        
         // --------- Test beforeFirst() ---------
-
+        //( ( AbstractBTreePartition<Long> ) ((Partition)store) ).dumpRdnIdx( 0L, "" );
+        
+        IndexEntry<Long, Long> indexEntry = null;
+        
         cursor.beforeFirst();
         assertFalse( cursor.available() );
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        IndexEntry<Long, Long> indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 2L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
+        int pos = 0;
+        
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            indexEntry = cursor.get();
+            
+            assertNotNull( indexEntry );
+            assertEquals( expected[pos++], (long)indexEntry.getId() );
+            assertEquals( expected[pos++], (long)indexEntry.getKey() );
+        }
+        
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
-
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.first();
+        pos = 2;
 
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 2L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            indexEntry = cursor.get();
+            
+            assertNotNull( indexEntry );
+            assertEquals( expected[pos++], (long)indexEntry.getId() );
+            assertEquals( expected[pos++], (long)indexEntry.getKey() );
+        }
+        
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
-
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-        cursor.afterLast();
-        assertFalse( cursor.available() );
+        
+        try
+        {
+            cursor.afterLast();
+            fail( "should fail with UnsupportedOperationException" );
+        }
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 2L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertFalse( cursor.previous() );
-        assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test last() ---------
 
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-        assertFalse( cursor.available() );
-        cursor.last();
 
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        try
+        {
+            assertFalse( cursor.available() );
+            cursor.last();
+            fail( "should fail with UnsupportedOperationException" );
+        }
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 2L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertFalse( cursor.previous() );
-        assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test previous() before positioning ---------
 
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-        assertFalse( cursor.available() );
-        cursor.previous();
 
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
+        try
+        {
+            assertFalse( cursor.available() );
+            cursor.previous();
+            fail( "should fail with UnsupportedOperationException" );
+        }
+        catch ( UnsupportedOperationException uoe )
+        {
+        }
 
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 5L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 2L, ( long ) indexEntry.getId() );
-        assertEquals( 2L, ( long ) indexEntry.getValue() );
-
-        assertFalse( cursor.previous() );
-        assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
     @Test
     public void testCursorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
@@ -331,24 +284,25 @@ public class SubtreeScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -360,27 +314,28 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -390,27 +345,29 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        */
 
         // --------- Test last() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
@@ -419,27 +376,29 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        */
+        
         // --------- Test previous() before positioning ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
@@ -448,25 +407,26 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        */
         // --------- Test next() before positioning ---------
 
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
@@ -477,33 +437,38 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
     @Test
     public void testCursorWithDereferencing2() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=apache," + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID
-            + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=apache," + SchemaConstants.OU_AT_OID 
+            + "=board of directors," + SchemaConstants.O_AT_OID
+            + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
@@ -517,17 +482,18 @@ public class SubtreeScopeTest
         IndexEntry<Long, Long> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -539,20 +505,21 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -562,20 +529,22 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        */
 
         // --------- Test last() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
@@ -584,20 +553,22 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        */
 
         // --------- Test previous() before positioning ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
@@ -606,96 +577,86 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 7L, ( long ) indexEntry.getValue() );
+        assertEquals( 7L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
+        */
     }
 
 
     @Test
     public void testCursorWithDereferencing3() throws Exception
     {
-        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        Entry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "alias", "extensibleObject" );
-        entry.add( "cn", "jd" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        Entry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "cn: jd",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        ( ( Partition ) store ).add( addContext );
 
-        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
-        entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "person" );
-        entry.add( "cn", "jdoe" );
-        entry.add( "sn", "doe" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-        
-        addContext = new AddOperationContext( null, entry );
-        ((Partition)store).add( addContext );
+        entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: person",
+            "cn: jdoe",
+            "sn: doe",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
-            + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        addContext = new AddOperationContext( null, entry );
+        ( ( Partition ) store ).add( addContext );
+
+        dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( 
+            AliasDerefMode.DEREF_IN_SEARCHING, 
+            dn, 
+            baseId, 
+            SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
 
         // --------- Test beforeFirst() ---------
+        //( ( AbstractBTreePartition<Long> ) ((Partition)store) ).dumpRdnIdx( 0L, "" );
 
-        cursor.beforeFirst();
-        assertFalse( cursor.available() );
+        long[] expected = new long[]{ 3L, 3L, 7L, 3L, 13L, 3L, 6L, 3L, 8L, 3L };
+        IndexEntry<Long, Long> indexEntry = null;
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        IndexEntry<Long, Long> indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
+        int pos = 0;
+        
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            indexEntry = cursor.get();
+            
+            assertNotNull( indexEntry );
+            assertEquals( expected[pos++], (long)indexEntry.getId() );
+            assertEquals( expected[pos++], (long)indexEntry.getKey() );
+        }
+        
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test first() ---------
 
@@ -703,39 +664,25 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.first();
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        expected = new long[]{ 7L, 3L, 13L, 3L, 6L, 3L, 8L, 3L };
+        pos = 0;
+        
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            indexEntry = cursor.get();
+            
+            assertNotNull( indexEntry );
+            assertEquals( expected[pos++], (long)indexEntry.getId() );
+            assertEquals( expected[pos++], (long)indexEntry.getKey() );
+        }
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
 
         // --------- Test afterLast() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -745,41 +692,43 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        */
+        
         // --------- Test last() ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.last();
@@ -788,41 +737,42 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        */
         // --------- Test previous() before positioning ---------
-
+        /*
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
         cursor.previous();
@@ -831,89 +781,73 @@ public class SubtreeScopeTest
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        assertEquals( 3L, ( long ) indexEntry.getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-
+        cursor.close();
+        */
         // --------- Test next() before positioning ---------
 
         cursor = new SubtreeScopeCursor<Long>( store, evaluator );
         assertFalse( cursor.available() );
-        cursor.next();
 
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 3L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
+        expected = new long[]{ 3L, 3L, 7L, 3L, 13, 3L, 6L, 3L, 8L, 3L };
 
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 7L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 13L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 6L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        indexEntry = cursor.get();
-        assertNotNull( indexEntry );
-        assertEquals( 8L, ( long ) indexEntry.getId() );
-        assertEquals( 3L, ( long ) indexEntry.getValue() );
-
+        pos = 0;
+        
+        while ( cursor.next() )
+        {
+            assertTrue( cursor.available() );
+            indexEntry = cursor.get();
+            
+            assertNotNull( indexEntry );
+            assertEquals( expected[pos++], (long)indexEntry.getId() );
+            assertEquals( expected[pos++], (long)indexEntry.getKey() );
+        }
+        
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
 
 
     @Test
     public void testEvaluatorNoDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
 
         ForwardIndexEntry<Long, Long> indexEntry = new ForwardIndexEntry<Long, Long>();
@@ -925,8 +859,11 @@ public class SubtreeScopeTest
     @Test
     public void testEvaluatorWithDereferencing() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, new Dn( SchemaConstants.OU_AT_OID
-            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+
+        ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.DEREF_ALWAYS, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         assertEquals( node, evaluator.getExpression() );
 
@@ -951,41 +888,73 @@ public class SubtreeScopeTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-        cursor.get();
+        SubtreeScopeCursor<Long> cursor = null;
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+        
+        try
+        {
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+            cursor.get();
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
-
-        // test before()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.before( entry );
+        SubtreeScopeCursor<Long> cursor = null;
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
+        
+        try
+        {
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+    
+            // test before()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setKey( 3L );
+            cursor.before( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
-        SubtreeScopeCursor<Long> cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+        SubtreeScopeCursor<Long> cursor = null;
+        Dn dn = new Dn( SchemaConstants.OU_AT_OID
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
+        long baseId = store.getEntryId( dn );
 
-        // test after()
-        ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
-        entry.setValue( 3L );
-        cursor.after( entry );
+        try
+        {
+            ScopeNode<Long> node = new ScopeNode<Long>( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
+            SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
+            cursor = new SubtreeScopeCursor<Long>( store, evaluator );
+    
+            // test after()
+            ForwardIndexEntry<Long, Long> entry = new ForwardIndexEntry<Long, Long>();
+            entry.setKey( 3L );
+            cursor.after( entry );
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
@@ -993,7 +962,7 @@ public class SubtreeScopeTest
     public void testIllegalStateBadScope() throws Exception
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
-            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
+            + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), null, SearchScope.ONELEVEL );
         SubtreeScopeEvaluator<Entry, Long> evaluator = new SubtreeScopeEvaluator<Entry, Long>( store, node );
         assertNull( evaluator );
     }

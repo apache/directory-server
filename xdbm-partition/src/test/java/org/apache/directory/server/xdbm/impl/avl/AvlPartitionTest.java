@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm.impl.avl;
 
@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -36,7 +35,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.GenericIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -92,9 +90,10 @@ public class AvlPartitionTest
 
     /** The DC AttributeType instance */
     private static AttributeType DC_AT;
-    
+
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -119,7 +118,7 @@ public class AvlPartitionTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         EXAMPLE_COM = new Dn( schemaManager, "dc=example,dc=com" );
@@ -173,14 +172,6 @@ public class AvlPartitionTest
         avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( avlPartition.getPresenceIndex() );
 
-        assertNull( avlPartition.getOneLevelIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-        assertNotNull( avlPartition.getOneLevelIndex() );
-
-        assertNull( avlPartition.getSubLevelIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
-        assertNotNull( avlPartition.getSubLevelIndex() );
-
         assertNull( avlPartition.getId() );
         avlPartition.setId( "foo" );
         assertEquals( "foo", avlPartition.getId() );
@@ -225,7 +216,7 @@ public class AvlPartitionTest
     public void testSimplePropertiesLocked() throws Exception
     {
         assertNotNull( partition.getAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
@@ -237,7 +228,7 @@ public class AvlPartitionTest
 
         assertEquals( 0, partition.getCacheSize() );
         assertNotNull( partition.getPresenceIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
@@ -247,30 +238,8 @@ public class AvlPartitionTest
         {
         }
 
-        assertNotNull( partition.getOneLevelIndex() );
-        
-        try
-        {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) );
-            //fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
-        assertNotNull( partition.getSubLevelIndex() );
-        
-        try
-        {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) );
-            //fail();
-        }
-        catch ( IllegalStateException e )
-        {
-        }
-
         assertNotNull( partition.getId() );
-        
+
         try
         {
             partition.setId( "foo" );
@@ -282,7 +251,7 @@ public class AvlPartitionTest
 
         assertNotNull( partition.getEntryUuidIndex() );
         assertNotNull( partition.getRdnIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
@@ -293,7 +262,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getOneAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
@@ -304,7 +273,7 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSubAliasIndex() );
-        
+
         try
         {
             partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
@@ -315,10 +284,10 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSuffixDn() );
-        
+
         Iterator<String> systemIndices = partition.getSystemIndices();
 
-        for ( int i = 0; i < 10; i++ )
+        for ( int i = 0; i < 8; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -326,7 +295,7 @@ public class AvlPartitionTest
 
         assertFalse( systemIndices.hasNext() );
         assertNotNull( partition.getSystemIndex( APACHE_ALIAS_AT ) );
-        
+
         try
         {
             partition.getSystemIndex( SN_AT );
@@ -335,7 +304,7 @@ public class AvlPartitionTest
         catch ( IndexNotFoundException e )
         {
         }
-        
+
         try
         {
             partition.getSystemIndex( DC_AT );
@@ -346,10 +315,10 @@ public class AvlPartitionTest
         }
 
         assertNotNull( partition.getSuffixDn() );
-        
+
         Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
-        
+
         while ( userIndices.hasNext() )
         {
             userIndices.next();
@@ -367,7 +336,7 @@ public class AvlPartitionTest
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
         assertNotNull( partition.getUserIndex( OU_AT ) );
-        
+
         try
         {
             partition.getUserIndex( SN_AT );
@@ -376,7 +345,7 @@ public class AvlPartitionTest
         catch ( IndexNotFoundException e )
         {
         }
-        
+
         try
         {
             partition.getUserIndex( DC_AT );
@@ -415,12 +384,15 @@ public class AvlPartitionTest
     {
         assertEquals( 3, partition.getChildCount( 1L ) );
 
-        Cursor<IndexEntry<Long, Long>> cursor = partition.list( 1L );
+        Cursor<IndexEntry<Long, Long>> cursor = partition.list( 2L );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( 6L, ( long ) cursor.get().getId() );
         assertTrue( cursor.next() );
+        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertFalse( cursor.next() );
+        
         assertEquals( 3, partition.getChildCount( 1L ) );
 
         partition.delete( 2L );
@@ -430,145 +402,21 @@ public class AvlPartitionTest
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "alias", "extensibleObject" );
-        entry.add( "ou", "Apache" );
-        entry.add( "commonName", "Jack Daniels" );
-        entry.add( "aliasedObjectName", "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
+        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
+            "objectClass: top", 
+            "objectClass: alias", 
+            "objectClass: extensibleObject",
+            "ou: Apache",
+            "commonName: Jack Daniels",
+            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
         partition.delete( 12L );
-    }
-
-
-    @Test
-    public void testSubLevelIndex() throws Exception
-    {
-        Index idx = partition.getSubLevelIndex();
-
-        assertEquals( 19, idx.count() );
-
-        Cursor<IndexEntry<Long, Long>> cursor = idx.forwardCursor( 2L );
-
-        assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.next() );
-
-        idx.drop( 5L );
-
-        cursor = idx.forwardCursor( 2L );
-
-        assertTrue( cursor.next() );
-        assertEquals( 2, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.next() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.next() );
-
-        // dn id 12
-        Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, martinDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
-
-        cursor = idx.forwardCursor( 2L );
-        cursor.afterLast();
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        Dn newParentDn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
-
-        Dn newDn = newParentDn.add( martinDn.getRdn() );
-        partition.move( martinDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
-
-        cursor = idx.forwardCursor( 3L );
-        cursor.afterLast();
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        // dn id 13
-        Dn marketingDn = new Dn( schemaManager, "ou=Marketing,ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, marketingDn );
-        entry.add( "objectClass", "top", "organizationalUnit" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-
-        addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
-
-        // dn id 14
-        Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales,ou=Marketing, ou=Sales,o=Good Times Co." );
-        entry = new DefaultEntry( schemaManager, jimmyDn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Marketing" );
-        entry.add( "cn", "Jimmy Wales" );
-        entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        entry.add( "entryUUID", UUID.randomUUID().toString() );
-
-        addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
-
-        newDn = newParentDn.add( marketingDn.getRdn() );
-        partition.move( marketingDn, newParentDn, newDn, new ClonedServerEntry( entry ) );
-
-        cursor = idx.forwardCursor( 3L );
-        cursor.afterLast();
-
-        assertTrue( cursor.previous() );
-        assertEquals( 14, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 13, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 12, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 10, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-
-        assertTrue( cursor.previous() );
-        assertEquals( 3, ( long ) cursor.get().getId() );
-
-        assertFalse( cursor.previous() );
-    }
-
-
-    @Test
-    public void testConvertIndex() throws Exception
-    {
-        Index nonAvlIndex = new GenericIndex( "ou", 10, new File( "." ).toURI() );
-
-        Method convertIndex = partition.getClass().getDeclaredMethod( "convertAndInit", Index.class );
-        convertIndex.setAccessible( true );
-        Object obj = convertIndex.invoke( partition, nonAvlIndex );
-
-        assertNotNull( obj );
-        assertEquals( AvlIndex.class, obj.getClass() );
+        cursor.close();
     }
 
 
@@ -636,7 +484,7 @@ public class AvlPartitionTest
     @Test
     public void testRenameEscaped() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
+        Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person", "organizationalPerson" );
         entry.add( "ou", "Engineering" );
@@ -655,20 +503,23 @@ public class AvlPartitionTest
         Long id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.lookup( id );
-        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
     }
 
 
     @Test
     public void testMove() throws Exception
     {
-        Dn childDn = new Dn( schemaManager, "cn=Pivate Ryan,ou=Engineering,o=Good Times Co." );
-        DefaultEntry childEntry = new DefaultEntry( schemaManager, childDn );
-        childEntry.add( "objectClass", "top", "person", "organizationalPerson" );
-        childEntry.add( "ou", "Engineering" );
-        childEntry.add( "cn", "Private Ryan" );
-        childEntry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        childEntry.add( "entryUUID", UUID.randomUUID().toString() );
+        Dn childDn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
+        DefaultEntry childEntry = new DefaultEntry( schemaManager, childDn,
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: organizationalPerson",
+            "ou: Engineering",
+            "cn", "Private Ryan",
+            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
+            "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
         partition.add( addContext );
@@ -679,7 +530,7 @@ public class AvlPartitionTest
 
         partition.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
 
-        // to drop the alias indices   
+        // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
         parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
@@ -711,7 +562,7 @@ public class AvlPartitionTest
         partition.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
-        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, 
+        partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
         lookedup = partition.lookup( partition.getEntryId( dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
@@ -738,7 +589,8 @@ public class AvlPartitionTest
         lookedup = partition.modify( dn, add );
         assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT,
+            "JWalker" ) );
         assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
@@ -761,7 +613,8 @@ public class AvlPartitionTest
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
-        lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
+        lookedup = partition.modify( dn,
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" ) );
         assertNotNull( lookedup.get( "sn" ) );
 
         lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT ) );

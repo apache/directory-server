@@ -90,8 +90,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwardable tickets fail with the correct error message.
@@ -214,7 +214,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         encTicketPart.setFlag( TicketFlag.FORWARDABLE );
 
         HostAddress[] address =
-                {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
+            { new HostAddress( InetAddress.getByAddress( new byte[4] ) ) };
         HostAddresses addresses = new HostAddresses( address );
         encTicketPart.setClientAddresses( addresses );
 
@@ -342,7 +342,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         kdcReqBody.setTill( requestedEndTime );
 
         HostAddress[] address =
-                {new HostAddress( InetAddress.getLocalHost() )};
+            { new HostAddress( InetAddress.getLocalHost() ) };
         HostAddresses addresses = new HostAddresses( address );
         kdcReqBody.setAddresses( addresses );
 
@@ -377,7 +377,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         encTicketPart.setFlag( TicketFlag.PROXIABLE );
 
         HostAddress[] address =
-                {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
+            { new HostAddress( InetAddress.getByAddress( new byte[4] ) ) };
         HostAddresses addresses = new HostAddresses( address );
         encTicketPart.setClientAddresses( addresses );
 

@@ -62,7 +62,8 @@ public class SingleBaseSearch implements SearchStrategy
         {
             CoreSession session = directoryService.getSession();
             ctx = new ServerLdapContext( directoryService, session, new LdapName( searchBaseDn ) );
-        } catch ( Exception e )
+        }
+        catch ( Exception e )
         {
             throw new ServiceConfigurationException( I18n.err( I18n.ERR_649, searchBaseDn ), e );
         }
@@ -83,6 +84,5 @@ public class SingleBaseSearch implements SearchStrategy
             throw new DnsException( ResponseCode.SERVER_FAILURE );
         }
     }
-
 
 }

@@ -24,13 +24,12 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>24</version>
-    <relativePath></relativePath>
+    <version>27</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>2.0.0-M4-SNAPSHOT</version>
+  <version>2.0.0-M7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ApacheDS</name>
@@ -45,37 +44,39 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.shared.version>1.0.0-M9-SNAPSHOT</org.apache.directory.shared.version>
+    <org.apache.directory.shared.version>1.0.0-M12</org.apache.directory.shared.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
+    <org.apache.directory.jdbm.version>2.0.0-M1</org.apache.directory.jdbm.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.2</ant.version>
+    <ant.version>1.8.3</ant.version>
     <antlr.version>2.7.7</antlr.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
-    <commons.daemon.version>1.0.5</commons.daemon.version>
+    <commons.daemon.version>1.0.10</commons.daemon.version>
     <commons.dbcp.version>1.4</commons.dbcp.version>
-    <commons.io.version>2.0.1</commons.io.version>
+    <commons.io.version>2.3</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
-    <commons.net.version>3.0.1</commons.net.version>
-    <commons.pool.version>1.5.6</commons.pool.version>
-    <derby.version>10.8.1.2</derby.version>
+    <commons.net.version>3.1</commons.net.version>
+    <commons.pool.version>1.6</commons.pool.version>
+    <derby.version>10.8.2.2</derby.version>
     <dnsjava.version>2.1.1</dnsjava.version>
     <ehcache.version>2.4.4</ehcache.version>
+    <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>6.1.14</jetty.version>
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
-    <junit.version>4.9</junit.version>
+    <junit.version>4.10</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.16</log4j.version>
-    <maven.archiver.version>2.4.2</maven.archiver.version>
-    <maven.artifact.version>3.0.3</maven.artifact.version>
-    <maven.plugin.api.version>3.0.3</maven.plugin.api.version>
+    <maven.archiver.version>2.5</maven.archiver.version>
+    <maven.artifact.version>3.0.4</maven.artifact.version>
+    <maven.plugin.api.version>3.0.4</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <maven.ipojo.version>1.8.0</maven.ipojo.version>
-    <bnd.ipojo.version>1.8.4</bnd.ipojo.version>
+    <mina.core.version>2.0.4</mina.core.version>
+    <plexus.utils.version>3.0</plexus.utils.version>
     <mina.core.version>2.0.4</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
@@ -84,9 +85,6 @@
     <velocity.version>1.7-beta1</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.10.0</xercesImpl.version>
-    <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <ipojo.version>1.8.0</ipojo.version>
-    <ipojo.annotations.version>1.8.0</ipojo.annotations.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -106,7 +104,6 @@
   <modules>
     <module>i18n</module>
     <module>all</module>
-    <module>jdbm</module>
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>
     <module>xdbm-tools</module>
@@ -152,14 +149,23 @@
     -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
-    <module>apache-felix</module>
-    <module>dependencies</module>
-    <module>directorycomponent-handler</module>
+    <!--Uncomment to build OSGi-related bundles-->
+    <!--<module>apache-felix</module>-->
+    <!--<module>dependencies</module>-->
+    <!--<module>service-osgi</module>-->
+    <!--<module>component-hub</module>-->
   </modules>
 
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <tagNameFormat>@{project.version}</tagNameFormat>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -190,7 +196,7 @@
               <exclude>**/.project</exclude>
               <exclude>**/.settings/**/*</exclude>
               <!-- ECLIPSE_LAUNCH_EXCLUDES -->
-              <exclude>**/ApacheDS.launch</exclude>
+              <exclude>**/*.launch</exclude>
               <!-- IDEA_DEFAULT_EXCLUDES -->
               <exclude>**/*.iml</exclude>
               <exclude>**/*.ipr</exclude>
@@ -203,8 +209,6 @@
               <exclude>**/*.ldif</exclude>
               <!-- PDU_FILES_EXCLUDES -->
               <exclude>**/*.pdu</exclude>
-              <!-- JDBM_FILES_EXCLUDES -->
-              <exclude>jdbm/**/*</exclude>
               <!-- INSTALLERS_FILES_EXCLUDES -->
               <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/deb/control</exclude>
               <exclude>installers-maven-plugin/src/main/resources/org/apache/directory/server/installers/macosxpkg/License.rtf</exclude>
@@ -215,6 +219,10 @@
               <exclude>osgi/src/main/resources/META-INF/spring.schemas</exclude>
               <!-- LOG_FILES_EXCLUDES -->
               <exclude>**/*.log</exclude>
+              <!-- BYTECODE_EXCLUDES -->
+              <exclude>**/*.bytecode</exclude>
+              <!-- BMP_IMAGES_EXCLUDES -->
+              <exclude>**/*.bmp</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -263,6 +271,20 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <dependencies>
+          <!-- Add support for 'scp'/'sftp' -->
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh</artifactId>
+            <version>2.1</version>
+          </dependency>
+          <!-- Add support for 'scpexe' -->
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh-external</artifactId>
+            <version>2.1</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>attach-descriptor</id>
@@ -574,6 +596,13 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>org.apache.directory.jdbm</groupId>
+        <artifactId>apacheds-jdbm2</artifactId>
+        <type>bundle</type>
+        <version>${org.apache.directory.jdbm.version}</version>
+      </dependency>
+     
       <!-- Interceptors --> 
       <dependency>
         <groupId>${project.groupId}</groupId>
@@ -676,14 +705,8 @@
         <artifactId>apacheds-interceptors-trigger</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- Interceptors --> 
 
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-jdbm</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
+      <!-- Interceptors --> 
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-jdbm-partition</artifactId>
@@ -871,18 +894,6 @@
         <version>${project.version}</version>
       </dependency>
       
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-directorycomponent-handler</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-component-hub</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
       <!-- Shared dependencies -->
       
       <dependency>
@@ -992,13 +1003,6 @@
         <artifactId>shared-util</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
-      
-      <dependency>
-        <groupId>org.apache.directory.shared</groupId>
-        <artifactId>shared-ipojo-manager</artifactId>
-        <version>${org.apache.directory.shared.version}</version>
-      </dependency>
-      
       
       <!-- Mina dependencies -->
       
@@ -1218,18 +1222,6 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
         <version>${ehcache.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.ipojo</artifactId>
-        <version>${ipojo.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-        <version>${ipojo.annotations.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

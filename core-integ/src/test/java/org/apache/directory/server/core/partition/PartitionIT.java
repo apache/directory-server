@@ -55,45 +55,45 @@ import org.slf4j.LoggerFactory;
  * Creates a DirectoryService configured with two separate dc=com based 
  * domains to test multiple partitions.
  */
-@CreateDS( name = "PartitionIT-class",
+@CreateDS(name = "PartitionIT-class",
     partitions =
-    {
-        @CreatePartition(
-            name = "foo",
-            suffix = "dc=foo,dc=com",
-            contextEntry = @ContextEntry( 
-                entryLdif =
+        {
+            @CreatePartition(
+                name = "foo",
+                suffix = "dc=foo,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
                     "dn: dc=foo,dc=com\n" +
-                    "dc: foo\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes = 
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" )
-            } ),
+                        "dc: foo\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                }),
             @CreatePartition(
                 name = "bar",
                 suffix = "dc=bar,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=bar,dc=com\n" +
+                    "dn: dc=bar,dc=com\n" +
                         "dc: bar\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-    } )
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
+    })
 public final class PartitionIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionIT.class );
 
-    
+
     /**
      * Test case to weed out issue in DIRSERVER-1118.
      *

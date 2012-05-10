@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface JournalStore 
+public interface JournalStore
 {
     /**
      * Initialize the store.
@@ -84,8 +84,8 @@ public interface JournalStore
      * @return <code>true</code> if the ack has been written
      */
     boolean ack( long revision );
-    
-    
+
+
     /**
      * Records a nack for a change
      *
@@ -94,16 +94,16 @@ public interface JournalStore
      * @throws Exception if there are problems logging the nack
      */
     boolean nack( long revision );
-    
-    
+
+
     /**
      * The file name to use as the journal file. Default to 
      * 'journal.ldif'
      * @param fileName the fileName to set
      */
     void setFileName( String fileName );
-    
-    
+
+
     /**
      * The working directory on which the journal file will be stored. Default
      * to 'server-work'

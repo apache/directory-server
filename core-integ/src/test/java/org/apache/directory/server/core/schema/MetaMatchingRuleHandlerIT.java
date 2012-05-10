@@ -164,19 +164,19 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=notloaded,ou=schema" );
         Entry entry = new DefaultEntry(
             dn,
-                "objectClass: top",
-                "objectClass: metaTop",
-                "objectClass: metaMatchingRule",
-                "m-oid", OID,
-                "m-syntax", SchemaConstants.INTEGER_SYNTAX,
-                "m-description", DESCRIPTION0);
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", OID,
+            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+            "m-description", DESCRIPTION0 );
 
         try
         {
             connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( LdapException le )
+        catch ( LdapException le )
         {
             // Expected result
         }
@@ -194,7 +194,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     public void testDeleteMatchingRuleFromEnabledSchema() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-        
+
         testAddMatchingRuleToEnabledSchema();
 
         assertTrue( "matchingRule should be removed from the registry after being deleted",
@@ -211,7 +211,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getMatchingRuleRegistry().lookup( OID );
             fail( "matchingRule lookup should fail after deleting it" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -314,7 +314,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 
         testAddMatchingRuleToEnabledSchema();
 
-        Rdn rdn  = new Rdn( "m-oid=" + NEW_OID );
+        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
         connection.rename( dn, rdn );
 
         assertFalse( "old matchingRule OID should be removed from the registry after being renamed",
@@ -325,7 +325,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getMatchingRuleRegistry().lookup( OID );
             fail( "matchingRule lookup should fail after renaming the matchingRule" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -382,113 +382,110 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     // Test move, rename, and delete when a MR exists and uses the Normalizer
     // ----------------------------------------------------------------------
-//    @Test
-//    public void testDeleteSyntaxWhenInUse() throws Exception
-//    {
-//        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-//
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//
-//        try
-//        {
-//            connection.delete( dn );
-//            fail( "should not be able to delete a syntax in use" );
-//        }
-//        catch( LdapException e )
-//        {
-//            //assertEquals( e.@getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after delete failure",
-//            getLdapSyntaxRegistry().hasSyntax( OID ) );
-//    }
+    //    @Test
+    //    public void testDeleteSyntaxWhenInUse() throws Exception
+    //    {
+    //        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
+    //
+    //        testAddSyntax();
+    //        addDependeeMatchingRule();
+    //
+    //        try
+    //        {
+    //            connection.delete( dn );
+    //            fail( "should not be able to delete a syntax in use" );
+    //        }
+    //        catch( LdapException e )
+    //        {
+    //            //assertEquals( e.@getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+    //        }
+    //
+    //        assertTrue( "syntax should still be in the registry after delete failure",
+    //            getLdapSyntaxRegistry().hasSyntax( OID ) );
+    //    }
 
+    //    public void testMoveSyntaxWhenInUse() throws NamingException
+    //    {
+    //        testAddSyntax();
+    //        addDependeeMatchingRule();
+    //
+    //        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
+    //        Dn newDn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apache,ou=schema" );
+    //
+    //        try
+    //        {
+    //            super.schemaRoot.rename( dn, newDn );
+    //            fail( "should not be able to move a syntax in use" );
+    //        }
+    //        catch( LdapUnwillingToPerformException e )
+    //        {
+    //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+    //        }
+    //
+    //        assertTrue( "syntax should still be in the registry after move failure",
+    //            registries.getLdapSyntaxRegistry().hasSyntax( OID ) );
+    //    }
+    //
+    //
+    //    public void testMoveSyntaxAndChangeRdnWhenInUse() throws NamingException
+    //    {
+    //        testAddSyntax();
+    //        addDependeeMatchingRule()
+    //
+    //        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
+    //
+    //        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=matchingRules,cn=apache,ou=schema" );
 
-//    public void testMoveSyntaxWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//
-//        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-//        Dn newDn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apache,ou=schema" );
-//
-//        try
-//        {
-//            super.schemaRoot.rename( dn, newDn );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapUnwillingToPerformException e )
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure",
-//            registries.getLdapSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//
-//    public void testMoveSyntaxAndChangeRdnWhenInUse() throws NamingException
-//    {
-//        testAddSyntax();
-//        addDependeeMatchingRule()
-//
-//        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-//
-//        Dn newDn = new Dn( "m-oid=" + NEW_OID + ",ou=matchingRules,cn=apache,ou=schema" );
-
-//        try
-//        {
-//            super.schemaRoot.moveAndRename( dn, JndiUtils.toName( newdn ) );
-//            fail( "should not be able to move a syntax in use" );
-//        }
-//        catch( LdapUnwillingToPerformException e )
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after move failure",
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-//
-//
+    //        try
+    //        {
+    //            super.schemaRoot.moveAndRename( dn, JndiUtils.toName( newdn ) );
+    //            fail( "should not be able to move a syntax in use" );
+    //        }
+    //        catch( LdapUnwillingToPerformException e )
+    //        {
+    //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+    //        }
+    //
+    //        assertTrue( "syntax should still be in the registry after move failure",
+    //            registries.getSyntaxRegistry().hasSyntax( OID ) );
+    //    }
+    //
+    //
 
     // Need to add body to this method which creates a new matchingRule after
     // the matchingRule addition code has been added.
 
-//    private void addDependeeMatchingRule()
-//    {
-//        throw new NotImplementedException();
-//    }
-//
-//    public void testRenameNormalizerWhenInUse() throws NamingException
-//    {
-//        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
-//
-//        testAddSyntax();
-//        addDependeeMatchingRule();
-//
-//        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
-//
-//        try
-//        {
-//            super.schemaRoot.rename( dn, rdn );
-//            fail( "should not be able to rename a syntax in use" );
-//        }
-//        catch( LdapUnwillingToPerformException e )
-//        {
-//            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
-//        }
-//
-//        assertTrue( "syntax should still be in the registry after rename failure",
-//            registries.getSyntaxRegistry().hasSyntax( OID ) );
-//    }
-
+    //    private void addDependeeMatchingRule()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //
+    //    public void testRenameNormalizerWhenInUse() throws NamingException
+    //    {
+    //        Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
+    //
+    //        testAddSyntax();
+    //        addDependeeMatchingRule();
+    //
+    //        Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
+    //
+    //        try
+    //        {
+    //            super.schemaRoot.rename( dn, rdn );
+    //            fail( "should not be able to rename a syntax in use" );
+    //        }
+    //        catch( LdapUnwillingToPerformException e )
+    //        {
+    //            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+    //        }
+    //
+    //        assertTrue( "syntax should still be in the registry after rename failure",
+    //            registries.getSyntaxRegistry().hasSyntax( OID ) );
+    //    }
 
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
-
 
     @Test
     @Ignore
@@ -505,7 +502,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, top );
             fail( "should not be able to move a matchingRule up to ou=schema" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -530,7 +527,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a matchingRule into comparators container" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }

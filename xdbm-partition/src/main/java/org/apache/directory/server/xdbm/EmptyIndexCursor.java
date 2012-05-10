@@ -21,6 +21,8 @@ package org.apache.directory.server.xdbm;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,6 +32,15 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
  */
 public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
+    public EmptyIndexCursor()
+    {
+        LOG_CURSOR.debug( "Creating EmptyIndexCursor {}", this );
+    }
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -47,7 +58,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -119,5 +130,25 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     public void beforeValue( ID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void close( ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
+        super.close();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause ) throws Exception
+    {
+        LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
+        super.close( cause );
     }
 }

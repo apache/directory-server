@@ -116,7 +116,6 @@ public abstract class BaseInterceptor implements Interceptor
     /** A starage for the uniqueMember attributeType */
     protected static AttributeType UNIQUE_MEMBER_AT;
 
-
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
      */
@@ -157,7 +156,7 @@ public abstract class BaseInterceptor implements Interceptor
          */
         public void bind( BindOperationContext bindContext ) throws LdapException
         {
-            nexus.bind( bindContext );
+            // Do nothing here : there is no support for the Bind operation in Partition
         }
 
 

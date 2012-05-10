@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A class used to store the Delegating Authenticator configuration.
@@ -28,15 +30,14 @@ import org.apache.directory.server.config.ConfigurationElement;
  */
 public class DelegatingAuthenticatorBean extends AuthenticatorBean
 {
-    
+
     /** The delegate host */
     @ConfigurationElement(attributeType = "ads-delegateHost")
     private String delegateHost;
-    
+
     /** The delegate port */
     @ConfigurationElement(attributeType = "ads-delegatePort")
     private int delegatePort;
-
 
 
     /**
@@ -81,7 +82,7 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "Delegating Authenticator :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
@@ -90,8 +91,8 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

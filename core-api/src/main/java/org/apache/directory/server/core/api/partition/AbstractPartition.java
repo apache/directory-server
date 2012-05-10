@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.partition;
 
@@ -48,17 +48,18 @@ public abstract class AbstractPartition implements Partition
 
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
-    
+
     /** The partition ID */
     protected String id;
-    
+
     /** The root Dn for this partition */
     protected Dn suffixDn;
+
 
     /**
      * {@inheritDoc}
      */
-    public void initialize( ) throws LdapException
+    public void initialize() throws LdapException
     {
         if ( initialized )
         {
@@ -100,7 +101,7 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Override this method to put your initialization code.
-     * @throws Exception 
+     * @throws Exception
      */
     protected abstract void doInit() throws InvalidNameException, Exception;
 
@@ -176,8 +177,8 @@ public abstract class AbstractPartition implements Partition
     {
         return suffixDn;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -192,8 +193,8 @@ public abstract class AbstractPartition implements Partition
             this.suffixDn.apply( schemaManager );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -202,7 +203,7 @@ public abstract class AbstractPartition implements Partition
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
     }
 
-    
+
     /**
      * Check that the operation is done on an initialized store
      * @param property

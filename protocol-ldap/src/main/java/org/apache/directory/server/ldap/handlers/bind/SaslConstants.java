@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.ldap.handlers.bind;
 
+
 /**
  * SASL Constants used to store informations releated to the Challenge/response
  * exchange during the SASL negociation.
@@ -32,66 +33,57 @@ public class SaslConstants
      * A key constant for storing the SASL Server in the session.
      */
     public static final String SASL_SERVER = "saslServer";
-    
+
     /**
      * A key constant for storing the SASL host in the session
      */
     public static final String SASL_HOST = "host";
-    
+
     /**
      * A key constant used when creating a SaslServer
      */
     public static final String LDAP_PROTOCOL = "ldap";
-    
-    
+
     /**
      * A key constant for storing the place where we are to search for user's pasword
      */
     public static final String SASL_USER_BASE_DN = "userBaseDn";
-    
-    
+
     /**
      * A key constant for storing the current mechanism
      */
     public static final String SASL_MECH = "saslMech";
-    
-    
+
     /**
      * A key constant for storing the authenticated user
      */
     public static final String SASL_AUTHENT_USER = "saslAuthentUser";
-    
-    
+
     /**
      * A key constant for storing the evaluated credentials
      */
     public static final String SASL_CREDS = "saslCreds";
 
-
     /**
      * A key constant for storing the Quality Of Protection
      */
     public static final String SASL_QOP = "saslQop";
-    
-    
+
     /**
      * A key constant for storing the realm
      */
     public static final String SASL_REALM = "saslRealm";
-    
-    
+
     /**
      * A key constant representing the SASL properties 
      */
     public static final String SASL_PROPS = "saslProps";
-    
-    
+
     /**
      * A key constant representing the SASL mechanism handler
      */
     public static final String SASL_MECH_HANDLER = "saslmechHandler";
-    
-    
+
     /**
      * A key constant representing the SASL IoFilter 
      */

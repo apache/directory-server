@@ -50,10 +50,10 @@ public class AvlTreeCursorTest
     {
         AvlTree<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
         AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        
+
         try
         {
             cursor.get();
@@ -63,46 +63,46 @@ public class AvlTreeCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.first() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.last() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
         cursor.before( 3 );
         assertFalse( cursor.available() );
-        
+
         cursor.after( 3 );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
         assertTrue( cursor.isClosed() );
     }
-    
-    
+
+
     @Test
     public void testOneEntryCursor() throws Exception
     {
         AvlTree<Integer> tree = new AvlTreeImpl<Integer>( new IntegerComparator() );
         tree.insert( 7 );
         AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        
+
         try
         {
             cursor.get();
@@ -112,27 +112,27 @@ public class AvlTreeCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
@@ -185,9 +185,11 @@ public class AvlTreeCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( 7, ( int ) cursor.get() );
+        
+        cursor.close();
     }
-    
-    
+
+
     @Test
     public void testManyEntriesCursor() throws Exception
     {
@@ -197,11 +199,11 @@ public class AvlTreeCursorTest
         tree.insert( 10 );
         tree.insert( 11 );
         AvlTreeCursor<Integer> cursor = new AvlTreeCursor<Integer>( tree );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
         assertEquals( 4, tree.getSize() );
-        
+
         try
         {
             cursor.get();
@@ -211,7 +213,7 @@ public class AvlTreeCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
@@ -228,8 +230,7 @@ public class AvlTreeCursorTest
         assertEquals( 11, ( int ) cursor.get() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
-        
+
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
@@ -246,16 +247,16 @@ public class AvlTreeCursorTest
         assertEquals( 3, ( int ) cursor.get() );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
@@ -384,9 +385,9 @@ public class AvlTreeCursorTest
         cursor.before( 2 );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
+        cursor.close();
     }
-   
-    
+
     class IntegerComparator implements Comparator<Integer>
     {
         public int compare( Integer o1, Integer o2 )

@@ -119,21 +119,21 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
     /** flag to indicate whether the consumer was disconnected */
     private boolean disconnected;
-    
+
     /** The number of added entries */
-    private AtomicInteger nbAdded = new AtomicInteger(0); 
+    private AtomicInteger nbAdded = new AtomicInteger( 0 );
 
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
         {
-            SchemaConstants.ENTRY_UUID_AT, 
-            SchemaConstants.ENTRY_CSN_AT, 
+            SchemaConstants.ENTRY_UUID_AT,
+            SchemaConstants.ENTRY_CSN_AT,
             SchemaConstants.MODIFIERS_NAME_AT,
-            SchemaConstants.MODIFY_TIMESTAMP_AT, 
-            SchemaConstants.CREATE_TIMESTAMP_AT, 
-            SchemaConstants.CREATORS_NAME_AT, 
-            SchemaConstants.ENTRY_PARENT_ID_AT 
-        };
+            SchemaConstants.MODIFY_TIMESTAMP_AT,
+            SchemaConstants.CREATE_TIMESTAMP_AT,
+            SchemaConstants.CREATORS_NAME_AT,
+            SchemaConstants.ENTRY_PARENT_ID_AT
+    };
 
     /** A thread used to refresh in refreshOnly mode */
     private RefresherThread refreshThread;
@@ -193,7 +193,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
      * one remote server
      * 
-     * @return true if the connections have been successful. 
+     * @return true if the connections have been successful.
      */
     public boolean connect()
     {
@@ -201,19 +201,19 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             String providerHost = config.getRemoteHost();
             int port = config.getRemotePort();
-            
+
             // Create a connection
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
                 connection.setTimeOut( -1L );
-                
-                if( config.isUseTls() )
+
+                if ( config.isUseTls() )
                 {
                     connection.getConfig().setTrustManagers( config.getTrustManager() );
                     connection.startTls();
                 }
-                
+
                 connection.addConnectionClosedEventListener( this );
             }
 
@@ -267,12 +267,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
-        SyncDoneValue ctrl = (SyncDoneValue)searchDone.getControls().get( SyncDoneValue.OID );
+        SyncDoneValue ctrl = ( SyncDoneValue ) searchDone.getControls().get( SyncDoneValue.OID );
 
         if ( ( ctrl != null ) && ( ctrl.getCookie() != null ) )
         {
             syncCookie = ctrl.getCookie();
-            LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString(syncCookie) );
+            LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString( syncCookie ) );
             storeCookie();
         }
 
@@ -303,7 +303,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             {
                 syncCookie = syncStateCtrl.getCookie();
                 LOG.debug( "assigning the cookie from sync state value control: "
-                    + Strings.utf8ToString(syncCookie) );
+                    + Strings.utf8ToString( syncCookie ) );
             }
 
             SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
@@ -313,7 +313,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             // check to avoid conversion of UUID from byte[] to String
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "entryUUID = {}", Strings.uuidToString(syncStateCtrl.getEntryUUID()) );
+                LOG.debug( "entryUUID = {}", Strings.uuidToString( syncStateCtrl.getEntryUUID() ) );
             }
 
             switch ( state )
@@ -331,7 +331,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 case MODDN:
                     String entryUuid = Strings.uuidToString( syncStateCtrl.getEntryUUID() );
                     applyModDnOperation( remoteEntry, entryUuid );
-                    
+
                     break;
 
                 case DELETE:
@@ -373,14 +373,14 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
             SyncInfoValue decorator = new SyncInfoValueDecorator( ldapCodecService );
             byte[] syncinfo = syncInfoResp.getResponseValue();
-            ((SyncInfoValueDecorator)decorator).setValue( syncinfo );
-            SyncInfoValue syncInfoValue = ((SyncInfoValueDecorator)decorator).getDecorated();
+            ( ( SyncInfoValueDecorator ) decorator ).setValue( syncinfo );
+            SyncInfoValue syncInfoValue = ( ( SyncInfoValueDecorator ) decorator ).getDecorated();
 
             byte[] cookie = syncInfoValue.getCookie();
 
             if ( cookie != null )
             {
-                LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString(cookie) );
+                LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
                 syncCookie = cookie;
             }
 
@@ -471,7 +471,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     }
 
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public void setConfig( ReplicationConsumerConfig config )
@@ -499,7 +499,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         nbAdded.getAndSet( 0 );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -507,8 +507,8 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         return String.valueOf( getConfig().getReplicaId() );
     }
-    
-    
+
+
     /**
      * performs a search on connection with updated syncRequest control.
      *
@@ -523,7 +523,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
         if ( syncCookie != null )
         {
-            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString(syncCookie) );
+            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString( syncCookie ) );
             syncReq.setCookie( syncCookie );
         }
 
@@ -533,7 +533,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         SearchFuture sf = connection.searchAsync( searchRequest );
 
         Response resp = sf.get();
-        
+
         while ( !( resp instanceof SearchResultDone ) && !sf.isCancelled() && !disconnected )
         {
             if ( resp instanceof SearchResultEntry )
@@ -546,7 +546,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
             else if ( resp instanceof IntermediateResponse )
             {
-                handleSyncInfo( (IntermediateResponse) resp );
+                handleSyncInfo( ( IntermediateResponse ) resp );
             }
 
             resp = sf.get();
@@ -555,7 +555,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
 
         LOG.debug( "sync operation returned result code {}", resultCode );
-        
+
         if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
         {
             // log the error and handle it appropriately
@@ -642,7 +642,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             fout.write( syncCookie.length );
             fout.write( syncCookie );
             fout.close();
-            
+
             lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
 
@@ -668,11 +668,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 syncCookie = new byte[fin.read()];
                 fin.read( syncCookie );
                 fin.close();
-    
+
                 lastSavedCookie = new byte[syncCookie.length];
                 System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
-    
-                LOG.debug( "read the cookie from file: " + Strings.utf8ToString(syncCookie) );
+
+                LOG.debug( "read the cookie from file: " + Strings.utf8ToString( syncCookie ) );
             }
         }
         catch ( Exception e )
@@ -703,7 +703,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private void applyModDnOperation( Entry remoteEntry, String entryUuid ) throws Exception
     {
         LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
-        
+
         // First, compute the MODDN type
         SyncModifyDnType modDnType = null;
 
@@ -711,7 +711,8 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             // Retrieve locally the moved or renamed entry
             String filter = "(entryUuid=" + entryUuid + ")";
-            EntryCursor cursor = connection.search( Dn.ROOT_DSE, filter, SearchScope.SUBTREE, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            EntryCursor cursor = connection.search( Dn.ROOT_DSE, filter, SearchScope.SUBTREE,
+                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry localEntry = cursor.get();
 
@@ -750,7 +751,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             {
                 case MOVE:
                     LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
-                    
+
                     break;
 
                 case RENAME:
@@ -763,7 +764,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                     LOG.debug(
                         "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
                         new String[]
-                            { localDn.getName(), remoteParentDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+                            {
+                                localDn.getName(),
+                                remoteParentDn.getName(),
+                                remoteRdn.getName(),
+                                String.valueOf( deleteOldRdn ) } );
 
                     break;
             }
@@ -834,7 +839,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
         for ( byte[] uuid : uuidList )
         {
-            LOG.info( "uuid: {}", Strings.uuidToString(uuid) );
+            LOG.info( "uuid: {}", Strings.uuidToString( uuid ) );
         }
 
         // if it is refreshPresent list then send all the UUIDs for
@@ -883,7 +888,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         int size = limitedUuidList.size();
         if ( size == 1 )
         {
-            String uuid = Strings.uuidToString(limitedUuidList.get(0));
+            String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                 new org.apache.directory.shared.ldap.model.entry.StringValue( uuid ) );
             if ( isRefreshPresent )
@@ -904,18 +909,18 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
             for ( int i = 0; i < size; i++ )
             {
-                String uuid = Strings.uuidToString(limitedUuidList.get(i));
+                String uuid = Strings.uuidToString( limitedUuidList.get( i ) );
                 ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                     new org.apache.directory.shared.ldap.model.entry.StringValue( uuid ) );
 
                 if ( isRefreshPresent )
                 {
                     uuidEqNode = new NotNode( uuidEqNode );
-                    ( (AndNode) filter ).addNode( uuidEqNode );
+                    ( ( AndNode ) filter ).addNode( uuidEqNode );
                 }
                 else
                 {
-                    ( (OrNode) filter ).addNode( uuidEqNode );
+                    ( ( OrNode ) filter ).addNode( uuidEqNode );
                 }
             }
         }
@@ -945,9 +950,10 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         /** A field used to tell the thread it should stop */
         private volatile boolean stop = false;
-        
+
         /** A mutex used to make the thread sleeping for a moment */
         private final Object mutex = new Object();
+
 
         public RefresherThread()
         {
@@ -985,7 +991,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         public void stopRefreshing()
         {
             stop = true;
-            
+
             // just in case if it is sleeping, wake up the thread
             mutex.notify();
         }

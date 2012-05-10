@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.integ;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -29,33 +30,35 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
-    })
+
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+        })
 public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
 {
     @Test
-    @ApplyLdifFiles( "test-entry.ldif" )
+    @ApplyLdifFiles("test-entry.ldif")
     public void testWithApplyLdifFiles() throws Exception
     {
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
-        
+
         if ( isRunInSuite )
         {
             assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
             // the SuiteDS is the name given to the DS instance in the enclosing TestSuite
             assertEquals( "SuiteDS", getLdapServer().getDirectoryService().getInstanceId() );
         }
-        else // should run with a default DS created in FrameworkRunner
+        else
+        // should run with a default DS created in FrameworkRunner
         {
             assertTrue( getLdapServer().getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
         }
-        
+
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
-        
+
         assertNotNull( getLdapServer() );
     }
 }

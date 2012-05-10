@@ -49,6 +49,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /** The flag to remove the old Rdn Attribute  */
     private boolean deleteOldRdn;
 
+
     /**
      * Creates a new instance of RenameOperationContext.
      */
@@ -185,6 +186,6 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     {
         return "RenameContext for old Dn '" + getDn().getName() + "'" +
             ", new Rdn '" + newRdn + "'" +
-            ( deleteOldRdn ? ", delete old Rdn" : "" ) ;
+            ( deleteOldRdn ? ", delete old Rdn" : "" );
     }
 }

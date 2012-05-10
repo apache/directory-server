@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.xdbm;
 
@@ -89,20 +89,17 @@ public interface Store<E, ID extends Comparable<ID>>
      * store and it's indices to conduct search operations.
      */
     public static final String[] SYS_INDEX_OID_ARRAY =
-        { 
+        {
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
-            ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID,
-            ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,
-            ApacheSchemaConstants.APACHE_N_DN_AT_OID,
             ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
             ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
             SchemaConstants.ENTRY_CSN_AT_OID,
             SchemaConstants.ENTRY_UUID_AT_OID,
-            SchemaConstants.OBJECT_CLASS_AT_OID 
-        };
-    
+            SchemaConstants.OBJECT_CLASS_AT_OID
+    };
+
     public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
         .asList( SYS_INDEX_OID_ARRAY ) ) );
 
@@ -130,17 +127,18 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     ID getRootId();
 
+
     /**
      * Sets the flag telling the server to flush on disk when some
      * modification has been done.
-     * @param isSyncOnWrite A boolean set to true if we have to flush on disk 
+     * @param isSyncOnWrite A boolean set to true if we have to flush on disk
      * when a modification occurs
      */
     void setSyncOnWrite( boolean isSyncOnWrite );
 
 
     /**
-     * @return <code>true</code> if we write to disk for every modification 
+     * @return <code>true</code> if we write to disk for every modification
      */
     boolean isSyncOnWrite();
 
@@ -161,9 +159,9 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Adds a (system or user) index to the list of index for this store. 
+     * Adds a (system or user) index to the list of index for this store.
      * Note that the attribute id returned by Index.getAttributeId() must be
-     * the numeric OID. 
+     * the numeric OID.
      * @param index The index to add
      * @throws Exception If the addition failed
      */
@@ -177,18 +175,6 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The Presence system index
      */
     Index<String, E, ID> getPresenceIndex();
-
-
-    /**
-     * @return The OneLevel system index
-     */
-    Index<ID, E, ID> getOneLevelIndex();
-
-
-    /**
-     * @return The SubLevel system index
-     */
-    Index<ID, E, ID> getSubLevelIndex();
 
 
     /**
@@ -249,7 +235,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
      * @param id The index we are looking for
      * @return <code>true</code> if the index is already present in the
-     * User's <strong>or</strong> System's index list 
+     * User's <strong>or</strong> System's index list
      * @throws Exception If something went wrong
      */
     boolean hasIndexOn( AttributeType attributeType ) throws Exception;
@@ -259,7 +245,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * Tells if an index is already present in the User's index list
      * @param attributeType The attributeType index we are looking for
      * @return <code>true</code> if the index is already present in the
-     * User's index list 
+     * User's index list
      * @throws Exception If something went wrong
      */
     boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
@@ -269,7 +255,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * Tells if an index is already present in the System's index list
      * @param attributeType The index we are looking for
      * @return <code>true</code> if the index is already present in the
-     * System's index list 
+     * System's index list
      * @throws Exception If something went wrong
      */
     boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
@@ -369,12 +355,23 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     Entry lookup( ID id ) throws Exception;
 
-    
+
+    /**
+     * Get back an entry knowing its ID
+     *
+     * @param id The Entry ID we want to get back
+     * @param dn The entry DN when we have it
+     * @return The found Entry, or null if not found
+     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     */
+    Entry lookup( ID id, Dn dn ) throws Exception;
+
+
     /**
      * Gets the count of immediate children of the given entry ID.
      *
      * @param id the entry ID
-     * @return the child count 
+     * @return the child count
      * @throws Exception on failures to access the underlying store
      */
     int getChildCount( ID id ) throws Exception;
@@ -410,7 +407,7 @@ public interface Store<E, ID extends Comparable<ID>>
      */
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
-    
+
     void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
 
 
@@ -430,7 +427,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * <li><b>oneAlias</b> index</li>
      * <li><b>subAlias</b> index</li>
      * </ul>
-     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p> 
+     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p>
      * <p>We have a few check we must do before moving the entry :
      * <ul>
      * <li>The destination must not exist

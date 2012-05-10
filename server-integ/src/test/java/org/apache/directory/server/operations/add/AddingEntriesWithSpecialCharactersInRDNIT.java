@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.operations.add;
 
@@ -25,12 +25,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
@@ -55,6 +56,8 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
     { @CreateTransport(protocol = "LDAP") })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private Entry getPersonEntry( String sn, String cn ) throws LdapException
     {
         Entry entry = new DefaultEntry();
@@ -79,7 +82,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with hash sign (#) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithHashRdn() throws Exception
@@ -94,7 +97,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
@@ -106,6 +109,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( cn.contains( "Kate#Bush" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -115,8 +120,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
     /**
      * adding an entry with comma sign (,) in Rdn.
-     *    
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     @Test
     public void testAddingWithCommaInRdn() throws Exception
@@ -131,7 +136,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -143,6 +148,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
             assertTrue( cn.contains( "Bush, Kate" ) );
         }
+
+        cursor.close();
 
         assertTrue( "entry found", entryFound );
 
@@ -167,7 +174,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
             SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -177,6 +184,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( cn );
             assertTrue( cn.contains( "Mackie \"The Knife\" Messer" ) );
         }
+
+        cursor.close();
 
         assertTrue( "entry found", entryFound );
 
@@ -211,6 +220,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
         }
+        
+        cursor.close();
 
         assertTrue( "no entry found", entryFound );
         connection.delete( dn );
@@ -221,7 +232,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with greater sign (>) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithGreaterSignInRdn() throws Exception
@@ -237,7 +248,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             .search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -249,6 +260,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "East -> West" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -259,7 +272,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with less sign (<) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithLessSignInRdn() throws Exception
@@ -274,7 +287,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -287,6 +300,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "Scissors 8<" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -297,7 +312,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with semicolon (;) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithSemicolonInRdn() throws Exception
@@ -313,7 +328,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -325,6 +340,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "semicolon group;" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
@@ -335,7 +352,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     /**
      * adding an entry with equals sign (=) in Rdn.
      * 
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testAddingWithEqualsInRdn() throws Exception
@@ -362,38 +379,40 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertTrue( ou.contains( "nomen=omen" ) );
         }
 
+        cursor.close();
+
         assertTrue( "entry found", entryFound );
 
         connection.delete( dn );
         connection.close();
     }
-    
-    
+
+
     @Test
-    public void testAddRdnWithEscapedSpaces() throws Exception 
+    public void testAddRdnWithEscapedSpaces() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
         connection.setTimeOut( -1 );
 
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             "cn=\\ User, ou=system",
             "objectClass: top",
             "objectClass: person",
             "objectClass: organizationalPerson",
-            "objectClass: inetOrgPerson", 
+            "objectClass: inetOrgPerson",
             "cn:  User",
             "sn:  Name " );
 
         connection.add( entry );
-        
+
         Entry addedEntry = connection.lookup( "cn=\\ User, ou=system" );
-        
+
         assertNotNull( addedEntry );
-        
+
         assertEquals( "Name", addedEntry.get( "sn" ).getString() );
         assertEquals( "User", addedEntry.get( "cn" ).getString() );
         assertEquals( 1, addedEntry.get( "cn" ).size() );
         assertTrue( addedEntry.contains( "cn", "User" ) );
         assertFalse( addedEntry.contains( "cn", " User" ) );
-      } 
+    }
 }
