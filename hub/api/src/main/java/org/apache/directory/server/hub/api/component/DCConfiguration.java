@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Properties;
 
 
 public class DCConfiguration implements Iterable<DCProperty>
@@ -13,6 +13,8 @@ public class DCConfiguration implements Iterable<DCProperty>
     private List<DCProperty> properties;
     private Hashtable<String, DCProperty> propertyMap;
     private Integer collectionIndex = null;
+
+    private Properties constantProperties = new Properties();
 
 
     public DCConfiguration( List<DCProperty> properties )
@@ -80,6 +82,18 @@ public class DCConfiguration implements Iterable<DCProperty>
     public void setCollectionIndex( Integer collectionIndex )
     {
         this.collectionIndex = collectionIndex;
+    }
+
+
+    public void addConstant( String name, Object value )
+    {
+        constantProperties.put( name, value );
+    }
+
+
+    public Object getConstantProperty( String name )
+    {
+        return constantProperties.get( name );
     }
 
 }
