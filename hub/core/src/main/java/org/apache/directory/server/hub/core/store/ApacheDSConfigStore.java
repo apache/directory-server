@@ -89,8 +89,6 @@ public class ApacheDSConfigStore implements HubStore
     {
         try
         {
-            List<DCPropertyDescription> configurables = extractConfigurableDCs( metadata );
-
             schemaStoreManager.installMetadata( metadata );
 
             configStoreManager.installMetadata( metadata );
@@ -100,7 +98,6 @@ public class ApacheDSConfigStore implements HubStore
         {
             throw new HubStoreException( "Error occured while installing metadata:" + metadata.getMetadataPID(), e );
         }
-
     }
 
 
@@ -157,7 +154,10 @@ public class ApacheDSConfigStore implements HubStore
             schemaStoreManager.uninstallAttributes( dropped );
             schemaStoreManager.installAttributes( added );
 
-            schemaStoreManager.updateOC( newMetadata );
+            if ( dropped.size() != 0 && added.size() != 0 )
+            {
+                schemaStoreManager.updateOC( newMetadata );
+            }
 
             if ( attachedComponents != null )
             {
@@ -171,8 +171,17 @@ public class ApacheDSConfigStore implements HubStore
                 }
             }
 
-            configStoreManager.uninstallMetadata( oldMetadata );
-            configStoreManager.installMetadata( newMetadata );
+            if ( dropped.size() != 0 && added.size() != 0 )
+            {
+                if ( oldMetadata.getPropertyDescriptons().length != newMetadata.getPropertyDescriptons().length )
+                {
+                    if ( !oldMetadata.getMetaVersion().equals( newMetadata.getMetaVersion() ) )
+                    {
+                        configStoreManager.uninstallMetadata( oldMetadata );
+                        configStoreManager.installMetadata( newMetadata );
+                    }
+                }
+            }
         }
         catch ( LdapException e )
         {

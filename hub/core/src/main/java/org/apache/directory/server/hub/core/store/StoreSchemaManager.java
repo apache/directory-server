@@ -390,9 +390,10 @@ public class StoreSchemaManager
 
     public void updateOC( DCMetadataDescriptor metadata ) throws LdapException
     {
-        Entry ocEntry = generateOC( metadata, installNamers( metadata ) );
-
         uninstallOC( metadata.getMetadataPID() );
+        
+        Entry ocEntry = generateOC( metadata, installNamers( metadata ) );
+        
         installOCEntry( ocEntry );
     }
 }

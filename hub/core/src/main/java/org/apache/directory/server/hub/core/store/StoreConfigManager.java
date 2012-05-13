@@ -189,7 +189,7 @@ public class StoreConfigManager
 
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
             {
                 continue;
             }

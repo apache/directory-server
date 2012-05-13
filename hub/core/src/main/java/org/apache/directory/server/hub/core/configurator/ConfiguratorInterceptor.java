@@ -122,7 +122,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
             return;
         }
 
-        String componentLocation = deleteContext.getDn().getNormName();
+        String componentLocation = deleteContext.getDn().getName();
         DirectoryComponent component = hub.getDCRegistry().getComponentByLocation( componentLocation );
 
         if ( component != null )
@@ -152,7 +152,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
             return;
         }
 
-        String location = modifyContext.getDn().getNormName();
+        String location = modifyContext.getDn().getName();
         DirectoryComponent component = hub.getDCRegistry().getComponentByLocation( location );
 
         if ( component == null )
@@ -235,7 +235,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
             next( renameContext );
             return;
         }
-        String oldLocation = renameContext.getDn().getNormName();
+        String oldLocation = renameContext.getDn().getName();
         DirectoryComponent component = hub.getDCRegistry().getComponentByLocation( oldLocation );
         if ( component != null )
         {
@@ -257,7 +257,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
                 }
             }
 
-            String newLocation = renameContext.getNewDn().getNormName();
+            String newLocation = renameContext.getNewDn().getName();
             hub.getDCRegistry().changeComponentLocation( component, newLocation );
 
         }
@@ -270,7 +270,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
     {
         try
         {
-            Dn targetDn = new Dn( operation.getDn().getNormName() );
+            Dn targetDn = new Dn( operation.getDn().getName() );
 
             return targetDn.isDescendantOf( new Dn( "ou=config" ) );
         }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
 import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
 import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
@@ -22,6 +23,11 @@ public class DCMetadataNormalizer
     {
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
+            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
+            {
+                continue;
+            }
+
             if ( isPrimitive( pd.getType() ) )
             {
                 pd.setPropertyContext( DCPropertyType.PRIMITIVE );
@@ -115,6 +121,8 @@ public class DCMetadataNormalizer
     private static String[] injectionTypes = new String[]
         {
             DirectoryService.class.getName(),
-            SchemaManager.class.getName()
+            SchemaManager.class.getName(),
+            InstanceLayout.class.getName(),
+            "org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer"
     };
 }

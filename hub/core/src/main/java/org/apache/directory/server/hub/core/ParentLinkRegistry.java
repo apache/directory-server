@@ -46,12 +46,21 @@ public class ParentLinkRegistry
     public void destroyComponentLinks( DirectoryComponent component )
     {
         Collection<DirectoryComponent> childs = ( Collection ) childLinks.remove( component );
-        
+
         if ( childs != null )
         {
             for ( DirectoryComponent child : childs )
             {
-                parentLinks.remove( child, component );
+                Collection<ParentLink> links = new ArrayList<ParentLink>(
+                    ( Collection<ParentLink> ) parentLinks.get( child ) );
+
+                for ( ParentLink link : links )
+                {
+                    if ( link.getParent().equals( component ) )
+                    {
+                        parentLinks.remove( child, link );
+                    }
+                }
             }
         }
     }

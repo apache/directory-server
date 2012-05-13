@@ -60,7 +60,11 @@ public class CollectionOperations implements DCOperationsManager
         Hashtable<DirectoryComponent, Integer> indexMap = generateIndexMap( component );
         List<DirectoryComponent> sortedList = extractSortedList( indexMap );
 
-        collection.addAll( sortedList );
+        for ( DirectoryComponent comp : sortedList )
+        {
+            collection.add( comp.getRuntimeInfo().getPojo() );
+        }
+
         Object pojo = ( type != CollectionType.ARRAY ) ? collection : collection.toArray();
 
         component.setRuntimeInfo( new DCRuntime( null, pojo ) );
@@ -88,7 +92,10 @@ public class CollectionOperations implements DCOperationsManager
         Hashtable<DirectoryComponent, Integer> indexMap = generateIndexMap( component );
         List<DirectoryComponent> sortedList = extractSortedList( indexMap );
 
-        collection.addAll( sortedList );
+        for ( DirectoryComponent comp : sortedList )
+        {
+            collection.add( comp.getRuntimeInfo().getPojo() );
+        }
 
         Object pojo = ( type != CollectionType.ARRAY ) ? collection : collection.toArray();
 
@@ -112,9 +119,16 @@ public class CollectionOperations implements DCOperationsManager
             if ( prop.getName().startsWith( DirectoryComponentConstants.DC_PROP_ITEM_PREFIX ) )
             {
                 DirectoryComponent reference = ( DirectoryComponent ) prop.getObject();
-                Integer index = reference.getConfiguration().getCollectionIndex();
+                if ( reference != null )
+                {
+                    Integer index = reference.getConfiguration().getCollectionIndex();
+                    if ( index == null )
+                    {
+                        index = 0;
+                    }
+                    collectionMap.put( reference, index );
+                }
 
-                collectionMap.put( reference, index );
             }
         }
 

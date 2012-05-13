@@ -2,17 +2,23 @@ package org.apache.directory.server.hub.core;
 
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.HubStore;
 import org.apache.directory.server.hub.api.component.DCConfiguration;
 import org.apache.directory.server.hub.api.component.DCProperty;
+import org.apache.directory.server.hub.api.component.DCRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
+import org.apache.directory.server.hub.api.component.util.InterceptionPoint;
+import org.apache.directory.server.hub.api.component.util.InterceptorConstants;
+import org.apache.directory.server.hub.api.component.util.InterceptorOperation;
 import org.apache.directory.server.hub.api.exception.BadConfigurationException;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
 import org.apache.directory.server.hub.api.exception.ComponentReconfigurationException;
@@ -27,11 +33,15 @@ import org.apache.directory.server.hub.api.registry.DCMetadataRegistry;
 import org.apache.directory.server.hub.api.registry.DirectoryComponentRegistry;
 import org.apache.directory.server.hub.api.registry.InjectionRegistry;
 import org.apache.directory.server.hub.api.registry.PIDHandlerRegistry;
+import org.apache.directory.server.hub.connector.ipojo.core.IPojoConnector;
+import org.apache.directory.server.hub.core.configurator.ConfiguratorInterceptor;
 import org.apache.directory.server.hub.core.connector.collection.CollectionConnector;
 import org.apache.directory.server.hub.core.meta.DCMetadataNormalizer;
 import org.apache.directory.server.hub.core.util.DCDependency;
 import org.apache.directory.server.hub.core.util.ParentLink;
 import org.apache.directory.server.hub.core.util.DCDependency.DCDependencyType;
+import org.apache.felix.ipojo.IPojoContext;
+import org.osgi.framework.Version;
 
 
 public class ComponentHubImpl implements ComponentHub
@@ -44,12 +54,15 @@ public class ComponentHubImpl implements ComponentHub
     private ParentLinkRegistry parentLinksReg = new ParentLinkRegistry();
 
     private CollectionConnector collectionConnector;
+    public IPojoConnector ipojoConnector;
 
     private HubStore store;
 
     private HubClientManager clientManager = new HubClientManager( this );
 
     private DependencyResolver dependencyResolver = new DependencyResolver();
+
+    private ConfiguratorInterceptor configurator;
 
 
     public ComponentHubImpl( HubStore store )
@@ -86,6 +99,11 @@ public class ComponentHubImpl implements ComponentHub
 
         collectionConnector = new CollectionConnector();
         collectionConnector.init( this );
+
+        ipojoConnector = new IPojoConnector();
+        ipojoConnector.init( this );
+
+        insertConfiguratorInterceptor();
 
     }
 
@@ -517,7 +535,7 @@ public class ComponentHubImpl implements ComponentHub
         {
             if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
             {
-                component.getConfiguration().addProperty( new DCProperty( pd.getName(), pd.getDefaultValue() ) );
+                component.getConfiguration().addConstant( pd.getName(), pd.getDefaultValue() );
             }
         }
 
@@ -554,6 +572,12 @@ public class ComponentHubImpl implements ComponentHub
 
                     if ( propertyValue.equals( DirectoryComponentConstants.DC_VAL_NULL ) )
                     {
+                        if ( pd.isMandatory() )
+                        {
+                            throw new BadConfigurationException( "Mandatory property can not be set to null"
+                                + pd.getName() );
+                        }
+
                         property.setObject( null );
                         break;
                     }
@@ -632,6 +656,7 @@ public class ComponentHubImpl implements ComponentHub
                         throw new BadConfigurationException( "Component:" + component.getComponentPID()
                             + " is lacking property:" + propertyName );
                     }
+                    property.setObject( injection );
             }
         }
     }
@@ -754,7 +779,7 @@ public class ComponentHubImpl implements ComponentHub
                     .getProperty( parentLink.getLinkPoint() );
                 refProperty.setValue( "null" );
 
-                reconfigureComponent( component );
+                reconfigureComponent( parentLink.getParent() );
             }
         }
 
@@ -765,6 +790,38 @@ public class ComponentHubImpl implements ComponentHub
         }
 
         component.setRuntimeInfo( null );
+    }
+
+
+    private void insertConfiguratorInterceptor()
+    {
+        configurator = new ConfiguratorInterceptor();
+        configurator.init( this );
+
+        DCConfiguration config = new DCConfiguration( new ArrayList<DCProperty>() );
+        config.addConstant( InterceptorConstants.PROP_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
+        config.addConstant( InterceptorConstants.PROP_INTERCEPTOR_OPERATIONS,
+            "[" +
+                InterceptorOperation.ADD + "," +
+                InterceptorOperation.DELETE + "," +
+                InterceptorOperation.MODIFY + "," +
+                InterceptorOperation.RENAME
+                + "]" );
+
+        DirectoryComponent component = new DirectoryComponent( "configuratorMeta", "configuratorInterceptor", config );
+        component.setRuntimeInfo( new DCRuntime( null, configurator ) );
+        component.setConfigLocation( "ads-instance=configuratorInterceptor,ou=config" );
+        component.setDirty( false );
+
+        DCMetadataDescriptor configuratorMeta =
+            new DCMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
+                ConfiguratorInterceptor.class.getName(), new String[]
+                    { Interceptor.class.getName() }, new String[0], new DCPropertyDescription[0] );
+
+        metadatasReg.addMetadataDescriptor( configuratorMeta );
+        componentsReg.addDirectoryComponent( component );
+
+        clientManager.fireDCActivated( component );
     }
 
 
