@@ -152,11 +152,13 @@
                   <artifactId>mina-core</artifactId>
                   <version>${mina.core.version}</version>
                 </artifactItem>
+<!--
                 <artifactItem>
                   <groupId>org.apache.directory.jdbm</groupId>
                   <artifactId>apacheds-jdbm2</artifactId>
                   <version>${org.apache.directory.jdbm.version}</version>
                 </artifactItem>
+-->
                 <artifactItem>
                   <groupId>org.apache.directory.studio</groupId>
                   <artifactId>org.dom4j.dom4j</artifactId>
@@ -194,7 +196,8 @@
               net.sf.ehcache*,
               antlr*,
               org.bouncycastle*,
-              org.junit*
+              org.junit*,
+              org.slf4j*
             </_exportcontents>
           </instructions>
         </configuration>
