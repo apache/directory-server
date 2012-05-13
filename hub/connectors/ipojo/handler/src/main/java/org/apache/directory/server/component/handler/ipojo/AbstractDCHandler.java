@@ -36,6 +36,7 @@ import org.apache.felix.ipojo.PrimitiveHandler;
 import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.architecture.HandlerDescription;
+import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.handlers.dependency.Dependency;
 import org.apache.felix.ipojo.handlers.dependency.DependencyHandler;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandler;
@@ -204,8 +205,8 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
 
             desc.addProperty( pd );
         }
-        
-        desc.addProperty( ComponentConstants.DC_NATURE_INDICATOR, "true", true );
+
+        desc.addProperty( new PropertyDescription( ComponentConstants.DC_NATURE_INDICATOR, "string", "true", true ) );
 
         Properties constantProperties = extractConstantProperties( metadata );
         if ( constantProperties != null )
@@ -516,7 +517,8 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
                         {
                             if ( getInstanceManager().getPojoObjects() != null )
                             {
-                                prop.invoke( null ); // Call on all created pojo objects.
+                                prop.reset();
+                                prop.invoke( getInstanceManager().getPojoObject() );
                             }
                         }
                     }
