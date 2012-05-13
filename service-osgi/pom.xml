@@ -50,6 +50,21 @@
     </dependency>
     
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-connector-ipojo-handler</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
@@ -69,6 +84,12 @@
   	  <artifactId>org.apache.felix.ipojo.annotations</artifactId>
   	  <version>1.8.0</version>
   	</dependency>
+  	
+  	<dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.3.0</version>
+    </dependency>
     
     <!-- Moving the scope of inherited slf4j-log4j12 dependency to compile -->
     <dependency>
@@ -98,24 +119,28 @@
         <extensions>true</extensions>
         <configuration>
           <manifestLocation>META-INF</manifestLocation>
+          <unpackBundle>true</unpackBundle>
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.service.osgi</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
           </instructions>
         </configuration>
-      </plugin>
+      </plugin> 
       
       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-ipojo-plugin</artifactId>
-        <version>1.8.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>ipojo-bundle</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+             <groupId>org.apache.felix</groupId>
+             <artifactId>maven-ipojo-plugin</artifactId>
+             <version>1.8.0</version>
+             <executions>
+               <execution>
+               <goals>
+                     <goal>ipojo-bundle</goal>
+              </goals>
+            </execution>
+       </executions>
+     </plugin>
       
     </plugins>
   </build>

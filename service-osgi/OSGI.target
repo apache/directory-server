@@ -7,28 +7,27 @@
 <location path="${workspace_loc:apacheds-dependencies/bundles}" type="Directory"/>
 </locations>
 <includeBundles>
-<plugin id="org.apache.felix.gogo.runtime"/>
-<plugin id="org.apache.felix.gogo.command"/>
-<plugin id="org.jdom"/>
-<plugin id="org.apache.felix.gogo.shell"/>
-<plugin id="org.apache.directory.jdbm.jdbm"/>
+<plugin id="org.apache.commons.lang" version="2.6"/>
 <plugin id="org.apache.commons.io"/>
-<plugin id="org.apache.commons.pool"/>
-<plugin id="org.ops4j.pax.logging.pax-logging-service"/>
+<plugin id="org.apache.felix.gogo.command"/>
+<plugin id="org.dom4j.dom4j"/>
+<plugin id="org.mortbay.jetty.server" version="6.1.26"/>
 <plugin id="org.xpp3.xpp3"/>
-<plugin id="org.apache.felix.ipojo"/>
-<plugin id="org.apache.mina.core"/>
+<plugin id="org.apache.commons.collections"/>
+<plugin id="org.apache.felix.gogo.runtime"/>
+<plugin id="org.ops4j.pax.logging.pax-logging-api"/>
+<plugin id="org.apache.felix.gogo.shell"/>
+<plugin id="org.apache.commons.pool"/>
+<plugin id="org.jdom"/>
 <plugin id="org.apache.felix.ipojo.arch.gogo"/>
 <plugin id="org.apache.felix.bundlerepository"/>
-<plugin id="org.apache.commons.collections"/>
-<plugin id="org.objectweb.asm"/>
-<plugin id="org.apache.commons.lang" version="2.6"/>
-<plugin id="org.dom4j.dom4j"/>
-<plugin id="org.mortbay.jetty.util" version="6.1.26"/>
-<plugin id="org.mortbay.jetty.server" version="6.1.26"/>
-<plugin id="org.hamcrest.core"/>
-<plugin id="org.ops4j.pax.logging.pax-logging-api"/>
 <plugin id="org.mortbay.jetty.servlet-api-2.5"/>
+<plugin id="org.objectweb.asm"/>
+<plugin id="org.hamcrest.core"/>
+<plugin id="org.apache.felix.ipojo"/>
+<plugin id="org.mortbay.jetty.util" version="6.1.26"/>
+<plugin id="org.apache.mina.core"/>
+<plugin id="org.ops4j.pax.logging.pax-logging-service"/>
 </includeBundles>
 <launcherArgs>
 <vmArgs>-Dosgi.requiredJavaVersion=1.5 -XX:MaxPermSize=256m -Xms40m -Xmx384m</vmArgs>
