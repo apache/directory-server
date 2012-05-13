@@ -11,9 +11,6 @@ public class Activator implements BundleActivator
     public void start( BundleContext context ) throws Exception
     {
         IPojoConnector.connectorContext = context;
-
-        IPojoFactoryTracker tracker = new IPojoFactoryTracker( new IPojoConnector() );
-        tracker.open();
     }
 
 

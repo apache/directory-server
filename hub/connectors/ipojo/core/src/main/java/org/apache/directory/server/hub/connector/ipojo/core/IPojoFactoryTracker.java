@@ -56,7 +56,7 @@ public class IPojoFactoryTracker implements FactoryStateListener, ServiceTracker
 
 
     @Override
-    public Object addingService( ServiceReference reference )
+    public synchronized Object addingService( ServiceReference reference )
     {
         Factory factory = context.getService( ( ServiceReference<Factory> ) reference );
 
@@ -66,7 +66,7 @@ public class IPojoFactoryTracker implements FactoryStateListener, ServiceTracker
             return null;
         }
         
-        System.out.println(factory.getName()+"adding");
+        System.out.println(factory.getName()+" tracked");
 
         componentFactory.addFactoryStateListener( this );
 

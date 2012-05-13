@@ -16,6 +16,8 @@ import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Version;
 
+import com.sun.org.apache.bcel.internal.generic.CPInstruction;
+
 
 public class DCMetadataBuilder
 {
@@ -35,7 +37,12 @@ public class DCMetadataBuilder
             String description = "";
             String containerFor = "";
 
-            DirectoryPropertyDescription dpd = ( DirectoryPropertyDescription ) property;
+            DirectoryPropertyDescription dpd = null;
+            if ( property instanceof DirectoryPropertyDescription )
+            {
+                dpd = ( DirectoryPropertyDescription ) property;
+            }
+
             if ( dpd != null )
             {
                 description = dpd.getDesc();
@@ -85,19 +92,29 @@ public class DCMetadataBuilder
 
         String[] splitted = array.split( "," );
 
+        for ( int i = 0; i < splitted.length; i++ )
+        {
+            splitted[i] = splitted[i].trim();
+        }
+
         return splitted;
     }
 
 
     private static String normalizeType( String type )
     {
+        if ( type == null )
+        {
+            return "";
+        }
+
         if ( type.endsWith( "[]" ) )
         {
             return Array.class.getName();
         }
         else
         {
-            if ( "string".equals( type ) || "String".equals( type ) )
+            if ( "string".equals( type ) || "String".equals( type ) || String.class.getName().equals( type ) )
             {
                 return ComponentConstants.PRIMITIVE_STR;
             }

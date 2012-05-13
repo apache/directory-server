@@ -42,7 +42,7 @@ public class IPojoConnector implements HubConnector
     }
 
 
-    public void factoryActivated( ComponentFactory factory )
+    public synchronized void factoryActivated( ComponentFactory factory )
     {
         if ( isDirectoryFactory( factory ) )
         {
@@ -72,7 +72,7 @@ public class IPojoConnector implements HubConnector
 
     private boolean isDirectoryFactory( ComponentFactory factory )
     {
-        PropertyDescription[] properties = factory.getComponentTypeDescription().getProperties();
+        PropertyDescription[] properties = factory.getComponentDescription().getProperties();
 
         for ( PropertyDescription pd : properties )
         {
