@@ -90,6 +90,12 @@ public class DCPropertyDescription
     }
 
 
+    public boolean isImmutable()
+    {
+        return immutable;
+    }
+
+
     public String getContainerFor()
     {
         return containerFor;

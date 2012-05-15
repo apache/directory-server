@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
 public class DirectoryComponent
 {
     private String componentManagerPID;
@@ -97,7 +95,7 @@ public class DirectoryComponent
 
     public String getComponentPID()
     {
-        return componentManagerPID + "-" + getComponentName();
+        return componentManagerPID + "[" + getComponentName() + "]";
     }
 
 
