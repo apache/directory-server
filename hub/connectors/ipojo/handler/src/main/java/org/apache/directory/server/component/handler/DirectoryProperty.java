@@ -24,6 +24,9 @@ package org.apache.directory.server.component.handler;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
+import javax.lang.model.type.NullType;
+import javax.lang.model.type.PrimitiveType;
+
 
 /**
  * DirectoryProperty property annotation.
@@ -61,5 +64,11 @@ public @interface DirectoryProperty
      * Generic Collection Directory Properties
      */
     Class containertype() default Object.class;
+
+
+    /*
+     * Whether property will be immutable
+     */
+    boolean immutable() default false;
 
 }

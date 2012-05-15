@@ -187,6 +187,10 @@ public abstract class AbstractDcHandler extends PrimitiveHandler
             String man = configurables[i].getAttribute( "mandatory" );
             mandatory = man != null && man.equalsIgnoreCase( "true" );
 
+            boolean immutable = false;
+            String imm = configurables[i].getAttribute( "immutable" );
+            immutable = imm != null && imm.equalsIgnoreCase( "true" );
+
             // If property is constructor index then it must be mandatory.
             if ( paramIndex != null )
             {
@@ -197,7 +201,7 @@ public abstract class AbstractDcHandler extends PrimitiveHandler
             String containertype = configurables[i].getAttribute( "containertype" );
 
             DirectoryPropertyDescription pd = new DirectoryPropertyDescription( name, type, null, description,
-                containertype, false );
+                containertype, immutable );
 
             if ( mandatory )
             {

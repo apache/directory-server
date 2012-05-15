@@ -106,6 +106,11 @@ public class ComponentHubImpl implements ComponentHub
             List<DcMetadataDescriptor> metadatas = store.getMetadataDescriptors();
             metadatasReg.addMetadataDescriptor( metadatas );
 
+            for ( DcMetadataDescriptor metadata : metadatas )
+            {
+                DcMetadataNormalizer.normalizeDCMetadata( metadata );
+            }
+
             List<DirectoryComponent> components = store.getComponents();
             for ( DirectoryComponent component : components )
             {

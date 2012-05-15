@@ -57,7 +57,7 @@ public class DcMetadataNormalizer
             }
             else if ( isCollection( pd.getType() ) )
             {
-                if ( isPrimitive( pd.getContainerFor() ) )
+                if ( pd.getContainerFor() == null || isPrimitive( pd.getContainerFor() ) )
                 {
                     pd.setPropertyContext( DcPropertyType.PRIMITIVE_COLLECTION );
                     if ( pd.getDefaultValue() == null )
