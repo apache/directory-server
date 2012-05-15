@@ -37,7 +37,6 @@ public class StoreSchemaConstants
     public static final String HUB_AT_MD_FACTORY = "ads-meta-factory";
     public static final String HUB_AT_MD_PROP = "ads-meta-property";
 
-    public static final String HUB_AT_PD_CONTEXT = "ads-pd-context";
     public static final String HUB_AT_PD_NAME = "ads-pd-name";
     public static final String HUB_AT_PD_TYPE = "ads-pd-type";
     public static final String HUB_AT_PD_DEFAULTVAL = "ads-pd-defaultvalue";

@@ -27,6 +27,5 @@ public enum DCPropertyType
     REFERENCE,
     PRIMITIVE_COLLECTION,
     COLLECTION,
-    INJECTION,
-    CONSTANT
+    INJECTION
 }

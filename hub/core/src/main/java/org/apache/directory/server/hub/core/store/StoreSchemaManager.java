@@ -116,11 +116,6 @@ public class StoreSchemaManager
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             installAttribute( pd );
         }
 
@@ -329,11 +324,6 @@ public class StoreSchemaManager
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             if ( pd.isMandatory() )
             {
                 ocEntry.add( sm.getAttributeType( "m-must" ), pd.getName() );
@@ -411,9 +401,9 @@ public class StoreSchemaManager
     public void updateOC( DCMetadataDescriptor metadata ) throws LdapException
     {
         uninstallOC( metadata.getMetadataPID() );
-        
+
         Entry ocEntry = generateOC( metadata, installNamers( metadata ) );
-        
+
         installOCEntry( ocEntry );
     }
 }

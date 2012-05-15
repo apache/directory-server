@@ -43,11 +43,6 @@ public class DCMetadataNormalizer
     {
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             if ( isPrimitive( pd.getType() ) )
             {
                 pd.setPropertyContext( DCPropertyType.PRIMITIVE );

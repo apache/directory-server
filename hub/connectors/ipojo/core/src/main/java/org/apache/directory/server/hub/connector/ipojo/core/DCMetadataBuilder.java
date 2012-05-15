@@ -23,20 +23,17 @@ package org.apache.directory.server.hub.connector.ipojo.core;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
-
 import org.apache.directory.server.component.handler.ipojo.property.DirectoryPropertyDescription;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
 import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
 import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
 import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Version;
-
-import com.sun.org.apache.bcel.internal.generic.CPInstruction;
 
 
 public class DCMetadataBuilder
@@ -48,11 +45,15 @@ public class DCMetadataBuilder
 
         List<DCPropertyDescription> properties = new ArrayList<DCPropertyDescription>();
 
+        Hashtable<String, String> constants = new Hashtable<String, String>();
+
         for ( PropertyDescription property : factory.getComponentDescription().getProperties() )
         {
             String name = property.getName();
             String defaultValue = property.getValue();
             boolean mandatory = property.isMandatory();
+            boolean immutable = property.isImmutable();
+            boolean constant = false;
             String type = normalizeType( property.getType() );
             String description = "";
             String containerFor = "";
@@ -67,17 +68,17 @@ public class DCMetadataBuilder
             {
                 description = dpd.getDesc();
                 containerFor = normalizeType( dpd.getContainerType() );
+                constant = dpd.isConstant();
             }
 
-            if ( property.isImmutable() )
+            if ( constant )
             {
-                properties.add( new DCPropertyDescription( DCPropertyType.CONSTANT, name, type,
-                    defaultValue, description, mandatory, containerFor ) );
+                constants.put( name, defaultValue );
             }
             else
             {
                 properties.add( new DCPropertyDescription( name, type,
-                    defaultValue, description, mandatory, containerFor ) );
+                    defaultValue, description, mandatory, immutable, containerFor ) );
             }
         }
 
@@ -95,7 +96,7 @@ public class DCMetadataBuilder
         String[] extended = parseArray( sclasses );
 
         DCMetadataDescriptor metadata = new DCMetadataDescriptor( metadataPID, true, metaVersion, className,
-            implemented, extended, properties.toArray( new DCPropertyDescription[0] ) );
+            implemented, extended, constants, properties.toArray( new DCPropertyDescription[0] ) );
 
         return metadata;
     }

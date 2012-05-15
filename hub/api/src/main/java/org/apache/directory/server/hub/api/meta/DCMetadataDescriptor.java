@@ -40,6 +40,8 @@ public class DCMetadataDescriptor
 
     private Hashtable<String, DCPropertyDescription> propertyMap;
 
+    private Hashtable<String, String> constants;
+
     private boolean factory;
 
 
@@ -50,6 +52,7 @@ public class DCMetadataDescriptor
         String className,
         String[] implemented,
         String[] extended,
+        Hashtable<String, String> constants,
         DCPropertyDescription[] properties )
     {
         this.metadataPID = metadataPID;
@@ -58,6 +61,7 @@ public class DCMetadataDescriptor
         this.className = className;
         this.implemented = implemented;
         this.extended = extended;
+        this.constants = constants;
         this.properties = properties;
 
         propertyMap = new Hashtable<String, DCPropertyDescription>();
@@ -177,6 +181,12 @@ public class DCMetadataDescriptor
         }
 
         return false;
+    }
+
+
+    public Hashtable<String, String> getConstants()
+    {
+        return constants;
     }
 
 }

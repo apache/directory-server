@@ -24,6 +24,7 @@ package org.apache.directory.server.component.handler.ipojo;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -206,18 +207,15 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
             desc.addProperty( pd );
         }
 
-        desc.addProperty( new PropertyDescription( ComponentConstants.DC_NATURE_INDICATOR, "string", "true", true ) );
+        desc.addProperty( new DirectoryPropertyDescription( true, ComponentConstants.DC_NATURE_INDICATOR, "true" ) );
 
-        Properties constantProperties = extractConstantProperties( metadata );
+        Hashtable<String, String> constantProperties = extractConstantProperties( metadata );
         if ( constantProperties != null )
         {
-            for ( Object key : constantProperties.keySet() )
+            for ( String key : constantProperties.keySet() )
             {
-                String propName = ( String ) key;
-                Object object = constantProperties.get( key );
-
-                DirectoryPropertyDescription pd = new DirectoryPropertyDescription( propName, String.class.getName(),
-                    object.toString(), "", "", true );
+                DirectoryPropertyDescription pd = new DirectoryPropertyDescription( true, key,
+                    constantProperties.get( key ) );
 
                 desc.addProperty( pd );
             }
@@ -672,5 +670,5 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
     protected abstract String getHandlerNamespaceName();
 
 
-    protected abstract Properties extractConstantProperties( Element ipojoMetadata );
+    protected abstract Hashtable<String, String> extractConstantProperties( Element ipojoMetadata );
 }

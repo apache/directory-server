@@ -68,9 +68,9 @@ public class CollectionMetaDescriptorGenerator
         DCPropertyDescription[] properties = new DCPropertyDescription[]
             { new DCPropertyDescription( DirectoryComponentConstants.DC_LIST_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
-                true, DirectoryComponentConstants.DC_VAL_NULL ) };
+                true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, properties );
+        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 
@@ -86,9 +86,9 @@ public class CollectionMetaDescriptorGenerator
         DCPropertyDescription[] properties = new DCPropertyDescription[]
             { new DCPropertyDescription( DirectoryComponentConstants.DC_SET_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
-                true, DirectoryComponentConstants.DC_VAL_NULL ) };
+                true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, properties );
+        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 
@@ -102,9 +102,9 @@ public class CollectionMetaDescriptorGenerator
         DCPropertyDescription[] properties = new DCPropertyDescription[]
             { new DCPropertyDescription( DirectoryComponentConstants.DC_ARRAY_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
-                true, DirectoryComponentConstants.DC_VAL_NULL ) };
+                true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, properties );
+        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 }

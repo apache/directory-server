@@ -34,6 +34,7 @@ public class DirectoryPropertyDescription extends PropertyDescription
 
     private String m_containertype;
     private String m_description;
+    private boolean m_constant;
 
 
     public DirectoryPropertyDescription( String name, String type, String value, String desc, String spec,
@@ -51,6 +52,13 @@ public class DirectoryPropertyDescription extends PropertyDescription
 
         m_containertype = prop.getContainerType();
         m_description = prop.getDescription();
+    }
+
+
+    public DirectoryPropertyDescription( boolean constant, String name, String value )
+    {
+        super( name, String.class.getName(), value );
+        m_constant = constant;
     }
 
 
@@ -73,6 +81,17 @@ public class DirectoryPropertyDescription extends PropertyDescription
     public String getDesc()
     {
         return m_description;
+    }
+
+
+    /**
+     * Gets whether the property is constant
+     *
+     * @return true if property is constant
+     */
+    public boolean isConstant()
+    {
+        return m_constant;
     }
 
 }

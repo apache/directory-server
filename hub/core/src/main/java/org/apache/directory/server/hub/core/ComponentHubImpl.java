@@ -24,7 +24,9 @@ package org.apache.directory.server.hub.core;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -467,7 +469,6 @@ public class ComponentHubImpl implements ComponentHub
 
             switch ( pd.getPropertyContext() )
             {
-                case CONSTANT:
                 case PRIMITIVE:
                 case PRIMITIVE_COLLECTION:
                     break;
@@ -560,11 +561,12 @@ public class ComponentHubImpl implements ComponentHub
         DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
 
         // Loading meta-constant properties into component
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        Hashtable<String, String> constants = metadata.getConstants();
+        if ( constants != null )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
+            for ( String key : constants.keySet() )
             {
-                component.getConfiguration().addConstant( pd.getName(), pd.getDefaultValue() );
+                component.getConfiguration().addConstant( key, constants.get( key ) );
             }
         }
 
@@ -581,15 +583,8 @@ public class ComponentHubImpl implements ComponentHub
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                property.setObject( propertyValue );
-                continue;
-            }
-
             switch ( pd.getPropertyContext() )
             {
-                case CONSTANT:
                 case PRIMITIVE:
                 case PRIMITIVE_COLLECTION:
 
@@ -845,7 +840,7 @@ public class ComponentHubImpl implements ComponentHub
         DCMetadataDescriptor configuratorMeta =
             new DCMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
                 ConfiguratorInterceptor.class.getName(), new String[]
-                    { Interceptor.class.getName() }, new String[0], new DCPropertyDescription[0] );
+                    { Interceptor.class.getName() }, new String[0], null, new DCPropertyDescription[0] );
 
         metadatasReg.addMetadataDescriptor( configuratorMeta );
         componentsReg.addDirectoryComponent( component );

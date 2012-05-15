@@ -95,11 +95,6 @@ public class StoreConfigManager
 
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             installPropertyDescription( pd );
         }
 
@@ -112,11 +107,6 @@ public class StoreConfigManager
     {
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             uninstallPropertyDescription( pd.getName() );
         }
 
@@ -177,8 +167,7 @@ public class StoreConfigManager
         pdEntry.add( schemaManager.getAttributeType( "objectclass" ), "ads-property-descriptor" );
         pdEntry.add( schemaManager.getAttributeType( "ads-pd-name" ), propertyDescription.getName() );
         pdEntry.add( schemaManager.getAttributeType( "ads-pd-type" ), propertyDescription.getType() );
-        pdEntry.add( schemaManager.getAttributeType( "ads-pd-context" ), propertyDescription.getPropertyContext()
-            .name() );
+
         pdEntry.add( schemaManager.getAttributeType( "ads-pd-defaultvalue" ), propertyDescription.getDefaultValue() );
         pdEntry.add( schemaManager.getAttributeType( "ads-pd-description" ), propertyDescription.getDescription() );
         pdEntry.add( schemaManager.getAttributeType( "ads-pd-containerFor" ), propertyDescription.getContainerFor() );
@@ -209,11 +198,6 @@ public class StoreConfigManager
 
         for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             mdEntry.add( schemaManager.getAttributeType( "ads-meta-property" ), pd.getName() );
         }
 
@@ -277,8 +261,7 @@ public class StoreConfigManager
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION
-                || pd.getPropertyContext() == DCPropertyType.CONSTANT )
+            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
             {
                 continue;
             }
@@ -480,7 +463,7 @@ public class StoreConfigManager
 
             filter = new PresenceNode( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PID ) );
             cursor = se.cursor( new Dn( schemaManager, CONFIG_MD_BASE ), AliasDerefMode.NEVER_DEREF_ALIASES, filter,
-            		SearchScope.SUBTREE );
+                SearchScope.SUBTREE );
 
             while ( cursor.next() )
             {
@@ -529,7 +512,6 @@ public class StoreConfigManager
         Attribute desc = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_DESCRIPTION ) );
         Attribute mandatory = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_MANDATORY ) );
         Attribute container = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_CONTAINERFOR ) );
-        Attribute context = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_CONTEXT ) );
 
         try
         {
@@ -552,12 +534,9 @@ public class StoreConfigManager
             }
 
             boolean isMandatory = Boolean.parseBoolean( mandatory.getString() );
-            DCPropertyType pdtype = DCPropertyType.valueOf( context.getString() );
 
             DCPropertyDescription pd = new DCPropertyDescription( name.getString(), type.getString(),
-                pdDefaultValue, pdDescription, isMandatory, containerFor );
-
-            pd.setPropertyContext( pdtype );
+                pdDefaultValue, pdDescription, isMandatory, false, containerFor );
 
             return pd;
         }
@@ -616,7 +595,7 @@ public class StoreConfigManager
 
             return new DCMetadataDescriptor( pid.getString(), isFactory, new Version(
                 version.getString() ), classname.getString(),
-                implementedList.toArray( new String[0] ), extendedList.toArray( new String[0] ),
+                implementedList.toArray( new String[0] ), extendedList.toArray( new String[0] ), null,
                 pds.toArray( new DCPropertyDescription[0] ) );
         }
         catch ( Exception e )

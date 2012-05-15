@@ -21,6 +21,7 @@
 package org.apache.directory.server.component.handler.ipojo;
 
 
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.felix.ipojo.annotations.Handler;
@@ -46,7 +47,7 @@ public class DirectoryPartitionHandler extends AbstractDCHandler
 
 
     @Override
-    protected Properties extractConstantProperties( Element ipojoMetadata )
+    protected Hashtable<String,String> extractConstantProperties( Element ipojoMetadata )
     {
         return null;
     }

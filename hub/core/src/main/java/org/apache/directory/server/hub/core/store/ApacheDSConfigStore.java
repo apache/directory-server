@@ -290,11 +290,6 @@ public class ApacheDSConfigStore implements HubStore
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.CONSTANT )
-            {
-                continue;
-            }
-
             pds.add( pd );
         }
 
