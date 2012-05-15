@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 import org.apache.directory.server.component.handler.ipojo.property.DirectoryPropertyDescription;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
+import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
 import org.apache.felix.ipojo.ComponentFactory;
@@ -42,6 +43,7 @@ public class DcMetadataBuilder
     {
         String metadataPID = factory.getName();
         Version metaVersion = factory.getBundleContext().getBundle().getVersion();
+        boolean isFactory = true;
 
         List<DcPropertyDescription> properties = new ArrayList<DcPropertyDescription>();
 
@@ -57,6 +59,7 @@ public class DcMetadataBuilder
             String type = normalizeType( property.getType() );
             String description = "";
             String containerFor = "";
+            
 
             DirectoryPropertyDescription dpd = null;
             if ( property instanceof DirectoryPropertyDescription )
@@ -71,9 +74,22 @@ public class DcMetadataBuilder
                 constant = dpd.isConstant();
             }
 
+            if ( immutable )
+            {
+                // Immutable components must be mandatory too.
+                mandatory = true;
+            }
+
             if ( constant )
             {
-                constants.put( name, defaultValue );
+                if ( name.equals( IPojoComponentConstants.PROP_IS_FACTORY ) )
+                {
+                    isFactory = Boolean.parseBoolean( defaultValue );
+                }
+                else
+                {
+                    constants.put( name, defaultValue );
+                }
             }
             else
             {
@@ -95,7 +111,7 @@ public class DcMetadataBuilder
         String[] implemented = parseArray( interfaces );
         String[] extended = parseArray( sclasses );
 
-        DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, true, metaVersion, className,
+        DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, isFactory, metaVersion, className,
             implemented, extended, constants, properties.toArray( new DcPropertyDescription[0] ) );
 
         return metadata;

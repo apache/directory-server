@@ -22,9 +22,8 @@ package org.apache.directory.server.component.handler.ipojo;
 
 
 import java.util.Hashtable;
-import java.util.Properties;
 
-import org.apache.directory.server.hub.api.component.util.InterceptorConstants;
+import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
@@ -54,12 +53,13 @@ public class DirectoryInterceptorHandler extends AbstractDcHandler
         // Only one interceptor per class is allowed
         Element interceptor = interceptors[0];
 
-        String interceptionPoint = interceptor.getAttribute( InterceptorConstants.PROP_INTERCEPTION_POINT );
-        String interceptorOperations = interceptor.getAttribute( InterceptorConstants.PROP_INTERCEPTOR_OPERATIONS );
+        String interceptionPoint = interceptor.getAttribute( IPojoComponentConstants.PROP_INTERCEPTION_POINT );
+        String interceptorOperations = interceptor.getAttribute( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS );
 
         Hashtable<String, String> constants = new Hashtable<String, String>();
-        constants.put( InterceptorConstants.PROP_INTERCEPTION_POINT, interceptionPoint );
-        constants.put( InterceptorConstants.PROP_INTERCEPTOR_OPERATIONS, interceptorOperations );
+        constants.put( IPojoComponentConstants.PROP_INTERCEPTION_POINT, interceptionPoint );
+        constants.put( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS, interceptorOperations );
+        constants.put( IPojoComponentConstants.PROP_IS_FACTORY, "false" );
 
         return constants;
 

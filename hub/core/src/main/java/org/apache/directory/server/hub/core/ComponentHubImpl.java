@@ -39,7 +39,7 @@ import org.apache.directory.server.hub.api.component.DcRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.component.util.InterceptionPoint;
-import org.apache.directory.server.hub.api.component.util.InterceptorConstants;
+import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.directory.server.hub.api.component.util.InterceptorOperation;
 import org.apache.directory.server.hub.api.exception.BadConfigurationException;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
@@ -856,8 +856,8 @@ public class ComponentHubImpl implements ComponentHub
         configurator.init( this );
 
         DcConfiguration config = new DcConfiguration( new ArrayList<DcProperty>() );
-        config.addConstant( InterceptorConstants.PROP_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
-        config.addConstant( InterceptorConstants.PROP_INTERCEPTOR_OPERATIONS,
+        config.addConstant( IPojoComponentConstants.PROP_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
+        config.addConstant( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS,
             "[" +
                 InterceptorOperation.ADD + "," +
                 InterceptorOperation.DELETE + "," +

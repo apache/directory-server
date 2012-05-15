@@ -21,8 +21,10 @@
 package org.apache.directory.server.hub.api.component.util;
 
 
-public class InterceptorConstants
+public class IPojoComponentConstants
 {
+    public static final String PROP_IS_FACTORY = "isFactory";
+
     public static final String PROP_INTERCEPTION_POINT = "interceptionPoint";
 
     public static final String PROP_INTERCEPTOR_OPERATIONS = "operations";
