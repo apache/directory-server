@@ -240,8 +240,9 @@ public class ComponentHubImpl implements ComponentHub
     public void updateComponent( DirectoryComponent component, DCConfiguration newConfiguration )
         throws HubAbortException
     {
-        setInjectionProperties( metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() ),
-            newConfiguration );
+        DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+
+        setInjectionProperties( metadata, newConfiguration );
 
         if ( component.getRuntimeInfo() != null )
         {
@@ -253,6 +254,38 @@ public class ComponentHubImpl implements ComponentHub
             {
                 throw new HubAbortException(
                     "Active DirectoryComponent can not be reconfigured with incorrect configuration", e );
+            }
+        }
+
+        // Immutable property change handling
+        if ( component.getRuntimeInfo() != null )
+        {
+            for ( DCProperty prop : newConfiguration )
+            {
+                DCPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
+                if ( pd != null && pd.isImmutable() )
+                {
+                    DCProperty oldProp = component.getConfiguration().getProperty( prop.getName() );
+                    if ( oldProp != null && !( oldProp.getValue().equals( prop.getValue() ) ) )
+                    {
+                        // We're changing immutable property of live component
+                        boolean wasDirty = component.isDirty();
+                        component.setDirty( false );
+
+                        try
+                        {
+                            removeComponent( component );
+                            component.setDirty( wasDirty );
+                            break;
+                        }
+                        catch ( HubAbortException e )
+                        {
+                            throw new HubAbortException(
+                                "Reconfiguration of immutable property led to re-instantiation, which has been rejected by hub",
+                                e );
+                        }
+                    }
+                }
             }
         }
 
