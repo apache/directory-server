@@ -32,7 +32,7 @@ import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 
 
 public class HubClientManager
@@ -56,7 +56,7 @@ public class HubClientManager
 
         for ( DirectoryComponent component : existing )
         {
-            DCMetadataDescriptor metadata = hub.getMetaRegistry().getMetadataDescriptor(
+            DcMetadataDescriptor metadata = hub.getMetaRegistry().getMetadataDescriptor(
                 component.getComponentManagerPID() );
             if ( metadata.is( type ) )
             {
@@ -140,7 +140,7 @@ public class HubClientManager
     {
         List<AbstractHubClient> registeredClients = new ArrayList<AbstractHubClient>();
 
-        DCMetadataDescriptor metadata = hub.getMetaRegistry()
+        DcMetadataDescriptor metadata = hub.getMetaRegistry()
             .getMetadataDescriptor( component.getComponentManagerPID() );
 
         Set<String> registeredTypes = typeRegistrations.keySet();

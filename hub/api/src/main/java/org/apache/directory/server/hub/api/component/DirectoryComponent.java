@@ -30,7 +30,7 @@ public class DirectoryComponent
     private String componentManagerPID;
     private String componentName;
     private String configLocation;
-    private DCConfiguration configuration;
+    private DcConfiguration configuration;
 
     private List<String> errors = new ArrayList<String>();
     private List<String> warnings = new ArrayList<String>();
@@ -39,11 +39,11 @@ public class DirectoryComponent
 
     private boolean dirty;
 
-    private DCRuntime runtimeInfo;
+    private DcRuntime runtimeInfo;
 
 
     public DirectoryComponent( String componentManagerPID, String componentName,
-        DCConfiguration configuration )
+        DcConfiguration configuration )
     {
         this.componentManagerPID = componentManagerPID;
         this.componentName = componentName;
@@ -69,25 +69,25 @@ public class DirectoryComponent
     }
 
 
-    public void setConfiguration( DCConfiguration configuration )
+    public void setConfiguration( DcConfiguration configuration )
     {
         this.configuration = configuration;
     }
 
 
-    public DCConfiguration getConfiguration()
+    public DcConfiguration getConfiguration()
     {
         return configuration;
     }
 
 
-    public void setRuntimeInfo( DCRuntime runtieInfo )
+    public void setRuntimeInfo( DcRuntime runtieInfo )
     {
         this.runtimeInfo = runtieInfo;
     }
 
 
-    public DCRuntime getRuntimeInfo()
+    public DcRuntime getRuntimeInfo()
     {
         return runtimeInfo;
     }

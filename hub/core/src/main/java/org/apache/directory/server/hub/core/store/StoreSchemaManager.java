@@ -35,9 +35,9 @@ import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -60,7 +60,7 @@ public class StoreSchemaManager
 
     private ComponentHub hub;
     private SchemaPartition schemaPartition;
-    private OIDManager oidManager;
+    private OidManager oidManager;
 
 
     public StoreSchemaManager( ComponentHub hub )
@@ -73,7 +73,7 @@ public class StoreSchemaManager
     {
         this.schemaPartition = schemaPartition;
 
-        oidManager = new OIDManager();
+        oidManager = new OidManager();
         oidManager.init( schemaPartition );
 
         syntaxMappings = new Hashtable<String, String>();
@@ -107,11 +107,11 @@ public class StoreSchemaManager
     }
 
 
-    public void installMetadata( DCMetadataDescriptor metadata ) throws LdapException
+    public void installMetadata( DcMetadataDescriptor metadata ) throws LdapException
     {
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DcPropertyType.INJECTION )
             {
                 continue;
             }
@@ -123,7 +123,7 @@ public class StoreSchemaManager
     }
 
 
-    public void installAttribute( DCPropertyDescription propertyDescription ) throws LdapException
+    public void installAttribute( DcPropertyDescription propertyDescription ) throws LdapException
     {
 
         if ( attributeExists( propertyDescription.getName() ) )
@@ -140,9 +140,9 @@ public class StoreSchemaManager
     }
 
 
-    public void installAttributes( List<DCPropertyDescription> propertyDescriptions ) throws LdapException
+    public void installAttributes( List<DcPropertyDescription> propertyDescriptions ) throws LdapException
     {
-        for ( DCPropertyDescription pd : propertyDescriptions )
+        for ( DcPropertyDescription pd : propertyDescriptions )
         {
             if ( attributeExists( pd.getName() ) )
             {
@@ -150,14 +150,14 @@ public class StoreSchemaManager
             }
         }
 
-        for ( DCPropertyDescription pd : propertyDescriptions )
+        for ( DcPropertyDescription pd : propertyDescriptions )
         {
             installAttribute( pd );
         }
     }
 
 
-    public List<String> installNamers( DCMetadataDescriptor metadata ) throws LdapException
+    public List<String> installNamers( DcMetadataDescriptor metadata ) throws LdapException
     {
         String[] types = metadata.getImplementedInterfaces();
 
@@ -199,7 +199,7 @@ public class StoreSchemaManager
                 attribEntry.add( sm.getAttributeType( "m-length" ), "0" );
 
                 attribEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-                attribEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDSConfigStore.csnFactory.newInstance().toString() );
+                attribEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDsConfigStore.csnFactory.newInstance().toString() );
                 attribEntry.add( SchemaConstants.CREATORS_NAME_AT, StoreSchemaConstants.SYSTEM_ADMIN_DN );
                 attribEntry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -219,7 +219,7 @@ public class StoreSchemaManager
     }
 
 
-    public Entry generateAttributeEntry( DCPropertyDescription propertyDescription ) throws LdapException
+    public Entry generateAttributeEntry( DcPropertyDescription propertyDescription ) throws LdapException
     {
         SchemaManager sm = schemaPartition.getSchemaManager();
 
@@ -228,7 +228,7 @@ public class StoreSchemaManager
             SchemaConstants.OU_SCHEMA );
 
         String syntax, equality, substr, ordering;
-        String selectingType = ( propertyDescription.getPropertyContext() == DCPropertyType.PRIMITIVE ) ? propertyDescription
+        String selectingType = ( propertyDescription.getPropertyContext() == DcPropertyType.PRIMITIVE ) ? propertyDescription
             .getType()
             : ComponentConstants.PRIMITIVE_STR;
 
@@ -247,7 +247,7 @@ public class StoreSchemaManager
             attribEntry.add( sm.getAttributeType( "m-description" ), propertyDescription.getDescription() );
         }
         attribEntry.add( sm.getAttributeType( "m-singleValue" ),
-            ( propertyDescription.getPropertyContext() == DCPropertyType.PRIMITIVE_COLLECTION ) ? "TRUE"
+            ( propertyDescription.getPropertyContext() == DcPropertyType.PRIMITIVE_COLLECTION ) ? "TRUE"
                 : "FALSE" );
         attribEntry.add( sm.getAttributeType( "m-syntax" ), syntax );
         attribEntry.add( sm.getAttributeType( "m-equality" ), equality );
@@ -256,7 +256,7 @@ public class StoreSchemaManager
         attribEntry.add( sm.getAttributeType( "m-length" ), "0" );
 
         attribEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        attribEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDSConfigStore.csnFactory.newInstance().toString() );
+        attribEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDsConfigStore.csnFactory.newInstance().toString() );
         attribEntry.add( SchemaConstants.CREATORS_NAME_AT, StoreSchemaConstants.SYSTEM_ADMIN_DN );
         attribEntry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -291,16 +291,16 @@ public class StoreSchemaManager
     }
 
 
-    public void uninstallAttributes( List<DCPropertyDescription> configurables ) throws LdapException
+    public void uninstallAttributes( List<DcPropertyDescription> configurables ) throws LdapException
     {
-        for ( DCPropertyDescription pd : configurables )
+        for ( DcPropertyDescription pd : configurables )
         {
             uninstallAttribute( pd.getName() );
         }
     }
 
 
-    public Entry generateOC( DCMetadataDescriptor metadata, List<String> auxiliaryNaming ) throws LdapException
+    public Entry generateOC( DcMetadataDescriptor metadata, List<String> auxiliaryNaming ) throws LdapException
     {
         SchemaManager sm = schemaPartition.getSchemaManager();
 
@@ -317,9 +317,9 @@ public class StoreSchemaManager
             "OC for generating instances of" + metadata.getMetadataPID() );
         ocEntry.add( sm.getAttributeType( "m-supObjectClass" ), StoreSchemaConstants.HUB_OC_COMPONENT );
 
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DcPropertyType.INJECTION )
             {
                 continue;
             }
@@ -343,7 +343,7 @@ public class StoreSchemaManager
         }
 
         ocEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        ocEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDSConfigStore.csnFactory.newInstance().toString() );
+        ocEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDsConfigStore.csnFactory.newInstance().toString() );
         ocEntry.add( SchemaConstants.CREATORS_NAME_AT, StoreSchemaConstants.SYSTEM_ADMIN_DN );
         ocEntry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -398,7 +398,7 @@ public class StoreSchemaManager
     }
 
 
-    public void updateOC( DCMetadataDescriptor metadata ) throws LdapException
+    public void updateOC( DcMetadataDescriptor metadata ) throws LdapException
     {
         uninstallOC( metadata.getMetadataPID() );
 

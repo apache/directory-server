@@ -27,14 +27,14 @@ import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.HubStore;
-import org.apache.directory.server.hub.api.component.DCConfiguration;
-import org.apache.directory.server.hub.api.component.DCProperty;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
+import org.apache.directory.server.hub.api.component.DcProperty;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubStoreException;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
-public class ApacheDSConfigStore implements HubStore
+public class ApacheDsConfigStore implements HubStore
 {
     private ComponentHub hub;
 
@@ -58,7 +58,7 @@ public class ApacheDSConfigStore implements HubStore
     public static CsnFactory csnFactory;
 
 
-    public ApacheDSConfigStore( SchemaPartition schemaPartition, SingleFileLdifPartition configPartition, int replicaId )
+    public ApacheDsConfigStore( SchemaPartition schemaPartition, SingleFileLdifPartition configPartition, int replicaId )
     {
         this.schemaPartition = schemaPartition;
         this.configPartition = configPartition;
@@ -82,7 +82,7 @@ public class ApacheDSConfigStore implements HubStore
 
 
     @Override
-    public List<DCMetadataDescriptor> getMetadataDescriptors() throws HubStoreException
+    public List<DcMetadataDescriptor> getMetadataDescriptors() throws HubStoreException
     {
         return configStoreManager.getMetadatas();
     }
@@ -105,7 +105,7 @@ public class ApacheDSConfigStore implements HubStore
 
 
     @Override
-    public void installMetadataDescriptor( DCMetadataDescriptor metadata ) throws HubStoreException
+    public void installMetadataDescriptor( DcMetadataDescriptor metadata ) throws HubStoreException
     {
         try
         {
@@ -122,18 +122,18 @@ public class ApacheDSConfigStore implements HubStore
 
 
     @Override
-    public void updateMetadataDescriptor( DCMetadataDescriptor oldMetadata, DCMetadataDescriptor newMetadata )
+    public void updateMetadataDescriptor( DcMetadataDescriptor oldMetadata, DcMetadataDescriptor newMetadata )
         throws HubStoreException
     {
-        List<DCPropertyDescription> oldConfigurables = extractConfigurableDCs( oldMetadata );
-        List<DCPropertyDescription> newconfigurables = extractConfigurableDCs( newMetadata );
+        List<DcPropertyDescription> oldConfigurables = extractConfigurableDCs( oldMetadata );
+        List<DcPropertyDescription> newconfigurables = extractConfigurableDCs( newMetadata );
 
-        List<DCPropertyDescription> dropped = new ArrayList<DCPropertyDescription>();
-        List<DCPropertyDescription> added = new ArrayList<DCPropertyDescription>();
+        List<DcPropertyDescription> dropped = new ArrayList<DcPropertyDescription>();
+        List<DcPropertyDescription> added = new ArrayList<DcPropertyDescription>();
 
-        for ( DCPropertyDescription pd : oldConfigurables )
+        for ( DcPropertyDescription pd : oldConfigurables )
         {
-            DCPropertyDescription newDesc = newMetadata.getPropertyDescription( pd.getName() );
+            DcPropertyDescription newDesc = newMetadata.getPropertyDescription( pd.getName() );
             if ( newDesc == null )
             {
                 dropped.add( pd );
@@ -148,7 +148,7 @@ public class ApacheDSConfigStore implements HubStore
             }
         }
 
-        for ( DCPropertyDescription pd : newconfigurables )
+        for ( DcPropertyDescription pd : newconfigurables )
         {
             if ( oldMetadata.getPropertyDescription( pd.getName() ) == null )
             {
@@ -162,7 +162,7 @@ public class ApacheDSConfigStore implements HubStore
                 oldMetadata.getMetadataPID() );
             if ( attachedComponents != null )
             {
-                for ( DCPropertyDescription dropping : dropped )
+                for ( DcPropertyDescription dropping : dropped )
                 {
                     for ( DirectoryComponent component : attachedComponents )
                     {
@@ -181,12 +181,12 @@ public class ApacheDSConfigStore implements HubStore
 
             if ( attachedComponents != null )
             {
-                for ( DCPropertyDescription adding : added )
+                for ( DcPropertyDescription adding : added )
                 {
                     for ( DirectoryComponent component : attachedComponents )
                     {
                         configStoreManager.addPropertyToEntry( component,
-                            new DCProperty( adding.getName(), adding.getDefaultValue() ) );
+                            new DcProperty( adding.getName(), adding.getDefaultValue() ) );
                     }
                 }
             }
@@ -212,13 +212,13 @@ public class ApacheDSConfigStore implements HubStore
 
 
     @Override
-    public void uninstallMetadataDescriptor( DCMetadataDescriptor metadata ) throws HubStoreException
+    public void uninstallMetadataDescriptor( DcMetadataDescriptor metadata ) throws HubStoreException
     {
         try
         {
             configStoreManager.uninstallMetadata( metadata );
 
-            List<DCPropertyDescription> configurables = extractConfigurableDCs( metadata );
+            List<DcPropertyDescription> configurables = extractConfigurableDCs( metadata );
 
             schemaStoreManager.uninstallOC( metadata.getMetadataPID() );
             schemaStoreManager.uninstallAttributes( configurables );
@@ -247,7 +247,7 @@ public class ApacheDSConfigStore implements HubStore
 
 
     @Override
-    public void updateComponent( DirectoryComponent component, DCConfiguration newConfiguration )
+    public void updateComponent( DirectoryComponent component, DcConfiguration newConfiguration )
         throws HubStoreException
     {
         try
@@ -279,13 +279,13 @@ public class ApacheDSConfigStore implements HubStore
     }
 
 
-    public List<DCPropertyDescription> extractConfigurableDCs( DCMetadataDescriptor metadata )
+    public List<DcPropertyDescription> extractConfigurableDCs( DcMetadataDescriptor metadata )
     {
-        List<DCPropertyDescription> pds = new ArrayList<DCPropertyDescription>();
+        List<DcPropertyDescription> pds = new ArrayList<DcPropertyDescription>();
 
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DcPropertyType.INJECTION )
             {
                 continue;
             }

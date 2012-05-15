@@ -30,17 +30,17 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.directory.server.hub.api.component.DCProperty;
-import org.apache.directory.server.hub.api.component.DCRuntime;
+import org.apache.directory.server.hub.api.component.DcProperty;
+import org.apache.directory.server.hub.api.component.DcRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
 import org.apache.directory.server.hub.api.exception.ComponentReconfigurationException;
-import org.apache.directory.server.hub.api.meta.DCOperationsManager;
+import org.apache.directory.server.hub.api.meta.DcOperationsManager;
 import org.apache.directory.server.hub.core.connector.collection.CollectionConnector.CollectionType;
 
 
-public class CollectionOperations implements DCOperationsManager
+public class CollectionOperations implements DcOperationsManager
 {
 
     CollectionType type;
@@ -87,7 +87,7 @@ public class CollectionOperations implements DCOperationsManager
 
         Object pojo = ( type != CollectionType.ARRAY ) ? collection : collection.toArray();
 
-        component.setRuntimeInfo( new DCRuntime( null, pojo ) );
+        component.setRuntimeInfo( new DcRuntime( null, pojo ) );
 
     }
 
@@ -134,7 +134,7 @@ public class CollectionOperations implements DCOperationsManager
     {
         Hashtable<DirectoryComponent, Integer> collectionMap = new Hashtable<DirectoryComponent, Integer>();
 
-        for ( DCProperty prop : component.getConfiguration() )
+        for ( DcProperty prop : component.getConfiguration() )
         {
             if ( prop.getName().startsWith( DirectoryComponentConstants.DC_PROP_ITEM_PREFIX ) )
             {

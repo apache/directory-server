@@ -33,9 +33,9 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.HubStore;
-import org.apache.directory.server.hub.api.component.DCConfiguration;
-import org.apache.directory.server.hub.api.component.DCProperty;
-import org.apache.directory.server.hub.api.component.DCRuntime;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
+import org.apache.directory.server.hub.api.component.DcProperty;
+import org.apache.directory.server.hub.api.component.DcRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.component.util.InterceptionPoint;
@@ -47,18 +47,18 @@ import org.apache.directory.server.hub.api.exception.ComponentReconfigurationExc
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 import org.apache.directory.server.hub.api.exception.HubStoreException;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCOperationsManager;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
-import org.apache.directory.server.hub.api.registry.DCMetadataRegistry;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcOperationsManager;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
+import org.apache.directory.server.hub.api.registry.DcMetadataRegistry;
 import org.apache.directory.server.hub.api.registry.DirectoryComponentRegistry;
 import org.apache.directory.server.hub.api.registry.InjectionRegistry;
-import org.apache.directory.server.hub.api.registry.PIDHandlerRegistry;
+import org.apache.directory.server.hub.api.registry.PidHandlerRegistry;
 import org.apache.directory.server.hub.connector.ipojo.core.IPojoConnector;
 import org.apache.directory.server.hub.core.configurator.ConfiguratorInterceptor;
 import org.apache.directory.server.hub.core.connector.collection.CollectionConnector;
-import org.apache.directory.server.hub.core.meta.DCMetadataNormalizer;
+import org.apache.directory.server.hub.core.meta.DcMetadataNormalizer;
 import org.apache.directory.server.hub.core.util.DCDependency;
 import org.apache.directory.server.hub.core.util.ParentLink;
 import org.apache.directory.server.hub.core.util.DCDependency.DCDependencyType;
@@ -70,9 +70,9 @@ public class ComponentHubImpl implements ComponentHub
 {
     // Registries
     private DirectoryComponentRegistry componentsReg = new DirectoryComponentRegistry();
-    private DCMetadataRegistry metadatasReg = new DCMetadataRegistry();
+    private DcMetadataRegistry metadatasReg = new DcMetadataRegistry();
     private InjectionRegistry injectionsReg = new InjectionRegistry();
-    private PIDHandlerRegistry handlersReg = new PIDHandlerRegistry();
+    private PidHandlerRegistry handlersReg = new PidHandlerRegistry();
     private ParentLinkRegistry parentLinksReg = new ParentLinkRegistry();
 
     private CollectionConnector collectionConnector;
@@ -103,7 +103,7 @@ public class ComponentHubImpl implements ComponentHub
 
         try
         {
-            List<DCMetadataDescriptor> metadatas = store.getMetadataDescriptors();
+            List<DcMetadataDescriptor> metadatas = store.getMetadataDescriptors();
             metadatasReg.addMetadataDescriptor( metadatas );
 
             List<DirectoryComponent> components = store.getComponents();
@@ -134,12 +134,12 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#connectHandler(org.apache.directory.server.hub.component.meta.DCMetadataDescriptor, org.apache.directory.server.hub.component.meta.DCOperationsManager)
      */
     @Override
-    public void connectHandler( DCMetadataDescriptor metadata, DCOperationsManager operationsManager )
+    public void connectHandler( DcMetadataDescriptor metadata, DcOperationsManager operationsManager )
         throws HubAbortException
     {
-        DCMetadataDescriptor existingMetadata = metadatasReg.getMetadataDescriptor( metadata.getMetadataPID() );
+        DcMetadataDescriptor existingMetadata = metadatasReg.getMetadataDescriptor( metadata.getMetadataPID() );
 
-        DCMetadataNormalizer.normalizeDCMetadata( metadata );
+        DcMetadataNormalizer.normalizeDCMetadata( metadata );
 
         if ( existingMetadata == null )
         {
@@ -195,7 +195,7 @@ public class ComponentHubImpl implements ComponentHub
     @Override
     public void disconnectHandler( String handlerPID )
     {
-        DCMetadataDescriptor meta = metadatasReg.getMetadataDescriptor( handlerPID );
+        DcMetadataDescriptor meta = metadatasReg.getMetadataDescriptor( handlerPID );
         if ( meta != null )
         {
             deactivateHandler( handlerPID );
@@ -237,10 +237,10 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#updateComponent(org.apache.directory.server.hub.component.DirectoryComponent, org.apache.directory.server.hub.component.DCConfiguration)
      */
     @Override
-    public void updateComponent( DirectoryComponent component, DCConfiguration newConfiguration )
+    public void updateComponent( DirectoryComponent component, DcConfiguration newConfiguration )
         throws HubAbortException
     {
-        DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+        DcMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
 
         setInjectionProperties( metadata, newConfiguration );
 
@@ -260,12 +260,12 @@ public class ComponentHubImpl implements ComponentHub
         // Immutable property change handling
         if ( component.getRuntimeInfo() != null )
         {
-            for ( DCProperty prop : newConfiguration )
+            for ( DcProperty prop : newConfiguration )
             {
-                DCPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
+                DcPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
                 if ( pd != null && pd.isImmutable() )
                 {
-                    DCProperty oldProp = component.getConfiguration().getProperty( prop.getName() );
+                    DcProperty oldProp = component.getConfiguration().getProperty( prop.getName() );
                     if ( oldProp != null && !( oldProp.getValue().equals( prop.getValue() ) ) )
                     {
                         // We're changing immutable property of live component
@@ -332,7 +332,7 @@ public class ComponentHubImpl implements ComponentHub
 
         if ( componentsReg.getComponents( component.getComponentManagerPID() ) != null )
         {
-            DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+            DcMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
             if ( !metadata.isFactory() )
             {
                 throw new HubAbortException( metadata.getMetadataPID() + "can not have more than 1 instance" );
@@ -467,33 +467,33 @@ public class ComponentHubImpl implements ComponentHub
     }
 
 
-    private void setInjectionProperties( DCMetadataDescriptor metadata, DCConfiguration configuration )
+    private void setInjectionProperties( DcMetadataDescriptor metadata, DcConfiguration configuration )
     {
 
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DcPropertyType.INJECTION )
             {
                 if ( pd.isMandatory() )
                 {
-                    configuration.addProperty( new DCProperty( pd.getName(), null ) );
+                    configuration.addProperty( new DcProperty( pd.getName(), null ) );
                 }
             }
         }
     }
 
 
-    private void validateConfiguration( DirectoryComponent component, DCConfiguration configuration )
+    private void validateConfiguration( DirectoryComponent component, DcConfiguration configuration )
         throws BadConfigurationException
     {
-        DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+        DcMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
 
-        for ( DCProperty property : configuration )
+        for ( DcProperty property : configuration )
         {
             String propertyName = property.getName();
             String propertyValue = property.getValue();
 
-            DCPropertyDescription pd = metadata.getPropertyDescription( propertyName );
+            DcPropertyDescription pd = metadata.getPropertyDescription( propertyName );
 
             if ( pd == null )
             {
@@ -522,13 +522,13 @@ public class ComponentHubImpl implements ComponentHub
                             + " is lacking property:" + propertyName );
                     }
 
-                    DCMetadataDescriptor referenceMetadata = metadatasReg.getMetadataDescriptor( reference
+                    DcMetadataDescriptor referenceMetadata = metadatasReg.getMetadataDescriptor( reference
                         .getComponentManagerPID() );
 
                     // Means iterating property is a collection item, we should match type with container type.
                     if ( metadata.is( Collection.class.getName() ) )
                     {
-                        DCProperty containerProp = null;
+                        DcProperty containerProp = null;
 
                         if ( metadata.is( List.class.getName() ) )
                         {
@@ -591,7 +591,7 @@ public class ComponentHubImpl implements ComponentHub
     private void processConfiguration( DirectoryComponent component ) throws BadConfigurationException
     {
         parentLinksReg.destroyComponentLinks( component );
-        DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+        DcMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
 
         // Loading meta-constant properties into component
         Hashtable<String, String> constants = metadata.getConstants();
@@ -603,12 +603,12 @@ public class ComponentHubImpl implements ComponentHub
             }
         }
 
-        for ( DCProperty property : component.getConfiguration() )
+        for ( DcProperty property : component.getConfiguration() )
         {
             String propertyName = property.getName();
             String propertyValue = property.getValue();
 
-            DCPropertyDescription pd = metadata.getPropertyDescription( propertyName );
+            DcPropertyDescription pd = metadata.getPropertyDescription( propertyName );
 
             if ( pd == null )
             {
@@ -650,13 +650,13 @@ public class ComponentHubImpl implements ComponentHub
                             + " is lacking property:" + propertyName );
                     }
 
-                    DCMetadataDescriptor referenceMetadata = metadatasReg.getMetadataDescriptor( reference
+                    DcMetadataDescriptor referenceMetadata = metadatasReg.getMetadataDescriptor( reference
                         .getComponentManagerPID() );
 
                     // Means iterating property is a collection item, we should match type with container type.
                     if ( metadata.is( Collection.class.getName() ) )
                     {
-                        DCProperty containerProp = null;
+                        DcProperty containerProp = null;
 
                         if ( metadata.is( List.class.getName() ) )
                         {
@@ -721,7 +721,7 @@ public class ComponentHubImpl implements ComponentHub
 
     private void instantiateComponent( DirectoryComponent component )
     {
-        DCOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
         if ( opManager == null )
         {
             return;
@@ -761,7 +761,7 @@ public class ComponentHubImpl implements ComponentHub
 
     private void reconfigureComponent( DirectoryComponent component )
     {
-        DCOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
         if ( opManager == null )
         {
             return;
@@ -782,7 +782,7 @@ public class ComponentHubImpl implements ComponentHub
                 {
                     DirectoryComponent parent = parentLink.getParent();
                     parent.getConfiguration().addProperty(
-                        new DCProperty( DirectoryComponentConstants.DC_PROP_INNER_RECONF_NAME, parentLink
+                        new DcProperty( DirectoryComponentConstants.DC_PROP_INNER_RECONF_NAME, parentLink
                             .getLinkPoint() ) );
 
                     reconfigureComponent( parent );
@@ -815,7 +815,7 @@ public class ComponentHubImpl implements ComponentHub
             }
         }
 
-        DCOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
         if ( opManager != null )
         {
             opManager.disposeComponent( component );
@@ -832,7 +832,7 @@ public class ComponentHubImpl implements ComponentHub
         {
             for ( ParentLink parentLink : parents )
             {
-                DCProperty refProperty = parentLink.getParent().getConfiguration()
+                DcProperty refProperty = parentLink.getParent().getConfiguration()
                     .getProperty( parentLink.getLinkPoint() );
                 refProperty.setValue( "null" );
 
@@ -840,7 +840,7 @@ public class ComponentHubImpl implements ComponentHub
             }
         }
 
-        DCOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
         if ( opManager != null )
         {
             opManager.disposeComponent( component );
@@ -855,7 +855,7 @@ public class ComponentHubImpl implements ComponentHub
         configurator = new ConfiguratorInterceptor();
         configurator.init( this );
 
-        DCConfiguration config = new DCConfiguration( new ArrayList<DCProperty>() );
+        DcConfiguration config = new DcConfiguration( new ArrayList<DcProperty>() );
         config.addConstant( InterceptorConstants.PROP_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
         config.addConstant( InterceptorConstants.PROP_INTERCEPTOR_OPERATIONS,
             "[" +
@@ -866,14 +866,14 @@ public class ComponentHubImpl implements ComponentHub
                 + "]" );
 
         DirectoryComponent component = new DirectoryComponent( "configuratorMeta", "configuratorInterceptor", config );
-        component.setRuntimeInfo( new DCRuntime( null, configurator ) );
+        component.setRuntimeInfo( new DcRuntime( null, configurator ) );
         component.setConfigLocation( "ads-instance=configuratorInterceptor,ou=config" );
         component.setDirty( false );
 
-        DCMetadataDescriptor configuratorMeta =
-            new DCMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
+        DcMetadataDescriptor configuratorMeta =
+            new DcMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
                 ConfiguratorInterceptor.class.getName(), new String[]
-                    { Interceptor.class.getName() }, new String[0], null, new DCPropertyDescription[0] );
+                    { Interceptor.class.getName() }, new String[0], null, new DcPropertyDescription[0] );
 
         metadatasReg.addMetadataDescriptor( configuratorMeta );
         componentsReg.addDirectoryComponent( component );
@@ -896,7 +896,7 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#getMetaRegistry()
      */
     @Override
-    public DCMetadataRegistry getMetaRegistry()
+    public DcMetadataRegistry getMetaRegistry()
     {
         return metadatasReg;
     }
@@ -916,7 +916,7 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#getPIDHandlerRegistry()
      */
     @Override
-    public PIDHandlerRegistry getPIDHandlerRegistry()
+    public PidHandlerRegistry getPIDHandlerRegistry()
     {
         return handlersReg;
     }

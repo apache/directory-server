@@ -32,15 +32,15 @@ import java.util.Set;
 
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
 import org.apache.directory.server.hub.core.connector.collection.CollectionConnector.CollectionType;
 import org.osgi.framework.Version;
 
 
 public class CollectionMetaDescriptorGenerator
 {
-    public static DCMetadataDescriptor generateMetadataDescriptor( CollectionType type )
+    public static DcMetadataDescriptor generateMetadataDescriptor( CollectionType type )
     {
         switch ( type )
         {
@@ -56,7 +56,7 @@ public class CollectionMetaDescriptorGenerator
     }
 
 
-    private static DCMetadataDescriptor generateForList()
+    private static DcMetadataDescriptor generateForList()
     {
         String metaPid = DirectoryComponentConstants.DC_COLL_OC_LIST;
         Version metaVersion = new Version( "2.0.0" );
@@ -65,16 +65,16 @@ public class CollectionMetaDescriptorGenerator
             { List.class.getName(), Collection.class.getName() };
         String[] extended = new String[]
             { AbstractList.class.getName() };
-        DCPropertyDescription[] properties = new DCPropertyDescription[]
-            { new DCPropertyDescription( DirectoryComponentConstants.DC_LIST_PROP_TYPE,
+        DcPropertyDescription[] properties = new DcPropertyDescription[]
+            { new DcPropertyDescription( DirectoryComponentConstants.DC_LIST_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 
-    private static DCMetadataDescriptor generateForSet()
+    private static DcMetadataDescriptor generateForSet()
     {
         String metaPid = DirectoryComponentConstants.DC_COLL_OC_SET;
         Version metaVersion = new Version( "2.0.0" );
@@ -83,28 +83,28 @@ public class CollectionMetaDescriptorGenerator
             { Set.class.getName(), Collection.class.getName() };
         String[] extended = new String[]
             { AbstractSet.class.getName() };
-        DCPropertyDescription[] properties = new DCPropertyDescription[]
-            { new DCPropertyDescription( DirectoryComponentConstants.DC_SET_PROP_TYPE,
+        DcPropertyDescription[] properties = new DcPropertyDescription[]
+            { new DcPropertyDescription( DirectoryComponentConstants.DC_SET_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 
-    private static DCMetadataDescriptor generateForArray()
+    private static DcMetadataDescriptor generateForArray()
     {
         String metaPid = DirectoryComponentConstants.DC_COLL_OC_ARRAY;
         Version metaVersion = new Version( "2.0.0" );
         String className = Array.class.getName();
         String[] implemented = new String[0];
         String[] extended = new String[0];
-        DCPropertyDescription[] properties = new DCPropertyDescription[]
-            { new DCPropertyDescription( DirectoryComponentConstants.DC_ARRAY_PROP_TYPE,
+        DcPropertyDescription[] properties = new DcPropertyDescription[]
+            { new DcPropertyDescription( DirectoryComponentConstants.DC_ARRAY_PROP_TYPE,
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DCMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null, properties );
     }
 
 }

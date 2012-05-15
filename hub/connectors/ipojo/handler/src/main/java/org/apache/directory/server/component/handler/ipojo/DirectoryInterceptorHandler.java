@@ -29,21 +29,21 @@ import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
 
-@Handler(name = DCHandlerConstants.DSINTERCEPTOR_HANDLER_NAME, namespace = DCHandlerConstants.DSINTERCEPTOR_HANDLER_NS)
-public class DirectoryInterceptorHandler extends AbstractDCHandler
+@Handler(name = DcHandlerConstants.DSINTERCEPTOR_HANDLER_NAME, namespace = DcHandlerConstants.DSINTERCEPTOR_HANDLER_NS)
+public class DirectoryInterceptorHandler extends AbstractDcHandler
 {
 
     @Override
     protected String getHandlerName()
     {
-        return DCHandlerConstants.DSINTERCEPTOR_HANDLER_NAME;
+        return DcHandlerConstants.DSINTERCEPTOR_HANDLER_NAME;
     }
 
 
     @Override
     protected String getHandlerNamespaceName()
     {
-        return DCHandlerConstants.DSINTERCEPTOR_HANDLER_NS;
+        return DcHandlerConstants.DSINTERCEPTOR_HANDLER_NS;
     }
 
 

@@ -24,24 +24,24 @@ package org.apache.directory.server.hub.api.registry;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 
 
 
-public class DCMetadataRegistry
+public class DcMetadataRegistry
 {
-    private Hashtable<String, DCMetadataDescriptor> metadatas = new Hashtable<String, DCMetadataDescriptor>();
+    private Hashtable<String, DcMetadataDescriptor> metadatas = new Hashtable<String, DcMetadataDescriptor>();
 
 
-    public void addMetadataDescriptor( DCMetadataDescriptor meta )
+    public void addMetadataDescriptor( DcMetadataDescriptor meta )
     {
         metadatas.put( meta.getMetadataPID(), meta );
     }
 
 
-    public void addMetadataDescriptor( List<DCMetadataDescriptor> metas )
+    public void addMetadataDescriptor( List<DcMetadataDescriptor> metas )
     {
-        for ( DCMetadataDescriptor meta : metas )
+        for ( DcMetadataDescriptor meta : metas )
         {
             addMetadataDescriptor( meta );
         }
@@ -54,7 +54,7 @@ public class DCMetadataRegistry
     }
 
 
-    public DCMetadataDescriptor getMetadataDescriptor( String metaPID )
+    public DcMetadataDescriptor getMetadataDescriptor( String metaPID )
     {
         return metadatas.get( metaPID );
     }

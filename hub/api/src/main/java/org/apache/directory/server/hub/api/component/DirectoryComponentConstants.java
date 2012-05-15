@@ -21,8 +21,8 @@
 package org.apache.directory.server.hub.api.component;
 
 
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 
 
 public class DirectoryComponentConstants
@@ -40,6 +40,6 @@ public class DirectoryComponentConstants
     public static final String DC_SET_PROP_TYPE = "ads-set-containing";
     public static final String DC_ARRAY_PROP_TYPE = "ads-array-containing";
 
-    public static DCPropertyDescription itemDescription = new DCPropertyDescription( DCPropertyType.REFERENCE, "item",
+    public static DcPropertyDescription itemDescription = new DcPropertyDescription( DcPropertyType.REFERENCE, "item",
         "", "null", "", false, false, "" );
 }

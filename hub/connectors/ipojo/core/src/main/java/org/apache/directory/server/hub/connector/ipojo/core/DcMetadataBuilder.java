@@ -27,8 +27,8 @@ import java.util.Hashtable;
 import java.util.List;
 import org.apache.directory.server.component.handler.ipojo.property.DirectoryPropertyDescription;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
 import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
@@ -36,14 +36,14 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Version;
 
 
-public class DCMetadataBuilder
+public class DcMetadataBuilder
 {
-    public static DCMetadataDescriptor generateDCMetadata( ComponentFactory factory )
+    public static DcMetadataDescriptor generateDCMetadata( ComponentFactory factory )
     {
         String metadataPID = factory.getName();
         Version metaVersion = factory.getBundleContext().getBundle().getVersion();
 
-        List<DCPropertyDescription> properties = new ArrayList<DCPropertyDescription>();
+        List<DcPropertyDescription> properties = new ArrayList<DcPropertyDescription>();
 
         Hashtable<String, String> constants = new Hashtable<String, String>();
 
@@ -77,7 +77,7 @@ public class DCMetadataBuilder
             }
             else
             {
-                properties.add( new DCPropertyDescription( name, type,
+                properties.add( new DcPropertyDescription( name, type,
                     defaultValue, description, mandatory, immutable, containerFor ) );
             }
         }
@@ -95,8 +95,8 @@ public class DCMetadataBuilder
         String[] implemented = parseArray( interfaces );
         String[] extended = parseArray( sclasses );
 
-        DCMetadataDescriptor metadata = new DCMetadataDescriptor( metadataPID, true, metaVersion, className,
-            implemented, extended, constants, properties.toArray( new DCPropertyDescription[0] ) );
+        DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, true, metaVersion, className,
+            implemented, extended, constants, properties.toArray( new DcPropertyDescription[0] ) );
 
         return metadata;
     }

@@ -27,7 +27,7 @@ import org.apache.directory.server.hub.api.component.DirectoryComponentConstants
 import org.osgi.framework.Version;
 
 
-public class DCMetadataDescriptor
+public class DcMetadataDescriptor
 {
     private String metadataPID;
     private Version metaVersion;
@@ -36,16 +36,16 @@ public class DCMetadataDescriptor
     private String[] implemented = new String[0];
     private String[] extended = new String[0];
 
-    private DCPropertyDescription[] properties;
+    private DcPropertyDescription[] properties;
 
-    private Hashtable<String, DCPropertyDescription> propertyMap;
+    private Hashtable<String, DcPropertyDescription> propertyMap;
 
     private Hashtable<String, String> constants;
 
     private boolean factory;
 
 
-    public DCMetadataDescriptor(
+    public DcMetadataDescriptor(
         String metadataPID,
         boolean isFactory,
         Version metaVersion,
@@ -53,7 +53,7 @@ public class DCMetadataDescriptor
         String[] implemented,
         String[] extended,
         Hashtable<String, String> constants,
-        DCPropertyDescription[] properties )
+        DcPropertyDescription[] properties )
     {
         this.metadataPID = metadataPID;
         this.factory = isFactory;
@@ -64,11 +64,11 @@ public class DCMetadataDescriptor
         this.constants = constants;
         this.properties = properties;
 
-        propertyMap = new Hashtable<String, DCPropertyDescription>();
+        propertyMap = new Hashtable<String, DcPropertyDescription>();
 
         if ( properties != null )
         {
-            for ( DCPropertyDescription p : properties )
+            for ( DcPropertyDescription p : properties )
             {
                 propertyMap.put( p.getName(), p );
             }
@@ -112,13 +112,13 @@ public class DCMetadataDescriptor
     }
 
 
-    public DCPropertyDescription[] getPropertyDescriptons()
+    public DcPropertyDescription[] getPropertyDescriptons()
     {
         return properties;
     }
 
 
-    public DCPropertyDescription getPropertyDescription( String propertyName )
+    public DcPropertyDescription getPropertyDescription( String propertyName )
     {
         if ( propertyName.startsWith( DirectoryComponentConstants.DC_PROP_ITEM_PREFIX ) )
         {
@@ -129,7 +129,7 @@ public class DCMetadataDescriptor
     }
 
 
-    public boolean compatibleWith( DCMetadataDescriptor metadata )
+    public boolean compatibleWith( DcMetadataDescriptor metadata )
     {
         Version version = metadata.getMetaVersion();
 

@@ -24,8 +24,8 @@ package org.apache.directory.server.hub.core.connector.collection;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.HubConnector;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 
 
 public class CollectionConnector implements HubConnector

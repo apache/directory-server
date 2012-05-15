@@ -57,7 +57,7 @@ import org.osgi.framework.InvalidSyntaxException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractDCHandler extends PrimitiveHandler
+public abstract class AbstractDcHandler extends PrimitiveHandler
 {
 
     /**
@@ -234,7 +234,7 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
     public void configure( Element metadata, Dictionary configuration ) throws ConfigurationException
     {
         // Owning ApacheDS instance
-        String ownerADS = ( String ) configuration.get( DCHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME );
+        String ownerADS = ( String ) configuration.get( DcHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME );
         m_ownerADSInstance = ownerADS;
 
         // Build the map
@@ -352,7 +352,7 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
             if ( m_ownerADSInstance != null )
             {
                 Properties ownerADSProps = new Properties();
-                ownerADSProps.put( DCHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME, m_ownerADSInstance );
+                ownerADSProps.put( DcHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME, m_ownerADSInstance );
                 m_providedServiceHandler.addProperties( ownerADSProps );
             }
 
@@ -366,7 +366,7 @@ public abstract class AbstractDCHandler extends PrimitiveHandler
             {
                 String currentFilter = dep.getFilter();
 
-                String ownerProp = DCHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME;
+                String ownerProp = DcHandlerConstants.DSCOMPONENT_OWNER_PROP_NAME;
                 String owningRestriction = "(|(!(" + ownerProp + "=*))(" + ownerProp + "=" + m_ownerADSInstance + "))";
 
                 String augmentedFilter = "(&" + currentFilter + owningRestriction + ")";

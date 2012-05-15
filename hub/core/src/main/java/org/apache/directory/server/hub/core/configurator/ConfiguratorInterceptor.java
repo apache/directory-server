@@ -36,12 +36,12 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.HubConnector;
-import org.apache.directory.server.hub.api.component.DCConfiguration;
-import org.apache.directory.server.hub.api.component.DCProperty;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
+import org.apache.directory.server.hub.api.component.DcProperty;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
-import org.apache.directory.server.hub.core.store.StoreDCBuilder;
+import org.apache.directory.server.hub.core.store.StoreDcBuilder;
 import org.apache.directory.server.hub.core.store.StoreSchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -55,7 +55,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 public class ConfiguratorInterceptor extends BaseInterceptor implements HubConnector
 {
     private ComponentHub hub;
-    private StoreDCBuilder dcBuilder;
+    private StoreDcBuilder dcBuilder;
 
 
     public ConfiguratorInterceptor()
@@ -72,7 +72,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
     {
         super.init( directoryService );
 
-        dcBuilder = new StoreDCBuilder( directoryService.getSchemaManager() );
+        dcBuilder = new StoreDcBuilder( directoryService.getSchemaManager() );
     }
 
 
@@ -102,13 +102,13 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
                 DirectoryComponent parentComponent = hub.getDCRegistry().getComponentByLocation( parentDn.toString() );
                 if ( parentComponent.getComponentManagerPID().startsWith( StoreSchemaConstants.HUB_OC_COLLECTION ) )
                 {
-                    DCConfiguration newConfiguration = new DCConfiguration( parentComponent.getConfiguration() );
+                    DcConfiguration newConfiguration = new DcConfiguration( parentComponent.getConfiguration() );
 
                     String itemID = DirectoryComponentConstants.DC_PROP_ITEM_PREFIX
                         + component.getComponentPID();
 
                     newConfiguration.addProperty(
-                        new DCProperty( itemID, component.getComponentPID() ) );
+                        new DcProperty( itemID, component.getComponentPID() ) );
 
                     try
                     {
@@ -207,7 +207,7 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
                 modifyContext.getModItems() );
             DirectoryComponent newComponent = dcBuilder.buildComponentFromEntry( modifiedEntry );
 
-            DCConfiguration newConfiguration = newComponent.getConfiguration();
+            DcConfiguration newConfiguration = newComponent.getConfiguration();
 
             try
             {

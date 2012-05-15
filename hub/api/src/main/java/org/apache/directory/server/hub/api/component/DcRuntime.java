@@ -21,13 +21,13 @@
 package org.apache.directory.server.hub.api.component;
 
 
-public class DCRuntime
+public class DcRuntime
 {
     private Object pojo;
     private Object specialObject;
 
 
-    public DCRuntime( Object specialObject, Object pojo )
+    public DcRuntime( Object specialObject, Object pojo )
     {
         this.specialObject = specialObject;
         this.pojo = pojo;

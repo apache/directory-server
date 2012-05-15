@@ -32,14 +32,14 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.hub.api.ComponentHub;
-import org.apache.directory.server.hub.api.component.DCConfiguration;
-import org.apache.directory.server.hub.api.component.DCProperty;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
+import org.apache.directory.server.hub.api.component.DcProperty;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -73,7 +73,7 @@ public class StoreConfigManager
     private SingleFileLdifPartition configPartition;
     private SchemaManager schemaManager;
 
-    private StoreDCBuilder dcBuilder;
+    private StoreDcBuilder dcBuilder;
 
 
     public StoreConfigManager( ComponentHub hub )
@@ -86,14 +86,14 @@ public class StoreConfigManager
     {
         this.configPartition = configPartition;
         this.schemaManager = configPartition.getSchemaManager();
-        dcBuilder = new StoreDCBuilder( schemaManager );
+        dcBuilder = new StoreDcBuilder( schemaManager );
     }
 
 
-    public void installMetadata( DCMetadataDescriptor metadata ) throws LdapException
+    public void installMetadata( DcMetadataDescriptor metadata ) throws LdapException
     {
 
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
             installPropertyDescription( pd );
         }
@@ -103,9 +103,9 @@ public class StoreConfigManager
     }
 
 
-    public void uninstallMetadata( DCMetadataDescriptor metadata ) throws LdapException
+    public void uninstallMetadata( DcMetadataDescriptor metadata ) throws LdapException
     {
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
             uninstallPropertyDescription( pd.getName() );
         }
@@ -114,7 +114,7 @@ public class StoreConfigManager
     }
 
 
-    public void installPropertyDescription( DCPropertyDescription propertyDescription ) throws LdapException
+    public void installPropertyDescription( DcPropertyDescription propertyDescription ) throws LdapException
     {
         Entry pdEntry = buildPropertyDescriptionEntry( propertyDescription );
 
@@ -135,7 +135,7 @@ public class StoreConfigManager
     }
 
 
-    public void installMetaDescription( DCMetadataDescriptor metadata ) throws LdapException
+    public void installMetaDescription( DcMetadataDescriptor metadata ) throws LdapException
     {
         Entry mdEntry = buildComponentDescriptionEntry( metadata );
 
@@ -157,7 +157,7 @@ public class StoreConfigManager
     }
 
 
-    public Entry buildPropertyDescriptionEntry( DCPropertyDescription propertyDescription ) throws LdapException
+    public Entry buildPropertyDescriptionEntry( DcPropertyDescription propertyDescription ) throws LdapException
     {
         Dn pdDn = new Dn( schemaManager, StoreSchemaConstants.HUB_AT_PD_NAME, propertyDescription.getName(),
             CONFIG_PD_BASE );
@@ -175,7 +175,7 @@ public class StoreConfigManager
             ( propertyDescription.isMandatory() ) ? "TRUE" : "FALSE" );
 
         pdEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        pdEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDSConfigStore.csnFactory.newInstance().toString() );
+        pdEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDsConfigStore.csnFactory.newInstance().toString() );
         pdEntry.add( SchemaConstants.CREATORS_NAME_AT, StoreSchemaConstants.SYSTEM_ADMIN_DN );
         pdEntry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -183,7 +183,7 @@ public class StoreConfigManager
     }
 
 
-    public Entry buildComponentDescriptionEntry( DCMetadataDescriptor metadata ) throws LdapException
+    public Entry buildComponentDescriptionEntry( DcMetadataDescriptor metadata ) throws LdapException
     {
         Dn mdDn = new Dn( schemaManager, StoreSchemaConstants.HUB_AT_MD_PID, metadata.getMetadataPID(),
             CONFIG_MD_BASE );
@@ -196,7 +196,7 @@ public class StoreConfigManager
         mdEntry.add( schemaManager.getAttributeType( "ads-meta-factory" ), ( metadata.isFactory() ) ? "TRUE" : "FALSE" );
         mdEntry.add( schemaManager.getAttributeType( "ads-meta-classname" ), metadata.getClassName() );
 
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
             mdEntry.add( schemaManager.getAttributeType( "ads-meta-property" ), pd.getName() );
         }
@@ -212,7 +212,7 @@ public class StoreConfigManager
         }
 
         mdEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        mdEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDSConfigStore.csnFactory.newInstance().toString() );
+        mdEntry.add( SchemaConstants.ENTRY_CSN_AT, ApacheDsConfigStore.csnFactory.newInstance().toString() );
         mdEntry.add( SchemaConstants.CREATORS_NAME_AT, StoreSchemaConstants.SYSTEM_ADMIN_DN );
         mdEntry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
@@ -247,11 +247,11 @@ public class StoreConfigManager
                 itemIndex.toString() );
         }
 
-        DCMetadataDescriptor metadata = hub.getMetaRegistry()
+        DcMetadataDescriptor metadata = hub.getMetaRegistry()
             .getMetadataDescriptor( component.getComponentManagerPID() );
-        for ( DCProperty prop : component.getConfiguration() )
+        for ( DcProperty prop : component.getConfiguration() )
         {
-            DCPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
+            DcPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
             /*
              * Which is the case when whether there is a error or 
              * entry is a collection entry with item references(which is against the design)
@@ -261,7 +261,7 @@ public class StoreConfigManager
                 continue;
             }
 
-            if ( pd.getPropertyContext() == DCPropertyType.INJECTION )
+            if ( pd.getPropertyContext() == DcPropertyType.INJECTION )
             {
                 continue;
             }
@@ -287,11 +287,11 @@ public class StoreConfigManager
 
 
     // No meta change.
-    public void updateComponent( DirectoryComponent component, DCConfiguration newConfiguration ) throws LdapException
+    public void updateComponent( DirectoryComponent component, DcConfiguration newConfiguration ) throws LdapException
     {
-        for ( DCProperty oldProp : component.getConfiguration() )
+        for ( DcProperty oldProp : component.getConfiguration() )
         {
-            DCProperty newVersion = newConfiguration.getProperty( oldProp.getName() );
+            DcProperty newVersion = newConfiguration.getProperty( oldProp.getName() );
 
             if ( newVersion == null )
             {
@@ -307,7 +307,7 @@ public class StoreConfigManager
             }
         }
 
-        for ( DCProperty newProp : newConfiguration )
+        for ( DcProperty newProp : newConfiguration )
         {
             if ( component.getConfiguration().getProperty( newProp.getName() ) == null )
             {
@@ -332,7 +332,7 @@ public class StoreConfigManager
     }
 
 
-    public void addPropertyToEntry( DirectoryComponent component, DCProperty property ) throws LdapException
+    public void addPropertyToEntry( DirectoryComponent component, DcProperty property ) throws LdapException
     {
         Dn componentDn = new Dn( schemaManager, component.getConfigLocation() );
 
@@ -395,7 +395,7 @@ public class StoreConfigManager
                                     + item.getComponentPID();
 
                                 component.getConfiguration().addProperty(
-                                    new DCProperty( itemID, item.getComponentPID() ) );
+                                    new DcProperty( itemID, item.getComponentPID() ) );
                             }
                         }
                     }
@@ -429,7 +429,7 @@ public class StoreConfigManager
     }
 
 
-    public List<DCMetadataDescriptor> getMetadatas()
+    public List<DcMetadataDescriptor> getMetadatas()
     {
         SearchEngine<Entry, Long> se = configPartition.getSearchEngine();
 
@@ -437,8 +437,8 @@ public class StoreConfigManager
 
         IndexCursor<Long, Entry, Long> cursor = null;
 
-        List<DCMetadataDescriptor> metadatas = new ArrayList<DCMetadataDescriptor>();
-        Hashtable<String, DCPropertyDescription> pdMap = new Hashtable<String, DCPropertyDescription>();
+        List<DcMetadataDescriptor> metadatas = new ArrayList<DcMetadataDescriptor>();
+        Hashtable<String, DcPropertyDescription> pdMap = new Hashtable<String, DcPropertyDescription>();
 
         try
         {
@@ -452,7 +452,7 @@ public class StoreConfigManager
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
 
-                DCPropertyDescription pd = buildPropertyDescription( entry );
+                DcPropertyDescription pd = buildPropertyDescription( entry );
                 if ( pd != null )
                 {
                     pdMap.put( pd.getName(), pd );
@@ -472,7 +472,7 @@ public class StoreConfigManager
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
 
-                DCMetadataDescriptor md = buildMetaDescription( entry, pdMap );
+                DcMetadataDescriptor md = buildMetaDescription( entry, pdMap );
                 if ( md != null )
                 {
                     metadatas.add( md );
@@ -504,7 +504,7 @@ public class StoreConfigManager
     }
 
 
-    private DCPropertyDescription buildPropertyDescription( Entry entry )
+    private DcPropertyDescription buildPropertyDescription( Entry entry )
     {
         Attribute name = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_NAME ) );
         Attribute type = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_TYPE ) );
@@ -535,7 +535,7 @@ public class StoreConfigManager
 
             boolean isMandatory = Boolean.parseBoolean( mandatory.getString() );
 
-            DCPropertyDescription pd = new DCPropertyDescription( name.getString(), type.getString(),
+            DcPropertyDescription pd = new DcPropertyDescription( name.getString(), type.getString(),
                 pdDefaultValue, pdDescription, isMandatory, false, containerFor );
 
             return pd;
@@ -548,7 +548,7 @@ public class StoreConfigManager
     }
 
 
-    private DCMetadataDescriptor buildMetaDescription( Entry entry, Hashtable<String, DCPropertyDescription> pdMap )
+    private DcMetadataDescriptor buildMetaDescription( Entry entry, Hashtable<String, DcPropertyDescription> pdMap )
     {
         Attribute pid = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PID ) );
         Attribute version = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_VERSION ) );
@@ -578,12 +578,12 @@ public class StoreConfigManager
                 }
             }
 
-            List<DCPropertyDescription> pds = new ArrayList<DCPropertyDescription>();
+            List<DcPropertyDescription> pds = new ArrayList<DcPropertyDescription>();
             if ( props != null )
             {
                 for ( Value<?> val : props )
                 {
-                    DCPropertyDescription pd = pdMap.get( val.getString() );
+                    DcPropertyDescription pd = pdMap.get( val.getString() );
                     if ( pd == null )
                     {
                         throw new Exception( "Non existing property description:" + val.getString() );
@@ -593,10 +593,10 @@ public class StoreConfigManager
             }
             boolean isFactory = Boolean.parseBoolean( factory.getString() );
 
-            return new DCMetadataDescriptor( pid.getString(), isFactory, new Version(
+            return new DcMetadataDescriptor( pid.getString(), isFactory, new Version(
                 version.getString() ), classname.getString(),
                 implementedList.toArray( new String[0] ), extendedList.toArray( new String[0] ), null,
-                pds.toArray( new DCPropertyDescription[0] ) );
+                pds.toArray( new DcPropertyDescription[0] ) );
         }
         catch ( Exception e )
         {

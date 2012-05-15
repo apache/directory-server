@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.directory.server.hub.api.component.DCConfiguration;
-import org.apache.directory.server.hub.api.component.DCProperty;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
+import org.apache.directory.server.hub.api.component.DcProperty;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -37,12 +37,12 @@ import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
-public class StoreDCBuilder
+public class StoreDcBuilder
 {
     private SchemaManager schemaManager;
 
 
-    public StoreDCBuilder( SchemaManager schemaManager )
+    public StoreDcBuilder( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
     }
@@ -76,7 +76,7 @@ public class StoreDCBuilder
             }
         }
 
-        List<DCProperty> properties = new ArrayList<DCProperty>();
+        List<DcProperty> properties = new ArrayList<DcProperty>();
 
         Collection<Attribute> attribs = componentEntry.getAttributes();
         for ( Attribute attrib : attribs )
@@ -102,11 +102,11 @@ public class StoreDCBuilder
             }
             else
             {
-                properties.add( new DCProperty( attrib.getUpId(), attrib.getString() ) );
+                properties.add( new DcProperty( attrib.getUpId(), attrib.getString() ) );
             }
         }
 
-        DCConfiguration componentConf = new DCConfiguration( properties );
+        DcConfiguration componentConf = new DcConfiguration( properties );
         componentConf.setCollectionIndex( collectionIndex );
 
         DirectoryComponent component = new DirectoryComponent( managerPID, componentName, componentConf );

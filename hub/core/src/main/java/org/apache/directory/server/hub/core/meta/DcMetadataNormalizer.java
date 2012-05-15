@@ -31,21 +31,21 @@ import java.util.Set;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCPropertyDescription;
-import org.apache.directory.server.hub.api.meta.DCPropertyType;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
+import org.apache.directory.server.hub.api.meta.DcPropertyType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
-public class DCMetadataNormalizer
+public class DcMetadataNormalizer
 {
-    public static void normalizeDCMetadata( DCMetadataDescriptor metadata )
+    public static void normalizeDCMetadata( DcMetadataDescriptor metadata )
     {
-        for ( DCPropertyDescription pd : metadata.getPropertyDescriptons() )
+        for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
             if ( isPrimitive( pd.getType() ) )
             {
-                pd.setPropertyContext( DCPropertyType.PRIMITIVE );
+                pd.setPropertyContext( DcPropertyType.PRIMITIVE );
                 if ( pd.getDefaultValue() == null )
                 {
                     pd.setDefaultValue( "-1" );
@@ -53,13 +53,13 @@ public class DCMetadataNormalizer
             }
             else if ( isInjection( pd.getType() ) )
             {
-                pd.setPropertyContext( DCPropertyType.INJECTION );
+                pd.setPropertyContext( DcPropertyType.INJECTION );
             }
             else if ( isCollection( pd.getType() ) )
             {
                 if ( isPrimitive( pd.getContainerFor() ) )
                 {
-                    pd.setPropertyContext( DCPropertyType.PRIMITIVE_COLLECTION );
+                    pd.setPropertyContext( DcPropertyType.PRIMITIVE_COLLECTION );
                     if ( pd.getDefaultValue() == null )
                     {
                         pd.setDefaultValue( "[]" );
@@ -67,7 +67,7 @@ public class DCMetadataNormalizer
                 }
                 else
                 {
-                    pd.setPropertyContext( DCPropertyType.COLLECTION );
+                    pd.setPropertyContext( DcPropertyType.COLLECTION );
                     if ( pd.getDefaultValue() == null )
                     {
                         pd.setDefaultValue( "null" );
@@ -76,7 +76,7 @@ public class DCMetadataNormalizer
             }
             else
             {
-                pd.setPropertyContext( DCPropertyType.REFERENCE );
+                pd.setPropertyContext( DcPropertyType.REFERENCE );
                 if ( pd.getDefaultValue() == null )
                 {
                     pd.setDefaultValue( "null" );

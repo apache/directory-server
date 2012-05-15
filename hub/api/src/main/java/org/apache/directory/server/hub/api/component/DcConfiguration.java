@@ -27,35 +27,35 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class DCConfiguration implements Iterable<DCProperty>
+public class DcConfiguration implements Iterable<DcProperty>
 {
-    private List<DCProperty> properties;
-    private Hashtable<String, DCProperty> propertyMap;
+    private List<DcProperty> properties;
+    private Hashtable<String, DcProperty> propertyMap;
     private Integer collectionIndex = null;
 
     private Hashtable<String, String> constantProperties = new Hashtable<String, String>();
 
 
-    public DCConfiguration( List<DCProperty> properties )
+    public DcConfiguration( List<DcProperty> properties )
     {
         this.properties = properties;
-        propertyMap = new Hashtable<String, DCProperty>();
+        propertyMap = new Hashtable<String, DcProperty>();
 
-        for ( DCProperty property : properties )
+        for ( DcProperty property : properties )
         {
             propertyMap.put( property.getName(), property );
         }
     }
 
 
-    public DCConfiguration( DCConfiguration configuration )
+    public DcConfiguration( DcConfiguration configuration )
     {
-        properties = new ArrayList<DCProperty>();
-        propertyMap = new Hashtable<String, DCProperty>();
+        properties = new ArrayList<DcProperty>();
+        propertyMap = new Hashtable<String, DcProperty>();
 
-        for ( DCProperty prop : configuration )
+        for ( DcProperty prop : configuration )
         {
-            addProperty( new DCProperty( prop.getName(), prop.getValue() ) );
+            addProperty( new DcProperty( prop.getName(), prop.getValue() ) );
         }
 
         collectionIndex = configuration.getCollectionIndex();
@@ -63,13 +63,13 @@ public class DCConfiguration implements Iterable<DCProperty>
 
 
     @Override
-    public Iterator<DCProperty> iterator()
+    public Iterator<DcProperty> iterator()
     {
         return properties.iterator();
     }
 
 
-    public void addProperty( DCProperty property )
+    public void addProperty( DcProperty property )
     {
         properties.add( property );
         propertyMap.put( property.getName(), property );
@@ -78,7 +78,7 @@ public class DCConfiguration implements Iterable<DCProperty>
 
     public void removeProperty( String propertyName )
     {
-        DCProperty removing = propertyMap.remove( propertyName );
+        DcProperty removing = propertyMap.remove( propertyName );
         if ( removing != null )
         {
             properties.remove( removing );
@@ -86,7 +86,7 @@ public class DCConfiguration implements Iterable<DCProperty>
     }
 
 
-    public DCProperty getProperty( String propertyName )
+    public DcProperty getProperty( String propertyName )
     {
         return propertyMap.get( propertyName );
     }

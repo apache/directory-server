@@ -18,14 +18,28 @@
  *
  */
 
-package org.apache.directory.server.hub.api.meta;
+package org.apache.directory.server.hub.api.registry;
 
 
-public enum DCPropertyType
+import java.util.Hashtable;
+
+import org.apache.directory.server.hub.api.meta.DcOperationsManager;
+
+
+
+public class PidHandlerRegistry
 {
-    PRIMITIVE,
-    REFERENCE,
-    PRIMITIVE_COLLECTION,
-    COLLECTION,
-    INJECTION
+    private Hashtable<String, DcOperationsManager> handlers = new Hashtable<String, DcOperationsManager>();
+
+
+    public void setPIDHandler( String pid, DcOperationsManager operationsManager )
+    {
+        handlers.put( pid, operationsManager );
+    }
+
+
+    public DcOperationsManager getPIDHandler( String pid )
+    {
+        return handlers.get( pid );
+    }
 }

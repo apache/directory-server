@@ -24,12 +24,12 @@ package org.apache.directory.server.hub.connector.ipojo.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.apache.directory.server.hub.api.component.DCProperty;
-import org.apache.directory.server.hub.api.component.DCRuntime;
+import org.apache.directory.server.hub.api.component.DcProperty;
+import org.apache.directory.server.hub.api.component.DcRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
 import org.apache.directory.server.hub.api.exception.ComponentReconfigurationException;
-import org.apache.directory.server.hub.api.meta.DCOperationsManager;
+import org.apache.directory.server.hub.api.meta.DcOperationsManager;
 import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
@@ -38,7 +38,7 @@ import org.apache.felix.ipojo.MissingHandlerException;
 import org.apache.felix.ipojo.UnacceptableConfiguration;
 
 
-public class IPojoOperations implements DCOperationsManager
+public class IPojoOperations implements DcOperationsManager
 {
 
     private ComponentFactory factory;
@@ -54,7 +54,7 @@ public class IPojoOperations implements DCOperationsManager
     public void instantiateComponent( DirectoryComponent component ) throws ComponentInstantiationException
     {
         Dictionary<String, Object> configuration = new Hashtable<String, Object>();
-        for ( DCProperty prop : component.getConfiguration() )
+        for ( DcProperty prop : component.getConfiguration() )
         {
             configuration.put( prop.getName(), prop.getObject() );
         }
@@ -68,7 +68,7 @@ public class IPojoOperations implements DCOperationsManager
             InstanceManager manager = ( InstanceManager ) instance;
             Object pojo = manager.getPojoObject();
 
-            component.setRuntimeInfo( new DCRuntime( manager, pojo ) );
+            component.setRuntimeInfo( new DcRuntime( manager, pojo ) );
         }
         catch ( UnacceptableConfiguration e )
         {
@@ -91,7 +91,7 @@ public class IPojoOperations implements DCOperationsManager
     @Override
     public void reconfigureComponent( DirectoryComponent component ) throws ComponentReconfigurationException
     {
-        DCRuntime runtime = component.getRuntimeInfo();
+        DcRuntime runtime = component.getRuntimeInfo();
         if ( runtime == null || runtime.getSpecialObject() == null )
         {
             throw new ComponentReconfigurationException( "Failed to reconfigure disposed component:"
@@ -107,7 +107,7 @@ public class IPojoOperations implements DCOperationsManager
         }
 
         Dictionary<String, Object> configuration = new Hashtable<String, Object>();
-        for ( DCProperty prop : component.getConfiguration() )
+        for ( DcProperty prop : component.getConfiguration() )
         {
             configuration.put( prop.getName(), prop.getObject() );
         }
@@ -127,7 +127,7 @@ public class IPojoOperations implements DCOperationsManager
     @Override
     public void disposeComponent( DirectoryComponent component )
     {
-        DCRuntime runtime = component.getRuntimeInfo();
+        DcRuntime runtime = component.getRuntimeInfo();
         if ( runtime == null || runtime.getSpecialObject() == null )
         {
             component.setRuntimeInfo( null );

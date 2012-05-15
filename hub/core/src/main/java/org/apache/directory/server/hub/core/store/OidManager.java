@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
-public class OIDManager
+public class OidManager
 {
 
     private Hashtable<String, Integer> metaOCBases = new Hashtable<String, Integer>();

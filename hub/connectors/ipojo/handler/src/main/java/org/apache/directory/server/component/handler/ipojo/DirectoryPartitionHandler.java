@@ -28,21 +28,21 @@ import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
 
-@Handler(name = DCHandlerConstants.DSPARTITION_HANDLER_NAME, namespace = DCHandlerConstants.DSPARTITION_HANDLER_NS)
-public class DirectoryPartitionHandler extends AbstractDCHandler
+@Handler(name = DcHandlerConstants.DSPARTITION_HANDLER_NAME, namespace = DcHandlerConstants.DSPARTITION_HANDLER_NS)
+public class DirectoryPartitionHandler extends AbstractDcHandler
 {
 
     @Override
     protected String getHandlerName()
     {
-        return DCHandlerConstants.DSPARTITION_HANDLER_NAME;
+        return DcHandlerConstants.DSPARTITION_HANDLER_NAME;
     }
 
 
     @Override
     protected String getHandlerNamespaceName()
     {
-        return DCHandlerConstants.DSPARTITION_HANDLER_NS;
+        return DcHandlerConstants.DSPARTITION_HANDLER_NS;
     }
 
 

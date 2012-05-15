@@ -28,21 +28,21 @@ import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
 
-@Handler(name = DCHandlerConstants.DSSERVER_HANDLER_NAME, namespace = DCHandlerConstants.DSSERVER_HANDLER_NS)
-public class DirectoryServerHandler extends AbstractDCHandler
+@Handler(name = DcHandlerConstants.DSSERVER_HANDLER_NAME, namespace = DcHandlerConstants.DSSERVER_HANDLER_NS)
+public class DirectoryServerHandler extends AbstractDcHandler
 {
 
     @Override
     protected String getHandlerName()
     {
-        return DCHandlerConstants.DSSERVER_HANDLER_NAME;
+        return DcHandlerConstants.DSSERVER_HANDLER_NAME;
     }
 
 
     @Override
     protected String getHandlerNamespaceName()
     {
-        return DCHandlerConstants.DSSERVER_HANDLER_NS;
+        return DcHandlerConstants.DSSERVER_HANDLER_NS;
     }
 
 

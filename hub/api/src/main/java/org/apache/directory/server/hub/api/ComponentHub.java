@@ -20,16 +20,16 @@
 
 package org.apache.directory.server.hub.api;
 
-import org.apache.directory.server.hub.api.component.DCConfiguration;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
-import org.apache.directory.server.hub.api.meta.DCMetadataDescriptor;
-import org.apache.directory.server.hub.api.meta.DCOperationsManager;
-import org.apache.directory.server.hub.api.registry.DCMetadataRegistry;
+import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
+import org.apache.directory.server.hub.api.meta.DcOperationsManager;
+import org.apache.directory.server.hub.api.registry.DcMetadataRegistry;
 import org.apache.directory.server.hub.api.registry.DirectoryComponentRegistry;
 import org.apache.directory.server.hub.api.registry.InjectionRegistry;
-import org.apache.directory.server.hub.api.registry.PIDHandlerRegistry;
+import org.apache.directory.server.hub.api.registry.PidHandlerRegistry;
 
 
 
@@ -40,7 +40,7 @@ public interface ComponentHub
     public abstract void init() throws StoreNotValidException;
 
 
-    public abstract void connectHandler( DCMetadataDescriptor metadata, DCOperationsManager operationsManager )
+    public abstract void connectHandler( DcMetadataDescriptor metadata, DcOperationsManager operationsManager )
         throws HubAbortException;
 
 
@@ -50,7 +50,7 @@ public interface ComponentHub
     public abstract void updateComponentName( DirectoryComponent component, String newPID ) throws HubAbortException;
 
 
-    public abstract void updateComponent( DirectoryComponent component, DCConfiguration newConfiguration )
+    public abstract void updateComponent( DirectoryComponent component, DcConfiguration newConfiguration )
         throws HubAbortException;
 
 
@@ -75,12 +75,12 @@ public interface ComponentHub
     public abstract DirectoryComponentRegistry getDCRegistry();
 
 
-    public abstract DCMetadataRegistry getMetaRegistry();
+    public abstract DcMetadataRegistry getMetaRegistry();
 
 
     public abstract InjectionRegistry getInjectionRegistry();
 
 
-    public abstract PIDHandlerRegistry getPIDHandlerRegistry();
+    public abstract PidHandlerRegistry getPIDHandlerRegistry();
 
 }

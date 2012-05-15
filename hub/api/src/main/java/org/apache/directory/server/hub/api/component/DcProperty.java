@@ -18,28 +18,50 @@
  *
  */
 
-package org.apache.directory.server.hub.api.registry;
+package org.apache.directory.server.hub.api.component;
 
 
-import java.util.Hashtable;
-
-import org.apache.directory.server.hub.api.meta.DCOperationsManager;
-
-
-
-public class PIDHandlerRegistry
+public class DcProperty
 {
-    private Hashtable<String, DCOperationsManager> handlers = new Hashtable<String, DCOperationsManager>();
+    private String name;
+    private String value;
+    private Object object;
 
 
-    public void setPIDHandler( String pid, DCOperationsManager operationsManager )
+    public DcProperty( String name, String value )
     {
-        handlers.put( pid, operationsManager );
+        this.name = name;
+        this.value = value;
     }
 
 
-    public DCOperationsManager getPIDHandler( String pid )
+    public String getName()
     {
-        return handlers.get( pid );
+        return name;
     }
+
+
+    public String getValue()
+    {
+        return value;
+    }
+
+
+    public void setValue( String value )
+    {
+        this.value = value;
+    }
+
+
+    public Object getObject()
+    {
+        return object;
+    }
+
+
+    public void setObject( Object object )
+    {
+        this.object = object;
+    }
+
 }

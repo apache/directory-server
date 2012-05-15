@@ -27,7 +27,7 @@ import org.apache.directory.server.hub.api.exception.ComponentReconfigurationExc
 
 
 
-public interface DCOperationsManager
+public interface DcOperationsManager
 {
     void instantiateComponent( DirectoryComponent component ) throws ComponentInstantiationException;
 

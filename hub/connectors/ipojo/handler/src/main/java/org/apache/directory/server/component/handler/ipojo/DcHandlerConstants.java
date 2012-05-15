@@ -21,7 +21,7 @@
 package org.apache.directory.server.component.handler.ipojo;
 
 
-public class DCHandlerConstants
+public class DcHandlerConstants
 {
     /*
      * Handler names for Component Handlers

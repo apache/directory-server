@@ -21,9 +21,9 @@
 package org.apache.directory.server.hub.api.meta;
 
 
-public class DCPropertyDescription
+public class DcPropertyDescription
 {
-    private DCPropertyType propertyContext;
+    private DcPropertyType propertyContext;
     private String name;
     private String type;
     private String defaultValue;
@@ -33,14 +33,14 @@ public class DCPropertyDescription
     private String containerFor;
 
 
-    public DCPropertyDescription( String name, String type, String defaultValue, String description, boolean mandatory,
+    public DcPropertyDescription( String name, String type, String defaultValue, String description, boolean mandatory,
         boolean immutable, String containerFor )
     {
         this( null, name, type, defaultValue, description, mandatory, immutable, containerFor );
     }
 
 
-    public DCPropertyDescription( DCPropertyType propertyContext, String name, String type, String defaultValue,
+    public DcPropertyDescription( DcPropertyType propertyContext, String name, String type, String defaultValue,
         String description, boolean mandatory, boolean immutable, String containerFor )
     {
         this.propertyContext = propertyContext;
@@ -102,13 +102,13 @@ public class DCPropertyDescription
     }
 
 
-    public DCPropertyType getPropertyContext()
+    public DcPropertyType getPropertyContext()
     {
         return propertyContext;
     }
 
 
-    public void setPropertyContext( DCPropertyType propertyContext )
+    public void setPropertyContext( DcPropertyType propertyContext )
     {
         this.propertyContext = propertyContext;
     }
