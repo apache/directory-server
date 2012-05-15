@@ -295,6 +295,15 @@ public class ComponentHubImpl implements ComponentHub
                 + component.getComponentPID() );
         }
 
+        if ( componentsReg.getComponents( component.getComponentManagerPID() ) != null )
+        {
+            DCMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
+            if ( !metadata.isFactory() )
+            {
+                throw new HubAbortException( metadata.getMetadataPID() + "can not have more than 1 instance" );
+            }
+        }
+
         setInjectionProperties( metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() ),
             component.getConfiguration() );
 
