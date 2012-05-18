@@ -71,16 +71,6 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-util</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.ipojo</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
