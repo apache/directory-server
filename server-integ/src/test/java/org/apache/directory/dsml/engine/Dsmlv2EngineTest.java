@@ -99,4 +99,34 @@ public class Dsmlv2EngineTest extends AbstractLdapTestUnit
 
         assertEquals( 5, searchResp.getSearchResultEntryList().size() );
     }
+    
+    
+    @Test
+    public void testEngineWithSearchResponseInSoapEnvelope() throws Exception
+    {
+        InputStream dsmlIn = getClass().getClassLoader().getResourceAsStream( "dsml-search-req.xml" );
+
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        
+        engine.setGenerateSoapResp( true );
+        
+        engine.processDSML( dsmlIn, byteOut );
+
+        engine.setGenerateSoapResp( false );
+        
+        String resp = byteOut.toString();
+
+        Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapApiServiceFactory.getSingleton() );
+        respParser.setInput( resp );
+
+        respParser.parseAllResponses();
+
+        BatchResponseDsml batchResp = respParser.getBatchResponse();
+
+        assertNotNull( batchResp );
+
+        SearchResponse searchResp = ( SearchResponse ) batchResp.getCurrentResponse().getDecorated();
+
+        assertEquals( 5, searchResp.getSearchResultEntryList().size() );
+    }
 }
