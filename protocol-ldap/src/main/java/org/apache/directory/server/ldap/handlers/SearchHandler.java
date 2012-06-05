@@ -24,6 +24,8 @@ import static java.lang.Math.min;
 import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
 import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -52,6 +54,7 @@ import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
+import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.Referral;
 import org.apache.directory.shared.ldap.model.message.ReferralImpl;
@@ -241,26 +244,28 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         try
         {
-            cursor = session.getCoreSession().search( req );
-
-            // Position the cursor at the beginning
-            cursor.beforeFirst();
-            boolean hasRootDse = false;
-
-            while ( cursor.next() )
+            Map<String, Control> controlMap = req.getControls();
+            Control[] controls = null;
+            
+            if ( controlMap != null )
             {
-                if ( hasRootDse )
+                Collection<Control> controlValues = controlMap.values();
+                
+                controls = new Control[controlValues.size()];
+                int pos = 0;
+                
+                for ( Control control : controlMap.values() )
                 {
-                    // This is an error ! We should never find more than one rootDSE !
-                    LOG.error( I18n.err( I18n.ERR_167 ) );
-                }
-                else
-                {
-                    hasRootDse = true;
-                    Entry entry = cursor.get();
-                    session.getIoSession().write( generateResponse( session, req, entry ) );
+                    controls[pos++] = control;
                 }
             }
+            
+            Entry rootDse = session.getCoreSession().lookup(
+                req.getBase(),
+                controls,
+                req.getAttributes().toArray( new String[]{} ) );
+                
+            session.getIoSession().write( generateResponse( session, req, rootDse ) );
 
             // write the SearchResultDone message
             session.getIoSession().write( req.getResultResponse() );
@@ -985,6 +990,58 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         // using varags to add two expressions to an OR node
         req.setFilter( new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) ) );
     }
+    
+    
+    /**
+     * Handles the RootDSE and lookups searches
+     */
+    private boolean handleLookupAndRootDse( LdapSession session, SearchRequest req ) throws Exception
+    {
+        boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
+        boolean isObjectClassFilter = false;
+
+        if ( req.getFilter() instanceof PresenceNode )
+        {
+            ExprNode filter = req.getFilter();
+
+            if ( filter.isSchemaAware() )
+            {
+                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
+                isObjectClassFilter = attributeType.equals( OBJECT_CLASS_AT );
+            }
+            else
+            {
+                String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
+                isObjectClassFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+                    || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+            }
+        }
+
+        boolean isBaseIsRoot = req.getBase().isEmpty();
+
+        if ( isBaseScope && isObjectClassFilter )
+        {
+            if ( isBaseIsRoot )
+            {
+                // This is a rootDse lookup
+                handleRootDseSearch( session, req );
+
+                return true;
+            }
+            else
+            {
+                // This is a lookup
+                //handleLookup( session, req );
+
+                return false;
+            }
+        }
+        else
+        {
+            // a standard search
+            return false;
+        }
+    }
 
 
     /**
@@ -1017,14 +1074,45 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         try
         {
             // ===============================================================
-            // Handle search in rootDSE differently.
+            // Handle search in rootDSE and simple lookups differently.
             // ===============================================================
-            if ( isRootDseSearch( req ) )
+            if ( handleLookupAndRootDse( session, req ) )
             {
-                handleRootDseSearch( session, req );
-
                 return;
             }
+            
+            // ===============================================================
+            // Handle lookups deifferently
+            // ===============================================================
+            // First check that we aren't doing a lookup (ie scope is BASE, and the filter is (ObjectClass=*) )
+            boolean isLookup = false;
+            
+            if ( req.getScope() == SearchScope.OBJECT )
+            {
+                if ( req.getFilter() instanceof PresenceNode )
+                {
+                    ExprNode filter = req.getFilter();
+
+                    if ( filter.isSchemaAware() )
+                    {
+                        AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
+                        isLookup = attributeType.equals( OBJECT_CLASS_AT );
+                    }
+                    else
+                    {
+                        String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
+                        isLookup = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+                            || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
+                    }
+                }
+            }
+            
+            if ( isLookup )
+            {
+                
+            }
+            
+
 
             // modify the filter to affect continuation support
             modifyFilter( session, req );
