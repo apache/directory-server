@@ -377,7 +377,7 @@ public class DefaultOperationManager implements OperationManager
                 txnManager.applyPendingTxns();
                 
                 directoryService.resetCaches();
-                directoryService.getSchemaManager().reloadAllEnabled();
+                directoryService.getSchemaManager().loadAllEnabled();
                 
                 head.reinitLogicalData( directoryService );
             }
@@ -508,7 +508,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( startedTxn && isCausedByConflictException( le ) )
                     {
                         // Retry
-                        done = false; 
+                        done = false;
                     }
                     else
                     {
@@ -537,7 +537,7 @@ public class DefaultOperationManager implements OperationManager
                 }
 
                 //txnManager.applyPendingTxns();
-            } 
+            }
         }
         while ( !done );
 
@@ -876,7 +876,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1185,7 +1185,7 @@ public class DefaultOperationManager implements OperationManager
                 // populate the context with the old entry
                 eagerlyPopulateFields( modifyContext );
 
-                // Call the Modify method 
+                // Call the Modify method
                 head.modify( modifyContext );
             }
             catch ( LdapException le )
@@ -1193,7 +1193,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1380,7 +1380,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1568,7 +1568,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1723,7 +1723,7 @@ public class DefaultOperationManager implements OperationManager
             }
 
             // Unlock the ReferralManager
-            //directoryService.getReferralManager().unlock();    
+            //directoryService.getReferralManager().unlock();
             
             try
             {
@@ -1741,7 +1741,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
