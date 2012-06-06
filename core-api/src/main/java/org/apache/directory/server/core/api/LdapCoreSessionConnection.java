@@ -26,15 +26,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.asn1.util.Oid;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
@@ -87,8 +85,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.StringConstants;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +94,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapCoreSessionConnection implements LdapConnection
+public class LdapCoreSessionConnection extends AbstractLdapConnection
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
@@ -106,31 +102,25 @@ public class LdapCoreSessionConnection implements LdapConnection
     /** the CoreSession object */
     private CoreSession session;
 
-    /** the SchemaManager */
-    private SchemaManager schemaManager;
-
     /** the session's DirectoryService */
     private DirectoryService directoryService;
 
-    /** The MessageId counter */
-    private AtomicInteger messageId = new AtomicInteger( 0 );
-
-    private LdapApiService codec = LdapApiServiceFactory.getSingleton();
-
-
     public LdapCoreSessionConnection()
     {
+        super();
     }
 
 
     public LdapCoreSessionConnection( DirectoryService directoryService )
     {
+        super();
         setDirectoryService( directoryService );
     }
 
 
     public LdapCoreSessionConnection( CoreSession session )
     {
+        super();
         this.session = session;
         setDirectoryService( session.getDirectoryService() );
 
@@ -1232,58 +1222,6 @@ public class LdapCoreSessionConnection implements LdapConnection
         }
 
         return bindResp;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( Dn name ) throws LdapException, IOException
-    {
-        byte[] credBytes = StringConstants.EMPTY_BYTES;
-
-        BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
-        bindRequest.setCredentials( credBytes );
-
-        BindResponse bindResponse = bind( bindRequest );
-
-        processResponse( bindResponse );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( Dn name, String credentials ) throws LdapException, IOException
-    {
-        byte[] credBytes = ( credentials == null ? StringConstants.EMPTY_BYTES : Strings.getBytesUtf8( credentials ) );
-
-        BindRequest bindRequest = new BindRequestImpl();
-        bindRequest.setName( name );
-        bindRequest.setCredentials( credBytes );
-
-        BindResponse bindResponse = bind( bindRequest );
-
-        processResponse( bindResponse );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( String name ) throws LdapException, IOException
-    {
-        bind( new Dn( schemaManager, name ), null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( String name, String credentials ) throws LdapException, IOException
-    {
-        bind( new Dn( schemaManager, name ), credentials );
     }
 
 
