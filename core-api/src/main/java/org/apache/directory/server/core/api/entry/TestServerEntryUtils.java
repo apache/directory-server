@@ -6,18 +6,19 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ * 
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ * 
  */
 package org.apache.directory.server.core.api.entry;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -27,6 +28,8 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
+import org.apache.directory.shared.ldap.model.schema.MutableAttributeType;
+import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
@@ -55,7 +58,7 @@ public class TestServerEntryUtils
 
     public static MatchingRule matchingRuleFactory( String oid )
     {
-        MatchingRule matchingRule = new MatchingRule( oid );
+        MutableMatchingRule matchingRule = new MutableMatchingRule( oid );
         
         return matchingRule;
     }
@@ -92,12 +95,12 @@ public class TestServerEntryUtils
         }
     }
 
-    /* no protection*/ 
+    /* no protection*/
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     static AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
-        AttributeType attributeType = new AttributeType( "1.1.3.1" );
+        MutableAttributeType attributeType = new MutableAttributeType( "1.1.3.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1.1", "", true );
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.1.2.1" )
@@ -122,7 +125,7 @@ public class TestServerEntryUtils
             }
         } );
         
-        MatchingRule matchingRule = new MatchingRule( "1.1.2.1" );
+        MutableMatchingRule matchingRule = new MutableMatchingRule( "1.1.2.1" );
         matchingRule.setSyntax( syntax );
 
 
@@ -130,22 +133,22 @@ public class TestServerEntryUtils
         {
             public int compare( String o1, String o2 )
             {
-                return ( o1 == null ? 
+                return ( o1 == null ?
                     ( o2 == null ? 0 : -1 ) :
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
 
             int getValue( String val )
             {
-                if ( val.equals( "LOW" ) ) 
+                if ( val.equals( "LOW" ) )
                 {
                     return 0;
                 }
-                else if ( val.equals( "MEDIUM" ) ) 
+                else if ( val.equals( "MEDIUM" ) )
                 {
                     return 1;
                 }
-                else if ( val.equals( "HIGH" ) ) 
+                else if ( val.equals( "HIGH" ) )
                 {
                     return 2;
                 }
@@ -184,7 +187,7 @@ public class TestServerEntryUtils
 
     /* no protection*/ static AttributeType getIA5StringAttributeType()
     {
-        AttributeType attributeType = new AttributeType( "1.1" );
+        MutableAttributeType attributeType = new MutableAttributeType( "1.1" );
         attributeType.addName( "1.1" );
         LdapSyntax syntax = new LdapSyntax( "1.1.1", "", true );
 
@@ -196,7 +199,7 @@ public class TestServerEntryUtils
             }
         } );
         
-        MatchingRule matchingRule = new MatchingRule( "1.1.2" );
+        MutableMatchingRule matchingRule = new MutableMatchingRule( "1.1.2" );
         matchingRule.setSyntax( syntax );
 
 
@@ -204,7 +207,7 @@ public class TestServerEntryUtils
         {
             public int compare( String o1, String o2 )
             {
-                return ( ( o1 == null ) ? 
+                return ( ( o1 == null ) ?
                     ( o2 == null ? 0 : -1 ) :
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
@@ -221,7 +224,7 @@ public class TestServerEntryUtils
 
     /* No protection */ static AttributeType getBytesAttributeType()
     {
-        AttributeType attributeType = new AttributeType( "1.2" );
+        MutableAttributeType attributeType = new MutableAttributeType( "1.2" );
         LdapSyntax syntax = new LdapSyntax( "1.2.1", "", true );
 
         syntax.setSyntaxChecker( new SyntaxChecker( "1.2.1" )
@@ -232,7 +235,7 @@ public class TestServerEntryUtils
             }
         } );
 
-        MatchingRule matchingRule = new MatchingRule( "1.2.2" );
+        MutableMatchingRule matchingRule = new MutableMatchingRule( "1.2.2" );
         matchingRule.setSyntax( syntax );
 
         matchingRule.setLdapComparator( new ByteArrayComparator( "1.2.2" ) );
@@ -252,7 +255,7 @@ public class TestServerEntryUtils
                     
                     for ( byte b:val )
                     {
-                        newVal[i++] = (byte)(b & 0x007F); 
+                        newVal[i++] = (byte)(b & 0x007F);
                     }
                     
                     return new BinaryValue( Strings.trim(newVal) );
