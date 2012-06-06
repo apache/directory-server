@@ -46,6 +46,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -83,7 +84,7 @@ public class ClientServerReplicationIT
     @BeforeClass
     public static void setUp() throws Exception
     {
-        Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
+        Class.forName( FrameworkRunner.class.getName() );
         startProvider();
         startConsumer();
     }
@@ -164,7 +165,7 @@ public class ClientServerReplicationIT
             if ( session.exists( entryDn ) )
             {
                 if ( print )
-                {      
+                {
                     System.out.println( entryDn.getName() + " exists " );
                 }
                 
@@ -241,6 +242,7 @@ public class ClientServerReplicationIT
     
     
     @Test
+    @Ignore("There might be a bug where the old RDN value is still present in the provider session.")
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
@@ -446,10 +448,15 @@ public class ClientServerReplicationIT
     
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
-        // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
-        Entry providerEntry = providerSession.lookup( dn, "*", "+" );
+        String[] searchAttributes = new String[]
+            {
+                SchemaConstants.ALL_USER_ATTRIBUTES,
+                SchemaConstants.ENTRY_UUID_AT
+        };
+
+        Entry providerEntry = providerSession.lookup( dn, searchAttributes );
+        Entry consumerEntry = consumerSession.lookup( dn, searchAttributes );
         
-        Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
         assertEquals( providerEntry, consumerEntry );
     }
     
@@ -470,8 +477,8 @@ public class ClientServerReplicationIT
     
     
     @CreateDS(
-        allowAnonAccess = true, 
-        name = "provider-replication", 
+        allowAnonAccess = true,
+        name = "provider-replication",
         enableChangeLog = false,
         partitions =
         {
@@ -484,7 +491,7 @@ public class ClientServerReplicationIT
                     @CreateIndex(attribute = "dc"),
                     @CreateIndex(attribute = "ou")
                 },
-                contextEntry=@ContextEntry( entryLdif = 
+                contextEntry=@ContextEntry( entryLdif =
                     "dn: dc=example,dc=com\n" +
                     "objectClass: domain\n" +
                     "dc: example" ) )
@@ -524,9 +531,9 @@ public class ClientServerReplicationIT
     
     
     @CreateDS(
-        allowAnonAccess = true, 
+        allowAnonAccess = true,
         enableChangeLog = false,
-        name = "consumer-replication", 
+        name = "consumer-replication",
         partitions =
         {
             @CreatePartition(
@@ -538,7 +545,7 @@ public class ClientServerReplicationIT
                     @CreateIndex(attribute = "dc"),
                     @CreateIndex(attribute = "ou")
                 },
-                contextEntry=@ContextEntry( entryLdif = 
+                contextEntry=@ContextEntry( entryLdif =
                     "dn: dc=example,dc=com\n" +
                     "objectClass: domain\n" +
                     "dc: example" ) )

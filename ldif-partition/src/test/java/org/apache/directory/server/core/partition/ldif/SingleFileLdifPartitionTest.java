@@ -213,7 +213,7 @@ public class SingleFileLdifPartitionTest
      * @param fileName the full path to the ldif file to be loaded
      * @param truncate the flag to determine to truncate the file or not
      * @return the ldif partition after loading all the data
-     * @throws Exception     
+     * @throws Exception
      */
     private SingleFileLdifPartition createPartition( String fileName, boolean truncate ) throws Exception
     {
@@ -248,6 +248,7 @@ public class SingleFileLdifPartitionTest
     private void assertExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
+        opCtx.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         opCtx.setDn( entry.getDn() );
 
         Entry fetched = executionManager.lookup( partition,  opCtx );
@@ -429,7 +430,7 @@ public class SingleFileLdifPartitionTest
 
         executionManager.add( partition,  addCtx );
 
-        // now perform a modification on the entry present in middle of LDIF file 
+        // now perform a modification on the entry present in middle of LDIF file
         modOpCtx = new ModifyOperationContext( mockSession );
         modOpCtx.setEntry( new ClonedServerEntry( schemaManager, entry1 ) );
         modOpCtx.setDn( entry1.getDn() );
@@ -909,7 +910,7 @@ public class SingleFileLdifPartitionTest
 
     /**
      * An important test to check the stability of the partition
-     * under high concurrency 
+     * under high concurrency
      *
      * @throws Exception
      */
