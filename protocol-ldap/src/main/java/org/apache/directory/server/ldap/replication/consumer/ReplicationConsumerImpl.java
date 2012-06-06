@@ -129,13 +129,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
         {
-            SchemaConstants.ENTRY_UUID_AT, 
-            SchemaConstants.ENTRY_CSN_AT, 
+            SchemaConstants.ENTRY_UUID_AT,
+            SchemaConstants.ENTRY_CSN_AT,
             SchemaConstants.MODIFIERS_NAME_AT,
-            SchemaConstants.MODIFY_TIMESTAMP_AT, 
-            SchemaConstants.CREATE_TIMESTAMP_AT, 
-            SchemaConstants.CREATORS_NAME_AT, 
-            SchemaConstants.ENTRY_PARENT_ID_AT 
+            SchemaConstants.MODIFY_TIMESTAMP_AT,
+            SchemaConstants.CREATE_TIMESTAMP_AT,
+            SchemaConstants.CREATORS_NAME_AT,
+            SchemaConstants.ENTRY_PARENT_ID_AT
         };
 
     /** A thread used to refresh in refreshOnly mode */
@@ -207,7 +207,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
      * one remote server
      * 
-     * @return true if the connections have been successful. 
+     * @return true if the connections have been successful.
      */
     public boolean connect()
     {
@@ -277,7 +277,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService(), 
+            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService(),
                 new ManageDsaITImpl() ) );
         }
     }
@@ -518,7 +518,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     }
 
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public void setConfig( ReplicationConsumerConfig config )
@@ -903,7 +903,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             }
 
             // Check if the OldRdn has been deleted
-            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
+            boolean deleteOldRdn = !remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
 
             switch ( modDnType )
             {

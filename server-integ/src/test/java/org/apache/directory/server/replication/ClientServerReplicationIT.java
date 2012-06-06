@@ -242,7 +242,6 @@ public class ClientServerReplicationIT
     
     
     @Test
-    @Ignore("There might be a bug where the old RDN value is still present in the provider session.")
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
