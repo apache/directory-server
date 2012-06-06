@@ -482,34 +482,34 @@ public class AddIT extends AbstractLdapTestUnit
 
         // Create container
         Attributes container = new BasicAttributes( true );
-        javax.naming.directory.Attribute containerOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
-        containerOcls.add( SchemaConstants.TOP_OC );
-        containerOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        javax.naming.directory.Attribute containerOcls = new BasicAttribute( "ObjectClass" );
+        containerOcls.add( "top" );
+        containerOcls.add( "organizationalUnit" );
         container.put( containerOcls );
-        container.put( SchemaConstants.OU_AT, "Fruits" );
+        container.put( "ou", "Fruits" );
         String containerRdn = "ou=Fruits";
         DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
 
         // Create entry
         Attributes entry = new BasicAttributes( true );
-        javax.naming.directory.Attribute entryOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
-        entryOcls.add( SchemaConstants.TOP_OC );
-        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        javax.naming.directory.Attribute entryOcls = new BasicAttribute( "ObjectClass" );
+        entryOcls.add( "top" );
+        entryOcls.add( "organizationalUnit" );
         entry.put( entryOcls );
-        entry.put( SchemaConstants.OU_AT, "favorite" );
+        entry.put( "ou", "favorite" );
         String entryRdn = "ou=favorite";
         containerCtx.createSubcontext( entryRdn, entry );
 
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
         Attributes alias = new BasicAttributes( true );
-        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( SchemaConstants.OBJECT_CLASS_AT );
-        aliasOcls.add( SchemaConstants.TOP_OC );
-        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        aliasOcls.add( SchemaConstants.ALIAS_OC );
+        javax.naming.directory.Attribute aliasOcls = new BasicAttribute( "ObjectClass" );
+        aliasOcls.add( "top" );
+        aliasOcls.add( "extensibleObject" );
+        aliasOcls.add( "alias" );
         alias.put( aliasOcls );
-        alias.put( SchemaConstants.OU_AT, "bestFruit" );
-        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
+        alias.put( "ou", "bestFruit" );
+        alias.put( "aliasedObjectName", aliasedObjectName );
         String rdnAlias = "ou=bestFruit";
         containerCtx.createSubcontext( rdnAlias, alias );
 
