@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
+
 @Handler(name = DcHandlerConstants.DSCOMPONENT_HANDLER_NAME, namespace = DcHandlerConstants.DSCOMPONENT_HANDLER_NS)
 public class DirectoryComponentHandler extends AbstractDcHandler
 {
@@ -45,9 +46,28 @@ public class DirectoryComponentHandler extends AbstractDcHandler
 
 
     @Override
-    protected Hashtable<String,String> extractConstantProperties( Element ipojoMetadata )
+    protected Hashtable<String, String> extractConstantProperties( Element ipojoMetadata )
     {
-        return null;
+        Hashtable<String, String> constants = new Hashtable<String, String>();
+
+        Element[] components = ipojoMetadata.getElements( getHandlerName(), getHandlerNamespaceName() );
+        // Only one interceptor per class is allowed
+        Element component = components[0];
+
+        String isFactory = component.getAttribute( DcHandlerConstants.DSCOMPONENT_FACTORY_PROP_NAME );
+        if ( isFactory != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_FACTORY, isFactory );
+        }
+
+        String isExclusive = component.getAttribute( DcHandlerConstants.DSCOMPONENT_EXCLUSIVE_PROP_NAME );
+        if ( isExclusive != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        return constants;
+
     }
 
 }

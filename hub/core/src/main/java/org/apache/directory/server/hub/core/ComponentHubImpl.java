@@ -26,9 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import org.apache.directory.server.component.handler.ipojo.DcHandlerConstants;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
@@ -39,11 +42,9 @@ import org.apache.directory.server.hub.api.component.DcRuntime;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.component.DirectoryComponentConstants;
 import org.apache.directory.server.hub.api.component.util.InterceptionPoint;
-import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.directory.server.hub.api.component.util.InterceptorOperation;
 import org.apache.directory.server.hub.api.exception.BadConfigurationException;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
-import org.apache.directory.server.hub.api.exception.ComponentReconfigurationException;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 import org.apache.directory.server.hub.api.exception.HubStoreException;
 import org.apache.directory.server.hub.api.exception.StoreNotValidException;
@@ -62,7 +63,6 @@ import org.apache.directory.server.hub.core.meta.DcMetadataNormalizer;
 import org.apache.directory.server.hub.core.util.DCDependency;
 import org.apache.directory.server.hub.core.util.ParentLink;
 import org.apache.directory.server.hub.core.util.DCDependency.DCDependencyType;
-import org.apache.felix.ipojo.IPojoContext;
 import org.osgi.framework.Version;
 
 
@@ -74,6 +74,10 @@ public class ComponentHubImpl implements ComponentHub
     private InjectionRegistry injectionsReg = new InjectionRegistry();
     private PidHandlerRegistry handlersReg = new PidHandlerRegistry();
     private ParentLinkRegistry parentLinksReg = new ParentLinkRegistry();
+
+    private ReentrantReadWriteLock hubLock = new ReentrantReadWriteLock();
+    private ReadLock readLock = hubLock.readLock();
+    private WriteLock writeLock = hubLock.writeLock();
 
     private CollectionConnector collectionConnector;
     public IPojoConnector ipojoConnector;
@@ -258,9 +262,14 @@ public class ComponentHubImpl implements ComponentHub
             catch ( BadConfigurationException e )
             {
                 throw new HubAbortException(
-                    "Active DirectoryComponent can not be reconfigured with incorrect configuration", e );
+                    "Active DirectoryComponent can not be reconfigured with invalid configuration", e );
             }
         }
+
+        clientManager.fireDCReconfiguring( component, newConfiguration );
+
+        boolean isExclusive = metadata.isExclusive();
+        boolean reinstantiate = false;
 
         // Immutable property change handling
         if ( component.getRuntimeInfo() != null )
@@ -273,24 +282,101 @@ public class ComponentHubImpl implements ComponentHub
                     DcProperty oldProp = component.getConfiguration().getProperty( prop.getName() );
                     if ( oldProp != null && !( oldProp.getValue().equals( prop.getValue() ) ) )
                     {
-                        // We're changing immutable property of live component
-                        boolean wasDirty = component.isDirty();
-                        component.setDirty( false );
-
-                        try
-                        {
-                            removeComponent( component );
-                            component.setDirty( wasDirty );
-                            break;
-                        }
-                        catch ( HubAbortException e )
-                        {
-                            throw new HubAbortException(
-                                "Reconfiguration of immutable property led to re-instantiation, which has been rejected by hub",
-                                e );
-                        }
+                        reinstantiate = true;
                     }
                 }
+            }
+        }
+
+        DcConfiguration oldConfiguration = component.getConfiguration();
+        DcRuntime oldRuntime = component.getRuntimeInfo();
+
+        DcOperationsManager operations = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+
+        component.setConfiguration( newConfiguration );
+        try
+        {
+            processConfiguration( component );
+        }
+        catch ( BadConfigurationException e )
+        {
+            throw new HubAbortException( "New configuration is rejected while processing", e );
+        }
+
+        if ( component.getRuntimeInfo() != null )
+        {
+            try
+            {
+                if ( reinstantiate )
+                {
+                    if ( isExclusive )
+                    {
+                        operations.disposeComponent( component );
+                    }
+                    else
+                    {
+                        component.setRuntimeInfo( null );
+                    }
+                }
+                else
+                {
+                    operations.reconfigureComponent( component );
+                }
+
+                clientManager.fireDCReconfigured( component, reinstantiate );
+
+                List<ParentLink> parents = parentLinksReg.getParentLinks( component );
+                if ( parents != null )
+                {
+                    for ( ParentLink parentLink : parents )
+                    {
+                        DirectoryComponent parent = parentLink.getParent();
+                        DcConfiguration newParentConf = new DcConfiguration( component.getConfiguration() );
+                        newParentConf.addProperty( new DcProperty(
+                            DirectoryComponentConstants.DC_PROP_INNER_RECONF_NAME, parentLink
+                                .getLinkPoint() ) );
+
+                        updateComponent( parent, newParentConf );
+                    }
+                }
+            }
+            catch ( Exception e )
+            {
+                if ( reinstantiate && !isExclusive )
+                {
+                    component.setRuntimeInfo( oldRuntime );
+                    component.setConfiguration( oldConfiguration );
+
+                    throw new HubAbortException( "Reconfiguration is rejected by target component:"
+                        + component.getComponentPID(), e );
+                }
+                else
+                {
+                    component.setConfiguration( oldConfiguration );
+                    try
+                    {
+                        processConfiguration( component );
+                        operations.reconfigureComponent( component );
+
+                        throw new HubAbortException( "Reconfiguration is rejected by target component:"
+                            + component.getComponentPID(), e );
+                    }
+                    catch ( Exception e2 )
+                    {
+                        disposeComponent( component );
+
+                        throw new HubAbortException( "Reconfiguration reverted but component couldn't be saved:"
+                            + component.getComponentPID(), e );
+
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ( component.instantiationFailed() )
+            {
+                instantiateComponent( component );
             }
         }
 
@@ -302,21 +388,7 @@ public class ComponentHubImpl implements ComponentHub
             }
             catch ( HubStoreException e )
             {
-                throw new HubAbortException( "HubStore error raised while updating:" + component.getComponentPID(), e );
-            }
-        }
-
-        component.setConfiguration( newConfiguration );
-
-        if ( component.getRuntimeInfo() != null )
-        {
-            reconfigureComponent( component );
-        }
-        else
-        {
-            if ( component.instantiationFailed() )
-            {
-                instantiateComponent( component );
+                // TODO Error log:Store couldn't be updated...
             }
         }
     }
@@ -372,7 +444,55 @@ public class ComponentHubImpl implements ComponentHub
     @Override
     public void removeComponent( DirectoryComponent component ) throws HubAbortException
     {
-        clientManager.fireDCRemoving( component );
+        clientManager.fireDCDeactivating( component );
+
+        List<ParentLink> parents = parentLinksReg.getParentLinks( component );
+        if ( parents != null )
+        {
+            List<ParentLink> alteredParents = new ArrayList<ParentLink>();
+            for ( ParentLink parentLink : parents )
+            {
+                DcConfiguration newParentConf = parentLink.getParent().getConfiguration();
+                DcProperty refProperty = newParentConf.getProperty( parentLink.getLinkPoint() );
+                refProperty.setValue( "null" );
+
+                try
+                {
+                    updateComponent( parentLink.getParent(), newParentConf );
+                    alteredParents.add( parentLink );
+                }
+                catch ( HubAbortException e )
+                {
+                    /*
+                     * At some parent, deletion rejected ! change already altered parents to previous state.
+                     */
+
+                    for ( ParentLink alteredLink : alteredParents )
+                    {
+                        DcConfiguration revertedConf = parentLink.getParent().getConfiguration();
+                        DcProperty refProperty2 = newParentConf.getProperty( parentLink.getLinkPoint() );
+                        refProperty.setValue( component.getComponentPID() );
+
+                        try
+                        {
+                            updateComponent( alteredLink.getParent(), revertedConf );
+                        }
+                        catch ( HubAbortException e2 )
+                        {
+                            // TODO log given parent couldn't be reverted from cancelled removal of its referenced property.
+                        }
+                    }
+                }
+            }
+        }
+
+        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
+        if ( opManager != null )
+        {
+            opManager.disposeComponent( component );
+        }
+
+        componentsReg.removeDirectoryComponent( component );
 
         if ( component.isDirty() )
         {
@@ -382,14 +502,9 @@ public class ComponentHubImpl implements ComponentHub
             }
             catch ( HubStoreException e )
             {
-                throw new HubAbortException( "Component couldn't be removed from store, it is still active.", e );
+                // TODO log: "Component couldn't be removed from store, it is still active."
             }
         }
-
-        handleComponentRemoval( component );
-
-        componentsReg.removeDirectoryComponent( component );
-
     }
 
 
@@ -599,12 +714,12 @@ public class ComponentHubImpl implements ComponentHub
         DcMetadataDescriptor metadata = metadatasReg.getMetadataDescriptor( component.getComponentManagerPID() );
 
         // Loading meta-constant properties into component
-        Hashtable<String, String> constants = metadata.getConstants();
-        if ( constants != null )
+        Hashtable<String, String> attributes = metadata.getAttributes();
+        if ( attributes != null )
         {
-            for ( String key : constants.keySet() )
+            for ( String key : attributes.keySet() )
             {
-                component.getConfiguration().addConstant( key, constants.get( key ) );
+                component.getConfiguration().addAttribute( key, attributes.get( key ) );
             }
         }
 
@@ -764,50 +879,9 @@ public class ComponentHubImpl implements ComponentHub
     }
 
 
-    private void reconfigureComponent( DirectoryComponent component )
-    {
-        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
-        if ( opManager == null )
-        {
-            return;
-        }
-
-        try
-        {
-            processConfiguration( component );
-            opManager.reconfigureComponent( component );
-
-            component.setFailFlag( false );
-            clientManager.fireDCReconfigured( component );
-
-            List<ParentLink> parents = parentLinksReg.getParentLinks( component );
-            if ( parents != null )
-            {
-                for ( ParentLink parentLink : parents )
-                {
-                    DirectoryComponent parent = parentLink.getParent();
-                    parent.getConfiguration().addProperty(
-                        new DcProperty( DirectoryComponentConstants.DC_PROP_INNER_RECONF_NAME, parentLink
-                            .getLinkPoint() ) );
-
-                    reconfigureComponent( parent );
-                }
-            }
-        }
-        catch ( ComponentReconfigurationException e )
-        {
-            component.setFailFlag( true );
-        }
-        catch ( BadConfigurationException e )
-        {
-            component.setFailFlag( true );
-        }
-    }
-
-
     private void disposeComponent( DirectoryComponent component )
     {
-        clientManager.fireDCDeactivating( component );
+        clientManager.fireDCDeactivated( component );
 
         List<ParentLink> parents = parentLinksReg.getParentLinks( component );
         if ( parents != null )
@@ -830,39 +904,14 @@ public class ComponentHubImpl implements ComponentHub
     }
 
 
-    private void handleComponentRemoval( DirectoryComponent component )
-    {
-        List<ParentLink> parents = parentLinksReg.getParentLinks( component );
-        if ( parents != null )
-        {
-            for ( ParentLink parentLink : parents )
-            {
-                DcProperty refProperty = parentLink.getParent().getConfiguration()
-                    .getProperty( parentLink.getLinkPoint() );
-                refProperty.setValue( "null" );
-
-                reconfigureComponent( parentLink.getParent() );
-            }
-        }
-
-        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
-        if ( opManager != null )
-        {
-            opManager.disposeComponent( component );
-        }
-
-        component.setRuntimeInfo( null );
-    }
-
-
     private void insertConfiguratorInterceptor()
     {
         configurator = new ConfiguratorInterceptor();
         configurator.init( this );
 
         DcConfiguration config = new DcConfiguration( new ArrayList<DcProperty>() );
-        config.addConstant( IPojoComponentConstants.PROP_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
-        config.addConstant( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS,
+        config.addAttribute( DcHandlerConstants.INTERCEPTOR_INTERCEPTION_POINT, InterceptionPoint.END.toString() );
+        config.addAttribute( DcHandlerConstants.INTERCEPTOR_INTERCEPTOR_OPERATIONS,
             "[" +
                 InterceptorOperation.ADD + "," +
                 InterceptorOperation.DELETE + "," +
@@ -876,7 +925,7 @@ public class ComponentHubImpl implements ComponentHub
         component.setDirty( false );
 
         DcMetadataDescriptor configuratorMeta =
-            new DcMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
+            new DcMetadataDescriptor( "configuratorMeta", false, false, new Version( "2.0.0" ),
                 ConfiguratorInterceptor.class.getName(), new String[]
                     { Interceptor.class.getName() }, new String[0], null, new DcPropertyDescription[0] );
 
@@ -924,5 +973,19 @@ public class ComponentHubImpl implements ComponentHub
     public PidHandlerRegistry getPIDHandlerRegistry()
     {
         return handlersReg;
+    }
+
+
+    @Override
+    public ReadLock getReadLock()
+    {
+        return readLock;
+    }
+
+
+    @Override
+    public WriteLock getWriteLock()
+    {
+        return writeLock;
     }
 }

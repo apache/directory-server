@@ -35,6 +35,7 @@ public class StoreSchemaConstants
     public static final String HUB_AT_MD_IMPLEMENTS = "ads-meta-implements";
     public static final String HUB_AT_MD_EXTENDS = "ads-meta-extends";
     public static final String HUB_AT_MD_FACTORY = "ads-meta-factory";
+    public static final String HUB_AT_MD_EXCLUSIVE = "ads-meta-immutable";
     public static final String HUB_AT_MD_PROP = "ads-meta-property";
 
     public static final String HUB_AT_PD_NAME = "ads-pd-name";
@@ -46,11 +47,10 @@ public class StoreSchemaConstants
     public static final String HUB_AT_PD_CONTAINERFOR = "ads-pd-containerFor";
 
     public static final String HUB_OC_COMPONENT = "ads-component";
-    public static final String HUB_OC_COLLECTION = "ads-collection";
     public static final String HUB_OC_COLLECTION_ITEM = "ads-collection-item";
-    public static final String HUB_OC_COLL_LIST = "ads-collection-list";
-    public static final String HUB_OC_COLL_SET = "ads-collection-set";
-    public static final String HUB_OC_COLL_ARRAT = "ads-collection-array";
+    public static final String HUB_OC_COLL_LIST = "ads-list";
+    public static final String HUB_OC_COLL_SET = "ads-set";
+    public static final String HUB_OC_COLL_ARRAY = "ads-array";
 
     public static final String HUB_OC_METADESC = "ads-meta-descriptor";
     public static final String HUB_OC_PROPERTYDESC = "ads-property-descriptor";

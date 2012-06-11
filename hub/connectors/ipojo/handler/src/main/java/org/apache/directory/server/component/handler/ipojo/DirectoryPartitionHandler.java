@@ -47,9 +47,27 @@ public class DirectoryPartitionHandler extends AbstractDcHandler
 
 
     @Override
-    protected Hashtable<String,String> extractConstantProperties( Element ipojoMetadata )
+    protected Hashtable<String, String> extractConstantProperties( Element ipojoMetadata )
     {
-        return null;
+        Element[] partitions = ipojoMetadata.getElements( getHandlerName(), getHandlerNamespaceName() );
+        // Only one partition per class is allowed
+        Element partition = partitions[0];
+
+        Hashtable<String, String> constants = new Hashtable<String, String>();
+        
+        String isFactory = partition.getAttribute( DcHandlerConstants.DSCOMPONENT_FACTORY_PROP_NAME );
+        if ( isFactory != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_FACTORY, isFactory );
+        }
+
+        String isExclusive = partition.getAttribute( DcHandlerConstants.DSCOMPONENT_EXCLUSIVE_PROP_NAME );
+        if ( isExclusive != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        return constants;
     }
 
 }

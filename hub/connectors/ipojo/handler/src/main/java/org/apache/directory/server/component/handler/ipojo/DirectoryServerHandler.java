@@ -49,7 +49,25 @@ public class DirectoryServerHandler extends AbstractDcHandler
     @Override
     protected Hashtable<String,String> extractConstantProperties( Element ipojoMetadata )
     {
-        return null;
+        Element[] servers = ipojoMetadata.getElements( getHandlerName(), getHandlerNamespaceName() );
+        // Only one server per class is allowed
+        Element server = servers[0];
+
+        Hashtable<String, String> constants = new Hashtable<String, String>();
+
+        String isFactory = server.getAttribute( DcHandlerConstants.DSCOMPONENT_FACTORY_PROP_NAME );
+        if ( isFactory != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_FACTORY, isFactory );
+        }
+
+        String isExclusive = server.getAttribute( DcHandlerConstants.DSCOMPONENT_EXCLUSIVE_PROP_NAME );
+        if ( isExclusive != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        return constants;
     }
 
 }

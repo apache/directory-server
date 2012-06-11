@@ -21,6 +21,7 @@
 package org.apache.directory.server.hub.api;
 
 
+import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 
@@ -33,19 +34,26 @@ public class AbstractHubClient
     }
 
 
-    public void componentDeactivating( DirectoryComponent component )
+    public void componentDeactivating( DirectoryComponent component ) throws HubAbortException
     {
 
     }
 
 
-    public void componentRemoving( DirectoryComponent component ) throws HubAbortException
+    public void componentDeactivated( DirectoryComponent component )
     {
 
     }
 
 
-    public void componentReconfigured( DirectoryComponent component )
+    public void componentReconfiguring( DirectoryComponent component, DcConfiguration newConfiguration )
+        throws HubAbortException
+    {
+
+    }
+
+
+    public void componentReconfigured( DirectoryComponent component, boolean newInstance )
     {
 
     }

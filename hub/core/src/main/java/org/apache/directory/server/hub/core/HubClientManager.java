@@ -30,6 +30,7 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
+import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
@@ -106,7 +107,17 @@ public class HubClientManager
     }
 
 
-    public void fireDCDeactivating( DirectoryComponent component )
+    public void fireDCDeactivated( DirectoryComponent component )
+    {
+        List<AbstractHubClient> clients = getRegisteredClients( component );
+        for ( AbstractHubClient client : clients )
+        {
+            client.componentDeactivated( component );
+        }
+    }
+
+
+    public void fireDCDeactivating( DirectoryComponent component ) throws HubAbortException
     {
         List<AbstractHubClient> clients = getRegisteredClients( component );
         for ( AbstractHubClient client : clients )
@@ -116,22 +127,23 @@ public class HubClientManager
     }
 
 
-    public void fireDCRemoving( DirectoryComponent component ) throws HubAbortException
+    public void fireDCReconfiguring( DirectoryComponent component, DcConfiguration newConfiguration )
+        throws HubAbortException
     {
         List<AbstractHubClient> clients = getRegisteredClients( component );
         for ( AbstractHubClient client : clients )
         {
-            client.componentRemoving( component );
+            client.componentReconfiguring( component, newConfiguration );
         }
     }
 
 
-    public void fireDCReconfigured( DirectoryComponent component )
+    public void fireDCReconfigured( DirectoryComponent component, boolean newInstance )
     {
         List<AbstractHubClient> clients = getRegisteredClients( component );
         for ( AbstractHubClient client : clients )
         {
-            client.componentReconfigured( component );
+            client.componentReconfigured( component, newInstance );
         }
     }
 

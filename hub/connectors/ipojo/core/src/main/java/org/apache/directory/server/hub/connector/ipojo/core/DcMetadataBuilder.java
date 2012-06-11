@@ -25,9 +25,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
+import org.apache.directory.server.component.handler.ipojo.DcHandlerConstants;
 import org.apache.directory.server.component.handler.ipojo.property.DirectoryPropertyDescription;
 import org.apache.directory.server.hub.api.component.util.ComponentConstants;
-import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
 import org.apache.felix.ipojo.ComponentFactory;
@@ -44,10 +45,11 @@ public class DcMetadataBuilder
         String metadataPID = factory.getName();
         Version metaVersion = factory.getBundleContext().getBundle().getVersion();
         boolean isFactory = true;
+        boolean isExclusive = false;
 
         List<DcPropertyDescription> properties = new ArrayList<DcPropertyDescription>();
 
-        Hashtable<String, String> constants = new Hashtable<String, String>();
+        Hashtable<String, String> attributes = new Hashtable<String, String>();
 
         for ( PropertyDescription property : factory.getComponentDescription().getProperties() )
         {
@@ -59,7 +61,6 @@ public class DcMetadataBuilder
             String type = normalizeType( property.getType() );
             String description = "";
             String containerFor = "";
-            
 
             DirectoryPropertyDescription dpd = null;
             if ( property instanceof DirectoryPropertyDescription )
@@ -82,13 +83,17 @@ public class DcMetadataBuilder
 
             if ( constant )
             {
-                if ( name.equals( IPojoComponentConstants.PROP_IS_FACTORY ) )
+                if ( name.equals( DcHandlerConstants.META_IS_FACTORY ) )
                 {
                     isFactory = Boolean.parseBoolean( defaultValue );
                 }
+                else if ( name.equals( DcHandlerConstants.META_IS_EXCLUSIVE ) )
+                {
+                    isExclusive = Boolean.parseBoolean( defaultValue );
+                }
                 else
                 {
-                    constants.put( name, defaultValue );
+                    attributes.put( name, defaultValue );
                 }
             }
             else
@@ -111,8 +116,9 @@ public class DcMetadataBuilder
         String[] implemented = parseArray( interfaces );
         String[] extended = parseArray( sclasses );
 
-        DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, isFactory, metaVersion, className,
-            implemented, extended, constants, properties.toArray( new DcPropertyDescription[0] ) );
+        DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, isFactory, isExclusive, metaVersion,
+            className,
+            implemented, extended, attributes, properties.toArray( new DcPropertyDescription[0] ) );
 
         return metadata;
     }

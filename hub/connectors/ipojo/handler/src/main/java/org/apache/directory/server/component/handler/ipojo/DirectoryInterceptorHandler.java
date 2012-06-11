@@ -23,7 +23,6 @@ package org.apache.directory.server.component.handler.ipojo;
 
 import java.util.Hashtable;
 
-import org.apache.directory.server.hub.api.component.util.IPojoComponentConstants;
 import org.apache.felix.ipojo.annotations.Handler;
 import org.apache.felix.ipojo.metadata.Element;
 
@@ -53,13 +52,26 @@ public class DirectoryInterceptorHandler extends AbstractDcHandler
         // Only one interceptor per class is allowed
         Element interceptor = interceptors[0];
 
-        String interceptionPoint = interceptor.getAttribute( IPojoComponentConstants.PROP_INTERCEPTION_POINT );
-        String interceptorOperations = interceptor.getAttribute( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS );
-
         Hashtable<String, String> constants = new Hashtable<String, String>();
-        constants.put( IPojoComponentConstants.PROP_INTERCEPTION_POINT, interceptionPoint );
-        constants.put( IPojoComponentConstants.PROP_INTERCEPTOR_OPERATIONS, interceptorOperations );
-        constants.put( IPojoComponentConstants.PROP_IS_FACTORY, "false" );
+
+        String interceptionPoint = interceptor.getAttribute( DcHandlerConstants.INTERCEPTOR_INTERCEPTION_POINT );
+        String interceptorOperations = interceptor
+            .getAttribute( DcHandlerConstants.INTERCEPTOR_INTERCEPTOR_OPERATIONS );
+
+        String isFactory = interceptor.getAttribute( DcHandlerConstants.DSCOMPONENT_FACTORY_PROP_NAME );
+        if ( isFactory != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_FACTORY, isFactory );
+        }
+
+        String isExclusive = interceptor.getAttribute( DcHandlerConstants.DSCOMPONENT_EXCLUSIVE_PROP_NAME );
+        if ( isExclusive != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        constants.put( DcHandlerConstants.INTERCEPTOR_INTERCEPTION_POINT, interceptionPoint );
+        constants.put( DcHandlerConstants.INTERCEPTOR_INTERCEPTOR_OPERATIONS, interceptorOperations );
 
         return constants;
 

@@ -20,6 +20,10 @@
 
 package org.apache.directory.server.hub.api;
 
+
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
 import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
@@ -30,8 +34,6 @@ import org.apache.directory.server.hub.api.registry.DcMetadataRegistry;
 import org.apache.directory.server.hub.api.registry.DirectoryComponentRegistry;
 import org.apache.directory.server.hub.api.registry.InjectionRegistry;
 import org.apache.directory.server.hub.api.registry.PidHandlerRegistry;
-
-
 
 
 public interface ComponentHub
@@ -82,5 +84,11 @@ public interface ComponentHub
 
 
     public abstract PidHandlerRegistry getPIDHandlerRegistry();
+
+
+    public abstract ReadLock getReadLock();
+
+
+    public abstract WriteLock getWriteLock();
 
 }

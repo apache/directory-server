@@ -191,24 +191,29 @@ public class StoreConfigManager
         Entry mdEntry = new DefaultEntry( schemaManager, mdDn );
 
         mdEntry.add( schemaManager.getAttributeType( "objectclass" ), "ads-meta-descriptor" );
-        mdEntry.add( schemaManager.getAttributeType( "ads-meta-pid" ), metadata.getMetadataPID() );
-        mdEntry.add( schemaManager.getAttributeType( "ads-meta-version" ), metadata.getMetaVersion().toString() );
-        mdEntry.add( schemaManager.getAttributeType( "ads-meta-factory" ), ( metadata.isFactory() ) ? "TRUE" : "FALSE" );
-        mdEntry.add( schemaManager.getAttributeType( "ads-meta-classname" ), metadata.getClassName() );
+        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PID ), metadata.getMetadataPID() );
+        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_VERSION ), metadata
+            .getMetaVersion().toString() );
+        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_FACTORY ),
+            ( metadata.isFactory() ) ? "TRUE" : "FALSE" );
+        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_EXCLUSIVE ),
+            ( metadata.isExclusive() ) ? "TRUE" : "FALSE" );
+        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_CLASSNAME ),
+            metadata.getClassName() );
 
         for ( DcPropertyDescription pd : metadata.getPropertyDescriptons() )
         {
-            mdEntry.add( schemaManager.getAttributeType( "ads-meta-property" ), pd.getName() );
+            mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PROP ), pd.getName() );
         }
 
         for ( String iface : metadata.getImplementedInterfaces() )
         {
-            mdEntry.add( schemaManager.getAttributeType( "ads-meta-implements" ), iface );
+            mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_IMPLEMENTS ), iface );
         }
 
         for ( String sclass : metadata.getExtendedClasses() )
         {
-            mdEntry.add( schemaManager.getAttributeType( "ads-meta-extends" ), sclass );
+            mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_EXTENDS ), sclass );
         }
 
         mdEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
@@ -379,7 +384,9 @@ public class StoreConfigManager
                     continue;
                 }
 
-                if ( component.getComponentManagerPID().startsWith( StoreSchemaConstants.HUB_OC_COLLECTION ) )
+                if ( component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_LIST )
+                    || component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_SET )
+                    || component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_ARRAY ) )
                 {
                     List<DirectoryComponent> items = getComponents(
                         new Dn( schemaManager, component.getConfigLocation() ), SearchScope.ONELEVEL );
@@ -557,6 +564,7 @@ public class StoreConfigManager
         Attribute implemented = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_IMPLEMENTS ) );
         Attribute props = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PROP ) );
         Attribute factory = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_FACTORY ) );
+        Attribute exclusive = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_EXCLUSIVE ) );
 
         try
         {
@@ -592,8 +600,9 @@ public class StoreConfigManager
                 }
             }
             boolean isFactory = Boolean.parseBoolean( factory.getString() );
+            boolean isExclusive = Boolean.parseBoolean( exclusive.getString() );
 
-            return new DcMetadataDescriptor( pid.getString(), isFactory, new Version(
+            return new DcMetadataDescriptor( pid.getString(), isFactory, isExclusive, new Version(
                 version.getString() ), classname.getString(),
                 implementedList.toArray( new String[0] ), extendedList.toArray( new String[0] ), null,
                 pds.toArray( new DcPropertyDescription[0] ) );

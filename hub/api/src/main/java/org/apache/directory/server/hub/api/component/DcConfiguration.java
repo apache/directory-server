@@ -33,7 +33,7 @@ public class DcConfiguration implements Iterable<DcProperty>
     private Hashtable<String, DcProperty> propertyMap;
     private Integer collectionIndex = null;
 
-    private Hashtable<String, String> constantProperties = new Hashtable<String, String>();
+    private Hashtable<String, String> attributes = new Hashtable<String, String>();
 
 
     public DcConfiguration( List<DcProperty> properties )
@@ -71,6 +71,12 @@ public class DcConfiguration implements Iterable<DcProperty>
 
     public void addProperty( DcProperty property )
     {
+        DcProperty existing = propertyMap.get( property.getName() );
+        if ( existing != null )
+        {
+            removeProperty( property.getName() );
+        }
+
         properties.add( property );
         propertyMap.put( property.getName(), property );
     }
@@ -104,15 +110,15 @@ public class DcConfiguration implements Iterable<DcProperty>
     }
 
 
-    public void addConstant( String name, String value )
+    public void addAttribute( String name, String value )
     {
-        constantProperties.put( name, value );
+        attributes.put( name, value );
     }
 
 
-    public String getConstantProperty( String name )
+    public String getAttribute( String name )
     {
-        return constantProperties.get( name );
+        return attributes.get( name );
     }
 
 }

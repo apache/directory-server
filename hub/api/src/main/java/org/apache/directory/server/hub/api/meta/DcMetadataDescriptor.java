@@ -40,28 +40,31 @@ public class DcMetadataDescriptor
 
     private Hashtable<String, DcPropertyDescription> propertyMap;
 
-    private Hashtable<String, String> constants;
+    private Hashtable<String, String> attributes;
 
     private boolean factory;
+    private boolean exclusive;
 
 
     public DcMetadataDescriptor(
         String metadataPID,
         boolean isFactory,
+        boolean isExclusive,
         Version metaVersion,
         String className,
         String[] implemented,
         String[] extended,
-        Hashtable<String, String> constants,
+        Hashtable<String, String> attributes,
         DcPropertyDescription[] properties )
     {
         this.metadataPID = metadataPID;
         this.factory = isFactory;
+        this.exclusive = isExclusive;
         this.metaVersion = metaVersion;
         this.className = className;
         this.implemented = implemented;
         this.extended = extended;
-        this.constants = constants;
+        this.attributes = attributes;
         this.properties = properties;
 
         propertyMap = new Hashtable<String, DcPropertyDescription>();
@@ -85,6 +88,12 @@ public class DcMetadataDescriptor
     public boolean isFactory()
     {
         return factory;
+    }
+
+
+    public boolean isExclusive()
+    {
+        return exclusive;
     }
 
 
@@ -184,9 +193,9 @@ public class DcMetadataDescriptor
     }
 
 
-    public Hashtable<String, String> getConstants()
+    public Hashtable<String, String> getAttributes()
     {
-        return constants;
+        return attributes;
     }
 
 }

@@ -194,6 +194,7 @@ public abstract class AbstractDcHandler extends PrimitiveHandler
             // If property is constructor index then it must be mandatory.
             if ( paramIndex != null )
             {
+                immutable = true;
                 mandatory = true;
             }
 

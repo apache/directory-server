@@ -100,7 +100,9 @@ public class ConfiguratorInterceptor extends BaseInterceptor implements HubConne
                 parentDn = parentDn.getParent();
 
                 DirectoryComponent parentComponent = hub.getDCRegistry().getComponentByLocation( parentDn.toString() );
-                if ( parentComponent.getComponentManagerPID().startsWith( StoreSchemaConstants.HUB_OC_COLLECTION ) )
+                if ( component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_LIST )
+                    || component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_SET )
+                    || component.getComponentManagerPID().equals( StoreSchemaConstants.HUB_OC_COLL_ARRAY ) )
                 {
                     DcConfiguration newConfiguration = new DcConfiguration( parentComponent.getConfiguration() );
 

@@ -32,5 +32,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface DirectoryPartition
 {
+	boolean factory() default true;
 
+
+    boolean exclusive() default false;
 }
