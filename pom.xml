@@ -87,7 +87,7 @@
     <xercesImpl.version>2.10.0</xercesImpl.version>
     <ipojo.version>1.9.0-SNAPSHOT</ipojo.version>
     <ipojo.annotations.version>1.8.0</ipojo.annotations.version>
-    <bnd.ipojo.version>1.8.4</bnd.ipojo.version>
+    <bnd.ipojo.version>1.9.0-SNAPSHOT</bnd.ipojo.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
