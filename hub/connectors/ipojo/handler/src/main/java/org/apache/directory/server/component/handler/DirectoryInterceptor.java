@@ -40,6 +40,9 @@ public @interface DirectoryInterceptor
 
 
     boolean exclusive() default false;
+
+
+    boolean threadsafe() default true;
     
     /*
      * Used to specify interception point for all component instances

@@ -65,6 +65,12 @@ public class DirectoryComponentHandler extends AbstractDcHandler
         {
             constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
         }
+        
+        String isThreadSafe = component.getAttribute( DcHandlerConstants.DSCOMPONENT_THREADSAFE_PROP_NAME );
+        if ( isThreadSafe != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_THREAD_SAFE, isThreadSafe );
+        }
 
         return constants;
 

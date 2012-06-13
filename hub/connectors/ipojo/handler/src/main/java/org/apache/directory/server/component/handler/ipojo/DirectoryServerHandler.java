@@ -47,7 +47,7 @@ public class DirectoryServerHandler extends AbstractDcHandler
 
 
     @Override
-    protected Hashtable<String,String> extractConstantProperties( Element ipojoMetadata )
+    protected Hashtable<String, String> extractConstantProperties( Element ipojoMetadata )
     {
         Element[] servers = ipojoMetadata.getElements( getHandlerName(), getHandlerNamespaceName() );
         // Only one server per class is allowed
@@ -65,6 +65,12 @@ public class DirectoryServerHandler extends AbstractDcHandler
         if ( isExclusive != null )
         {
             constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        String isThreadSafe = server.getAttribute( DcHandlerConstants.DSCOMPONENT_THREADSAFE_PROP_NAME );
+        if ( isThreadSafe != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_THREAD_SAFE, isThreadSafe );
         }
 
         return constants;

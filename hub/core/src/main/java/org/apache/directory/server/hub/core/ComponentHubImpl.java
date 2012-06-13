@@ -925,7 +925,7 @@ public class ComponentHubImpl implements ComponentHub
         component.setDirty( false );
 
         DcMetadataDescriptor configuratorMeta =
-            new DcMetadataDescriptor( "configuratorMeta", false, false, new Version( "2.0.0" ),
+            new DcMetadataDescriptor( "configuratorMeta", false, new Version( "2.0.0" ),
                 ConfiguratorInterceptor.class.getName(), new String[]
                     { Interceptor.class.getName() }, new String[0], null, new DcPropertyDescription[0] );
 

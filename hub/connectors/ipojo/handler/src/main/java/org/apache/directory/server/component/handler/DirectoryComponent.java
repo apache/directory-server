@@ -37,4 +37,7 @@ public @interface DirectoryComponent
 
 
     boolean exclusive() default false;
+
+
+    boolean threadsafe() default true;
 }

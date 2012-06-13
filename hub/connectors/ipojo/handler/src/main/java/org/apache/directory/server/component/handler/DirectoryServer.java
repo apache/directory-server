@@ -37,4 +37,7 @@ public @interface DirectoryServer
 
 
     boolean exclusive() default false;
+
+
+    boolean threadsafe() default true;
 }

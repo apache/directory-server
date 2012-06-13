@@ -70,6 +70,12 @@ public class DirectoryInterceptorHandler extends AbstractDcHandler
             constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
         }
 
+        String isThreadSafe = interceptor.getAttribute( DcHandlerConstants.DSCOMPONENT_THREADSAFE_PROP_NAME );
+        if ( isThreadSafe != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_THREAD_SAFE, isThreadSafe );
+        }
+
         constants.put( DcHandlerConstants.INTERCEPTOR_INTERCEPTION_POINT, interceptionPoint );
         constants.put( DcHandlerConstants.INTERCEPTOR_INTERCEPTOR_OPERATIONS, interceptorOperations );
 

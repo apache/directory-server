@@ -54,7 +54,7 @@ public class DirectoryPartitionHandler extends AbstractDcHandler
         Element partition = partitions[0];
 
         Hashtable<String, String> constants = new Hashtable<String, String>();
-        
+
         String isFactory = partition.getAttribute( DcHandlerConstants.DSCOMPONENT_FACTORY_PROP_NAME );
         if ( isFactory != null )
         {
@@ -65,6 +65,12 @@ public class DirectoryPartitionHandler extends AbstractDcHandler
         if ( isExclusive != null )
         {
             constants.put( DcHandlerConstants.META_IS_EXCLUSIVE, isExclusive );
+        }
+
+        String isThreadSafe = partition.getAttribute( DcHandlerConstants.DSCOMPONENT_THREADSAFE_PROP_NAME );
+        if ( isThreadSafe != null )
+        {
+            constants.put( DcHandlerConstants.META_IS_THREAD_SAFE, isThreadSafe );
         }
 
         return constants;

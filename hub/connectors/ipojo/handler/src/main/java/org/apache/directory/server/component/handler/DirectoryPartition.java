@@ -36,4 +36,7 @@ public @interface DirectoryPartition
 
 
     boolean exclusive() default false;
+
+
+    boolean threadsafe() default true;
 }

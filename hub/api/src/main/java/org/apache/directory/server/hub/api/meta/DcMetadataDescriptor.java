@@ -44,12 +44,12 @@ public class DcMetadataDescriptor
 
     private boolean factory;
     private boolean exclusive;
+    private boolean threadSafe;
 
 
     public DcMetadataDescriptor(
         String metadataPID,
         boolean isFactory,
-        boolean isExclusive,
         Version metaVersion,
         String className,
         String[] implemented,
@@ -59,7 +59,6 @@ public class DcMetadataDescriptor
     {
         this.metadataPID = metadataPID;
         this.factory = isFactory;
-        this.exclusive = isExclusive;
         this.metaVersion = metaVersion;
         this.className = className;
         this.implemented = implemented;
@@ -94,6 +93,24 @@ public class DcMetadataDescriptor
     public boolean isExclusive()
     {
         return exclusive;
+    }
+
+
+    public void setExclusive( boolean exclusive )
+    {
+        this.exclusive = exclusive;
+    }
+
+
+    public boolean isThreadSafe()
+    {
+        return threadSafe;
+    }
+
+
+    public void setThreadSafe( boolean threadSafe )
+    {
+        this.threadSafe = threadSafe;
     }
 
 

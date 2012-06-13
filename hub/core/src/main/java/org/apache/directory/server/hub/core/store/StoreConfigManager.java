@@ -564,7 +564,6 @@ public class StoreConfigManager
         Attribute implemented = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_IMPLEMENTS ) );
         Attribute props = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_PROP ) );
         Attribute factory = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_FACTORY ) );
-        Attribute exclusive = entry.get( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_EXCLUSIVE ) );
 
         try
         {
@@ -600,9 +599,8 @@ public class StoreConfigManager
                 }
             }
             boolean isFactory = Boolean.parseBoolean( factory.getString() );
-            boolean isExclusive = Boolean.parseBoolean( exclusive.getString() );
 
-            return new DcMetadataDescriptor( pid.getString(), isFactory, isExclusive, new Version(
+            return new DcMetadataDescriptor( pid.getString(), isFactory, new Version(
                 version.getString() ), classname.getString(),
                 implementedList.toArray( new String[0] ), extendedList.toArray( new String[0] ), null,
                 pds.toArray( new DcPropertyDescription[0] ) );

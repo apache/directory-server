@@ -70,7 +70,7 @@ public class CollectionMetaDescriptorGenerator
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DcMetadataDescriptor( metaPid, true, false, metaVersion, className, implemented, extended, null,
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null,
             properties );
     }
 
@@ -89,7 +89,7 @@ public class CollectionMetaDescriptorGenerator
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DcMetadataDescriptor( metaPid, true, false, metaVersion, className, implemented, extended, null,
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null,
             properties );
     }
 
@@ -106,7 +106,7 @@ public class CollectionMetaDescriptorGenerator
                 ComponentConstants.PRIMITIVE_STR, Object.class.getName(), "Specifies collection's container type",
                 true, false, DirectoryComponentConstants.DC_VAL_NULL ) };
 
-        return new DcMetadataDescriptor( metaPid, true, false, metaVersion, className, implemented, extended, null,
+        return new DcMetadataDescriptor( metaPid, true, metaVersion, className, implemented, extended, null,
             properties );
     }
 
