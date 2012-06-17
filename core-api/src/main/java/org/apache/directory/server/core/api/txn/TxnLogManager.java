@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.log.LogAnchor;
 import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.api.partition.index.IndexComparator;

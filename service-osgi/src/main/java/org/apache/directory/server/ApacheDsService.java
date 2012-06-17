@@ -166,7 +166,7 @@ public class ApacheDsService
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
 
         txnManagerFactory = new TxnManagerFactory( instanceLayout.getTxnLogDirectory().getPath(), 
-            DirectoryService.TXN_LOG_BUFFER_SIZE, DirectoryService.TXN_LOG_FILE_SIZE );
+            DirectoryService.TXN_LOG_BUFFER_SIZE, DirectoryService.TXN_LOG_FILE_SIZE );      
         executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
         
         initSchemaManager( instanceLayout );

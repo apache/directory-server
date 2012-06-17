@@ -135,7 +135,7 @@ public class JdbmPartition extends AbstractBTreePartition
             // First, check if the file storing the data exists
             String path = partitionDir.getPath() + File.separator + "master";
             BaseRecordManager baseRecordManager = new BaseRecordManager( path );
-            baseRecordManager.disableTransactions();
+            //baseRecordManager.disableTransactions();
     
             if ( cacheSize < 0 )
             {
@@ -187,6 +187,9 @@ public class JdbmPartition extends AbstractBTreePartition
             }
     
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
+            
+            // Apply the txn logs
+            txnManagerFactory.txnManagerInstance().recoverPartition( this );
             
             // We are done !
             initialized = true;

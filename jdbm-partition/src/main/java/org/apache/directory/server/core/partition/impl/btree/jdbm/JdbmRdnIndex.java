@@ -96,7 +96,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
         
         //System.out.println( "IDX Created index " + path );
         BaseRecordManager base = new BaseRecordManager( path );
-        base.disableTransactions();
+        //base.disableTransactions();
         this.recMan = new SnapshotRecordManager( base, cacheSize );
 
         try

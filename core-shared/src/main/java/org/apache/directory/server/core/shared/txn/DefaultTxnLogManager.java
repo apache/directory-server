@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultTxnLogManager implements TxnLogManager
+public class DefaultTxnLogManager implements TxnLogManagerInternal
 {
     /** Write ahead log */
     private Log wal;
@@ -103,12 +103,12 @@ public class DefaultTxnLogManager implements TxnLogManager
         ReadWriteTxn txn = ( ReadWriteTxn ) curTxn;
         UserLogRecord logRecord = txn.getUserLogRecord();
 
+        ( ( AbstractLogEdit ) logEdit ).setTxnID( txn.getId() );   
         logEdit.injectData( logRecord, UserLogRecord.LogEditType.DATA );
+        
+        logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
 
         log( logRecord, sync );
-
-        logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
-        ( ( AbstractLogEdit ) logEdit ).setTxnID( txn.getId() );
 
         txn.addLogEdit( logEdit );
     }
@@ -265,6 +265,10 @@ public class DefaultTxnLogManager implements TxnLogManager
         addDnSet( baseDn, scope, false );
     }
 
+    public Log getWAL()
+    {
+    	return wal;
+    }
 
     private void addDnSet( Dn baseDn, SearchScope scope, boolean read )
     {

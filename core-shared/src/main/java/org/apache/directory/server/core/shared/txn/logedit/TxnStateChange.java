@@ -99,6 +99,8 @@ public class TxnStateChange extends AbstractLogEdit
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
+    	out.write(EditType.TXN_MARKER.ordinal());
+    	
         out.writeLong( txnID );
         out.write( txnState.ordinal() );
     }

@@ -106,16 +106,30 @@ public class DefaultLog implements Log
         return logScanner;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void advanceCheckPoint( LogAnchor checkPoint )
+    {
+        if ( checkPoint == null )
+        {
+            return;
+        }
+
+        logManager.advanceCheckPoint( checkPoint );
+    }
+
 
     /**
      * {@inheritDoc}
      */
-    public void advanceMinNeededLogPosition( LogAnchor newAnchor )
+    public LogAnchor getCheckPoint()
     {
-        logManager.advanceMinLogAnchor( newAnchor );
+    	return logManager.getCheckPoint();
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */

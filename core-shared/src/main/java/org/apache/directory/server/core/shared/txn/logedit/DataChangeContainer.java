@@ -97,6 +97,11 @@ public class DataChangeContainer extends AbstractLogEdit
     {
         return partition;
     }
+    
+    public void setPartition( Partition partition )
+    {
+    	this.partition = partition;
+    }
 
 
     public UUID getEntryID()
@@ -154,18 +159,23 @@ public class DataChangeContainer extends AbstractLogEdit
             {
                 EntryModification entryModification = ( EntryModification ) change;
 
-                curEntry = entryModification.applyModification( partition, curEntry, entryID, changeLsn, false );
+                curEntry = entryModification.applyModification( partition, curEntry, entryID, changeLsn, recovery );
             }
             else
             {
                 IndexModification indexModification = ( IndexModification ) change;
-                indexModification.applyModification( partition, false );
+                indexModification.applyModification( partition, recovery );
             }
         }
 
         if ( curEntry != null )
         {
             MasterTable master = partition.getMasterTable();
+            
+            if ( !curEntry.isSchemaAware() )
+            {
+            	curEntry.apply( partition.getSchemaManager() );
+            }
             master.put( entryID, curEntry );
         }
         else
@@ -312,6 +322,8 @@ public class DataChangeContainer extends AbstractLogEdit
     {
         DataChange change;
 
+        out.write(EditType.DATA_CHANGE.ordinal());
+        
         if ( entryID != null )
         {
             out.writeBoolean( true );

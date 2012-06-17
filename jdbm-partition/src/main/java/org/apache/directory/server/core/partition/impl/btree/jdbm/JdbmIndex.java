@@ -184,7 +184,7 @@ public class JdbmIndex<K> extends AbstractIndex<K>
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
         BaseRecordManager base = new BaseRecordManager( path );
-        base.disableTransactions();
+        //base.disableTransactions();
         this.recMan = new SnapshotRecordManager( base, DEFAULT_INDEX_CACHE_SIZE );
 
         try

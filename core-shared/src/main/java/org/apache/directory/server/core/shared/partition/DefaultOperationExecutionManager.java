@@ -504,6 +504,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
         catch ( Exception e )
         {
+        	e.printStackTrace();
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }

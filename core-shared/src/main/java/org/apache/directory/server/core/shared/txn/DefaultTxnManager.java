@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,15 +37,22 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.directory.server.core.api.log.Log;
 import org.apache.directory.server.core.api.log.LogAnchor;
+import org.apache.directory.server.core.api.log.LogScanner;
 import org.apache.directory.server.core.api.log.UserLogRecord;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.txn.TxnConflictException;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.logedit.LogEdit;
+import org.apache.directory.server.core.api.txn.logedit.LogEdit.EditType;
+import org.apache.directory.server.core.shared.txn.logedit.DataChangeContainer;
 import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange;
+import org.apache.directory.server.core.shared.txn.logedit.TxnStateChange.ChangeState;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**
@@ -55,6 +64,9 @@ class DefaultTxnManager implements TxnManagerInternal
 {
     /** wal log manager */
     private TxnLogManager txnLogManager;
+    
+    /** Write ahead log */
+    private Log wal;
 
     /** List of committed txns in commit LSN order */
     private ConcurrentLinkedQueue<ReadWriteTxn> committedQueue = new ConcurrentLinkedQueue<ReadWriteTxn>();
@@ -86,8 +98,14 @@ class DefaultTxnManager implements TxnManagerInternal
     /** Flush lock */
     private Lock flushLock = new ReentrantLock();
 
-    /** Number of flushes */
+    /** Number of flushed txns */
+    private int numFlushedTxns;
+    
+    /** Number of flushed */
     private int numFlushes;
+    
+    /** Take a checkpoint every 1000 flushes ~100 secs */
+    private final static int DEFAULT_FLUSH_ROUNDS = 1000;
 
     /** Flush Condition object */
     private Condition flushCondition = flushLock.newCondition();
@@ -107,7 +125,16 @@ class DefaultTxnManager implements TxnManagerInternal
     private AtomicInteger pending = new AtomicInteger();
 
     /** Logical data version number */
-    private long logicalDataVersion = 0;
+    private long logicalDataVersion;
+    
+    /** Initial scan point into the logs */
+    private LogAnchor initialScanPoint;
+    
+    /** Initial set of committed txns */
+    private HashSet<Long> txnsToRecover = new HashSet<Long>(); 
+    
+    /** last flushed log anchor */
+    private LogAnchor lastFlushedLogAnchor;
 
     /** Per thread txn context */
     static final ThreadLocal<Transaction> txnVar =
@@ -130,41 +157,66 @@ class DefaultTxnManager implements TxnManagerInternal
      * @param idComparator
      * @param idSerializer
      */
-    public void init( TxnLogManager txnLogManager )
+    public void init( TxnLogManagerInternal txnLogManager )
     {
         this.txnLogManager = txnLogManager;
+        wal = txnLogManager.getWAL();
         flushInterval = DEFAULT_FLUSH_INTERVAL;
+        
+        
+        committedQueue.clear();
+        latestFlushedTxnLSN.set( LogAnchor.UNKNOWN_LSN );
+        txnsToRecover.clear();
+        logicalDataVersion = 0;
+        lastFlushedLogAnchor = new LogAnchor();
 
-        dummyTxn.commitTxn( LogAnchor.UNKNOWN_LSN );
+        initialScanPoint = wal.getCheckPoint();
+        lastFlushedLogAnchor.resetLogAnchor( initialScanPoint );
+        
+        dummyTxn.commitTxn( initialScanPoint.getLogLSN() );
         latestCommittedTxn.set( dummyTxn );
         latestVerifiedTxn.set( dummyTxn );
         committedQueue.offer( dummyTxn );
+        
+        getTxnsToReover();
 
-        syncer = new LogSyncer();
-        syncer.setDaemon( true );
-        syncer.start();
+        if ( syncer == null )
+        {
+        	syncer = new LogSyncer();
+        	syncer.setDaemon( true );
+        	syncer.start();
+        }
     }
 
 
     public void shutdown()
     {
+    	System.out.println("in shutdown");
         syncer.interrupt();
 
         try
         {
-            syncer.join();
+        	syncer.join();
         }
         catch ( InterruptedException e )
         {
-            // Ignore
+        	//Ignore
         }
+    	
 
         // Do a best effort last flush
         flushLock.lock();
 
         try
         {
-            flushTxns();
+        	ReadWriteTxn latestCommitted = latestCommittedTxn.get();
+            long latestFlushedLsn = latestFlushedTxnLSN.get();
+            
+            System.out.println("latest committed txn " + latestCommitted.getCommitTime() + 
+            		" latest flushed " + latestFlushedLsn);
+            //flushTxns();
+            
+            //advanceCheckPoint( lastFlushedLogAnchor );
         }
         catch ( Exception e )
         {
@@ -174,7 +226,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             flushLock.unlock();
         }
-
+        
         syncer = null;
     }
 
@@ -616,6 +668,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             txnLogManager.log( logRecord, false );
             txn.startTxn( logRecord.getLogAnchor().getLogLSN(), logicalDataVersion );
+            txn.setTxnId( logRecord.getLogAnchor().getLogLSN() );
 
             do
             {
@@ -852,6 +905,8 @@ class DefaultTxnManager implements TxnManagerInternal
      */
     private void flushTxns() throws Exception
     {
+    	UserLogRecord lastLogRecord = null;
+    	
         // If flushing failed already, dont do anything anymore
         if ( flushFailed )
         {
@@ -879,6 +934,8 @@ class DefaultTxnManager implements TxnManagerInternal
                 txnToFlush.flushLogEdits( flushedToPartitions );
 
                 latestFlushedTxnLSN.set( txnToFlush.getCommitTime() );
+                
+                lastLogRecord = txnToFlush.getUserLogRecord();
             }
 
             if ( txnToFlush == latestCommitted )
@@ -887,7 +944,7 @@ class DefaultTxnManager implements TxnManagerInternal
                 break;
             }
 
-            numFlushes++;
+            numFlushedTxns++;
 
             //           if (  numFlushes % 100 == 0 )
             //           {
@@ -919,11 +976,147 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             partitionIt.next().sync();
         }
+        
+        numFlushes++;
+        
+        if ( lastLogRecord != null )
+        {
+        	lastFlushedLogAnchor.resetLogAnchor(lastLogRecord.getLogAnchor());
+        }
+        
+        if (numFlushes % DEFAULT_FLUSH_ROUNDS == 0 )
+        {
+        	advanceCheckPoint( lastFlushedLogAnchor );
+        }
 
+    }
+    
+    
+    private void advanceCheckPoint( LogAnchor checkPoint )
+    {
+    	wal.advanceCheckPoint(checkPoint);
+    }
+    
+    
+    private void getTxnsToReover()
+    {
+    	LogScanner logScanner = wal.beginScan( initialScanPoint );
+    	UserLogRecord logRecord = new UserLogRecord();
+    	byte userRecord[]; 
+    	
+    	System.out.println(" Get txns to recover " + initialScanPoint.getLogLSN() );
+    	
+    	try
+    	{
+	    	while ( logScanner.getNextRecord( logRecord ) )
+	        {
+	            userRecord = logRecord.getDataBuffer();
+	            ObjectInputStream in = buildStream( userRecord );
+	            
+	            EditType editType = EditType.values()[in.read()];
+	           
+	            
+	            if (editType == EditType.TXN_MARKER)
+	            {
+	            	TxnStateChange stateChange = new TxnStateChange();
+	            	stateChange.readExternal(in);
+	            	
+	            	if ( stateChange.getTxnState() == ChangeState.TXN_COMMIT )
+	            	{
+	            		System.out.println("Adding txn " + stateChange.getTxnID() + " to the tobe recovered txns");
+	            		txnsToRecover.add( new Long( stateChange.getTxnID() ) );
+	            	}
+	            }
+	        }
+    	}
+    	catch ( Exception e )
+    	{
+    		e.printStackTrace();
+    		// Ignore
+    	}
+    }
+    
+    
+    // Walk over the txn log records from the latest checkpoint and apply the
+    // log records to the partition
+    public void recoverPartition( Partition partition )
+    {
+    	Dn partitionSuffix = partition.getSuffixDn();
+    	
+    	System.out.println("Recover partition " + partitionSuffix);
+    	
+    	LogScanner logScanner = wal.beginScan( initialScanPoint );
+    	UserLogRecord logRecord = new UserLogRecord();
+    	byte userRecord[]; 
+    	
+    	boolean recoveredChanges = false;
+    	
+    	try
+    	{
+	    	while ( logScanner.getNextRecord( logRecord ) )
+	        {
+	            userRecord = logRecord.getDataBuffer();
+	            ObjectInputStream in = buildStream( userRecord );
+	            
+	            EditType editType = EditType.values()[in.read()];
+	            
+	            if (editType == EditType.DATA_CHANGE)
+	            {
+	            	DataChangeContainer dataChangeContainer = new DataChangeContainer();
+	            	dataChangeContainer.readExternal(in);
+	            	
+	            	System.out.println("Data change container for " + dataChangeContainer.getPartitionDn() + 
+	            			" txn id " + dataChangeContainer.getTxnID() );
+	            	
+	            	// If this change is for the partition we are tyring to recover 
+	                // and belongs to a txn that committed, then 
+	            	Long txnID = new Long( dataChangeContainer.getTxnID() );
+	         
+	            	if ( txnsToRecover.contains( txnID ) )
+	                {
+	            		if(	dataChangeContainer.getPartitionDn().equals( partitionSuffix ) )
+	            		{
+	            			System.out.println("Apply change to partition " + partitionSuffix);
+	            			dataChangeContainer.setPartition( partition );
+	            			dataChangeContainer.apply( true );
+	            			recoveredChanges = true;
+	            		}
+	                }
+	            }
+	        }
+	    	
+	    	if ( recoveredChanges && partition instanceof SchemaPartition )
+	    	{
+	    		( (SchemaPartition) partition ).getSchemaManager().reloadAllEnabled();
+	    	}
+    	}
+    	catch ( Exception e )
+    	{
+    		e.printStackTrace();
+    		// Ignore for now
+    	}
+    }
+    
+    
+    private ObjectInputStream buildStream( byte[] buffer ) throws IOException
+    {
+        ObjectInputStream oIn = null;
+        ByteArrayInputStream in = new ByteArrayInputStream( buffer );
+
+        try
+        {
+            oIn = new ObjectInputStream( in );
+
+            return oIn;
+        }
+        catch ( IOException ioe )
+        {
+            throw ioe;
+        }
     }
 
     class LogSyncer extends Thread
-    {
+    {	
         @Override
         public void run()
         {
@@ -931,8 +1124,8 @@ class DefaultTxnManager implements TxnManagerInternal
 
             try
             {
-                while ( !this.isInterrupted() )
-                {
+                while ( true )
+                {	
                     flushCondition.await( flushInterval, TimeUnit.MILLISECONDS );
                     flushTxns();
                 }

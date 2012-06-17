@@ -37,6 +37,12 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 /** Package protected */
 interface Transaction extends TxnHandle
 {
+	/**
+	 * Set the txn id. Used to change the txn id to the log lsn
+	 * @param id new txn id
+	 */
+	void setTxnId( long id );
+	
     /**
      * returns TRUE if optimisticLock held, false otherwise
      *

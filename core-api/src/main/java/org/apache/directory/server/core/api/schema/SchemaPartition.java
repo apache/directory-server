@@ -365,7 +365,7 @@ public final class SchemaPartition extends AbstractPartition
         if ( entry == null )
         {
             LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(), modifyContext.getDn() );
-            entry = wrapped.lookup( lookupCtx );
+            entry = modifyContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupCtx );;
             modifyContext.setEntry( entry );
         }
 

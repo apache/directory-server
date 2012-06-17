@@ -34,6 +34,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -93,6 +94,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8("secret") ) );
+        
         connection.close();
 
         getService().shutdown();
@@ -103,6 +105,9 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8("secret") ) );
+        
+
+        
         connection.close();
     }
 

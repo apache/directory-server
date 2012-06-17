@@ -61,6 +61,12 @@ abstract class AbstractTransaction implements Transaction
     /** version of the logical data vseen by this txn */
     private long myLogicalDataVersion;
 
+    
+    public void setTxnId( long id )
+    {
+    	this.id = id;
+    }
+    
     public boolean isOptimisticLockHeld()
     {
         return isOptimisticLockHeld;
@@ -100,6 +106,7 @@ abstract class AbstractTransaction implements Transaction
         id = counter.getAndIncrement();
     }
 
+    
 
     /**
      * {@inheritDoc}

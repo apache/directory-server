@@ -125,6 +125,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             super.doInit();
 
             loadEntries();
+            
+            // Apply the txn logs
+            txnManagerFactory.txnManagerInstance().recoverPartition( this );
         }
     }
 
