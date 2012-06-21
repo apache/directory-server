@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authn;
 import java.net.SocketAddress;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -122,8 +122,8 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
         
-        // Create a connection on the remote host
-        LdapConnection ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort );
+        // Create a connection on the remote host 
+        LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( delegateHost, delegatePort );
         
         try
         {

@@ -1358,11 +1358,16 @@ public class DefaultDirectoryService implements DirectoryService
             txnManagerFactory = new TxnManagerFactory( getInstanceLayout().getTxnLogDirectory().getPath(),
                 TXN_LOG_BUFFER_SIZE, TXN_LOG_FILE_SIZE );
         }
-
+        
+        txnManagerFactory.init();
+        
+        
         if ( executionManagerFactory == null )
         {
             executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
         }
+        
+        executionManagerFactory.init();
 
         initialize();
         showSecurityWarnings();
@@ -1417,7 +1422,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             return;
         }
-
+        
         // --------------------------------------------------------------------
         // Shutdown the txnManager
         //

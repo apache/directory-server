@@ -156,6 +156,9 @@ public class LdifPartition extends AbstractLdifPartition
             if ( suffixDirectory.exists() )
             {
                 loadEntries( partitionDir );
+                
+                // Apply the txn logs
+                txnManagerFactory.txnManagerInstance().recoverPartition( this );
             }
             else
             {
@@ -195,7 +198,7 @@ public class LdifPartition extends AbstractLdifPartition
 
                     // And add this entry to the underlying partition
                     AddOperationContext addContext = new AddOperationContext( schemaManager, contextEntry );
-                    add( addContext );
+                    executionManager.add( this, addContext );
                 }
             }
         }

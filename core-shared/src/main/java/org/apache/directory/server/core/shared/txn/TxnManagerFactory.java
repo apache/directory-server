@@ -39,12 +39,22 @@ public class TxnManagerFactory
     private TxnManagerInternal txnManager;
 
     /** The only txn log manager */
-    private TxnLogManager txnLogManager;
+    private TxnLogManagerInternal txnLogManager;
+    
+    /** WAL */
+    private Log log;
 
     /** log suffix */
     private String LOG_SUFFIX = "log";
 
     private boolean inited;
+    
+    
+    private String logFolderPath;
+    
+    private int logBufferSize;
+    
+    private long logFileSize;
 
 
     /**
@@ -59,25 +69,39 @@ public class TxnManagerFactory
     public TxnManagerFactory( String logFolderPath,
         int logBufferSize, long logFileSize ) throws IOException
     {
-        Log log = new DefaultLog();
-
-        try
-        {
-            log.init( logFolderPath, LOG_SUFFIX, logBufferSize, logFileSize );
-        }
-        catch ( InvalidLogException e )
-        {
-            throw new IOException( e );
-        }
+    	this.logFolderPath = logFolderPath;
+    	this.logBufferSize = logBufferSize;
+    	this.logFileSize = logFileSize;
+    	
+        log = new DefaultLog();
 
         txnManager = new DefaultTxnManager();
 
         txnLogManager = new DefaultTxnLogManager( log, this );
-
-        ( ( DefaultTxnManager ) txnManager ).init( txnLogManager );
-
-        inited = true;
-
+        
+        this.init();
+    }
+    
+    
+    public void init() throws IOException
+    {
+    	if ( inited )
+    	{
+    		return;
+    	}
+    	
+    	try
+    	{
+    		log.init( logFolderPath, LOG_SUFFIX, logBufferSize, logFileSize );
+        }	
+        catch ( InvalidLogException e )
+        {
+        	throw new IOException( e );
+        }	
+    	
+    	( ( DefaultTxnManager ) txnManager ).init(txnLogManager);
+    	 
+    	inited = true;
     }
 
 

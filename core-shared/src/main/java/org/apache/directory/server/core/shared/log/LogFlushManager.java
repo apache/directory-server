@@ -109,6 +109,8 @@ import org.apache.directory.server.i18n.I18n;
         this.logManager = logManager;
 
         logBuffer = new LogBuffer( logBufferSize, currentLogFile );
+        
+        logLSN = logManager.getInitialLsn();
     }
 
 

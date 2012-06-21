@@ -90,6 +90,9 @@ import org.apache.directory.server.i18n.I18n;
 
     /** The Checksum used */
     private Checksum checksum = new Adler32();
+    
+    /** Max lsn in the log after recovery */
+    private long initialLsn = Long.MIN_VALUE ;
 
 
     /**
@@ -163,6 +166,9 @@ import org.apache.directory.server.i18n.I18n;
             {
                 scanner.close();
             }
+            
+            initialLsn = logRecord.getLogAnchor().getLogLSN();
+            System.out.println(" Log manager inital lsn " + initialLsn);
 
             long lastGoodLogFileNumber = scanner.getLastGoodFileNumber();
             long lastGoodLogFileOffset = scanner.getLastGoodOffset();
@@ -227,6 +233,8 @@ import org.apache.directory.server.i18n.I18n;
                     createNextLogFile( true );
                 }
             }
+            
+            return;
         }
 
         /*
@@ -267,6 +275,15 @@ import org.apache.directory.server.i18n.I18n;
 
 
     /**
+     * 
+     * @return return the max lsn in the log after recovery
+     */
+    public long getInitialLsn()
+    {
+    	return initialLsn;
+    }
+    
+    /**
      * Called by LogFlushManager to switch to the next file.
      *
      * Note:Currently we do a checkpoint and delete unnecessary log files when we switch to a new file. Some
@@ -298,44 +315,55 @@ import org.apache.directory.server.i18n.I18n;
         return writer;
     }
 
-
-    /**
-     * @return The anchor associated with the last valid checkpoint.
-     */
-    /* Package protected */LogAnchor getMinLogAnchor()
-    {
-        minLogAnchorLock.lock();
-        LogAnchor anchor = new LogAnchor();
-        anchor.resetLogAnchor( minLogAnchor );
-        minLogAnchorLock.unlock();
-
-        return anchor;
-    }
-
-
     /**
      * Called when the logging subsystem is notified about the minimum position 
      * in the log files that is needed. Log manager uses this information to advance
      * its checkpoint and delete unnecessary log files.
      *
-     * @param newLogAnchor min needed log anchor
+     * @param newCheckPoint min needed log anchor
      */
-    public void advanceMinLogAnchor( LogAnchor newLogAnchor )
+    public void advanceCheckPoint( LogAnchor newCheckPoint )
     {
-        if ( newLogAnchor == null )
+        if ( newCheckPoint == null )
         {
             return;
         }
 
         minLogAnchorLock.lock();
 
-        if ( anchorComparator.compare( minLogAnchor, newLogAnchor ) < 0 )
+        if ( anchorComparator.compare( minLogAnchor, newCheckPoint ) < 0 )
         {
-            minLogAnchor.resetLogAnchor( newLogAnchor );
+            minLogAnchor.resetLogAnchor( newCheckPoint );
+        }
+        
+        try
+        {
+        	writeControlFile();
+        }
+        catch ( IOException e )
+        {
+        	// Ignore
         }
 
         minLogAnchorLock.unlock();
     }
+    
+    /**
+     * 
+     * @return the current with the checkpoint log achor
+     */
+    public LogAnchor getCheckPoint()
+    {
+    	LogAnchor anchor = new LogAnchor();
+    	
+    	minLogAnchorLock.lock();
+    	
+    	anchor.resetLogAnchor( minLogAnchor );
+    	
+    	minLogAnchorLock.unlock();
+    	
+    	return anchor;
+    }    
 
 
     /**
@@ -359,15 +387,10 @@ import org.apache.directory.server.i18n.I18n;
      */
     private void writeControlFile() throws IOException
     {
-        // Copy the min log file anchor
-        minLogAnchorLock.lock();
-
         controlFileRecord.minNeededLogFile = minLogAnchor.getLogFileNumber();
         controlFileRecord.minNeededLogFileOffset = minLogAnchor.getLogFileOffset();
         controlFileRecord.minNeededLSN = minLogAnchor.getLogLSN();
-
-        minLogAnchorLock.unlock();
-
+        
         if ( controlFileRecord.minNeededLogFile > controlFileRecord.minExistingLogFile )
         {
             deleteUnnecessaryLogFiles( controlFileRecord.minExistingLogFile, controlFileRecord.minNeededLogFile );

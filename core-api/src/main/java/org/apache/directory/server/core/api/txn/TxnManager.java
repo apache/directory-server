@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.txn;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
@@ -131,5 +132,11 @@ public interface TxnManager
      * @return TRUE if txn needs to do logical data reinit
      */
     boolean prepareForLogicalDataReinit();
+    
+    
+    /** 
+     * Recovers the given partition
+     */
+    void recoverPartition( Partition partition );
 
 }
