@@ -68,10 +68,10 @@ public interface ComponentHub
     public abstract void removeInjection( String injectionType );
 
 
-    public abstract void registerClient( AbstractHubClient hubClient, String type );
+    public abstract void registerClient( ComponentListener hubClient, String type );
 
 
-    public abstract void unregisterClient( AbstractHubClient hubClient, String type );
+    public abstract void unregisterClient( ComponentListener hubClient, String type );
 
 
     public abstract DirectoryComponentRegistry getDCRegistry();
@@ -84,11 +84,5 @@ public interface ComponentHub
 
 
     public abstract PidHandlerRegistry getPIDHandlerRegistry();
-
-
-    public abstract ReadLock getReadLock();
-
-
-    public abstract WriteLock getWriteLock();
 
 }

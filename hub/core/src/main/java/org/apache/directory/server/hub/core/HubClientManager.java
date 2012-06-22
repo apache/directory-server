@@ -28,8 +28,9 @@ import java.util.Set;
 
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
-import org.apache.directory.server.hub.api.AbstractHubClient;
+import org.apache.directory.server.hub.api.AbstractComponentListener;
 import org.apache.directory.server.hub.api.ComponentHub;
+import org.apache.directory.server.hub.api.ComponentListener;
 import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
@@ -44,7 +45,7 @@ public class HubClientManager
     private MultiMap clientRegistrations = new MultiValueMap();
 
 
-    public synchronized void registerHubClient( AbstractHubClient hubClient, String type )
+    public synchronized void registerHubClient( ComponentListener hubClient, String type )
     {
         typeRegistrations.put( type, hubClient );
         clientRegistrations.put( hubClient, type );
@@ -70,7 +71,7 @@ public class HubClientManager
     }
 
 
-    public void unregisterHubClient( AbstractHubClient hubClient, String type )
+    public void unregisterHubClient( ComponentListener hubClient, String type )
     {
         if ( type == null )
         {
@@ -99,8 +100,8 @@ public class HubClientManager
 
     public synchronized void fireDCActivated( DirectoryComponent component )
     {
-        List<AbstractHubClient> clients = getRegisteredClients( component );
-        for ( AbstractHubClient client : clients )
+        List<AbstractComponentListener> clients = getRegisteredClients( component );
+        for ( ComponentListener client : clients )
         {
             client.componentActivated( component );
         }
@@ -109,8 +110,8 @@ public class HubClientManager
 
     public void fireDCDeactivated( DirectoryComponent component )
     {
-        List<AbstractHubClient> clients = getRegisteredClients( component );
-        for ( AbstractHubClient client : clients )
+        List<AbstractComponentListener> clients = getRegisteredClients( component );
+        for ( ComponentListener client : clients )
         {
             client.componentDeactivated( component );
         }
@@ -119,38 +120,27 @@ public class HubClientManager
 
     public void fireDCDeactivating( DirectoryComponent component ) throws HubAbortException
     {
-        List<AbstractHubClient> clients = getRegisteredClients( component );
-        for ( AbstractHubClient client : clients )
+        List<AbstractComponentListener> clients = getRegisteredClients( component );
+        for ( ComponentListener client : clients )
         {
             client.componentDeactivating( component );
         }
     }
 
 
-    public void fireDCReconfiguring( DirectoryComponent component, DcConfiguration newConfiguration )
-        throws HubAbortException
-    {
-        List<AbstractHubClient> clients = getRegisteredClients( component );
-        for ( AbstractHubClient client : clients )
-        {
-            client.componentReconfiguring( component, newConfiguration );
-        }
-    }
-
-
     public void fireDCReconfigured( DirectoryComponent component, boolean newInstance )
     {
-        List<AbstractHubClient> clients = getRegisteredClients( component );
-        for ( AbstractHubClient client : clients )
+        List<AbstractComponentListener> clients = getRegisteredClients( component );
+        for ( ComponentListener client : clients )
         {
             client.componentReconfigured( component, newInstance );
         }
     }
 
 
-    public List<AbstractHubClient> getRegisteredClients( DirectoryComponent component )
+    public List<AbstractComponentListener> getRegisteredClients( DirectoryComponent component )
     {
-        List<AbstractHubClient> registeredClients = new ArrayList<AbstractHubClient>();
+        List<AbstractComponentListener> registeredClients = new ArrayList<AbstractComponentListener>();
 
         DcMetadataDescriptor metadata = hub.getMetaRegistry()
             .getMetadataDescriptor( component.getComponentManagerPID() );

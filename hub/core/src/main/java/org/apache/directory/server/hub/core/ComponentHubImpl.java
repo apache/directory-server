@@ -27,14 +27,10 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
 import org.apache.directory.server.component.handler.ipojo.DcHandlerConstants;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.hub.api.AbstractHubClient;
 import org.apache.directory.server.hub.api.ComponentHub;
+import org.apache.directory.server.hub.api.ComponentListener;
 import org.apache.directory.server.hub.api.HubStore;
 import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DcProperty;
@@ -75,10 +71,6 @@ public class ComponentHubImpl implements ComponentHub
     private PidHandlerRegistry handlersReg = new PidHandlerRegistry();
     private ParentLinkRegistry parentLinksReg = new ParentLinkRegistry();
 
-    private ReentrantReadWriteLock hubLock = new ReentrantReadWriteLock();
-    private ReadLock readLock = hubLock.readLock();
-    private WriteLock writeLock = hubLock.writeLock();
-
     private CollectionConnector collectionConnector;
     public IPojoConnector ipojoConnector;
 
@@ -89,7 +81,6 @@ public class ComponentHubImpl implements ComponentHub
     private DependencyResolver dependencyResolver = new DependencyResolver();
 
     private ConfiguratorInterceptor configurator;
-
 
     public ComponentHubImpl( HubStore store )
     {
@@ -183,11 +174,12 @@ public class ComponentHubImpl implements ComponentHub
                 throw new HubAbortException( "Store raised an error while updating metadata:"
                     + metadata.getMetadataPID(), e );
             }
-
         }
 
         /*
-         * This call will set metadata with constant properties.
+         * This call will set metadata with constant properties and altered component management
+         * by management flags, like exclusive,threadsafe,vs...
+         * 
          * Stored metadata is kept until this point for new component configurations.
          */
         metadatasReg.addMetadataDescriptor( metadata );
@@ -265,8 +257,6 @@ public class ComponentHubImpl implements ComponentHub
                     "Active DirectoryComponent can not be reconfigured with invalid configuration", e );
             }
         }
-
-        clientManager.fireDCReconfiguring( component, newConfiguration );
 
         boolean isExclusive = metadata.isExclusive();
         boolean reinstantiate = false;
@@ -363,7 +353,7 @@ public class ComponentHubImpl implements ComponentHub
                     }
                     catch ( Exception e2 )
                     {
-                        disposeComponent( component );
+                        deactivateComponent( component );
 
                         throw new HubAbortException( "Reconfiguration reverted but component couldn't be saved:"
                             + component.getComponentPID(), e );
@@ -450,6 +440,7 @@ public class ComponentHubImpl implements ComponentHub
         if ( parents != null )
         {
             List<ParentLink> alteredParents = new ArrayList<ParentLink>();
+            boolean removed = true;
             for ( ParentLink parentLink : parents )
             {
                 DcConfiguration newParentConf = parentLink.getParent().getConfiguration();
@@ -482,15 +473,19 @@ public class ComponentHubImpl implements ComponentHub
                             // TODO log given parent couldn't be reverted from cancelled removal of its referenced property.
                         }
                     }
+                    
+                    removed = false;
+                    break;
                 }
             }
+            
+            if(removed)
+            {
+                parentLinksReg.destroyComponentLinks( component );
+            }
         }
-
-        DcOperationsManager opManager = handlersReg.getPIDHandler( component.getComponentManagerPID() );
-        if ( opManager != null )
-        {
-            opManager.disposeComponent( component );
-        }
+        
+        deactivateComponent( component );
 
         componentsReg.removeDirectoryComponent( component );
 
@@ -543,7 +538,7 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#registerClient(org.apache.directory.server.hub.client.AbstractHubClient, java.lang.String)
      */
     @Override
-    public void registerClient( AbstractHubClient hubClient, String type )
+    public void registerClient( ComponentListener hubClient, String type )
     {
         clientManager.registerHubClient( hubClient, type );
     }
@@ -553,7 +548,7 @@ public class ComponentHubImpl implements ComponentHub
      * @see org.apache.directory.server.hub.ComponentHub#unregisterClient(org.apache.directory.server.hub.client.AbstractHubClient, java.lang.String)
      */
     @Override
-    public void unregisterClient( AbstractHubClient hubClient, String type )
+    public void unregisterClient( ComponentListener hubClient, String type )
     {
         clientManager.unregisterHubClient( hubClient, type );
     }
@@ -581,7 +576,7 @@ public class ComponentHubImpl implements ComponentHub
         {
             for ( DirectoryComponent component : attachedComponents )
             {
-                disposeComponent( component );
+                deactivateComponent( component );
             }
         }
     }
@@ -879,7 +874,7 @@ public class ComponentHubImpl implements ComponentHub
     }
 
 
-    private void disposeComponent( DirectoryComponent component )
+    private void deactivateComponent( DirectoryComponent component )
     {
         clientManager.fireDCDeactivated( component );
 
@@ -890,7 +885,7 @@ public class ComponentHubImpl implements ComponentHub
             {
                 dependencyResolver.addDependencyHook( parentLink.getParent(),
                     new DCDependency( DCDependencyType.REFERENCE, component.getComponentPID() ) );
-                disposeComponent( parentLink.getParent() );
+                deactivateComponent( parentLink.getParent() );
             }
         }
 
@@ -973,19 +968,5 @@ public class ComponentHubImpl implements ComponentHub
     public PidHandlerRegistry getPIDHandlerRegistry()
     {
         return handlersReg;
-    }
-
-
-    @Override
-    public ReadLock getReadLock()
-    {
-        return readLock;
-    }
-
-
-    @Override
-    public WriteLock getWriteLock()
-    {
-        return writeLock;
     }
 }
