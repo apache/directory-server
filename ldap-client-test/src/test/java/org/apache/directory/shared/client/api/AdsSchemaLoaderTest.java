@@ -82,5 +82,4 @@ public class AdsSchemaLoaderTest extends AbstractLdapTestUnit
 
         assertTrue( sm.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
     }
-
 }
