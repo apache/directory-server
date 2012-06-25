@@ -140,7 +140,8 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     {
         if ( hasIndex )
         {
-            return evaluator.getPattern().matcher( indexEntry.getKey() ).matches();
+            String key = indexEntry.getKey();
+            return evaluator.getPattern().matcher( key ).matches();
         }
         else
         {
