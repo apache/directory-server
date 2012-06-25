@@ -1218,7 +1218,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         {
             for ( Value<?> value : mods )
             {
-                objectClassIdx.add( value.getString(), id );
+                objectClassIdx.add(  (String)value.getNormValue(), id );
             }
         }
         else if ( hasUserIndexOn( attributeType ) )
@@ -1282,12 +1282,12 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             // value index entries and add new ones
             for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
             {
-                objectClassIdx.drop( value.getString(), id );
+                objectClassIdx.drop( (String)value.getNormValue(), id );
             }
             
             for ( Value<?> value : mods )
             {
-                objectClassIdx.add( value.getString(), id );
+                objectClassIdx.add( (String)value.getNormValue(), id );
             }
         }
         else if ( hasUserIndexOn( attributeType ) )
@@ -1379,14 +1379,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 for ( Value<?> objectClass : entry.get( OBJECT_CLASS_AT ) )
                 {
-                    objectClassIdx.drop( objectClass.getString(), id );
+                    objectClassIdx.drop( (String)objectClass.getNormValue(), id );
                 }
             }
             else
             {
                 for ( Value<?> value : mods )
                 {
-                    objectClassIdx.drop( value.getString(), id );
+                    objectClassIdx.drop(  (String)value.getNormValue(), id );
                 }
             }
         }
@@ -1407,7 +1407,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             {
                 for ( Value<?> value : mods )
                 {
-                    ( ( Index ) index ).drop( value.getValue(), id );
+                    ( ( Index ) index ).drop( value.getNormValue(), id );
                 }
             }
 
