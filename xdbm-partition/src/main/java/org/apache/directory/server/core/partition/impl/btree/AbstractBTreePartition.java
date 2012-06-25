@@ -1227,7 +1227,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             for ( Value<?> value : mods )
             {
-                ( ( Index ) index ).add( value.getValue(), id );
+                ( ( Index ) index ).add( value.getNormValue(), id );
             }
 
             // If the attr didn't exist for this id add it to presence index
@@ -1303,7 +1303,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             for ( Value<?> value : mods )
             {
-                ( ( Index<Object, Entry, ID> ) index ).add( value.getValue(), id );
+                ( ( Index<Object, Entry, ID> ) index ).add( value.getNormValue(), id );
             }
 
             /*
