@@ -240,7 +240,7 @@ public class StoreConfigManager
 
         Entry componentEntry = new DefaultEntry( schemaManager, componentDn );
         componentEntry.add( schemaManager.getAttributeType( "objectclass" ), component.getComponentManagerPID() );
-        componentEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_COMPONENT_NAME ),
+        componentEntry.add( schemaManager.getAttributeType( component.getNamerAttribute() ),
             component.getComponentName() );
 
         Integer itemIndex = component.getConfiguration().getCollectionIndex();

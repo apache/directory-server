@@ -33,6 +33,7 @@ import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
@@ -76,20 +77,24 @@ public class StoreDcBuilder
             }
         }
 
+        // Parsing name and namer attribute out of Dn.
+        Rdn name = componentEntry.getDn().getRdn();
+        componentName = name.getValue().getString();
+
+        String namer = name.getType();
+
         List<DcProperty> properties = new ArrayList<DcProperty>();
 
         Collection<Attribute> attribs = componentEntry.getAttributes();
         for ( Attribute attrib : attribs )
         {
-            if ( attrib.getUpId().equals( StoreSchemaConstants.HUB_AT_COMPONENT_NAME.toLowerCase() ) )
-            {
-                componentName = attrib.getString();
-            }
-            else if ( attrib.getUpId().equals( StoreSchemaConstants.HUB_AT_COLL_ITEM_INDEX.toLowerCase() ) )
+
+            if ( attrib.getUpId().equals( StoreSchemaConstants.HUB_AT_COLL_ITEM_INDEX.toLowerCase() ) )
             {
                 collectionIndex = Integer.parseInt( attrib.getString() );
             }
-            else if ( attrib.getUpId().equals( SchemaConstants.ENTRY_UUID_AT.toLowerCase() )
+            else if ( attrib.getUpId().equals( namer )
+                || attrib.getUpId().equals( SchemaConstants.ENTRY_UUID_AT.toLowerCase() )
                 || attrib.getUpId().equals( SchemaConstants.ENTRY_CSN_AT.toLowerCase() )
                 || attrib.getUpId().equals( SchemaConstants.CREATORS_NAME_AT.toLowerCase() )
                 || attrib.getUpId().equals( SchemaConstants.CREATE_TIMESTAMP_AT.toLowerCase() )
@@ -111,6 +116,7 @@ public class StoreDcBuilder
 
         DirectoryComponent component = new DirectoryComponent( managerPID, componentName, componentConf );
         component.setConfigLocation( componentEntry.getDn().getName() );
+        component.setNamerAttribute( namer );
 
         return component;
     }
