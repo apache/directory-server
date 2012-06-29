@@ -168,7 +168,6 @@ import org.apache.directory.server.i18n.I18n;
             }
             
             initialLsn = logRecord.getLogAnchor().getLogLSN();
-            System.out.println(" Log manager inital lsn " + initialLsn);
 
             long lastGoodLogFileNumber = scanner.getLastGoodFileNumber();
             long lastGoodLogFileOffset = scanner.getLastGoodOffset();

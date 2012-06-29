@@ -286,7 +286,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             try
             {
                 list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
-    
+                
                 while ( list.hasMore() )
                 {
                     SearchResult result = list.next();

@@ -142,6 +142,6 @@ public class LogAnchor implements Externalizable
      */
     public String toString()
     {
-        return "File number: " + logFileNumber + ", offset: " + logFileOffset + ", LSN: " + Long.toHexString( logLSN );
+        return "File number: " + logFileNumber + ", offset: " + logFileOffset + ", LSN: " + logLSN;
     }
 }

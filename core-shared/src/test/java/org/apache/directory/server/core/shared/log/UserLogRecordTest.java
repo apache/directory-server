@@ -59,11 +59,11 @@ public class UserLogRecordTest
     {
         ObjectInputStream oIn = null;
         ByteArrayInputStream in = new ByteArrayInputStream( buffer );
-
         try
         {
             oIn = new ObjectInputStream( in );
-
+            oIn.read();
+            
             return oIn;
         }
         catch ( IOException ioe )

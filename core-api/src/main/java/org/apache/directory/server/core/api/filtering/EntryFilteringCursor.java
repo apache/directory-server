@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.filtering;
 import java.util.List;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -98,4 +99,36 @@ public interface EntryFilteringCursor extends Cursor<Entry>
      * @return the associated transaction to this cursor
      */
     TxnHandle getTransaction();
+    
+    
+    /**
+     * Ensure exclusive access to the cursor state. A thread might
+     * call this method multiple times without unpinning the cursor,
+     * so it should be reentrant.
+     */
+    void pinCursor();
+    
+    
+    /**
+     * Release pin gotten by pinCursor
+     */
+    void unpinCursor();
+    
+    
+    /**
+     * do the leak cursor management
+     */
+    void doLeakedCursorManagement( LeakedCursorManager leakedCursorManager ) throws Exception;
+    
+    /**
+     * Set creation timestamp
+     * @param timestamp creation timestamp
+     */
+    void setTimestamp( long timestamp );
+    
+    /**
+     * 
+     * @return the creation timestamp
+     */
+    long getTimestamp();
 }

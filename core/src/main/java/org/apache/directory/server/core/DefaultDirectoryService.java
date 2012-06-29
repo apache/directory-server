@@ -81,6 +81,7 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -1179,14 +1180,6 @@ public class DefaultDirectoryService implements DirectoryService
 
             do
             {
-                //TODO TODO
-                // THE followign revert was done in one txn. However, when then number
-                // of changes got close to 1000, it got really slow. For now doing this
-                // in small txns, but identify the cause of this perf problem.
-
-                //txnManager.beginTransaction( false );
-
-                boolean startedTxn = false;
                 List<ChangeLogEvent> events = new LinkedList();
 
                 try
@@ -1215,7 +1208,6 @@ public class DefaultDirectoryService implements DirectoryService
                 }
 
                 Iterator<ChangeLogEvent> it = events.iterator();
-                boolean inTxn = false;
 
                 try
                 {
@@ -2514,6 +2506,15 @@ public class DefaultDirectoryService implements DirectoryService
     public TxnLogManager getTxnLogManager()
     {
         return txnManagerFactory.txnLogManagerInstance();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public LeakedCursorManager getLeakedCursorManager()
+    {
+        return txnManagerFactory.leakedCursorManagerInstance();
     }
 
 

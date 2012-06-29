@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -47,19 +48,16 @@ import org.slf4j.LoggerFactory;
 public class CursorList extends AbstractEntryFilteringCursor
 {
     /** The inner List */
-    private final List<EntryFilteringCursor> list;
+    private List<EntryFilteringCursor> list;
 
     /** The starting position for the cursor in the list. It can be > 0 */
-    private final int start;
+    private int start;
 
     /** The ending position for the cursor in the list. It can be < List.size() */
-    private final int end;
+    private int end;
 
     /** The current position in the list */
     private int index = -1;
-
-    /** flag to detect the closed cursor */
-    private boolean closed;
 
     private static final Logger LOG = LoggerFactory.getLogger( CursorList.class );
 
@@ -128,12 +126,21 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean available()
     {
-        if ( ( index >= 0 ) && ( index < end ) )
-        {
-            return list.get( index ).available();
-        }
+        pinCursor();
 
-        return false;
+        try
+        {
+            if ( ( index >= 0 ) && ( index < end ) )
+            {
+                return list.get( index ).available();
+            }
+
+            return false;
+        }
+        finally
+        {
+            unpinCursor();
+        }
     }
 
 
@@ -162,8 +169,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             this.index = 0;
@@ -171,11 +178,7 @@ public class CursorList extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -185,8 +188,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public void afterLast() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             this.index = end - 1;
@@ -194,14 +197,9 @@ public class CursorList extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
 
-         
     }
 
 
@@ -210,8 +208,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean first() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             if ( list.size() > 0 )
@@ -219,16 +217,12 @@ public class CursorList extends AbstractEntryFilteringCursor
                 index = start;
                 return list.get( index ).first();
             }
-    
+
             return false;
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -238,8 +232,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean last() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             if ( list.size() > 0 )
@@ -247,16 +241,12 @@ public class CursorList extends AbstractEntryFilteringCursor
                 index = end - 1;
                 return list.get( index ).last();
             }
-    
+
             return false;
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -266,21 +256,17 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean isFirst() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             return ( list.size() > 0 ) && ( index == start ) && list.get( index ).first();
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
-        
+
     }
 
 
@@ -289,19 +275,15 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean isLast() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             return ( list.size() > 0 ) && ( index == end - 1 ) && list.get( index ).last();
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -329,8 +311,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean previous() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             // if parked at -1 we cannot go backwards
@@ -338,7 +320,7 @@ public class CursorList extends AbstractEntryFilteringCursor
             {
                 return false;
             }
-    
+
             // if the index moved back is still greater than or eq to start then OK
             if ( index - 1 >= start )
             {
@@ -346,7 +328,7 @@ public class CursorList extends AbstractEntryFilteringCursor
                 {
                     index--;
                 }
-    
+
                 if ( !list.get( index ).previous() )
                 {
                     index--;
@@ -364,7 +346,7 @@ public class CursorList extends AbstractEntryFilteringCursor
                     return true;
                 }
             }
-    
+
             // if the index currently less than or equal to start we need to park it at -1 and return false
             if ( index <= start )
             {
@@ -378,22 +360,18 @@ public class CursorList extends AbstractEntryFilteringCursor
                     return true;
                 }
             }
-    
+
             if ( list.size() <= 0 )
             {
                 index = -1;
             }
-    
+
             return false;
-        
+
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -403,8 +381,8 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public boolean next() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             // if parked at -1 we advance to the start index and return true
@@ -413,7 +391,7 @@ public class CursorList extends AbstractEntryFilteringCursor
                 index = start;
                 return list.get( index ).next();
             }
-    
+
             // if the index plus one is less than the end then increment and return true
             if ( list.size() > 0 && index + 1 < end )
             {
@@ -434,7 +412,7 @@ public class CursorList extends AbstractEntryFilteringCursor
                     return true;
                 }
             }
-    
+
             // if the index plus one is equal to the end then increment and return false
             if ( list.size() > 0 && index + 1 == end )
             {
@@ -448,21 +426,17 @@ public class CursorList extends AbstractEntryFilteringCursor
                     return true;
                 }
             }
-    
+
             if ( list.size() <= 0 )
             {
                 index = end;
             }
-    
+
             return false;
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -472,14 +446,25 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public Entry get() throws Exception
     {
-        if ( index < start || index >= end )
-        {
-            throw new IOException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
-        }
+        pinCursor();
 
-        if ( list.get( index ).available() )
+        try
         {
-            return list.get( index ).get();
+            if ( index < start || index >= end )
+            {
+                throw new IOException(
+                    I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
+            }
+
+            if ( list.get( index ).available() )
+            {
+                return list.get( index ).get();
+            }
+
+        }
+        finally
+        {
+            unpinCursor();
         }
 
         throw new InvalidCursorPositionException();
@@ -536,34 +521,42 @@ public class CursorList extends AbstractEntryFilteringCursor
      */
     public void close( Exception reason ) throws Exception
     {
+        pinCursor();
         closed = true;
 
-        for ( Cursor<?> c : list )
+        try
         {
-            try
+            for ( Cursor<?> c : list )
             {
-                if ( reason != null )
+                try
                 {
-                    c.close( reason );
+                    if ( reason != null )
+                    {
+                        c.close( reason );
+                    }
+                    else
+                    {
+                        c.close();
+                    }
                 }
-                else
+                catch ( Exception e )
                 {
-                    c.close();
+                    LOG.warn( "Failed to close the cursor" );
                 }
-            }
-            catch ( Exception e )
-            {
-                LOG.warn( "Failed to close the cursor" );
             }
         }
+        finally
+        {
+            if ( reason == null )
+            {
+                this.endTxnAtClose( false );
+            }
+            else
+            {
+                this.endTxnAtClose( true );
+            }
 
-        if ( reason == null )
-        {
-            this.endTxnAtClose( false );
-        }
-        else
-        {
-            this.endTxnAtClose( true );
+            unpinCursor();
         }
     }
 
@@ -574,6 +567,22 @@ public class CursorList extends AbstractEntryFilteringCursor
     public boolean isClosed() throws Exception
     {
         return closed;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void doLeakedCursorManagement( LeakedCursorManager leakedCursorManager ) throws Exception
+    {
+        pinCursor();
+
+        for ( EntryFilteringCursor cursor : list )
+        {
+            cursor.doLeakedCursorManagement( leakedCursorManager );
+        }
+
+        unpinCursor();
     }
 
 

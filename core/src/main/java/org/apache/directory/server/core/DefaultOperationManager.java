@@ -1864,6 +1864,9 @@ public class DefaultOperationManager implements OperationManager
 
             cursor.setTxnManager( txnManager );
             
+            cursor.setTimestamp( System.currentTimeMillis() );
+            directoryService.getLeakedCursorManager().trackCursor( cursor );
+            
             txnManager.endLogicalDataRead();
             txnManager.setCurTxn( null );
         }

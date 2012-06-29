@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.server.core.api.txn.TxnHandle;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -58,7 +59,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
     private static final Logger LOG = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
     /** the underlying wrapped search results Cursor */
-    private final Cursor<Entry> wrapped;
+    private Cursor<Entry> wrapped;
 
     /** the list of filters to be applied */
     private final List<EntryFilter> filters;
@@ -169,9 +170,9 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      * {@inheritDoc}
      */
     public void afterLast() throws Exception
-    {   
-        boolean setCurTxn = maybeSetCurTxn();
-        
+    {
+        pinCursor();
+
         try
         {
             wrapped.afterLast();
@@ -179,11 +180,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -193,7 +190,15 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public boolean available()
     {
-        return prefetched != null;
+        boolean result;
+
+        pinCursor();
+
+        result = ( prefetched != null );
+
+        unpinCursor();
+
+        return result;
     }
 
 
@@ -211,8 +216,8 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public void beforeFirst() throws Exception
     {
-        boolean setCurTxn = maybeSetCurTxn();
-        
+        pinCursor();
+
         try
         {
             wrapped.beforeFirst();
@@ -220,11 +225,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -233,15 +234,20 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      * {@inheritDoc}
      */
     public void close() throws Exception
-    {        
+    {
+        pinCursor();
+        closed = true;
+
         try
-        {            
+        {
+
             wrapped.close();
             prefetched = null;
         }
         finally
         {
             endTxnAtClose( false );
+            unpinCursor();
         }
     }
 
@@ -251,14 +257,18 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public void close( Exception reason ) throws Exception
     {
+        pinCursor();
+        closed = true;
+
         try
-        {   
+        {
             wrapped.close( reason );
             prefetched = null;
         }
         finally
         {
             endTxnAtClose( true );
+            unpinCursor();
         }
     }
 
@@ -283,9 +293,9 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
-        boolean setCurTxn = maybeSetCurTxn();
-        
+
+        pinCursor();
+
         try
         {
             beforeFirst();
@@ -293,11 +303,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -307,10 +313,19 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public Entry get() throws Exception
     {
+        Entry result;
+        
+        pinCursor();
+
         if ( available() )
         {
-            return prefetched;
+            result = prefetched;
+            unpinCursor();
+            
+            return result;
         }
+
+        unpinCursor();
 
         throw new InvalidCursorPositionException();
     }
@@ -321,7 +336,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
      */
     public boolean isClosed() throws Exception
     {
-        return wrapped.isClosed();
+        return closed;
     }
 
 
@@ -336,9 +351,9 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
-        boolean setCurTxn = maybeSetCurTxn();
-        
+
+        pinCursor();
+
         try
         {
             afterLast();
@@ -346,11 +361,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -486,11 +497,11 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
-        boolean setCurTxn = maybeSetCurTxn();
-        
+
+        pinCursor();
+
         try
-        { 
+        {
             Entry tempResult = null;
 
             outer: while ( wrapped.next() )
@@ -548,17 +559,13 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
 
                 return true;
             }
-        
+
             prefetched = null;
             return false;
         }
         finally
         {
-            if ( setCurTxn )
-            {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
-            }
+            unpinCursor();
         }
     }
 
@@ -574,18 +581,18 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             close();
             throw new OperationAbandonedException();
         }
-        
-        boolean setCurTxn = maybeSetCurTxn();
-        
+
+        pinCursor();
+
         try
         {
             Entry tempResult = null;
-    
+
             outer: while ( wrapped.previous() )
             {
                 boolean accepted = true;
                 tempResult = new ClonedServerEntrySearch( wrapped.get() );
-    
+
                 /*
                  * O P T I M I Z A T I O N
                  * -----------------------
@@ -593,23 +600,23 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
                  * Don't want to waste cycles on enabling a loop for processing 
                  * filters if we have zero or one filter.
                  */
-    
+
                 if ( filters.isEmpty() )
                 {
                     prefetched = tempResult;
                     filterContents( prefetched );
                     return true;
                 }
-    
+
                 if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
                 {
                     prefetched = tempResult;
                     filterContents( prefetched );
                     return true;
                 }
-    
+
                 /* E N D   O P T I M I Z A T I O N */
-    
+
                 for ( EntryFilter filter : filters )
                 {
                     // if a filter rejects then short and continue with outer loop
@@ -618,7 +625,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
                         continue outer;
                     }
                 }
-    
+
                 /*
                  * Here the entry has been accepted by all filters.
                  */
@@ -626,19 +633,50 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
                 filterContents( prefetched );
                 return true;
             }
-    
+
             prefetched = null;
-    
-            return false;     
+
+            return false;
         }
         finally
         {
-            if ( setCurTxn )
+            unpinCursor();
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void doLeakedCursorManagement( LeakedCursorManager leakedCursorManager ) throws Exception
+    {
+        Cursor<Entry> oldCursor;
+        boolean doNext = false;
+
+        pinCursor();
+
+        if ( previous() )
+        {
+            doNext = true;
+        }
+
+        oldCursor = wrapped;
+
+        try
+        {
+            wrapped = leakedCursorManager.createLeakedCursor( this );
+        }
+        finally
+        {
+            if ( doNext )
             {
-                txnBusy.set( false );
-                txnManager.setCurTxn( null );
+                next();
             }
         }
+
+        oldCursor.close();
+
+        unpinCursor();
     }
 
 
@@ -688,7 +726,7 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
-    } 
+    }
 }
 
 

@@ -39,6 +39,7 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
@@ -626,6 +627,7 @@ public interface DirectoryService extends ServerEntryFactory
       
     TxnManager getTxnManager();
     
+    LeakedCursorManager getLeakedCursorManager();
     
     TxnLogManager getTxnLogManager();   
     

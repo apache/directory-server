@@ -171,6 +171,8 @@ class DefaultTxnManager implements TxnManagerInternal
         lastFlushedLogAnchor = new LogAnchor();
 
         initialScanPoint = wal.getCheckPoint();
+        //System.out.println("checkpoint " + initialScanPoint);
+        
         lastFlushedLogAnchor.resetLogAnchor( initialScanPoint );
         
         dummyTxn.commitTxn( initialScanPoint.getLogLSN() );
@@ -191,7 +193,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
     public void shutdown()
     {
-    	System.out.println("in shutdown");
+    	//System.out.println("in shutdown");
         syncer.interrupt();
 
         try
@@ -212,11 +214,13 @@ class DefaultTxnManager implements TxnManagerInternal
         	ReadWriteTxn latestCommitted = latestCommittedTxn.get();
             long latestFlushedLsn = latestFlushedTxnLSN.get();
             
-            System.out.println("latest committed txn " + latestCommitted.getCommitTime() + 
-            		" latest flushed " + latestFlushedLsn);
-            //flushTxns();
+            flushTxns();
             
-            //advanceCheckPoint( lastFlushedLogAnchor );
+            advanceCheckPoint( lastFlushedLogAnchor );
+            
+          //  System.out.println("latest committed txn " + latestCommitted.getCommitTime() + 
+         //       " latest flushed " + latestFlushedLsn + " last flushed log anchor " + 
+          //      lastFlushedLogAnchor );
         }
         catch ( Exception e )
         {
@@ -1004,7 +1008,7 @@ class DefaultTxnManager implements TxnManagerInternal
     	UserLogRecord logRecord = new UserLogRecord();
     	byte userRecord[]; 
     	
-    	System.out.println(" Get txns to recover " + initialScanPoint.getLogLSN() );
+    	//System.out.println(" Get txns to recover " + initialScanPoint.getLogLSN() );
     	
     	try
     	{
@@ -1023,7 +1027,7 @@ class DefaultTxnManager implements TxnManagerInternal
 	            	
 	            	if ( stateChange.getTxnState() == ChangeState.TXN_COMMIT )
 	            	{
-	            		System.out.println("Adding txn " + stateChange.getTxnID() + " to the tobe recovered txns");
+	            		//System.out.println("Adding txn " + stateChange.getTxnID() + " to the tobe recovered txns");
 	            		txnsToRecover.add( new Long( stateChange.getTxnID() ) );
 	            	}
 	            }
@@ -1043,7 +1047,7 @@ class DefaultTxnManager implements TxnManagerInternal
     {
     	Dn partitionSuffix = partition.getSuffixDn();
     	
-    	System.out.println("Recover partition " + partitionSuffix);
+    	//System.out.println("Recover partition " + partitionSuffix);
     	
     	LogScanner logScanner = wal.beginScan( initialScanPoint );
     	UserLogRecord logRecord = new UserLogRecord();
@@ -1065,8 +1069,8 @@ class DefaultTxnManager implements TxnManagerInternal
 	            	DataChangeContainer dataChangeContainer = new DataChangeContainer();
 	            	dataChangeContainer.readExternal(in);
 	            	
-	            	System.out.println("Data change container for " + dataChangeContainer.getPartitionDn() + 
-	            			" txn id " + dataChangeContainer.getTxnID() );
+	            	//System.out.println("Data change container for " + dataChangeContainer.getPartitionDn() + 
+	            		//	" txn id " + dataChangeContainer.getTxnID() );
 	            	
 	            	// If this change is for the partition we are tyring to recover 
 	                // and belongs to a txn that committed, then 

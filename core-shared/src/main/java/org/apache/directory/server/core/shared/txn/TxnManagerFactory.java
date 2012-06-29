@@ -20,10 +20,12 @@
 package org.apache.directory.server.core.shared.txn;
 
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.directory.server.core.api.log.InvalidLogException;
 import org.apache.directory.server.core.api.log.Log;
+import org.apache.directory.server.core.api.txn.LeakedCursorManager;
 import org.apache.directory.server.core.api.txn.TxnLogManager;
 import org.apache.directory.server.core.api.txn.TxnManager;
 import org.apache.directory.server.core.shared.log.DefaultLog;
@@ -40,6 +42,9 @@ public class TxnManagerFactory
 
     /** The only txn log manager */
     private TxnLogManagerInternal txnLogManager;
+    
+    /** The only leaked cursor manager */
+    private LeakedCursorManager leakedCursorManager;
     
     /** WAL */
     private Log log;
@@ -79,6 +84,8 @@ public class TxnManagerFactory
 
         txnLogManager = new DefaultTxnLogManager( log, this );
         
+        leakedCursorManager = new DefaultLeakedCursorManager( logFolderPath + File.separatorChar + "cursors" );
+        
         this.init();
     }
     
@@ -100,6 +107,8 @@ public class TxnManagerFactory
         }	
     	
     	( ( DefaultTxnManager ) txnManager ).init(txnLogManager);
+    	
+    	( ( DefaultLeakedCursorManager )leakedCursorManager ).init();
     	 
     	inited = true;
     }
@@ -114,6 +123,7 @@ public class TxnManagerFactory
 
         ( ( DefaultTxnManager ) txnManager ).shutdown();
         ( ( DefaultTxnLogManager ) txnLogManager ).shutdown();
+        ( ( DefaultLeakedCursorManager )leakedCursorManager ).shutdown();
         inited = false;
     }
 
@@ -130,6 +140,12 @@ public class TxnManagerFactory
     }
 
 
+    public LeakedCursorManager leakedCursorManagerInstance()
+    {
+        return leakedCursorManager;
+    }
+    
+    
     TxnManagerInternal txnManagerInternalInstance()
     {
         return txnManager;
