@@ -135,6 +135,9 @@ class DefaultTxnManager implements TxnManagerInternal
     
     /** last flushed log anchor */
     private LogAnchor lastFlushedLogAnchor;
+    
+    /** Whether to avoid flushing */
+    private boolean doNotFlush = false;
 
     /** Per thread txn context */
     static final ThreadLocal<Transaction> txnVar =
@@ -212,14 +215,16 @@ class DefaultTxnManager implements TxnManagerInternal
         try
         {
         	ReadWriteTxn latestCommitted = latestCommittedTxn.get();
-            long latestFlushedLsn = latestFlushedTxnLSN.get();
             
-            flushTxns();
+            if ( !doNotFlush )
+            {
+                flushTxns();
+            }
             
             advanceCheckPoint( lastFlushedLogAnchor );
             
           //  System.out.println("latest committed txn " + latestCommitted.getCommitTime() + 
-         //       " latest flushed " + latestFlushedLsn + " last flushed log anchor " + 
+         //       " last flushed log anchor " + 
           //      lastFlushedLogAnchor );
         }
         catch ( Exception e )
@@ -1080,7 +1085,7 @@ class DefaultTxnManager implements TxnManagerInternal
 	                {
 	            		if(	dataChangeContainer.getPartitionDn().equals( partitionSuffix ) )
 	            		{
-	            			System.out.println("Apply change to partition " + partitionSuffix);
+	            			//System.out.println("Apply change to partition " + partitionSuffix);
 	            			dataChangeContainer.setPartition( partition );
 	            			dataChangeContainer.apply( true );
 	            			recoveredChanges = true;
@@ -1101,6 +1106,16 @@ class DefaultTxnManager implements TxnManagerInternal
     	}
     }
     
+    
+    public void setDoNotFlush()
+    {
+        doNotFlush = true;
+    }
+    
+    public void unsetDoNotFlush()
+    {
+        doNotFlush = false;
+    }
     
     private ObjectInputStream buildStream( byte[] buffer ) throws IOException
     {
@@ -1131,7 +1146,11 @@ class DefaultTxnManager implements TxnManagerInternal
                 while ( true )
                 {	
                     flushCondition.await( flushInterval, TimeUnit.MILLISECONDS );
-                    flushTxns();
+                    
+                    if ( !doNotFlush )
+                    {
+                        flushTxns();
+                    }
                 }
             }
             catch ( InterruptedException e )

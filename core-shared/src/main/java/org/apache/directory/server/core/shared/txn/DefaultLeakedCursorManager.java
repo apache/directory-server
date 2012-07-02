@@ -42,7 +42,7 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
 
     private static int LEAK_CHECK_INTERVAL = 1000;
 
-    private static int LEAK_TIMEOUT =  1000;
+    private static int LEAK_TIMEOUT =  60 * 1000;
 
     private static final String CURSOR_SUFFIX = "cursor";
 
@@ -151,12 +151,14 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
             cursor = it.next();
 
             if ( cursor.isClosed() )
-            {   
+            {
                 it.remove();
                 continue;
             }
 
-            if ( ( currentTimestamp - cursor.getTimestamp() ) >= LEAK_TIMEOUT )
+            long lifeTime = currentTimestamp - cursor.getTimestamp();
+
+            if ( lifeTime >= LEAK_TIMEOUT )
             {
                 cursor.pinCursor();
 

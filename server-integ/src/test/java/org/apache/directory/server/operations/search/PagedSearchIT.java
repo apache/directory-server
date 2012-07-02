@@ -271,7 +271,8 @@ public class PagedSearchIT extends AbstractLdapTestUnit
      * @throws EncoderException  on codec failures
      */
     private void doLoop( DirContext ctx, SearchControls controls, int pagedSizeLimit, 
-        int expectedLoop, int expectedNbEntries, boolean expectedException ) throws NamingException, EncoderException
+        int expectedLoop, int expectedNbEntries, boolean expectedException, 
+        boolean doLongSleep ) throws NamingException, EncoderException
     {
         // Loop over all the elements
         int loop = 0;
@@ -291,6 +292,19 @@ public class PagedSearchIT extends AbstractLdapTestUnit
                 {
                     SearchResult result = list.next();
                     results.add( result );
+                }
+                
+                
+                if ( doLongSleep && loop == 1 )
+                {
+                    try
+                    {
+                        Thread.sleep( 70 * 1000 );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        //
+                    }
                 }
             }
             catch ( SizeLimitExceededException e )
@@ -371,7 +385,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
         
-        doLoop( ctx, controls, 3, 4, 10, false );
+        doLoop( ctx, controls, 3, 4, 10, false, false );
     }
     
     
@@ -390,7 +404,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 2, 10, false );
+        doLoop( ctx, controls, 5, 2, 10, false, false );
     }
     
     
@@ -409,7 +423,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 2, 10, false );
+        doLoop( ctx, controls, 5, 2, 10, false, false );
     }
     
     
@@ -428,7 +442,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
-        doLoop( ctx, controls, 5, 1, 3, true );
+        doLoop( ctx, controls, 5, 1, 3, true, false );
     }
     
     
@@ -447,7 +461,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
 
-        doLoop( ctx, controls, 3, 4, 10, false );
+        doLoop( ctx, controls, 3, 4, 10, false, false );
     }
     
     
@@ -466,7 +480,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
-        doLoop( ctx, controls, 5, 2, 9, true );
+        doLoop( ctx, controls, 5, 2, 9, true, false );
     }
     
     
@@ -485,7 +499,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 2, 10, false );
+        doLoop( ctx, controls, 5, 2, 10, false, false );
     }
     
     
@@ -504,7 +518,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
-        doLoop( ctx, controls, 5, 1, 5, true );
+        doLoop( ctx, controls, 5, 1, 5, true, false );
     }
     
     
@@ -523,7 +537,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -542,7 +556,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
-        doLoop( ctx, controls, 3, 2, 5, true );
+        doLoop( ctx, controls, 3, 2, 5, true, false );
     }
     
     
@@ -561,7 +575,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
         
-        doLoop( ctx, controls, 4, 1, 3, true );
+        doLoop( ctx, controls, 4, 1, 3, true, false );
     }
     
     
@@ -580,7 +594,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -599,7 +613,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
-        doLoop( ctx, controls, 3, 2, 5, true );
+        doLoop( ctx, controls, 3, 2, 5, true, false );
     }
     
     
@@ -618,7 +632,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
-        doLoop( ctx, controls, 5, 1, 3, true );
+        doLoop( ctx, controls, 5, 1, 3, true, false );
     }
 
     
@@ -637,7 +651,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
         
-        doLoop( ctx, controls, 4, 2, 5, true );
+        doLoop( ctx, controls, 4, 2, 5, true, false );
     }
 
     
@@ -656,7 +670,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
         
-        doLoop( ctx, controls, 5, 1, 4, true );
+        doLoop( ctx, controls, 5, 1, 4, true, false );
     }
 
     
@@ -675,7 +689,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
-        doLoop( ctx, controls, 5, 1, 5, true );
+        doLoop( ctx, controls, 5, 1, 5, true, false );
     }
     
     
@@ -694,7 +708,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
         
-        doLoop( ctx, controls, 3, 4, 10, false );
+        doLoop( ctx, controls, 3, 4, 10, false, false );
     }
     
     
@@ -713,7 +727,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 2, 10, false );
+        doLoop( ctx, controls, 5, 2, 10, false, false );
     }
     
     
@@ -732,7 +746,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 1, 3, true );
+        doLoop( ctx, controls, 5, 1, 3, true, false );
     }
     
     
@@ -751,7 +765,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
-        doLoop( ctx, controls, 5, 1, 3, true );
+        doLoop( ctx, controls, 5, 1, 3, true, false );
     }
     
     
@@ -770,7 +784,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 3 );
         
-        doLoop( ctx, controls, 3, 2, 5, true );
+        doLoop( ctx, controls, 3, 2, 5, true, false );
     }
     
     
@@ -790,7 +804,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         SearchControls controls = createSearchControls( ctx, 9, 5 );
         
         
-        doLoop( ctx, controls, 5, 2, 9, true );
+        doLoop( ctx, controls, 5, 2, 9, true, false );
     }
     
     
@@ -809,7 +823,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, 5 );
         
-        doLoop( ctx, controls, 5, 1, 5, true );
+        doLoop( ctx, controls, 5, 1, 5, true, false );
     }
     
     
@@ -829,7 +843,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
         
-        doLoop( ctx, controls, 5, 1, 5, true );
+        doLoop( ctx, controls, 5, 1, 5, true, false );
     }
     
     
@@ -848,7 +862,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -867,7 +881,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -886,7 +900,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
         
-        doLoop( ctx, controls, 4, 1, 3, true );
+        doLoop( ctx, controls, 4, 1, 3, true, false );
     }
     
     
@@ -905,7 +919,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -924,7 +938,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
         
-        doLoop( ctx, controls, 3, 2, 4, true );
+        doLoop( ctx, controls, 3, 2, 4, true, false );
     }
     
     
@@ -943,7 +957,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
         
-        doLoop( ctx, controls, 3, 1, 3, true );
+        doLoop( ctx, controls, 3, 1, 3, true, false );
     }
 
     
@@ -962,7 +976,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
         
-        doLoop( ctx, controls, 3, 1, 3, true );
+        doLoop( ctx, controls, 3, 1, 3, true, false );
     }
 
     
@@ -981,7 +995,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
         
-        doLoop( ctx, controls, 3, 1, 3, true );
+        doLoop( ctx, controls, 3, 1, 3, true, false );
     }
 
     
@@ -1000,7 +1014,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
         
-        doLoop( ctx, controls, 5, 1, 5, true );
+        doLoop( ctx, controls, 5, 1, 5, true, false );
     }
 
     
@@ -1019,7 +1033,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, (int)LdapServer.NO_SIZE_LIMIT, -2 );
         
-        doLoop( ctx, controls, -2, 1, 10, false );
+        doLoop( ctx, controls, -2, 1, 10, false, false );
     }
     
     
@@ -1139,5 +1153,24 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         
         assertEquals( 4, loop );
         checkResults( results, 10, false );
+    }
+    
+    
+    /**
+     * Admin = yes <br>
+     * SL = 5<br>
+     * RL = 4<br>
+     * PL = 3<br>
+     * expected exception : yes<br>
+     * expected number of entries returned : 2 ( 3 + 1 )<br>
+     */
+    @Test
+    public void testPagedSearchTest9Sleep() throws Exception
+    {
+        getLdapServer().setMaxSizeLimit( 5 );
+        DirContext ctx = getWiredContext( getLdapServer() );
+        SearchControls controls = createSearchControls( ctx, 4, 3 );
+        
+        doLoop( ctx, controls, 3, 2, 4, true, true );
     }
 }

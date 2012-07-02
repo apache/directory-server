@@ -114,7 +114,7 @@ public class RandomFileCursor extends AbstractCursor<Entry>
 
         ObjectInputStream in = null;
         ByteArrayInputStream bin = null;
-
+        
         try
         {
             if ( currentOffset >= raf.length() )

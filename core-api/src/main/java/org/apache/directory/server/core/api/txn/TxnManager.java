@@ -138,5 +138,10 @@ public interface TxnManager
      * Recovers the given partition
      */
     void recoverPartition( Partition partition );
+    
+    
+    void setDoNotFlush();
+    
+    void unsetDoNotFlush();
 
 }

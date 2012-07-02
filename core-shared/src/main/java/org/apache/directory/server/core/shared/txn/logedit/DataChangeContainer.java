@@ -139,8 +139,6 @@ public class DataChangeContainer extends AbstractLogEdit
         boolean entryExisted = false;
         Entry originalEntry = null;
 
-        // TODO find the partition from the dn if changeContainer doesn't have it.
-
         if ( entryID != null )
         {
             MasterTable master = partition.getMasterTable();
@@ -282,8 +280,6 @@ public class DataChangeContainer extends AbstractLogEdit
 
         partitionDn = new Dn();
         partitionDn.readExternal( in );
-
-        // Here, we must find a way to find the Partition from its Dn
 
         DataChange change = null;
         int numChanges = in.readInt();
