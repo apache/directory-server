@@ -23,14 +23,80 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>apacheds-parent</artifactId>
+    <artifactId>apacheds-service-osgi</artifactId>
     <version>2.0.0-M7-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-osgi-launcher</artifactId>
   <name>ApacheDS OSGI Launcher</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <description>ApacheDS OSGI Launcher</description>
+  
+  <dependencies>
+  
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-model</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-schema-data</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-util</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.3.0</version>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <manifestLocation>META-INF</manifestLocation>
+          <unpackBundle>true</unpackBundle>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.osgi.launcher</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>     
+    </plugins>
+  </build>
+  
 </project>
 

@@ -23,14 +23,84 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>apacheds-parent</artifactId>
+    <artifactId>apacheds-service-osgi</artifactId>
     <version>2.0.0-M7-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-osgi-components</artifactId>
   <name>ApacheDS OSGI Components</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <description>ApacheDS OSGI Launcher</description>
+  
+  <dependencies>
+  
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-interceptors-hash</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-hub-connector-ipojo-handler</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap-model</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.3.0</version>
+    </dependency>
+
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <manifestLocation>META-INF</manifestLocation>
+          <unpackBundle>true</unpackBundle>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.osgi.components</Bundle-SymbolicName>
+            <Export-Package>
+                {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+            <_plugin>org.apache.felix.ipojo.bnd.PojoizationPlugin;use-local-schemas=true</_plugin>
+          </instructions>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>bnd-ipojo-plugin</artifactId>
+            <version>${bnd.ipojo.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>     
+    </plugins>
+  </build>
+  
 </project>
 
