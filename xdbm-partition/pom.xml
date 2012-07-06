@@ -112,16 +112,8 @@
                 org.apache.directory.server.xdbm.impl.avl;version="${project.version}";-noimport:=true,
                 org.apache.directory.server.xdbm.search.impl;version="${project.version}";-noimport:=true
             </Export-Package>
-            <_plugin>org.apache.felix.ipojo.bnd.PojoizationPlugin;use-local-schemas=true</_plugin>
           </instructions>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>bnd-ipojo-plugin</artifactId>
-            <version>${bnd.ipojo.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
