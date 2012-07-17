@@ -496,7 +496,7 @@ public class PasswordUtil
     {
         Date pwdChangeDate = DateUtils.getDate( pwdChangedZtime );
 
-        long time = pwdMaxAgeSec * 1000;
+        long time = ( ( long ) pwdMaxAgeSec ) * 1000L;
         time += pwdChangeDate.getTime();
 
         Date expiryDate = DateUtils.getDate( DateUtils.getGeneralizedTime( time ) );
