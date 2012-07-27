@@ -35,6 +35,7 @@
     <module>apacheds</module>
     <module>apacheds-manuals</module>
     <!-- module>kerberos-client</module -->
+    <module>jdbm</module>
   </modules>
 
   <build>
