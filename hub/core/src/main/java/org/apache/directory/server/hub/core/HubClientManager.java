@@ -128,12 +128,12 @@ public class HubClientManager
     }
 
 
-    public void fireDCReconfigured( DirectoryComponent component, boolean newInstance )
+    public void fireDCReconfigured( DirectoryComponent component )
     {
         List<AbstractComponentListener> clients = getRegisteredClients( component );
         for ( ComponentListener client : clients )
         {
-            client.componentReconfigured( component, newInstance );
+            client.componentReconfigured( component );
         }
     }
 

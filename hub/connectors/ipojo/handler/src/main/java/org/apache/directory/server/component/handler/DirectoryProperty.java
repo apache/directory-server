@@ -68,6 +68,7 @@ public @interface DirectoryProperty
 
     /*
      * Whether property will be immutable
+     * Means only assignable at creation time.
      */
     boolean immutable() default false;
 

@@ -82,6 +82,7 @@ public class ComponentHubImpl implements ComponentHub
 
     private ConfiguratorInterceptor configurator;
 
+
     public ComponentHubImpl( HubStore store )
     {
         this.store = store;
@@ -258,28 +259,25 @@ public class ComponentHubImpl implements ComponentHub
             }
         }
 
-        boolean isExclusive = metadata.isExclusive();
-        boolean reinstantiate = false;
-
-        // Immutable property change handling
         if ( component.getRuntimeInfo() != null )
         {
-            for ( DcProperty prop : newConfiguration )
+            // Immutable property modification prevention
+            for ( DcProperty newProp : newConfiguration )
             {
-                DcPropertyDescription pd = metadata.getPropertyDescription( prop.getName() );
-                if ( pd != null && pd.isImmutable() )
+                String propName = newProp.getName();
+                DcPropertyDescription propDesc = metadata.getPropertyDescription( propName );
+                if ( propDesc.isImmutable() )
                 {
-                    DcProperty oldProp = component.getConfiguration().getProperty( prop.getName() );
-                    if ( oldProp != null && !( oldProp.getValue().equals( prop.getValue() ) ) )
+                    String oldPropVal = component.getConfiguration().getProperty( propName ).getValue();
+                    if ( newProp.getValue() != oldPropVal )
                     {
-                        reinstantiate = true;
+                        throw new HubAbortException( "Changing a immmutable property of active instance is forbidden!" );
                     }
                 }
             }
         }
 
         DcConfiguration oldConfiguration = component.getConfiguration();
-        DcRuntime oldRuntime = component.getRuntimeInfo();
 
         DcOperationsManager operations = handlersReg.getPIDHandler( component.getComponentManagerPID() );
 
@@ -290,6 +288,8 @@ public class ComponentHubImpl implements ComponentHub
         }
         catch ( BadConfigurationException e )
         {
+            component.setConfiguration( oldConfiguration );
+
             throw new HubAbortException( "New configuration is rejected while processing", e );
         }
 
@@ -297,23 +297,9 @@ public class ComponentHubImpl implements ComponentHub
         {
             try
             {
-                if ( reinstantiate )
-                {
-                    if ( isExclusive )
-                    {
-                        operations.disposeComponent( component );
-                    }
-                    else
-                    {
-                        component.setRuntimeInfo( null );
-                    }
-                }
-                else
-                {
-                    operations.reconfigureComponent( component );
-                }
+                operations.reconfigureComponent( component );
 
-                clientManager.fireDCReconfigured( component, reinstantiate );
+                clientManager.fireDCReconfigured( component );
 
                 List<ParentLink> parents = parentLinksReg.getParentLinks( component );
                 if ( parents != null )
@@ -332,34 +318,26 @@ public class ComponentHubImpl implements ComponentHub
             }
             catch ( Exception e )
             {
-                if ( reinstantiate && !isExclusive )
-                {
-                    component.setRuntimeInfo( oldRuntime );
-                    component.setConfiguration( oldConfiguration );
 
+                component.setConfiguration( oldConfiguration );
+                try
+                {
+                    processConfiguration( component );
+                    operations.reconfigureComponent( component );
+
+                    // We ensured the previous state, now inform the reconfiguration agent with exception
                     throw new HubAbortException( "Reconfiguration is rejected by target component:"
                         + component.getComponentPID(), e );
                 }
-                else
+                catch ( Exception e2 )
                 {
-                    component.setConfiguration( oldConfiguration );
-                    try
-                    {
-                        processConfiguration( component );
-                        operations.reconfigureComponent( component );
+                    deactivateComponent( component );
 
-                        throw new HubAbortException( "Reconfiguration is rejected by target component:"
-                            + component.getComponentPID(), e );
-                    }
-                    catch ( Exception e2 )
-                    {
-                        deactivateComponent( component );
+                    throw new HubAbortException( "Reconfiguration reverted but component couldn't be saved:"
+                        + component.getComponentPID(), e );
 
-                        throw new HubAbortException( "Reconfiguration reverted but component couldn't be saved:"
-                            + component.getComponentPID(), e );
-
-                    }
                 }
+
             }
         }
         else
@@ -473,18 +451,18 @@ public class ComponentHubImpl implements ComponentHub
                             // TODO log given parent couldn't be reverted from cancelled removal of its referenced property.
                         }
                     }
-                    
+
                     removed = false;
                     break;
                 }
             }
-            
-            if(removed)
+
+            if ( removed )
             {
                 parentLinksReg.destroyComponentLinks( component );
             }
         }
-        
+
         deactivateComponent( component );
 
         componentsReg.removeDirectoryComponent( component );

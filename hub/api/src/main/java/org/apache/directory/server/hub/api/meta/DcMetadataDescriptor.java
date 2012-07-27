@@ -43,8 +43,6 @@ public class DcMetadataDescriptor
     private Hashtable<String, String> attributes;
 
     private boolean factory;
-    private boolean exclusive;
-    private boolean threadSafe;
 
 
     public DcMetadataDescriptor(
@@ -87,30 +85,6 @@ public class DcMetadataDescriptor
     public boolean isFactory()
     {
         return factory;
-    }
-
-
-    public boolean isExclusive()
-    {
-        return exclusive;
-    }
-
-
-    public void setExclusive( boolean exclusive )
-    {
-        this.exclusive = exclusive;
-    }
-
-
-    public boolean isThreadSafe()
-    {
-        return threadSafe;
-    }
-
-
-    public void setThreadSafe( boolean threadSafe )
-    {
-        this.threadSafe = threadSafe;
     }
 
 

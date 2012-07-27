@@ -36,5 +36,5 @@ public interface ComponentListener
     public abstract void componentDeactivated( DirectoryComponent component );
 
 
-    public abstract void componentReconfigured( DirectoryComponent component, boolean newInstance );
+    public abstract void componentReconfigured( DirectoryComponent component );
 }

@@ -44,15 +44,11 @@ public class DcHandlerConstants
      */
     public static final String DSCOMPONENT_OWNER_PROP_NAME = "dscomponent.owner";
     public static final String DSCOMPONENT_FACTORY_PROP_NAME = "factory";
-    public static final String DSCOMPONENT_EXCLUSIVE_PROP_NAME = "exclusive";
-    public static final String DSCOMPONENT_THREADSAFE_PROP_NAME = "threadsafe";
 
     /*
      * Property names for meta proeprties at connector level 
      */
     public static final String META_IS_FACTORY = "isFactory";
-    public static final String META_IS_EXCLUSIVE = "isImmutable";
-    public static final String META_IS_THREAD_SAFE = "isThreadSafe";
     public static final String INTERCEPTOR_INTERCEPTION_POINT = "interceptionPoint";
     public static final String INTERCEPTOR_INTERCEPTOR_OPERATIONS = "operations";
 

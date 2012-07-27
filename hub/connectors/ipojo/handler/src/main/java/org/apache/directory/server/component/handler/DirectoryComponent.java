@@ -34,10 +34,4 @@ import java.lang.annotation.Target;
 public @interface DirectoryComponent
 {
     boolean factory() default true;
-
-
-    boolean exclusive() default false;
-
-
-    boolean threadsafe() default true;
 }

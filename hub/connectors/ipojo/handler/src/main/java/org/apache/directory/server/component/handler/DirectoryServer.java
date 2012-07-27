@@ -33,11 +33,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface DirectoryServer
 {
-	boolean factory() default true;
-
-
-    boolean exclusive() default false;
-
-
-    boolean threadsafe() default true;
+    boolean factory() default true;
 }

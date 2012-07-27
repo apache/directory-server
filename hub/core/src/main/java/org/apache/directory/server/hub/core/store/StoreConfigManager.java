@@ -196,8 +196,6 @@ public class StoreConfigManager
             .getMetaVersion().toString() );
         mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_FACTORY ),
             ( metadata.isFactory() ) ? "TRUE" : "FALSE" );
-        mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_EXCLUSIVE ),
-            ( metadata.isExclusive() ) ? "TRUE" : "FALSE" );
         mdEntry.add( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_MD_CLASSNAME ),
             metadata.getClassName() );
 

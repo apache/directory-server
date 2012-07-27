@@ -46,9 +46,6 @@ public class DcMetadataBuilder
         Version metaVersion = factory.getBundleContext().getBundle().getVersion();
         boolean isFactory = true;
 
-        boolean isExclusive = false;
-        boolean isThreadSafe = true;
-
         List<DcPropertyDescription> properties = new ArrayList<DcPropertyDescription>();
 
         Hashtable<String, String> attributes = new Hashtable<String, String>();
@@ -89,14 +86,6 @@ public class DcMetadataBuilder
                 {
                     isFactory = Boolean.parseBoolean( defaultValue );
                 }
-                else if ( name.equals( DcHandlerConstants.META_IS_EXCLUSIVE ) )
-                {
-                    isExclusive = Boolean.parseBoolean( defaultValue );
-                }
-                else if ( name.equals( DcHandlerConstants.META_IS_THREAD_SAFE ) )
-                {
-                    isThreadSafe = Boolean.parseBoolean( defaultValue );
-                }
                 else
                 {
                     attributes.put( name, defaultValue );
@@ -125,9 +114,6 @@ public class DcMetadataBuilder
         DcMetadataDescriptor metadata = new DcMetadataDescriptor( metadataPID, isFactory, metaVersion,
             className,
             implemented, extended, attributes, properties.toArray( new DcPropertyDescription[0] ) );
-
-        metadata.setExclusive( isExclusive );
-        metadata.setThreadSafe( isThreadSafe );
 
         return metadata;
     }

@@ -21,7 +21,6 @@
 package org.apache.directory.server.hub.api;
 
 
-import org.apache.directory.server.hub.api.component.DcConfiguration;
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.HubAbortException;
 
@@ -62,7 +61,7 @@ public class AbstractComponentListener implements ComponentListener
      * @see org.apache.directory.server.hub.api.ComponentListener#componentReconfigured(org.apache.directory.server.hub.api.component.DirectoryComponent, boolean)
      */
     @Override
-    public void componentReconfigured( DirectoryComponent component, boolean newInstance )
+    public void componentReconfigured( DirectoryComponent component )
     {
 
     }

@@ -36,19 +36,15 @@ import org.apache.directory.server.hub.api.component.util.InterceptorOperation;
 @Target(ElementType.TYPE)
 public @interface DirectoryInterceptor
 {
-	boolean factory() default true;
+    boolean factory() default true;
 
 
-    boolean exclusive() default false;
-
-
-    boolean threadsafe() default true;
-    
     /*
      * Used to specify interception point for all component instances
      * instantiated from factory.
      */
     InterceptionPoint interceptionPoint() default InterceptionPoint.END;
+
 
     /*
      * Used to specify in which operations this factory's instances
