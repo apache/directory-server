@@ -130,8 +130,6 @@
     <!--<module>server-tools</module>-->
     <module>server-config</module>
     <module>service-builder</module>
-    <!--Uncomment to build all in one OSGi bundle-->
-    <!--<module>osgi</module>-->
     <module>server-jndi</module>
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
@@ -148,9 +146,12 @@
     -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
+    <!-- Uncomment to build OSGI extensions -->
+    <!--
     <module>apache-felix</module>
     <module>dependencies</module>
     <module>service-osgi</module>
+    -->
   </modules>
 
   <build>
