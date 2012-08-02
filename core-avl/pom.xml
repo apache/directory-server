@@ -77,6 +77,7 @@
         <extensions>true</extensions>
         <configuration>
           <manifestLocation>META-INF</manifestLocation>
+          <unpackBundle>true</unpackBundle>
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.core.avl</Bundle-SymbolicName>
             <Export-Package>
@@ -87,7 +88,8 @@
                 org.apache.directory.shared.ldap.model.schema.comparators,
                 org.apache.directory.shared.ldap.model.schema,
                 org.apache.directory.server.core.partition.impl.btree,
-                org.apache.directory.server.core.part
+                org.apache.directory.server.core.partition.impl.btree.jdbm,
+                org.apache.directory.server.xdbm
             </Import-Package>
           </instructions>
         </configuration>
