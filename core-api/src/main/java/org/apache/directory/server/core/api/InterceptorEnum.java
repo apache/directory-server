@@ -39,7 +39,8 @@ public enum InterceptorEnum {
     TRIGGER_INTERCEPTOR( "triggerInterceptor" ),
     CHANGE_LOG_INTERCEPTOR( "changeLogInterceptor" ),
     COLLECTIVE_ATTRIBUTE_INTERCEPTOR( "collectiveAttributeInterceptor" ),
-    JOURNAL_INTERCEPTOR( "journalInterceptor" );
+    JOURNAL_INTERCEPTOR( "journalInterceptor" ),
+    CONFIGURATOR_INTERCEPTOR("configuratorInterceptor");
     
     /** The associated interceptor name */
     private String name;
