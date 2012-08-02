@@ -84,6 +84,9 @@
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.10.0</xercesImpl.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
+    <ipojo.version>1.9.0-SNAPSHOT</ipojo.version>
+    <ipojo.annotations.version>1.8.0</ipojo.annotations.version>
+    <bnd.ipojo.version>1.9.0-SNAPSHOT</bnd.ipojo.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -147,11 +150,9 @@
     <module>installers-maven-plugin</module>
     <module>installers</module>
     <!-- Uncomment to build OSGI extensions -->
-    <!--
-    <module>apache-felix</module>
     <module>dependencies</module>
     <module>service-osgi</module>
-    -->
+    <module>hub</module>
   </modules>
 
   <build>
@@ -874,6 +875,36 @@
         <artifactId>apacheds-server-config-builder</artifactId>
         <version>${project.version}</version>
       </dependency>
+
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>apacheds-hub-api</artifactId>
+         <version>${project.version}</version>
+       </dependency>
+ 
+       <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>apacheds-hub-core</artifactId>
+         <version>${project.version}</version>
+       </dependency>
+ 
+       <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>apacheds-hub-connector-ipojo-core</artifactId>
+         <version>${project.version}</version>
+       </dependency>
+ 
+       <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>apacheds-hub-connector-ipojo-handler</artifactId>
+         <version>${project.version}</version>
+       </dependency>
+ 
+       <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>apacheds-hub-connector-ds</artifactId>
+         <version>${project.version}</version>
+       </dependency>
       
       <!-- Shared dependencies -->
       
@@ -984,6 +1015,12 @@
         <artifactId>shared-util</artifactId>
         <version>${org.apache.directory.shared.version}</version>
       </dependency>
+
+       <dependency>
+         <groupId>org.apache.directory.shared</groupId>
+         <artifactId>shared-ipojo-manager</artifactId>
+         <version>${org.apache.directory.shared.version}</version>
+       </dependency>
       
       <!-- Mina dependencies -->
       
@@ -1203,6 +1240,18 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
         <version>${ehcache.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo</artifactId>
+        <version>${ipojo.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+        <version>${ipojo.annotations.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
