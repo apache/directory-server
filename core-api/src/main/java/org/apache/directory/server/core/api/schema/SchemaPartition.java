@@ -128,9 +128,10 @@ public final class SchemaPartition extends AbstractPartition
 
     /** A static Dn for the ou=schema partition */
     private static Dn SCHEMA_DN;
-    
+
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
+
 
     public SchemaPartition( SchemaManager schemaManager )
     {
@@ -142,14 +143,14 @@ public final class SchemaPartition extends AbstractPartition
         {
             // Nothing to do : this is a valid DN anyways
         }
-        
+
         id = SCHEMA_ID;
         suffixDn = SCHEMA_DN;
         this.schemaManager = schemaManager;
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
-    
-    
+
+
     /**
      * Sets the wrapped {@link Partition} which must be supplied or
      * {@link Partition#initialize()} will fail with a NullPointerException.
@@ -175,6 +176,17 @@ public final class SchemaPartition extends AbstractPartition
     public Partition getWrappedPartition()
     {
         return wrapped;
+    }
+
+
+    /**
+     * Gets the {@link RegistrySynchronizerAdaptor} synchronizer
+     *
+     * @return the registry synchronizer
+     */
+    public RegistrySynchronizerAdaptor getRegistrySynchronizerAdaptor()
+    {
+        return synchronizer;
     }
 
 
@@ -216,11 +228,11 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.setId( SCHEMA_ID );
             wrapped.setSuffixDn( SCHEMA_DN );
             wrapped.setSchemaManager( schemaManager );
-    
+
             try
             {
                 wrapped.initialize();
-    
+
                 synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
             }
             catch ( Exception e )
@@ -228,7 +240,7 @@ public final class SchemaPartition extends AbstractPartition
                 LOG.error( I18n.err( I18n.ERR_90 ), e );
                 throw new RuntimeException( e );
             }
-    
+
             SCHEMA_MODIFICATION_DN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         }
     }
@@ -249,7 +261,7 @@ public final class SchemaPartition extends AbstractPartition
             LOG.error( I18n.err( I18n.ERR_91 ), e );
             throw new RuntimeException( e );
         }
-        
+
         initialized = false;
     }
 
@@ -265,7 +277,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         // Ensure logical data in registries is consistent
         addContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         // At this point, the added SchemaObject does not exist in the partition
         // We have to check if it's enabled and then inject it into the registries
         // but only if it does not break the server.
@@ -274,7 +286,7 @@ public final class SchemaPartition extends AbstractPartition
         updateSchemaModificationAttributes( addContext );
     }
 
-   
+
     /**
      * {@inheritDoc}
      */
@@ -289,19 +301,20 @@ public final class SchemaPartition extends AbstractPartition
             searchRequest.setFilter( node );
             searchRequest.setTypesOnly( true );
             searchRequest.setScope( SearchScope.ONELEVEL );
-            
-            SearchOperationContext searchContext = new SearchOperationContext( deleteContext.getSession(), searchRequest );
-            
+
+            SearchOperationContext searchContext = new SearchOperationContext( deleteContext.getSession(),
+                searchRequest );
+
             EntryFilteringCursor cursor = wrapped.search( searchContext );
-            
+
             cursor.beforeFirst();
             int nbEntry = 0;
-            
+
             while ( cursor.next() && ( nbEntry < 2 ) )
             {
                 nbEntry++;
             }
-            
+
             return nbEntry;
         }
         catch ( Exception e )
@@ -318,7 +331,7 @@ public final class SchemaPartition extends AbstractPartition
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         boolean cascade = deleteContext.hasRequestControl( Cascade.OID );
-        
+
         // We have to check if the entry we want to delete has children, or not
         int nbChild = getChildCount( deleteContext );
 
@@ -326,10 +339,10 @@ public final class SchemaPartition extends AbstractPartition
         {
             throw new LdapUnwillingToPerformException();
         }
-        
+
         // Ensure logical data in registries is consistent
         deleteContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
 
@@ -364,7 +377,8 @@ public final class SchemaPartition extends AbstractPartition
 
         if ( entry == null )
         {
-            LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(), modifyContext.getDn() );
+            LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(),
+                modifyContext.getDn() );
             entry = modifyContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupCtx );;
             modifyContext.setEntry( entry );
         }
@@ -375,7 +389,7 @@ public final class SchemaPartition extends AbstractPartition
 
         // Ensure logical data in registries is consistent
         modifyContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         synchronizer.modify( modifyContext, targetEntry, cascade );
 
         if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
@@ -391,14 +405,15 @@ public final class SchemaPartition extends AbstractPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         boolean cascade = moveContext.hasRequestControl( Cascade.OID );
-        
+
         CoreSession session = moveContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
-        
+
         // Ensure logical data in registries is consistent
         session.getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         synchronizer.move( moveContext, entry, cascade );
         updateSchemaModificationAttributes( moveContext );
     }
@@ -411,12 +426,13 @@ public final class SchemaPartition extends AbstractPartition
     {
         boolean cascade = moveAndRenameContext.hasRequestControl( Cascade.OID );
         CoreSession session = moveAndRenameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
-        
+
         // Ensure logical data in registries is consistent
         session.getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         updateSchemaModificationAttributes( moveAndRenameContext );
     }
@@ -431,7 +447,7 @@ public final class SchemaPartition extends AbstractPartition
 
         // Ensure logical data in registries is consistent
         renameContext.getSession().getDirectoryService().getTxnManager().startLogicalDataChange();
-        
+
         // First update the registries
         synchronizer.rename( renameContext, cascade );
 
