@@ -82,6 +82,13 @@
             <Export-Package>
                 {local-packages};version=${project.version};-noimport:=true
             </Export-Package>
+            <Import-Package>
+                *,
+                org.apache.directory.shared.ldap.model.schema.comparators,
+                org.apache.directory.shared.ldap.model.schema,
+                org.apache.directory.server.core.partition.impl.btree,
+                org.apache.directory.server.core.part
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
