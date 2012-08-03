@@ -51,25 +51,26 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "KerberosUdpIT-class",
     partitions =
-       {
-           @CreatePartition(
-               name = "example",
-               suffix = "dc=example,dc=com")
-       },
-       additionalInterceptors =
-       {
-               KeyDerivationInterceptor.class
-       })
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com")
+    },
+    additionalInterceptors =
+        {
+            KeyDerivationInterceptor.class
+    })
 @CreateLdapServer(
     transports =
-   {
-       @CreateTransport(protocol = "LDAP")
-   })
+        {
+            @CreateTransport(protocol = "LDAP")
+    })
 @CreateKdcServer(
     transports =
-   {
-       @CreateTransport(protocol = "UDP")
-   })
+        {
+            @CreateTransport(protocol = "TCP", port = 6087),
+            @CreateTransport(protocol = "UDP", port = 6087)
+    })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosUdpITest extends AbstractKerberosITest
 {
@@ -82,7 +83,7 @@ public class KerberosUdpITest extends AbstractKerberosITest
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
         // TODO: RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
-        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class, 
+        ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
             EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
         testObtainTickets( parameters );
     }
