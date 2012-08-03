@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-hub-connector</artifactId>    
-    <version>2.0.0-M4-SNAPSHOT</version>
+    <version>2.0.0-txn-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-hub-connector-ds</artifactId>
   <name>Component Hub DeclerativeServices Connector</name>
