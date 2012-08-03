@@ -79,9 +79,9 @@ public class StoreDcBuilder
 
         // Parsing name and namer attribute out of Dn.
         Rdn name = componentEntry.getDn().getRdn();
-        componentName = name.getValue().getString();
+        componentName = name.getUpValue().getString();
 
-        String namer = name.getType();
+        String namer = name.getUpType();
 
         List<DcProperty> properties = new ArrayList<DcProperty>();
 

@@ -30,6 +30,8 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.partition.index.ForwardIndexEntry;
+import org.apache.directory.server.core.api.partition.index.IndexCursor;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.hub.api.ComponentHub;
 import org.apache.directory.server.hub.api.component.DcConfiguration;
@@ -40,8 +42,6 @@ import org.apache.directory.server.hub.api.exception.StoreNotValidException;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 import org.apache.directory.server.hub.api.meta.DcPropertyDescription;
 import org.apache.directory.server.hub.api.meta.DcPropertyType;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -127,7 +127,7 @@ public class StoreConfigManager
     public void uninstallPropertyDescription( String propertyName ) throws LdapException
     {
         Dn pdDn = new Dn( schemaManager, StoreSchemaConstants.HUB_AT_PD_NAME, propertyName, CONFIG_PD_BASE );
-        Long entryId = configPartition.getEntryId( pdDn );
+        UUID entryId = configPartition.getEntryId( pdDn );
         if ( entryId != null )
         {
             configPartition.delete( entryId );
@@ -149,7 +149,7 @@ public class StoreConfigManager
     {
         Dn pdDn = new Dn( schemaManager, StoreSchemaConstants.HUB_AT_MD_PID, componentManagerPID, CONFIG_MD_BASE );
 
-        Long entryId = configPartition.getEntryId( pdDn );
+        UUID entryId = configPartition.getEntryId( pdDn );
         if ( entryId != null )
         {
             configPartition.delete( entryId );
@@ -281,7 +281,7 @@ public class StoreConfigManager
     {
         Dn removalDn = new Dn( schemaManager, component.getConfigLocation() );
 
-        Long entryID = configPartition.getEntryId( removalDn );
+        UUID entryID = configPartition.getEntryId( removalDn );
         if ( entryID != null )
         {
             configPartition.delete( entryID );
@@ -354,14 +354,14 @@ public class StoreConfigManager
 
     public List<DirectoryComponent> getComponents( Dn baseDn, SearchScope scope )
     {
-        SearchEngine<Entry, Long> se = configPartition.getSearchEngine();
+        SearchEngine se = configPartition.getSearchEngine();
 
         AttributeType adsInstanceAttrib = schemaManager
             .getAttributeType( StoreSchemaConstants.HUB_AT_COMPONENT_NAME );
 
         PresenceNode filter = new PresenceNode( adsInstanceAttrib );
 
-        IndexCursor<Long, Entry, Long> cursor = null;
+        IndexCursor<UUID> cursor = null;
 
         List<DirectoryComponent> components = new ArrayList<DirectoryComponent>();
 
@@ -370,7 +370,7 @@ public class StoreConfigManager
             cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, scope );
             while ( cursor.next() )
             {
-                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
+                ForwardIndexEntry<UUID> forwardEntry = ( ForwardIndexEntry<UUID> ) cursor
                     .get();
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
@@ -436,11 +436,11 @@ public class StoreConfigManager
 
     public List<DcMetadataDescriptor> getMetadatas()
     {
-        SearchEngine<Entry, Long> se = configPartition.getSearchEngine();
+        SearchEngine se = configPartition.getSearchEngine();
 
         PresenceNode filter = new PresenceNode( schemaManager.getAttributeType( StoreSchemaConstants.HUB_AT_PD_NAME ) );
 
-        IndexCursor<Long, Entry, Long> cursor = null;
+        IndexCursor<UUID> cursor = null;
 
         List<DcMetadataDescriptor> metadatas = new ArrayList<DcMetadataDescriptor>();
         Hashtable<String, DcPropertyDescription> pdMap = new Hashtable<String, DcPropertyDescription>();
@@ -452,7 +452,7 @@ public class StoreConfigManager
 
             while ( cursor.next() )
             {
-                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
+                ForwardIndexEntry<UUID> forwardEntry = ( ForwardIndexEntry<UUID> ) cursor
                     .get();
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
@@ -472,7 +472,7 @@ public class StoreConfigManager
 
             while ( cursor.next() )
             {
-                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
+                ForwardIndexEntry<UUID> forwardEntry = ( ForwardIndexEntry<UUID> ) cursor
                     .get();
 
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
