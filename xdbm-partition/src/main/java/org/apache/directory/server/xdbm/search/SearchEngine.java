@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.partition.index.IndexCursor;
 
@@ -86,6 +87,20 @@ public interface SearchEngine
      */
     IndexCursor<UUID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchControls searchCtls ) throws Exception;
+
+
+    /**
+     * Conducts a search on a database.
+     * 
+     * @param base the search base
+     * @param aliasDerefMode the alias dereferencing mode to use
+     * @param filter the search filter AST root
+     * @param searchScope scope of the search
+     * @return enumeration over SearchResults
+     * @throws Exception if the search fails
+     */
+    IndexCursor<UUID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+        SearchScope searchScope ) throws Exception;
 
 
     /**

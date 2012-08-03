@@ -215,6 +215,17 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
+     * @see SearchEngine#cursor(Dn, AliasDerefMode, ExprNode, SearchScope)
+     */
+    public IndexCursor<UUID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+        SearchScope searchScope ) throws Exception
+    {
+        return cursor( base, aliasDerefMode, filter,
+            new SearchControls( searchScope.ordinal(), 0, 0, null, false, false ) );
+    }
+
+
+    /**
      * @see SearchEngine#evaluator(ExprNode)
      */
     public Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception
