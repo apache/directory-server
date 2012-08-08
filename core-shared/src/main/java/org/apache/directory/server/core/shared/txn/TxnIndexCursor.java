@@ -91,6 +91,12 @@ public class TxnIndexCursor extends AbstractIndexCursor<Object>
             onlyKey = true;
         }
 
+        if ( onlyIDKey != null )
+        {
+            this.onlyIDKey = onlyIDKey;
+            onlyKey = true;
+        }
+
         if ( changedEntries.size() < 1 )
         {
             throw new IllegalArgumentException( "TxnIndexCursor should not be constructed with no index  changes" );
