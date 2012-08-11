@@ -925,10 +925,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                 {
                     AttributeType attributeType = attribute.getAttributeType();
+                    String oid = attributeType.getOid();
 
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                     {
-                        entry.removeAttributes( attributeType );
+                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        {
+                            entry.removeAttributes( attributeType );
+                        }
                     }
                 }
             }
