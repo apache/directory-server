@@ -174,6 +174,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : objectClass )
             {
+                if ( value.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+
                 indexChange = new IndexChange( objectClassIdx, value.getString(),
                     id, IndexChange.Type.ADD, true );
                 changeContainer.addChange( indexChange );
@@ -504,7 +509,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
         }
         catch ( Exception e )
         {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
@@ -708,6 +713,11 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
             for ( Value<?> value : mods )
             {
+                if ( value.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+
                 indexChange = new IndexChange( objectClassIdx, value.getString(), id, IndexChange.Type.ADD,
                     true );
                 changeContainer.addChange( indexChange );
