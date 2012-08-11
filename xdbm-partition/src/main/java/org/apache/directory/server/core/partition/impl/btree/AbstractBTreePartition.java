@@ -334,7 +334,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         if ( getEntryCsnIndex() == null )
         {
             Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath,
-                NO_REVERSE );
+                WITH_REVERSE );
             addIndex( index );
         }
 
