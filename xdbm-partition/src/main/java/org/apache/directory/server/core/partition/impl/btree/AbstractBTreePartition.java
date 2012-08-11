@@ -1991,7 +1991,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     private void updateCsnIndex( Entry entry, ID id ) throws Exception
     {
         String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
-        entryCsnIdx.drop( entryCsn, id );
+        entryCsnIdx.drop( id );
         entryCsnIdx.add( entryCsn, id );
     }
 
