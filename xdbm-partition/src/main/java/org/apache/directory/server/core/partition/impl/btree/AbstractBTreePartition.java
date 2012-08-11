@@ -855,10 +855,6 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
             // Update the ObjectClass index
             for ( Value<?> value : objectClass )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
-                {
-                    continue;
-                }
                 objectClassIdx.drop( value.getString(), id );
             }
 
@@ -1043,10 +1039,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
                 for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                 {
                     AttributeType attributeType = attribute.getAttributeType();
+                    String oid = attributeType.getOid();
 
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                     {
-                        entry.removeAttributes( attributeType );
+                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        {
+                            entry.removeAttributes( attributeType );
+                        }
                     }
                 }
             }
@@ -1305,6 +1305,11 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
 
             for ( Value<?> value : mods )
             {
+                if ( value.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+
                 objectClassIdx.add( ( String ) value.getNormValue(), id );
             }
         }
