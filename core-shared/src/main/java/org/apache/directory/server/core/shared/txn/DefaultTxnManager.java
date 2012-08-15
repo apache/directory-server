@@ -1146,7 +1146,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
                     if ( !doNotFlush )
                     {
-                        flushTxns( false );
+                        flushTxns();
                     }
                 }
             }
