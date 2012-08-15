@@ -214,7 +214,7 @@ class DefaultTxnManager implements TxnManagerInternal
         {
             if ( !doNotFlush )
             {
-                flushTxns( true );
+                flushTxns();
             }
 
             advanceCheckPoint( lastFlushedLogAnchor );
@@ -444,7 +444,7 @@ class DefaultTxnManager implements TxnManagerInternal
 
         try
         {
-            flushTxns( false );
+            flushTxns();
         }
         catch ( Exception e )
         {
@@ -908,7 +908,7 @@ class DefaultTxnManager implements TxnManagerInternal
      *  @param shutdown is TxnManager is shutting down
      *
      */
-    private void flushTxns( boolean shutdown ) throws Exception
+    private void flushTxns() throws Exception
     {
         UserLogRecord lastLogRecord = null;
 
@@ -982,9 +982,6 @@ class DefaultTxnManager implements TxnManagerInternal
             partitionIt.next().sync();
         }
 
-        // Sync WAL to the last flushed LSN
-        wal.sync( latestFlushedLsn );
-
         numFlushes++;
 
         if ( lastLogRecord != null )
@@ -992,11 +989,7 @@ class DefaultTxnManager implements TxnManagerInternal
             lastFlushedLogAnchor.resetLogAnchor( lastLogRecord.getLogAnchor() );
         }
 
-        if ( shutdown )
-        {
-            advanceCheckPoint( lastFlushedLogAnchor );
-        }
-        else if ( numFlushes % DEFAULT_FLUSH_ROUNDS == 0 )
+        if ( numFlushes % DEFAULT_FLUSH_ROUNDS == 0 )
         {
             advanceCheckPoint( lastFlushedLogAnchor );
         }
