@@ -982,6 +982,9 @@ class DefaultTxnManager implements TxnManagerInternal
             partitionIt.next().sync();
         }
 
+        // Sync WAL to the last flushed LSN
+        wal.sync( latestFlushedLsn );
+
         numFlushes++;
 
         if ( lastLogRecord != null )
