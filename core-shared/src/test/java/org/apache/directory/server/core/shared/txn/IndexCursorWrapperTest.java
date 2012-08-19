@@ -126,6 +126,8 @@ public class IndexCursorWrapperTest extends AbstractPartitionTest
             txnManager = txnManagerFactory.txnManagerInternalInstance();
             txnLogManager = txnManagerFactory.txnLogManagerInstance();
 
+            txnManager.setDoNotFlush();
+
             super.setup( dn );
 
             MockIndex mockIndex = new MockIndex( attributeOid );
@@ -159,8 +161,9 @@ public class IndexCursorWrapperTest extends AbstractPartitionTest
             IndexChange idxChange;
 
             // Begin a txn and do some index changes.
-            DataChangeContainer changeContainer = new DataChangeContainer( partition );
             txnManager.beginTransaction( false );
+
+            DataChangeContainer changeContainer = new DataChangeContainer( partition );
 
             // Add (5,5) missing in the original index 
             idxChange = new IndexChange( mockIndex, new Long( 5 ), getUUIDString( 5 ),
