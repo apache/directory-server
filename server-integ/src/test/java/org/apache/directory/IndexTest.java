@@ -93,7 +93,7 @@ public class IndexTest
 
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
-        jdbmIndex = new JdbmIndex<String, Entry>( attributeType.getName() );
+        jdbmIndex = new JdbmIndex<String, Entry>( attributeType.getName(), false );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, attributeType );
 
