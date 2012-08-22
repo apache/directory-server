@@ -212,12 +212,12 @@ public class JdbmStoreTest
         // inject context entry
         Dn suffixDn = new Dn( schemaManager, "dc=example,dc=com" );
         Entry entry = new DefaultEntry( schemaManager, suffixDn,
-            "objectClass: top", 
+            "objectClass: top",
             "objectClass: domain",
             "dc: example",
             SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString(),
             SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-        
+
         store2.add( new AddOperationContext( null, entry ) );
 
         // lookup the context entry
@@ -254,7 +254,7 @@ public class JdbmStoreTest
         assertEquals( "foo", jdbmPartition.getId() );
 
         assertNull( jdbmPartition.getRdnIndex() );
-        jdbmPartition.addIndex( new JdbmRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+        jdbmPartition.addIndex( new JdbmRdnIndex() );
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
@@ -338,7 +338,7 @@ public class JdbmStoreTest
         assertNotNull( store.getRdnIndex() );
         try
         {
-            store.addIndex( new JdbmRdnIndex( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
+            store.addIndex( new JdbmRdnIndex() );
             fail();
         }
         catch ( IllegalStateException e )
@@ -425,7 +425,7 @@ public class JdbmStoreTest
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
         assertNotNull( store.getUserIndex( OU_AT ) );
-        
+
         try
         {
             store.getUserIndex( SN_AT );
@@ -494,9 +494,9 @@ public class JdbmStoreTest
         assertTrue( cursor.next() );
         assertEquals( 2L, ( long ) cursor.get().getId() );
         assertFalse( cursor.next() );
-        
+
         cursor.close();
-        
+
         assertEquals( 3, store.getChildCount( 1L ) );
 
         store.delete( 2L );
@@ -506,8 +506,8 @@ public class JdbmStoreTest
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
-            "objectClass: alias", 
+            "objectClass: top",
+            "objectClass: alias",
             "objectClass: extensibleObject",
             "ou: Apache",
             "commonName: Jack Daniels",
@@ -527,8 +527,8 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
-            "objectClass: person", 
+            "objectClass: top",
+            "objectClass: person",
             "objectClass: organizationalPerson",
             "ou: Not Present",
             "cn: Martin King" );
@@ -568,8 +568,8 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
-            "objectClass: person", 
+            "objectClass: top",
+            "objectClass: person",
             "objectClass: organizationalPerson",
             "ou: Engineering",
             "cn: Private Ryan",
@@ -595,8 +595,8 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
-            "objectClass: person", 
+            "objectClass: top",
+            "objectClass: person",
             "objectClass: organizationalPerson",
             "ou: Engineering",
             "cn: Private Ryan",
@@ -623,8 +623,8 @@ public class JdbmStoreTest
     {
         Dn childDn = new Dn( schemaManager, "cn=Private Ryan,ou=Engineering,o=Good Times Co." );
         Entry childEntry = new DefaultEntry( schemaManager, childDn,
-            "objectClass: top", 
-            "objectClass: person", 
+            "objectClass: top",
+            "objectClass: person",
             "objectClass: organizationalPerson",
             "ou", "Engineering",
             "cn", "Private Ryan",
@@ -734,8 +734,8 @@ public class JdbmStoreTest
     {
         Dn dn = new Dn( schemaManager, "cn=Tim B,ou=Sales,o=Good Times Co." );
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
-            "objectClass: person", 
+            "objectClass: top",
+            "objectClass: person",
             "objectClass: organizationalPerson",
             "cn", "Tim B",
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),

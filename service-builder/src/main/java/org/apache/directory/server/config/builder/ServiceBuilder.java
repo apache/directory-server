@@ -61,6 +61,7 @@ import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
@@ -69,7 +70,6 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.journal.DefaultJournal;
@@ -1090,18 +1090,17 @@ public class ServiceBuilder
             return null;
         }
 
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
-
-        index.setAttributeId( jdbmIndexBean.getIndexAttributeId() );
-        index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
-        index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
-
         String indexFileName = jdbmIndexBean.getIndexFileName();
 
         if ( indexFileName == null )
         {
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
+
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId() );
+
+        index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
+        index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
 
         // Find the OID for this index
         SchemaManager schemaManager = directoryService.getSchemaManager();

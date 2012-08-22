@@ -164,7 +164,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
-            
+
             List<Index<?, Entry, Long>> indexToBuild = new ArrayList<Index<?, Entry, Long>>();
 
             // this loop is used for two purposes
@@ -175,7 +175,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             {
                 String indexOid = index.getAttribute().getOid();
                 allIndices.add( indexOid );
-                
+
                 // take the part after removing .db from the
                 String name = indexOid + JDBM_DB_FILE_EXTN;
 
@@ -186,7 +186,7 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                     indexToBuild.add( index );
                 }
             }
-            
+
             if ( indexToBuild.size() > 0 )
             {
                 buildUserIndex( indexToBuild );
@@ -269,25 +269,25 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             for ( Index index : userIndexes )
             {
                 AttributeType atType = index.getAttribute();
-  
+
                 String attributeOid = index.getAttribute().getOid();
-  
+
                 LOG.info( "building the index for attribute type {}", atType );
-          
+
                 Tuple<Long, Entry> tuple = cursor.get();
 
                 Long id = tuple.getKey();
                 Entry entry = tuple.getValue();
-    
+
                 Attribute entryAttr = entry.get( atType );
-    
+
                 if ( entryAttr != null )
                 {
                     for ( Value<?> value : entryAttr )
                     {
                         index.add( value.getValue(), id );
                     }
-    
+
                     // Adds only those attributes that are indexed
                     presenceIdx.add( attributeOid, id );
                 }
@@ -353,13 +353,9 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     {
         JdbmIndex<?, Entry> jdbmIndex;
 
-        if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( index instanceof JdbmRdnIndex )
         {
-            jdbmIndex = new JdbmRdnIndex();
-            jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-            jdbmIndex.setCacheSize( index.getCacheSize() );
-            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
-            jdbmIndex.setWkDirPath( index.getWkDirPath() );
+            jdbmIndex = ( JdbmRdnIndex ) index;
         }
         else if ( index instanceof JdbmIndex<?, ?> )
         {
@@ -429,10 +425,10 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    protected final Index createSystemIndex( String oid, URI path, boolean withReverse )  throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
-         "Will create new JdbmIndex using copied configuration parameters." );
+            "Will create new JdbmIndex using copied configuration parameters." );
         JdbmIndex<?, Entry> jdbmIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )

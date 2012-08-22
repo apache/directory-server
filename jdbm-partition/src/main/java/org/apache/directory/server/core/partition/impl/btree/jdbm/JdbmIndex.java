@@ -132,7 +132,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public JdbmIndex( String attributeId )
     {
-        super( attributeId, true );
+        this( attributeId, true );
         initialized = false;
     }
 
@@ -143,6 +143,7 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     public JdbmIndex( String attributeId, boolean withReverse )
     {
         super( attributeId, withReverse );
+
         initialized = false;
     }
 
