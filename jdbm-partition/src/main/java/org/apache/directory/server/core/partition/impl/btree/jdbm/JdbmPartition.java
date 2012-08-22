@@ -192,11 +192,6 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 buildUserIndex( indexToBuild );
             }
 
-            if ( indexToBuild.size() > 0 )
-            {
-                buildUserIndex( indexToBuild );
-            }
-
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
 
             // We are done !
