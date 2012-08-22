@@ -232,16 +232,14 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
 
     /**
-     * Handles search requests on the RootDSE.
+     * Handles a simple lookup, or a RootDSE lookup.
      *
      * @param session the LdapSession for which this search is conducted
      * @param req the search request on the RootDSE
      * @throws Exception if failures are encountered while searching
      */
-    private void handleRootDseSearch( LdapSession session, SearchRequest req ) throws Exception
+    private void handleLookup( LdapSession session, SearchRequest req ) throws Exception
     {
-        EntryFilteringCursor cursor = null;
-
         try
         {
             Map<String, Control> controlMap = req.getControls();
@@ -260,30 +258,18 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 }
             }
             
-            Entry rootDse = session.getCoreSession().lookup(
+            Entry entry = session.getCoreSession().lookup(
                 req.getBase(),
                 controls,
                 req.getAttributes().toArray( new String[]{} ) );
                 
-            session.getIoSession().write( generateResponse( session, req, rootDse ) );
+            session.getIoSession().write( generateResponse( session, req, entry ) );
 
             // write the SearchResultDone message
             session.getIoSession().write( req.getResultResponse() );
         }
         finally
         {
-            // Close the cursor now.
-            if ( cursor != null )
-            {
-                try
-                {
-                    cursor.close();
-                }
-                catch ( Exception e )
-                {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
-                }
-            }
         }
     }
 
@@ -1017,6 +1003,20 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
+/*
+        if ( isBaseScope && isObjectClassFilter )
+        {
+            // This is a lookup
+            handleLookup( session, req );
+
+            return true;
+        }
+        else
+        {
+            // a standard search
+            return false;
+        }
+*/
         boolean isBaseIsRoot = req.getBase().isEmpty();
 
         if ( isBaseScope && isObjectClassFilter )
@@ -1024,7 +1024,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             if ( isBaseIsRoot )
             {
                 // This is a rootDse lookup
-                handleRootDseSearch( session, req );
+                handleLookup( session, req );
 
                 return true;
             }
@@ -1081,38 +1081,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 return;
             }
             
-            // ===============================================================
-            // Handle lookups deifferently
-            // ===============================================================
-            // First check that we aren't doing a lookup (ie scope is BASE, and the filter is (ObjectClass=*) )
-            boolean isLookup = false;
-            
-            if ( req.getScope() == SearchScope.OBJECT )
-            {
-                if ( req.getFilter() instanceof PresenceNode )
-                {
-                    ExprNode filter = req.getFilter();
-
-                    if ( filter.isSchemaAware() )
-                    {
-                        AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
-                        isLookup = attributeType.equals( OBJECT_CLASS_AT );
-                    }
-                    else
-                    {
-                        String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
-                        isLookup = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
-                            || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
-                    }
-                }
-            }
-            
-            if ( isLookup )
-            {
-                
-            }
-            
-
 
             // modify the filter to affect continuation support
             modifyFilter( session, req );
@@ -1369,46 +1337,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
 
         session.getIoSession().write( req.getResultResponse() );
-    }
-
-
-    /**
-     * Determines if a search request is on the RootDSE of the server.
-     *
-     * It is a RootDSE search if :
-     * - the base Dn is empty
-     * - and the scope is BASE OBJECT
-     * - and the filter is (ObjectClass = *)
-     *
-     * (RFC 4511, 5.1, par. 1 & 2)
-     *
-     * @param req the request issued
-     * @return true if the search is on the RootDSE false otherwise
-     */
-    private boolean isRootDseSearch( SearchRequest req )
-    {
-        boolean isBaseIsRoot = req.getBase().isEmpty();
-        boolean isBaseScope = req.getScope() == SearchScope.OBJECT;
-        boolean isRootDseFilter = false;
-
-        if ( req.getFilter() instanceof PresenceNode )
-        {
-            ExprNode filter = req.getFilter();
-
-            if ( filter.isSchemaAware() )
-            {
-                AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
-                isRootDseFilter = attributeType.equals( OBJECT_CLASS_AT );
-            }
-            else
-            {
-                String attribute = ( ( PresenceNode ) req.getFilter() ).getAttribute();
-                isRootDseFilter = attribute.equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
-                    || attribute.equals( SchemaConstants.OBJECT_CLASS_AT_OID );
-            }
-        }
-
-        return isBaseIsRoot && isBaseScope && isRootDseFilter;
     }
 
 
