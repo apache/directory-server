@@ -415,21 +415,30 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
      */
     public void drop( Long entryId ) throws Exception
     {
-        // Build a cursor to iterate on all the keys referencing
-        // this entryId
-        Cursor<Tuple<Long, K>> values = reverse.cursor( entryId );
-
-        while ( values.next() )
-        {
-            // Remove the Key -> entryId from the index
-            forward.remove( values.get().getValue(), entryId );
-        }
-        
-        values.close();
-
-        // Remove the id -> key from the reverse index
         if ( withReverse )
         {
+            if ( isDupsEnabled() )
+            {
+                // Build a cursor to iterate on all the keys referencing
+                // this entryId
+                Cursor<Tuple<Long, K>> values = reverse.cursor( entryId );
+
+                while ( values.next() )
+                {
+                    // Remove the Key -> entryId from the index
+                    forward.remove( values.get().getValue(), entryId );
+                }
+
+                values.close();
+            }
+            else
+            {
+                K key = reverse.get( entryId );
+
+                forward.remove( key );
+            }
+
+            // Remove the id -> key from the reverse index
             reverse.remove( entryId );
         }
     }
