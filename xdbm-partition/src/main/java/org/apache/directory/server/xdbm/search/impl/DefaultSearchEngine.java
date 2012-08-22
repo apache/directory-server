@@ -52,7 +52,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
-    
+
     /** the Database this DefaultSearchEngine operates on */
     private final Store<Entry, ID> db;
     /** creates Cursors over entries satisfying filter expressions */
@@ -147,7 +147,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
         ID effectiveBaseId = baseId;
-        
+
         if ( effectiveBase != base )
         {
             effectiveBaseId = db.getEntryId( effectiveBase );
@@ -159,10 +159,10 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
-            
+
             // Fetch the entry, as we have only one
             Entry entry = null;
-            
+
             if ( effectiveBase != base )
             {
                 entry = db.lookup( indexEntry.getId() );
@@ -171,7 +171,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             {
                 entry = db.lookup( indexEntry.getId(), effectiveBase );
             }
-            
+
             indexEntry.setEntry( entry );
 
             if ( evaluator.evaluate( indexEntry ) )
@@ -192,7 +192,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
-        
+
         return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
     }
 

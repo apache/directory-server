@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -138,20 +137,6 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-
-        if ( idx == null )
-        {
-            return evaluateWithoutIndex( id );
-        }
-        else
-        {
-            return evaluateWithIndex( id );
-        }
-    }
-
-
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
 
@@ -162,7 +147,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
         }
         else
         {
-            return evaluateWithIndex();
+            return evaluateWithoutIndex( entry );
         }
     }
 
@@ -206,50 +191,6 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
         // we fell through so a match was not found - assertion was false.
         return false;
-    }
-
-
-    private boolean evaluateWithIndex() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
-    }
-
-
-    private boolean evaluateWithIndex( ID id ) throws Exception
-    {
-        /*
-         * Note that this is using the reverse half of the index giving a
-         * considerable performance improvement on this kind of operation.
-         * Otherwise we would have to scan the entire index if there were
-         * no reverse lookups.
-         */
-        Cursor<IndexEntry<String, ID>> entries = idx.reverseCursor( id );
-
-        // cycle through the attribute values testing for a match
-        while ( entries.next() )
-        {
-            IndexEntry<String, ID> rec = entries.get();
-
-            // once match is found cleanup and return true
-            if ( regex.matcher( rec.getKey() ).matches() )
-            {
-                entries.close();
-                return true;
-            }
-        }
-
-        entries.close();
-
-        // we fell through so a match was not found - assertion was false.
-        return false;
-    }
-
-
-    // TODO - determine if comaparator and index entry should have the Value
-    // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( ID id ) throws Exception
-    {
-        return evaluateWithoutIndex( db.lookup( id ) );
     }
 
 

@@ -151,17 +151,6 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
     }
 
 
-    public boolean evaluateId( ID id ) throws Exception
-    {
-        if ( idx != null )
-        {
-            return idx.reverse( id );
-        }
-
-        return evaluateEntry( db.lookup( id ) );
-    }
-
-
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     private boolean evaluate( Attribute attribute ) throws Exception
