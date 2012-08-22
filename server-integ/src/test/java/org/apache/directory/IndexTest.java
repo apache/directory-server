@@ -93,7 +93,7 @@ public class IndexTest
 
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
-        jdbmIndex = new JdbmIndex<String, Entry>();
+        jdbmIndex = new JdbmIndex<String, Entry>( attributeType.getName() );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, attributeType );
 
@@ -110,7 +110,7 @@ public class IndexTest
 
 
     @Test
-    @Ignore( "Does not work with JDBM2" )
+    @Ignore("Does not work with JDBM2")
     public void testJdbmIndex() throws Exception
     {
         doTest( jdbmIndex );
@@ -143,7 +143,7 @@ public class IndexTest
         }
 
         assertFalse( cursor1.next() );
-        
+
         cursor1.close();
     }
 
