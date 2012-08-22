@@ -150,7 +150,7 @@ public class JdbmIndexTest
 
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmIndex<String, Entry>( attributeType.getName() );
+            jdbmIdx = new JdbmIndex<String, Entry>( attributeType.getName(), false );
         }
 
         jdbmIdx.init( schemaManager, attributeType );
@@ -166,10 +166,10 @@ public class JdbmIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>( "foo" );
+        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>( "foo", false );
         assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
-        JdbmIndex<Object, Object> jdbmIndex2 = new JdbmIndex<Object, Object>( "bar" );
+        JdbmIndex<Object, Object> jdbmIndex2 = new JdbmIndex<Object, Object>( "bar", false );
         assertEquals( "bar", jdbmIndex2.getAttributeId() );
 
         // initialized index
@@ -187,7 +187,7 @@ public class JdbmIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( "foo" );
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( "foo", false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
         assertEquals( "foo", idx.getAttributeId() );
@@ -198,7 +198,7 @@ public class JdbmIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
         jdbmIndex.setCacheSize( 337 );
         assertEquals( 337, jdbmIndex.getCacheSize() );
 
@@ -223,7 +223,7 @@ public class JdbmIndexTest
         File wkdir = new File( dbFileDir, "foo" );
 
         // uninitialized index
-        JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>( "foo" );
+        JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>( "foo", false );
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         assertEquals( "foo", new File( jdbmIndex.getWkDirPath() ).getName() );
 
@@ -242,7 +242,7 @@ public class JdbmIndexTest
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
-        jdbmIndex = new JdbmIndex<String, Entry>( "ou" );
+        jdbmIndex = new JdbmIndex<String, Entry>( "ou", false );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         initIndex( jdbmIndex );
@@ -254,7 +254,7 @@ public class JdbmIndexTest
     public void testNumDupLimit() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
         jdbmIndex.setNumDupLimit( 337 );
         assertEquals( 337, jdbmIndex.getNumDupLimit() );
 
@@ -278,7 +278,7 @@ public class JdbmIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
         assertNull( jdbmIndex.getAttribute() );
 
         initIndex();
@@ -374,7 +374,6 @@ public class JdbmIndexTest
 
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", -1L ) );
@@ -385,8 +384,6 @@ public class JdbmIndexTest
 
         idx.add( "foo", 1L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forward( "foo", 1L ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", 0L ) );
@@ -400,7 +397,6 @@ public class JdbmIndexTest
 
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) ); // reverse lookup returns first val
         assertTrue( idx.forward( "bar", 0L ) );
         assertTrue( idx.forward( "foo", 0L ) );
         assertTrue( idx.forward( "foo", 1L ) );
@@ -425,17 +421,14 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
 
         // test add/drop without adding any duplicates
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
 
-        idx.drop( 0L );
+        idx.drop( "foo", 0L );
         assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.reverseLookup( 0L ) );
 
         // test add/drop with duplicates in bulk
         idx.add( "foo", 0L );
@@ -443,19 +436,16 @@ public class JdbmIndexTest
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
 
-        idx.drop( 0L );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
+        idx.drop( "foo", 0L );
+        idx.drop( "bar", 0L );
         assertFalse( idx.forward( "bar", 0L ) );
         assertFalse( idx.forward( "foo", 0L ) );
 
-        idx.drop( 1L );
+        idx.drop( "bar", 1L );
+        idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -466,17 +456,13 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
 
         // test add/drop without adding any duplicates
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
 
         idx.drop( "foo", 0L );
         assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.reverseLookup( 0L ) );
 
         // test add/drop with duplicates but one at a time
         idx.add( "foo", 0L );
@@ -484,25 +470,19 @@ public class JdbmIndexTest
         idx.add( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( 0L, ( long ) idx.forwardLookup( "bar" ) );
-        assertEquals( "bar", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
 
         idx.drop( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
         assertEquals( "foo", idx.reverseLookup( 0L ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertFalse( idx.forward( "bar", 0L ) );
 
         idx.drop( "foo", 0L );
         assertEquals( 1L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 1L ) );
         assertFalse( idx.forward( "foo", 0L ) );
 
         idx.drop( "foo", 1L );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
-        assertNull( idx.reverseLookup( 1L ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -546,34 +526,13 @@ public class JdbmIndexTest
         assertEquals( "foo", e3.getKey() );
 
         cursor.close();
-
-        // use reverse index's cursor
-        cursor = idx.reverseCursor();
-        cursor.beforeFirst();
-
-        cursor.next();
-        e1 = cursor.get();
-        assertEquals( 333L, ( long ) e1.getId() );
-        assertEquals( "foo", e1.getKey() );
-
-        cursor.next();
-        e2 = cursor.get();
-        assertEquals( 555L, ( long ) e2.getId() );
-        assertEquals( "bar", e2.getKey() );
-
-        cursor.next();
-        e3 = cursor.get();
-        assertEquals( 1234L, ( long ) e3.getId() );
-        assertEquals( "foo", e3.getKey() );
-
-        cursor.close();
     }
 
 
     @Test
     public void testNoEqualityMatching() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "1.1" );
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "1.1", false );
 
         try
         {
@@ -595,7 +554,7 @@ public class JdbmIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT );
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT, false );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         jdbmIndex.close();
