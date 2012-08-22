@@ -139,16 +139,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
 
     public boolean evaluateEntry( Entry entry ) throws Exception
     {
-
-        if ( idx == null )
-        {
-            //noinspection unchecked
-            return evaluateWithoutIndex( entry );
-        }
-        else
-        {
-            return evaluateWithoutIndex( entry );
-        }
+        return evaluateWithoutIndex( entry );
     }
 
 
