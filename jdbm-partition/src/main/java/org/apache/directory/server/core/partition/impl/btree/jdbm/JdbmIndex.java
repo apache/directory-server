@@ -118,16 +118,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     // C O N S T R U C T O R S
     // ----------------------------------------------------------------------
     /**
-     * Creates a JdbmIndex instance.
-     */
-    public JdbmIndex()
-    {
-        super( true );
-        initialized = false;
-    }
-
-
-    /**
      * Creates a JdbmIndex instance for a give AttributeId
      */
     public JdbmIndex( String attributeId )

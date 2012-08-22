@@ -137,7 +137,8 @@ public class JdbmIndexTest
 
     void initIndex() throws Exception
     {
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>();
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( attributeType.getName() );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
@@ -145,12 +146,12 @@ public class JdbmIndexTest
 
     void initIndex( JdbmIndex<String, Entry> jdbmIdx ) throws Exception
     {
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
+
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmIndex<String, Entry>();
+            jdbmIdx = new JdbmIndex<String, Entry>( attributeType.getName() );
         }
-
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIdx.init( schemaManager, attributeType );
         this.idx = jdbmIdx;
@@ -165,8 +166,7 @@ public class JdbmIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>();
-        jdbmIndex1.setAttributeId( "foo" );
+        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>( "foo" );
         assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
         JdbmIndex<Object, Object> jdbmIndex2 = new JdbmIndex<Object, Object>( "bar" );
@@ -198,12 +198,13 @@ public class JdbmIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
         jdbmIndex.setCacheSize( 337 );
         assertEquals( 337, jdbmIndex.getCacheSize() );
 
         // initialized index
         initIndex();
+
         try
         {
             idx.setCacheSize( 30 );
@@ -222,7 +223,7 @@ public class JdbmIndexTest
         File wkdir = new File( dbFileDir, "foo" );
 
         // uninitialized index
-        JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>();
+        JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>( "foo" );
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         assertEquals( "foo", new File( jdbmIndex.getWkDirPath() ).getName() );
 
@@ -241,7 +242,7 @@ public class JdbmIndexTest
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
-        jdbmIndex = new JdbmIndex<String, Entry>();
+        jdbmIndex = new JdbmIndex<String, Entry>( "ou" );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         initIndex( jdbmIndex );
@@ -253,13 +254,13 @@ public class JdbmIndexTest
     public void testNumDupLimit() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
         jdbmIndex.setNumDupLimit( 337 );
         assertEquals( 337, jdbmIndex.getNumDupLimit() );
 
         // initialized index
         initIndex();
-        
+
         try
         {
             ( ( JdbmIndex<String, Entry> ) idx ).setNumDupLimit( 30 );
@@ -268,7 +269,7 @@ public class JdbmIndexTest
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String, Entry> ) idx ).getNumDupLimit() );
     }
 
@@ -277,7 +278,7 @@ public class JdbmIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou" );
         assertNull( jdbmIndex.getAttribute() );
 
         initIndex();
@@ -333,7 +334,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
-        
+
         assertEquals( 26, idx.greaterThanCount( "a" ) );
     }
 
@@ -348,7 +349,7 @@ public class JdbmIndexTest
         {
             idx.add( String.valueOf( ch ), ( long ) ch );
         }
-        
+
         assertEquals( 26, idx.lessThanCount( "z" ) );
     }
 
@@ -543,7 +544,7 @@ public class JdbmIndexTest
         IndexEntry<String, Long> e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getKey() );
-        
+
         cursor.close();
 
         // use reverse index's cursor
@@ -564,7 +565,7 @@ public class JdbmIndexTest
         e3 = cursor.get();
         assertEquals( 1234L, ( long ) e3.getId() );
         assertEquals( "foo", e3.getKey() );
-        
+
         cursor.close();
     }
 
@@ -572,7 +573,7 @@ public class JdbmIndexTest
     @Test
     public void testNoEqualityMatching() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "1.1" );
 
         try
         {
@@ -594,7 +595,7 @@ public class JdbmIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>();
+        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         jdbmIndex.close();
