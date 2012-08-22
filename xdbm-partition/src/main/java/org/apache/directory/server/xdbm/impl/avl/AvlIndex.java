@@ -123,7 +123,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     public void add( K attrVal, Long id ) throws Exception
     {
         forward.put( attrVal, id );
-        
+
         if ( withReverse )
         {
             reverse.put( id, attrVal );
@@ -173,16 +173,25 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     {
         if ( withReverse )
         {
-            Cursor<Tuple<Long, K>> cursor = reverse.cursor( id );
-    
-            while ( cursor.next() )
+            if ( isDupsEnabled() )
             {
-                Tuple<Long, K> tuple = cursor.get();
-                forward.remove( tuple.getValue(), id );
+                Cursor<Tuple<Long, K>> cursor = reverse.cursor( id );
+
+                while ( cursor.next() )
+                {
+                    Tuple<Long, K> tuple = cursor.get();
+                    forward.remove( tuple.getValue(), id );
+                }
+
+                cursor.close();
+
             }
-            
-            cursor.close();
-    
+            else
+            {
+                K key = reverse.get( id );
+                forward.remove( key );
+            }
+
             reverse.remove( id );
         }
     }
@@ -194,7 +203,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     public void drop( K attrVal, Long id ) throws Exception
     {
         forward.remove( attrVal, id );
-        
+
         if ( withReverse )
         {
             reverse.remove( id, attrVal );
