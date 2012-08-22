@@ -308,11 +308,11 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( !allowsDuplicates )
         {
-            return ( V ) bt.find( key );
+            return bt.find( key );
         }
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-        
+
         if ( values.isArrayTree() )
         {
             ArrayTree<V> set = values.getArrayTree();
@@ -439,7 +439,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         Tuple<K, V> tuple = bt.findGreaterOrEqual( key );
 
         // Test for equality first since it satisfies equal to condition
-        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+        if ( null != tuple && keyComparator.compare( tuple.getKey(), key ) == 0 )
         {
             return true;
         }
@@ -492,7 +492,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( !allowsDuplicates )
         {
-            V stored = ( V ) bt.find( key );
+            V stored = bt.find( key );
             return null != stored && stored.equals( value );
         }
 
@@ -638,7 +638,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
             if ( !allowsDuplicates )
             {
-                V oldValue = ( V ) bt.find( key );
+                V oldValue = bt.find( key );
 
                 // Remove the value only if it is the same as value.
                 if ( ( oldValue != null ) && oldValue.equals( value ) )
@@ -833,7 +833,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         if ( !allowsDuplicates )
         {
             return new SingletonCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>>(
-                new org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>( key, ( V ) raw ) );
+                new org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>( key, raw ) );
         }
 
         byte[] serialized = ( byte[] ) raw;
@@ -867,7 +867,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( !allowsDuplicates )
         {
-            return new SingletonCursor<V>( ( V ) raw );
+            return new SingletonCursor<V>( raw );
         }
 
         byte[] serialized = ( byte[] ) raw;
@@ -1070,7 +1070,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         {
             bTree.insert( keys.get(), ( K ) StringConstants.EMPTY_BYTES, true );
         }
-        
+
         keys.close();
 
         return bTree;
