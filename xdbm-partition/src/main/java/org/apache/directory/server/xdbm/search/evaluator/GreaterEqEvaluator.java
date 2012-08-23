@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
@@ -29,27 +29,27 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.filter.LessEqNode;
+import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
- * An Evaluator which determines if candidates are matched by LessEqNode
+ * An Evaluator which determines if candidates are matched by GreaterEqNode
  * assertions.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
+public class GreaterEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
 {
     @SuppressWarnings("unchecked")
-    public LessEqEvaluator( LessEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public GreaterEqEvaluator( GreaterEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
 
-        if ( db.hasIndexOn( attributeType ) )
+        if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
         }
@@ -73,7 +73,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
         if ( mr == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_717, node ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_715, node ) );
         }
 
         normalizer = mr.getNormalizer();
@@ -81,17 +81,17 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     }
 
 
-    public LessEqNode<T> getExpression()
+    public GreaterEqNode getExpression()
     {
-        return ( LessEqNode<T> ) node;
+        return ( GreaterEqNode ) node;
     }
 
 
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-        if ( ( idx != null ) && idx.isDupsEnabled() )
+        if ( idx != null && idx.isDupsEnabled() )
         {
-            return idx.reverseLessOrEq( indexEntry.getId(), node.getValue().getValue() );
+            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().getValue() );
         }
 
         Entry entry = indexEntry.getEntry();
@@ -103,15 +103,18 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
             indexEntry.setEntry( entry );
         }
 
-        if ( null == entry )
-        {
-            return false;
-        }
+        /*
+         * The code below could have been replaced by a call to
+         * evaluate( Entry ) but it was not because we wanted to make
+         * sure the call to evaluate with the attribute was made using a
+         * non-null IndexEntry parameter.  This is to make sure the call to
+         * evaluate with the attribute will set the value on the IndexEntry.
+         */
 
         // get the attribute
         Attribute attr = entry.get( attributeType );
 
-        // if the attribute does not exist just return false
+        // if the attribute exists and has a greater than or equal value return true
         //noinspection unchecked
         if ( attr != null && evaluate( ( IndexEntry<Object, ID> ) indexEntry, attr ) )
         {
@@ -147,12 +150,12 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     }
 
 
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
         // get the attribute
         Attribute attr = entry.get( attributeType );
 
-        // if the attribute does not exist just return false
+        // if the attribute exists and has a greater than or equal value return true
         if ( ( attr != null ) && evaluate( null, attr ) )
         {
             return true;
@@ -174,7 +177,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
                 attr = entry.get( descendant );
 
-                if ( attr != null && evaluate( null, attr ) )
+                if ( ( attr != null ) && evaluate( null, attr ) )
                 {
                     return true;
                 }
@@ -187,7 +190,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
 
     // TODO - determine if comaparator and index entry should have the Value
-    // wrapper or the raw normalized value
+    // wrapper or the raw normalized value 
     private boolean evaluate( IndexEntry<Object, ID> indexEntry, Attribute attribute )
         throws Exception
     {
@@ -197,15 +200,16 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
             //noinspection unchecked
-            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) <= 0 )
+            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) >= 0 )
             {
                 if ( indexEntry != null )
                 {
                     indexEntry.setKey( value.getNormValue() );
                 }
+
                 return true;
             }
         }

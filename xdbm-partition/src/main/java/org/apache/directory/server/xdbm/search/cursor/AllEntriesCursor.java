@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.cursor;
 
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;

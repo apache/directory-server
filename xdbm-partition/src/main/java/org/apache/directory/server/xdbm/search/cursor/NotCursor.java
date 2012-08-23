@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.cursor;
 
 
 import org.apache.directory.server.i18n.I18n;
@@ -45,11 +45,11 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<V, ID> uuidCursor;
-    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
+    private final Evaluator<? extends ExprNode, ID> childEvaluator;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<Entry, ID> store, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
+    public NotCursor( Store<Entry, ID> store, Evaluator<? extends ExprNode, ID> childEvaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating NotCursor {}", this );

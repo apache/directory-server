@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.cursor;
 
 
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +49,14 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, ID>
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     private final List<IndexCursor<V, ID>> cursors;
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
     private final List<Set<ID>> blacklists;
     private int cursorIndex = -1;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
     public OrCursor( List<IndexCursor<V, ID>> cursors,
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+        List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating OrCursor {}", this );
 

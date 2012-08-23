@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import org.apache.directory.server.xdbm.Index;
@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Evaluator<SimpleNode<T>, Entry, ID>
+public abstract class LeafEvaluator<T, ID extends Comparable<ID>> implements Evaluator<SimpleNode<T>, ID>
 {
     /** The ExprNode to evaluate */
     protected final SimpleNode<T> node;

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, Entry, ID>
+public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<PresenceNode, ID>
 {
     /** The ExprNode to evaluate */
     private final PresenceNode node;
@@ -92,11 +92,6 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
     // wrapper or the raw normalized value
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-        if ( idx != null )
-        {
-            return idx.forward( attributeType.getOid(), indexEntry.getId() );
-        }
-
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
@@ -106,13 +101,13 @@ public class PresenceEvaluator<ID extends Comparable<ID>> implements Evaluator<P
             indexEntry.setEntry( entry );
         }
 
-        return evaluateEntry( entry );
+        return evaluate( entry );
     }
 
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
         if ( db.hasSystemIndexOn( attributeType ) )
         {

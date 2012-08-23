@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
@@ -90,7 +90,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     /**
      * {@inheritDoc}
      */
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
         // get the attribute
         Attribute attr = entry.get( attributeType );
@@ -134,11 +134,6 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
      */
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-        if ( idx != null )
-        {
-            return idx.forward( node.getValue().getValue(), indexEntry.getId() );
-        }
-
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
@@ -148,7 +143,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
             indexEntry.setEntry( entry );
         }
 
-        return evaluateEntry( entry );
+        return evaluate( entry );
     }
 
 

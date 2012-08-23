@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -36,10 +37,10 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
+public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
 {
     /** The list of evaluators associated with each of the children */
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
 
     /** The AndNode */
     private final AndNode node;
@@ -50,7 +51,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      * @param node The And Node
      * @param evaluators The list of evaluators for all the contaned nodes
      */
-    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         this.node = node;
         this.evaluators = optimize( evaluators );
@@ -68,10 +69,10 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode, ID>> optimize(
+        List<Evaluator<? extends ExprNode, ID>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
@@ -84,11 +85,11 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?, ID> evaluator : evaluators )
         {
-            if ( !evaluator.evaluateEntry( entry ) )
+            if ( !evaluator.evaluate( entry ) )
             {
                 return false;
             }
@@ -103,7 +104,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, Entry, ID>
      */
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?, ID> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

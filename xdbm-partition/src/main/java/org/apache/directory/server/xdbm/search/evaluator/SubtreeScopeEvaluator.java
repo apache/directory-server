@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import org.apache.directory.server.core.api.partition.Partition;
@@ -26,6 +26,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -36,7 +37,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, E, ID>
+public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, ID>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -113,7 +114,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
         return contextEntryId;
     }
 
-    
+
     /**
      * Tells if a candidate is a descendant of the base ID. We have to fetch all 
      * the parentIdAndRdn up to the baseId. If we terminate on the context entry without 
@@ -122,30 +123,30 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
     private boolean isDescendant( ID candidateId ) throws Exception
     {
         ID tmp = candidateId;
-        
+
         while ( true )
         {
             ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( tmp );
-            
+
             if ( parentIdAndRdn == null )
             {
                 return false;
             }
-            
+
             tmp = parentIdAndRdn.getParentId();
-            
+
             if ( tmp.equals( db.getRootId() ) )
             {
                 return false;
             }
-            
+
             if ( tmp.equals( baseId ) )
             {
                 return true;
             }
         }
     }
-    
+
 
     /**
      * Asserts whether or not a candidate has sub level scope while taking
@@ -226,7 +227,7 @@ public class SubtreeScopeEvaluator<E, ID extends Comparable<ID>> implements Eval
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluateEntry( E candidate ) throws Exception
+    public boolean evaluate( Entry candidate ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }

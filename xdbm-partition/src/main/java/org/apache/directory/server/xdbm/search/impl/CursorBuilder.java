@@ -27,6 +27,17 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.cursor.AndCursor;
+import org.apache.directory.server.xdbm.search.cursor.ApproximateCursor;
+import org.apache.directory.server.xdbm.search.cursor.EqualityCursor;
+import org.apache.directory.server.xdbm.search.cursor.GreaterEqCursor;
+import org.apache.directory.server.xdbm.search.cursor.LessEqCursor;
+import org.apache.directory.server.xdbm.search.cursor.NotCursor;
+import org.apache.directory.server.xdbm.search.cursor.OneLevelScopeCursor;
+import org.apache.directory.server.xdbm.search.cursor.OrCursor;
+import org.apache.directory.server.xdbm.search.cursor.PresenceCursor;
+import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
+import org.apache.directory.server.xdbm.search.cursor.SubtreeScopeCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -71,34 +82,50 @@ public class CursorBuilder<ID extends Comparable<ID>>
         /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateCursor<T, ID>( db, ( ApproximateEvaluator<T, ID> ) evaluatorBuilder.build( node ) );
+                return new ApproximateCursor<T, ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator<T, ID> ) evaluatorBuilder
+                        .build( node ) );
 
             case EQUALITY:
-                return new EqualityCursor<T, ID>( db, ( EqualityEvaluator<T, ID> ) evaluatorBuilder.build( node ) );
+                return new EqualityCursor<T, ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator<T, ID> ) evaluatorBuilder
+                        .build( node ) );
 
             case GREATEREQ:
-                return new GreaterEqCursor<T, ID>( db, ( GreaterEqEvaluator<T, ID> ) evaluatorBuilder.build( node ) );
+                return new GreaterEqCursor<T, ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator<T, ID> ) evaluatorBuilder
+                        .build( node ) );
 
             case LESSEQ:
-                return new LessEqCursor<T, ID>( db, ( LessEqEvaluator<T, ID> ) evaluatorBuilder.build( node ) );
+                return new LessEqCursor<T, ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator<T, ID> ) evaluatorBuilder
+                        .build( node ) );
 
             case PRESENCE:
-                return new PresenceCursor<ID>( db, ( PresenceEvaluator<ID> ) evaluatorBuilder.build( node ) );
+                return new PresenceCursor<ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator<ID> ) evaluatorBuilder
+                        .build( node ) );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeCursor<ID>( db,
-                        ( OneLevelScopeEvaluator<Entry, ID> ) evaluatorBuilder.build( node ) );
+                    return new OneLevelScopeCursor<ID>(
+                        db,
+                        ( org.apache.directory.server.xdbm.search.evaluator.OneLevelScopeEvaluator<Entry, ID> ) evaluatorBuilder
+                            .build( node ) );
                 }
                 else
                 {
-                    return new SubtreeScopeCursor<ID>( db, ( SubtreeScopeEvaluator<Entry, ID> ) evaluatorBuilder
-                        .build( node ) );
+                    return new SubtreeScopeCursor<ID>(
+                        db,
+                        ( org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator<Entry, ID> ) evaluatorBuilder
+                            .build( node ) );
                 }
 
             case SUBSTRING:
-                return new SubstringCursor<ID>( db, ( SubstringEvaluator<ID> ) evaluatorBuilder.build( node ) );
+                return new SubstringCursor<ID>( db,
+                    ( org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator<ID> ) evaluatorBuilder
+                        .build( node ) );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
@@ -135,7 +162,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
         List<ExprNode> children = node.getChildren();
         List<IndexCursor<?, ID>> childCursors = new ArrayList<IndexCursor<?, ID>>(
             children.size() );
-        List<Evaluator<? extends ExprNode, Entry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             children.size() );
 
         // Recursively create Cursors and Evaluators for each child expression node
@@ -190,7 +217,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
 
         // Once found we build the child Evaluators minus the one for the minChild
         ExprNode minChild = children.get( minIndex );
-        List<Evaluator<? extends ExprNode, Entry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             children.size() - 1 );
 
         for ( ExprNode child : children )

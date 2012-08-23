@@ -39,6 +39,9 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.cursor.OrCursor;
+import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
+import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -255,9 +258,9 @@ public class OrCursorTest
     @SuppressWarnings("unchecked")
     public void testOrCursor() throws Exception
     {
-        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
+        List<Evaluator<? extends ExprNode, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Long>>();
         List<Cursor<IndexEntry<?, Long>>> cursors = new ArrayList<Cursor<IndexEntry<?, Long>>>();
-        Evaluator<? extends ExprNode, Entry, Long> eval;
+        Evaluator<? extends ExprNode, Long> eval;
         Cursor<IndexEntry<?, Long>> cursor;
 
         OrNode orNode = new OrNode();

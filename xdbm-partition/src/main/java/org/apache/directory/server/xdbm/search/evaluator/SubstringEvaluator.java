@@ -17,7 +17,7 @@
  *  under the License.
  * 
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<SubstringNode, Entry, ID>
+public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<SubstringNode, ID>
 {
     /** Database used while evaluating candidates */
     private final Store<Entry, ID> db;
@@ -137,7 +137,7 @@ public class SubstringEvaluator<ID extends Comparable<ID>> implements Evaluator<
     }
 
 
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
         return evaluateWithoutIndex( entry );
     }

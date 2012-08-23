@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.cursor;
 
 
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
     private final IndexCursor<V, ID> wrapped;
 
     /** The evaluators used for the members of the And filter */
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
 
 
     /**
@@ -64,7 +64,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      * @param evaluators The list of evaluators associated wth the elements
      */
     public AndCursor( IndexCursor<V, ID> wrapped,
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+        List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating AndCursor {}", this );
         this.wrapped = wrapped;
@@ -215,10 +215,10 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode, ID>> optimize(
+        List<Evaluator<? extends ExprNode, ID>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
@@ -233,7 +233,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      */
     private boolean matches( IndexEntry<V, ID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?, ID> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

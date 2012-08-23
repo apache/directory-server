@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -32,25 +32,25 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotEvaluator<ID> implements Evaluator<NotNode, Entry, ID>
+public class NotEvaluator<ID> implements Evaluator<NotNode, ID>
 {
     /** The ExprNode to evaluate */
     private final NotNode node;
 
     /** The Evaluator to use for the inner Node */
-    private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
+    private final Evaluator<? extends ExprNode, ID> childEvaluator;
 
 
-    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, Entry, ID> childEvaluator )
+    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ID> childEvaluator )
     {
         this.node = node;
         this.childEvaluator = childEvaluator;
     }
 
 
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
-        return !childEvaluator.evaluateEntry( entry );
+        return !childEvaluator.evaluate( entry );
     }
 
 

@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search;
 
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -93,5 +92,5 @@ public interface SearchEngine<E, ID>
      * @return true if the filter passes the entry, false otherwise
      * @throws Exception if something goes wrong while accessing the db
      */
-    Evaluator<? extends ExprNode, Entry, ID> evaluator( ExprNode filter ) throws Exception;
+    Evaluator<? extends ExprNode, ID> evaluator( ExprNode filter ) throws Exception;
 }

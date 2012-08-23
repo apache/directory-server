@@ -38,6 +38,10 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.cursor.AndCursor;
+import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
+import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -207,8 +211,8 @@ public class AndCursorTest
     {
         AndNode andNode = new AndNode();
 
-        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
-        Evaluator<? extends ExprNode, Entry, Long> eval;
+        List<Evaluator<? extends ExprNode, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Long>>();
+        Evaluator<? extends ExprNode, Long> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );

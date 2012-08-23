@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import org.apache.directory.server.i18n.I18n;
@@ -25,6 +25,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -34,7 +35,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, E, ID>
+public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Evaluator<ScopeNode, ID>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -80,7 +81,7 @@ public class OneLevelScopeEvaluator<E, ID extends Comparable<ID>> implements Eva
      *
      * {@inheritDoc}
      */
-    public boolean evaluateEntry( E candidate ) throws Exception
+    public boolean evaluate( Entry candidate ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }

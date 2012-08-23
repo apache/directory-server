@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.xdbm.search.impl;
+package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.ArrayList;
@@ -37,16 +37,16 @@ import org.apache.directory.shared.ldap.model.filter.OrNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
+public class OrEvaluator<ID> implements Evaluator<OrNode, ID>
 {
     /** The list of evaluators associated with each of the children */
-    private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
 
     /** The OrNode */
     private final OrNode node;
 
 
-    public OrEvaluator( OrNode node, List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
+    public OrEvaluator( OrNode node, List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         this.node = node;
         this.evaluators = optimize( evaluators );
@@ -64,16 +64,16 @@ public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with decreasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, Entry, ID>> optimize(
-        List<Evaluator<? extends ExprNode, Entry, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode, ID>> optimize(
+        List<Evaluator<? extends ExprNode, ID>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, Entry, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
-        Collections.sort( optimized, new Comparator<Evaluator<? extends ExprNode, Entry, ID>>()
+        Collections.sort( optimized, new Comparator<Evaluator<? extends ExprNode, ID>>()
         {
-            public int compare( Evaluator<? extends ExprNode, Entry, ID> e1,
-                Evaluator<? extends ExprNode, Entry, ID> e2 )
+            public int compare( Evaluator<? extends ExprNode, ID> e1,
+                Evaluator<? extends ExprNode, ID> e2 )
             {
                 long scanCount1 = ( Long ) e1.getExpression().get( "count" );
                 long scanCount2 = ( Long ) e2.getExpression().get( "count" );
@@ -104,7 +104,7 @@ public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
 
     public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?, ID> evaluator : evaluators )
         {
             if ( evaluator.evaluate( indexEntry ) )
             {
@@ -116,11 +116,11 @@ public class OrEvaluator<ID> implements Evaluator<OrNode, Entry, ID>
     }
 
 
-    public boolean evaluateEntry( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws Exception
     {
-        for ( Evaluator<?, Entry, ID> evaluator : evaluators )
+        for ( Evaluator<?, ID> evaluator : evaluators )
         {
-            if ( evaluator.evaluateEntry( entry ) )
+            if ( evaluator.evaluate( entry ) )
             {
                 return true;
             }

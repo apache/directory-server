@@ -158,7 +158,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
-            Evaluator<? extends ExprNode, Entry, ID> evaluator = evaluatorBuilder.build( filter );
+            Evaluator<? extends ExprNode, ID> evaluator = evaluatorBuilder.build( filter );
 
             // Fetch the entry, as we have only one
             Entry entry = null;
@@ -200,7 +200,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
-    public Evaluator<? extends ExprNode, Entry, ID> evaluator( ExprNode filter ) throws Exception
+    public Evaluator<? extends ExprNode, ID> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );
     }

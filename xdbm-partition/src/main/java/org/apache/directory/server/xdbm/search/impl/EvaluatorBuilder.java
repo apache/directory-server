@@ -26,6 +26,17 @@ import java.util.List;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.evaluator.AndEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.NotEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.OneLevelScopeEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.OrEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
@@ -69,7 +80,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     }
 
 
-    public <T> Evaluator<? extends ExprNode, Entry, ID> build( ExprNode node ) throws Exception
+    public <T> Evaluator<? extends ExprNode, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -129,7 +140,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     AndEvaluator<ID> buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {
@@ -142,7 +153,7 @@ public class EvaluatorBuilder<ID extends Comparable<ID>>
     OrEvaluator<ID> buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode, Entry, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
+        List<Evaluator<? extends ExprNode, ID>> evaluators = new ArrayList<Evaluator<? extends ExprNode, ID>>(
             children.size() );
         for ( ExprNode child : children )
         {
