@@ -56,7 +56,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
     public JdbmRdnIndex()
     {
-        super( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+        super( ApacheSchemaConstants.APACHE_RDN_AT_OID, true );
         initialized = false;
     }
 
