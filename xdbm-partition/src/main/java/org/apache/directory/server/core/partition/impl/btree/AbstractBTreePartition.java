@@ -327,14 +327,14 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         if ( getEntryUuidIndex() == null )
         {
             Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID, partitionPath,
-                WITH_REVERSE );
+                NO_REVERSE );
             addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
             Index<String, Entry, ID> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath,
-                WITH_REVERSE );
+                NO_REVERSE );
             addIndex( index );
         }
 
@@ -2717,4 +2717,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
      * @throws Exception If the index can't be created
      */
     protected abstract Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws Exception;
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public MasterTable<ID, Entry> getMasterTable()
+    {
+        return master;
+    }
 }

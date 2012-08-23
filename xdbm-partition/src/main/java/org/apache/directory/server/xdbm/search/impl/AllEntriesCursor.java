@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexCursor;
@@ -64,8 +65,8 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public AllEntriesCursor( Store<Entry, ID> db ) throws Exception
     {
         LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
-        // Get a reverse cursor because we want to sort by ID
-        wrapped = db.getEntryUuidIndex().reverseCursor();
+        // Uses the MasterTable 
+        wrapped = new IndexCursorAdaptor( db.getMasterTable().cursor(), true );
     }
 
 
@@ -163,10 +164,10 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         checkNotClosed( "get()" );
 
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
-        IndexEntry<String, ID> wrappedEntry = wrapped.get();
-        indexEntry.setId( wrappedEntry.getId() );
-        indexEntry.setKey( wrappedEntry.getId() );
-        indexEntry.setEntry( wrappedEntry.getEntry() );
+        IndexEntry<?, ID> wrappedEntry = wrapped.get();
+        indexEntry.setId( ( ID ) wrappedEntry.getKey() );
+        indexEntry.setKey( ( ID ) wrappedEntry.getKey() );
+        indexEntry.setEntry( ( Entry ) wrappedEntry.getId() );
 
         return indexEntry;
     }

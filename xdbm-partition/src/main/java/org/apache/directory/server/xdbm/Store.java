@@ -450,4 +450,11 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return the default ID.
      */
     ID getDefaultId() throws Exception;
+
+
+    /**
+     * Expose the Master table
+     * @return The masterTable instance
+     */
+    MasterTable<ID, E> getMasterTable();
 }
