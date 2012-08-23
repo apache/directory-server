@@ -293,15 +293,7 @@ objectclass: top
 
 dn: ads-indexAttributeId=apacheRdn,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheRdn
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: ads-base
-objectclass: top
-ads-enabled: TRUE
-
-dn: ads-indexAttributeId=apacheSubLevel,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheSubLevel
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -311,15 +303,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apachePresence,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apachePresence
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: ads-base
-objectclass: top
-ads-enabled: TRUE
-
-dn: ads-indexAttributeId=apacheOneLevel,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheOneLevel
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -329,6 +313,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheOneAlias,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheOneAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -338,6 +323,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheSubAlias,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheSubAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -347,6 +333,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheAlias,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -356,6 +343,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=objectClass,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: objectClass
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -365,6 +353,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=entryUUID,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: entryUUID
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -374,6 +363,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=entryCSN,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: entryCSN
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -383,6 +373,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=ou,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: ou
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -392,6 +383,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=uid,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: uid
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -432,15 +424,7 @@ objectclass: top
 
 dn: ads-indexAttributeId=apacheRdn,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheRdn
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: ads-base
-objectclass: top
-ads-enabled: TRUE
-
-dn: ads-indexAttributeId=apacheSubLevel,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheSubLevel
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -450,15 +434,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apachePresence,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apachePresence
-ads-indexcachesize: 100
-objectclass: ads-index
-objectclass: ads-jdbmIndex
-objectclass: ads-base
-objectclass: top
-ads-enabled: TRUE
-
-dn: ads-indexAttributeId=apacheOneLevel,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
-ads-indexattributeid: apacheOneLevel
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -468,6 +444,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheOneAlias,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheOneAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -477,6 +454,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheSubAlias,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheSubAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -486,6 +464,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=apacheAlias,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheAlias
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -495,6 +474,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=dc,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: dc
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -504,6 +484,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=krb5PrincipalName,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: krb5PrincipalName
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -513,6 +494,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=objectClass,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: objectClass
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -522,6 +504,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=entryUUID,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: entryUUID
+ads-indexHasReverse: TRUE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -531,6 +514,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=entryCSN,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: entryCSN
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -540,6 +524,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=ou,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: ou
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex
@@ -549,6 +534,7 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=uid,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: uid
+ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
 objectclass: ads-jdbmIndex

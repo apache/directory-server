@@ -187,7 +187,7 @@ public class DSAnnotationProcessor
                         // The annotation does not specify a specific index
                         // type.
                         // We use the generic index implementation.
-                        JdbmIndex index = new JdbmIndex( createIndex.attribute() );
+                        JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
 
                         btreePartition.addIndexedAttributes( index );
                     }

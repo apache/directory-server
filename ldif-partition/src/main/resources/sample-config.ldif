@@ -62,4 +62,5 @@ objectClass: ads-jdbmIndex
 objectClass: ads-index
 objectClass: top
 ads-indexAttributeId: ou
+ads-indexHasReverse: FALSE
 

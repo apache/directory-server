@@ -1097,7 +1097,9 @@ public class ServiceBuilder
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
 
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId() );
+        boolean hasReverse = Boolean.parseBoolean( jdbmIndexBean.getIndexHasReverse() );
+
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
 
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
         index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
