@@ -454,7 +454,10 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         }
         while ( true );
 
-        return ( getIndex >= 0 );
+        boolean valueAvailable = ( getIndex >= 0 );
+        setAvailable( valueAvailable );
+
+        return valueAvailable;
     }
 
 
@@ -571,7 +574,10 @@ public class IndexCursorWrapper extends AbstractIndexCursor<Object>
         }
         while ( true );
 
-        return ( getIndex >= 0 );
+        boolean valueAvailable = ( getIndex >= 0 );
+        setAvailable( valueAvailable );
+
+        return valueAvailable;
     }
 
 
