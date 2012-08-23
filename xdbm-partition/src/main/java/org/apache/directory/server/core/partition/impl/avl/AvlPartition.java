@@ -149,7 +149,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
 
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
-            avlIndex = new AvlRdnIndex<Entry>( index.getAttributeId() );
+            avlIndex = new AvlRdnIndex( index.getAttributeId() );
         }
         else if ( index instanceof AvlIndex<?, ?> )
         {
@@ -167,7 +167,7 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         return avlIndex;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -176,11 +176,11 @@ public class AvlPartition extends AbstractBTreePartition<Long>
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
 
-        AvlIndex<?, Entry>  avlIndex;
+        AvlIndex<?, Entry> avlIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
-            avlIndex = new AvlRdnIndex<Entry>( oid );
+            avlIndex = new AvlRdnIndex( oid );
         }
         else
         {

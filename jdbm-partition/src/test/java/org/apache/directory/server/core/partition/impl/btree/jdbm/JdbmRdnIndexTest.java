@@ -34,6 +34,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -55,7 +56,7 @@ import org.junit.Test;
 public class JdbmRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn<Long>, Long, Long> idx;
+    Index<ParentIdAndRdn<Long>, Entry, Long> idx;
     private static SchemaManager schemaManager;
 
 
@@ -136,17 +137,17 @@ public class JdbmRdnIndexTest
 
     void initIndex() throws Exception
     {
-        JdbmRdnIndex<Long> index = new JdbmRdnIndex<Long>();
+        JdbmRdnIndex index = new JdbmRdnIndex();
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
 
 
-    void initIndex( JdbmRdnIndex<Long> jdbmIdx ) throws Exception
+    void initIndex( JdbmRdnIndex jdbmIdx ) throws Exception
     {
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmRdnIndex<Long>();
+            jdbmIdx = new JdbmRdnIndex();
         }
 
         jdbmIdx.init( schemaManager,
@@ -163,7 +164,7 @@ public class JdbmRdnIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        JdbmRdnIndex<Object> JdbmRdnIndex = new JdbmRdnIndex<Object>();
+        JdbmRdnIndex JdbmRdnIndex = new JdbmRdnIndex();
         JdbmRdnIndex.setCacheSize( 337 );
         assertEquals( 337, JdbmRdnIndex.getCacheSize() );
 
@@ -191,7 +192,7 @@ public class JdbmRdnIndexTest
         File wkdir = new File( dbFileDir, "foo" );
 
         // uninitialized index
-        JdbmRdnIndex<Long> jdbmRdnIndex = new JdbmRdnIndex<Long>();
+        JdbmRdnIndex jdbmRdnIndex = new JdbmRdnIndex();
         jdbmRdnIndex.setWkDirPath( wkdir.toURI() );
         assertEquals( "foo", new File( jdbmRdnIndex.getWkDirPath() ).getName() );
 
@@ -211,7 +212,7 @@ public class JdbmRdnIndexTest
 
         destroyIndex();
 
-        jdbmRdnIndex = new JdbmRdnIndex<Long>();
+        jdbmRdnIndex = new JdbmRdnIndex();
         wkdir.mkdirs();
         jdbmRdnIndex.setWkDirPath( wkdir.toURI() );
         initIndex( jdbmRdnIndex );
@@ -223,7 +224,7 @@ public class JdbmRdnIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        JdbmRdnIndex<Object> rdnIndex = new JdbmRdnIndex<Object>();
+        JdbmRdnIndex rdnIndex = new JdbmRdnIndex();
         assertNull( rdnIndex.getAttribute() );
 
         initIndex();
@@ -341,7 +342,7 @@ public class JdbmRdnIndexTest
         {
             key = new ParentIdAndRdn<Long>( i, new Rdn( "cn=key" + i ) );
 
-            idx.add( key, ( long ) i );
+            idx.add( key, i );
         }
 
         assertEquals( 5, idx.count() );
@@ -367,7 +368,7 @@ public class JdbmRdnIndexTest
         assertEquals( 2, ( long ) e3.getId() );
         assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
         assertEquals( 2, e3.getKey().getParentId().longValue() );
-        
+
         cursor.close();
     }
 

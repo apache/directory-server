@@ -33,6 +33,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
@@ -55,7 +56,7 @@ import org.junit.Test;
 public class AvlRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn<Long>, Long, Long> idx;
+    Index<ParentIdAndRdn<Long>, Entry, Long> idx;
     private static SchemaManager schemaManager;
 
 
@@ -279,7 +280,7 @@ public class AvlRdnIndexTest
         {
             key = new ParentIdAndRdn<Long>( i, new Rdn( "cn=key" + i ) );
 
-            idx.add( key, ( long ) i );
+            idx.add( key, i );
         }
 
         assertEquals( 5, idx.count() );

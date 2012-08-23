@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
+public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
@@ -117,16 +117,6 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ----------------------------------------------------------------------
-    /**
-     * Creates a JdbmIndex instance for a give AttributeId
-     */
-    public JdbmIndex( String attributeId )
-    {
-        this( attributeId, true );
-        initialized = false;
-    }
-
-
     /**
      * Creates a JdbmIndex instance for a give AttributeId
      */
@@ -439,44 +429,44 @@ public class JdbmIndex<K, O> extends AbstractIndex<K, O, Long>
     // Index Cursor Operations
     // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor() throws Exception
+    public IndexCursor<K, V, Long> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, O, Long>();
+            return new EmptyIndexCursor<K, V, Long>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> forwardCursor() throws Exception
+    public IndexCursor<K, V, Long> forwardCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) forward.cursor(), true );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, V, Long> reverseCursor( Long id ) throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) reverse.cursor( id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, O, Long>();
+            return new EmptyIndexCursor<K, V, Long>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, V, Long> forwardCursor( K key ) throws Exception
     {
-        return new IndexCursorAdaptor<K, O, Long>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) forward.cursor( key ), true );
     }
 
 
