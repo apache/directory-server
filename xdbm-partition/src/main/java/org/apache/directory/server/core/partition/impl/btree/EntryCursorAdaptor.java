@@ -44,10 +44,10 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private final AbstractBTreePartition<ID> db;
-    private final IndexCursor<ID, Entry, ID> indexCursor;
+    private final IndexCursor<ID, ID> indexCursor;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, ID> indexCursor )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;

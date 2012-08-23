@@ -156,7 +156,7 @@ public class NestedFilterTest
         }
 
         store = null;
-        
+
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -175,8 +175,8 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
-        
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 5, ( long ) cursor.get().getId() );
@@ -205,7 +205,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -227,17 +227,17 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
 
         Set<Long> set = new HashSet<Long>();
-        
+
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
-        
+
         assertEquals( 2, set.size() );
         assertTrue( set.contains( 7L ) );
         assertTrue( set.contains( 8L ) );
@@ -255,7 +255,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
         cursor.close();
     }
 }

@@ -174,7 +174,7 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 

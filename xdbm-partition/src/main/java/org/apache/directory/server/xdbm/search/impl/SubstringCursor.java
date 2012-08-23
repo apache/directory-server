@@ -38,14 +38,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
+public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final IndexCursor<String, Entry, ID> wrapped;
+    private final IndexCursor<String, ID> wrapped;
     private final SubstringEvaluator<ID> evaluator;
     private final ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
 
@@ -192,7 +192,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
                 this.indexEntry.setId( entry.getId() );
                 this.indexEntry.setKey( entry.getKey() );
                 this.indexEntry.setEntry( entry.getEntry() );
-                
+
                 return true;
             }
         }

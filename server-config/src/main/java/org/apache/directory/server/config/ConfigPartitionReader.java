@@ -726,7 +726,7 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        IndexCursor<Long, Entry, Long> cursor = null;
+        IndexCursor<Long, Long> cursor = null;
 
         // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();

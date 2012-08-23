@@ -30,17 +30,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
+public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
 
     public EmptyIndexCursor()
     {
         LOG_CURSOR.debug( "Creating EmptyIndexCursor {}", this );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -132,11 +133,11 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
         checkNotClosed( "after()" );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void close( ) throws Exception
+    public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
         super.close();

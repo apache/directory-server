@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -55,10 +55,10 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     private final EqualityEvaluator<V, ID> equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, Entry, ID> uuidIdxCursor;
+    private final IndexCursor<String, ID> uuidIdxCursor;
 
 
     /**
@@ -338,7 +338,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -346,7 +346,7 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     {
         LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
         super.close( cause );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.close( cause );

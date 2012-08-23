@@ -546,7 +546,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     public void dumpRdnIdx( ID id, String tabs ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<ID>, Entry, ID> cursor = rdnIdx.forwardCursor();
+        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
 
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -565,7 +565,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     private void dumpRdnIdx( ID id, int nbSibbling, String tabs ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<ID>, Entry, ID> cursor = rdnIdx.forwardCursor();
+        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
 
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -928,13 +928,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     /**
      * {@inheritDoc}
      */
-    public final IndexCursor<ID, Entry, ID> list( ID id ) throws LdapException
+    public final IndexCursor<ID, ID> list( ID id ) throws LdapException
     {
         try
         {
             // We use the OneLevel index to get all the entries from a starting point
             // and below up to the number of children
-            IndexCursor<ParentIdAndRdn<ID>, Entry, ID> cursor = rdnIdx.forwardCursor();
+            IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
 
             IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
             startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -962,7 +962,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             SearchScope scope = searchContext.getScope();
-            IndexCursor<ID, Entry, ID> underlying;
+            IndexCursor<ID, ID> underlying;
             Dn dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
@@ -2655,7 +2655,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            IndexCursor<?, Entry, ID> cursor = index.forwardCursor();
+            IndexCursor<?, ID> cursor = index.forwardCursor();
 
             while ( cursor.next() )
             {

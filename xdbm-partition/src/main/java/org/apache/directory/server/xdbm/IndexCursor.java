@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface IndexCursor<V, E, ID> extends Cursor<IndexEntry<V, ID>>
+public interface IndexCursor<V, ID> extends Cursor<IndexEntry<V, ID>>
 {
     /**
      * An alternative to calling before(IndexEntry) which often may require

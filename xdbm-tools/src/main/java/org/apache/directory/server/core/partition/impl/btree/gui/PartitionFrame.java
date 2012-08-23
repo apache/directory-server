@@ -654,7 +654,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
+        IndexCursor<Long, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, searchScope );
         String[] cols = new String[2];
         cols[0] = "id";

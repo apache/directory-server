@@ -129,7 +129,7 @@ public class IndexTest
 
         assertEquals( 26, idx.count() );
 
-        IndexCursor<String, Entry, Long> cursor1 = idx.forwardCursor();
+        IndexCursor<String, Long> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
         assertHasNext( cursor1, 1L );
@@ -148,7 +148,7 @@ public class IndexTest
     }
 
 
-    private void assertHasNext( IndexCursor<String, Entry, Long> cursor1, long expectedId ) throws Exception
+    private void assertHasNext( IndexCursor<String, Long> cursor1, long expectedId ) throws Exception
     {
         assertTrue( cursor1.next() );
         assertEquals( expectedId, cursor1.get().getId().longValue() );

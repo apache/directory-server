@@ -38,13 +38,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final IndexCursor<V, Entry, ID> uuidCursor;
+    private final IndexCursor<V, ID> uuidCursor;
     private final Evaluator<? extends ExprNode, Entry, ID> childEvaluator;
 
 
@@ -54,7 +54,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     {
         LOG_CURSOR.debug( "Creating NotCursor {}", this );
         this.childEvaluator = childEvaluator;
-        this.uuidCursor = ( IndexCursor<V, Entry, ID> ) store.getEntryUuidIndex().forwardCursor();
+        this.uuidCursor = ( IndexCursor<V, ID> ) store.getEntryUuidIndex().forwardCursor();
     }
 
 

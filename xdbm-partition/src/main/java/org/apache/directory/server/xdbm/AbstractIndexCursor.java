@@ -28,8 +28,8 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements
-    IndexCursor<V, Entry, ID>
+public abstract class AbstractIndexCursor<V, ID> extends AbstractCursor<IndexEntry<V, ID>> implements
+    IndexCursor<V, ID>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;

@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -54,10 +54,10 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     private final GreaterEqEvaluator<V, ID> greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, Entry, ID> uuidIdxCursor;
+    private final IndexCursor<String, ID> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uuidCandidate so it can be saved after
@@ -449,7 +449,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -457,7 +457,7 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     {
         LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
         super.close( cause );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.close( cause );

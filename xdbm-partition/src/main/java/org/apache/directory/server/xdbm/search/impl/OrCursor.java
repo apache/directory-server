@@ -43,24 +43,24 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class OrCursor<V, ID> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
-    private final List<IndexCursor<V, Entry, ID>> cursors;
+    private final List<IndexCursor<V, ID>> cursors;
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
     private final List<Set<ID>> blacklists;
     private int cursorIndex = -1;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<IndexCursor<V, Entry, ID>> cursors,
+    public OrCursor( List<IndexCursor<V, ID>> cursors,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating OrCursor {}", this );
-        
+
         if ( cursors.size() <= 1 )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_723 ) );
@@ -74,7 +74,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         {
             this.blacklists.add( new HashSet<ID>() );
         }
-        
+
         this.cursorIndex = 0;
     }
 
@@ -245,7 +245,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     {
         LOG_CURSOR.debug( "Closing OrCursor {}", this );
         super.close();
-        
+
         for ( Cursor<?> cursor : cursors )
         {
             cursor.close();
@@ -257,7 +257,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     {
         LOG_CURSOR.debug( "Closing OrCursor {}", this );
         super.close( cause );
-        
+
         for ( Cursor<?> cursor : cursors )
         {
             cursor.close( cause );

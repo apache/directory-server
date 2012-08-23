@@ -233,7 +233,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> forwardCursor() throws Exception
+    public IndexCursor<K, Long> forwardCursor() throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor(), true );
     }
@@ -243,7 +243,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, Long> forwardCursor( K key ) throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor( key ), true );
     }
@@ -357,7 +357,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor() throws Exception
+    public IndexCursor<K, Long> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
@@ -365,7 +365,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            return new EmptyIndexCursor<K, O, Long>();
+            return new EmptyIndexCursor<K, Long>();
         }
     }
 
@@ -374,7 +374,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, O, Long> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, Long> reverseCursor( Long id ) throws Exception
     {
         if ( withReverse )
         {
@@ -382,7 +382,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            return new EmptyIndexCursor<K, O, Long>();
+            return new EmptyIndexCursor<K, Long>();
         }
     }
 

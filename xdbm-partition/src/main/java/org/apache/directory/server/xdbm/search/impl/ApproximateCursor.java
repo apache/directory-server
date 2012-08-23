@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -57,10 +57,10 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     private final ApproximateEvaluator<V, ID> approximateEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, Entry, ID> uuidIdxCursor;
+    private final IndexCursor<String, ID> uuidIdxCursor;
 
 
     /**
@@ -355,6 +355,5 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
             uuidIdxCursor.close( cause );
         }
     }
-
 
 }

@@ -28,7 +28,6 @@ import java.util.Iterator;
 
 import org.apache.directory.shared.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,16 +41,16 @@ import org.junit.Test;
 public class AbstractIndexCursorTest
 {
 
-    private AbstractIndexCursor<String, Entry, Long> indexCursor;
+    private AbstractIndexCursor<String, Long> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String, Entry, Long>();
+        indexCursor = new EmptyIndexCursor<String, Long>();
     }
-    
-    
+
+
     @After
     public void cleanup() throws Exception
     {

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -47,16 +47,17 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor;
+    private final IndexCursor<ParentIdAndRdn<ID>, ID> cursor;
 
     /** The entry database/store */
     private final Store<Entry, ID> db;
-    
+
     /** The Parent ID */
     private ID parentId;
-    
+
     /** The prefetched element */
     private IndexEntry<ID, ID> prefetched;
+
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -65,7 +66,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry, ID> db, ID parentId, IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor )
+    public ChildrenCursor( Store<Entry, ID> db, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -100,7 +101,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -114,20 +115,20 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean previous() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         boolean hasPrevious = cursor.previous();
-        
+
         if ( hasPrevious )
         {
             IndexEntry entry = cursor.get();
-            
-            if ( ((ParentIdAndRdn<ID>)entry.getTuple().getKey()).getParentId().equals( parentId ) )
+
+            if ( ( ( ParentIdAndRdn<ID> ) entry.getTuple().getKey() ).getParentId().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -138,26 +139,26 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         boolean hasNext = cursor.next();
-        
+
         if ( hasNext )
         {
             IndexEntry cursorEntry = cursor.get();
             IndexEntry<ID, ID> entry = new ForwardIndexEntry();
-            entry.setId( (ID)cursorEntry.getId() );
-            entry.setKey( ((ParentIdAndRdn<ID>)cursorEntry.getTuple().getKey()).getParentId() );
-            
+            entry.setId( ( ID ) cursorEntry.getId() );
+            entry.setKey( ( ( ParentIdAndRdn<ID> ) cursorEntry.getTuple().getKey() ).getParentId() );
+
             if ( entry.getKey().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
 
     public IndexEntry<ID, ID> get() throws Exception
     {

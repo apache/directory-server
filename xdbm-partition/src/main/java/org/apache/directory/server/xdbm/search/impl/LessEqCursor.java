@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, Entry, ID>
+public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -54,10 +54,10 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     private final LessEqEvaluator<V, ID> lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, Entry, ID> userIdxCursor;
+    private final IndexCursor<V, ID> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V, Entry, ID> uuidIdxCursor;
+    private final IndexCursor<V, ID> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uudCandidate so it can be saved after
@@ -82,7 +82,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            uuidIdxCursor = ( IndexCursor<V, Entry, ID> ) db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = ( IndexCursor<V, ID> ) db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -301,7 +301,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         {
             IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
             //noinspection unchecked
-            advanceTo.setKey( ( V ) lessEqEvaluator.getExpression().getValue().getValue() );
+            advanceTo.setKey( lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
         }
         else
@@ -445,7 +445,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -453,7 +453,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     {
         LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
         super.close( cause );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.close( cause );

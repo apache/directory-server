@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import java.util.List;
-
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -32,9 +30,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -59,13 +55,13 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     private final SubtreeScopeEvaluator<Entry, ID> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, Entry, ID> scopeCursor;
+    private final IndexCursor<ID, ID> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<ID, Entry, ID> dereferencedCursor;
+    private final IndexCursor<ID, ID> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<ID, Entry, ID> cursor;
+    private IndexCursor<ID, ID> cursor;
 
     private ID contextEntryId;
 
@@ -93,13 +89,14 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             // We use the RdnIndex to get all the entries from a starting point
             // and below up to the number of children
             ID baseId = evaluator.getBaseId();
-            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId ); 
+            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
             IndexEntry indexEntry = new ForwardIndexEntry();
-            
+
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );
 
-            IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>( indexEntry );
+            IndexCursor<ParentIdAndRdn<ID>, ID> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>(
+                indexEntry );
             ID parentId = parentIdAndRdn.getParentId();
 
             scopeCursor = new DescendantCursor( db, baseId, parentId, cursor );
@@ -265,7 +262,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         // if the cursor hasn't been set position it before the first element
         if ( cursor == null )
         {
@@ -344,7 +341,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
@@ -354,7 +351,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             scopeCursor.close();
         }
-        
+
         if ( cursor != null )
         {
             cursor.close();
@@ -370,7 +367,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     public void close( Exception cause ) throws Exception
     {
         LOG_CURSOR.debug( "Closing SubtreeScopeCursor {}", this );
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close( cause );
@@ -380,7 +377,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
         {
             scopeCursor.close( cause );
         }
-        
+
         if ( cursor != null )
         {
             cursor.close( cause );

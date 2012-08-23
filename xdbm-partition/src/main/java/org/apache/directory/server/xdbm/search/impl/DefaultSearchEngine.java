@@ -97,7 +97,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<ID, Entry, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public IndexCursor<ID, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
@@ -109,7 +109,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
-                return new EmptyIndexCursor<ID, Entry, ID>();
+                return new EmptyIndexCursor<ID, ID>();
             }
             else
             {
@@ -180,7 +180,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             }
             else
             {
-                return new EmptyIndexCursor<ID, Entry, ID>();
+                return new EmptyIndexCursor<ID, ID>();
             }
         }
 
@@ -193,7 +193,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
 
-        return ( IndexCursor<ID, Entry, ID> ) cursorBuilder.build( root );
+        return ( IndexCursor<ID, ID> ) cursorBuilder.build( root );
     }
 
 

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -83,10 +83,10 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
 
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of children
-        IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = db.getRdnIndex().forwardCursor();
-        
+        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = db.getRdnIndex().forwardCursor();
+
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
-        startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), (Rdn[]) null ) );
+        startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), ( Rdn[] ) null ) );
         cursor.before( startingPos );
 
         scopeCursor = new ChildrenCursor( db, evaluator.getBaseId(), cursor );
@@ -301,12 +301,12 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
-        
+
         if ( cursor != null )
         {
             cursor.close();
         }
-        
+
         scopeCursor.close();
 
         if ( dereferencedCursor != null )
@@ -322,7 +322,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     public void close( Exception cause ) throws Exception
     {
         LOG_CURSOR.debug( "Closing OneLevelScopeCursor {}", this );
-        
+
         if ( cursor != null )
         {
             cursor.close( cause );

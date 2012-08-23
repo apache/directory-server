@@ -20,12 +20,12 @@
 package org.apache.directory.server.xdbm.tools;
 
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-
-import java.io.OutputStream;
-import java.io.PrintStream;
 
 
 /**
@@ -58,7 +58,7 @@ public class IndexUtils
             out = new PrintStream( outputStream );
         }
 
-        IndexCursor<?, Entry, Long> cursor = idx.forwardCursor();
+        IndexCursor<?, Long> cursor = idx.forwardCursor();
         cursor.first();
         for ( Object entry : cursor )
         {

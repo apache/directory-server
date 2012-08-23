@@ -429,44 +429,44 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     // Index Cursor Operations
     // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, V, Long> reverseCursor() throws Exception
+    public IndexCursor<K, Long> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<K, Long>( ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, V, Long>();
+            return new EmptyIndexCursor<K, Long>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, V, Long> forwardCursor() throws Exception
+    public IndexCursor<K, Long> forwardCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor(), true );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, V, Long> reverseCursor( Long id ) throws Exception
+    public IndexCursor<K, Long> reverseCursor( Long id ) throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<K, Long>( ( Cursor ) reverse.cursor( id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, V, Long>();
+            return new EmptyIndexCursor<K, Long>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, V, Long> forwardCursor( K key ) throws Exception
+    public IndexCursor<K, Long> forwardCursor( K key ) throws Exception
     {
-        return new IndexCursorAdaptor<K, V, Long>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor( key ), true );
     }
 
 

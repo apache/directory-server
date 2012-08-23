@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -51,12 +51,12 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
 
     /** The entry database/store */
     private final Store<Entry, ID> db;
-    
+
     /** The prefetched element */
     private IndexEntry prefetched;
-    
+
     /** The current Cursor over the entries in the scope of the search base */
-    private IndexCursor<ParentIdAndRdn<ID>,Entry, ID> currentCursor;
+    private IndexCursor<ParentIdAndRdn<ID>, ID> currentCursor;
 
     /** The current Parent ID */
     private ID currentParentId;
@@ -66,13 +66,13 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
 
     /** The stack of parentIds used to process the depth-first traversal */
     private ArrayStack parentIdStack;
-    
+
     /** The initial entry ID we are looking descendants for */
     private ID baseId;
-    
+
     /** A flag to tell that we are in the top level cursor or not */
     private boolean topLevel;
-    
+
     protected static final boolean TOP_LEVEL = true;
     protected static final boolean INNER = false;
 
@@ -84,11 +84,12 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, Entry, ID> cursor )
+    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor )
         throws Exception
     {
         this( db, baseId, parentId, cursor, TOP_LEVEL );
     }
+
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -97,7 +98,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, Entry, ID> cursor, boolean topLevel )
+    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor,
+        boolean topLevel )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -136,7 +138,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -150,20 +152,20 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public boolean previous() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         boolean hasPrevious = currentCursor.previous();
-        
+
         if ( hasPrevious )
         {
             IndexEntry entry = currentCursor.get();
-            
-            if ( ((ParentIdAndRdn<ID>)entry.getTuple().getKey()).getParentId().equals( currentParentId ) )
+
+            if ( ( ( ParentIdAndRdn<ID> ) entry.getTuple().getKey() ).getParentId().equals( currentParentId ) )
             {
                 prefetched = entry;
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -179,7 +181,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         while ( !finished )
         {
             boolean hasNext = currentCursor.next();
-            
+
             // We will use a depth first approach. The alternative (Breadth-first) would be
             // too memory consuming. 
             // The idea is to use a ChildrenCursor each time we have an entry with chidren, 
@@ -187,8 +189,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
             if ( hasNext )
             {
                 IndexEntry cursorEntry = currentCursor.get();
-                ParentIdAndRdn<ID> parentIdAndRdn = ((ParentIdAndRdn<ID>)(cursorEntry.getKey()));
-    
+                ParentIdAndRdn<ID> parentIdAndRdn = ( ( ParentIdAndRdn<ID> ) ( cursorEntry.getKey() ) );
+
                 // Check that we aren't out of the cursor's limit
                 if ( !parentIdAndRdn.getParentId().equals( currentParentId ) )
                 {
@@ -198,10 +200,10 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                     if ( !finished )
                     {
                         currentCursor.close();
-                        currentCursor = (IndexCursor<ParentIdAndRdn<ID>, Entry, ID> )cursorStack.pop();
-                        currentParentId = (ID)parentIdStack.pop();
+                        currentCursor = ( IndexCursor<ParentIdAndRdn<ID>, ID> ) cursorStack.pop();
+                        currentParentId = ( ID ) parentIdStack.pop();
                     }
-                    
+
                     // And continue...
                 }
                 else
@@ -210,33 +212,33 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                     if ( topLevel )
                     {
                         prefetched = new ForwardIndexEntry();
-                        prefetched.setId( (ID)cursorEntry.getId() );
+                        prefetched.setId( cursorEntry.getId() );
                         prefetched.setKey( baseId );
                     }
                     else
                     {
                         prefetched = cursorEntry;
                     }
-                    
+
                     // Check if the current entry has children or not.
                     if ( parentIdAndRdn.getNbDescendants() > 0 )
                     {
-                        ID newParentId = (ID)cursorEntry.getId();
-                        
+                        ID newParentId = ( ID ) cursorEntry.getId();
+
                         // Yes, then create a new cursor and go down one level
-                        IndexCursor<ParentIdAndRdn<ID>,Entry, ID> cursor = db.getRdnIndex().forwardCursor();
-                        
+                        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = db.getRdnIndex().forwardCursor();
+
                         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
-                        startingPos.setKey( new ParentIdAndRdn( newParentId, (Rdn[]) null ) );
+                        startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
                         cursor.before( startingPos );
-                        
+
                         cursorStack.push( currentCursor );
                         parentIdStack.push( currentParentId );
 
                         currentCursor = cursor;
                         currentParentId = newParentId;
                     }
-                    
+
                     return true;
                 }
             }
@@ -248,16 +250,16 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                 if ( !finished )
                 {
                     currentCursor.close();
-                    currentCursor = (IndexCursor<ParentIdAndRdn<ID>, Entry, ID> )cursorStack.pop();
-                    currentParentId = (ID)parentIdStack.pop();
+                    currentCursor = ( IndexCursor<ParentIdAndRdn<ID>, ID> ) cursorStack.pop();
+                    currentParentId = ( ID ) parentIdStack.pop();
                 }
                 // and continue...
             }
         }
-        
+
         return false;
     }
-    
+
 
     public IndexEntry<ID, ID> get() throws Exception
     {
@@ -271,11 +273,11 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
-        
+
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )
         {
-            ((IndexCursor)cursor).close();
+            ( ( IndexCursor ) cursor ).close();
         }
 
         // And finally, close the current cursor
@@ -293,7 +295,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )
         {
-            ((IndexCursor)cursor).close( cause );
+            ( ( IndexCursor ) cursor ).close( cause );
         }
 
         // And finally, close the current cursor

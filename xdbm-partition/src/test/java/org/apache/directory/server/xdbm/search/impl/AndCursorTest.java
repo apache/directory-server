@@ -175,7 +175,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
@@ -212,7 +212,7 @@ public class AndCursorTest
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        IndexCursor<?, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -226,7 +226,7 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        IndexCursor<?, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
 
         cursor.beforeFirst();
 

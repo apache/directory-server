@@ -343,7 +343,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    IndexCursor<ID, E, ID> list( ID id ) throws Exception;
+    IndexCursor<ID, ID> list( ID id ) throws Exception;
 
 
     /**

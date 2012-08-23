@@ -37,16 +37,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, Entry, ID>
+public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, Entry, ID> uuidCursor;
-    private final IndexCursor<String, Entry, ID> presenceCursor;
+    private final IndexCursor<String, ID> uuidCursor;
+    private final IndexCursor<String, ID> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
-    
+
     /** The prefetched entry, if it's a valid one */
     private IndexEntry<String, ID> prefetched;
 
@@ -251,7 +251,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( presenceCursor != null )
         {
             return presenceCursor.next();
@@ -265,7 +265,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 prefetched = candidate;
-                
+
                 return setAvailable( true );
             }
         }
@@ -294,7 +294,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
             {
                 prefetched = uuidCursor.get();
             }
-            
+
             /*
              * The value of NDN indices is the normalized dn and we want the
              * value to be the value of the attribute in question.  So we will

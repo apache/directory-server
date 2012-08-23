@@ -383,19 +383,20 @@ public class LdifPartition extends AbstractLdifPartition
     {
         // First, add the new entry
         addEntry( modifiedEntry );
-        
+
         Long baseId = getEntryId( modifiedEntry.getDn() );
 
-        ParentIdAndRdn<Long> parentIdAndRdn = getRdnIndex().reverseLookup( baseId ); 
+        ParentIdAndRdn<Long> parentIdAndRdn = getRdnIndex().reverseLookup( baseId );
         IndexEntry indexEntry = new ForwardIndexEntry();
-        
-        indexEntry.setId(baseId);
+
+        indexEntry.setId( baseId );
         indexEntry.setKey( parentIdAndRdn );
 
-        IndexCursor<ParentIdAndRdn<Long>,Entry, Long> cursor = new SingletonIndexCursor<ParentIdAndRdn<Long>, Long>( indexEntry );
+        IndexCursor<ParentIdAndRdn<Long>, Long> cursor = new SingletonIndexCursor<ParentIdAndRdn<Long>, Long>(
+            indexEntry );
         Long parentId = parentIdAndRdn.getParentId();
 
-        IndexCursor<Long, Entry, Long> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
+        IndexCursor<Long, Long> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
 
         // Then, if there are some children, move then to the new place
         try
@@ -417,7 +418,7 @@ public class LdifPartition extends AbstractLdifPartition
         {
             throw new LdapOperationException( e.getMessage(), e );
         }
-        
+
         // And delete the old entry's LDIF file
         File file = getFile( oldEntryDn, DELETE );
         boolean deleted = deleteFile( file );

@@ -300,14 +300,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 }
 
                 ParentIdAndRdn<Long> suffixEntry = rdnIdx.reverseLookup( suffixId );
-                
+
                 if ( suffixEntry != null )
                 {
                     Entry entry = master.get( suffixId );
                     entry.setDn( suffixDn );
 
                     appendLdif( entry );
-                    
+
                     appendRecursive( suffixId, suffixEntry.getNbChildren() );
                 }
 
@@ -324,17 +324,17 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
     }
 
-    
+
     private void appendRecursive( Long id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<Long>,Entry,Long> cursor = rdnIdx.forwardCursor();
-        
+        IndexCursor<ParentIdAndRdn<Long>, Long> cursor = rdnIdx.forwardCursor();
+
         IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
-        startingPos.setKey( new ParentIdAndRdn<Long>( id, (Rdn[]) null ) );
+        startingPos.setKey( new ParentIdAndRdn<Long>( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
-        
+
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
             IndexEntry<ParentIdAndRdn<Long>, Long> element = cursor.get();
@@ -344,16 +344,16 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             appendLdif( entry );
 
             countChildren++;
-            
+
             // And now, the children
             int nbChildren = element.getKey().getNbChildren();
-            
+
             if ( nbChildren > 0 )
             {
                 appendRecursive( childId, nbChildren );
             }
         }
-        
+
         cursor.close();
     }
 

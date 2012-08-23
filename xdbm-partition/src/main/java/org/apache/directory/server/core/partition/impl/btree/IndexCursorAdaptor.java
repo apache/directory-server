@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
+public class IndexCursorAdaptor<K, ID> extends AbstractIndexCursor<K, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -221,6 +221,7 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
     }
+
 
     /**
      * {@inheritDoc}

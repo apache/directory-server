@@ -64,7 +64,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
     }
 
 
-    public <T> IndexCursor<?, Entry, ID> build( ExprNode node ) throws Exception
+    public <T> IndexCursor<?, ID> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -130,10 +130,10 @@ public class CursorBuilder<ID extends Comparable<ID>>
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?, Entry, ID> buildOrCursor( OrNode node ) throws Exception
+    private IndexCursor<?, ID> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<IndexCursor<?, Entry, ID>> childCursors = new ArrayList<IndexCursor<?, Entry, ID>>(
+        List<IndexCursor<?, ID>> childCursors = new ArrayList<IndexCursor<?, ID>>(
             children.size() );
         List<Evaluator<? extends ExprNode, Entry, ID>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, ID>>(
             children.size() );
@@ -156,7 +156,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private IndexCursor<?, Entry, ID> buildAndCursor( AndNode node ) throws Exception
+    private IndexCursor<?, ID> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -204,7 +204,7 @@ public class CursorBuilder<ID extends Comparable<ID>>
         }
 
         // Do recursive call to build min child Cursor then create AndCursor
-        IndexCursor<?, Entry, ID> childCursor = build( minChild );
+        IndexCursor<?, ID> childCursor = build( minChild );
 
         return new AndCursor( childCursor, childEvaluators );
     }

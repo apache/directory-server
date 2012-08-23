@@ -80,7 +80,7 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long, Entry, Long> childList = db.list( id );
+            IndexCursor<Long, Long> childList = db.list( id );
 
             while ( childList.next() )
             {
@@ -155,7 +155,7 @@ public class EntryNode implements TreeNode
 
     public TreeNode getChildAt( int childIndex )
     {
-        return ( TreeNode ) children.get( childIndex );
+        return children.get( childIndex );
     }
 
 

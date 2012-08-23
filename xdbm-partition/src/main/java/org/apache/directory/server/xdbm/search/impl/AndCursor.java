@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
+public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -50,7 +50,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
 
     /** */
-    private final IndexCursor<V, Entry, ID> wrapped;
+    private final IndexCursor<V, ID> wrapped;
 
     /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode, Entry, ID>> evaluators;
@@ -63,7 +63,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
      * @param wrapped The encapsulated IndexCursor
      * @param evaluators The list of evaluators associated wth the elements
      */
-    public AndCursor( IndexCursor<V, Entry, ID> wrapped,
+    public AndCursor( IndexCursor<V, ID> wrapped,
         List<Evaluator<? extends ExprNode, Entry, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating AndCursor {}", this );
@@ -181,11 +181,11 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, Entry, ID>
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void close( ) throws Exception
+    public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing AndCursor {}", this );
         super.close();

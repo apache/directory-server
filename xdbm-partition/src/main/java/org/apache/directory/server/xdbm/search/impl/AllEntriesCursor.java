@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, Entry, ID>
+public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -45,7 +45,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
 
     /** The cursor on the EntryUUID index */
-    private final IndexCursor<String, Entry, ID> wrapped;
+    private final IndexCursor<String, ID> wrapped;
 
 
     /**
