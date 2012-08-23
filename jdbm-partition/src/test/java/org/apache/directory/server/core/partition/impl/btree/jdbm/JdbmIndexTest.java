@@ -138,7 +138,7 @@ public class JdbmIndexTest
     void initIndex() throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( attributeType.getName() );
+        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( attributeType.getName(), false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
@@ -364,7 +364,6 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertNull( idx.reverseLookup( 0L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", 0L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", -24L ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", 24L ) );
@@ -425,7 +424,6 @@ public class JdbmIndexTest
         // test add/drop without adding any duplicates
         idx.add( "foo", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
 
         idx.drop( "foo", 0L );
         assertNull( idx.forwardLookup( "foo" ) );
@@ -473,7 +471,6 @@ public class JdbmIndexTest
 
         idx.drop( "bar", 0L );
         assertEquals( 0L, ( long ) idx.forwardLookup( "foo" ) );
-        assertEquals( "foo", idx.reverseLookup( 0L ) );
         assertFalse( idx.forward( "bar", 0L ) );
 
         idx.drop( "foo", 0L );
