@@ -24,12 +24,12 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
@@ -56,13 +56,13 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     private final SubtreeScopeEvaluator<Entry, ID> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ID, ID> scopeCursor;
+    private final Cursor<IndexEntry<ID, ID>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final IndexCursor<ID, ID> dereferencedCursor;
+    private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private IndexCursor<ID, ID> cursor;
+    private Cursor<IndexEntry<ID, ID>> cursor;
 
     private ID contextEntryId;
 
@@ -96,7 +96,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );
 
-            IndexCursor<ParentIdAndRdn<ID>, ID> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>(
+            Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>(
                 indexEntry );
             ID parentId = parentIdAndRdn.getParentId();
 

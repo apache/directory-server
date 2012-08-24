@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -343,7 +344,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    IndexCursor<ID, ID> list( ID id ) throws Exception;
+    Cursor<IndexEntry<ID, ID>> list( ID id ) throws Exception;
 
 
     /**

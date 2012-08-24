@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -41,6 +41,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.cursor.NotCursor;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -175,7 +176,7 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
 
         assertFalse( cursor.available() );
 

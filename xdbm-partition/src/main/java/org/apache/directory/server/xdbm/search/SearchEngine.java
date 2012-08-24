@@ -20,8 +20,9 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -81,7 +82,7 @@ public interface SearchEngine<E, ID>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    IndexCursor<ID, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    Cursor<IndexEntry<ID, ID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception;
 
 

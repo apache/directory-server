@@ -23,10 +23,10 @@ package org.apache.directory.server.xdbm.search.cursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -56,10 +56,10 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     private final EqualityEvaluator<V, ID> equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, ID> userIdxCursor;
+    private final Cursor<IndexEntry<V, ID>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, ID> uuidIdxCursor;
+    private final Cursor<IndexEntry<String, ID>> uuidIdxCursor;
 
 
     /**
@@ -117,24 +117,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "beforeValue()" );
-
-        if ( userIdxCursor != null )
-        {
-            userIdxCursor.beforeValue( id, value );
-        }
-        else
-        {
-            super.beforeValue( id, value );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void before( IndexEntry<V, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
@@ -146,25 +128,6 @@ public class EqualityCursor<V, ID extends Comparable<ID>> extends AbstractIndexC
         else
         {
             super.before( element );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "afterValue()" );
-
-        if ( userIdxCursor
-            != null )
-        {
-            userIdxCursor.afterValue( id, value );
-        }
-        else
-        {
-            super.afterValue( id, value );
         }
     }
 

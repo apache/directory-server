@@ -23,9 +23,9 @@ package org.apache.directory.server.xdbm.search.cursor;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
 
     /** The cursor on the EntryUUID index */
-    private final IndexCursor<String, ID> wrapped;
+    private final Cursor<IndexEntry<String, ID>> wrapped;
 
 
     /**
@@ -73,33 +73,9 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID key, ID value ) throws Exception
-    {
-        checkNotClosed( "afterValue()" );
-
-        wrapped.afterValue( key, null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void beforeValue( ID id, ID value ) throws Exception
-    {
-        checkNotClosed( "beforeValue()" );
-
-        wrapped.beforeValue( id, null );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void after( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
-
-        wrapped.afterValue( indexEntry.getId(), null );
     }
 
 
@@ -129,8 +105,6 @@ public class AllEntriesCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     public void before( IndexEntry<ID, ID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
-
-        wrapped.beforeValue( indexEntry.getId(), null );
     }
 
 

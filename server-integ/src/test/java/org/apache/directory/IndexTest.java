@@ -29,9 +29,10 @@ import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -129,7 +130,7 @@ public class IndexTest
 
         assertEquals( 26, idx.count() );
 
-        IndexCursor<String, Long> cursor1 = idx.forwardCursor();
+        Cursor<IndexEntry<String, Long>> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
         assertHasNext( cursor1, 1L );
@@ -148,7 +149,7 @@ public class IndexTest
     }
 
 
-    private void assertHasNext( IndexCursor<String, Long> cursor1, long expectedId ) throws Exception
+    private void assertHasNext( Cursor<IndexEntry<String, Long>> cursor1, long expectedId ) throws Exception
     {
         assertTrue( cursor1.next() );
         assertEquals( expectedId, cursor1.get().getId().longValue() );

@@ -35,7 +35,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -429,7 +429,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     // Index Cursor Operations
     // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, Long> reverseCursor() throws Exception
+    public Cursor<IndexEntry<K, Long>> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
@@ -443,14 +443,14 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, Long> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, Long>> forwardCursor() throws Exception
     {
         return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor(), true );
     }
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, Long> reverseCursor( Long id ) throws Exception
+    public Cursor<IndexEntry<K, Long>> reverseCursor( Long id ) throws Exception
     {
         if ( withReverse )
         {
@@ -464,7 +464,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
 
 
     @SuppressWarnings("unchecked")
-    public IndexCursor<K, Long> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, Long>> forwardCursor( K key ) throws Exception
     {
         return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor( key ), true );
     }

@@ -24,10 +24,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -55,10 +55,10 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     private final LessEqEvaluator<V, ID> lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, ID> userIdxCursor;
+    private final Cursor<IndexEntry<V, ID>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<V, ID> uuidIdxCursor;
+    private final Cursor<IndexEntry<V, ID>> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uudCandidate so it can be saved after
@@ -83,7 +83,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         }
         else
         {
-            uuidIdxCursor = ( IndexCursor<V, ID> ) db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = ( Cursor ) db.getEntryUuidIndex().forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -95,57 +95,6 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     protected String getUnsupportedMessage()
     {
         return UNSUPPORTED_MSG;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "beforeValue()" );
-
-        if ( userIdxCursor != null )
-        {
-            /*
-             * First we need to check and make sure this element is within
-             * bounds as mandated by the assertion node.  To do so we compare
-             * it's value with the value of the expression node.  If the
-             * element's value is greater than this upper bound then we
-             * position the userIdxCursor after the last node.
-             *
-             * If the element's value is equal to this upper bound then we
-             * position the userIdxCursor right before the last node.
-             *
-             * If the element's value is smaller, then we delegate to the
-             * before() method of the userIdxCursor.
-             */
-            //noinspection unchecked
-            int compareValue = lessEqEvaluator.getComparator().compare( value,
-                lessEqEvaluator.getExpression().getValue().getValue() );
-
-            if ( compareValue > 0 )
-            {
-                afterLast();
-
-                return;
-            }
-            else if ( compareValue == 0 )
-            {
-                last();
-                previous();
-                setAvailable( false );
-
-                return;
-            }
-
-            userIdxCursor.beforeValue( id, value );
-            setAvailable( false );
-        }
-        else
-        {
-            super.beforeValue( id, value );
-        }
     }
 
 
@@ -193,47 +142,6 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         else
         {
             super.before( element );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "afterValue()" );
-
-        if ( userIdxCursor != null )
-        {
-            int comparedValue = lessEqEvaluator.getComparator().compare( value,
-                lessEqEvaluator.getExpression().getValue().getValue() );
-
-            /*
-             * First we need to check and make sure this element is within
-             * bounds as mandated by the assertion node.  To do so we compare
-             * it's value with the value of the expression node.
-             *
-             * If the element's value is equal to or greater than this upper
-             * bound then we position the userIdxCursor after the last node.
-             *
-             * If the element's value is smaller, then we delegate to the
-             * after() method of the userIdxCursor.
-             */
-            if ( comparedValue >= 0 )
-            {
-                afterLast();
-
-                return;
-            }
-
-            // Element is in the valid range as specified by assertion
-            userIdxCursor.afterValue( id, value );
-            setAvailable( false );
-        }
-        else
-        {
-            super.afterValue( id, value );
         }
     }
 

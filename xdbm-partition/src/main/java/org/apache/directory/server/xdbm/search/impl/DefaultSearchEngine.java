@@ -24,13 +24,13 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -97,7 +97,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
     /**
      * {@inheritDoc}
      */
-    public IndexCursor<ID, ID> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public Cursor<IndexEntry<ID, ID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
@@ -193,7 +193,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
 
-        return ( IndexCursor<ID, ID> ) cursorBuilder.build( root );
+        return ( Cursor ) cursorBuilder.build( root );
     }
 
 

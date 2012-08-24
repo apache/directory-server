@@ -22,10 +22,10 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -44,8 +44,8 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final IndexCursor<String, ID> uuidCursor;
-    private final IndexCursor<String, ID> presenceCursor;
+    private final Cursor<IndexEntry<String, ID>> uuidCursor;
+    private final Cursor<IndexEntry<String, ID>> presenceCursor;
     private final PresenceEvaluator<ID> presenceEvaluator;
 
     /** The prefetched entry, if it's a valid one */
@@ -97,24 +97,6 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, String value ) throws Exception
-    {
-        checkNotClosed( "beforeValue()" );
-
-        if ( presenceCursor != null )
-        {
-            presenceCursor.beforeValue( id, value );
-
-            return;
-        }
-
-        super.beforeValue( id, value );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public void before( IndexEntry<String, ID> element ) throws Exception
     {
         checkNotClosed( "before()" );
@@ -127,24 +109,6 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         }
 
         super.before( element );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void afterValue( ID id, String value ) throws Exception
-    {
-        checkNotClosed( "afterValue()" );
-
-        if ( presenceCursor != null )
-        {
-            presenceCursor.afterValue( id, value );
-
-            return;
-        }
-
-        super.afterValue( id, value );
     }
 
 

@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -48,14 +47,14 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, ID>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
-    private final List<IndexCursor<V, ID>> cursors;
+    private final List<Cursor<IndexEntry<V, ID>>> cursors;
     private final List<Evaluator<? extends ExprNode, ID>> evaluators;
     private final List<Set<ID>> blacklists;
     private int cursorIndex = -1;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<IndexCursor<V, ID>> cursors,
+    public OrCursor( List<Cursor<IndexEntry<V, ID>>> cursors,
         List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating OrCursor {}", this );

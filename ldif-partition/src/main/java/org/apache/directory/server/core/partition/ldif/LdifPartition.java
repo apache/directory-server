@@ -35,12 +35,12 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.search.cursor.DescendantCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -392,11 +392,11 @@ public class LdifPartition extends AbstractLdifPartition
         indexEntry.setId( baseId );
         indexEntry.setKey( parentIdAndRdn );
 
-        IndexCursor<ParentIdAndRdn<Long>, Long> cursor = new SingletonIndexCursor<ParentIdAndRdn<Long>, Long>(
+        Cursor<IndexEntry<ParentIdAndRdn<Long>, Long>> cursor = new SingletonIndexCursor<ParentIdAndRdn<Long>, Long>(
             indexEntry );
         Long parentId = parentIdAndRdn.getParentId();
 
-        IndexCursor<Long, Long> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
+        Cursor<IndexEntry<Long, Long>> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
 
         // Then, if there are some children, move then to the new place
         try

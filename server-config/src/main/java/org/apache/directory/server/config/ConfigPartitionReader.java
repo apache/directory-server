@@ -39,9 +39,10 @@ import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -726,7 +727,7 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        IndexCursor<Long, Long> cursor = null;
+        Cursor<IndexEntry<Long, Long>> cursor = null;
 
         // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();

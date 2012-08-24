@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.Iterator;
 
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -44,10 +43,10 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private final AbstractBTreePartition<ID> db;
-    private final IndexCursor<ID, ID> indexCursor;
+    private final Cursor<IndexEntry<ID, ID>> indexCursor;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, ID> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, Cursor<IndexEntry<ID, ID>> indexCursor )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;

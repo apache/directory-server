@@ -62,8 +62,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -654,7 +654,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
+        Cursor<IndexEntry<Long, Long>> cursor = partition.getSearchEngine().cursor( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, searchScope );
         String[] cols = new String[2];
         cols[0] = "id";

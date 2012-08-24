@@ -24,10 +24,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final IndexCursor<String, ID> wrapped;
+    private final Cursor<IndexEntry<String, ID>> wrapped;
     private final SubstringEvaluator<ID> evaluator;
     private final ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
 

@@ -24,10 +24,10 @@ import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private IndexEntry prefetched;
 
     /** The current Cursor over the entries in the scope of the search base */
-    private IndexCursor<ParentIdAndRdn<ID>, ID> currentCursor;
+    private Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> currentCursor;
 
     /** The current Parent ID */
     private ID currentParentId;
@@ -84,7 +84,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor )
+    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId,
+        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor )
         throws Exception
     {
         this( db, baseId, parentId, cursor, TOP_LEVEL );
@@ -98,7 +99,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor,
+    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId,
+        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor,
         boolean topLevel )
         throws Exception
     {
@@ -200,7 +202,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                     if ( !finished )
                     {
                         currentCursor.close();
-                        currentCursor = ( IndexCursor<ParentIdAndRdn<ID>, ID> ) cursorStack.pop();
+                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> ) cursorStack.pop();
                         currentParentId = ( ID ) parentIdStack.pop();
                     }
 
@@ -226,7 +228,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                         ID newParentId = ( ID ) cursorEntry.getId();
 
                         // Yes, then create a new cursor and go down one level
-                        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = db.getRdnIndex().forwardCursor();
+                        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = db.getRdnIndex().forwardCursor();
 
                         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
                         startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
@@ -250,7 +252,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                 if ( !finished )
                 {
                     currentCursor.close();
-                    currentCursor = ( IndexCursor<ParentIdAndRdn<ID>, ID> ) cursorStack.pop();
+                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> ) cursorStack.pop();
                     currentParentId = ( ID ) parentIdStack.pop();
                 }
                 // and continue...
@@ -277,7 +279,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )
         {
-            ( ( IndexCursor ) cursor ).close();
+            ( ( Cursor<IndexEntry<?, ?>> ) cursor ).close();
         }
 
         // And finally, close the current cursor
@@ -295,7 +297,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )
         {
-            ( ( IndexCursor ) cursor ).close( cause );
+            ( ( Cursor<IndexEntry<?, ?>> ) cursor ).close( cause );
         }
 
         // And finally, close the current cursor

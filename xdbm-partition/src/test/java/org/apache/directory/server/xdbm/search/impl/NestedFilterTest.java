@@ -32,12 +32,13 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
@@ -175,7 +176,7 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -205,7 +206,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -227,7 +228,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
 
         Set<Long> set = new HashSet<Long>();
 
@@ -255,7 +256,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
         cursor.close();
     }
 }

@@ -53,8 +53,8 @@ public class SingletonIndexCursorTest
         indexEntry.setKey( "test" );
         indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
     }
-    
-    
+
+
     @After
     public void cleanup() throws Exception
     {
@@ -66,7 +66,7 @@ public class SingletonIndexCursorTest
     public void testConstructor() throws Exception
     {
         Cursor cursor = new SingletonIndexCursor<String, Long>( indexEntry );
-        
+
         cursor.close();
     }
 
@@ -241,23 +241,8 @@ public class SingletonIndexCursorTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testBeforeValue() throws Exception
-    {
-        indexCursor.beforeValue( 1L, "test" );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testAfter() throws Exception
     {
         indexCursor.after( null );
     }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAfterValue() throws Exception
-    {
-        indexCursor.afterValue( 1L, "test" );
-    }
-
 }

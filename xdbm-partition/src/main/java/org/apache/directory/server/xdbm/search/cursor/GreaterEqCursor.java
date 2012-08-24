@@ -24,10 +24,10 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -55,10 +55,10 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     private final GreaterEqEvaluator<V, ID> greaterEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final IndexCursor<V, ID> userIdxCursor;
+    private final Cursor<IndexEntry<V, ID>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final IndexCursor<String, ID> uuidIdxCursor;
+    private final Cursor<IndexEntry<String, ID>> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uuidCandidate so it can be saved after
@@ -101,85 +101,6 @@ public class GreaterEqCursor<V, ID extends Comparable<ID>> extends AbstractIndex
     protected String getUnsupportedMessage()
     {
         return UNSUPPORTED_MSG;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void beforeValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "beforeValue()" );
-
-        if ( userIdxCursor != null )
-        {
-            /*
-             * First we need to check and make sure this element is within
-             * bounds as mandated by the assertion node.  To do so we compare
-             * it's value with the value of the node.  If it is smaller or
-             * equal to this lower bound then we simply position the
-             * userIdxCursor before the first element.  Otherwise we let the
-             * underlying userIdx Cursor position the element.
-             */
-            if ( greaterEqEvaluator.getComparator()
-                .compare( value, greaterEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
-            {
-                beforeFirst();
-                return;
-            }
-
-            userIdxCursor.beforeValue( id, value );
-            setAvailable( false );
-        }
-        else
-        {
-            super.beforeValue( id, value );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        checkNotClosed( "afterValue()" );
-
-        if ( userIdxCursor != null )
-        {
-            int comparedValue = greaterEqEvaluator.getComparator().compare( value,
-                greaterEqEvaluator.getExpression().getValue().getValue() );
-
-            /*
-             * First we need to check and make sure this element is within
-             * bounds as mandated by the assertion node.  To do so we compare
-             * it's value with the value of the node.  If it is equal to this
-             * lower bound then we simply position the userIdxCursor after
-             * this first node.  If it is less than this value then we
-             * position the Cursor before the first entry.
-             */
-            if ( comparedValue == 0 )
-            {
-                userIdxCursor.afterValue( id, value );
-                setAvailable( false );
-
-                return;
-            }
-            else if ( comparedValue < 0 )
-            {
-                beforeFirst();
-
-                return;
-            }
-
-            // Element is in the valid range as specified by assertion
-            userIdxCursor.afterValue( id, value );
-            setAvailable( false );
-        }
-        else
-        {
-            super.afterValue( id, value );
-        }
     }
 
 

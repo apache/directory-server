@@ -36,10 +36,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -328,7 +328,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     private void appendRecursive( Long id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<Long>, Long> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn<Long>, Long>> cursor = rdnIdx.forwardCursor();
 
         IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
         startingPos.setKey( new ParentIdAndRdn<Long>( id, ( Rdn[] ) null ) );

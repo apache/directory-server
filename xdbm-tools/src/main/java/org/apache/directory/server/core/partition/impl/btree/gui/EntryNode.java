@@ -31,10 +31,10 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -80,7 +80,7 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long, Long> childList = db.list( id );
+            Cursor<IndexEntry<Long, Long>> childList = db.list( id );
 
             while ( childList.next() )
             {

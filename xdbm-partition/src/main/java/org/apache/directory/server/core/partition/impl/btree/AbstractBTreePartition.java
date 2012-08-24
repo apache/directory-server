@@ -51,7 +51,6 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.MasterTable;
@@ -61,6 +60,7 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -546,7 +546,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     public void dumpRdnIdx( ID id, String tabs ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = rdnIdx.forwardCursor();
 
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -565,7 +565,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     private void dumpRdnIdx( ID id, int nbSibbling, String tabs ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = rdnIdx.forwardCursor();
 
         IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -928,13 +928,13 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     /**
      * {@inheritDoc}
      */
-    public final IndexCursor<ID, ID> list( ID id ) throws LdapException
+    public final Cursor<IndexEntry<ID, ID>> list( ID id ) throws LdapException
     {
         try
         {
             // We use the OneLevel index to get all the entries from a starting point
             // and below up to the number of children
-            IndexCursor<ParentIdAndRdn<ID>, ID> cursor = rdnIdx.forwardCursor();
+            Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = rdnIdx.forwardCursor();
 
             IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
             startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -962,7 +962,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
         try
         {
             SearchScope scope = searchContext.getScope();
-            IndexCursor<ID, ID> underlying;
+            Cursor<IndexEntry<ID, ID>> underlying;
             Dn dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
@@ -2655,7 +2655,7 @@ public abstract class AbstractBTreePartition<ID extends Comparable<ID>> extends 
     {
         try
         {
-            IndexCursor<?, ID> cursor = index.forwardCursor();
+            Cursor<IndexEntry<?, ID>> cursor = ( Cursor ) index.forwardCursor();
 
             while ( cursor.next() )
             {

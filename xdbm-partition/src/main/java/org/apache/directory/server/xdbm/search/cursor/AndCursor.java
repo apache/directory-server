@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
 
     /** */
-    private final IndexCursor<V, ID> wrapped;
+    private final Cursor<IndexEntry<V, ID>> wrapped;
 
     /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode, ID>> evaluators;
@@ -63,7 +63,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      * @param wrapped The encapsulated IndexCursor
      * @param evaluators The list of evaluators associated wth the elements
      */
-    public AndCursor( IndexCursor<V, ID> wrapped,
+    public AndCursor( Cursor<IndexEntry<V, ID>> wrapped,
         List<Evaluator<? extends ExprNode, ID>> evaluators )
     {
         LOG_CURSOR.debug( "Creating AndCursor {}", this );

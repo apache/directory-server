@@ -23,10 +23,10 @@ package org.apache.directory.server.xdbm.search.cursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** A Cursor over the entries in the scope of the search base */
-    private final IndexCursor<ParentIdAndRdn<ID>, ID> cursor;
+    private final Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor;
 
     /** The entry database/store */
     private final Store<Entry, ID> db;
@@ -66,7 +66,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry, ID> db, ID parentId, IndexCursor<ParentIdAndRdn<ID>, ID> cursor )
+    public ChildrenCursor( Store<Entry, ID> db, ID parentId, Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );

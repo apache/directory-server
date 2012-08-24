@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -43,6 +43,7 @@ import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
 import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -179,7 +180,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
@@ -216,7 +217,7 @@ public class AndCursorTest
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor<IndexEntry<?, Long>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -230,7 +231,7 @@ public class AndCursorTest
 
         andNode.addNode( exprNode );
 
-        IndexCursor<?, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        Cursor<IndexEntry<?, Long>> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
 
         cursor.beforeFirst();
 
