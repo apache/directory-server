@@ -24,7 +24,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 
 
 /**
- * An abstract TupleCursor.
+ * An abstract Cursor used by the index cursors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

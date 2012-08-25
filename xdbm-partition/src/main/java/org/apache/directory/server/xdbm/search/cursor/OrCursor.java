@@ -195,6 +195,7 @@ public class OrCursor<V, ID> extends AbstractIndexCursor<V, ID>
         {
             checkNotClosed( "next()" );
             IndexEntry<?, ID> candidate = cursors.get( cursorIndex ).get();
+
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );

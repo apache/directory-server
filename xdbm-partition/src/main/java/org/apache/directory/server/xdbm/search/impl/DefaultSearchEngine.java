@@ -55,8 +55,10 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
     /** the Database this DefaultSearchEngine operates on */
     private final Store<Entry, ID> db;
+
     /** creates Cursors over entries satisfying filter expressions */
     private final CursorBuilder<ID> cursorBuilder;
+
     /** creates evaluators which check to see if candidates satisfy a filter expression */
     private final EvaluatorBuilder<ID> evaluatorBuilder;
 
