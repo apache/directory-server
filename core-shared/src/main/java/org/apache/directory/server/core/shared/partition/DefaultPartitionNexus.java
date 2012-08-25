@@ -44,8 +44,8 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -559,28 +559,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             Entry retval = new ClonedServerEntry( rootDse );
 
             return retval;
-
-            /*
-            if ( ( lookupContext.getAttrsId() != null ) && !lookupContext.getAttrsId().isEmpty() )
-            {
-                for ( Attribute attribute : rootDse.getAttributes() )
-                {
-                    AttributeType attributeType = attribute.getAttributeType();
-                    String oid = attributeType.getOid();
-
-                    if ( !lookupContext.getAttrsId().contains( oid ) )
-                    {
-                        retval.removeAttributes( attributeType );
-                    }
-                }
-                
-                return retval;
-            }
-            else
-            {
-                return new ClonedServerEntry( rootDse );
-            }
-            */
         }
 
         Partition partition = getPartition( dn );
@@ -770,14 +748,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
              */
             if ( ( filter instanceof PresenceNode ) && isObjectScope && isSearchAll )
             {
+                // A rootDSE search
                 return searchRootDse( searchContext );
             }
             else if ( isObjectScope && ( !isSearchAll ) )
             {
+                // Strange... Why are we checking that it's not an (ObjectClass=*) ?
+                // Also here, we will return only one entry, why aren't we doing a lookup ?
                 return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
             }
             else if ( isOnelevelScope )
             {
+                // We will look into all the partitions, ths we create a list of cursors. 
                 List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
 
                 for ( Partition partition : partitions.values() )

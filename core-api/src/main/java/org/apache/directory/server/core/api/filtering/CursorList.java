@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * This class is modeled based on the implementation of {@link org.apache.directory.shared.ldap.model.cursor.ListCursor}
  * 
- * WARN this is only used internally 
+ * WARN this is only used internally !
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -58,8 +58,14 @@ public class CursorList implements EntryFilteringCursor
     /** The ending position for the cursor in the list. It can be < List.size() */
     private final int end;
 
+    /** The number of cursors in the list */
+    private final int listSize;
+
     /** The current position in the list */
-    private int index = -1;
+    private int index;
+
+    /** The current cursor being used */
+    private EntryFilteringCursor currentCursor;
 
     /** the operation context */
     private SearchingOperationContext searchContext;
@@ -67,6 +73,7 @@ public class CursorList implements EntryFilteringCursor
     /** flag to detect the closed cursor */
     private boolean closed;
 
+    /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( CursorList.class );
 
 
@@ -85,7 +92,7 @@ public class CursorList implements EntryFilteringCursor
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
         LOG_CURSOR.debug( "Creating CursorList {}", this );
-        
+
         if ( list != null )
         {
             this.list = list;
@@ -95,19 +102,21 @@ public class CursorList implements EntryFilteringCursor
             this.list = Collections.emptyList();
         }
 
-        if ( ( start < 0 ) || ( start > this.list.size() ) )
+        listSize = list.size();
+
+        if ( ( start < 0 ) || ( start > listSize ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_02005_START_INDEX_OUT_OF_RANGE, start ) );
         }
 
-        if ( ( end < 0 ) || ( end > this.list.size() ) )
+        if ( ( end < 0 ) || ( end > listSize ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_02006_END_INDEX_OUT_OF_RANGE, end ) );
         }
 
         // check list is not empty list since the empty list is the only situation
         // where we allow for start to equal the end: in other cases it makes no sense
-        if ( ( this.list.size() > 0 ) && ( start >= end ) )
+        if ( ( listSize > 0 ) && ( start >= end ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_02007_START_INDEX_ABOVE_END_INDEX, start, end ) );
         }
@@ -115,6 +124,8 @@ public class CursorList implements EntryFilteringCursor
         this.start = start;
         this.end = end;
         this.searchContext = searchContext;
+        index = start;
+        currentCursor = list.get( index );
     }
 
 
@@ -170,7 +181,8 @@ public class CursorList implements EntryFilteringCursor
     public void beforeFirst() throws Exception
     {
         index = 0;
-        list.get( index ).beforeFirst();
+        currentCursor = list.get( index );
+        currentCursor.beforeFirst();
     }
 
 
@@ -180,7 +192,8 @@ public class CursorList implements EntryFilteringCursor
     public void afterLast() throws Exception
     {
         index = end - 1;
-        list.get( index ).afterLast();
+        currentCursor = list.get( index );
+        currentCursor.afterLast();
     }
 
 
@@ -189,10 +202,10 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean first() throws Exception
     {
-        if ( list.size() > 0 )
+        if ( listSize > 0 )
         {
             index = start;
-            
+
             return list.get( index ).first();
         }
 
@@ -205,10 +218,12 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean last() throws Exception
     {
-        if ( list.size() > 0 )
+        if ( listSize > 0 )
         {
             index = end - 1;
-            return list.get( index ).last();
+            currentCursor = list.get( index );
+
+            return currentCursor.last();
         }
 
         return false;
@@ -220,7 +235,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean isFirst() throws Exception
     {
-        return ( list.size() > 0 ) && ( index == start ) && list.get( index ).first();
+        return ( listSize > 0 ) && ( index == start ) && list.get( index ).isFirst();
     }
 
 
@@ -229,7 +244,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean isLast() throws Exception
     {
-        return ( list.size() > 0 ) && ( index == end - 1 ) && list.get( index ).last();
+        return ( listSize > 0 ) && ( index == end - 1 ) && list.get( index ).isLast();
     }
 
 
@@ -238,7 +253,7 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean isAfterLast() throws Exception
     {
-        return index == end;
+        return ( index == end );
     }
 
 
@@ -263,25 +278,20 @@ public class CursorList implements EntryFilteringCursor
         }
 
         // if the index moved back is still greater than or eq to start then OK
-        if ( index - 1 >= start )
+        if ( index > start )
         {
             if ( index == end )
             {
                 index--;
+                currentCursor = list.get( index );
             }
 
-            if ( !list.get( index ).previous() )
+            if ( !currentCursor.previous() )
             {
                 index--;
-                
-                if ( index != -1 )
-                {
-                    return list.get( index ).previous();
-                }
-                else
-                {
-                    return false;
-                }
+                currentCursor = list.get( index );
+
+                return currentCursor.previous();
             }
             else
             {
@@ -292,21 +302,17 @@ public class CursorList implements EntryFilteringCursor
         // if the index currently less than or equal to start we need to park it at -1 and return false
         if ( index <= start )
         {
-            if ( !list.get( index ).previous() )
+            if ( !currentCursor.previous() )
             {
                 index = -1;
-                
+                currentCursor = null;
+
                 return false;
             }
             else
             {
                 return true;
             }
-        }
-
-        if ( list.size() <= 0 )
-        {
-            index = -1;
         }
 
         return false;
@@ -318,52 +324,56 @@ public class CursorList implements EntryFilteringCursor
      */
     public boolean next() throws Exception
     {
-        // if parked at -1 we advance to the start index and return true
-        if ( ( list.size() ) > 0 && ( index == -1 ) )
+        if ( listSize > 0 )
         {
-            index = start;
-            return list.get( index ).next();
-        }
-
-        // if the index plus one is less than the end then increment and return true
-        if ( ( list.size()  > 0 ) && ( index + 1 < end ) )
-        {
-            if ( !list.get( index ).next() )
+            // if parked at -1 we advance to the start index and return true
+            if ( index == -1 )
             {
-                index++;
-                
-                if ( index < end )
+                index = start;
+                currentCursor = list.get( index );
+
+                return currentCursor.next();
+            }
+
+            // if the index plus one is less than the end then increment and return true
+            if ( index < end - 1 )
+            {
+                if ( !currentCursor.next() )
                 {
-                    return list.get( index ).next();
+                    index++;
+
+                    if ( index < end )
+                    {
+                        currentCursor = list.get( index );
+
+                        return currentCursor.next();
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
-            else
-            {
-                return true;
-            }
-        }
 
-        // if the index plus one is equal to the end then increment and return false
-        if ( ( list.size() > 0 ) && ( index + 1 == end ) )
-        {
-            if ( !list.get( index ).next() )
+            // if the index plus one is equal to the end then increment and return false
+            if ( index == end - 1 )
             {
-                index++;
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
+                if ( !currentCursor.next() )
+                {
+                    index++;
+                    currentCursor = null;
 
-        if ( list.size() <= 0 )
-        {
-            index = end;
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -375,14 +385,14 @@ public class CursorList implements EntryFilteringCursor
      */
     public Entry get() throws Exception
     {
-        if ( index < start || index >= end )
+        if ( ( index < start ) || ( index >= end ) )
         {
             throw new IOException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
         }
 
-        if ( list.get( index ).available() )
+        if ( currentCursor.available() )
         {
-            return list.get( index ).get();
+            return currentCursor.get();
         }
 
         throw new InvalidCursorPositionException();
@@ -428,12 +438,6 @@ public class CursorList implements EntryFilteringCursor
     }
 
 
-    public boolean removeEntryFilter( EntryFilter filter )
-    {
-        return false;
-    }
-
-
     public void setAbandoned( boolean abandoned )
     {
         getOperationContext().setAbandoned( abandoned );
@@ -457,17 +461,17 @@ public class CursorList implements EntryFilteringCursor
         LOG_CURSOR.debug( "Closing CursorList {}", this );
         closed = true;
 
-        for ( Cursor<?> c : list )
+        for ( EntryFilteringCursor cursor : list )
         {
             try
             {
                 if ( reason != null )
                 {
-                    c.close( reason );
+                    cursor.close( reason );
                 }
                 else
                 {
-                    c.close();
+                    cursor.close();
                 }
             }
             catch ( Exception e )
