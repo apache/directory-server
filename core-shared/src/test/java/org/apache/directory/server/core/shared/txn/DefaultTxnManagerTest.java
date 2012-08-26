@@ -193,6 +193,8 @@ public class DefaultTxnManagerTest
         List<ReadWriteTxn> dependentTxns;
         try
         {
+            txnManager.setDoNotFlush();
+
             txnManager.beginTransaction( false );
             Transaction txn1 = txnManager.getCurTxn();
             txnManager.commitTransaction();
@@ -223,6 +225,8 @@ public class DefaultTxnManagerTest
             assertTrue( dependentTxns.contains( txn4 ) );
 
             txnManager.commitTransaction();
+
+            txnManager.unsetDoNotFlush();
         }
         catch ( TxnConflictException e )
         {
