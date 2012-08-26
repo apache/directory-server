@@ -261,7 +261,8 @@ public class EntryUpdateMergeTest extends AbstractPartitionTest
     {
         try
         {
-            Entry updated = txnLogManager.mergeUpdates( dn, updatedEntryId, toUpdate );
+            Entry updated = txnLogManager.mergeUpdates( dn, updatedEntryId,
+                partition.getMasterTable().get( updatedEntryId ) );
 
             assertTrue( updated.contains( SN_AT, "test2", updatedEntryId.toString() ) );
             assertTrue( updated.contains( GN_AT, "test3" ) );
