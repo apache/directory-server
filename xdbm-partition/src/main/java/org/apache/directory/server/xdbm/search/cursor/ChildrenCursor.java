@@ -49,9 +49,6 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /** A Cursor over the entries in the scope of the search base */
     private final Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor;
 
-    /** The entry database/store */
-    private final Store<Entry, ID> db;
-
     /** The Parent ID */
     private ID parentId;
 
@@ -70,7 +67,6 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
-        this.db = db;
         this.parentId = parentId;
         this.cursor = cursor;
     }

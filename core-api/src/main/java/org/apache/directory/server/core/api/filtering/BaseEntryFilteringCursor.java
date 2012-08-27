@@ -22,16 +22,14 @@ package org.apache.directory.server.core.api.filtering;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BaseEntryFilteringCursor implements EntryFilteringCursor
+public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements EntryFilteringCursor
 {
     /** the logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
@@ -165,6 +163,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         return filters.add( filter );
     }
 
+
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#removeEntryFilter(org.apache.directory.server.core.filtering.EntryFilter)
      */
@@ -172,6 +171,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
     {
         return filters.remove( filter );
     }
+
 
     /**
      * {@inheritDoc}
@@ -288,7 +288,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
 
         beforeFirst();
-        
+
         return next();
     }
 
@@ -329,7 +329,7 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
         }
 
         afterLast();
-        
+
         return previous();
     }
 
@@ -586,61 +586,12 @@ public class BaseEntryFilteringCursor implements EntryFilteringCursor
              */
             prefetched = tempResult;
             filterContents( prefetched );
-            
+
             return true;
         }
 
         prefetched = null;
 
         return false;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Iterator<Entry> iterator()
-    {
-        return new CursorIterator<Entry>( this );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isAfterLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isAfterLast()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isBeforeFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isBeforeFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

@@ -20,13 +20,10 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.Iterator;
-
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
+public class EntryCursorAdaptor<ID extends Comparable<ID>> extends AbstractCursor<Entry>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -183,54 +180,5 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
     public boolean previous() throws Exception
     {
         return indexCursor.previous();
-    }
-
-
-    /* 
-     * @see Iterable#iterator()
-     */
-    public Iterator<Entry> iterator()
-    {
-        return new CursorIterator<Entry>( this );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isAfterLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isAfterLast()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isBeforeFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isBeforeFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isLast()" ) ) );
     }
 }
