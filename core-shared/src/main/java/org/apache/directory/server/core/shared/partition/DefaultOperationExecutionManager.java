@@ -2140,7 +2140,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
 
                 if ( !( ( Index<Object> ) index ).forward( newNormValue, id ) )
                 {
-                    indexChange = new IndexChange( index, newNormValue, id, IndexChange.Type.ADD, true );
+                    indexChange = new IndexChange( index, newNormValue, id, IndexChange.Type.ADD, false );
                     changeContainer.addChange( indexChange );
                 }
 
@@ -2151,7 +2151,7 @@ public class DefaultOperationExecutionManager implements OperationExecutionManag
                 {
                     Index<?> presenceIdx;
                     presenceIdx = partition.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-                    indexChange = new IndexChange( presenceIdx, newNormType, id, IndexChange.Type.ADD, false );
+                    indexChange = new IndexChange( presenceIdx, newNormType, id, IndexChange.Type.ADD, true );
                     changeContainer.addChange( indexChange );
                 }
             }
