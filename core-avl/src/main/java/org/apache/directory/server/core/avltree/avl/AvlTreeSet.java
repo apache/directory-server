@@ -226,7 +226,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
             }
             else
             { // non-root leaf node
-                // detach from parent
+              // detach from parent
                 if ( node.parent.left == node )
                     node.parent.left = null;
                 else
