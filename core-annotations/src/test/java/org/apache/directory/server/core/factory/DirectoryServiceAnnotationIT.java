@@ -43,7 +43,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @CreateDS( name = "classDS" )
-public class DirectoryServiceAnnotationTest
+public class DirectoryServiceAnnotationIT
 {
     @Test
     public void testCreateDS() throws Exception

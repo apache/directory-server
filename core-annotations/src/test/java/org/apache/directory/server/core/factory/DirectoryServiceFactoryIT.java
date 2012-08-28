@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
-public class DirectoryServiceFactoryTest
+public class DirectoryServiceFactoryIT
 {
     @Test
     public void testCreateDS() throws Exception
