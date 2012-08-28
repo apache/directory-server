@@ -126,4 +126,140 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>integration</id>
+      <activation>
+        <property><name>integration</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*IT.java</include>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/*PerfIT.java</exclude>
+                <exclude>**/*PerfTest.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.directory.shared</groupId>
+                      <artifactId>shared-ldap-extras-codec</artifactId>
+                      <version>${org.apache.directory.shared.version}</version>
+                      <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>quicktest</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/*PerfIT.java</exclude>
+                <exclude>**/*PerfTest.java</exclude>
+                <exclude>**/*ITest.java</exclude>
+                <exclude>**/*IT.java</exclude>
+              </excludes>
+              <systemPropertyVariables>
+                <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
+                <felix.cache.rootdir>
+                  ${project.build.directory}
+                </felix.cache.rootdir>
+                <felix.cache.locking>
+                  false
+                </felix.cache.locking>
+                <org.osgi.framework.storage.clean>
+                  onFirstInit
+                </org.osgi.framework.storage.clean>
+                <org.osgi.framework.storage>
+                  ${project.build.directory}/osgi-cache
+                </org.osgi.framework.storage>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   Q U I C K   T E S T S
+                   ---------------------
+                  
+WARNING: Long running integration tests have been disabled!
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.directory.shared</groupId>
+                      <artifactId>shared-ldap-extras-codec</artifactId>
+                      <version>${org.apache.directory.shared.version}</version>
+                      <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>     
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+    
 </project>
