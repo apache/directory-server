@@ -48,7 +48,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
-public class LdapPrincipalTest
+public class LdapPrincipalIT
 {
     /** The schema manager instance */
     private static SchemaManager schemaManager;
