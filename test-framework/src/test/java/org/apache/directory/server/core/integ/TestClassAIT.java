@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
         "sn: sn_testClassA2"
         
     })
-public class TestClassA extends AbstractLdapTestUnit
+public class TestClassAIT extends AbstractLdapTestUnit
 {
     @Test
     @CreateDS( name="testDS" )

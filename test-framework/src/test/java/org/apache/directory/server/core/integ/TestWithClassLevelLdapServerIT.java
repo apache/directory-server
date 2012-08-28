@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
     {
         @CreateTransport( protocol = "LDAP" )
     })
-public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
+public class TestWithClassLevelLdapServerIT extends AbstractLdapTestUnit
 {
     @Test
     @ApplyLdifFiles( "test-entry.ldif" )

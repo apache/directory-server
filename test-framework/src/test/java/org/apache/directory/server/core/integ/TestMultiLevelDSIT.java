@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith( FrameworkRunner.class )
 @CreateDS( name = "TestMultiLevelDS-class" )
-public class TestMultiLevelDS extends AbstractLdapTestUnit
+public class TestMultiLevelDSIT extends AbstractLdapTestUnit
 {
     
     @Test

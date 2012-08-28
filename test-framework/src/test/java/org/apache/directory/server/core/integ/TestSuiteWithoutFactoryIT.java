@@ -18,27 +18,19 @@
  */
 package org.apache.directory.server.core.integ;
 
-import static org.junit.Assert.assertTrue;
-
-import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.junit.Test;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-@RunWith( FrameworkRunner.class )
-public class TestClassServer extends AbstractLdapTestUnit
-{
-    @Test
-    @ApplyLdifFiles( "test-entry.ldif" )
-    public void testWithApplyLdifFiles() throws Exception
+@RunWith( FrameworkSuite.class )
+@Suite.SuiteClasses({ TestClassAIT.class, TestClassBIT.class, TestClassCIT.class })
+@ApplyLdifs(
     {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
-        
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
-        }
-        
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
-    }
+        "dn: cn=testSuite,ou=system", 
+        "objectClass: person", 
+        "cn: testSuite", 
+        "sn: sn_testSuite" 
+    })
+public class TestSuiteWithoutFactoryIT
+{
 }
