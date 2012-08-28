@@ -59,7 +59,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @CreateDS( name = "classDS" )
-public class DirectoryServiceAnnotationTest
+public class DirectoryServiceAnnotationIT
 {
     /**
      * Creates a JNDI LdapContext with a connection over the wire using the 

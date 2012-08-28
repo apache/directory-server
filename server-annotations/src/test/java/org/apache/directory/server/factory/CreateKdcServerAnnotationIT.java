@@ -47,7 +47,7 @@ import org.junit.Test;
                      @CreateTransport(protocol = "TCP"),
                      @CreateTransport(protocol = "UDP")
                  })
-public class CreateKdcServerAnnotationTest
+public class CreateKdcServerAnnotationIT
 {
     @Test
     public void testCreateKdcServer() throws Exception
