@@ -187,7 +187,10 @@
     <profile>
       <id>integration</id>
       <activation>
+        <!--
         <activeByDefault>true</activeByDefault>
+        -->
+        <property><name>integration</name></property>
       </activation>
       <build>
         <plugins>
@@ -346,7 +349,10 @@
     <profile>
       <id>quicktest</id>
       <activation>
+        <activeByDefault>true</activeByDefault>
+        <!--
         <property><name>quicktest</name></property>
+        -->
       </activation>
       <build>
         <plugins>

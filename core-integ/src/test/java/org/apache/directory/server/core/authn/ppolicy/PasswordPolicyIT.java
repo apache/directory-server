@@ -86,7 +86,7 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 // disable changelog, for more info see DIRSERVER-1528
 @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
-public class PasswordPolicyTest extends AbstractLdapTestUnit
+public class PasswordPolicyIT extends AbstractLdapTestUnit
 {
     private PasswordPolicyConfiguration policyConfig;
 
