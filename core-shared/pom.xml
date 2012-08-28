@@ -201,6 +201,7 @@
               <excludes>
                 <exclude>**/*PerfTest.java</exclude>
                 <exclude>**/*ITest.java</exclude>
+                <exclude>**/*IT.java</exclude>
               </excludes>
               <systemPropertyVariables>
                 <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
