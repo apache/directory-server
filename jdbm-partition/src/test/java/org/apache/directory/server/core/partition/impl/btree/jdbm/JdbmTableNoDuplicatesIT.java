@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmTableNoDuplicatesTest
+public class JdbmTableNoDuplicatesIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesIT.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     Table<String,String> table;
@@ -71,7 +71,7 @@ public class JdbmTableNoDuplicatesTest
 
         if ( workingDirectory == null )
         {
-            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            String path = DupsContainerCursorIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

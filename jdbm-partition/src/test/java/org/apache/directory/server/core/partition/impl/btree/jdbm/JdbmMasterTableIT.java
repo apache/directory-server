@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmMasterTableTest
+public class JdbmMasterTableIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableIT.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     JdbmMasterTable table;
@@ -59,13 +59,13 @@ public class JdbmMasterTableTest
     SchemaManager schemaManager = null;
 
 
-    public JdbmMasterTableTest() throws Exception
+    public JdbmMasterTableIT() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
 
         if ( workingDirectory == null )
         {
-            String path = JdbmMasterTableTest.class.getResource( "" ).getPath();
+            String path = JdbmMasterTableIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

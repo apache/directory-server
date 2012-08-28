@@ -53,7 +53,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndexTest
+public class JdbmIndexIT
 {
     private static File dbFileDir;
     Index<String> idx;
@@ -67,7 +67,7 @@ public class JdbmIndexTest
 
         if ( workingDirectory == null )
         {
-            String path = JdbmIndexTest.class.getResource( "" ).getPath();
+            String path = JdbmIndexIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
@@ -91,9 +91,9 @@ public class JdbmIndexTest
     public void setup() throws IOException
     {
 
-        File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
+        File tmpIndexFile = File.createTempFile( JdbmIndexIT.class.getSimpleName(), "db" );
         tmpIndexFile.deleteOnExit();
-        dbFileDir = new File( tmpIndexFile.getParentFile(), JdbmIndexTest.class.getSimpleName() );
+        dbFileDir = new File( tmpIndexFile.getParentFile(), JdbmIndexIT.class.getSimpleName() );
 
         dbFileDir.mkdirs();
     }

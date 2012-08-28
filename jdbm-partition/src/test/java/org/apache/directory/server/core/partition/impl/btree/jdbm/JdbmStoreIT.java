@@ -81,9 +81,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @SuppressWarnings("unchecked")
-public class JdbmStoreTest
+public class JdbmStoreIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreIT.class.getSimpleName() );
 
     File wkdir;
     JdbmPartition store;
@@ -118,7 +118,7 @@ public class JdbmStoreTest
 
         if ( workingDirectory == null )
         {
-            String path = JdbmStoreTest.class.getResource( "" ).getPath();
+            String path = JdbmStoreIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

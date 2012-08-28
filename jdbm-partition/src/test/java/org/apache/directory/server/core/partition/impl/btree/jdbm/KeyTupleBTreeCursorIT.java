@@ -53,7 +53,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyTupleBTreeCursorTest
+public class KeyTupleBTreeCursorIT
 {
     JdbmTable<String,String> table;
     Comparator<String> comparator;
@@ -73,7 +73,7 @@ public class KeyTupleBTreeCursorTest
 
         if ( workingDirectory == null )
         {
-            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            String path = DupsContainerCursorIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

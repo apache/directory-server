@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorTest;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorIT;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
 import org.apache.directory.server.core.shared.txn.TxnManagerFactory;
@@ -67,7 +67,7 @@ public class PartitionTreeTest
 
         if ( workingDirectory == null )
         {
-            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            String path = DupsContainerCursorIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

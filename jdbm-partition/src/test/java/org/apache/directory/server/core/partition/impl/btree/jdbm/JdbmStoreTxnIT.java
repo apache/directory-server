@@ -55,7 +55,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JdbmStoreTxnTest
+public class JdbmStoreTxnIT
 {
     static File wkdir;
     static JdbmPartition store;
@@ -82,7 +82,7 @@ public class JdbmStoreTxnTest
 
         if ( workingDirectory == null )
         {
-            String path = JdbmStoreTest.class.getResource( "" ).getPath();
+            String path = JdbmStoreIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }

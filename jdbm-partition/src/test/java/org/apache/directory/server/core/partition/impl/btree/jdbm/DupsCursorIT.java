@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DupsCursorTest
+public class DupsCursorIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DupsCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DupsCursorIT.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
 
@@ -75,7 +75,7 @@ public class DupsCursorTest
 
         if ( workingDirectory == null )
         {
-            String path = DupsContainerCursorTest.class.getResource( "" ).getPath();
+            String path = DupsContainerCursorIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
