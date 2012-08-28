@@ -65,7 +65,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
-public class SubtreeEvaluatorTest
+public class SubtreeEvaluatorIT
 {
     private static DnFactory dnFactory;
     private static SchemaManager schemaManager;
@@ -80,7 +80,7 @@ public class SubtreeEvaluatorTest
 
         if ( workingDirectory == null )
         {
-            String path = SubtreeEvaluatorTest.class.getResource( "" ).getPath();
+            String path = SubtreeEvaluatorIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
