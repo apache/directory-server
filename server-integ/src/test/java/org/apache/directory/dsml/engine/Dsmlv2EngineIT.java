@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "Dsmlv2EngineTest-DS")
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
-public class Dsmlv2EngineTest extends AbstractLdapTestUnit
+public class Dsmlv2EngineIT extends AbstractLdapTestUnit
 {
     private LdapConnection connection;
 
