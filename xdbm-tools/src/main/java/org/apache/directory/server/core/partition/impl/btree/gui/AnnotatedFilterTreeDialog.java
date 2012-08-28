@@ -52,7 +52,7 @@ public class AnnotatedFilterTreeDialog extends JDialog
 
 
     /** Creates new form JDialog */
-    public AnnotatedFilterTreeDialog(Frame parent, boolean modal)
+    public AnnotatedFilterTreeDialog( Frame parent, boolean modal )
     {
         super( parent, modal );
         initGUI();

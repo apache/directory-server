@@ -32,6 +32,7 @@ import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the PrincipalName encoding and decoding
  * 
@@ -51,17 +52,17 @@ public class PrincipalNameTest
         principal.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0F, 
-                (byte) 0xA0, 0x03, 
-                  0x02, 0x01, 0x01, 
-                (byte) 0xA1, 0x08, 
-                  0x30, 0x06, 
-                    0x1B, 0x04, 
-                      'T', 'e', 's', 't' 
-            };
+            {
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x08,
+                0x30, 0x06,
+                0x1B, 0x04,
+                'T', 'e', 's', 't'
+        };
 
-        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
+        assertEquals( Strings.dumpBytes( expectedResult ), Strings.dumpBytes( encoded.array() ) );
     }
 
 
@@ -77,21 +78,21 @@ public class PrincipalNameTest
         principal.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x1e, 
-                (byte) 0xA0, 0x03, 
-                  0x02, 0x01, 0x01, 
-                (byte) 0xA1, 0x17, 
-                  0x30, 0x15, 
-                    0x1B, 0x05, 
-                      'T', 'e', 's', 't', '1', 
-                    0x1B, 0x05, 
-                      'T', 'e', 's', 't', '2', 
-                    0x1B, 0x05, 
-                      'T', 'e', 's', 't', '3' 
-            };
+            {
+                0x30, 0x1e,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x17,
+                0x30, 0x15,
+                0x1B, 0x05,
+                'T', 'e', 's', 't', '1',
+                0x1B, 0x05,
+                'T', 'e', 's', 't', '2',
+                0x1B, 0x05,
+                'T', 'e', 's', 't', '3'
+        };
 
-        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
+        assertEquals( Strings.dumpBytes( expectedResult ), Strings.dumpBytes( encoded.array() ) );
     }
 
 
@@ -105,15 +106,15 @@ public class PrincipalNameTest
         principal.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0B, 
-                ( byte ) 0xA0, 0x03, 
-                  0x02, 0x01, 0x01, 
-                ( byte ) 0xA1, 0x04, 
-                  0x30, 0x02,
-                    0x1B, 0x00
-            };
+            {
+                0x30, 0x0B,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x04,
+                0x30, 0x02,
+                0x1B, 0x00
+        };
 
-        assertEquals( Strings.dumpBytes(expectedResult), Strings.dumpBytes(encoded.array()) );
+        assertEquals( Strings.dumpBytes( expectedResult ), Strings.dumpBytes( encoded.array() ) );
     }
 }

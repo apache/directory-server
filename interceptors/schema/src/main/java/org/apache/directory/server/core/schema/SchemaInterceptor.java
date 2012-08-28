@@ -156,6 +156,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /** A map used to store all the objectClasses allowed attributes (may + must) */
     private Map<String, List<AttributeType>> allowed;
 
+
     /**
      * Creates a new instance of a SchemaInterceptor.
      */
@@ -194,7 +195,8 @@ public class SchemaInterceptor extends BaseInterceptor
         subschemaSubentryDn.apply( schemaManager );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDn = directoryService.getDnFactory().create( SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+        schemaModificationAttributesDn = directoryService.getDnFactory().create(
+            SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         schemaModificationAttributesDn.apply( schemaManager );
 
         computeSuperiors();
@@ -306,7 +308,8 @@ public class SchemaInterceptor extends BaseInterceptor
      * As a result, we will gather all of these three ObjectClasses in 'inetOrgPerson' ObjectClasse
      * superiors.
      */
-    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen ) throws LdapException
+    private void computeOCSuperiors( ObjectClass objectClass, List<ObjectClass> superiors, Set<String> ocSeen )
+        throws LdapException
     {
         List<ObjectClass> parents = objectClass.getSuperiors();
 
@@ -477,7 +480,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         int pos = 0;
 
-        for (Map.Entry<String, String> entry : filteredAttrs.entrySet() )
+        for ( Map.Entry<String, String> entry : filteredAttrs.entrySet() )
         {
             newAttributesList[pos++] = entry.getValue();
         }
@@ -494,7 +497,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    return new StringValue( attributeType, new String( (( BinaryValue ) value).getBytes(), "UTF-8" ) );
+                    return new StringValue( attributeType, new String( ( ( BinaryValue ) value ).getBytes(), "UTF-8" ) );
                 }
                 catch ( UnsupportedEncodingException uee )
                 {
@@ -532,7 +535,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( filter.isLeaf() )
         {
-            if ( filter instanceof EqualityNode)
+            if ( filter instanceof EqualityNode )
             {
                 EqualityNode node = ( ( EqualityNode ) filter );
                 Value<?> value = node.getValue();
@@ -553,7 +556,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
             else if ( filter instanceof GreaterEqNode )
             {
-                GreaterEqNode node = ( (GreaterEqNode) filter );
+                GreaterEqNode node = ( ( GreaterEqNode ) filter );
                 Value<?> value = node.getValue();
 
                 Value<?> newValue = convert( node.getAttributeType(), value );
@@ -576,13 +579,13 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( filter instanceof ExtensibleNode)
+            else if ( filter instanceof ExtensibleNode )
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
             }
             else if ( filter instanceof ApproximateNode )
             {
-                ApproximateNode node = ( (ApproximateNode) filter );
+                ApproximateNode node = ( ( ApproximateNode ) filter );
                 Value<?> value = node.getValue();
 
                 Value<?> newValue = convert( node.getAttributeType(), value );
@@ -1071,7 +1074,6 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
 
-
     /**
      * Filters objectClass attribute to inject top when not present.
      */
@@ -1233,7 +1235,7 @@ public class SchemaInterceptor extends BaseInterceptor
         check( name, entry );
 
         // Special checks for the MetaSchema branch
-        if ( name.isDescendantOf(schemaBaseDn) )
+        if ( name.isDescendantOf( schemaBaseDn ) )
         {
             // get the schema name
             String schemaName = getSchemaName( name );
@@ -1375,7 +1377,7 @@ public class SchemaInterceptor extends BaseInterceptor
             }
 
             modifyContext.setModItems( cleanMods );
-            
+
             // Now that the entry has been modified, update the SSSE
             schemaSubEntryManager.modifySchemaSubentry( modifyContext, modifyContext
                 .hasRequestControl( Cascade.OID ) );
@@ -1399,7 +1401,7 @@ public class SchemaInterceptor extends BaseInterceptor
         Dn oldDn = renameContext.getDn();
         Rdn newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDeleteOldRdn();
-        Entry entry = ((ClonedServerEntry)renameContext.getEntry()).getClonedEntry();
+        Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
 
         /*
          *  Note: This is only a consistency checks, to the ensure that all
@@ -1414,14 +1416,14 @@ public class SchemaInterceptor extends BaseInterceptor
             // Delete the old Rdn means we remove some attributes and values.
             // We must make sure that after this operation all must attributes
             // are still present in the entry.
-            for ( Ava atav : oldRdn)
+            for ( Ava atav : oldRdn )
             {
                 AttributeType type = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
                 entry.remove( type, atav.getUpValue() );
             }
 
             // Check that no operational attributes are removed
-            for ( Ava atav : oldRdn)
+            for ( Ava atav : oldRdn )
             {
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( atav.getUpType() );
 
@@ -1498,7 +1500,7 @@ public class SchemaInterceptor extends BaseInterceptor
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
             // The filter can be an equality or a presence, but nothing else
-            if ( filter instanceof SimpleNode)
+            if ( filter instanceof SimpleNode )
             {
                 // We should get the value for the filter.
                 // only 'top' and 'subSchema' are valid values
@@ -1526,7 +1528,8 @@ public class SchemaInterceptor extends BaseInterceptor
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
+                        searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
@@ -1543,7 +1546,8 @@ public class SchemaInterceptor extends BaseInterceptor
                 if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
                 {
                     // call.setBypass( true );
-                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, searchCtls.getReturningAttributes() );
+                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
+                        searchCtls.getReturningAttributes() );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
                         new SingletonCursor<Entry>( serverEntry ), searchContext );
@@ -1647,13 +1651,13 @@ public class SchemaInterceptor extends BaseInterceptor
             StringBuilder sb = new StringBuilder();
             sb.append( '[' );
 
-            for( String oid: must )
+            for ( String oid : must )
             {
                 String name = schemaManager.getAttributeType( oid ).getName();
                 sb.append( name )
-                .append( '(' )
-                .append( oid )
-                .append( "), " );
+                    .append( '(' )
+                    .append( oid )
+                    .append( "), " );
             }
 
             int end = sb.length();
@@ -1857,7 +1861,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 continue;
             }
-            else if ( value instanceof StringValue)
+            else if ( value instanceof StringValue )
             {
                 // We have a String value. It should be a byte[]
                 // Let's transform it

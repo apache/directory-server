@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.jndi.referral;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -65,361 +66,364 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "CompareReferralIT")
-@ApplyLdifs( {
-    // Root
-    "dn: c=WW,ou=system",
-    "objectClass: country",
-    "objectClass: top",
-    "c: WW",
-    
-    // Sub-root
-    "dn: o=MNN,c=WW,ou=system",
-    "objectClass: organization",
-    "objectClass: top",
-    "o: MNN",
-    
-    // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: Roles",
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
-    
-    // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: People",
-    "ref: ldap://hostb/OU=People,DC=example,DC=com",
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
-    
-    // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Alex Karasulu",
-    "sn: akarasulu"
-    }
-)
+@ApplyLdifs(
+    {
+        // Root
+        "dn: c=WW,ou=system",
+        "objectClass: country",
+        "objectClass: top",
+        "c: WW",
+
+        // Sub-root
+        "dn: o=MNN,c=WW,ou=system",
+        "objectClass: organization",
+        "objectClass: top",
+        "o: MNN",
+
+        // Referral #1
+        "dn: ou=Roles,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: Roles",
+        "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
+
+        // Referral #2
+        "dn: ou=People,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: People",
+        "ref: ldap://hostb/OU=People,DC=example,DC=com",
+        "ref: ldap://hostc/OU=People,O=MNN,C=WW",
+
+        // Entry # 1
+        "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Alex Karasulu",
+        "sn: akarasulu"
+})
 public class CompareReferralIT extends AbstractLdapTestUnit
 {
 
-    /** The Context we are using to inject entries with JNDI */
-    LdapContext MNNCtx;
-    
-    /** The entries we are using to do the tests */
-    Attributes userEntry;
-    Entry serverEntry;
-    
-    /** The search controls used globally */
-    SearchControls ctls;
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
+/** The Context we are using to inject entries with JNDI */
+LdapContext MNNCtx;
 
-        // JNDI entry
-        userEntry = new BasicAttributes( "objectClass", "top", true );
-        userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "elecharny" );
-        userEntry.put( "cn", "Emmanuel Lecharny" );
-        
-        // Core API entry
-        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+/** The entries we are using to do the tests */
+Attributes userEntry;
+Entry serverEntry;
 
-        serverEntry.put( "ObjectClass", "top", "person" );
-        serverEntry.put( "sn", "elecharny" );
-        serverEntry.put( "cn", "Emmanuel Lecharny" );
-        
-        // Set up the search controls
-        ctls = new SearchControls();
-        ctls.setReturningAttributes( new String[0] );       // Return no attrs
-        ctls.setSearchScope( SearchControls.OBJECT_SCOPE ); // Search object only
-    }
-
-    
-    /**
-     * Test a compare on a non existing entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testCompareNonExistingEntry() throws Exception
-    {
-        try
-        {
-            // This is a compare operation, not a search, thanks to JNDI !
-            MNNCtx.search( "cn=Emmanuel Lecharny", "(cn=Emmanuel Lecharny)", ctls );
-            fail();
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
-        }
-    }
+/** The search controls used globally */
+SearchControls ctls;
 
 
-    /**
-     * Test a Compare on an entry with an ancestor referral, using JNDI,
-     * with 'throw'
-     */
-    @Test
-    public void testCompareEntryWithAncestorJNDIThrow() throws Exception
-    {
-        try
-        {
-            // Set to 'throw'
-            MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
+@Before
+public void setUp() throws Exception
+{
+    MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
-            // This is a compare operation, not a search, thanks to JNDI !
-            MNNCtx.search( "cn=Emmanuel Lecharny,ou=Roles", "(cn=Emmanuel Lecharny)", ctls );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
+    // JNDI entry
+    userEntry = new BasicAttributes( "objectClass", "top", true );
+    userEntry.get( "objectClass" ).add( "person" );
+    userEntry.put( "sn", "elecharny" );
+    userEntry.put( "cn", "Emmanuel Lecharny" );
+
+    // Core API entry
+    Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+    serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+
+    serverEntry.put( "ObjectClass", "top", "person" );
+    serverEntry.put( "sn", "elecharny" );
+    serverEntry.put( "cn", "Emmanuel Lecharny" );
+
+    // Set up the search controls
+    ctls = new SearchControls();
+    ctls.setReturningAttributes( new String[0] ); // Return no attrs
+    ctls.setSearchScope( SearchControls.OBJECT_SCOPE ); // Search object only
+}
 
 
-    /**
-     * Test a Compare on an entry with an ancestor referral, using JNDI,
-     * with 'ignore'
-     */
-    @Test
-    public void testCompareEntryWithAncestorJNDIIgnore() throws Exception
-    {
-        try
-        {
-            // Set to 'throw'
-            MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-
-            // This is a compare operation, not a search, thanks to JNDI !
-            MNNCtx.search( "cn=Emmanuel Lecharny,ou=Roles", "(cn=Emmanuel Lecharny)", ctls );
-            fail();
-        }
-        catch ( PartialResultException pre )
-        {
-            assertTrue( true );
-        }
-    }
-
-
-    /**
-     * Test a compare on an entry with an ancestor referral, using the core API,
-     * without a ManageDsaIT.
-     */
-    @Test
-    public void testCompareEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
-    {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            session.compare( new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", false );
-            fail();
-        }
-        catch ( LdapReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-
-
-    /**
-     * Test a compare on an entry with an ancestor referral, using the core API,
-     * with a ManageDsaIT.
-     */
-    @Test
-    public void testCompareEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
-    {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            session.compare( new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny", true );
-            fail();
-        }
-        catch ( LdapPartialResultException lpre )
-        {
-            assertTrue( true );
-        }
-    }
-
-    
-    /**
-     * Test a compare on an existing entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testCompareExistingEntryNoReferral() throws Exception
+/**
+ * Test a compare on a non existing entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testCompareNonExistingEntry() throws Exception
+{
+    try
     {
         // This is a compare operation, not a search, thanks to JNDI !
-        NamingEnumeration<SearchResult> result = MNNCtx.search( "cn=Alex Karasulu", "(sn=akarasulu)", ctls );
-        
-        assertNotNull( result );
-
-        int nbResult = 0;
-        
-        while ( result.hasMore() )
-        {
-            SearchResult sr = ( SearchResult ) result.next();
-            
-            // The name should be empty
-            assertEquals( "", sr.getName() );
-            
-            // It should not have any attribute
-            assertEquals( 0, sr.getAttributes().size() );
-            nbResult++;
-        }
-        
-        // We should have only one result
-        assertEquals( 1, nbResult );
+        MNNCtx.search( "cn=Emmanuel Lecharny", "(cn=Emmanuel Lecharny)", ctls );
+        fail();
     }
+    catch ( NameNotFoundException nnfe )
+    {
+        assertTrue( true );
+    }
+}
 
-    
-    /**
-     * Test a compare on an existing referral entry, using JNDI "throw".
-     */
-    @Test
-    public void testCompareExistingEntryReferralJNDIThrow() throws Exception
+
+/**
+ * Test a Compare on an entry with an ancestor referral, using JNDI,
+ * with 'throw'
+ */
+@Test
+public void testCompareEntryWithAncestorJNDIThrow() throws Exception
+{
+    try
     {
         // Set to 'throw'
-        MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-
-        try
-        {
-            // This is a compare operation, not a search, thanks to JNDI !
-            MNNCtx.search( "ou=roles", "(ou=roles)", ctls );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-
-    
-    /**
-     * Test a compare on an existing referral entry, using JNDI "ignore".
-     */
-    @Test
-    public void testCompareExistingEntryReferralJNDIIgnore() throws Exception
-    {
-        // Set to 'throw'
-        MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+        MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
 
         // This is a compare operation, not a search, thanks to JNDI !
-        NamingEnumeration<SearchResult> result = MNNCtx.search( "ou=roles", "(ou=roles)", ctls );
-
-        assertNotNull( result );
-
-        int nbResult = 0;
-        
-        while ( result.hasMore() )
-        {
-            SearchResult sr = ( SearchResult ) result.next();
-            
-            // The name should be empty
-            assertEquals( "", sr.getName() );
-            
-            // It should not have any attribute
-            assertEquals( 0, sr.getAttributes().size() );
-            nbResult++;
-        }
-        
-        // We should have only one result
-        assertEquals( 1, nbResult );
+        MNNCtx.search( "cn=Emmanuel Lecharny,ou=Roles", "(cn=Emmanuel Lecharny)", ctls );
+        fail();
     }
-
-    
-    /**
-     * Test a compare on an existing referral entry, using The core API
-     * and no ManageDsaIt flag.
-     */
-    @Test
-    public void testCompareExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
+    catch ( ReferralException re )
     {
-        CoreSession session = getService().getAdminSession();
-        
-        try
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
+
+        do
         {
-            session.compare( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", false );
-            fail();
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
         }
-        catch ( LdapReferralException re )
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a Compare on an entry with an ancestor referral, using JNDI,
+ * with 'ignore'
+ */
+@Test
+public void testCompareEntryWithAncestorJNDIIgnore() throws Exception
+{
+    try
+    {
+        // Set to 'throw'
+        MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+
+        // This is a compare operation, not a search, thanks to JNDI !
+        MNNCtx.search( "cn=Emmanuel Lecharny,ou=Roles", "(cn=Emmanuel Lecharny)", ctls );
+        fail();
+    }
+    catch ( PartialResultException pre )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a compare on an entry with an ancestor referral, using the core API,
+ * without a ManageDsaIT.
+ */
+@Test
+public void testCompareEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        session.compare( new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny",
+            false );
+        fail();
+    }
+    catch ( LdapReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
+
+        do
         {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
         }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a compare on an entry with an ancestor referral, using the core API,
+ * with a ManageDsaIT.
+ */
+@Test
+public void testCompareEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        session.compare( new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" ), "cn", "Emmanuel Lecharny",
+            true );
+        fail();
+    }
+    catch ( LdapPartialResultException lpre )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a compare on an existing entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testCompareExistingEntryNoReferral() throws Exception
+{
+    // This is a compare operation, not a search, thanks to JNDI !
+    NamingEnumeration<SearchResult> result = MNNCtx.search( "cn=Alex Karasulu", "(sn=akarasulu)", ctls );
+
+    assertNotNull( result );
+
+    int nbResult = 0;
+
+    while ( result.hasMore() )
+    {
+        SearchResult sr = ( SearchResult ) result.next();
+
+        // The name should be empty
+        assertEquals( "", sr.getName() );
+
+        // It should not have any attribute
+        assertEquals( 0, sr.getAttributes().size() );
+        nbResult++;
     }
 
-    
-    /**
-     * Test a compare on an existing referral entry, using The core API
-     * with the ManageDsaIt flag.
-     */
-    @Test
-    public void testCompareExistingEntryReferralCoreAPIWithManageDsaIt() throws Exception
+    // We should have only one result
+    assertEquals( 1, nbResult );
+}
+
+
+/**
+ * Test a compare on an existing referral entry, using JNDI "throw".
+ */
+@Test
+public void testCompareExistingEntryReferralJNDIThrow() throws Exception
+{
+    // Set to 'throw'
+    MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
+
+    try
     {
-        CoreSession session = getService().getAdminSession();
-        
-        assertTrue( session.compare( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", true ) );
+        // This is a compare operation, not a search, thanks to JNDI !
+        MNNCtx.search( "ou=roles", "(ou=roles)", ctls );
+        fail();
     }
+    catch ( ReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a compare on an existing referral entry, using JNDI "ignore".
+ */
+@Test
+public void testCompareExistingEntryReferralJNDIIgnore() throws Exception
+{
+    // Set to 'throw'
+    MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+
+    // This is a compare operation, not a search, thanks to JNDI !
+    NamingEnumeration<SearchResult> result = MNNCtx.search( "ou=roles", "(ou=roles)", ctls );
+
+    assertNotNull( result );
+
+    int nbResult = 0;
+
+    while ( result.hasMore() )
+    {
+        SearchResult sr = ( SearchResult ) result.next();
+
+        // The name should be empty
+        assertEquals( "", sr.getName() );
+
+        // It should not have any attribute
+        assertEquals( 0, sr.getAttributes().size() );
+        nbResult++;
+    }
+
+    // We should have only one result
+    assertEquals( 1, nbResult );
+}
+
+
+/**
+ * Test a compare on an existing referral entry, using The core API
+ * and no ManageDsaIt flag.
+ */
+@Test
+public void testCompareExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        session.compare( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", false );
+        fail();
+    }
+    catch ( LdapReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a compare on an existing referral entry, using The core API
+ * with the ManageDsaIt flag.
+ */
+@Test
+public void testCompareExistingEntryReferralCoreAPIWithManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    assertTrue( session.compare( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), "ou", "roles", true ) );
+}
 }

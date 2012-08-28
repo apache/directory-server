@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 public class ObjStateFactoryIT extends AbstractLdapTestUnit
 {
 
@@ -63,9 +63,8 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
     public void testObjectFactory() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
+        getService().getAdminSession().add(
             new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
-
 
         LdapContext sysRoot = getSystemContext( getService() );
         sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
@@ -75,7 +74,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         Person me = ( Person ) obj;
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
         assertEquals( attrs.get( "cn" ).get(), me.getCn() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8("test") ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8( "test" ) ) );
         assertEquals( attrs.get( "telephonenumber" ).get(), me.getTelephoneNumber() );
         assertNull( me.getSeealso() );
         assertNull( me.getDescription() );
@@ -93,13 +92,12 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         Attributes attrs = sysRoot.getAttributes( "sn=Rodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8("noices") ) );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8( "noices" ) ) );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
         assertEquals( "sn=erodriguez", attrs.get( "seealso" ).get() );
         assertEquals( "committer", attrs.get( "description" ).get() );
     }
 
-    
     public static class PersonStateFactory implements DirStateFactory
     {
         public Result getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes inAttrs )
@@ -181,7 +179,6 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         }
     }
 
-
     public static class PersonObjectFactory implements DirObjectFactory
     {
         public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes attrs )
@@ -227,7 +224,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         private String sn, cn, pwd, tele, seealso, desc;
 
 
-        public Person(String sn, String cn, String pwd, String tele, String seealso, String desc)
+        public Person( String sn, String cn, String pwd, String tele, String seealso, String desc )
         {
             this.sn = sn;
             this.cn = cn;

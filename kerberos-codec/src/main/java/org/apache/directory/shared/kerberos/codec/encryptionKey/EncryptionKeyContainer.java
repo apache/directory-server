@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.encryptionKey;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
@@ -32,6 +33,7 @@ public class EncryptionKeyContainer extends AbstractContainer
 {
     /** holds EncryptionKey */
     private EncryptionKey encryptionKey;
+
 
     /**
      * Creates a new EncryptionKeyContainer object.
@@ -53,7 +55,7 @@ public class EncryptionKeyContainer extends AbstractContainer
         return encryptionKey;
     }
 
-    
+
     /**
      * Set a EncryptionKey Object into the container
      * 

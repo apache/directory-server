@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api;
 
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -30,6 +31,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * A helper class which serialize and deserialize a LdapPrincipal.
  *
@@ -40,6 +42,7 @@ public final class LdapPrincipalSerializer
     /** The LoggerFactory used by this class */
     protected static final Logger LOG = LoggerFactory.getLogger( LdapPrincipalSerializer.class );
 
+
     /**
      * Private constructor.
      */
@@ -47,7 +50,7 @@ public final class LdapPrincipalSerializer
     {
     }
 
-    
+
     /**
      * Serializes a LdapPrincipal instance.
      * 
@@ -59,7 +62,7 @@ public final class LdapPrincipalSerializer
     {
         // The Authentication level
         out.writeInt( principal.getAuthenticationLevel().getLevel() );
-        
+
         // The principal's DN
         if ( principal.getDn() == null )
         {
@@ -70,8 +73,8 @@ public final class LdapPrincipalSerializer
             principal.getDn().writeExternal( out );
         }
     }
-    
-    
+
+
     /**
      * Deserializes a LdapPrincipal instance.
      * 
@@ -85,10 +88,10 @@ public final class LdapPrincipalSerializer
     {
         // Read the authenyication level
         AuthenticationLevel authenticationLevel = AuthenticationLevel.getLevel( in.readInt() );
-        
+
         // Read the principal's DN
         Dn dn = new Dn( schemaManager );
-        
+
         try
         {
             dn.readExternal( in );
@@ -99,9 +102,9 @@ public final class LdapPrincipalSerializer
             ioe.initCause( cnfe );
             throw ioe;
         }
-        
+
         LdapPrincipal principal = new LdapPrincipal( schemaManager, dn, authenticationLevel );
-        
+
         return principal;
     }
 }

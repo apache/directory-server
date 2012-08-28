@@ -34,14 +34,13 @@ public class ApacheDSTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDSTest.class );
 
-   
+
     @Test
     public void testBogus()
     {
         System.out.println( "TODO: Fix this the real test case and delete me!" );
     }
 
-    
     /* 
     public void testLdifLoading() throws Exception
     {

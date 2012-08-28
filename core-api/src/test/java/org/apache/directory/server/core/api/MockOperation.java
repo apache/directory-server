@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api;
 
+
 import java.util.List;
 
 import org.apache.directory.server.core.api.CoreSession;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
+
 public class MockOperation implements OperationContext
 {
     final int count;
@@ -45,20 +47,21 @@ public class MockOperation implements OperationContext
     public MockOperation( SchemaManager schemaManager, int count ) throws Exception
     {
         this.count = count;
-        this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ), AuthenticationLevel.STRONG ),
+        this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ),
+            AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
     }
-    
-    
+
+
     public void saveOriginalContext()
     {
-        
+
     }
-    
-    
+
+
     public void resetContext()
     {
-        
+
     }
 
 
@@ -202,8 +205,8 @@ public class MockOperation implements OperationContext
     public void throwReferral()
     {
     }
-    
-    
+
+
     public boolean isReferralThrown()
     {
         return false;

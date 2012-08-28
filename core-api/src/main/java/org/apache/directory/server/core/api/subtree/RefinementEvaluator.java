@@ -47,7 +47,7 @@ public class RefinementEvaluator
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    public RefinementEvaluator(RefinementLeafEvaluator leafEvaluator)
+    public RefinementEvaluator( RefinementLeafEvaluator leafEvaluator )
     {
         this.leafEvaluator = leafEvaluator;
     }
@@ -59,27 +59,27 @@ public class RefinementEvaluator
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
         }
-        
+
         if ( objectClasses == null )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_296 ) );
         }
-        
+
         if ( !( SchemaConstants.OBJECT_CLASS_AT_OID.equals( objectClasses.getAttributeType().getOid() ) ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_297 ) );
         }
-        
+
         if ( node.isLeaf() )
         {
             return leafEvaluator.evaluate( ( SimpleNode ) node, objectClasses );
         }
 
-        BranchNode bnode = (BranchNode) node;
+        BranchNode bnode = ( BranchNode ) node;
 
         if ( node instanceof OrNode )
         {
-            for ( ExprNode child:bnode.getChildren() )
+            for ( ExprNode child : bnode.getChildren() )
             {
                 if ( evaluate( child, objectClasses ) )
                 {
@@ -91,7 +91,7 @@ public class RefinementEvaluator
         }
         else if ( node instanceof AndNode )
         {
-            for ( ExprNode child:bnode.getChildren() )
+            for ( ExprNode child : bnode.getChildren() )
             {
                 if ( !evaluate( child, objectClasses ) )
                 {
@@ -100,7 +100,7 @@ public class RefinementEvaluator
             }
 
             return true;
-            
+
         }
         else if ( node instanceof NotNode )
         {
@@ -110,7 +110,7 @@ public class RefinementEvaluator
             }
 
             throw new IllegalArgumentException( I18n.err( I18n.ERR_243, node ) );
-            
+
         }
         else
         {

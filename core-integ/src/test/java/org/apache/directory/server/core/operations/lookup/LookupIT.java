@@ -104,7 +104,7 @@ public class LookupIT extends AbstractLdapTestUnit
         getService().setDenormalizeOpAttrsEnabled( true );
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
-        
+
         // We should have 4 attributes
         assertEquals( 5, entry.size() );
 
@@ -112,7 +112,7 @@ public class LookupIT extends AbstractLdapTestUnit
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "sn" ) );
         assertNull( entry.get( "objectClass" ) );
-        
+
         /*
         assertEquals( "test", entry.get( "cn" ).getString() );
         assertEquals( "sn_test", entry.get( "sn" ).getString() );
@@ -193,8 +193,8 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupWithAttrs() throws Exception
     {
-        EntryCursor cursor = connection.search( "cn=test,ou=system", "(ObjectClass=*)",SearchScope.SUBTREE, "name" );
-        
+        EntryCursor cursor = connection.search( "cn=test,ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "name" );
+
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
@@ -204,7 +204,7 @@ public class LookupIT extends AbstractLdapTestUnit
             assertEquals( "sn_test", entry.get( "sn" ).getString() );
             assertFalse( entry.containsAttribute( "objectClass" ) );
         }
-        
+
         cursor.close();
 
         //Entry entry = connection.lookup( "cn=test,ou=system", "name" );

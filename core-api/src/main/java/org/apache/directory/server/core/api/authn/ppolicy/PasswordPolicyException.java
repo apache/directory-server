@@ -36,7 +36,9 @@ public class PasswordPolicyException extends LdapException
     private int errorCode;
 
     /** the array of valid error codes representing password policy errors */
-    private static final int[] VALID_CODES = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    private static final int[] VALID_CODES =
+        { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+
 
     public PasswordPolicyException( Throwable cause )
     {
@@ -69,8 +71,8 @@ public class PasswordPolicyException extends LdapException
     {
         return errorCode;
     }
-    
-    
+
+
     /**
      * this method checks if the given error code is valid or not.
      * This method was created cause using PasswordPolicyErrorEnum class creates some 
@@ -87,7 +89,7 @@ public class PasswordPolicyException extends LdapException
                 return;
             }
         }
-        
+
         throw new IllegalArgumentException( "Unknown password policy response error code " + errorCode );
     }
 }

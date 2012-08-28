@@ -65,6 +65,7 @@ public class LdapServerConfigReaderTest
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
 
+
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -75,7 +76,7 @@ public class LdapServerConfigReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
@@ -85,7 +86,7 @@ public class LdapServerConfigReaderTest
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
         executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
-        
+
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
         extractor.extractOrCopy();
 
@@ -101,7 +102,7 @@ public class LdapServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -112,19 +113,22 @@ public class LdapServerConfigReaderTest
         File configDir = new File( workDir, "ldapServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "ldapServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory,
+            executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_LDAP_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager,
+            "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_LDAP_SERVER_OC
+            .getValue() );
 
         assertNotNull( configBean );
-        LdapServerBean ldapServerBean = (LdapServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        LdapServerBean ldapServerBean = ( LdapServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( ldapServerBean );
 
         configPartition.destroy();

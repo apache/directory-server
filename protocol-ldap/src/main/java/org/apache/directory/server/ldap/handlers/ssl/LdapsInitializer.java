@@ -57,10 +57,10 @@ public class LdapsInitializer
             {
                 algorithm = KeyManagerFactory.getDefaultAlgorithm();
             }
-            
+
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
-            
-            if ( Strings.isEmpty(certificatePassord) )
+
+            if ( Strings.isEmpty( certificatePassord ) )
             {
                 kmf.init( ks, null );
             }

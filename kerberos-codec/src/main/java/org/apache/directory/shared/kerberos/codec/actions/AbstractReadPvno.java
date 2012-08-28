@@ -87,11 +87,11 @@ public abstract class AbstractReadPvno<E extends Asn1Container> extends GrammarA
 
         try
         {
-            int pvno = IntegerDecoder.parse(value);
+            int pvno = IntegerDecoder.parse( value );
 
             if ( pvno != 5 )
             {
-                LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), "The PVNO should be 5" ) );
+                LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), "The PVNO should be 5" ) );
 
                 // This will generate a PROTOCOL_ERROR
                 throw new DecoderException( "The PVNO should be 5" );
@@ -106,7 +106,7 @@ public abstract class AbstractReadPvno<E extends Asn1Container> extends GrammarA
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

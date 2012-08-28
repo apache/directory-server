@@ -74,7 +74,7 @@ public class AndEvaluator extends AbstractEvaluator<AndNode>
         List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
-        
+
         Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;

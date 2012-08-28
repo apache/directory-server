@@ -45,28 +45,28 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(
-    name = "SearchBinaryIT", 
+    name = "SearchBinaryIT",
     partitions =
-    { 
-        @CreatePartition(
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry =
                 @ContextEntry(
-                    entryLdif = 
-                        "dn: dc=example,dc=com\n" +
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n"), 
-            indexes =
-            {
-                @CreateIndex(attribute = "objectClass"),
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn"),
-                @CreateIndex(attribute = "userCertificate") 
-            })
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn"),
+                        @CreateIndex(attribute = "userCertificate")
+                })
 
-    }, 
+    },
     enableChangeLog = false)
 @ApplyLdifs(
     {

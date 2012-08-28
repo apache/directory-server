@@ -54,9 +54,9 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @Ignore("Reverts are failing to delete marked entries. Fixing this " +
-        "problem in testEntryAdd() will fix it all over.")
+    "problem in testEntryAdd() will fix it all over.")
 public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 {
 
@@ -86,7 +86,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         subentry.put( "cn", "testsubentry" );
         return subentry;
     }
-    
+
+
     public Attributes getTestSubentryWithExclusion()
     {
         Attributes subentry = new BasicAttributes( true );
@@ -110,7 +111,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         attribute.add( "autonomousArea" );
         attribute.add( "triggerSpecificArea" );
         ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItem[] { item } );
+        sysRoot.modifyAttributes( "", new ModificationItem[]
+            { item } );
     }
 
 
@@ -123,7 +125,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
@@ -137,7 +139,7 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     public void testEntryAdd() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();        
+        addTheAdministrativeRole();
         sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
         sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
@@ -209,7 +211,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -245,16 +248,19 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
         // --------------------------------------------------------------------
 
         Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
-        subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=interceptors\" } }" );
+        subtreeSpecification
+            .add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=interceptors\" } }" );
         ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[] { item } );
+        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
+            { item } );
         results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -275,13 +281,15 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
         triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( triggerSubentries != null )
         {
-            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, triggerSubentries.size() );
+            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0,
+                triggerSubentries.size() );
         }
     }
 
@@ -310,14 +318,16 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( triggerSubentries != null )
         {
-            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, triggerSubentries.size() );
+            assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0,
+                triggerSubentries.size() );
         }
 
         Attributes system = results.get( "ou=system" );
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -354,7 +364,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -398,7 +409,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
@@ -473,7 +485,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
@@ -548,7 +561,8 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
         assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
+        assertNull( "ou=users,ou=system should not be marked",
+            users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked

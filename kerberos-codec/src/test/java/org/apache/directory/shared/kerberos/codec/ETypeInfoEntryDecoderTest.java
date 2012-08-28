@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +38,7 @@ import org.apache.directory.shared.kerberos.components.ETypeInfoEntry;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for ETYPE-INFO-ENTRY codec.
  *
@@ -51,23 +53,31 @@ public class ETypeInfoEntryDecoderTest
     public void testDecodeETypeInfoEntry()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x0F );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x04, 0x04, 0x31, 0x32, 0x33, 0x34
-            } );
-        
-        String decodedPdu = Strings.dumpBytes(stream.array());
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x06, // salt
+                0x04,
+                0x04,
+                0x31,
+                0x32,
+                0x33,
+                0x34
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, container );
@@ -75,26 +85,26 @@ public class ETypeInfoEntryDecoderTest
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            
+
             fail( de.getMessage() );
         }
 
         ETypeInfoEntry etypeInforEntry = container.getETypeInfoEntry();
-        
+
         assertEquals( EncryptionType.DES3_CBC_MD5, etypeInforEntry.getEType() );
-        assertTrue( Arrays.equals( Strings.getBytesUtf8("1234"), etypeInforEntry.getSalt() ) );
-        
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( "1234" ), etypeInforEntry.getSalt() ) );
+
         ByteBuffer bb = ByteBuffer.allocate( etypeInforEntry.computeLength() );
-        
+
         try
         {
             bb = etypeInforEntry.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x0F, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -102,8 +112,8 @@ public class ETypeInfoEntryDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETYPE-INFO-ENTRY with no salt
      */
@@ -111,21 +121,23 @@ public class ETypeInfoEntryDecoderTest
     public void testDecodeETypeInfoEntryNoSalt()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x05,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05
-            } );
-        
-        String decodedPdu = Strings.dumpBytes(stream.array());
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, container );
@@ -133,26 +145,26 @@ public class ETypeInfoEntryDecoderTest
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            
+
             fail( de.getMessage() );
         }
 
         ETypeInfoEntry etypeInforEntry = container.getETypeInfoEntry();
-        
+
         assertEquals( EncryptionType.DES3_CBC_MD5, etypeInforEntry.getEType() );
         assertNull( etypeInforEntry.getSalt() );
-        
+
         ByteBuffer bb = ByteBuffer.allocate( etypeInforEntry.computeLength() );
-        
+
         try
         {
             bb = etypeInforEntry.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x07, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -160,35 +172,38 @@ public class ETypeInfoEntryDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETYPE-INFO-ENTRY with an empty salt
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testDecodeETypeInfoEntryEmptySalt() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x07,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x00                  // salt
-            } );
-        
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x00 // salt
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETYPE-INFO-ENTRY with an null salt
      */
@@ -196,22 +211,26 @@ public class ETypeInfoEntryDecoderTest
     public void testDecodeETypeInfoEntryNullSalt()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x09,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x02,                 // salt
-                    0x04, 0x00
-            } );
-        
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x02, // salt
+                0x04,
+                0x00
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, container );
@@ -219,36 +238,38 @@ public class ETypeInfoEntryDecoderTest
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            
+
             fail( de.getMessage() );
         }
 
         ETypeInfoEntry etypeInforEntry = container.getETypeInfoEntry();
-        
+
         assertEquals( EncryptionType.DES3_CBC_MD5, etypeInforEntry.getEType() );
         assertNull( etypeInforEntry.getSalt() );
-        
+
         ByteBuffer bb = ByteBuffer.allocate( etypeInforEntry.computeLength() );
-        
+
         try
         {
             bb = etypeInforEntry.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x07, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             ByteBuffer stream2 = ByteBuffer.allocate( 0x07 );
 
             stream2.put( new byte[]
-                 { 
-                     0x30, 0x05,
-                       (byte)0xA0, 0x03,                 // etype
-                         0x02, 0x01, 0x05
-                 } );
-             
-            String decodedPdu2 = Strings.dumpBytes(stream2.array());
+                {
+                    0x30, 0x05,
+                    ( byte ) 0xA0, 0x03, // etype
+                    0x02,
+                    0x01,
+                    0x05
+            } );
+
+            String decodedPdu2 = Strings.dumpBytes( stream2.array() );
 
             assertEquals( encodedPdu, decodedPdu2 );
         }
@@ -258,112 +279,112 @@ public class ETypeInfoEntryDecoderTest
         }
     }
 
-    
+
     /**
      * Test the decoding of an empty ETYPE-INFO-ENTRY
      * @throws DecoderException
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInforEntry() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x00
-            } );
-        
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
 
-    
+
     /**
      * Test the decoding of an ETYPE-INFO-ENTRY with no etype
      * @throws DecoderException
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryNoEType() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x04,
-                  (byte)0xA2, 0x04,
-                    0x04, 0x00
-            } );
-        
+                ( byte ) 0xA2, 0x04,
+                0x04, 0x00
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
 
-    
+
     /**
      * Test the decoding of an ETYPE-INFO-ENTRY with an empty etype
      * @throws org.apache.directory.shared.asn1.DecoderException
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryEmptyEType() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x04,
-                  (byte)0xA0, 0x00
-            } );
-        
+                ( byte ) 0xA0, 0x00
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
 
-    
+
     /**
      * Test the decoding of an ETYPE-INFO-ENTRY with a empty etype tag
      * @throws DecoderException
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryEmptyETypeTag() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x04,
-                  (byte)0xA0, 0x02,
-                    0x02, 0x00
-            } );
-        
+                ( byte ) 0xA0, 0x02,
+                0x02, 0x00
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         krbDecoder.decode( stream, container );
         fail();
     }
 
-    
+
     /**
      * Test the decoding of an ETYPE-INFO-ENTRY with a bad etype
      * @throws DecoderException
@@ -372,20 +393,20 @@ public class ETypeInfoEntryDecoderTest
     public void testDecodeEmptyETypeInfoEntryBadEType() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x05,
-                  (byte)0xA0, 0x03,
-                    0x02, 0x01, 0x40
-            } );
-        
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x40
+        } );
+
         stream.flip();
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, container );
@@ -393,36 +414,38 @@ public class ETypeInfoEntryDecoderTest
         catch ( DecoderException de )
         {
             de.printStackTrace();
-            
+
             fail( de.getMessage() );
         }
 
         ETypeInfoEntry etypeInforEntry = container.getETypeInfoEntry();
-        
+
         assertEquals( EncryptionType.UNKNOWN, etypeInforEntry.getEType() );
         assertNull( etypeInforEntry.getSalt() );
-        
+
         ByteBuffer bb = ByteBuffer.allocate( etypeInforEntry.computeLength() );
-        
+
         try
         {
             bb = etypeInforEntry.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x07, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             ByteBuffer stream2 = ByteBuffer.allocate( 0x07 );
 
             stream2.put( new byte[]
-                 { 
-                     0x30, 0x05,
-                       (byte)0xA0, 0x03,                 // etype
-                         0x02, 0x01, (byte)0xFF
-                 } );
-             
-            String decodedPdu2 = Strings.dumpBytes(stream2.array());
+                {
+                    0x30, 0x05,
+                    ( byte ) 0xA0, 0x03, // etype
+                    0x02,
+                    0x01,
+                    ( byte ) 0xFF
+            } );
+
+            String decodedPdu2 = Strings.dumpBytes( stream2.array() );
             assertEquals( decodedPdu2, encodedPdu );
         }
         catch ( EncoderException ee )

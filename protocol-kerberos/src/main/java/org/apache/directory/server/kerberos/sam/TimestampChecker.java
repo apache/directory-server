@@ -79,7 +79,7 @@ public class TimestampChecker implements KeyIntegrityChecker
         {
             return false;
         }
-*/
+        */
         return false;
     }
 }

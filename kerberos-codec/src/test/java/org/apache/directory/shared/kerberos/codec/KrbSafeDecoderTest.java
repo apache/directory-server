@@ -36,6 +36,7 @@ import org.apache.directory.shared.kerberos.messages.KrbSafe;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for KrbSafe codec
  *
@@ -47,92 +48,130 @@ public class KrbSafeDecoderTest
     @Test
     public void testDecodeKrbSafe()
     {
-        byte[] data = new byte[]{
-            0x74, 0x36,
-              0x30, 0x34,
-               (byte)0xA0, 0x03,        // pvno
-                 0x02, 0x01, 0x05,
-               (byte)0xA1, 0x03,        // msg-type
-                 0x02, 0x01, 0x14,
-               (byte)0xA2, 0x19,        // safe-body
-                 0x30, 0x17,
-                   (byte)0xA0, 0x04,
-                     0x04, 0x02, 0x00, 0x01,
-                   (byte)0xA4, 0x0F,
-                     0x30, 0x0D,
-                       (byte)0xA0, 0x03, 
-                         0x02, 0x01, 0x02,
-                       (byte)0xA1, 0x06,
-                         0x04, 0x04, 127, 0, 0, 1, 
-               (byte)0xA3, 0x0D,        // cksum
-                 0x30, 0x0B,
-                   (byte)0xA0, 0x03,
-                     0x02, 0x01, 0x01,
-                   (byte)0xA1, 0x04,
-                     0x04, 0x02, 0x00, 0x01 
+        byte[] data = new byte[]
+            {
+                0x74, 0x36,
+                0x30, 0x34,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x14,
+                ( byte ) 0xA2,
+                0x19, // safe-body
+                0x30,
+                0x17,
+                ( byte ) 0xA0,
+                0x04,
+                0x04,
+                0x02,
+                0x00,
+                0x01,
+                ( byte ) 0xA4,
+                0x0F,
+                0x30,
+                0x0D,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x02,
+                ( byte ) 0xA1,
+                0x06,
+                0x04,
+                0x04,
+                127,
+                0,
+                0,
+                1,
+                ( byte ) 0xA3,
+                0x0D, // cksum
+                0x30,
+                0x0B,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x01,
+                ( byte ) 0xA1,
+                0x04,
+                0x04,
+                0x02,
+                0x00,
+                0x01
         };
-        
-        String decoded = Strings.dumpBytes(data);
+
+        String decoded = Strings.dumpBytes( data );
         int streamLen = data.length;
         ByteBuffer stream = ByteBuffer.wrap( data );
-        
+
         Asn1Decoder decoder = new Asn1Decoder();
-        
-        KrbSafeContainer container = new  KrbSafeContainer( stream );
-        
+
+        KrbSafeContainer container = new KrbSafeContainer( stream );
+
         try
         {
             decoder.decode( stream, container );
         }
-        catch( DecoderException e )
+        catch ( DecoderException e )
         {
             e.printStackTrace();
             fail();
         }
-        
+
         KrbSafe krbSafe = container.getKrbSafe();
-        
+
         assertEquals( 5, krbSafe.getProtocolVersionNumber() );
         assertEquals( KerberosMessageType.KRB_SAFE, krbSafe.getMessageType() );
         assertNotNull( krbSafe.getChecksum() );
         assertNotNull( krbSafe.getSafeBody() );
-        
+
         int encodedLen = krbSafe.computeLength();
         assertEquals( streamLen, encodedLen );
-        
+
         try
         {
             ByteBuffer bb = ByteBuffer.allocate( encodedLen );
             krbSafe.encode( bb );
-            
-            String encoded = Strings.dumpBytes(bb.array());
+
+            String encoded = Strings.dumpBytes( bb.array() );
             assertEquals( decoded, encoded );
         }
-        catch( EncoderException e )
+        catch ( EncoderException e )
         {
             fail();
         }
     }
-    
-    
-    @Test( expected = DecoderException.class)
+
+
+    @Test(expected = DecoderException.class)
     public void testDecodeKrbSafeWithIncorrectPdu() throws DecoderException
     {
-        byte[] data = new byte[]{
-            0x74, 0xC,
-              0x30, 0xA,
-               (byte)0xA0, 0x03,        // pvno
-                 0x02, 0x01, 0x05,
-               (byte)0xA1, 0x03,        // msg-type
-                 0x02, 0x01, 0x14,
+        byte[] data = new byte[]
+            {
+                0x74, 0xC,
+                0x30, 0xA,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x14,
         };
-        
+
         ByteBuffer stream = ByteBuffer.wrap( data );
-        
+
         Asn1Decoder decoder = new Asn1Decoder();
-        
-        KrbSafeContainer container = new  KrbSafeContainer( stream );
-        
+
+        KrbSafeContainer container = new KrbSafeContainer( stream );
+
         decoder.decode( stream, container );
     }
 }

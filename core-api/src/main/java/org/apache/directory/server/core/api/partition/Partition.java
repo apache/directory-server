@@ -59,10 +59,11 @@ public interface Partition
 {
     /** Root ID common to all partitions */
     UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
-    
+
     /** Default id used for context entry if context entry does not exist */
     UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
-    
+
+
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------
@@ -289,8 +290,8 @@ public interface Partition
      * @throws Exception if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
-    
-    
+
+
     /**
      * Returns the master table this partition maintains.
      *
@@ -299,7 +300,7 @@ public interface Partition
      */
     MasterTable getMasterTable() throws Exception;
 
-    
+
     /**
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
      * @param id The index we are looking for
@@ -308,7 +309,7 @@ public interface Partition
      * @throws Exception If something went wrong
      */
     boolean hasIndexOn( AttributeType attributeType ) throws Exception;
-    
+
 
     /**
      * Tells if an index is already present in the User's index list
@@ -328,8 +329,8 @@ public interface Partition
      * @throws Exception If something went wrong
      */
     boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
-    
-    
+
+
     /**
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
      * @param oid The index we are looking for
@@ -348,8 +349,8 @@ public interface Partition
      * @throws Exception If something went wrong
      */
     boolean hasSystemIndexOn( String oid ) throws Exception;
- 
-    
+
+
     /**
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
      * @param id The index we are looking for
@@ -386,8 +387,8 @@ public interface Partition
      * @throws IndexNotFoundException If the index does not exist
      */
     Index<?> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
-    
-    
+
+
     /**
      * Get the user <strong>or</strong> system index associated with the given attributeType
      * 
@@ -414,8 +415,8 @@ public interface Partition
      * @throws IndexNotFoundException If the index does not exist
      */
     Index<?> getSystemIndex( String oid ) throws IndexNotFoundException;
-    
-    
+
+
     /**
      * Normally Dn change of an entry is not recorded in the entry and such
      * changes do not result in an update of the entry in the partition. However
@@ -425,8 +426,8 @@ public interface Partition
      * @return true if a partition wants the entries to be updated on Dn change.
      */
     boolean updateEntryOnDnChange();
-    
-    
+
+
     /**
      * Dump the requested index to a given stream
      * @param name The index to dump to stdout

@@ -76,7 +76,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t2 = System.currentTimeMillis();
 
         EntryCursor cursor = connection.search( "dc=example,dc=com", "(objectClass=*)", SearchScope.SUBTREE, "*" );
-        
+
         while ( cursor.next() )
         {
             cursor.get();

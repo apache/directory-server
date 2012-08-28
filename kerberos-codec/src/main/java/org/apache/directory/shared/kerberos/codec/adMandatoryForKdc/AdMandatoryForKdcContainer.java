@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.adMandatoryForKdc;
 
+
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.components.AdMandatoryForKdc;
 
@@ -36,7 +37,7 @@ public class AdMandatoryForKdcContainer extends AuthorizationDataContainer
     public AdMandatoryForKdcContainer()
     {
         super();
-        
+
         setAuthorizationData( new AdMandatoryForKdc() );
     }
 
@@ -46,6 +47,6 @@ public class AdMandatoryForKdcContainer extends AuthorizationDataContainer
      */
     public AdMandatoryForKdc getAdMandatoryForKdc()
     {
-        return (AdMandatoryForKdc)getAuthorizationData();
+        return ( AdMandatoryForKdc ) getAuthorizationData();
     }
 }

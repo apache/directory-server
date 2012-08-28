@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -30,13 +31,14 @@ import org.slf4j.LoggerFactory;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 
+
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class IndexValueSerializer implements Serializer
 {
     private static final long serialVersionUID = 1L;
-    
+
     /** the flag for a Long value*/
     private static byte LONG_VALUE = 0;
 
@@ -49,10 +51,12 @@ public class IndexValueSerializer implements Serializer
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( IndexValueSerializer.class );
 
+
     public Object deserialize( byte[] serialized ) throws IOException
     {
         return null;
     }
+
 
     /**
      * Serialize the object. It can be a long, a BTree or an AvlTree
@@ -66,21 +70,21 @@ public class IndexValueSerializer implements Serializer
         if ( obj instanceof ArrayTree )
         {
             LOG.debug( "Serializing an AvlTree" );
-            return serialize( (ArrayTree<?>)obj );
+            return serialize( ( ArrayTree<?> ) obj );
         }
         else if ( obj instanceof BTree )
         {
             LOG.debug( "Serializing a BTree" );
-            return serialize( (BTree)obj );
+            return serialize( ( BTree ) obj );
         }
         else
         {
             LOG.debug( "Serializing a long [{}]", obj );
-            return serialize( (Long)obj );
+            return serialize( ( Long ) obj );
         }
     }
 
-    
+
     /**
      * Serialize a Long value
      */
@@ -91,10 +95,10 @@ public class IndexValueSerializer implements Serializer
 
         // First, write the type
         out.write( LONG_VALUE );
-        
+
         // Now, flush the Long 
         out.writeLong( value );
-        
+
         // And return the result
         out.flush();
 
@@ -107,7 +111,7 @@ public class IndexValueSerializer implements Serializer
         return baos.toByteArray();
     }
 
-    
+
     /**
      * Serialize a BTree value
      */
@@ -118,12 +122,12 @@ public class IndexValueSerializer implements Serializer
 
         // First, write the type
         out.write( BTREE_VALUE );
-        
+
         // Marshal the BTree here. 
         // TODO : add the code
 
         out.flush();
-        
+
         if ( LOG.isDebugEnabled() )
         {
             LOG.debug( ">------------------------------------------------" );
@@ -133,7 +137,7 @@ public class IndexValueSerializer implements Serializer
         return baos.toByteArray();
     }
 
-    
+
     /**
      * Serialize a AvlTree value
      */
@@ -144,7 +148,7 @@ public class IndexValueSerializer implements Serializer
 
         // First, write the type
         out.write( AVL_TREE_VALUE );
-        
+
         // Marshal the AvlTree here. 
         // TODO : add the code
 

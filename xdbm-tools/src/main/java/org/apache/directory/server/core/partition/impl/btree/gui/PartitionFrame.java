@@ -611,7 +611,7 @@ public class PartitionFrame extends JFrame
 
         try
         {
-            root = FilterParser.parse(schemaManager, filter);
+            root = FilterParser.parse( schemaManager, filter );
         }
         catch ( Exception e )
         {
@@ -667,7 +667,7 @@ public class PartitionFrame extends JFrame
         {
             IndexEntry rec = ( IndexEntry ) cursor.get();
             row[0] = rec.getId();
-            row[1] = partition.getEntryDn( (UUID)row[0] ).getNormName();
+            row[1] = partition.getEntryDn( ( UUID ) row[0] ).getNormName();
             tableModel.addRow( row );
             count++;
         }
@@ -792,7 +792,7 @@ public class PartitionFrame extends JFrame
     public void showIndexDialog( String idxAttr ) throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( idxAttr );
-        
+
         Index index;
         boolean isSystem = partition.hasSystemIndexOn( attributeType );
 

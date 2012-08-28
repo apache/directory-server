@@ -42,25 +42,25 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( 
+@CreateDS(
     enableChangeLog = false,
-    name = "DSDeleteAlias" )
+    name = "DSDeleteAlias")
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 public class DeleteAliasIT extends AbstractLdapTestUnit
 {
     private LdapConnection conn;
 
-    
+
     @Before
     public void setup() throws Exception
     {
         conn = getAdminConnection( getLdapServer() );
-        
+
         if ( conn.lookup( "cn=foo,ou=system" ) == null )
         {
-            conn.add( new DefaultEntry( 
-                "cn=foo,ou=system", 
+            conn.add( new DefaultEntry(
+                "cn=foo,ou=system",
                 "objectClass: person",
                 "objectClass: top",
                 "cn: foo",
@@ -69,16 +69,17 @@ public class DeleteAliasIT extends AbstractLdapTestUnit
 
         if ( conn.lookup( "ou=alias,ou=users,ou=system" ) == null )
         {
-            conn.add( new DefaultEntry( 
-                "ou=alias,ou=users,ou=system", 
+            conn.add( new DefaultEntry(
+                "ou=alias,ou=users,ou=system",
                 "objectClass: top",
                 "objectClass: extensibleObject",
                 "objectClass: alias",
-                "ou: alias" ,
+                "ou: alias",
                 "aliasedObjectName: cn=foo,ou=system",
                 "description: alias to sibling (branch)" ) );
         }
     }
+
 
     /**
      * Tests normal delete operation of the alias and then the entry
@@ -95,7 +96,7 @@ public class DeleteAliasIT extends AbstractLdapTestUnit
         assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
         conn.delete( "cn=foo,ou=system" );
         assertNull( conn.lookup( "cn=foo,ou=system" ) );
-        
+
         conn.unBind();
         conn.close();
     }
@@ -113,7 +114,7 @@ public class DeleteAliasIT extends AbstractLdapTestUnit
         assertNotNull( conn.lookup( "cn=foo,ou=system" ) );
         conn.delete( "cn=foo,ou=system" );
         assertNull( conn.lookup( "cn=foo,ou=system" ) );
-        
+
         // Now, delete the alias
         //assertNotNull( conn.lookup( "ou=alias,ou=users,ou=system" ) );
         conn.delete( "ou=alias,ou=users,ou=system" );

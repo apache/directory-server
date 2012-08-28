@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.factory;
 
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -48,6 +49,7 @@ import org.apache.directory.shared.util.Strings;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.runner.Description;
 
+
 /**
  * 
  * Annotation processor for creating LDAP and Kerberos servers.
@@ -67,15 +69,15 @@ public class ServerAnnotationProcessor
                 int nbThreads = transportBuilder.nbThreads();
                 int backlog = transportBuilder.backlog();
                 String address = transportBuilder.address();
-                
+
                 if ( port <= 0 )
                 {
                     try
                     {
-                        ServerSocket ss = new ServerSocket(0);
-                        
+                        ServerSocket ss = new ServerSocket( 0 );
+
                         port = ss.getLocalPort();
-                        
+
                         ss.close();
                     }
                     catch ( IOException ioe )
@@ -83,7 +85,7 @@ public class ServerAnnotationProcessor
                         // Don't know what to do here...
                     }
                 }
-                
+
                 if ( protocol.equalsIgnoreCase( "LDAP" ) )
                 {
                     Transport ldap = new TcpTransport( address, port, nbThreads, backlog );
@@ -107,14 +109,15 @@ public class ServerAnnotationProcessor
             int port = AvailablePortFinder.getNextAvailable( 1024 );
             Transport ldap = new TcpTransport( port );
             ldapServer.addTransports( ldap );
-            
+
             port = AvailablePortFinder.getNextAvailable( port );
             Transport ldaps = new TcpTransport( port );
             ldaps.setEnableSSL( true );
             ldapServer.addTransports( ldaps );
         }
     }
-    
+
+
     /**
      * Just gives an instance of {@link LdapServer} without starting it.
      * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService)}
@@ -125,70 +128,72 @@ public class ServerAnnotationProcessor
         if ( createLdapServer != null )
         {
             LdapServer ldapServer = new LdapServer();
-            
+
             ldapServer.setServiceName( createLdapServer.name() );
-            
+
             // Read the transports
             createTransports( ldapServer, createLdapServer.transports() );
-            
+
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
-            
+
             ldapServer.setSaslHost( createLdapServer.saslHost() );
-            
+
             ldapServer.setSaslPrincipal( createLdapServer.saslPrincipal() );
-            
-            if( !Strings.isEmpty( createLdapServer.keyStore() ) )
+
+            if ( !Strings.isEmpty( createLdapServer.keyStore() ) )
             {
                 ldapServer.setKeystoreFile( createLdapServer.keyStore() );
                 ldapServer.setCertificatePassword( createLdapServer.certificatePassword() );
             }
-            
-            for( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )
+
+            for ( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )
             {
                 try
                 {
                     ExtendedOperationHandler extOpHandler = ( ExtendedOperationHandler ) extOpClass.newInstance();
                     ldapServer.addExtendedOperationHandler( extOpHandler );
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     throw new RuntimeException( I18n.err( I18n.ERR_690, extOpClass.getName() ), e );
                 }
             }
-            
-            for( SaslMechanism saslMech : createLdapServer.saslMechanisms() )
+
+            for ( SaslMechanism saslMech : createLdapServer.saslMechanisms() )
             {
                 try
                 {
                     MechanismHandler handler = ( MechanismHandler ) saslMech.implClass().newInstance();
                     ldapServer.addSaslMechanismHandler( saslMech.name(), handler );
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
-                    throw new RuntimeException( I18n.err( I18n.ERR_691, saslMech.name(), saslMech.implClass().getName() ), e );
+                    throw new RuntimeException(
+                        I18n.err( I18n.ERR_691, saslMech.name(), saslMech.implClass().getName() ), e );
                 }
             }
-            
-            NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get( SupportedSaslMechanisms.NTLM );
-           
-            if( ntlmHandler != null )
+
+            NtlmMechanismHandler ntlmHandler = ( NtlmMechanismHandler ) ldapServer.getSaslMechanismHandlers().get(
+                SupportedSaslMechanisms.NTLM );
+
+            if ( ntlmHandler != null )
             {
                 Class<?> ntlmProviderClass = createLdapServer.ntlmProvider();
                 // default value is a invalid Object.class
-                if( ( ntlmProviderClass != null ) && ( ntlmProviderClass != Object.class ) )
+                if ( ( ntlmProviderClass != null ) && ( ntlmProviderClass != Object.class ) )
                 {
                     try
                     {
                         ntlmHandler.setNtlmProvider( ( NtlmProvider ) ntlmProviderClass.newInstance() );
                     }
-                    catch( Exception e )
+                    catch ( Exception e )
                     {
                         throw new RuntimeException( I18n.err( I18n.ERR_692 ), e );
                     }
                 }
             }
-            
+
             return ldapServer;
         }
         else
@@ -196,8 +201,8 @@ public class ServerAnnotationProcessor
             return null;
         }
     }
-    
-    
+
+
     /**
      * Returns an LdapServer instance and starts it before returning the instance, infering
      * the configuration from the Stack trace
@@ -208,25 +213,25 @@ public class ServerAnnotationProcessor
     {
         Object instance = AnnotationUtils.getInstance( CreateLdapServer.class );
         LdapServer ldapServer = null;
-        
+
         if ( instance != null )
         {
-            CreateLdapServer createLdapServer = (CreateLdapServer)instance;
-            
+            CreateLdapServer createLdapServer = ( CreateLdapServer ) instance;
+
             ldapServer = createLdapServer( createLdapServer, directoryService );
         }
 
         return ldapServer;
     }
-    
-    
+
+
     /**
      * Create a replication consumer
      */
     private static ReplicationConsumer createConsumer( CreateConsumer createConsumer )
     {
         ReplicationConsumer consumer = new ReplicationConsumerImpl();
-        
+
         SyncreplConfiguration config = new SyncreplConfiguration();
         config.setRemoteHost( createConsumer.remoteHost() );
         config.setRemotePort( createConsumer.remotePort() );
@@ -235,13 +240,13 @@ public class ServerAnnotationProcessor
         config.setUseTls( createConsumer.useTls() );
         config.setBaseDn( createConsumer.baseDn() );
         config.setRefreshInterval( createConsumer.refreshInterval() );
-        
+
         consumer.setConfig( config );
 
         return consumer;
     }
-    
-    
+
+
     /**
      * creates an LdapServer and starts before returning the instance, infering
      * the configuration from the Stack trace
@@ -252,18 +257,18 @@ public class ServerAnnotationProcessor
     {
         Object instance = AnnotationUtils.getInstance( CreateConsumer.class );
         ReplicationConsumer consumer = null;
-        
+
         if ( instance != null )
         {
-            CreateConsumer createConsumer = (CreateConsumer)instance;
-            
+            CreateConsumer createConsumer = ( CreateConsumer ) instance;
+
             consumer = createConsumer( createConsumer );
         }
 
         return consumer;
     }
 
-    
+
     /**
      * creates an LdapServer and starts before returning the instance
      *  
@@ -274,12 +279,12 @@ public class ServerAnnotationProcessor
     private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
         LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService );
-        
+
         if ( ldapServer == null )
         {
             return null;
         }
-        
+
         // Launch the server
         try
         {
@@ -289,7 +294,7 @@ public class ServerAnnotationProcessor
         {
             e.printStackTrace();
         }
-        
+
         return ldapServer;
     }
 
@@ -330,25 +335,25 @@ public class ServerAnnotationProcessor
 
         // Check if we have any annotation associated with the method
         Method[] methods = classCaller.getMethods();
-        
+
         for ( Method method : methods )
         {
             if ( methodCaller.equals( method.getName() ) )
             {
                 Annotation annotation = method.getAnnotation( annotationClass );
-                
+
                 if ( annotation != null )
                 {
                     return annotation;
                 }
             }
         }
-        
+
         // No : look at the class level
         return classCaller.getAnnotation( annotationClass );
     }
-    
-    
+
+
     public static KdcServer getKdcServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateKdcServer createKdcServer = ( CreateKdcServer ) getAnnotation( CreateKdcServer.class );
@@ -356,32 +361,33 @@ public class ServerAnnotationProcessor
         return createKdcServer( createKdcServer, directoryService, startPort );
     }
 
-    
-    private static KdcServer createKdcServer( CreateKdcServer createKdcServer, DirectoryService directoryService, int startPort )
+
+    private static KdcServer createKdcServer( CreateKdcServer createKdcServer, DirectoryService directoryService,
+        int startPort )
     {
-        if( createKdcServer == null )
+        if ( createKdcServer == null )
         {
             return null;
         }
-        
+
         KdcServer kdcServer = new KdcServer();
         kdcServer.setServiceName( createKdcServer.name() );
         kdcServer.setKdcPrincipal( createKdcServer.kdcPrincipal() );
         kdcServer.setPrimaryRealm( createKdcServer.primaryRealm() );
         kdcServer.setMaximumTicketLifetime( createKdcServer.maxTicketLifetime() );
         kdcServer.setMaximumRenewableLifetime( createKdcServer.maxRenewableLifetime() );
-        
+
         CreateTransport[] transportBuilders = createKdcServer.transports();
-        
-        if( transportBuilders == null )
+
+        if ( transportBuilders == null )
         {
             // create only UDP transport if none specified
             UdpTransport defaultTransport = new UdpTransport( AvailablePortFinder.getNextAvailable( startPort ) );
             kdcServer.addTransports( defaultTransport );
         }
-        else if( transportBuilders.length > 0 )
+        else if ( transportBuilders.length > 0 )
         {
-            for( CreateTransport transportBuilder : transportBuilders )
+            for ( CreateTransport transportBuilder : transportBuilders )
             {
                 String protocol = transportBuilder.protocol();
                 int port = transportBuilder.port();
@@ -394,7 +400,7 @@ public class ServerAnnotationProcessor
                     port = AvailablePortFinder.getNextAvailable( startPort );
                     startPort = port + 1;
                 }
-                
+
                 if ( protocol.equalsIgnoreCase( "TCP" ) )
                 {
                     Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
@@ -411,9 +417,9 @@ public class ServerAnnotationProcessor
                 }
             }
         }
-        
+
         kdcServer.setDirectoryService( directoryService );
-        
+
         // Launch the server
         try
         {
@@ -423,12 +429,13 @@ public class ServerAnnotationProcessor
         {
             e.printStackTrace();
         }
-        
+
         return kdcServer;
     }
-    
-    
-    public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort ) throws Exception
+
+
+    public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
+        throws Exception
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
 

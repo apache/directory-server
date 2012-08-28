@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.rename;
 
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -33,6 +34,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the rename operation performances
  *
@@ -40,26 +42,26 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "RenamePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+@CreateDS(name = "RenamePerfDS",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry =
                 @ContextEntry(
-                    entryLdif = 
-                        "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
-            indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
-            })
-    }, 
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+    },
     enableChangeLog = false)
 public class RenamePerfIT extends AbstractLdapTestUnit
 {
@@ -71,7 +73,7 @@ public class RenamePerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        String oldDn ="cn=test,ou=system";
+        String oldDn = "cn=test,ou=system";
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
@@ -85,7 +87,7 @@ public class RenamePerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 100 == 0 )
@@ -102,19 +104,20 @@ public class RenamePerfIT extends AbstractLdapTestUnit
             }
 
             String newRdn = "cn=test" + i;
-            
+
             long ttt0 = System.nanoTime();
             connection.rename( oldDn, newRdn, true );
             long ttt1 = System.nanoTime();
 
-            oldDn = newRdn + ",ou=system"; 
+            oldDn = newRdn + ",ou=system";
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 

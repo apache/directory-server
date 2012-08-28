@@ -61,8 +61,12 @@ import org.junit.runner.RunWith;
     { "dn: cn=user1,ou=users,ou=system", "objectClass: person", "objectClass: top", "sn: user1 sn", "cn: user1",
 
         // alias to the above entry
-        "dn: cn=user1-alias,ou=users,ou=system", "objectClass: alias", "objectClass: top",
-        "objectClass: extensibleObject", "aliasedObjectName: cn=user1,ou=users,ou=system", "cn: user1-alias" })
+        "dn: cn=user1-alias,ou=users,ou=system",
+        "objectClass: alias",
+        "objectClass: top",
+        "objectClass: extensibleObject",
+        "aliasedObjectName: cn=user1,ou=users,ou=system",
+        "cn: user1-alias" })
 public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
@@ -101,7 +105,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -137,7 +141,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -169,7 +173,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -203,7 +207,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -237,7 +241,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -273,7 +277,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -306,7 +310,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -339,7 +343,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -372,7 +376,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -404,7 +408,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -433,7 +437,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -463,7 +467,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( entry );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
@@ -479,8 +483,8 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryCSN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
     }
-    
-    
+
+
     /**
      *  DIRSERVER-1600
      */
@@ -492,7 +496,7 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
         sr.setFilter( "(uid=admin)" );
         sr.setScope( SearchScope.OBJECT );
         sr.setTypesOnly( true );
-        
+
         Cursor<Response> cursor = connection.search( sr );
         int count = 0;
         Entry response = null;
@@ -503,10 +507,10 @@ public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
             assertNotNull( response );
             count++;
         }
-        
+
         cursor.close();
 
         assertEquals( 1, count );
         assertNull( response.get( SchemaConstants.UID_AT ).get() );
-    }    
+    }
 }

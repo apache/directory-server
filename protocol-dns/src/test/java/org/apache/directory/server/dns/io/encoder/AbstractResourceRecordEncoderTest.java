@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+
 /**
  * A base class for testing different types of ResourceRecordEncoders.  It 
  * handles setting up the expected output buffer not having to do specifically

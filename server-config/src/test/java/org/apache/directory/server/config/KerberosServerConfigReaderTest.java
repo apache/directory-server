@@ -65,6 +65,7 @@ public class KerberosServerConfigReaderTest
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
 
+
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -75,12 +76,12 @@ public class KerberosServerConfigReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -100,7 +101,7 @@ public class KerberosServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -111,19 +112,22 @@ public class KerberosServerConfigReaderTest
         File configDir = new File( workDir, "kerberosServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory,
+            executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager,
+            "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_KERBEROS_SERVER_OC
+            .getValue() );
 
         assertNotNull( configBean );
-        KdcServerBean kdcServerBean = (KdcServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        KdcServerBean kdcServerBean = ( KdcServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( kdcServerBean );
 
         configPartition.destroy();

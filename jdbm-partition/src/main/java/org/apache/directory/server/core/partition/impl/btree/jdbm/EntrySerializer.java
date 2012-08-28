@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -103,14 +104,14 @@ public class EntrySerializer implements Serializer
      */
     public byte[] serialize( Object object ) throws IOException
     {
-        Entry entry = (Entry) object;
-        
+        Entry entry = ( Entry ) object;
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutput out = new ObjectOutputStream( baos );
 
         // First, the Dn
         Dn dn = entry.getDn();
-        
+
         // Write the Rdn of the Dn
         if ( dn.isEmpty() )
         {
@@ -133,7 +134,7 @@ public class EntrySerializer implements Serializer
         for ( Attribute attribute : entry.getAttributes() )
         {
             AttributeType attributeType = attribute.getAttributeType();
-            
+
             // Write the oid to be able to restore the AttributeType when deserializing
             // the attribute
             String oid = attributeType.getOid();
@@ -143,7 +144,7 @@ public class EntrySerializer implements Serializer
             // Write the attribute
             attribute.writeExternal( out );
         }
-        
+
         out.flush();
 
         // Note : we don't store the ObjectClassAttribute. It has already
@@ -158,7 +159,7 @@ public class EntrySerializer implements Serializer
         return baos.toByteArray();
     }
 
-    
+
     /**
      *  Deserialize a Entry.
      *  
@@ -181,7 +182,7 @@ public class EntrySerializer implements Serializer
             {
                 Rdn rdn = new Rdn( schemaManager );
                 rdn.readExternal( in );
-                
+
                 try
                 {
                     entry.setDn( new Dn( schemaManager, rdn ) );
@@ -206,7 +207,7 @@ public class EntrySerializer implements Serializer
             {
                 // Read the attribute's OID
                 String oid = in.readUTF();
-                
+
                 try
                 {
                     AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
@@ -225,7 +226,7 @@ public class EntrySerializer implements Serializer
                     throw new ClassNotFoundException( ne.getMessage(), ne );
                 }
             }
-            
+
             return entry;
         }
         catch ( ClassNotFoundException cnfe )

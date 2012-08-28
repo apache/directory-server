@@ -33,27 +33,26 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbCredStatesEnum implements States
 {
     // Start
-    START_STATE,                    // 0
+    START_STATE, // 0
 
     // ----- KRB-ERROR component --------------------------------------
-    KRB_CRED_TAG_STATE,             // 1
+    KRB_CRED_TAG_STATE, // 1
 
-    KRB_CRED_SEQ_TAG_STATE,         // 2
+    KRB_CRED_SEQ_TAG_STATE, // 2
 
-    KRB_CRED_PVNO_TAG_STATE,        // 3
-    KRB_CRED_PVNO_STATE,            // 4
+    KRB_CRED_PVNO_TAG_STATE, // 3
+    KRB_CRED_PVNO_STATE, // 4
 
-    KRB_CRED_MSGTYPE_TAG_STATE,     // 5
-    KRB_CRED_MSGTYPE_STATE,         // 6
+    KRB_CRED_MSGTYPE_TAG_STATE, // 5
+    KRB_CRED_MSGTYPE_STATE, // 6
 
-    KRB_CRED_TICKETS_TAG_STATE,     // 7
-    KRB_CRED_TICKETS_STATE,         // 8
+    KRB_CRED_TICKETS_TAG_STATE, // 7
+    KRB_CRED_TICKETS_STATE, // 8
 
-    KRB_CRED_ENCPART_TAG_STATE,     // 9
+    KRB_CRED_ENCPART_TAG_STATE, // 9
 
     // End
-    LAST_KRB_CRED_STATE;            // 10
-
+    LAST_KRB_CRED_STATE; // 10
 
     /**
      * Get the grammar name

@@ -103,7 +103,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return filterDenormalized( entry );
         }
     }
-    
 
     /**
      * the database search result filter to register with filter service
@@ -116,8 +115,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 || filterOperationalAttributes( entry );
         }
     }
-    
-    
+
+
     /**
      * Creates the operational attribute management service interceptor.
      */
@@ -149,7 +148,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Check if we have to add an operational attribute, or if the admin has injected one
      */
-    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute ) throws LdapException
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute )
+        throws LdapException
     {
         if ( entry.containsAttribute( attribute ) )
         {
@@ -254,7 +254,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry result = next( lookupContext );
-        
+
         if ( lookupContext.hasAllUser() )
         {
             if ( lookupContext.hasAllOperational() )
@@ -293,7 +293,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 filterList( lookupContext, result );
             }
         }
-        
+
         denormalizeEntryOpAttrs( result );
 
         return result;
@@ -382,7 +382,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
                     .getName() );
 
-                Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
+                Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                    attribute );
 
                 mods.add( modifiersName );
             }
@@ -545,7 +546,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             removedAttributes.remove( returningAttribute );
         }
-        
+
         // Now, remove the attributes from the result
         for ( String attribute : removedAttributes )
         {
@@ -575,7 +576,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             for ( Attribute attribute : entry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                
+
                 if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                 {
                     // If it's not in the list of returning attribute, remove it
@@ -585,7 +586,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                     }
                 }
             }
-            
+
             for ( AttributeType attributeType : removedAttributes )
             {
                 entry.removeAttributes( attributeType );
@@ -619,14 +620,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             for ( Attribute attribute : entry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                
+
                 // If it's not in the list of returning attribute, remove it
                 if ( !ids.contains( attributeType.getOid() ) )
                 {
                     removedAttributes.add( attributeType );
                 }
             }
-            
+
             for ( AttributeType attributeType : removedAttributes )
             {
                 entry.removeAttributes( attributeType );

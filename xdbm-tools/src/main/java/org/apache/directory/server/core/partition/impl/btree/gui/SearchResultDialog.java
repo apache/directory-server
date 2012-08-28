@@ -61,7 +61,7 @@ public class SearchResultDialog extends JDialog implements ListSelectionListener
 
 
     /** Creates new form JDialog */
-    public SearchResultDialog(Frame parent, boolean modal)
+    public SearchResultDialog( Frame parent, boolean modal )
     {
         super( parent, modal );
         initGUI();

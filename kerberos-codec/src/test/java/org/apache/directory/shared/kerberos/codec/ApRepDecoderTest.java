@@ -54,29 +54,46 @@ public class ApRepDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
-        
+
         stream.put( new byte[]
-        {
-            0x6F, 0x1F,
-              0x30, 0x1D,
-                (byte)0xA0, 0x03,                 // pvno
-                  0x02, 0x01, 0x05,
-                (byte)0xA1, 0x03,                 // msg-type
-                  0x02, 0x01, 0x0F,
-                (byte)0xA2, 0x11,                 // enc-part
-                  0x30, 0x0F, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x11, 
-                    (byte)0xA2, 0x08, 
-                      0x04, 0x06, 
-                        'a', 'b', 'c', 'd', 'e', 'f', 
-        });
+            {
+                0x6F, 0x1F,
+                0x30, 0x1D,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x0F,
+                ( byte ) 0xA2,
+                0x11, // enc-part
+                0x30,
+                0x0F,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+        } );
 
         stream.flip();
 
         // Allocate a AsRep Container
         ApRepContainer apRepContainer = new ApRepContainer( stream );
-        
+
         // Decode the ApRep PDU
         try
         {
@@ -88,20 +105,20 @@ public class ApRepDecoderTest
         }
 
         ApRep apRep = apRepContainer.getApRep();
-        
+
         // Check the encoding
         int length = apRep.computeLength();
 
         // Check the length
         assertEquals( 0x21, length );
-        
+
         // Check the encoding
         ByteBuffer encodedPdu = ByteBuffer.allocate( length );
-        
+
         try
         {
             encodedPdu = apRep.encode( encodedPdu );
-            
+
             // Check the length
             assertEquals( 0x21, encodedPdu.limit() );
         }
@@ -110,54 +127,73 @@ public class ApRepDecoderTest
             fail();
         }
     }
+
+
     /**
      * Test the decoding of a AP-REP message with a wrong msg-type
      */
-    @Test( expected=DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testDecodeFullApRepWrongMsgType() throws Exception
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
-        
+
         stream.put( new byte[]
-        {
-            0x6F, 0x1F,
-              0x30, 0x1D,
-                (byte)0xA0, 0x03,                 // pvno
-                  0x02, 0x01, 0x05,
-                (byte)0xA1, 0x03,                 // msg-type
-                  0x02, 0x01, 0x0F,
-                (byte)0xA2, 0x11,                 // enc-part
-                  0x30, 0x0E, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x11, 
-                    (byte)0xA2, 0x08, 
-                      0x04, 0x06, 
-                        'a', 'b', 'c', 'd', 'e', 'f', 
-        });
+            {
+                0x6F, 0x1F,
+                0x30, 0x1D,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x0F,
+                ( byte ) 0xA2,
+                0x11, // enc-part
+                0x30,
+                0x0E,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x11,
+                ( byte ) 0xA2,
+                0x08,
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+        } );
 
         stream.flip();
 
         // Allocate a AsRep Container
         ApRepContainer apRepContainer = new ApRepContainer( stream );
-        
+
         // Decode the ApRep PDU
         kerberosDecoder.decode( stream, apRepContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a AP-REP with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testApRepEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x6F, 0x00 } );
 
@@ -170,23 +206,23 @@ public class ApRepDecoderTest
         kerberosDecoder.decode( stream, apRepContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a AP-REP with empty SEQ
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testApRepEmptSEQ() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x6F, 0x02,
-                  0x30, 0x00,
-            } );
+                0x30, 0x00,
+        } );
 
         stream.flip();
 
@@ -197,24 +233,24 @@ public class ApRepDecoderTest
         kerberosDecoder.decode( stream, apRepContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a AP-REP with empty Pvno tag
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testApRepEmptyPvnoTag() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x6F, 0x04,
-                  0x30, 0x02,
-                    (byte)0xA0, 0x00
-            } );
+                0x30, 0x02,
+                ( byte ) 0xA0, 0x00
+        } );
 
         stream.flip();
 
@@ -225,25 +261,25 @@ public class ApRepDecoderTest
         kerberosDecoder.decode( stream, apRepContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a AP-REP with empty Pvno value
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testAsRepEmptyPvnoValue() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x6E, 0x06,
-                  0x30, 0x04,
-                    (byte)0xA0, 0x02,
-                      0x02, 0x00
-            } );
+                0x30, 0x04,
+                ( byte ) 0xA0, 0x02,
+                0x02, 0x00
+        } );
 
         stream.flip();
 

@@ -164,7 +164,7 @@ public class KeytabTest
 
         String zuluTime = "20070217235745Z";
         Date date = null;
-        
+
         synchronized ( DateUtils.DATE_FORMAT )
         {
             date = DateUtils.DATE_FORMAT.parse( zuluTime );

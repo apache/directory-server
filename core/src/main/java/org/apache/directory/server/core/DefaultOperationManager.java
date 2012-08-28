@@ -311,8 +311,8 @@ public class DefaultOperationManager implements OperationManager
             throw new LdapOtherException( e.getMessage() );
         }
     }
-    
-    
+
+
     /**
      * Retries a transaction
      */
@@ -354,7 +354,7 @@ public class DefaultOperationManager implements OperationManager
         {
             txnManager.commitTransaction();
         }
-        catch( TxnConflictException ce )
+        catch ( TxnConflictException ce )
         {
             throw ce;
         }
@@ -363,8 +363,8 @@ public class DefaultOperationManager implements OperationManager
             throw new LdapOtherException( e.getMessage(), e );
         }
     }
-    
-    
+
+
     /*
      * Reinit logical data if necessary
      */
@@ -375,10 +375,10 @@ public class DefaultOperationManager implements OperationManager
             if ( txnManager.prepareForLogicalDataReinit() )
             {
                 txnManager.applyPendingTxns();
-                
+
                 directoryService.resetCaches();
                 directoryService.getSchemaManager().reloadAllEnabled();
-                
+
                 head.reinitLogicalData( directoryService );
             }
         }
@@ -388,8 +388,8 @@ public class DefaultOperationManager implements OperationManager
             e.printStackTrace();
         }
     }
-    
-    
+
+
     public boolean isCausedByConflictException( Throwable e )
     {
         while ( e != null )
@@ -398,10 +398,10 @@ public class DefaultOperationManager implements OperationManager
             {
                 return true;
             }
-            
+
             e = e.getCause();
         }
-        
+
         return false;
     }
 
@@ -423,18 +423,18 @@ public class DefaultOperationManager implements OperationManager
         TxnHandle curTxn = txnManager.getCurTxn();
 
         boolean done;
-        
+
         do
         {
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 addContext.resetContext();
                 retryTransactionRW( txnManager );
             }
@@ -445,7 +445,7 @@ public class DefaultOperationManager implements OperationManager
             }
 
             addContext.saveOriginalContext();
-        
+
             // Normalize the addContext Dn
             Dn dn = addContext.getDn();
 
@@ -508,7 +508,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( startedTxn && isCausedByConflictException( le ) )
                     {
                         // Retry
-                        done = false; 
+                        done = false;
                     }
                     else
                     {
@@ -516,7 +516,7 @@ public class DefaultOperationManager implements OperationManager
                         {
                             // Reset logical data if necessary
                             reinitLogicalData( txnManager, head );
-                            
+
                             abortTransaction( txnManager, le );
                         }
 
@@ -537,7 +537,7 @@ public class DefaultOperationManager implements OperationManager
                 }
 
                 //txnManager.applyPendingTxns();
-            } 
+            }
         }
         while ( !done );
 
@@ -567,24 +567,23 @@ public class DefaultOperationManager implements OperationManager
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 bindContext.resetContext();
                 retryTransactionRW( txnManager );
             }
             else
             {
-              beginTransactionRW( txnManager );
-              startedTxn = true;
+                beginTransactionRW( txnManager );
+                startedTxn = true;
             }
-            
-            
+
             bindContext.saveOriginalContext();
-            
+
             try
             {
                 head.bind( bindContext );
@@ -627,15 +626,13 @@ public class DefaultOperationManager implements OperationManager
                 }
             }
 
-
-            
             try
             {
                 commitTransaction( txnManager );
             }
             catch ( TxnConflictException txne )
             {
-               done = false; // retry
+                done = false; // retry
             }
         }
         while ( !done );
@@ -652,12 +649,12 @@ public class DefaultOperationManager implements OperationManager
         LOG.debug( ">> CompareOperation : {}", compareContext );
 
         ensureStarted();
-        
+
         TxnManager txnManager = directoryService.getTxnManager();
 
         beginTransactionR( txnManager );
         boolean result = false;
-        
+
         // Normalize the compareContext Dn
         Dn dn = compareContext.getDn();
         dn.apply( directoryService.getSchemaManager() );
@@ -684,7 +681,7 @@ public class DefaultOperationManager implements OperationManager
                     //directoryService.getReferralManager().unlock();
 
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -698,7 +695,7 @@ public class DefaultOperationManager implements OperationManager
                     //directoryService.getReferralManager().unlock();
 
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -708,7 +705,7 @@ public class DefaultOperationManager implements OperationManager
                     //directoryService.getReferralManager().unlock();
 
                     LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -741,7 +738,7 @@ public class DefaultOperationManager implements OperationManager
         }
         catch ( TxnConflictException txne )
         {
-          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+            throw new IllegalStateException( " Read only txn shouldn have conflict " );
         }
 
         LOG.debug( "<< CompareOperation successful" );
@@ -759,13 +756,13 @@ public class DefaultOperationManager implements OperationManager
         LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
 
         ensureStarted();
-        
+
         boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
         TxnHandle curTxn = txnManager.getCurTxn();
 
         boolean done;
-        
+
         // Save the head
         Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
@@ -863,7 +860,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             //directoryService.getReferralManager().unlock();
-            
+
             try
             {
                 // populate the context with the old entry
@@ -876,7 +873,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -884,7 +881,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Reset logical data if necessary
                         reinitLogicalData( txnManager, head );
-                        
+
                         abortTransaction( txnManager, le );
                     }
 
@@ -892,7 +889,6 @@ public class DefaultOperationManager implements OperationManager
                 }
             }
 
-            
             if ( startedTxn )
             {
                 try
@@ -901,7 +897,7 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( TxnConflictException txne )
                 {
-                   done = false; // retry
+                    done = false; // retry
                 }
             }
             //txnManager.applyPendingTxns();
@@ -967,7 +963,7 @@ public class DefaultOperationManager implements OperationManager
         }
         catch ( TxnConflictException txne )
         {
-          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+            throw new IllegalStateException( " Read only txn shouldn have conflict " );
         }
 
         LOG.debug( "<< HasEntryOperation successful" );
@@ -998,7 +994,7 @@ public class DefaultOperationManager implements OperationManager
             cursor = head.list( listContext );
 
             cursor.setTxnManager( txnManager );
-            
+
             txnManager.endLogicalDataRead();
             txnManager.setCurTxn( null );
         }
@@ -1049,7 +1045,7 @@ public class DefaultOperationManager implements OperationManager
         }
         catch ( TxnConflictException txne )
         {
-          throw new IllegalStateException(" Read only txn shouldn have conflict ");
+            throw new IllegalStateException( " Read only txn shouldn have conflict " );
         }
 
         LOG.debug( "<< LookupOperation successful" );
@@ -1072,7 +1068,7 @@ public class DefaultOperationManager implements OperationManager
         boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
         TxnHandle curTxn = txnManager.getCurTxn();
-        
+
         // Save the head
         Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
@@ -1081,12 +1077,12 @@ public class DefaultOperationManager implements OperationManager
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 modifyContext.resetContext();
                 retryTransactionRW( txnManager );
             }
@@ -1097,7 +1093,7 @@ public class DefaultOperationManager implements OperationManager
             }
 
             modifyContext.saveOriginalContext();
-            
+
             // Normalize the modifyContext Dn
             Dn dn = modifyContext.getDn();
             dn.apply( directoryService.getSchemaManager() );
@@ -1120,18 +1116,18 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Throw a Referral Exception
                         // Unlock the referral manager
-                       // referralManager.unlock();
+                        // referralManager.unlock();
 
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
-                        
+
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                 }
@@ -1149,12 +1145,12 @@ public class DefaultOperationManager implements OperationManager
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                         LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                     else
@@ -1166,12 +1162,12 @@ public class DefaultOperationManager implements OperationManager
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                 }
@@ -1179,7 +1175,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             //referralManager.unlock();
-            
+
             try
             {
                 // populate the context with the old entry
@@ -1193,7 +1189,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1201,7 +1197,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Reset logical data if necessary
                         reinitLogicalData( txnManager, head );
-                        
+
                         abortTransaction( txnManager, le );
                     }
 
@@ -1217,7 +1213,7 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( TxnConflictException txne )
                 {
-                   done = false; // retry
+                    done = false; // retry
                 }
             }
             //txnManager.applyPendingTxns();
@@ -1246,18 +1242,18 @@ public class DefaultOperationManager implements OperationManager
 
         // Save the head
         Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
-        
+
         do
         {
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 moveContext.resetContext();
                 retryTransactionRW( txnManager );
             }
@@ -1299,12 +1295,12 @@ public class DefaultOperationManager implements OperationManager
                         //directoryService.getReferralManager().unlock();
 
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                 }
@@ -1319,12 +1315,12 @@ public class DefaultOperationManager implements OperationManager
                         //directoryService.getReferralManager().unlock();
 
                         LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                     else
@@ -1333,12 +1329,12 @@ public class DefaultOperationManager implements OperationManager
                         //directoryService.getReferralManager().unlock();
 
                         LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        
+
                         if ( startedTxn )
                         {
                             abortTransaction( txnManager, exception );
                         }
-                        
+
                         throw exception;
                     }
                 }
@@ -1360,13 +1356,13 @@ public class DefaultOperationManager implements OperationManager
                 {
                     abortTransaction( txnManager, exception );
                 }
-                
+
                 throw exception;
             }
 
             // Unlock the ReferralManager
             //directoryService.getReferralManager().unlock();
-            
+
             try
             {
                 Entry originalEntry = getOriginalEntry( moveContext );
@@ -1380,7 +1376,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1388,7 +1384,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Reset logical data if necessary
                         reinitLogicalData( txnManager, head );
-                        
+
                         abortTransaction( txnManager, le );
                     }
 
@@ -1404,7 +1400,7 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( TxnConflictException txne )
                 {
-                   done = false; // retry
+                    done = false; // retry
                 }
             }
             //txnManager.applyPendingTxns();
@@ -1425,7 +1421,7 @@ public class DefaultOperationManager implements OperationManager
         LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
 
         ensureStarted();
-        
+
         boolean done = false;
         boolean startedTxn = false;
         TxnManager txnManager = directoryService.getTxnManager();
@@ -1433,18 +1429,18 @@ public class DefaultOperationManager implements OperationManager
 
         // Save the head
         Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
-        
+
         do
         {
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 moveAndRenameContext.resetContext();
                 retryTransactionRW( txnManager );
             }
@@ -1555,7 +1551,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             //directoryService.getReferralManager().unlock();
-            
+
             try
             {
                 moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
@@ -1568,7 +1564,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1576,7 +1572,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Reset logical data if necessary
                         reinitLogicalData( txnManager, head );
-                        
+
                         abortTransaction( txnManager, le );
                     }
 
@@ -1592,7 +1588,7 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( TxnConflictException txne )
                 {
-                   done = false; // retry
+                    done = false; // retry
                 }
             }
             //txnManager.applyPendingTxns();
@@ -1620,18 +1616,18 @@ public class DefaultOperationManager implements OperationManager
 
         // Save the head
         Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
-        
+
         do
         {
             // Assume we are done, will be set to false
             // if retry is needed
             done = true;
-            
+
             if ( startedTxn )
             {
                 // Reset logical data if necessary
                 reinitLogicalData( txnManager, head );
-                
+
                 renameContext.resetContext();
                 retryTransactionRW( txnManager );
             }
@@ -1724,7 +1720,7 @@ public class DefaultOperationManager implements OperationManager
 
             // Unlock the ReferralManager
             //directoryService.getReferralManager().unlock();    
-            
+
             try
             {
                 // Call the rename method
@@ -1741,7 +1737,7 @@ public class DefaultOperationManager implements OperationManager
                 if ( startedTxn && isCausedByConflictException( le ) )
                 {
                     // Retry
-                    done = false; 
+                    done = false;
                 }
                 else
                 {
@@ -1749,7 +1745,7 @@ public class DefaultOperationManager implements OperationManager
                     {
                         // Reset logical data if necessary
                         reinitLogicalData( txnManager, head );
-                        
+
                         abortTransaction( txnManager, le );
                     }
 
@@ -1765,7 +1761,7 @@ public class DefaultOperationManager implements OperationManager
                 }
                 catch ( TxnConflictException txne )
                 {
-                   done = false; // retry
+                    done = false; // retry
                 }
             }
             //txnManager.applyPendingTxns();
@@ -1785,7 +1781,7 @@ public class DefaultOperationManager implements OperationManager
         LOG.debug( ">> SearchOperation : {}", searchContext );
 
         ensureStarted();
-        
+
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
 
         TxnManager txnManager = directoryService.getTxnManager();
@@ -1820,7 +1816,7 @@ public class DefaultOperationManager implements OperationManager
 
                     LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
                         searchContext.getScope() );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -1836,7 +1832,7 @@ public class DefaultOperationManager implements OperationManager
                     //directoryService.getReferralManager().unlock();
 
                     LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -1847,7 +1843,7 @@ public class DefaultOperationManager implements OperationManager
 
                     LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
                         searchContext.getScope() );
-                    
+
                     abortTransaction( txnManager, exception );
                     throw exception;
                 }
@@ -1863,10 +1859,10 @@ public class DefaultOperationManager implements OperationManager
             cursor = head.search( searchContext );
 
             cursor.setTxnManager( txnManager );
-            
+
             cursor.setTimestamp( System.currentTimeMillis() );
             directoryService.getLeakedCursorManager().trackCursor( cursor );
-            
+
             txnManager.endLogicalDataRead();
             txnManager.setCurTxn( null );
         }

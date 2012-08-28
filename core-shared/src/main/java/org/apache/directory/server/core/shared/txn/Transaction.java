@@ -37,33 +37,34 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 /** Package protected */
 interface Transaction extends TxnHandle
 {
-	/**
-	 * Set the txn id. Used to change the txn id to the log lsn
-	 * @param id new txn id
-	 */
-	void setTxnId( long id );
-	
+    /**
+     * Set the txn id. Used to change the txn id to the log lsn
+     * @param id new txn id
+     */
+    void setTxnId( long id );
+
+
     /**
      * returns TRUE if optimisticLock held, false otherwise
      *
      * @return  TRUE if optimisticLock held, false otherwise
      */
     boolean isOptimisticLockHeld();
-    
-    
+
+
     /**
      * Called after txn gets the optimistic lock
      *
      */
     void setOptimisticLockHeld();
-    
-    
+
+
     /**
      * Called after txn release the optimistic lock
      */
     void clearOptimisticLockHeld();
-    
-    
+
+
     /**
      * 
      * Returns the version of the logical data this txn sees.
@@ -71,8 +72,8 @@ interface Transaction extends TxnHandle
      * @return version of the logical data this txn sees.
      */
     long getLogicalDataVersion();
-    
-    
+
+
     /**
      * Get the list of txns that this txn should check when mergin
      * its view from the partitions with the data in txn logs.
@@ -97,7 +98,7 @@ interface Transaction extends TxnHandle
      * @param startTime start time of the txn
      * @param version of the logical data this txn sees
      */
-    void startTxn( long startTime, long logicalDataVerion  );
+    void startTxn( long startTime, long logicalDataVerion );
 
 
     /**

@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "GeneralAuthorizationIT")
-public class GeneralAuthorizationIT extends AbstractLdapTestUnit 
+public class GeneralAuthorizationIT extends AbstractLdapTestUnit
 {
 
     @Before
@@ -50,39 +50,40 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     {
         AutzIntegUtils.service = getService();
     }
-    
+
+
     @After
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
     }
-    
-    
+
+
     /**
      * Checks to make sure we cannot create a malformed ACI missing two
      * last brackets.
      *
      * @throws Exception if the test encounters an error
      */
-    @Test( expected = LdapInvalidAttributeValueException.class )
+    @Test(expected = LdapInvalidAttributeValueException.class)
     public void testFailureToAddBadACI() throws Exception
     {
         // add a subentry with malformed ACI
-        createAccessControlSubentry( 
-            "anybodyAdd", 
-            "{ " + 
-            "  identificationTag \"addAci\", " + 
-            "  precedence 14, " +
-            "  authenticationLevel none, " + 
-            "  itemOrUserFirst userFirst: " +
-            "  { " + 
-            "    userClasses { allUsers }, " +
-            "    userPermissions " +
-            "    { " +
-            "      { " + 
-            "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
-            "        grantsAndDenials { grantAdd, grantBrowse } " +
-            "      } " +
-            "    }" );
+        createAccessControlSubentry(
+            "anybodyAdd",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { allUsers }, " +
+                "    userPermissions " +
+                "    { " +
+                "      { " +
+                "        protectedItems {entry, allUserAttributeTypesAndValues}, " +
+                "        grantsAndDenials { grantAdd, grantBrowse } " +
+                "      } " +
+                "    }" );
     }
 }

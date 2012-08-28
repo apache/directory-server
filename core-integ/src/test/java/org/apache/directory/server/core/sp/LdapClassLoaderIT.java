@@ -47,8 +47,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="LdapClassLoaderIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "LdapClassLoaderIT-class")
 public class LdapClassLoaderIT extends AbstractLdapTestUnit
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"
@@ -60,7 +60,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         + "AAkAAAAdAAEAAQAAAAUqtwABsQAAAAEACgAAAAYAAQAAAAEACQALAAwAAQAJAAAAJQACAAEAAAA"
         + "JsgACEgO2AASxAAAAAQAKAAAACgACAAAABQAIAAYAAQANAAAAAgAO";
 
-    private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.decode(HELLOWORLD_CLASS_BASE64.toCharArray());
+    private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.decode( HELLOWORLD_CLASS_BASE64.toCharArray() );
 
 
     @Test
@@ -103,7 +103,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         Attribute objectClass = new BasicAttribute( "objectClass" );
         objectClass.add( "top" );
         objectClass.add( "javaContainer" );
-        
+
         // We need to ad this extensibleObject OC in order to avoid an error
         // with the classLoaderDefaultSearchContext AT used later (no OC contains
         // this AT)
@@ -114,7 +114,8 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "cn", "classLoaderDefaultSearchContext" ) );
 
         // add a default search context to the configuration
-        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "classLoaderDefaultSearchContext", "ou=system" ) );
+        classLoaderDefaultSearchContextConfig
+            .put( new BasicAttribute( "classLoaderDefaultSearchContext", "ou=system" ) );
 
         // add the configuration entry to the DIT
         ServerLdapContext configContext = ( ServerLdapContext ) defaultContext.lookup( "ou=configuration" );

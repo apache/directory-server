@@ -54,9 +54,10 @@ public class ClonedServerEntry implements Entry
 
     /** The original entry as returned by the backend */
     protected Entry originalEntry;
-    
+
     /** The copied entry */
     protected Entry clonedEntry;
+
 
     /**
      * Creates a new instance of ClonedServerEntry.
@@ -65,7 +66,7 @@ public class ClonedServerEntry implements Entry
     {
     }
 
-    
+
     /**
      * Creates a new instance of ClonedServerEntry.
      * 
@@ -75,20 +76,20 @@ public class ClonedServerEntry implements Entry
      */
     public ClonedServerEntry( SchemaManager schemaManager, Entry originalEntry )
     {
-    	try
-    	{
-    		originalEntry.apply( schemaManager );
-    	}
-    	catch ( Exception e )
-    	{
-    		// Not supposed to happen
-    	}
-    	
+        try
+        {
+            originalEntry.apply( schemaManager );
+        }
+        catch ( Exception e )
+        {
+            // Not supposed to happen
+        }
+
         this.originalEntry = originalEntry;
         this.clonedEntry = ( Entry ) originalEntry.clone();
     }
-    
-    
+
+
     /**
      * @return the originalEntry
      */
@@ -150,7 +151,7 @@ public class ClonedServerEntry implements Entry
     {
         clonedEntry.apply( schemaManager );
     }
-    
+
 
     public boolean contains( AttributeType attributeType, byte[]... values )
     {
@@ -340,7 +341,7 @@ public class ClonedServerEntry implements Entry
         return clonedEntry.hasObjectClass( objectClasses );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -348,7 +349,7 @@ public class ClonedServerEntry implements Entry
     {
         return clonedEntry.isSchemaAware();
     }
-    
+
 
     public Iterator<Attribute> iterator()
     {
@@ -426,18 +427,18 @@ public class ClonedServerEntry implements Entry
     {
         // Copy the Dn
         Entry clientEntry = new DefaultEntry( clonedEntry.getDn() );
-        
+
         // Convert each attribute 
-        for ( Attribute clonedEntry:this )
+        for ( Attribute clonedEntry : this )
         {
             Attribute clientAttribute = clonedEntry.clone();
             clientEntry.add( clientAttribute );
         }
-        
+
         return clientEntry;
     }
-    
-    
+
+
     /**
      * @see java.io.Externalizable#readExternal(ObjectInput)
      * 
@@ -447,8 +448,8 @@ public class ClonedServerEntry implements Entry
     {
         throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
     }
-    
-    
+
+
     /**
      * @see java.io.Externalizable#writeExternal(ObjectOutput)
      * 
@@ -458,14 +459,14 @@ public class ClonedServerEntry implements Entry
     {
         throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
-    
-    
+
+
     public Entry clone()
     {
         return ( Entry ) clonedEntry.clone();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -474,6 +475,7 @@ public class ClonedServerEntry implements Entry
     {
         return 703;
     }
+
 
     /**
      * @see Object#equals(Object);
@@ -486,22 +488,22 @@ public class ClonedServerEntry implements Entry
         {
             return true;
         }
-        
+
         Entry other;
-        
+
         if ( obj instanceof ClonedServerEntry )
         {
-            other = ((ClonedServerEntry)obj).getClonedEntry();
+            other = ( ( ClonedServerEntry ) obj ).getClonedEntry();
         }
         else if ( obj instanceof Entry )
         {
-            other = (Entry)obj;
+            other = ( Entry ) obj;
         }
-        else 
+        else
         {
             return false;
         }
-        if ( clonedEntry == null)
+        if ( clonedEntry == null )
         {
             return other == null;
         }
@@ -510,8 +512,8 @@ public class ClonedServerEntry implements Entry
             return clonedEntry.equals( other );
         }
     }
-    
-    
+
+
     public String toString()
     {
         return clonedEntry.toString();

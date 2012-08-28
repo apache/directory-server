@@ -63,7 +63,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
     /** The encrypted value */
     private byte[] keyValue;
-    
+
     /** The key version */
     private int keyVersion;
 
@@ -72,13 +72,14 @@ public class EncryptionKey extends AbstractAsn1Object
     private int keyValueLength;
     private int encryptionKeyLength;
 
+
     /**
      * Creates a new instance of EncryptionKey.
      */
     public EncryptionKey()
     {
     }
-    
+
 
     /**
      * Creates a new instance of EncryptionKey.
@@ -135,7 +136,7 @@ public class EncryptionKey extends AbstractAsn1Object
      * Set the encryption type
      * @param keyType The encryption type
      */
-    public void setKeyType( EncryptionType keyType ) 
+    public void setKeyType( EncryptionType keyType )
     {
         this.keyType = keyType;
     }
@@ -162,22 +163,22 @@ public class EncryptionKey extends AbstractAsn1Object
         return keyVersion;
     }
 
-    
+
     /**
      * Set the key value
      * @param keyVersion The key version
      */
-    public void setKeyVersion( int keyVersion)
+    public void setKeyVersion( int keyVersion )
     {
         this.keyVersion = keyVersion;
     }
 
-    
+
     /**
      * Set the key value
      * @param keyValue The key value
      */
-    public void setKeyValue( byte[] keyValue ) 
+    public void setKeyValue( byte[] keyValue )
     {
         this.keyValue = keyValue;
     }
@@ -192,7 +193,7 @@ public class EncryptionKey extends AbstractAsn1Object
         int hash = 37;
         hash = hash * 17 + keyType.hashCode();
         hash = hash * 17 + Arrays.hashCode( keyValue );
-        
+
         return hash;
     }
 
@@ -313,7 +314,7 @@ public class EncryptionKey extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncryptionKey initial value : {}", toString() );
         }
 

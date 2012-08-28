@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class UUIDSerializer implements Serializer
     private static final long serialVersionUID = -1L;
 
     private StringSerializer stringSerializer = new StringSerializer();
-    
+
     public final static UUIDSerializer INSTANCE = new UUIDSerializer();
 
 
@@ -39,7 +40,7 @@ public class UUIDSerializer implements Serializer
      */
     public Object deserialize( byte[] bites ) throws IOException
     {
-        return UUID.fromString( (String) stringSerializer.deserialize( bites ) );
+        return UUID.fromString( ( String ) stringSerializer.deserialize( bites ) );
     }
 
 
@@ -48,6 +49,6 @@ public class UUIDSerializer implements Serializer
      */
     public byte[] serialize( Object uuid ) throws IOException
     {
-        return stringSerializer.serialize( ( ( UUID )uuid ).toString() );
+        return stringSerializer.serialize( ( ( UUID ) uuid ).toString() );
     }
 }

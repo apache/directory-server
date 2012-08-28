@@ -18,7 +18,6 @@
  *  
  */
 
-
 package org.apache.directory.server.core.api.sp.java;
 
 
@@ -60,7 +59,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
         ClassLoader loader = new LdapJavaStoredProcClassLoader( javaByteCode );
         Class<?> clazz;
-        
+
         try
         {
             clazz = loader.loadClass( className );
@@ -75,7 +74,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
         Method proc;
         try
         {
-            proc = MethodUtils.getAssignmentCompatibleMethod(clazz, spName, types);
+            proc = MethodUtils.getAssignmentCompatibleMethod( clazz, spName, types );
         }
         catch ( NoSuchMethodException e )
         {
@@ -130,6 +129,6 @@ public class JavaStoredProcEngine implements StoredProcEngine
         return types.toArray( EMPTY_CLASS_ARRAY );
     }
 
-    private static Class<?>[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
+    private static Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 
 }

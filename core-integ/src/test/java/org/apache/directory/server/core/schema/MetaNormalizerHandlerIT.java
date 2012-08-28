@@ -121,7 +121,6 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: A test normalizer" );
 
-
         connection.add( entry );
 
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries",
@@ -150,7 +149,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.add( entry );
             fail( "Should not be there" );
         }
-        catch( LdapException nnfe )
+        catch ( LdapException nnfe )
         {
             // Expected result.
         }
@@ -216,7 +215,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test normalizer" );
-        
+
         connection.add( entry );
 
         assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) );
@@ -245,7 +244,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getNormalizerRegistry().lookup( OID );
             fail( "normalizer lookup should fail after deleting the normalizer" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -274,7 +273,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getNormalizerRegistry().lookup( OID );
             fail( "normalizer lookup should fail after deleting the normalizer" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -290,7 +289,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddNormalizerToEnabledSchema();
 
         Rdn rdn = new Rdn( "m-oid" + "=" + NEW_OID );
-        
+
         connection.rename( dn, rdn );
 
         assertFalse( "old normalizer OID should be removed from the registry after being renamed",
@@ -302,7 +301,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             schemaManager.getNormalizerRegistry().lookup( OID );
             fail( "normalizer lookup should fail after deleting the normalizer" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -370,7 +369,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         Modification mod = new DefaultModification(
             ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", DeepTrimNormalizer.class.getName() );
-        
+
         connection.modify( dn, mod );
 
         assertTrue( "normalizer OID should still be present",
@@ -424,13 +423,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn mrDn = new Dn( "m-oid=" + OID + ",ou=matchingrules,cn=apachemeta,ou=schema" );
 
         Entry entry = new DefaultEntry(
-                mrDn,
-                "objectClass: top",
-                "objectClass: metaTop",
-                "objectClass: metaMatchingRule",
-                "m-oid", OID,
-                "m-syntax", SchemaConstants.INTEGER_SYNTAX,
-                "m-description: test");
+            mrDn,
+            "objectClass: top",
+            "objectClass: metaTop",
+            "objectClass: metaMatchingRule",
+            "m-oid", OID,
+            "m-syntax", SchemaConstants.INTEGER_SYNTAX,
+            "m-description: test" );
 
         // Pre-checks
         assertFalse( isOnDisk( mrDn ) );
@@ -472,7 +471,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a normalizer in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -498,7 +497,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.moveAndRename( dn, newDn );
             fail( "should not be able to move a normalizer in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -525,7 +524,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.rename( dn, rdn );
             fail( "should not be able to rename a normalizer in use" );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
         }
 
@@ -539,7 +538,6 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
-
 
     @Test
     @Ignore
@@ -556,7 +554,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, top );
             fail( "should not be able to move a normalizer up to ou=schema" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -581,7 +579,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             connection.move( dn, newDn );
             fail( "should not be able to move a normalizer into comparators container" );
         }
-        catch( LdapInvalidDnException e )
+        catch ( LdapInvalidDnException e )
         {
             assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
         }
@@ -631,7 +629,6 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( "normalizer should be in apachemeta schema after move",
             schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
     }
-
 
     class DummyMR extends MatchingRule
     {

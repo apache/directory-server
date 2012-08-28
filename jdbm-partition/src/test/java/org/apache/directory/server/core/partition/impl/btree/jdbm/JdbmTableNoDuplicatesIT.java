@@ -58,7 +58,7 @@ public class JdbmTableNoDuplicatesIT
     private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesIT.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    Table<String,String> table;
+    Table<String, String> table;
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
@@ -86,17 +86,17 @@ public class JdbmTableNoDuplicatesIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
+
     @Before
     public void createTable() throws Exception
     {
         destroyTable();
         File tmpDir = null;
-        
+
         if ( System.getProperty( TEST_OUTPUT_PATH, null ) != null )
         {
             tmpDir = new File( System.getProperty( TEST_OUTPUT_PATH ) );
@@ -105,9 +105,10 @@ public class JdbmTableNoDuplicatesIT
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        table = new JdbmTable<String,String>( schemaManager, "test", recman, comparator, null, null );
+        table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -137,24 +138,25 @@ public class JdbmTableNoDuplicatesIT
 
             dbFile.delete();
         }
-        
+
         dbFile = null;
     }
-    
+
 
     @Test
     public void testCloseReopen() throws Exception
     {
         table.put( "1", "2" );
         table.close();
-        SerializableComparator<String> comparator = new SerializableComparator<String>( SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
+        SerializableComparator<String> comparator = new SerializableComparator<String>(
+            SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
-        table = new JdbmTable<String,String>( schemaManager, "test", recman, comparator, null, null );
+        table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
         assertEquals( "2", table.get( "1" ) );
     }
 
-    
-    @Test 
+
+    @Test
     public void testConfigMethods() throws Exception
     {
         assertFalse( table.isDupsEnabled() );
@@ -162,7 +164,7 @@ public class JdbmTableNoDuplicatesIT
         assertNotNull( table.getKeyComparator() );
     }
 
-    
+
     @Test
     public void testWhenEmpty() throws Exception
     {
@@ -172,11 +174,11 @@ public class JdbmTableNoDuplicatesIT
 
         // Test get method
         assertNull( table.get( "0" ) );
-        
+
         // Test remove methods
         table.remove( "1" );
         assertNull( table.get( "1" ) );
-        
+
         // Test has operations
         assertFalse( table.has( "1" ) );
         assertFalse( table.has( "1", "0" ) );
@@ -202,7 +204,7 @@ public class JdbmTableNoDuplicatesIT
         }
     }
 
-    
+
     @Test
     public void testLoadData() throws Exception
     {
@@ -212,21 +214,21 @@ public class JdbmTableNoDuplicatesIT
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertEquals( 10, table.count() );
         assertEquals( 1, table.count( "0" ) );
-        
+
         /*
          * If counts are exact then we can test for exact values.  Again this 
          * is not a critical function but one used for optimization so worst 
          * case guesses are allowed.
          */
-        
+
         assertEquals( 10, table.lessThanCount( "5" ) );
         assertEquals( 10, table.greaterThanCount( "5" ) );
     }
-    
-    
+
+
     /**
      * Let's test keys with a null or lack of any values.
      * @throws Exception on error
@@ -235,30 +237,30 @@ public class JdbmTableNoDuplicatesIT
     public void testNullOrEmptyKeyValue() throws Exception
     {
         assertEquals( 0, table.count() );
-        
+
         try
         {
             table.put( "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         try
         {
             table.put( null, "2" );
             fail( "should never get here due to IllegalArgumentException" );
         }
-        catch( IllegalArgumentException e )
+        catch ( IllegalArgumentException e )
         {
             assertNotNull( e );
         }
-        
+
         assertEquals( 0, table.count() );
         assertEquals( null, table.get( "1" ) );
-        
+
         // Let's add the key with a valid value and remove just the value
         assertEquals( 0, table.count( "1" ) );
         table.remove( "1" );
@@ -270,7 +272,7 @@ public class JdbmTableNoDuplicatesIT
         assertNull( table.get( "1" ) );
         assertFalse( table.has( "1" ) );
     }
-    
+
 
     @Test
     public void testRemove() throws Exception
@@ -280,12 +282,12 @@ public class JdbmTableNoDuplicatesIT
         assertNull( table.get( "1" ) );
 
         table.put( "10", "10" );
-        
+
         table.remove( "10", "11" );
         assertFalse( table.has( "10", "11" ) );
-        
-//        assertNull( table.remove( null ) );
-//        assertNull( table.remove( null, null ) );
+
+        //        assertNull( table.remove( null ) );
+        //        assertNull( table.remove( null, null ) );
     }
 
 
@@ -299,19 +301,19 @@ public class JdbmTableNoDuplicatesIT
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertEquals( SIZE, table.count() );
         table.put( "0", "0" );
         assertTrue( table.has( "0", "0" ) );
     }
-    
+
 
     @Test
     public void testHas() throws Exception
     {
         assertFalse( table.has( "1" ) );
         final int SIZE = 15;
-        
+
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
@@ -322,22 +324,22 @@ public class JdbmTableNoDuplicatesIT
         assertFalse( table.has( "-1" ) );
         assertTrue( table.hasGreaterOrEqual( "-1" ) );
         assertFalse( table.hasLessOrEqual( "-1" ) );
-        
+
         assertTrue( table.has( "0" ) );
         assertTrue( table.hasGreaterOrEqual( "0" ) );
         assertTrue( table.hasLessOrEqual( "0" ) );
-        
+
         assertTrue( table.has( Integer.toString( SIZE - 1 ) ) );
         assertTrue( table.hasGreaterOrEqual( Integer.toString( SIZE - 1 ) ) );
         assertTrue( table.hasLessOrEqual( Integer.toString( SIZE - 1 ) ) );
-        
+
         assertFalse( table.has( Integer.toString( SIZE ) ) );
         assertFalse( table.hasGreaterOrEqual( Integer.toString( SIZE ) ) );
         assertTrue( table.hasLessOrEqual( Integer.toString( SIZE ) ) );
         table.remove( "10" );
         table.remove( "11" );
         assertTrue( table.hasLessOrEqual( "11" ) );
-        
+
         try
         {
             assertFalse( table.hasGreaterOrEqual( "1", "1" ) );
@@ -360,8 +362,8 @@ public class JdbmTableNoDuplicatesIT
         {
             assertTrue( table.hasLessOrEqual( "1", "2" ) );
             fail( "Should never get here since no dups tables " +
-                  "freak when they cannot find a value comparator" );
-        } 
+                "freak when they cannot find a value comparator" );
+        }
         catch ( UnsupportedOperationException e )
         {
             assertNotNull( e );

@@ -77,7 +77,8 @@ public abstract class AbstractAuthenticationServiceTest
 
         EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();
@@ -121,31 +122,35 @@ public abstract class AbstractAuthenticationServiceTest
     protected static class KrbDummySession extends DummySession
     {
         Object message;
-        
-        public KrbDummySession() 
+
+
+        public KrbDummySession()
         {
             super();
         }
-        
+
+
         public KrbDummySession( IoService service )
         {
             try
             {
-                ((AbstractIoSession) this).setAttributeMap(service
-                        .getSessionDataStructureFactory().getAttributeMap(this));
+                ( ( AbstractIoSession ) this ).setAttributeMap( service
+                    .getSessionDataStructureFactory().getAttributeMap( this ) );
             }
-            catch( Exception e ) 
+            catch ( Exception e )
             {
-                
+
             }
         }
+
 
         public WriteFuture write( Object message )
         {
             this.message = message;
-            
+
             return null;
         }
+
 
         protected Object getMessage()
         {

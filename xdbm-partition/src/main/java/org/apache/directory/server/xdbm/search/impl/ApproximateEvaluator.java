@@ -53,17 +53,18 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateEvaluator( ApproximateNode<T> node, Partition db, SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
+    public ApproximateEvaluator( ApproximateNode<T> node, Partition db, SchemaManager schemaManager,
+        TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         super( node, db, schemaManager, txnManagerFactory, executionManagerFactory );
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T> ) db.getIndex( attributeType );
-            idx = ( Index<T> ) txnLogManager.wrap(db.getSuffixDn(), idx );
-             
+            idx = ( Index<T> ) txnLogManager.wrap( db.getSuffixDn(), idx );
+
             normalizer = null;
             ldapComparator = null;
         }
@@ -89,7 +90,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
      */
     public ApproximateNode<T> getExpression()
     {
-        return (ApproximateNode<T>)node;
+        return ( ApproximateNode<T> ) node;
     }
 
 

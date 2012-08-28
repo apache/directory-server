@@ -40,6 +40,7 @@ public class ApReqInit extends GrammarAction<ApReqContainer>
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( ApReqInit.class );
 
+
     /**
      * Instantiates a new ApReqInit action.
      */

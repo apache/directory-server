@@ -18,8 +18,8 @@
  *  
  */
 
-
 package org.apache.directory.server.core.api.sp;
+
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+
 
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
@@ -38,10 +39,10 @@ public class StoredProcUtilsTest
         String fullSPName = "Greeter:seyHello";
         String expectedSPUnitName = "Greeter";
         String expectedSPName = "seyHello";
-        
+
         String actualSPUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String actualSPName = StoredProcUtils.extractStoredProcName( fullSPName );
-        
+
         assertEquals( expectedSPUnitName, actualSPUnitName );
         assertEquals( expectedSPName, actualSPName );
     }

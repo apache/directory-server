@@ -55,7 +55,7 @@ public final class AdAndOrGrammar extends AbstractGrammar<AdAndOrContainer>
     /**
      * Creates a new AdAndOrGrammar object.
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings("unchecked")
     private AdAndOrGrammar()
     {
         setName( AdAndOrGrammar.class.getName() );
@@ -94,7 +94,8 @@ public final class AdAndOrGrammar extends AbstractGrammar<AdAndOrContainer>
         // --------------------------------------------------------------------------------------------
         // AD-AND-OR               ::= SEQUENCE {
         //         condition-count [0] Int32,
-        super.transitions[AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<AdAndOrContainer>(
                 AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_TAG_STATE,
                 AdAndOrStatesEnum.AD_AND_OR_CONDITION_COUNT_STATE,

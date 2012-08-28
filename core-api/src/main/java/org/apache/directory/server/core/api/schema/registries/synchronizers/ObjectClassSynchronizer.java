@@ -121,8 +121,8 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(), 
-                    Strings.listToString(schemaManager.getErrors()) );
+                String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(),
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -148,19 +148,19 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the ObjectClass from the given entry ( it has been grabbed from the server earlier)
         String schemaName = getSchemaName( entry.getDn() );
-        
+
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
 
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The ObjectClass {} cannot be removed from the disabled schema {}.", 
+            LOG.debug( "The ObjectClass {} cannot be removed from the disabled schema {}.",
                 dn.getName(), schemaName );
-            
+
             return;
         }
-        
+
         // Test that the Oid exists
         ObjectClass objectClass = ( ObjectClass ) checkOidExists( entry );
 
@@ -174,7 +174,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 String msg = I18n.err( I18n.ERR_374, entry.getDn().getName(),
-                    Strings.listToString(schemaManager.getErrors()) );
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -206,7 +206,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         //                ResultCodeEnum.UNWILLING_TO_PERFORM );
         //        }
 
-        Entry targetEntry = (Entry) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = newRdn.getNormValue().getString();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 

@@ -62,7 +62,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
     public void testGetRootDse() throws Exception
     {
         Entry rootDse = connection.getRootDse();
-        
+
         assertNotNull( rootDse );
 
         assertEquals( 1, rootDse.size() );
@@ -98,7 +98,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 9, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
         assertTrue( rootDse.containsAttribute( "namingContexts" ) );
@@ -123,7 +123,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "objectClass", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -143,7 +143,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "*", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -163,7 +163,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+", "Objectclass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -190,7 +190,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+", "*" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -216,7 +216,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "1.1" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 0, rootDse.size() );
     }
 
@@ -232,7 +232,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "1.1", "objectClass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 1, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
     }

@@ -84,7 +84,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        
+
         return new InitialLdapContext( env, null );
     }
 
@@ -107,7 +107,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, JndiUtils.toJndiControls( 
+        return new InitialLdapContext( env, JndiUtils.toJndiControls(
             ldapServer.getDirectoryService().getLdapCodecService(), controls ) );
     }
 
@@ -206,7 +206,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
 
         LdapConnection conn = new LdapNetworkConnection( host, port );
         conn.bind( admin, password );
-        
+
         return conn;
     }
 
@@ -236,7 +236,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
 
         LDAPConnection conn = new LDAPConnection();
         conn.connect( 3, host, port, admin, password );
-        
+
         return conn;
     }
 
@@ -255,7 +255,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         connection.bind( principalDn, password );
-        
+
         return connection;
     }
 
@@ -270,7 +270,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        
+
         return connection;
     }
 
@@ -289,7 +289,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     {
         LDAPConnection connection = new LDAPConnection();
         connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
-        
+
         return connection;
     }
 
@@ -305,7 +305,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-        
+
         return connection;
     }
 }

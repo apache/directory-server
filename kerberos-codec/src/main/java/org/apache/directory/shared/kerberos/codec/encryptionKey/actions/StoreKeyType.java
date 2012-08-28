@@ -42,6 +42,7 @@ public class StoreKeyType extends AbstractReadInteger<EncryptionKeyContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Creates a new instance of EncryptionKeyKeyType.
      */

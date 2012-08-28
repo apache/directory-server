@@ -71,9 +71,12 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class RelatedProtectedItemFilterIT
 {
-    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
+        .unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections
+        .unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static Dn GROUP_NAME;
     private static Dn USER_NAME;
@@ -84,25 +87,25 @@ public class RelatedProtectedItemFilterIT
 
     private static RelatedProtectedItemFilter filterA;
     private static RelatedProtectedItemFilter filterB;
-    
+
     /** The CN attribute Type */
     private static AttributeType CN_AT;
-    
+
     /** The OU attribute Type */
     private static AttributeType OU_AT;
-    
+
     /** The SN attribute Type */
     private static AttributeType SN_AT;
 
-    
-    @BeforeClass 
+
+    @BeforeClass
     public static void setup() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
 
         GROUP_NAME = new Dn( schemaManager, "ou=test,ou=groups,ou=system" );
         USER_NAME = new Dn( schemaManager, "ou=test, ou=users, ou=system" );
-        
+
         filterA = new RelatedProtectedItemFilter( new RefinementEvaluator( new RefinementLeafEvaluator(
             schemaManager ) ), new ExpressionEvaluator( schemaManager ), schemaManager );
 
@@ -116,8 +119,8 @@ public class RelatedProtectedItemFilterIT
         SN_AT = schemaManager.lookupAttributeTypeRegistry( "sn" );
     }
 
-    
-    @Test 
+
+    @Test
     public void testZeroTuple() throws Exception
     {
         AciContext aciContext = new AciContext( null, null );
@@ -127,7 +130,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testEntry() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ENTRY );
@@ -141,7 +144,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testAllUserAttributeTypes() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
@@ -165,7 +168,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testAllUserAttributeTypesAndValues() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
@@ -189,7 +192,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testAllAttributeValues() throws Exception
     {
         Set<AttributeType> attrTypes = new HashSet<AttributeType>();
@@ -222,7 +225,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testAttributeType() throws Exception
     {
         Set<AttributeType> attrTypes = new HashSet<AttributeType>();
@@ -255,7 +258,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testAttributeValue() throws Exception
     {
         Set<Attribute> attributes = new HashSet<Attribute>();
@@ -303,7 +306,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( SN_AT );
         aciContext.setAttrValue( new StringValue( "valueA" ) );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
@@ -314,7 +317,7 @@ public class RelatedProtectedItemFilterIT
     }
 
 
-    @Test 
+    @Test
     public void testMaxImmSub() throws Exception
     {
         Collection<ACITuple> tuples = getTuples( new MaxImmSubItem( 2 ) );
@@ -324,12 +327,12 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 1, filterA.filter( aciContext, OperationScope.ENTRY, null ).size() );
     }
 
 
-    @Test 
+    @Test
     public void testMaxValueCount() throws Exception
     {
         Set<MaxValueCountElem> mvcItems = new HashSet<MaxValueCountElem>();
@@ -341,7 +344,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ENTRY, null ).size() );
         tuples = getTuples( new MaxValueCountItem( mvcItems ) );
 
@@ -349,7 +352,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE, null ).size() );
 
         tuples = getTuples( new MaxValueCountItem( mvcItems ) );
@@ -358,14 +361,14 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 1, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( SN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
@@ -389,8 +392,7 @@ public class RelatedProtectedItemFilterIT
     }
     */
 
-
-    @Test 
+    @Test
     public void testRestrictedBy() throws Exception
     {
         Set<RestrictedByElem> rbItems = new HashSet<RestrictedByElem>();
@@ -402,7 +404,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ENTRY, null ).size() );
         tuples = getTuples( new RestrictedByItem( rbItems ) );
 
@@ -410,7 +412,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE, null ).size() );
 
         tuples = getTuples( new RestrictedByItem( rbItems ) );
@@ -419,19 +421,19 @@ public class RelatedProtectedItemFilterIT
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        
+
         assertEquals( 1, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( SN_AT );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
 
-    @Test 
+    @Test
     public void testSelfValue() throws Exception
     {
         Set<AttributeType> attrTypes = new HashSet<AttributeType>();
@@ -447,7 +449,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
         aciContext.setEntry( entry );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
         tuples = getTuples( new SelfValueItem( attrTypes ) );
@@ -457,7 +459,7 @@ public class RelatedProtectedItemFilterIT
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
         aciContext.setEntry( entry );
-        
+
         assertEquals( 1, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         entry.removeAttributes( "cn" );
@@ -467,17 +469,17 @@ public class RelatedProtectedItemFilterIT
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
         aciContext.setEntry( entry );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
         tuples = getTuples( new SelfValueItem( attrTypes ) );
-        
+
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( SN_AT );
         aciContext.setEntry( entry );
-        
+
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }
 
@@ -488,7 +490,8 @@ public class RelatedProtectedItemFilterIT
         protectedItems.add( protectedItem );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, protectedItems, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, protectedItems,
+            EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         return tuples;
     }

@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "EventServiceIT")
 public class EventServiceIT extends AbstractLdapTestUnit
 {
@@ -67,9 +67,9 @@ public class EventServiceIT extends AbstractLdapTestUnit
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
         Attributes testEntry = LdifUtils.createJndiAttributes(
-                "objectClass: top",
-                "objectClass: organizationalUnit",
-                "ou", "testentry");
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou", "testentry" );
 
         ctx.createSubcontext( "ou=testentry", testEntry );
 
@@ -94,7 +94,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
 
         // read the entry once again just to make sure
         ctx.createSubcontext( "ou=testentry", testEntry );
-        
+
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
 
@@ -118,7 +118,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createJndiAttributes( 
+        Attributes testEntry = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou", "testentry" );
@@ -146,7 +146,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
 
         // readd the entry once again just to make sure
         ctx.createSubcontext( "ou=testentry", testEntry );
-        
+
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
 
@@ -155,7 +155,6 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( "objectAdded", rec.method );
     }
 
-    
     public class TestListener implements ObjectChangeListener, NamespaceChangeListener
     {
         List<EventRecord> events = new ArrayList<EventRecord>();
@@ -203,7 +202,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         EventObject event;
 
 
-        EventRecord(String method, EventObject event)
+        EventRecord( String method, EventObject event )
         {
             this.method = method;
             this.event = event;

@@ -107,7 +107,7 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** The ObjectClass AttributeType */
     protected static AttributeType OBJECT_CLASS_AT;
-    
+
     /** The SchemaModifiersName attribute type */
     protected static AttributeType SCHEMA_MODIFIERS_NAME_AT;
 
@@ -125,7 +125,6 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** A starage for the uniqueMember attributeType */
     protected static AttributeType UNIQUE_MEMBER_AT;
-
 
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
@@ -151,8 +150,8 @@ public abstract class BaseInterceptor implements Interceptor
         {
             // unused
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -366,7 +365,7 @@ public abstract class BaseInterceptor implements Interceptor
         MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        SCHEMA_MODIFIERS_NAME_AT = schemaManager.getAttributeType(ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
+        SCHEMA_MODIFIERS_NAME_AT = schemaManager.getAttributeType( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
         SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
         SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
@@ -384,8 +383,8 @@ public abstract class BaseInterceptor implements Interceptor
     public void destroy()
     {
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

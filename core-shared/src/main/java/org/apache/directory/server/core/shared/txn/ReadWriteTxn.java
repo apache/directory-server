@@ -87,8 +87,8 @@ class ReadWriteTxn extends AbstractTransaction
 
     /** List of Dn sets affected by the write operations of this txn */
     private List<DnSet> writeDns = new LinkedList<DnSet>();
-    
-    
+
+
     public AtomicInteger getRefCount()
     {
         return txnRefCount;
@@ -670,19 +670,19 @@ class ReadWriteTxn extends AbstractTransaction
             }
         }
     }
-    
-    
+
+
     public void clearLogEdits()
     {
         LogEdit txnStartMarker = logEdits.get( 0 );
-        
+
         logEdits.clear();
         logEdits.add( txnStartMarker );
-        
+
         forwardIndexAdds.clear();
         reverseIndexAdds.clear();
         indexDeletes.clear();
-        
+
         readDns.clear();
         writeDns.clear();
     }

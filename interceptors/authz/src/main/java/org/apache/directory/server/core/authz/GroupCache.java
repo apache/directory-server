@@ -86,7 +86,7 @@ public class GroupCache
      * the schema manager
      */
     private SchemaManager schemaManager;
-    
+
     /** the Dn factory */
     private DnFactory dnFactory;
 
@@ -97,7 +97,7 @@ public class GroupCache
 
     /** String key for the Dn of a group to a Set (HashSet) for the Strings of member DNs */
     private Cache ehCache;
-    
+
     /** Directory service */
     private DirectoryService directoryService;
 
@@ -125,12 +125,13 @@ public class GroupCache
         initialize( dirService.getAdminSession() );
     }
 
-    
+
     public void reinitialize() throws LdapException
     {
         ehCache.removeAll();
         initialize( directoryService.getAdminSession() );
     }
+
 
     private Dn parseNormalized( String name ) throws LdapException
     {
@@ -146,7 +147,7 @@ public class GroupCache
 
         Set<String> suffixes = nexus.listSuffixes();
 
-        for ( String suffix:suffixes )
+        for ( String suffix : suffixes )
         {
             // moving the filter creation to inside loop to fix DIRSERVER-1121
             // didn't use clone() cause it is creating List objects, which IMO is not worth calling
@@ -160,7 +161,8 @@ public class GroupCache
             Dn baseDn = dnFactory.create( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            ctls.setReturningAttributes( new String[]{ "*", "+" } );
+            ctls.setReturningAttributes( new String[]
+                { "*", "+" } );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
@@ -174,12 +176,12 @@ public class GroupCache
                     Entry result = results.get();
                     Dn groupDn = result.getDn().apply( schemaManager );
                     Attribute members = getMemberAttribute( result );
-    
+
                     if ( members != null )
                     {
                         Set<String> memberSet = new HashSet<String>( members.size() );
                         addMembers( memberSet, members );
-                        
+
                         Element cacheElement = new Element( groupDn.getNormName(), memberSet );
                         ehCache.put( cacheElement );
                     }
@@ -188,7 +190,7 @@ public class GroupCache
                         LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getName() );
                     }
                 }
-    
+
                 results.close();
             }
             catch ( Exception e )
@@ -306,19 +308,20 @@ public class GroupCache
         {
             return;
         }
-        
+
         // Ensure cache consistency
         directoryService.getTxnManager().startLogicalDataChange();
 
         Set<String> memberSet = new HashSet<String>( members.size() );
         addMembers( memberSet, members );
-        
+
         Element cacheElement = new Element( name.getNormName(), memberSet );
         ehCache.put( cacheElement );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getName(),
+                ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -338,7 +341,7 @@ public class GroupCache
         {
             return;
         }
-        
+
         // Ensure cache consistency
         directoryService.getTxnManager().startLogicalDataChange();
 
@@ -346,7 +349,8 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(),
+                ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -427,12 +431,12 @@ public class GroupCache
             if ( memberAttr.getOid() == modification.getAttribute().getId() )
             {
                 Element memSetElement = ehCache.get( name.getNormName() );
-                
+
                 if ( memSetElement != null )
                 {
                     // Ensure cache consistency
                     directoryService.getTxnManager().startLogicalDataChange();
-                    
+
                     Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
                     modify( memberSet, modification.getOperation(), modification.getAttribute() );
                 }
@@ -443,7 +447,8 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
+                ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -472,14 +477,15 @@ public class GroupCache
         {
             // Ensure cache consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             Set<String> memberSet = ( Set<String> ) memSetElement.getValue();
             modify( memberSet, modOp, members );
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
+                ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
         }
     }
 
@@ -499,7 +505,7 @@ public class GroupCache
         }
 
         Element cacheElement = ehCache.get( administratorsGroupDn.getNormName() );
-        
+
         if ( cacheElement == null )
         {
             LOG.warn( "What do you mean there is no administrators group? This is bad news." );
@@ -507,7 +513,7 @@ public class GroupCache
         }
         else
         {
-            Set<String> members = ( Set<String> ) cacheElement.getValue();            
+            Set<String> members = ( Set<String> ) cacheElement.getValue();
             return members.contains( principalDn.getNormName() );
         }
     }
@@ -544,12 +550,12 @@ public class GroupCache
         {
             String group = ( String ) obj;
             Element element = ehCache.get( group );
-            
+
             if ( element == null )
             {
                 continue;
             }
-            
+
             Set<String> members = ( Set<String> ) element.getValue();
 
             if ( members == null )
@@ -580,22 +586,23 @@ public class GroupCache
     public boolean groupRenamed( Dn oldName, Dn newName ) throws LdapException
     {
         Element membersElement = ehCache.get( oldName.getNormName() );
-        
+
         if ( membersElement != null )
         {
             Set<String> members = ( Set<String> ) membersElement.getValue();
-            
+
             // Ensure cache consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             ehCache.remove( oldName.getNormName() );
-            
+
             Element cacheElement = new Element( newName.getNormName(), members );
             ehCache.put( cacheElement );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(),
+                    ehCache.getAllWithLoader( ehCache.getKeys(), null ) );
             }
 
             return true;

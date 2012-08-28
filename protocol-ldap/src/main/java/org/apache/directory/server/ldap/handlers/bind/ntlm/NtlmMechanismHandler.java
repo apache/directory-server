@@ -63,8 +63,9 @@ public class NtlmMechanismHandler extends AbstractMechanismHandler
             {
                 initProvider();
             }
-            
-            ss = new NtlmSaslServer( provider, bindRequest, ldapSession, ldapSession.getLdapServer().getDirectoryService().getAdminSession() );
+
+            ss = new NtlmSaslServer( provider, bindRequest, ldapSession, ldapSession.getLdapServer()
+                .getDirectoryService().getAdminSession() );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
@@ -76,8 +77,8 @@ public class NtlmMechanismHandler extends AbstractMechanismHandler
     {
         provider = ( NtlmProvider ) Class.forName( providerFqcn ).newInstance();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

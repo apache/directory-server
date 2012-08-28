@@ -82,7 +82,7 @@ public class AvlRdnIndexTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -278,7 +278,7 @@ public class AvlRdnIndexTest
 
         for ( long i = 1; i < 5; i++ )
         {
-            key = new ParentIdAndRdn( Strings.getUUIDString( ( int )i ), new Rdn( "cn=key" + i ) );
+            key = new ParentIdAndRdn( Strings.getUUIDString( ( int ) i ), new Rdn( "cn=key" + i ) );
 
             idx.add( key, Strings.getUUIDString( ( int ) i ) );
         }

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbSafeBody;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.KrbSafeBody;
 
@@ -32,7 +33,8 @@ public class KrbSafeBodyContainer extends AbstractContainer
 {
     /** An KRB-SAFE-BODY container */
     private KrbSafeBody krbSafeBody;
-    
+
+
     /**
      * Creates a new KrbSafeBodyContainer object.
      */
@@ -53,7 +55,7 @@ public class KrbSafeBodyContainer extends AbstractContainer
         return krbSafeBody;
     }
 
-    
+
     /**
      * Set a KrbSafeBody Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -77,9 +77,9 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Partition db, SchemaManager schemaManager, 
-                TxnManagerFactory txnManagerFactory,
-                OperationExecutionManagerFactory executionManagerFactory )
+    public SubstringEvaluator( SubstringNode node, Partition db, SchemaManager schemaManager,
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         super( db, txnManagerFactory, executionManagerFactory );
@@ -117,7 +117,7 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<?> index = db.getIndex( attributeType );
-            idx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), index );
+            idx = ( Index<String> ) txnLogManager.wrap( db.getSuffixDn(), index );
         }
         else
         {
@@ -165,7 +165,7 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
         }
         else
         {
-            return evaluateWithIndex( );
+            return evaluateWithIndex();
         }
     }
 
@@ -206,13 +206,13 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
 
 
-    private boolean evaluateWithIndex( ) throws Exception
+    private boolean evaluateWithIndex() throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -242,7 +242,7 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
         }
 
         entries.close();
-        
+
         // we fell through so a match was not found - assertion was false.
         return false;
     }
@@ -366,7 +366,7 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
                 for ( Value<?> value : attr )
                 {
                     String strValue = ( String ) value.getNormValue();
-    
+
                     // Once match is found cleanup and return true
                     if ( regex.matcher( strValue ).matches() )
                     {
@@ -382,8 +382,8 @@ public class SubstringEvaluator extends AbstractEvaluator<SubstringNode>
                 // the value.
                 for ( Value<?> value : attr )
                 {
-                    byte[] byteValue = (byte[])value.getNormValue();
-    
+                    byte[] byteValue = ( byte[] ) value.getNormValue();
+
                     // Once match is found cleanup and return true
                     // @TODO : implement this check.
                     /*

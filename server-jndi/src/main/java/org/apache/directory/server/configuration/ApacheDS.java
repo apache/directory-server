@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 public class ApacheDS
 {
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDS.class.getName() );
-    
+
     /** Default delay between two flushes to the backend */
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
 
@@ -77,12 +77,12 @@ public class ApacheDS
 
     /** Directory where are stored the LDIF files to be loaded at startup */
     private File ldifDirectory;
-    
+
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
     /** The LDAP server protocol handler */
     private final LdapServer ldapServer;
-    
+
     /** The directory service */
     private DirectoryService directoryService;
 
@@ -97,9 +97,9 @@ public class ApacheDS
         LOG.info( "Starting the Apache Directory Server" );
 
         this.ldapServer = ldapServer;
-        
+
         directoryService = ldapServer.getDirectoryService();
-        
+
         if ( directoryService == null )
         {
             directoryService = new DefaultDirectoryService();
@@ -119,46 +119,48 @@ public class ApacheDS
     public void startup() throws Exception
     {
         LOG.debug( "Starting the server" );
-        
+
         initSchema();
-        
+
         SchemaManager schemaManager = directoryService.getSchemaManager();
-        
-        if ( ! directoryService.isStarted() )
+
+        if ( !directoryService.isStarted() )
         {
             // inject the schema manager and set the partition directory
             // once the CiDIT gets done we need not do this kind of dirty hack
             Set<? extends Partition> partitions = directoryService.getPartitions();
-         
-            for( Partition p : partitions )
+
+            for ( Partition p : partitions )
             {
-                if( p instanceof AbstractBTreePartition )
+                if ( p instanceof AbstractBTreePartition )
                 {
-                    File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), p.getId() );
+                    File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
+                        p.getId() );
                     ( ( AbstractBTreePartition ) p ).setPartitionPath( partitionPath.toURI() );
                 }
-                
-                if( p.getSchemaManager() == null )
+
+                if ( p.getSchemaManager() == null )
                 {
                     LOG.info( "setting the schema manager for partition {}", p.getSuffixDn() );
                     p.setSchemaManager( schemaManager );
                 }
             }
-            
+
             Partition sysPartition = directoryService.getSystemPartition();
-            
-            if( sysPartition instanceof AbstractBTreePartition )
+
+            if ( sysPartition instanceof AbstractBTreePartition )
             {
-                File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(), sysPartition.getId() );
+                File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
+                    sysPartition.getId() );
                 ( ( AbstractBTreePartition ) sysPartition ).setPartitionPath( partitionPath.toURI() );
             }
 
-            if( sysPartition.getSchemaManager() == null )
+            if ( sysPartition.getSchemaManager() == null )
             {
                 LOG.info( "setting the schema manager for partition {}", sysPartition.getSuffixDn() );
                 sysPartition.setSchemaManager( schemaManager );
             }
-            
+
             // Start the directory service if not started yet
             LOG.debug( "1. Starting the DirectoryService" );
             directoryService.startup();
@@ -168,7 +170,7 @@ public class ApacheDS
         loadLdifs();
 
         // Start the LDAP server
-        if ( ldapServer != null && ! ldapServer.isStarted() )
+        if ( ldapServer != null && !ldapServer.isStarted() )
         {
             LOG.debug( "3. Starting the LDAP server" );
             ldapServer.start();
@@ -182,12 +184,12 @@ public class ApacheDS
     {
         if ( ldapServer != null )
         {
-             return ( ldapServer.isStarted() );
+            return ( ldapServer.isStarted() );
         }
-        
+
         return directoryService.isStarted();
     }
-    
+
 
     public void shutdown() throws Exception
     {
@@ -224,7 +226,7 @@ public class ApacheDS
         this.synchPeriodMillis = synchPeriodMillis;
     }
 
-    
+
     /**
      * Get the directory where the LDIF files are stored
      * 
@@ -241,15 +243,14 @@ public class ApacheDS
         LOG.info( "The LDIF directory file is {}", ldifDirectory.getAbsolutePath() );
         this.ldifDirectory = ldifDirectory;
     }
-    
-    
+
+
     // ----------------------------------------------------------------------
     // From CoreContextFactory: presently in intermediate step but these
     // methods will be moved to the appropriate protocol service eventually.
     // This is here simply to start to remove the JNDI dependency then further
     // refactoring will be needed to place these where they belong.
     // ----------------------------------------------------------------------
-
 
     /**
      * Check that the entry where are stored the loaded Ldif files is created.
@@ -262,12 +263,12 @@ public class ApacheDS
     {
         Dn dn = new Dn( ServerDNConstants.LDIF_FILES_DN );
         Entry entry = null;
-        
+
         try
         {
             entry = directoryService.getAdminSession().lookup( dn );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.info( "Failure while looking up {}. The entry will be created now.", ServerDNConstants.LDIF_FILES_DN, e );
         }
@@ -277,7 +278,7 @@ public class ApacheDS
             entry = directoryService.newEntry( new Dn( ServerDNConstants.LDIF_FILES_DN ) );
             entry.add( SchemaConstants.OU_AT, "loadedLdifFiles" );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-    
+
             directoryService.getAdminSession().add( entry );
         }
     }
@@ -290,24 +291,25 @@ public class ApacheDS
      */
     private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
     {
-        String fileSep = File.separatorChar == '\\' ? 
-                ApacheSchemaConstants.WINDOWS_FILE_AT : 
-                ApacheSchemaConstants.UNIX_FILE_AT;
+        String fileSep = File.separatorChar == '\\' ?
+            ApacheSchemaConstants.WINDOWS_FILE_AT :
+            ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return  new Dn( fileSep +
-                "=" + 
-                Strings.dumpHexPairs( Strings.getBytesUtf8(getCanonical(ldif)) ) +
-                "," + 
-                ServerDNConstants.LDIF_FILES_DN ); 
+        return new Dn( fileSep +
+            "=" +
+            Strings.dumpHexPairs( Strings.getBytesUtf8( getCanonical( ldif ) ) ) +
+            "," +
+            ServerDNConstants.LDIF_FILES_DN );
     }
 
-    
+
     private void addFileEntry( File ldif ) throws Exception
     {
-        String rdnAttr = File.separatorChar == '\\' ? 
-            ApacheSchemaConstants.WINDOWS_FILE_AT : 
+        String rdnAttr = File.separatorChar == '\\' ?
+            ApacheSchemaConstants.WINDOWS_FILE_AT :
             ApacheSchemaConstants.UNIX_FILE_AT;
-        String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC : ApacheSchemaConstants.UNIX_FILE_OC;
+        String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC
+            : ApacheSchemaConstants.UNIX_FILE_OC;
 
         Entry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );
         entry.add( rdnAttr, getCanonical( ldif ) );
@@ -346,21 +348,22 @@ public class ApacheDS
     private void loadLdif( File ldifFile ) throws Exception
     {
         Entry fileEntry = null;
-        
+
         try
         {
             fileEntry = directoryService.getAdminSession().lookup( buildProtectedFileEntryDn( ldifFile ) );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             // if does not exist
         }
-        
+
         if ( fileEntry != null )
         {
-            String time = ((ClonedServerEntry)fileEntry).getOriginalEntry().get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
+            String time = ( ( ClonedServerEntry ) fileEntry ).getOriginalEntry()
+                .get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
             LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
-                    + "' skipped.  It has already been loaded on " + time + "." );
+                + "' skipped.  It has already been loaded on " + time + "." );
         }
         else
         {
@@ -370,8 +373,8 @@ public class ApacheDS
             addFileEntry( ldifFile );
         }
     }
-    
-    
+
+
     /**
      * Load the existing LDIF files in alphabetic order
      */
@@ -385,16 +388,15 @@ public class ApacheDS
         }
 
         // LOG and bail if LDIF directory does not exists
-        if ( ! ldifDirectory.exists() )
+        if ( !ldifDirectory.exists() )
         {
             LOG.warn( "LDIF load directory '{}' does not exist.  No LDIF files will be loaded.",
                 getCanonical( ldifDirectory ) );
             return;
         }
 
-
         Dn dn = new Dn( directoryService.getSchemaManager(), ServerDNConstants.ADMIN_SYSTEM_DN );
-        
+
         ensureLdifFileBase();
 
         // if ldif directory is a file try to load it
@@ -429,11 +431,11 @@ public class ApacheDS
                     return pathname.isFile() && pathname.canRead() && isLdif;
                 }
             } );
-    
+
             // LOG and bail if we could not find any LDIF files
             if ( ( ldifFiles == null ) || ( ldifFiles.length == 0 ) )
             {
-                LOG.warn( "LDIF load directory '{}' does not contain any LDIF files. No LDIF files will be loaded.", 
+                LOG.warn( "LDIF load directory '{}' does not contain any LDIF files. No LDIF files will be loaded.",
                     getCanonical( ldifDirectory ) );
                 return;
             }
@@ -441,18 +443,18 @@ public class ApacheDS
             // Sort ldifFiles in alphabetic order
             Arrays.sort( ldifFiles, new Comparator<File>()
             {
-                public int compare( File f1, File f2)
+                public int compare( File f1, File f2 )
                 {
-                    return f1.getName().compareTo( f2 .getName() );
+                    return f1.getName().compareTo( f2.getName() );
                 }
-            });
-            
+            } );
+
             // load all the ldif files and load each one that is loaded
             for ( File ldifFile : ldifFiles )
             {
                 try
                 {
-                    LOG.info(  "Loading LDIF file '{}'", ldifFile.getName() );
+                    LOG.info( "Loading LDIF file '{}'", ldifFile.getName() );
                     loadLdif( ldifFile );
                 }
                 catch ( Exception ne )
@@ -465,8 +467,8 @@ public class ApacheDS
             }
         }
     }
-    
-    
+
+
     /**
      * initialize the schema partition by loading the schema LDIF files
      * 
@@ -479,8 +481,8 @@ public class ApacheDS
 
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
-        if( schemaRepository.exists() )
+
+        if ( schemaRepository.exists() )
         {
             LOG.info( "schema partition already exists, skipping schema extraction" );
         }
@@ -504,14 +506,14 @@ public class ApacheDS
         // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
-        
+
         schemaPartition.setSchemaManager( schemaManager );
 
         List<Throwable> errors = schemaManager.getErrors();
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors(errors) ) );
+            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }
     }
 }

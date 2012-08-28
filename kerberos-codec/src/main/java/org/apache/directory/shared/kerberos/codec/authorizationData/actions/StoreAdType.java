@@ -42,6 +42,7 @@ public class StoreAdType extends AbstractReadInteger<AuthorizationDataContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Instantiates a new AuthorizationDataAdType action.
      */

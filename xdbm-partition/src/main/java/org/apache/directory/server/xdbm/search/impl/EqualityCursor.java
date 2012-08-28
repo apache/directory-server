@@ -59,7 +59,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String> uuidIdxCursor;
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
@@ -77,25 +77,25 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
         Value<V> value = equalityEvaluator.getExpression().getValue();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<?> index = db.getIndex( attributeType );
             index = txnLogManager.wrap( db.getSuffixDn(), index );
-            userIdxCursor = ( ( Index<V> )index ).forwardCursor( value.getValue() );
+            userIdxCursor = ( ( Index<V> ) index ).forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
         else
         {
             Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
-            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
+            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx ).forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -109,7 +109,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -130,7 +130,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void beforeValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeValue( id, value );
@@ -148,7 +148,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void before( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.before( element );
@@ -166,7 +166,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void afterValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor
             != null )
         {
@@ -185,7 +185,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void after( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.after( element );
@@ -203,7 +203,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -223,7 +223,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( userIdxCursor != null )
         {
             userIdxCursor.afterLast();
@@ -243,7 +243,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -254,7 +254,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -273,7 +273,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "previous()" );
             IndexEntry<?> candidate = uuidIdxCursor.get();
-            
+
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -298,7 +298,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "next()" );
             IndexEntry<?> candidate = uuidIdxCursor.get();
-            
+
             if ( equalityEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -316,7 +316,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             return userIdxCursor.get();

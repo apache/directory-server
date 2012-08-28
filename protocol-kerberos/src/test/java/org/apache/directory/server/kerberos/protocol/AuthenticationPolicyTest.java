@@ -60,8 +60,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         handler = new KerberosProtocolHandler( config, store );
         session = new KrbDummySession();
     }
-    
-    
+
+
     /**
      * Shutdown the Kerberos server
      */
@@ -70,8 +70,8 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwardable tickets fail with the correct error message.

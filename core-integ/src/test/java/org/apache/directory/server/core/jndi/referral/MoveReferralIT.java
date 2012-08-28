@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.jndi.referral;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -62,449 +63,450 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "MoveReferralIT")
-@ApplyLdifs( {
-    // Root
-    "dn: c=WW,ou=system",
-    "objectClass: country",
-    "objectClass: top",
-    "c: WW",
-    
-    // Sub-root #1
-    "dn: o=MNN,c=WW,ou=system",
-    "objectClass: organization",
-    "objectClass: top",
-    "o: MNN",
-    
-    // Sub-root #2
-    "dn: o=PNN,c=WW,ou=system",
-    "objectClass: organization",
-    "objectClass: top",
-    "o: PNN",
-    
-    // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: Roles",
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
-    
-    // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: People",
-    "ref: ldap://hostb/OU=People,DC=example,DC=com",
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
-    
-    // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Alex Karasulu",
-    "sn: akarasulu",
-    
-    // Entry # 2
-    "dn: cn=Alex,o=MNN,c=WW,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Alex",
-    "sn: akarasulu"
-    }
-)
+@ApplyLdifs(
+    {
+        // Root
+        "dn: c=WW,ou=system",
+        "objectClass: country",
+        "objectClass: top",
+        "c: WW",
+
+        // Sub-root #1
+        "dn: o=MNN,c=WW,ou=system",
+        "objectClass: organization",
+        "objectClass: top",
+        "o: MNN",
+
+        // Sub-root #2
+        "dn: o=PNN,c=WW,ou=system",
+        "objectClass: organization",
+        "objectClass: top",
+        "o: PNN",
+
+        // Referral #1
+        "dn: ou=Roles,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: Roles",
+        "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
+
+        // Referral #2
+        "dn: ou=People,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: People",
+        "ref: ldap://hostb/OU=People,DC=example,DC=com",
+        "ref: ldap://hostc/OU=People,O=MNN,C=WW",
+
+        // Entry # 1
+        "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Alex Karasulu",
+        "sn: akarasulu",
+
+        // Entry # 2
+        "dn: cn=Alex,o=MNN,c=WW,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Alex",
+        "sn: akarasulu"
+})
 public class MoveReferralIT extends AbstractLdapTestUnit
 {
 
-    /** The Contexts we are using to inject entries with JNDI */
-    LdapContext MNNCtx;
-    LdapContext PNNCtx;
-    LdapContext WWCtx;
-    
-    /** The entries we are using to do the tests */
-    Attributes userEntry;
-    Entry serverEntry;
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
-        PNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=PNN,c=WW,ou=system" );
-        WWCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "c=WW,ou=system" );
+/** The Contexts we are using to inject entries with JNDI */
+LdapContext MNNCtx;
+LdapContext PNNCtx;
+LdapContext WWCtx;
 
-        // JNDI entry
-        userEntry = new BasicAttributes( "objectClass", "top", true );
-        userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "elecharny" );
-        userEntry.put( "cn", "Emmanuel Lecharny" );
-        
-        // Core API entry
-        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+/** The entries we are using to do the tests */
+Attributes userEntry;
+Entry serverEntry;
 
-        serverEntry.put( "ObjectClass", "top", "person" );
-        serverEntry.put( "sn", "elecharny" );
-        serverEntry.put( "cn", "Emmanuel Lecharny" );
-    }
 
-    
-    /**
-     * Test a move of a non existing entry (not a referral), with no referral 
-     * in its ancestor.
-     */
-    @Test
-    public void testMoveNotExistingSuperiorNoReferralAncestor() throws Exception
-    {
-        try
-        {
-            WWCtx.rename( "cn=Emmanuel Lecharny,o=MNN", "cn=Emmanuel Lecharny,o=PNN" );
-            fail();
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
-        }
-    }
-    
-    
-    /**
-     * Test a move of a non existing entry having some referral ancestor in its ancestor,
-     * using JNDI throw.
-     */
-    @Test
-    public void testMoveNotExistingSuperiorReferralAncestorJNDIThrow() throws Exception
-    {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "cn=Emmanuel Lecharny,ou=Roles", "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-    
-    
-    /**
-     * Test a move of a non existing entry having some referral ancestor in its ancestor,
-     * using JNDI ignore.
-     */
-    @Test
-    public void testMoveNotExistingSuperiorReferralAncestorJNDIIgnore() throws Exception
-    {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
-            MNNCtx.rename( "cn=Emmanuel Lecharny,ou=Roles", "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
-            fail();
-        }
-        catch ( PartialResultException re )
-        {
-            assertTrue( true );
-        }
-    }
-    
-    
-    /**
-     * Test a move of a non existing entry having some referral ancestor in its ancestor,
-     * using the Core API without ManageDsaIt flag
-     */
-    @Test
-    public void testMoveNotExistingSuperiorReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
-    {
-        CoreSession coreSession = getService().getAdminSession();
-        Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
-        Dn newParent = new Dn( "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
-        
-        try
-        {
-            coreSession.move( dn, newParent, false );
-            fail();
-        }
-        catch ( LdapReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
-    
-    
-    /**
-     * Test a move of a non existing entry having some referral ancestor in its ancestor,
-     * using the Core API with ManageDsaIt flag
-     */
-    @Test
-    public void testMoveNotExistingSuperiorReferralAncestorCoreAPIWithManageDsaIt() throws Exception
-    {
-        CoreSession coreSession = getService().getAdminSession();
-        Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
-        Dn newParent = new Dn( "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
-        
-        try
-        {
-            coreSession.move( dn, newParent, true );
-            fail();
-        }
-        catch ( LdapPartialResultException lpre )
-        {
-            assertTrue( true );
-        }
-    }
+@Before
+public void setUp() throws Exception
+{
+    MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
+    PNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=PNN,c=WW,ou=system" );
+    WWCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "c=WW,ou=system" );
 
-    
-    /**
-     * Test a move of an existing entry (not a referral), with no referral 
-     * in its ancestor.
-     */
-    @Test
-    public void testMoveExistingSuperiorNoReferralAncestor() throws Exception
+    // JNDI entry
+    userEntry = new BasicAttributes( "objectClass", "top", true );
+    userEntry.get( "objectClass" ).add( "person" );
+    userEntry.put( "sn", "elecharny" );
+    userEntry.put( "cn", "Emmanuel Lecharny" );
+
+    // Core API entry
+    Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+    serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+
+    serverEntry.put( "ObjectClass", "top", "person" );
+    serverEntry.put( "sn", "elecharny" );
+    serverEntry.put( "cn", "Emmanuel Lecharny" );
+}
+
+
+/**
+ * Test a move of a non existing entry (not a referral), with no referral 
+ * in its ancestor.
+ */
+@Test
+public void testMoveNotExistingSuperiorNoReferralAncestor() throws Exception
+{
+    try
     {
-        // First check that the object exists
-        Object moved = MNNCtx.lookup( "cn=Alex" );
-        assertNotNull( moved );
+        WWCtx.rename( "cn=Emmanuel Lecharny,o=MNN", "cn=Emmanuel Lecharny,o=PNN" );
+        fail();
+    }
+    catch ( NameNotFoundException nnfe )
+    {
+        assertTrue( true );
+    }
+}
 
-        // and that the target entry is not present
-        try
-        {
-            moved = PNNCtx.lookup( "cn=Alex" );
-            fail();
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
-        }
 
-        WWCtx.rename( "cn=Alex,o=MNN", "cn=Alex,o=PNN" );
-        
-        // Check that the entry has been moved
+/**
+ * Test a move of a non existing entry having some referral ancestor in its ancestor,
+ * using JNDI throw.
+ */
+@Test
+public void testMoveNotExistingSuperiorReferralAncestorJNDIThrow() throws Exception
+{
+    try
+    {
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
+        MNNCtx.rename( "cn=Emmanuel Lecharny,ou=Roles", "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
+        fail();
+    }
+    catch ( ReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a move of a non existing entry having some referral ancestor in its ancestor,
+ * using JNDI ignore.
+ */
+@Test
+public void testMoveNotExistingSuperiorReferralAncestorJNDIIgnore() throws Exception
+{
+    try
+    {
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+        MNNCtx.rename( "cn=Emmanuel Lecharny,ou=Roles", "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
+        fail();
+    }
+    catch ( PartialResultException re )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a move of a non existing entry having some referral ancestor in its ancestor,
+ * using the Core API without ManageDsaIt flag
+ */
+@Test
+public void testMoveNotExistingSuperiorReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession coreSession = getService().getAdminSession();
+    Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
+    Dn newParent = new Dn( "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
+
+    try
+    {
+        coreSession.move( dn, newParent, false );
+        fail();
+    }
+    catch ( LdapReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a move of a non existing entry having some referral ancestor in its ancestor,
+ * using the Core API with ManageDsaIt flag
+ */
+@Test
+public void testMoveNotExistingSuperiorReferralAncestorCoreAPIWithManageDsaIt() throws Exception
+{
+    CoreSession coreSession = getService().getAdminSession();
+    Dn dn = new Dn( "cn=Emmanuel Lecharny,ou=Roles,o=MNN,c=WW,ou=system" );
+    Dn newParent = new Dn( "cn=Emmanuel Lecharny,o=PNN,c=WW,ou=system" );
+
+    try
+    {
+        coreSession.move( dn, newParent, true );
+        fail();
+    }
+    catch ( LdapPartialResultException lpre )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a move of an existing entry (not a referral), with no referral 
+ * in its ancestor.
+ */
+@Test
+public void testMoveExistingSuperiorNoReferralAncestor() throws Exception
+{
+    // First check that the object exists
+    Object moved = MNNCtx.lookup( "cn=Alex" );
+    assertNotNull( moved );
+
+    // and that the target entry is not present
+    try
+    {
         moved = PNNCtx.lookup( "cn=Alex" );
-        assertNotNull( moved );
-
-        // and that the original entry is not present anymore
-        try
-        {
-            moved = MNNCtx.lookup( "cn=Alex" );
-            fail();
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
-        }
+        fail();
     }
-
-    
-    /**
-     * Test a move of an existing entry (not a referral), to a new superior
-     * being a referral
-     */
-    @Test
-    public void testMoveExistingSuperiorIsReferral() throws Exception
+    catch ( NameNotFoundException nnfe )
     {
-        try
-        {
-            MNNCtx.rename( "cn=Alex", "cn=Alex,ou=Roles" );
-            fail();
-        }
-        catch ( NamingException ne )
-        {
-            assertTrue( true );
-        }
+        assertTrue( true );
     }
 
-    
-    /**
-     * Test a move of an existing referral to a new superior
-     * being a referral
-     */
-    @Test
-    public void testMoveExistingReferralJNDIIgnore() throws Exception
+    WWCtx.rename( "cn=Alex,o=MNN", "cn=Alex,o=PNN" );
+
+    // Check that the entry has been moved
+    moved = PNNCtx.lookup( "cn=Alex" );
+    assertNotNull( moved );
+
+    // and that the original entry is not present anymore
+    try
     {
-        WWCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
-        WWCtx.rename( "ou=Roles,o=MNN", "ou=Roles,o=PNN" );
-
-        // Check that the entry has been moved
-        Object moved = PNNCtx.lookup( "ou=Roles" );
-        assertNotNull( moved );
+        moved = MNNCtx.lookup( "cn=Alex" );
+        fail();
     }
-
-    
-    /**
-     * Test a move of an existing referral to a new superior
-     * being a referral
-     */
-    @Test
-    public void testMoveExistingReferralJNDIThrow() throws Exception
+    catch ( NameNotFoundException nnfe )
     {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "ou=Roles", "ou=New Roles" );
-            fail();
-        }
-        catch ( NamingException ne )
-        {
-            assertTrue( true );
-        }
+        assertTrue( true );
     }
+}
 
-    
-    /**
-     * Test a move of an existing entry (not a referral), to a new superior
-     * having a referral ancestor
-     */
-    @Test
-    public void testMoveExistingSuperiorHasReferralAncestor() throws Exception
+
+/**
+ * Test a move of an existing entry (not a referral), to a new superior
+ * being a referral
+ */
+@Test
+public void testMoveExistingSuperiorIsReferral() throws Exception
+{
+    try
     {
-        try
-        {
-            MNNCtx.rename( "cn=Alex", "cn=Alex,ou=apache,ou=Roles" );
-            fail();
-        }
-        catch ( NamingException ne )
-        {
-            assertTrue( true );
-            //assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, ((LdapNamingException)ne).getResultCode() );
-        }
+        MNNCtx.rename( "cn=Alex", "cn=Alex,ou=Roles" );
+        fail();
     }
-
-    
-    /**
-     * Test a move of an existing entry with a referral in its ancestot, 
-     * to a new superior, using JNDI throw
-     */
-    @Test
-    public void testMoveEntryWithReferralAncestorJNDIThrow() throws Exception
+    catch ( NamingException ne )
     {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
-            MNNCtx.rename( "cn=Alex,ou=roles", "cn=Alex,ou=People" );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Alex,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
+        assertTrue( true );
     }
+}
 
-    
-    /**
-     * Test a move of an existing entry with a referral in its ancestot, 
-     * to a new superior, using JNDI ignore
-     */
-    @Test
-    public void testMoveEntryWithReferralAncestorJNDIIgnore() throws Exception
+
+/**
+ * Test a move of an existing referral to a new superior
+ * being a referral
+ */
+@Test
+public void testMoveExistingReferralJNDIIgnore() throws Exception
+{
+    WWCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+    WWCtx.rename( "ou=Roles,o=MNN", "ou=Roles,o=PNN" );
+
+    // Check that the entry has been moved
+    Object moved = PNNCtx.lookup( "ou=Roles" );
+    assertNotNull( moved );
+}
+
+
+/**
+ * Test a move of an existing referral to a new superior
+ * being a referral
+ */
+@Test
+public void testMoveExistingReferralJNDIThrow() throws Exception
+{
+    try
     {
-        try
-        {
-            MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
-            MNNCtx.rename( "cn=Alex,ou=roles", "cn=Alex,ou=People" );
-            fail();
-        }
-        catch ( PartialResultException pre )
-        {
-            assertTrue( true );
-        }
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
+        MNNCtx.rename( "ou=Roles", "ou=New Roles" );
+        fail();
     }
-
-    
-    /**
-     * Test a move of an existing entry with a referral in its ancestot, 
-     * to a new superior, using CoreAPI without the ManageDsaIT flag
-     */
-    @Test
-    public void testMoveEntryWithReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
+    catch ( NamingException ne )
     {
-        CoreSession coreSession = getService().getAdminSession();
-        Dn orig = new Dn( "cn=Alex,ou=roles,o=MNN,c=WW,ou=system" );
-        Dn dest = new Dn( "cn=Alex,ou=People,o=MNN,c=WW,ou=system" );
-        
-        try
-        {
-            coreSession.move( orig, dest, false );
-            fail();
-        }
-        catch ( LdapReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Alex,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
+        assertTrue( true );
     }
+}
 
 
-    /**
-     * Test a move of an existing entry with a referral in its ancestot, 
-     * to a new superior, using CoreAPI with the ManageDsaIT flag
-     */
-    @Test
-    public void testMoveEntryWithReferralAncestorCoreAPIWithManageDsaIt() throws Exception
+/**
+ * Test a move of an existing entry (not a referral), to a new superior
+ * having a referral ancestor
+ */
+@Test
+public void testMoveExistingSuperiorHasReferralAncestor() throws Exception
+{
+    try
     {
-        CoreSession coreSession = getService().getAdminSession();
-        Dn orig = new Dn( "cn=Alex,ou=roles,o=MNN,c=WW,ou=system" );
-        Dn dest = new Dn( "cn=Alex,ou=People,o=MNN,c=WW,ou=system" );
-        
-        try
-        {
-            coreSession.move( orig, dest, true );
-            fail();
-        }
-        catch ( LdapPartialResultException lpre )
-        {
-            assertTrue( true );
-        }
+        MNNCtx.rename( "cn=Alex", "cn=Alex,ou=apache,ou=Roles" );
+        fail();
     }
+    catch ( NamingException ne )
+    {
+        assertTrue( true );
+        //assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, ((LdapNamingException)ne).getResultCode() );
+    }
+}
+
+
+/**
+ * Test a move of an existing entry with a referral in its ancestot, 
+ * to a new superior, using JNDI throw
+ */
+@Test
+public void testMoveEntryWithReferralAncestorJNDIThrow() throws Exception
+{
+    try
+    {
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "throw" );
+        MNNCtx.rename( "cn=Alex,ou=roles", "cn=Alex,ou=People" );
+        fail();
+    }
+    catch ( ReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Alex,ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a move of an existing entry with a referral in its ancestot, 
+ * to a new superior, using JNDI ignore
+ */
+@Test
+public void testMoveEntryWithReferralAncestorJNDIIgnore() throws Exception
+{
+    try
+    {
+        MNNCtx.addToEnvironment( DirContext.REFERRAL, "ignore" );
+        MNNCtx.rename( "cn=Alex,ou=roles", "cn=Alex,ou=People" );
+        fail();
+    }
+    catch ( PartialResultException pre )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a move of an existing entry with a referral in its ancestot, 
+ * to a new superior, using CoreAPI without the ManageDsaIT flag
+ */
+@Test
+public void testMoveEntryWithReferralAncestorCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession coreSession = getService().getAdminSession();
+    Dn orig = new Dn( "cn=Alex,ou=roles,o=MNN,c=WW,ou=system" );
+    Dn dest = new Dn( "cn=Alex,ou=People,o=MNN,c=WW,ou=system" );
+
+    try
+    {
+        coreSession.move( orig, dest, false );
+        fail();
+    }
+    catch ( LdapReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Alex,ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a move of an existing entry with a referral in its ancestot, 
+ * to a new superior, using CoreAPI with the ManageDsaIT flag
+ */
+@Test
+public void testMoveEntryWithReferralAncestorCoreAPIWithManageDsaIt() throws Exception
+{
+    CoreSession coreSession = getService().getAdminSession();
+    Dn orig = new Dn( "cn=Alex,ou=roles,o=MNN,c=WW,ou=system" );
+    Dn dest = new Dn( "cn=Alex,ou=People,o=MNN,c=WW,ou=system" );
+
+    try
+    {
+        coreSession.move( orig, dest, true );
+        fail();
+    }
+    catch ( LdapPartialResultException lpre )
+    {
+        assertTrue( true );
+    }
+}
 }

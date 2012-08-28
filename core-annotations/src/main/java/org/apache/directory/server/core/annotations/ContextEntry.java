@@ -18,10 +18,12 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 
 /**
  * An annotation for the Partition context entry
@@ -29,7 +31,8 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface ContextEntry
 {
     /** the context entry in LDIF to be added */

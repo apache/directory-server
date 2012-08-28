@@ -60,19 +60,32 @@ public class EncryptedDataDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x14,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x12,               //
-                (byte)0xA1, 0x03,                 // kvno
-                  0x02, 0x01, 0x05,               //
-                (byte)0xA2, 0x08,                 // cipher
-                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x12, //
+                ( byte ) 0xA1,
+                0x03, // kvno
+                0x02,
+                0x01,
+                0x05, //
+                ( byte ) 0xA2,
+                0x08, // cipher
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a EncryptedData Container
@@ -93,20 +106,20 @@ public class EncryptedDataDecoderTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptedData.getEType() );
         assertEquals( 5, encryptedData.getKvno() );
-        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), encryptedData.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( "abcdef" ), encryptedData.getCipher() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( encryptedData.computeLength() );
-        
+
         try
         {
             bb = encryptedData.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x16, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -114,8 +127,8 @@ public class EncryptedDataDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with no kvno
      */
@@ -125,17 +138,27 @@ public class EncryptedDataDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x0F,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x12,               //
-                (byte)0xA2, 0x08,                 // cipher
-                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x12, //
+                ( byte ) 0xA2,
+                0x08, // cipher
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f'
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a EncryptedData Container
@@ -156,20 +179,20 @@ public class EncryptedDataDecoderTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, encryptedData.getEType() );
         assertFalse( encryptedData.hasKvno() );
-        assertTrue( Arrays.equals( Strings.getBytesUtf8("abcdef"), encryptedData.getCipher() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( "abcdef" ), encryptedData.getCipher() ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( encryptedData.computeLength() );
-        
+
         try
         {
             bb = encryptedData.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x11, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -177,18 +200,18 @@ public class EncryptedDataDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -201,22 +224,22 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with no type
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataNoEType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x02,
-                (byte)0xA0, 0x00                  // etype
-            } );
+                ( byte ) 0xA0, 0x00 // etype
+        } );
 
         stream.flip();
 
@@ -227,26 +250,36 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with a missing type
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataMissingEType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x0F,
-                (byte)0xA1, 0x03,                 // kvno
-                  0x02, 0x01, 0x05,               //
-                (byte)0xA2, 0x08,                 // cipher
-                  0x04, 0x06, 'a', 'b', 'c', 'd', 'e', 'f'
-            } );
+            {
+                0x30, 0x0F,
+                ( byte ) 0xA1, 0x03, // kvno
+                0x02,
+                0x01,
+                0x05, //
+                ( byte ) 0xA2,
+                0x08, // cipher
+                0x04,
+                0x06,
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f'
+        } );
 
         stream.flip();
 
@@ -257,23 +290,24 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with an empty type
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyType() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
-        
+
         stream.put( new byte[]
             { 0x30, 0x04,
-                (byte)0xA0, 0x02,                 // etype
-                  0x02, 0x00                      // 
-            } );
+                ( byte ) 0xA0, 0x02, // etype
+                0x02,
+                0x00 // 
+        } );
 
         stream.flip();
 
@@ -284,24 +318,27 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with an empty kvno
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyKvno() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x07,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x01,               // 
-                (byte)0xA1, 0x00                  // kvno
-            } );
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x01, // 
+                ( byte ) 0xA1,
+                0x00 // kvno
+        } );
 
         stream.flip();
 
@@ -312,25 +349,30 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with no cipher
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataNoCipher() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
-        
+
         stream.put( new byte[]
             { 0x30, 0x0A,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x01,               // 
-                (byte)0xA1, 0x02,                 // kvno
-                  0x02, 0x01, 0x05                //
-            } );
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x01, // 
+                ( byte ) 0xA1,
+                0x02, // kvno
+                0x02,
+                0x01,
+                0x05 //
+        } );
 
         stream.flip();
 
@@ -341,26 +383,32 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData empty cipher
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyCipher() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0E );
-        
+
         stream.put( new byte[]
             { 0x30, 0x0C,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x01,               // 
-                (byte)0xA1, 0x03,                 // kvno
-                  0x02, 0x01, 0x01,               //
-                (byte)0xA2, 0x00                  // cipher
-            } );
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x01, // 
+                ( byte ) 0xA1,
+                0x03, // kvno
+                0x02,
+                0x01,
+                0x01, //
+                ( byte ) 0xA2,
+                0x00 // cipher
+        } );
 
         stream.flip();
 
@@ -371,26 +419,33 @@ public class EncryptedDataDecoderTest
         kerberosDecoder.decode( stream, encryptedDataContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a EncryptedData with a null cipher
      */
-    @Test( expected = DecoderException.class )
+    @Test(expected = DecoderException.class)
     public void testEncryptedDataNullCipher() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x10 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x0E,
-                (byte)0xA0, 0x03,                 // etype
-                  0x02, 0x01, 0x01,               // 
-                (byte)0xA1, 0x03,                 // kvno
-                  0x02, 0x01, 0x01,               //
-                (byte)0xA2, 0x02,                 // cipher
-                  0x04, 0x00
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x01, // 
+                ( byte ) 0xA1,
+                0x03, // kvno
+                0x02,
+                0x01,
+                0x01, //
+                ( byte ) 0xA2,
+                0x02, // cipher
+                0x04,
+                0x00
         } );
 
         stream.flip();

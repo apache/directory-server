@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.krbSafe;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,7 +35,8 @@ public class KrbSafeContainer extends AbstractContainer
 {
     /** An KRB-SAFE container */
     private KrbSafe krbSafe;
-    
+
+
     /**
      * Creates a new KrbSafeContainer object.
      * @param stream The stream containing the data to decode
@@ -56,7 +58,7 @@ public class KrbSafeContainer extends AbstractContainer
         return krbSafe;
     }
 
-    
+
     /**
      * Set a KrbSafe Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -74,7 +74,8 @@ public class NtpITest
      * @throws Exception if there are errors
      */
     @Test
-    @Ignore // Fails with a timeout !!!
+    @Ignore
+    // Fails with a timeout !!!
     public void testNtp() throws Exception
     {
         InetAddress host = InetAddress.getByName( null );

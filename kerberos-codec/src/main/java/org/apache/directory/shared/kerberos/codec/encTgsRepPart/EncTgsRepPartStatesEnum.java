@@ -33,14 +33,13 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum EncTgsRepPartStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- EncTgsRepPart message --------------------------------------
-    ENC_TGS_REP_PART_STATE,                  // 1
+    ENC_TGS_REP_PART_STATE, // 1
 
     // End
-    LAST_ENC_TGS_REP_PART_STATE;             // 2
-
+    LAST_ENC_TGS_REP_PART_STATE; // 2
 
     /**
      * Get the grammar name

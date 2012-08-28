@@ -52,7 +52,7 @@ public class CoreContextFactory implements InitialContextFactory
     {
         env = ( Hashtable<String, Object> ) env.clone();
         Dn principalDn = null;
-        
+
         try
         {
             principalDn = new Dn( getPrincipal( env ) );
@@ -61,7 +61,7 @@ public class CoreContextFactory implements InitialContextFactory
         {
             throw new InvalidNameException( I18n.err( I18n.ERR_733, env ) );
         }
-        
+
         byte[] credential = getCredential( env );
         String providerUrl = getProviderUrl( env );
 
@@ -72,7 +72,7 @@ public class CoreContextFactory implements InitialContextFactory
             throw new ConfigurationException( I18n.err( I18n.ERR_477, env ) );
         }
 
-        if ( ! service.isStarted() )
+        if ( !service.isStarted() )
         {
             return new DeadContext();
         }
@@ -85,12 +85,12 @@ public class CoreContextFactory implements InitialContextFactory
         }
         catch ( Exception e )
         {
-            JndiUtils.wrap(e);
+            JndiUtils.wrap( e );
         }
 
         // check to make sure we have access to the specified dn in provider URL
         ctx.lookup( "" );
-        return ctx;        
+        return ctx;
     }
 
 
@@ -140,7 +140,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         else if ( value instanceof String )
         {
-            credential = Strings.getBytesUtf8((String) value);
+            credential = Strings.getBytesUtf8( ( String ) value );
         }
         else if ( value instanceof byte[] )
         {
@@ -160,7 +160,7 @@ public class CoreContextFactory implements InitialContextFactory
     }
 
 
-    public static String getPrincipal( Hashtable<String,Object> env )
+    public static String getPrincipal( Hashtable<String, Object> env )
     {
         String principal;
         Object value = env.get( Context.SECURITY_PRINCIPAL );

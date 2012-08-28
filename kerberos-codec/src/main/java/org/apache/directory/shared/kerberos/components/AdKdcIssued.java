@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -31,6 +32,7 @@ import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The AdKdcIssued structure is used to store a AD-KDCIssued associated to a type.
@@ -56,16 +58,15 @@ public class AdKdcIssued extends AbstractAsn1Object
 
     /** The checksum */
     private Checksum adChecksum;
-    
+
     /** The realm */
     private String irealm;
-    
+
     /** The PrincipalName */
     private PrincipalName isname;
-    
+
     /** The AuthorizationData */
     private AuthorizationData elements;
-    
 
     // Storage for computed lengths
     private int adCheksumTagLength;
@@ -74,6 +75,7 @@ public class AdKdcIssued extends AbstractAsn1Object
     private int isnameTagLength;
     private int elementsTagLength;
     private int adKdcIssuedSeqLength;
+
 
     /**
      * Creates a new instance of AdKdcIssued
@@ -91,7 +93,7 @@ public class AdKdcIssued extends AbstractAsn1Object
         return elements;
     }
 
-    
+
     /**
      * @param elements the elements to set
      */
@@ -99,8 +101,6 @@ public class AdKdcIssued extends AbstractAsn1Object
     {
         this.elements = elements;
     }
-    
-    
 
 
     /**
@@ -156,7 +156,7 @@ public class AdKdcIssued extends AbstractAsn1Object
         this.isname = isname;
     }
 
-    
+
     /**
      * Compute the AD-KDCIssued length
      * <pre>
@@ -184,26 +184,26 @@ public class AdKdcIssued extends AbstractAsn1Object
     {
         // Compute the ad-cheksum count length
         adCheksumTagLength = adChecksum.computeLength();
-        adKdcIssuedSeqLength = 1 + TLV.getNbBytes( adCheksumTagLength ) + adCheksumTagLength; 
+        adKdcIssuedSeqLength = 1 + TLV.getNbBytes( adCheksumTagLength ) + adCheksumTagLength;
 
         // Compute the i-realm length, if any
         if ( irealm != null )
         {
             irealmBytes = irealm.getBytes();
-            irealmTagLength = 1 + TLV.getNbBytes( irealmBytes.length ) + irealmBytes.length; 
-            adKdcIssuedSeqLength += 1 + TLV.getNbBytes( irealmTagLength ) + irealmTagLength; 
+            irealmTagLength = 1 + TLV.getNbBytes( irealmBytes.length ) + irealmBytes.length;
+            adKdcIssuedSeqLength += 1 + TLV.getNbBytes( irealmTagLength ) + irealmTagLength;
         }
 
         // Compute the i-sname length, if any
         if ( isname != null )
         {
             isnameTagLength = isname.computeLength();
-            adKdcIssuedSeqLength += 1 + TLV.getNbBytes( isnameTagLength ) + isnameTagLength; 
+            adKdcIssuedSeqLength += 1 + TLV.getNbBytes( isnameTagLength ) + isnameTagLength;
         }
 
         // Compute the elements count length
         elementsTagLength = elements.computeLength();
-        adKdcIssuedSeqLength += 1 + TLV.getNbBytes( elementsTagLength ) + elementsTagLength; 
+        adKdcIssuedSeqLength += 1 + TLV.getNbBytes( elementsTagLength ) + elementsTagLength;
 
         // Compute the whole sequence length
         return 1 + TLV.getNbBytes( adKdcIssuedSeqLength ) + adKdcIssuedSeqLength;
@@ -230,19 +230,19 @@ public class AdKdcIssued extends AbstractAsn1Object
             // The AD-KDCIssued SEQ Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( adKdcIssuedSeqLength ) );
-            
+
             // the ad-checksum
             buffer.put( ( byte ) KerberosConstants.AD_KDC_ISSUED_AD_CHECKSUM_TAG );
-            buffer.put( (byte)adCheksumTagLength );
+            buffer.put( ( byte ) adCheksumTagLength );
             adChecksum.encode( buffer );
 
             // the i-realm, if any
             if ( irealm != null )
             {
                 buffer.put( ( byte ) KerberosConstants.AD_KDC_ISSUED_I_REALM_TAG );
-                buffer.put( (byte)irealmTagLength );
+                buffer.put( ( byte ) irealmTagLength );
                 buffer.put( UniversalTag.GENERAL_STRING.getValue() );
-                buffer.put( (byte)irealmBytes.length );
+                buffer.put( ( byte ) irealmBytes.length );
                 buffer.put( irealmBytes );
             }
 
@@ -250,13 +250,13 @@ public class AdKdcIssued extends AbstractAsn1Object
             if ( isname != null )
             {
                 buffer.put( ( byte ) KerberosConstants.AD_KDC_ISSUED_I_SNAME_TAG );
-                buffer.put( (byte)isnameTagLength );
+                buffer.put( ( byte ) isnameTagLength );
                 isname.encode( buffer );
             }
 
             // the elements
             buffer.put( ( byte ) KerberosConstants.AD_KDC_ISSUED_ELEMENTS_TAG );
-            buffer.put( (byte)elementsTagLength );
+            buffer.put( ( byte ) elementsTagLength );
             elements.encode( buffer );
         }
         catch ( BufferOverflowException boe )
@@ -268,7 +268,7 @@ public class AdKdcIssued extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AD-KDCIssued encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "AD-KDCIssued encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "AD-KDCIssued initial value : {}", toString() );
         }
 
@@ -294,18 +294,17 @@ public class AdKdcIssued extends AbstractAsn1Object
 
         sb.append( tabs ).append( "AD-KDCIssued : {\n" );
         sb.append( tabs ).append( "    ad-cheksum: " ).append( adChecksum.toString( tabs + "    " ) ).append( '\n' );
-        
+
         if ( irealm != null )
         {
             sb.append( tabs ).append( "    i-realm: " ).append( irealm ).append( '\n' );
         }
-        
-        
+
         if ( isname != null )
         {
             sb.append( tabs ).append( "    i-sname: " ).append( isname.toString() ).append( '\n' );
         }
-        
+
         sb.append( tabs + "    elements:" ).append( elements.toString( tabs + "    " ) ).append( '\n' );
         sb.append( tabs + "}\n" );
 

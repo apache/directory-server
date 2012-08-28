@@ -33,19 +33,18 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum AdAndOrStatesEnum implements States
 {
     // Start
-    START_STATE,                          // 0
+    START_STATE, // 0
 
     // ----- AD-AND-OR message --------------------------------------
-    AD_AND_OR_STATE,                      // 1
+    AD_AND_OR_STATE, // 1
 
-    AD_AND_OR_CONDITION_COUNT_TAG_STATE,  // 2
-    AD_AND_OR_CONDITION_COUNT_STATE,      // 3
+    AD_AND_OR_CONDITION_COUNT_TAG_STATE, // 2
+    AD_AND_OR_CONDITION_COUNT_STATE, // 3
 
-    AD_AND_OR_ELEMENTS_TAG_STATE,         // 4
+    AD_AND_OR_ELEMENTS_TAG_STATE, // 4
 
     // End
-    LAST_AD_AND_OR_STATE;                 // 5
-
+    LAST_AD_AND_OR_STATE; // 5
 
     /**
      * Get the grammar name

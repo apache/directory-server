@@ -95,6 +95,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
     }
 
+
     /**
      * Creates a new instance of DefaultAuthorizationInterceptor.
      */
@@ -125,7 +126,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             directoryService );
 
         Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, ADMIN_GROUP_DN ) );
@@ -186,7 +188,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && !isAnAdministrator(principalDn) )
+        if ( dn.size() > 2 && !isAnAdministrator( principalDn ) )
         {
             if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) )
             {

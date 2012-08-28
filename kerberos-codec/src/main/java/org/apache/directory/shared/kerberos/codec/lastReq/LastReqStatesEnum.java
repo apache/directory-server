@@ -33,21 +33,20 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum LastReqStatesEnum implements States
 {
     // Start
-    START_STATE,                      // 0
+    START_STATE, // 0
 
-    LAST_REQ_SEQ_STATE,               // 1
+    LAST_REQ_SEQ_STATE, // 1
 
-    LAST_REQ_SEQ_SEQ_STATE,           // 2
+    LAST_REQ_SEQ_SEQ_STATE, // 2
 
-    LAST_REQ_LR_TYPE_TAG_STATE,       // 3
-    LAST_REQ_LR_TYPE_STATE,           // 4
+    LAST_REQ_LR_TYPE_TAG_STATE, // 3
+    LAST_REQ_LR_TYPE_STATE, // 4
 
-    LAST_REQ_LR_VALUE_TAG_STATE,      // 5
-    LAST_REQ_LR_VALUE_STATE,          // 6
+    LAST_REQ_LR_VALUE_TAG_STATE, // 5
+    LAST_REQ_LR_VALUE_STATE, // 6
 
     // End
-    LAST_LAST_REQ_STATE;              // 7
-
+    LAST_LAST_REQ_STATE; // 7
 
     /**
      * Get the grammar name

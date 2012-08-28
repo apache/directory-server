@@ -51,7 +51,7 @@ public enum HostAddrType
     /**
      * Constant for the "null" host address type.
      */
-    NULL( 0 ),
+    NULL(0),
 
     /**
      * Constant for the "Unix" host address type.
@@ -63,12 +63,12 @@ public enum HostAddrType
     /**
      * Constant for the "Internet" host address type.
      */
-    ADDRTYPE_INET( 2 ),
+    ADDRTYPE_INET(2),
 
     /**
      * Constant for the "Arpanet" host address type.
      */
-    ADDRTYPE_IMPLINK( 3 ),
+    ADDRTYPE_IMPLINK(3),
 
     /**
      * Constant for the "PUP" host address type.
@@ -80,12 +80,12 @@ public enum HostAddrType
     /**
      * Constant for the "CHAOS" host address type.
      */
-    ADDRTYPE_CHAOS( 5 ),
+    ADDRTYPE_CHAOS(5),
 
     /**
      * Constant for the "XEROX Network Services" host address type.
      */
-    ADDRTYPE_XNS( 6 ),
+    ADDRTYPE_XNS(6),
 
     /**
      * Constant for the "IPX" host address type.
@@ -97,7 +97,7 @@ public enum HostAddrType
     /**
      * Constant for the "OSI" host address type.
      */
-    ADDRTYPE_OSI( 7 ),
+    ADDRTYPE_OSI(7),
 
     /**
      * Constant for the "European Computer Manufacturers" host address type.
@@ -130,7 +130,7 @@ public enum HostAddrType
     /**
      * Constant for the "DECnet" host address type.
      */
-    ADDRTYPE_DECNET( 12 ),
+    ADDRTYPE_DECNET(12),
 
     /**
      * Constant for the "Direct Data Link Interface" host address type.
@@ -156,7 +156,7 @@ public enum HostAddrType
     /**
      * Constant for the "AppleTalk" host address type.
      */
-    ADDRTYPE_APPLETALK( 16 ),
+    ADDRTYPE_APPLETALK(16),
 
     /**
      * Constant for the "VoiceView" host address type.
@@ -177,7 +177,7 @@ public enum HostAddrType
      * 
      * Not in RFC
      */
-    ADDRTYPE_NETBIOS( 20 ),
+    ADDRTYPE_NETBIOS(20),
 
     /**
      * Constant for the "Banyan" host address type.
@@ -196,7 +196,7 @@ public enum HostAddrType
     /**
      * Constant for the "Internet Protocol V6" host address type.
      */
-    ADDRTYPE_INET6( 24 );
+    ADDRTYPE_INET6(24);
 
     /**
      * The value/code for the host address type.
@@ -223,30 +223,41 @@ public enum HostAddrType
     {
         switch ( type )
         {
-            case 0 : return NULL;
-            //case 1 : return ADDRTYPE_UNIX;
-            case 2 : return ADDRTYPE_INET;
-            case 3 : return ADDRTYPE_IMPLINK;
-            //case 4 : return ADDRTYPE_PUP;
-            case 5 : return ADDRTYPE_CHAOS;
-            case 6 : return ADDRTYPE_XNS;
-            case 7 : return ADDRTYPE_OSI;
-            //case 8 : return ADDRTYPE_ECMA;
-            //case 9 : return ADDRTYPE_DATAKIT;
-            //case 10 : return pADDRTYPE_CCITT;
-            //case 11 : return ADDRTYPE_SNA;
-            case 12 : return ADDRTYPE_DECNET;
-            //case 13 : return ADDRTYPE_DLI;
-            //case 14 : return ADDRTYPE_LAT;
-            //case 15 : return ADDRTYPE_HYLINK;
-            case 16 : return ADDRTYPE_APPLETALK;
-            //case 18 : return ADDRTYPE_VOICEVIEW;
-            //case 19 : return ADDRTYPE_FIREFOX;
-            case 20 : return ADDRTYPE_NETBIOS;
-            //case 21 : return ADDRTYPE_BAN;
-            //case 22 : return ADDRTYPE_ATM;
-            case 24 : return ADDRTYPE_INET6;
-            default : return NULL;
+            case 0:
+                return NULL;
+                //case 1 : return ADDRTYPE_UNIX;
+            case 2:
+                return ADDRTYPE_INET;
+            case 3:
+                return ADDRTYPE_IMPLINK;
+                //case 4 : return ADDRTYPE_PUP;
+            case 5:
+                return ADDRTYPE_CHAOS;
+            case 6:
+                return ADDRTYPE_XNS;
+            case 7:
+                return ADDRTYPE_OSI;
+                //case 8 : return ADDRTYPE_ECMA;
+                //case 9 : return ADDRTYPE_DATAKIT;
+                //case 10 : return pADDRTYPE_CCITT;
+                //case 11 : return ADDRTYPE_SNA;
+            case 12:
+                return ADDRTYPE_DECNET;
+                //case 13 : return ADDRTYPE_DLI;
+                //case 14 : return ADDRTYPE_LAT;
+                //case 15 : return ADDRTYPE_HYLINK;
+            case 16:
+                return ADDRTYPE_APPLETALK;
+                //case 18 : return ADDRTYPE_VOICEVIEW;
+                //case 19 : return ADDRTYPE_FIREFOX;
+            case 20:
+                return ADDRTYPE_NETBIOS;
+                //case 21 : return ADDRTYPE_BAN;
+                //case 22 : return ADDRTYPE_ATM;
+            case 24:
+                return ADDRTYPE_INET6;
+            default:
+                return NULL;
         }
     }
 
@@ -261,6 +272,7 @@ public enum HostAddrType
         return value;
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -268,29 +280,38 @@ public enum HostAddrType
     {
         switch ( value )
         {
-            //case 1 : return "Unix" + "(" + value + ")"  ;
-            case 2 : return "Internet" + "(" + value + ")"  ;
-            case 3 : return "Arpanet" + "(" + value + ")"  ;
-            //case 4 : return "PUP" + "(" + value + ")"  ;
-            case 5 : return "CHAOS" + "(" + value + ")"  ;
-            case 6 : return "XEROX Network Services" + "(" + value + ")"  ;
-            case 7 : return "OSI" + "(" + value + ")"  ;
-            //case 8 : return "European Computer Manufacturers" + "(" + value + ")"  ;
-            //case 9 : return "Datakit" + "(" + value + ")"  ;
-            //case 10 : return "CCITT" + "(" + value + ")"  ;
-            //case 11 : return "SNA" + "(" + value + ")"  ;
-            case 12 : return "DECnet" + "(" + value + ")"  ;
-            //case 13 : return "Direct Data Link Interface" + "(" + value + ")"  ;
-            //case 14 : return "LAT" + "(" + value + ")"  ;
-            //case 15 : return "NSC Hyperchannel" + "(" + value + ")"  ;
-            //case 16 : return "AppleTalk" + "(" + value + ")"  ;
-            //case 18 : return "VoiceView" + "(" + value + ")"  ;
-            //case 19 : return "Firefox" + "(" + value + ")"  ;
-            case 20 : return "NetBios" + "(" + value + ")"  ;
-            //case 21 : return "Banyan" + "(" + value + ")"  ;
-            //case 22 : return "ATM" + "(" + value + ")"  ;
-            case 24 : return "Internet Protocol V6" + "(" + value + ")" ;             
-            default : return "null" + "(" + value + ")" ;
+        //case 1 : return "Unix" + "(" + value + ")"  ;
+            case 2:
+                return "Internet" + "(" + value + ")";
+            case 3:
+                return "Arpanet" + "(" + value + ")";
+                //case 4 : return "PUP" + "(" + value + ")"  ;
+            case 5:
+                return "CHAOS" + "(" + value + ")";
+            case 6:
+                return "XEROX Network Services" + "(" + value + ")";
+            case 7:
+                return "OSI" + "(" + value + ")";
+                //case 8 : return "European Computer Manufacturers" + "(" + value + ")"  ;
+                //case 9 : return "Datakit" + "(" + value + ")"  ;
+                //case 10 : return "CCITT" + "(" + value + ")"  ;
+                //case 11 : return "SNA" + "(" + value + ")"  ;
+            case 12:
+                return "DECnet" + "(" + value + ")";
+                //case 13 : return "Direct Data Link Interface" + "(" + value + ")"  ;
+                //case 14 : return "LAT" + "(" + value + ")"  ;
+                //case 15 : return "NSC Hyperchannel" + "(" + value + ")"  ;
+                //case 16 : return "AppleTalk" + "(" + value + ")"  ;
+                //case 18 : return "VoiceView" + "(" + value + ")"  ;
+                //case 19 : return "Firefox" + "(" + value + ")"  ;
+            case 20:
+                return "NetBios" + "(" + value + ")";
+                //case 21 : return "Banyan" + "(" + value + ")"  ;
+                //case 22 : return "ATM" + "(" + value + ")"  ;
+            case 24:
+                return "Internet Protocol V6" + "(" + value + ")";
+            default:
+                return "null" + "(" + value + ")";
         }
     }
 }

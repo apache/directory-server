@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.core.api.txn.logedit;
 
+
 import java.io.Externalizable;
+
 
 /**
  * 

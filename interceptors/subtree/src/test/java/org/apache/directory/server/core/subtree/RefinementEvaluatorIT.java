@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.subtree;
 
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -57,7 +58,7 @@ public class RefinementEvaluatorIT
 {
     /** the SchemaManager instance */
     private static SchemaManager schemaManager;
-    
+
     /** the refinement evaluator to test */
     private static RefinementEvaluator evaluator;
 
@@ -66,13 +67,13 @@ public class RefinementEvaluatorIT
 
     /** The CN_AT AttributeType */
     private static AttributeType CN_AT;
-    
-    
+
+
     /**
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass 
+    @BeforeClass
     public static void init() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
@@ -83,12 +84,12 @@ public class RefinementEvaluatorIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         RefinementLeafEvaluator leafEvaluator = new RefinementLeafEvaluator( schemaManager );
         evaluator = new RefinementEvaluator( leafEvaluator );
-        
+
         OBJECT_CLASS_AT = schemaManager.getAttributeType( "objectClass" );
         CN_AT = schemaManager.lookupAttributeTypeRegistry( "cn" );
     }
@@ -97,7 +98,7 @@ public class RefinementEvaluatorIT
     /**
      * Sets evaluator and registries to null.
      */
-    @AfterClass 
+    @AfterClass
     public static void tearDown()
     {
         evaluator = null;
@@ -108,7 +109,7 @@ public class RefinementEvaluatorIT
      * Test cases for various bad combinations of arguments
      * @throws Exception if something goes wrong
      */
-    @Test 
+    @Test
     public void testForBadArguments() throws Exception
     {
         try
@@ -122,7 +123,7 @@ public class RefinementEvaluatorIT
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( (String)null, new StringValue( "" ) ), null ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, new StringValue( "" ) ), null ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -131,7 +132,7 @@ public class RefinementEvaluatorIT
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( (String)null, new StringValue( "" ) ), 
+            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, new StringValue( "" ) ),
                 new DefaultAttribute( "cn", CN_AT ) ) );
             fail( "should never get here due to an IAE" );
         }
@@ -141,90 +142,97 @@ public class RefinementEvaluatorIT
     }
 
 
-    @Test 
+    @Test
     public void testMatchByName() throws Exception
     {
         Attribute objectClasses = null;
 
         // positive test
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ),
+            objectClasses ) );
     }
 
 
-    @Test 
+    @Test
     public void testMatchByOID() throws Exception
     {
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        
+
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+            objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+            objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+            objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+            objectClasses ) );
     }
 
 
-    @Test 
+    @Test
     public void testComplexOrRefinement() throws Exception
     {
         ExprNode refinement = null;
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         String refStr = "(|(objectClass=person)(objectClass=organizationalUnit))";
-        
+
         refinement = FilterParser.parse( schemaManager, refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
 
-    @Test 
+    @Test
     public void testComplexAndRefinement() throws Exception
     {
         ExprNode refinement = null;
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         objectClasses.add( "organizationalUnit" );
         String refStr = "(&(objectClass=person)(objectClass=organizationalUnit))";
-        
-        refinement = FilterParser.parse( schemaManager,refStr );
+
+        refinement = FilterParser.parse( schemaManager, refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "domain" );
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
     }
 
 
-    @Test 
+    @Test
     public void testComplexNotRefinement() throws Exception
     {
         ExprNode refinement = null;
@@ -234,10 +242,10 @@ public class RefinementEvaluatorIT
         refinement = FilterParser.parse( schemaManager, refStr );
 
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "organizationalUnit" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
-        
+
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "domain" );
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
 

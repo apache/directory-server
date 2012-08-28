@@ -33,43 +33,42 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum KrbCredInfoStatesEnum implements States
 {
     // Start
-    START_STATE,                           // 0
+    START_STATE, // 0
 
     // ----- KRB-ERROR component --------------------------------------
-    KRB_CRED_INFO_SEQ_TAG_STATE,           // 1
+    KRB_CRED_INFO_SEQ_TAG_STATE, // 1
 
-    KRB_CRED_INFO_KEY_TAG_STATE,           // 2
+    KRB_CRED_INFO_KEY_TAG_STATE, // 2
 
-    KRB_CRED_INFO_PREALM_TAG_STATE,        // 3
-    KRB_CRED_INFO_PREALM_STATE,            // 4
+    KRB_CRED_INFO_PREALM_TAG_STATE, // 3
+    KRB_CRED_INFO_PREALM_STATE, // 4
 
-    KRB_CRED_INFO_PNAME_TAG_STATE,         // 5
+    KRB_CRED_INFO_PNAME_TAG_STATE, // 5
 
-    KRB_CRED_INFO_FLAGS_TAG_STATE,         // 6
-    KRB_CRED_INFO_FLAGS_STATE,             // 7
+    KRB_CRED_INFO_FLAGS_TAG_STATE, // 6
+    KRB_CRED_INFO_FLAGS_STATE, // 7
 
-    KRB_CRED_INFO_AUTHTIME_TAG_STATE,      // 8
-    KRB_CRED_INFO_AUTHTIME_STATE,          // 9
+    KRB_CRED_INFO_AUTHTIME_TAG_STATE, // 8
+    KRB_CRED_INFO_AUTHTIME_STATE, // 9
 
-    KRB_CRED_INFO_STARTTIME_TAG_STATE,     // 10
-    KRB_CRED_INFO_STARTTIME_STATE,         // 11
+    KRB_CRED_INFO_STARTTIME_TAG_STATE, // 10
+    KRB_CRED_INFO_STARTTIME_STATE, // 11
 
-    KRB_CRED_INFO_ENDTIME_TAG_STATE,       // 12
-    KRB_CRED_INFO_ENDTIME_STATE,           // 13
+    KRB_CRED_INFO_ENDTIME_TAG_STATE, // 12
+    KRB_CRED_INFO_ENDTIME_STATE, // 13
 
-    KRB_CRED_INFO_RENEWTILL_TAG_STATE,     // 14
-    KRB_CRED_INFO_RENEWTILL_STATE,         // 15
+    KRB_CRED_INFO_RENEWTILL_TAG_STATE, // 14
+    KRB_CRED_INFO_RENEWTILL_STATE, // 15
 
-    KRB_CRED_INFO_SREALM_TAG_STATE,        // 16
+    KRB_CRED_INFO_SREALM_TAG_STATE, // 16
     KRB_CRED_INFO_SREALM_STATE,
 
-    KRB_CRED_INFO_SNAME_TAG_STATE,         // 17
+    KRB_CRED_INFO_SNAME_TAG_STATE, // 17
 
-    KRB_CRED_INFO_CADDR_TAG_STATE,         // 18
+    KRB_CRED_INFO_CADDR_TAG_STATE, // 18
 
     // End
-    LAST_KRB_CRED_INFO_STATE;              // 19
-
+    LAST_KRB_CRED_INFO_STATE; // 19
 
     /**
      * Get the grammar name

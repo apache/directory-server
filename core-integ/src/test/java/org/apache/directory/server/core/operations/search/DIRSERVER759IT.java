@@ -49,7 +49,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "DIRSERVER759IT")
 public class DIRSERVER759IT extends AbstractLdapTestUnit
 {
@@ -172,7 +172,7 @@ public class DIRSERVER759IT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
+            AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         try
         {

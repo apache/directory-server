@@ -1,5 +1,6 @@
-
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
+
+
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -55,25 +56,27 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 public class JdbmStoreTxnIT
 {
     static File wkdir;
     static JdbmPartition store;
     private static SchemaManager schemaManager = null;
     private static LdifSchemaLoader loader;
-    
+
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
 
     /** Txn manager */
     private static TxnManager txnManager;
-    
+
     /** log dir */
     private static File logDir;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -87,7 +90,6 @@ public class JdbmStoreTxnIT
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
 
-        
         logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -105,7 +107,7 @@ public class JdbmStoreTxnIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -117,7 +119,7 @@ public class JdbmStoreTxnIT
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-        
+
         // initialize the store
         store = new JdbmPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
@@ -128,7 +130,7 @@ public class JdbmStoreTxnIT
         JdbmIndex ouIndex = new JdbmIndex( SchemaConstants.OU_AT_OID );
         ouIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( ouIndex );
-        
+
         JdbmIndex uidIndex = new JdbmIndex( SchemaConstants.UID_AT_OID );
         uidIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( uidIndex );
@@ -152,10 +154,10 @@ public class JdbmStoreTxnIT
         }
 
         store = null;
-        
+
         if ( logDir != null )
         {
-            FileUtils.deleteDirectory( logDir);
+            FileUtils.deleteDirectory( logDir );
         }
 
         if ( wkdir != null )
@@ -165,7 +167,8 @@ public class JdbmStoreTxnIT
 
         wkdir = null;
     }
-    
+
+
     @Test
     public void testAddsConcurrentWithSearch()
     {
@@ -173,16 +176,15 @@ public class JdbmStoreTxnIT
         {
             int numThreads = 10;
             AddsConcurrentWithSearchTestThread threads[] = new AddsConcurrentWithSearchTestThread[numThreads];
-            
-            
-            for ( int idx =0; idx < numThreads; idx++ )
+
+            for ( int idx = 0; idx < numThreads; idx++ )
             {
                 threads[idx] = new AddsConcurrentWithSearchTestThread();
                 threads[idx].start();
             }
-            
+
             txnManager.beginTransaction( false );
-            
+
             // dn id 12
             Dn martinDn = new Dn( schemaManager, "cn=Marting King,ou=Sales,o=Good Times Co." );
             DefaultEntry entry = new DefaultEntry( schemaManager, martinDn );
@@ -194,10 +196,10 @@ public class JdbmStoreTxnIT
 
             AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( store, addContext );
-            
+
             // Sleep some
             Thread.sleep( 100 );
-            
+
             // dn id 13
             Dn jimmyDn = new Dn( schemaManager, "cn=Jimmy Wales, ou=Sales,o=Good Times Co." );
             entry = new DefaultEntry( schemaManager, jimmyDn );
@@ -206,13 +208,13 @@ public class JdbmStoreTxnIT
             entry.add( "cn", "Jimmy Wales" );
             entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
             entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
-            
+
             addContext = new AddOperationContext( schemaManager, entry );
             executionManager.add( store, addContext );
-            
+
             txnManager.commitTransaction();
-            
-            for ( int idx =0; idx < numThreads; idx++ )
+
+            for ( int idx = 0; idx < numThreads; idx++ )
             {
                 threads[idx].join();
             }
@@ -223,56 +225,54 @@ public class JdbmStoreTxnIT
             assertTrue( false );
         }
     }
-    
-    
+
     class AddsConcurrentWithSearchTestThread extends Thread
     {
         private void doSearch() throws Exception
         {
             int numEntries = 0;
-            
+
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
             ExprNode filter = new PresenceNode( schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT ) );
-            
+
             Dn baseDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
-            
+
             txnManager.beginTransaction( true );
 
-            IndexCursor<UUID> cursor = store.getSearchEngine().cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls );
-            
+            IndexCursor<UUID> cursor = store.getSearchEngine().cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
+                filter, controls );
+
             while ( cursor.next() )
             {
                 numEntries++;
             }
-            
+
             assertTrue( numEntries == 2 || numEntries == 4 );
             //System.out.println("Num entries: " + numEntries );
-            
+
             txnManager.commitTransaction();
         }
 
 
         public void run()
-        {         
+        {
             try
             {
                 Random sleepRandomizer = new Random();
                 int sleepTime = sleepRandomizer.nextInt( 10 ) * 100;
-                
+
                 Thread.sleep( sleepTime );
-                
+
                 doSearch();
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 e.printStackTrace();
                 fail();
                 assertTrue( false );
             }
-            
-            
-            
+
         }
     } // end of class RemoveInsertTestThread
 

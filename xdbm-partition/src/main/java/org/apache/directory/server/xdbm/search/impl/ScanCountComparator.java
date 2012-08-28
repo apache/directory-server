@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+
 import java.util.Comparator;
 
 import org.apache.directory.server.xdbm.search.Evaluator;
+
 
 /**
  * A helper class used to compare scan counts.

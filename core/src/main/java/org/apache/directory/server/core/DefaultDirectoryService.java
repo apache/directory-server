@@ -1350,15 +1350,14 @@ public class DefaultDirectoryService implements DirectoryService
             txnManagerFactory = new TxnManagerFactory( getInstanceLayout().getTxnLogDirectory().getPath(),
                 TXN_LOG_BUFFER_SIZE, TXN_LOG_FILE_SIZE );
         }
-        
+
         txnManagerFactory.init();
-        
-        
+
         if ( executionManagerFactory == null )
         {
             executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
         }
-        
+
         executionManagerFactory.init();
 
         initialize();
@@ -1414,7 +1413,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             return;
         }
-        
+
         // --------------------------------------------------------------------
         // Shutdown the txnManager
         //
@@ -1899,19 +1898,19 @@ public class DefaultDirectoryService implements DirectoryService
         }
     }
 
-    
+
     private void initializeCaches()
-    {   
+    {
         // Initialize the AP caches
         accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
         collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
         subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
-        
+
         // Reinit the subentry cache as well
         subentryCache = new SubentryCache();
     }
-    
+
 
     /**
      * Kicks off the initialization of the entire system.
@@ -1930,7 +1929,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             setDefaultInterceptorConfigurations();
         }
-        
+
         cacheService = new CacheService();
         cacheService.initialize( this );
 
@@ -2398,7 +2397,7 @@ public class DefaultDirectoryService implements DirectoryService
         return triggerExecutionAPCache;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -2406,6 +2405,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         initializeCaches();
     }
+
 
     /**
      * {@inheritDoc}
@@ -2507,8 +2507,8 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return txnManagerFactory.txnLogManagerInstance();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

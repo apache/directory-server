@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.util.UUID;
 
 import jdbm.RecordManager;
@@ -36,7 +37,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmMasterTable extends JdbmTable<UUID,Entry> implements MasterTable
+public class JdbmMasterTable extends JdbmTable<UUID, Entry> implements MasterTable
 {
     /**
      * Creates the master table using JDBM B+Trees for the backing store.
@@ -47,14 +48,17 @@ public class JdbmMasterTable extends JdbmTable<UUID,Entry> implements MasterTabl
      */
     public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
     {
-        super( schemaManager, DBF, recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, new EntrySerializer( schemaManager ) );
+        super( schemaManager, DBF, recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, new EntrySerializer(
+            schemaManager ) );
     }
 
 
-    protected JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager, String dbName, Serializer serializer ) throws Exception
+    protected JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager, String dbName, Serializer serializer )
+        throws Exception
     {
         super( schemaManager, DBF, recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, serializer );
     }
+
 
     /**
      * {@inheritDoc}
@@ -63,7 +67,7 @@ public class JdbmMasterTable extends JdbmTable<UUID,Entry> implements MasterTabl
     {
         String name = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
         UUID uuid = UUID.fromString( name );
-        return uuid; 
+        return uuid;
     }
 
 

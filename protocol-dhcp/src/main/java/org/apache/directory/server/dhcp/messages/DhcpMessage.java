@@ -20,9 +20,11 @@
 
 package org.apache.directory.server.dhcp.messages;
 
+
 import java.net.InetAddress;
 
 import org.apache.directory.server.dhcp.options.OptionsField;
+
 
 /**
  * A DHCP (RFC 2131) message. Field descriptions contain the oroginal RFC field
@@ -30,7 +32,8 @@ import org.apache.directory.server.dhcp.options.OptionsField;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DhcpMessage {
+public class DhcpMessage
+{
     /**
      * Flag value: request broadcast answer.
      */
@@ -125,12 +128,15 @@ public class DhcpMessage {
 
     private HardwareAddress hardwareAddress;
 
+
     /**
      * Create a default dhcp message.
      */
-    public DhcpMessage() {
+    public DhcpMessage()
+    {
 
     }
+
 
     /**
      * Create a DHCP message based on the supplied values.
@@ -150,12 +156,13 @@ public class DhcpMessage {
      * @param bootFileName
      * @param options
      */
-    public DhcpMessage(MessageType messageType, byte op,
-            HardwareAddress hardwareAddress, short hops, int transactionId,
-            int seconds, short flags, InetAddress currentClientAddress,
-            InetAddress assignedClientAddress, InetAddress nextServerAddress,
-            InetAddress relayAgentAddress, String serverHostname,
-            String bootFileName, OptionsField options) {
+    public DhcpMessage( MessageType messageType, byte op,
+        HardwareAddress hardwareAddress, short hops, int transactionId,
+        int seconds, short flags, InetAddress currentClientAddress,
+        InetAddress assignedClientAddress, InetAddress nextServerAddress,
+        InetAddress relayAgentAddress, String serverHostname,
+        String bootFileName, OptionsField options )
+    {
         this.messageType = messageType;
         this.op = op;
         this.hardwareAddress = hardwareAddress;
@@ -172,123 +179,181 @@ public class DhcpMessage {
         this.options = options;
     }
 
-    public InetAddress getAssignedClientAddress() {
+
+    public InetAddress getAssignedClientAddress()
+    {
         return assignedClientAddress;
     }
 
-    public String getBootFileName() {
+
+    public String getBootFileName()
+    {
         return bootFileName;
     }
 
-    public InetAddress getCurrentClientAddress() {
+
+    public InetAddress getCurrentClientAddress()
+    {
         return currentClientAddress;
     }
 
-    public short getFlags() {
+
+    public short getFlags()
+    {
         return flags;
     }
 
-    public short getHopCount() {
+
+    public short getHopCount()
+    {
         return hopCount;
     }
 
-    public MessageType getMessageType() {
+
+    public MessageType getMessageType()
+    {
         return messageType;
     }
 
-    public InetAddress getNextServerAddress() {
+
+    public InetAddress getNextServerAddress()
+    {
         return nextServerAddress;
     }
 
-    public OptionsField getOptions() {
+
+    public OptionsField getOptions()
+    {
         return options;
     }
 
-    public InetAddress getRelayAgentAddress() {
+
+    public InetAddress getRelayAgentAddress()
+    {
         return relayAgentAddress;
     }
 
-    public int getSeconds() {
+
+    public int getSeconds()
+    {
         return seconds;
     }
 
-    public String getServerHostname() {
+
+    public String getServerHostname()
+    {
         return serverHostname;
     }
 
-    public int getTransactionId() {
+
+    public int getTransactionId()
+    {
         return transactionId;
     }
 
-    public void setAssignedClientAddress(InetAddress assignedClientAddress) {
+
+    public void setAssignedClientAddress( InetAddress assignedClientAddress )
+    {
         this.assignedClientAddress = assignedClientAddress;
     }
 
-    public void setBootFileName(String bootFileName) {
+
+    public void setBootFileName( String bootFileName )
+    {
         this.bootFileName = bootFileName;
     }
 
-    public void setCurrentClientAddress(InetAddress currentClientAddress) {
+
+    public void setCurrentClientAddress( InetAddress currentClientAddress )
+    {
         this.currentClientAddress = currentClientAddress;
     }
 
-    public void setFlags(short flags) {
+
+    public void setFlags( short flags )
+    {
         this.flags = flags;
     }
 
-    public void setHopCount(short hopCount) {
+
+    public void setHopCount( short hopCount )
+    {
         this.hopCount = hopCount;
     }
 
-    public void setMessageType(MessageType messageType) {
+
+    public void setMessageType( MessageType messageType )
+    {
         this.messageType = messageType;
     }
 
-    public void setNextServerAddress(InetAddress nextServerAddress) {
+
+    public void setNextServerAddress( InetAddress nextServerAddress )
+    {
         this.nextServerAddress = nextServerAddress;
     }
 
-    public void setOptions(OptionsField options) {
+
+    public void setOptions( OptionsField options )
+    {
         this.options = options;
     }
 
-    public void setRelayAgentAddress(InetAddress relayAgentAddress) {
+
+    public void setRelayAgentAddress( InetAddress relayAgentAddress )
+    {
         this.relayAgentAddress = relayAgentAddress;
     }
 
-    public void setSeconds(int seconds) {
+
+    public void setSeconds( int seconds )
+    {
         this.seconds = seconds;
     }
 
-    public void setServerHostname(String serverHostname) {
+
+    public void setServerHostname( String serverHostname )
+    {
         this.serverHostname = serverHostname;
     }
 
-    public void setTransactionId(int transactionId) {
+
+    public void setTransactionId( int transactionId )
+    {
         this.transactionId = transactionId;
     }
 
-    public byte getOp() {
+
+    public byte getOp()
+    {
         return op;
     }
 
-    public void setOp(byte op) {
+
+    public void setOp( byte op )
+    {
         this.op = op;
     }
 
-    public HardwareAddress getHardwareAddress() {
+
+    public HardwareAddress getHardwareAddress()
+    {
         return hardwareAddress;
     }
 
-    public void setHardwareAddress(HardwareAddress hardwareAddress) {
+
+    public void setHardwareAddress( HardwareAddress hardwareAddress )
+    {
         this.hardwareAddress = hardwareAddress;
     }
 
-    public String toString() {
+
+    public String toString()
+    {
         StringBuilder sb = new StringBuilder();
-        sb.append(messageType).append(": hwAddress=").append(hardwareAddress)
-                .append(", tx=").append(transactionId).append(", options=").append(
-                        options);
+        sb.append( messageType ).append( ": hwAddress=" ).append( hardwareAddress )
+            .append( ", tx=" ).append( transactionId ).append( ", options=" ).append(
+                options );
 
         return sb.toString();
     }

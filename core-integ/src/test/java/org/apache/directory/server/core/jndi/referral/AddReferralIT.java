@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.jndi.referral;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,254 +64,255 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "AddReferralIT")
-@ApplyLdifs( {
-    // Root
-    "dn: c=WW,ou=system",
-    "objectClass: country",
-    "objectClass: top",
-    "c: WW",
-    
-    // Sub-root
-    "dn: o=MNN,c=WW,ou=system",
-    "objectClass: organization",
-    "objectClass: top",
-    "o: MNN",
-    
-    // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: Roles",
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
-    
-    // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: People",
-    "ref: ldap://hostb/OU=People,DC=example,DC=com",
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
-    
-    // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Alex Karasulu",
-    "sn: akarasulu"
-    }
-)
+@ApplyLdifs(
+    {
+        // Root
+        "dn: c=WW,ou=system",
+        "objectClass: country",
+        "objectClass: top",
+        "c: WW",
+
+        // Sub-root
+        "dn: o=MNN,c=WW,ou=system",
+        "objectClass: organization",
+        "objectClass: top",
+        "o: MNN",
+
+        // Referral #1
+        "dn: ou=Roles,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: Roles",
+        "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
+
+        // Referral #2
+        "dn: ou=People,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: People",
+        "ref: ldap://hostb/OU=People,DC=example,DC=com",
+        "ref: ldap://hostc/OU=People,O=MNN,C=WW",
+
+        // Entry # 1
+        "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Alex Karasulu",
+        "sn: akarasulu"
+})
 public class AddReferralIT extends AbstractLdapTestUnit
 {
 
-    /** The Context we are using to inject entries with JNDI */
-    LdapContext MNNCtx;
-    
-    /** The entries we are using to do the tests */
-    Attributes userEntry;
-    Entry serverEntry;
-    
-    @Before
-    public void setUp() throws Exception
+/** The Context we are using to inject entries with JNDI */
+LdapContext MNNCtx;
+
+/** The entries we are using to do the tests */
+Attributes userEntry;
+Entry serverEntry;
+
+
+@Before
+public void setUp() throws Exception
+{
+    MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
+
+    // JNDI entry
+    userEntry = new BasicAttributes( "objectClass", "top", true );
+    userEntry.get( "objectClass" ).add( "person" );
+    userEntry.put( "sn", "elecharny" );
+    userEntry.put( "cn", "Emmanuel Lecharny" );
+
+    // Core API entry
+    Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+    serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+
+    serverEntry.put( "ObjectClass", "top", "person" );
+    serverEntry.put( "sn", "elecharny" );
+    serverEntry.put( "cn", "Emmanuel Lecharny" );
+}
+
+
+/**
+ * Test addition of a new entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testAddNewEntryNoReferralAncestorJNDI() throws Exception
+{
+    DirContext eleCtx = MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
+
+    assertNotNull( eleCtx );
+
+    Attributes attrs = eleCtx.getAttributes( "" );
+    assertNotNull( attrs );
+
+    assertEquals( "Emmanuel Lecharny", attrs.get( "cn" ).get() );
+    assertEquals( "elecharny", attrs.get( "sn" ).get() );
+    Attribute attribute = attrs.get( "objectClass" );
+    assertNotNull( attribute );
+    assertTrue( attribute.contains( "top" ) );
+    assertTrue( attribute.contains( "person" ) );
+}
+
+
+/**
+ * Test addition of a new entry (not a referral), with a referral 
+ * in its ancestor, using JNDI 'ignore'.
+ */
+@Test
+public void testAddNewEntryWithReferralAncestorJNDIIgnore() throws Exception
+{
+    // Set to 'ignore'
+    MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+
+    try
     {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
-
-        // JNDI entry
-        userEntry = new BasicAttributes( "objectClass", "top", true );
-        userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "elecharny" );
-        userEntry.put( "cn", "Emmanuel Lecharny" );
-        
-        // Core API entry
-        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
-
-        serverEntry.put( "ObjectClass", "top", "person" );
-        serverEntry.put( "sn", "elecharny" );
-        serverEntry.put( "cn", "Emmanuel Lecharny" );
+        MNNCtx.createSubcontext( "cn=Emmanuel Lecharny, ou=apache, ou=people", userEntry );
+        fail();
     }
-
-    
-    /**
-     * Test addition of a new entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testAddNewEntryNoReferralAncestorJNDI() throws Exception
+    catch ( PartialResultException pre )
     {
-        DirContext eleCtx = MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
-        
-        assertNotNull( eleCtx );
-        
-        Attributes attrs = eleCtx.getAttributes( "" );
-        assertNotNull( attrs );
-        
-        assertEquals( "Emmanuel Lecharny", attrs.get( "cn" ).get() );
-        assertEquals( "elecharny", attrs.get( "sn" ).get() );
-        Attribute attribute = attrs.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "person" ) );
+        assertTrue( true );
     }
+}
 
 
-    /**
-     * Test addition of a new entry (not a referral), with a referral 
-     * in its ancestor, using JNDI 'ignore'.
-     */
-    @Test
-    public void testAddNewEntryWithReferralAncestorJNDIIgnore() throws Exception
+/**
+ * Test addition of a new entry (not a referral), with a referral 
+ * in its ancestor, using the Core API with the ManageDsaIt flag set to true.
+ *   
+ * @throws Exception if something goes wrong.
+ */
+@Test
+public void testAddNewEntryWithReferralAncestorCoreAPImanageDsaIT() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
     {
-        // Set to 'ignore'
-        MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-        
-        try
-        {
-            MNNCtx.createSubcontext( "cn=Emmanuel Lecharny, ou=apache, ou=people", userEntry );
-            fail();
-        }
-        catch ( PartialResultException pre )
-        {
-            assertTrue( true );
-        }
+        session.add( serverEntry, true );
+        fail();
     }
-
-
-    /**
-     * Test addition of a new entry (not a referral), with a referral 
-     * in its ancestor, using the Core API with the ManageDsaIt flag set to true.
-     *   
-     * @throws Exception if something goes wrong.
-     */
-    @Test
-    public void testAddNewEntryWithReferralAncestorCoreAPImanageDsaIT() throws Exception
+    catch ( LdapPartialResultException lpre )
     {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            session.add( serverEntry, true );
-            fail();
-        }
-        catch ( LdapPartialResultException lpre )
-        {
-            assertTrue( true );
-        }
+        assertTrue( true );
     }
+}
 
 
-    /**
-     * Test addition of a new entry (not a referral), with a referral 
-     * in its ancestor, using JNDI throw.
-     */
-    @Test
-    public void testAddNewEntryWithReferralAncestorJNDIThrow() throws Exception
+/**
+ * Test addition of a new entry (not a referral), with a referral 
+ * in its ancestor, using JNDI throw.
+ */
+@Test
+public void testAddNewEntryWithReferralAncestorJNDIThrow() throws Exception
+{
+    // Set to 'throw'
+    MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
+
+    try
     {
-        // Set to 'throw'
-        MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
-        
-        try
-        {
-            MNNCtx.createSubcontext( "cn=Emmanuel Lecharny, ou=apache, ou=people", userEntry );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            assertTrue( true );
-            
-            int nbRefs = 0;
-            Set<String> peopleRefs = new HashSet<String>();
-            peopleRefs.add( "ldap://hostb/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,DC=example,DC=com" );
-            peopleRefs.add( "ldap://hostc/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,O=MNN,C=WW" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( peopleRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 2, nbRefs );
-        }
+        MNNCtx.createSubcontext( "cn=Emmanuel Lecharny, ou=apache, ou=people", userEntry );
+        fail();
     }
-
-
-    /**
-     * Test addition of a new entry (not a referral), with a referral 
-     * in its ancestor, without the ManageDsaIt flag.
-     */
-    @Test
-    public void testAddNewEntryWithReferralAncestorCoreAPINoManageDsaIT() throws Exception
+    catch ( ReferralException re )
     {
-        CoreSession session = getService().getAdminSession();
+        assertTrue( true );
 
-        try
+        int nbRefs = 0;
+        Set<String> peopleRefs = new HashSet<String>();
+        peopleRefs.add( "ldap://hostb/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,DC=example,DC=com" );
+        peopleRefs.add( "ldap://hostc/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,O=MNN,C=WW" );
+
+        do
         {
-            session.add( serverEntry, false );
-            fail();
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( peopleRefs.contains( ref ) );
+            nbRefs++;
         }
-        catch ( LdapReferralException re )
-        {
-            assertTrue( true );
-            
-            int nbRefs = 0;
-            Set<String> peopleRefs = new HashSet<String>();
-            peopleRefs.add( "ldap://hostb/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,DC=example,DC=com" );
-            peopleRefs.add( "ldap://hostc/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,O=MNN,C=WW" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( peopleRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 2, nbRefs );
-        }
+        while ( re.skipReferral() );
+
+        assertEquals( 2, nbRefs );
     }
+}
 
 
-    /**
-     * Test addition of an existing entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testAddExistingEntryNoReferralAncestorJNDI() throws Exception
+/**
+ * Test addition of a new entry (not a referral), with a referral 
+ * in its ancestor, without the ManageDsaIt flag.
+ */
+@Test
+public void testAddNewEntryWithReferralAncestorCoreAPINoManageDsaIT() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
     {
-        Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
-        userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "elecharny" );
-        userEntry.put( "cn", "Emmanuel Lecharny" );
-
-        DirContext eleCtx = MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
-        
-        assertNotNull( eleCtx );
-        
-        Attributes attributes = eleCtx.getAttributes( "" );
-        assertNotNull( attributes );
-        
-        assertEquals( "Emmanuel Lecharny", attributes.get( "cn" ).get() );
-        assertEquals( "elecharny", attributes.get( "sn" ).get() );
-        Attribute attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "person" ) );
-
-        try
-        {
-            MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
-            fail();
-        }
-        catch ( NameAlreadyBoundException nabe )
-        {
-            assertTrue( true );
-        }
+        session.add( serverEntry, false );
+        fail();
     }
+    catch ( LdapReferralException re )
+    {
+        assertTrue( true );
+
+        int nbRefs = 0;
+        Set<String> peopleRefs = new HashSet<String>();
+        peopleRefs.add( "ldap://hostb/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,DC=example,DC=com" );
+        peopleRefs.add( "ldap://hostc/cn=Emmanuel%20Lecharny,%20ou=apache,OU=People,O=MNN,C=WW" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( peopleRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 2, nbRefs );
+    }
+}
+
+
+/**
+ * Test addition of an existing entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testAddExistingEntryNoReferralAncestorJNDI() throws Exception
+{
+    Attributes userEntry = new BasicAttributes( "objectClass", "top", true );
+    userEntry.get( "objectClass" ).add( "person" );
+    userEntry.put( "sn", "elecharny" );
+    userEntry.put( "cn", "Emmanuel Lecharny" );
+
+    DirContext eleCtx = MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
+
+    assertNotNull( eleCtx );
+
+    Attributes attributes = eleCtx.getAttributes( "" );
+    assertNotNull( attributes );
+
+    assertEquals( "Emmanuel Lecharny", attributes.get( "cn" ).get() );
+    assertEquals( "elecharny", attributes.get( "sn" ).get() );
+    Attribute attribute = attributes.get( "objectClass" );
+    assertNotNull( attribute );
+    assertTrue( attribute.contains( "top" ) );
+    assertTrue( attribute.contains( "person" ) );
+
+    try
+    {
+        MNNCtx.createSubcontext( "cn=Emmanuel Lecharny", userEntry );
+        fail();
+    }
+    catch ( NameAlreadyBoundException nabe )
+    {
+        assertTrue( true );
+    }
+}
 }

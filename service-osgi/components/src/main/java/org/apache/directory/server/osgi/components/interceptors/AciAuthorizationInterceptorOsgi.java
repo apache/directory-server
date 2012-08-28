@@ -1,7 +1,6 @@
 package org.apache.directory.server.osgi.components.interceptors;
 
 
-
 import org.apache.directory.server.component.handler.DirectoryInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.hub.api.component.util.InterceptionPoint;

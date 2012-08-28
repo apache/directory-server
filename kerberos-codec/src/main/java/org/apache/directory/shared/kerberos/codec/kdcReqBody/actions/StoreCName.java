@@ -40,6 +40,7 @@ public class StoreCName extends AbstractReadPrincipalName<KdcReqBodyContainer>
         super( "Stores the CName" );
     }
 
+
     /**
      * {@inheritDoc}
      */

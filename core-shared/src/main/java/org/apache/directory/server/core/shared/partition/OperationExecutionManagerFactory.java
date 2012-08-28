@@ -33,28 +33,29 @@ public class OperationExecutionManagerFactory
 {
     /** Operation Manager instance */
     private OperationExecutionManager executionManager;
-    
+
     private TxnManagerFactory txnManagerFactory;
-    
+
     private boolean inited = false;
 
 
     public OperationExecutionManagerFactory( TxnManagerFactory txnManagerFactory )
     {
-    	this.txnManagerFactory = txnManagerFactory;
-    	
-    	this.init();
+        this.txnManagerFactory = txnManagerFactory;
+
+        this.init();
     }
 
 
     public void init()
     {
-    	if ( inited )
-    		return;
-    	
-    	executionManager = new DefaultOperationExecutionManager( txnManagerFactory );
+        if ( inited )
+            return;
+
+        executionManager = new DefaultOperationExecutionManager( txnManagerFactory );
     }
-    
+
+
     public void shutdown()
     {
         inited = false;

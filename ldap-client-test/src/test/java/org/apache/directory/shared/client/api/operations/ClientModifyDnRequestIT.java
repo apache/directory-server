@@ -117,7 +117,7 @@ public class ClientModifyDnRequestIT extends AbstractLdapTestUnit
         assertTrue( session.exists( new Dn( "cn=modDn,ou=users,ou=system" ) ) );
     }
 
-    
+
     @Test
     public void testMoveAndRename() throws Exception
     {
@@ -128,7 +128,7 @@ public class ClientModifyDnRequestIT extends AbstractLdapTestUnit
         entry.add( SchemaConstants.SN_AT, "testadd_sn" );
 
         connection.add( entry );
-        
+
         Dn newDn = new Dn( "cn=testaddMovedAndRenamed,ou=system" );
         connection.moveAndRename( origDn, newDn );
 
@@ -140,7 +140,7 @@ public class ClientModifyDnRequestIT extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
     }
 
-    
+
     @Test
     public void testModifyDnAsync() throws Exception
     {

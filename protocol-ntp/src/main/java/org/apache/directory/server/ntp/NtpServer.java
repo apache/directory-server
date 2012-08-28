@@ -47,7 +47,7 @@ public class NtpServer extends AbstractProtocolService
 {
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( NtpServer.class.getName() );
-    
+
     /**
      * The default IP port.
      */
@@ -69,7 +69,7 @@ public class NtpServer extends AbstractProtocolService
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 
-    
+
     /**
      * Start the NTPServer. We initialize the Datagram and Socket, if necessary.
      * 
@@ -80,79 +80,79 @@ public class NtpServer extends AbstractProtocolService
     public void start() throws IOException
     {
         IoHandler ntpProtocolHandler = new NtpProtocolHandler();
-        
+
         // Create the chain for the NTP server
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
-        
+
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 123
             // We have to create a DatagramAcceptor
             UdpTransport transport = new UdpTransport( IP_PORT_DEFAULT );
             setTransports( transport );
-            
-            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
+            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
 
             // Set the handler
             acceptor.setHandler( ntpProtocolHandler );
-    
+
             // Allow the port to be reused even if the socket is in TIME_WAIT state
-            ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
-    
+            ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
+
             // Inject the chain
             acceptor.setFilterChainBuilder( ntpChain );
-            
+
             // Start the listener
             acceptor.bind();
         }
         else
         {
-            for ( Transport transport:transports )
+            for ( Transport transport : transports )
             {
                 IoAcceptor acceptor = transport.getAcceptor();
 
                 // Set the handler
                 acceptor.setHandler( ntpProtocolHandler );
-                
+
                 if ( transport instanceof UdpTransport )
                 {
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                    ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
                 }
                 else
                 {
                     // Disable the disconnection of the clients on unbind
                     acceptor.setCloseOnDeactivation( false );
-                    
+
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((SocketAcceptor)acceptor).setReuseAddress( true );
-                    
+                    ( ( SocketAcceptor ) acceptor ).setReuseAddress( true );
+
                     // No Nagle's algorithm
-                    ((SocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                    ( ( SocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
                 }
-                
+
                 // Inject the chain
                 acceptor.setFilterChainBuilder( ntpChain );
-    
+
                 // Start the listener
                 acceptor.bind();
             }
         }
-        
+
         LOG.info( "NTP server started." );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void stop()
     {
-        for ( Transport transport :getTransports() )
+        for ( Transport transport : getTransports() )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             if ( acceptor != null )
             {
                 acceptor.dispose();
@@ -161,25 +161,25 @@ public class NtpServer extends AbstractProtocolService
 
         LOG.info( "NTP Server stopped." );
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "NTPServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }

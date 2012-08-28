@@ -46,21 +46,21 @@ public interface OperationContext
      * used by resetContext
      */
     void saveOriginalContext();
-    
-    
+
+
     /**
      * Called when operation is to be re-executed.Operation context willr reset its state
      * related to the execution of the operation 
      */
     void resetContext();
-    
-    
+
+
     /**
      * @return The number of the current interceptor in the list
      */
     int getCurrentInterceptor();
-    
-    
+
+
     /**
      * Sets the current interceptor number to a new value.
      * 
@@ -86,8 +86,8 @@ public interface OperationContext
      * @return The associated Dn
      */
     Dn getDn();
-    
-    
+
+
     /**
      * Set the context Dn
      *
@@ -95,7 +95,7 @@ public interface OperationContext
      */
     void setDn( Dn dn );
 
-    
+
     /**
      * Gets the server entry associated with the target Dn of this
      * OperationContext.  The entry associated with the Dn may be altered
@@ -121,8 +121,8 @@ public interface OperationContext
      * @return target entry associated with the Dn of this OperationContext
      */
     Entry getEntry();
-    
-    
+
+
     /**
      * Sets the server entry associated with the target Dn of this
      * OperationContext.
@@ -130,16 +130,16 @@ public interface OperationContext
      * @param entry the entry whose Dn is associated with this OperationContext.
      */
     void setEntry( Entry entry );
-    
-    
+
+
     /**
      * Adds a response control to this operation.
      *
      * @param responseControl the response control to add to this operation
      */
     void addResponseControl( Control responseControl );
-    
-    
+
+
     /**
      * Checks to see if a response control is present on this operation.
      *
@@ -147,8 +147,8 @@ public interface OperationContext
      * @return true if the control is associated with this operation, false otherwise
      */
     boolean hasResponseControl( String numericOid );
-    
-    
+
+
     /**
      * Gets a response control if present for this request.
      * 
@@ -156,40 +156,40 @@ public interface OperationContext
      * @return the control if present
      */
     Control getResponseControl( String numericOid );
-    
-    
+
+
     /**
      * Gets all the response controls producted during this operation.
      *
      * @return an array over all the response controls
      */
     Control[] getResponseControls();
-    
-    
+
+
     /**
      * Checks if any response controls have been generated for this operation.
      *
      * @return true if any response controls have been generated, false otherwise
      */
     boolean hasResponseControls();
-    
-    
+
+
     /**
      * Checks the number of response controls have been generated for this operation.
      *
      * @return the number of response controls that have been generated
      */
     int getResponseControlCount();
-    
-    
+
+
     /**
      * Adds a request control to this operation.
      *
      * @param requestControl the request control to add to this operation
      */
     void addRequestControl( Control requestControl );
-    
-    
+
+
     /**
      * Checks to see if a request control is present on this request.
      *
@@ -197,16 +197,16 @@ public interface OperationContext
      * @return true if the control is associated with this operation, false otherwise
      */
     boolean hasRequestControl( String numericOid );
-    
-    
+
+
     /**
      * Checks if any request controls exists for this operation.
      *
      * @return true if any request controls exist, false otherwise
      */
     boolean hasRequestControls();
-    
-    
+
+
     /**
      * Gets a request control if present for this request.
      * 
@@ -222,14 +222,14 @@ public interface OperationContext
      * @param requestControls the request controls to add to this operation
      */
     void addRequestControls( Control[] requestControls );
-    
-    
+
+
     /**
      * @return the operation's name
      */
     String getName();
-    
-    
+
+
     /**
      * Gets the next interceptor in the list of interceptors. The
      * position in the list will be incremented.
@@ -237,7 +237,7 @@ public interface OperationContext
      * @return The next interceptor from the list of interceptors
      */
     String getNextInterceptor();
-    
+
 
     /**
      * Sets the list of interceptors to go through for an operation
@@ -245,25 +245,25 @@ public interface OperationContext
      * @param interceptors The list of interceptors
      */
     void setInterceptors( List<String> interceptors );
-    
-    
+
+
     /**
      * Gets the session associated with this operation.
      *
      * @return the session associated with this operation
      */
     CoreSession getSession();
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Utility Factory Methods to Create New OperationContexts
     // -----------------------------------------------------------------------
     LookupOperationContext newLookupContext( Dn dn );
 
-    
+
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
-    
-    
+
+
     /**
      * Process the delete for inner operations. This is only valid for SubschemaSubentry
      * operations, and will most certainly be removed later.
@@ -278,8 +278,8 @@ public interface OperationContext
      * Set the throwReferral flag to true
      */
     void throwReferral();
-    
-    
+
+
     /**
      * @return <code>true</code> if the referrals are thrown
      */

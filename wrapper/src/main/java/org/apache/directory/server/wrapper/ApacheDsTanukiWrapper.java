@@ -119,8 +119,8 @@ public class ApacheDsTanukiWrapper implements WrapperListener
             // We are not being controlled by the Wrapper, so
             // handle the event ourselves.
             if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
-                 ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
-                 ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
+                ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
+                ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
             {
                 WrapperManager.stop( 0 );
             }

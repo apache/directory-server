@@ -46,10 +46,11 @@ public class AsRep extends KdcRep
     private int kdcRepLength;
     private int asRepLength;
 
+
     /**
      * Creates a new instance of AS-REP.
      */
-    public AsRep() 
+    public AsRep()
     {
         super( KerberosMessageType.AS_REP );
     }
@@ -65,7 +66,7 @@ public class AsRep extends KdcRep
         return encKdcRepPart.getEndTime();
     }
 
-    
+
     /**
      * Returns the {@link TicketFlags}.
      *
@@ -108,8 +109,8 @@ public class AsRep extends KdcRep
     {
         return encKdcRepPart.getStartTime();
     }
-    
-    
+
+
     /**
      * Returns the server {@link PrincipalName}.
      *
@@ -135,11 +136,11 @@ public class AsRep extends KdcRep
     {
         kdcRepLength = super.computeLength();
         asRepLength = 1 + TLV.getNbBytes( kdcRepLength ) + kdcRepLength;
-        
+
         return asRepLength;
     }
-    
-    
+
+
     /**
      * Encode the AS-REP component
      * 
@@ -153,14 +154,14 @@ public class AsRep extends KdcRep
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         // The AS-REP SEQ Tag
-        buffer.put( (byte)KerberosConstants.AS_REP_TAG );
+        buffer.put( ( byte ) KerberosConstants.AS_REP_TAG );
         buffer.put( TLV.getBytes( kdcRepLength ) );
-        
+
         // The KDC-REP --------------------------------------------------------
         super.encode( buffer );
-        
+
         return buffer;
     }
 }

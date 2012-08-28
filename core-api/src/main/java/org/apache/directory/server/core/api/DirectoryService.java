@@ -61,12 +61,13 @@ import org.apache.directory.shared.ldap.util.tree.DnNode;
 public interface DirectoryService extends ServerEntryFactory
 {
     String JNDI_KEY = DirectoryService.class.getName();
-    
+
     /** Default txn log file size */
     long TXN_LOG_FILE_SIZE = 1 << 27;
-    
+
     /** Default txn log buffer size */
     int TXN_LOG_BUFFER_SIZE = 1 << 22;
+
 
     /**
      * Reverts the server's state to an earlier revision.  Note that the revsion number
@@ -110,6 +111,7 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     void removePartition( Partition partition ) throws Exception;
+
 
     /**
      * @return The Directory Service SchemaManager
@@ -199,10 +201,12 @@ public interface DirectoryService extends ServerEntryFactory
      **/
     SubentryCache getSubentryCache();
 
+
     /**
      * @return Returns the subentry evaluator
      */
     SubtreeEvaluator getEvaluator();
+
 
     /**
      * Gets a logical session to perform operations on this DirectoryService
@@ -361,6 +365,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @param interceptor The added interceptor
      */
     void addLast( Interceptor interceptor ) throws LdapException;
+
 
     /**
      * Add an interceptor after a given interceptor in the interceptor list.
@@ -576,6 +581,7 @@ public interface DirectoryService extends ServerEntryFactory
      */
     long getSyncPeriodMillis();
 
+
     /**
      * @return the cache service
      */
@@ -604,12 +610,13 @@ public interface DirectoryService extends ServerEntryFactory
      * @return The TriggerExecution AdministrativePoint cache
      */
     DnNode<TriggerExecutionAdministrativePoint> getTriggerExecutionAPCache();
-    
-    
+
+
     /**
      * Reset all the caches to their initial state
      */
     void resetCaches();
+
 
     /**
      * @return true if the password policy is enabled, false otherwise
@@ -623,14 +630,16 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the Dn factory
      */
     DnFactory getDnFactory();
-    
-      
+
+
     TxnManager getTxnManager();
-    
+
+
     LeakedCursorManager getLeakedCursorManager();
-    
-    TxnLogManager getTxnLogManager();   
-    
-    
+
+
+    TxnLogManager getTxnLogManager();
+
+
     OperationExecutionManager getOperationExecutionManager();
 }

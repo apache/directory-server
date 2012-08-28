@@ -51,7 +51,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 {
     /** The modification items */
     private List<Modification> modItems;
-    
+
     /** Orignal list of modification items */
     private List<Modification> originalModItems = new ArrayList<Modification>();
 
@@ -116,16 +116,16 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void saveOriginalContext()
     {
         super.saveOriginalContext();
-      
+
         List<Modification> items = getModItems();
-        
+
         if ( items != null )
         {
             for ( Modification mod : items )
@@ -134,8 +134,8 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
             }
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -143,16 +143,16 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     {
         super.resetContext();
         alteredEntry = null;
-        
+
         if ( modItems != null )
         {
-         modItems.clear();
-         modItems.addAll( originalModItems );
+            modItems.clear();
+            modItems.addAll( originalModItems );
         }
-        
+
         originalModItems.clear();
     }
-    
+
 
     /**
      * Set the modified attributes
@@ -175,7 +175,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
     public static List<Modification> createModItems( Entry serverEntry, ModificationOperation modOp )
         throws LdapException
-        {
+    {
         List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
 
         for ( Attribute attribute : serverEntry )
@@ -184,7 +184,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         }
 
         return items;
-        }
+    }
 
 
     /**

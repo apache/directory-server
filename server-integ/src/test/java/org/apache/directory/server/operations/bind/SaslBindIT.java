@@ -163,9 +163,9 @@ import org.slf4j.LoggerFactory;
     { StoredProcedureExtendedOperationHandler.class }, ntlmProvider = BogusNtlmProvider.class)
 @CreateKdcServer(
     transports =
-    {
-        @CreateTransport(protocol = "UDP", port = 6088),
-        @CreateTransport(protocol = "TCP", port = 6088)
+        {
+            @CreateTransport(protocol = "UDP", port = 6088),
+            @CreateTransport(protocol = "TCP", port = 6088)
     })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
@@ -233,7 +233,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure PLAIN-binds works
      */
     @Test
-    @Ignore // The SASL Plain mechanism is ot supported
+    @Ignore
+    // The SASL Plain mechanism is ot supported
     public void testSaslBindPLAIN() throws Exception
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -345,7 +346,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
+
+
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
      * SASL Quality of Protection set to 'auth'.
@@ -369,7 +371,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
+
+
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
      * SASL Quality of Protection set to 'auth-int'.
@@ -394,7 +397,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
+
+
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work with
      * SASL Quality of Protection set to 'auth-conf'.
@@ -754,7 +758,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             // Retrieve the response back from server to my last request.
             LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
-            return ( BindResponse ) decoder.decode( _input_ , container );
+            return ( BindResponse ) decoder.decode( _input_, container );
         }
     }
 

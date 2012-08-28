@@ -89,7 +89,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
             false );
         reverse = new AvlTable<UUID, ParentIdAndRdn>( attributeType.getName(), UUIDComparator.INSTANCE, comp,
             false );
-        
+
         fIndexEntryComparator = new ForwardIndexComparator( comp );
         rIndexEntryComparator = new ReverseIndexComparator( comp );
     }

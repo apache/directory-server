@@ -90,9 +90,9 @@ import org.apache.directory.server.i18n.I18n;
 
     /** The Checksum used */
     private Checksum checksum = new Adler32();
-    
+
     /** Max lsn in the log after recovery */
-    private long initialLsn = Long.MIN_VALUE ;
+    private long initialLsn = Long.MIN_VALUE;
 
 
     /**
@@ -166,7 +166,7 @@ import org.apache.directory.server.i18n.I18n;
             {
                 scanner.close();
             }
-            
+
             initialLsn = logRecord.getLogAnchor().getLogLSN();
 
             long lastGoodLogFileNumber = scanner.getLastGoodFileNumber();
@@ -232,7 +232,7 @@ import org.apache.directory.server.i18n.I18n;
                     createNextLogFile( true );
                 }
             }
-            
+
             return;
         }
 
@@ -279,9 +279,10 @@ import org.apache.directory.server.i18n.I18n;
      */
     public long getInitialLsn()
     {
-    	return initialLsn;
+        return initialLsn;
     }
-    
+
+
     /**
      * Called by LogFlushManager to switch to the next file.
      *
@@ -314,6 +315,7 @@ import org.apache.directory.server.i18n.I18n;
         return writer;
     }
 
+
     /**
      * Called when the logging subsystem is notified about the minimum position 
      * in the log files that is needed. Log manager uses this information to advance
@@ -334,35 +336,36 @@ import org.apache.directory.server.i18n.I18n;
         {
             minLogAnchor.resetLogAnchor( newCheckPoint );
         }
-        
+
         try
         {
-        	writeControlFile();
+            writeControlFile();
         }
         catch ( IOException e )
         {
-        	// Ignore
+            // Ignore
         }
 
         minLogAnchorLock.unlock();
     }
-    
+
+
     /**
      * 
      * @return the current with the checkpoint log achor
      */
     public LogAnchor getCheckPoint()
     {
-    	LogAnchor anchor = new LogAnchor();
-    	
-    	minLogAnchorLock.lock();
-    	
-    	anchor.resetLogAnchor( minLogAnchor );
-    	
-    	minLogAnchorLock.unlock();
-    	
-    	return anchor;
-    }    
+        LogAnchor anchor = new LogAnchor();
+
+        minLogAnchorLock.lock();
+
+        anchor.resetLogAnchor( minLogAnchor );
+
+        minLogAnchorLock.unlock();
+
+        return anchor;
+    }
 
 
     /**
@@ -389,7 +392,7 @@ import org.apache.directory.server.i18n.I18n;
         controlFileRecord.minNeededLogFile = minLogAnchor.getLogFileNumber();
         controlFileRecord.minNeededLogFileOffset = minLogAnchor.getLogFileOffset();
         controlFileRecord.minNeededLSN = minLogAnchor.getLogLSN();
-        
+
         if ( controlFileRecord.minNeededLogFile > controlFileRecord.minExistingLogFile )
         {
             deleteUnnecessaryLogFiles( controlFileRecord.minExistingLogFile, controlFileRecord.minNeededLogFile );

@@ -71,7 +71,7 @@ public class HostAddresses extends AbstractAsn1Object
     {
         this.addresses = new ArrayList<HostAddress>();
     }
-    
+
 
     /**
      * Creates a new instance of HostAddresses.
@@ -125,13 +125,13 @@ public class HostAddresses extends AbstractAsn1Object
     public int hashCode()
     {
         int hash = 37;
-        
+
         if ( addresses != null )
         {
             hash = hash * 17 + addresses.size();
             hash = 17 + addresses.hashCode();
         }
-        
+
         return hash;
     }
 
@@ -145,13 +145,13 @@ public class HostAddresses extends AbstractAsn1Object
     @Override
     public boolean equals( Object obj )
     {
-        if ( obj == null ) 
+        if ( obj == null )
         {
             return false;
         }
-        
+
         HostAddresses that = ( HostAddresses ) obj;
-        
+
         // Addresses can't be null after creation
         if ( addresses.size() != that.addresses.size() )
         {
@@ -263,7 +263,7 @@ public class HostAddresses extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "HostAddresses encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "HostAddresses encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "HostAddresses initial value : {}", toString() );
         }
 

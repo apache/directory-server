@@ -92,6 +92,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
 
+
     /**
      * Creates an interceptor that is also the exception handling service.
      */
@@ -116,8 +117,8 @@ public class ExceptionInterceptor extends BaseInterceptor
     public void destroy()
     {
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -125,7 +126,6 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         notAliasCache.clear();
     }
-    
 
 
     /**
@@ -155,9 +155,8 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check if we're trying to add to a parent that is an alias
         boolean notAnAlias;
 
- 
         notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
-        
+
         if ( !notAnAlias )
         {
             // We don't know if the parent is an alias or not, so we will launch a
@@ -222,7 +221,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             notAliasCache.remove( dn.getNormName() );
         }
     }
@@ -293,13 +292,13 @@ public class ExceptionInterceptor extends BaseInterceptor
         // We will simply remove the Dn from the NotAlias cache.
         // It would be smarter to check the modified attributes, but
         // it would also be more complex.
-         if ( notAliasCache.containsKey( modifyContext.getDn().getNormName() ) )
-         {
-             // Ensure logical data consistency
-             directoryService.getTxnManager().startLogicalDataChange();
-             
-             notAliasCache.remove( modifyContext.getDn().getNormName() );
-         }
+        if ( notAliasCache.containsKey( modifyContext.getDn().getNormName() ) )
+        {
+            // Ensure logical data consistency
+            directoryService.getTxnManager().startLogicalDataChange();
+
+            notAliasCache.remove( modifyContext.getDn().getNormName() );
+        }
 
         next( modifyContext );
     }
@@ -325,7 +324,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             notAliasCache.remove( oriChildName.getNormName() );
         }
     }
@@ -350,7 +349,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             notAliasCache.remove( oldDn.getNormName() );
         }
 
@@ -387,7 +386,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         {
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             notAliasCache.remove( dn.getNormName() );
         }
 
@@ -428,7 +427,6 @@ public class ExceptionInterceptor extends BaseInterceptor
             throw e;
         }
     }
-
 
     /**
      * Asserts that an entry is present and as a side effect if it is not, creates a LdapNoSuchObjectException, which is

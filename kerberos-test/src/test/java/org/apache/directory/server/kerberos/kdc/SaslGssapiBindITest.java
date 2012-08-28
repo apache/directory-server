@@ -79,6 +79,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * An {@link AbstractServerTest} testing SASL GSSAPI authentication
  * and security layer negotiation.  These tests require both the LDAP
@@ -88,51 +89,51 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith( FrameworkRunner.class )
-@CreateDS( name="SaslGssapiBindITest-class",
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "SaslGssapiBindITest-class",
     partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        },
-        additionalInterceptors =
-        {
-                KeyDerivationInterceptor.class
-        })
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
     },
-    saslHost="localhost",
-    saslPrincipal="ldap/localhost@EXAMPLE.COM",
-        saslMechanisms = 
-            {
-                @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-                @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-                @SaslMechanism( name= SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-                @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
-            })
-@CreateKdcServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "UDP", port = 6088 ),
-        @CreateTransport( protocol = "TCP", port = 6088 )
+    additionalInterceptors =
+        {
+            KeyDerivationInterceptor.class
+    })
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    },
+    saslHost = "localhost",
+    saslPrincipal = "ldap/localhost@EXAMPLE.COM",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    })
+@CreateKdcServer(
+    transports =
+        {
+            @CreateTransport(protocol = "UDP", port = 6088),
+            @CreateTransport(protocol = "TCP", port = 6088)
     })
 public class SaslGssapiBindITest extends AbstractLdapTestUnit
 {
@@ -146,6 +147,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     /** the context root for the rootDSE */
     protected CoreSession rootDse;
+
 
     /**
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties.
@@ -358,7 +360,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
 
     }
 
-    
+
     /**
      * Tear down.
      */
@@ -368,7 +370,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         ctx.close();
         ctx = null;
     }
-    
+
 
     // copied the below two methods from AbstractServerTest
     /**
@@ -391,7 +393,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         setContexts( env );
     }
 
-    
+
     /**
      * Sets the contexts of this class taking into account the extras and overrides
      * properties.  
@@ -411,8 +413,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         envFinal.put( Context.PROVIDER_URL, SchemaConstants.OU_SCHEMA );
         schemaRoot = new InitialLdapContext( envFinal, null );
     }
-    
-    
+
     private class CallbackHandlerBean implements CallbackHandler
     {
         private String name;

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.methodData;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.MethodData;
 import org.apache.directory.shared.kerberos.components.PaData;
@@ -33,6 +34,7 @@ public class MethodDataContainer extends AbstractContainer
 {
     /** holds MethodData */
     private MethodData methodData = new MethodData();
+
 
     /**
      * Creates a new MethodDataContainer object.
@@ -54,7 +56,7 @@ public class MethodDataContainer extends AbstractContainer
         return methodData;
     }
 
-    
+
     /**
      * Set a MethodData Object into the container
      * 
@@ -65,7 +67,7 @@ public class MethodDataContainer extends AbstractContainer
         this.methodData = methodData;
     }
 
-    
+
     /**
      * Add a PaData Object into the list. It will be completed by the
      * KerberosDecoder.

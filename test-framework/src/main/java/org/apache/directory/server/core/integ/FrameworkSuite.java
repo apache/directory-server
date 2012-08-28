@@ -53,7 +53,7 @@ public class FrameworkSuite extends Suite
 
     /** The suite DS, if any */
     private DirectoryService directoryService;
-    
+
     /** The LdapServerBuilder for this class, if any */
     private CreateLdapServer ldapServerBuilder;
 
@@ -63,33 +63,34 @@ public class FrameworkSuite extends Suite
     /**
      * Initialize the codec service
      */
-    static 
+    static
     {
         // Load the extension points
-        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST, 
+        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST,
             "org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
-            "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
+                "org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
+                "org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory" );
 
-        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST, 
+        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST,
             "org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
-            "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
-        
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST, 
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
+                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
 
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST, 
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST,
+            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
+                "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+
+        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST,
             "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
     }
+
 
     /**
      * Creates a new instance of FrameworkSuite.
@@ -98,8 +99,8 @@ public class FrameworkSuite extends Suite
     {
         super( clazz, builder );
     }
-    
-    
+
+
     /**
      * Start and initialize the DS
      */
@@ -107,15 +108,15 @@ public class FrameworkSuite extends Suite
     {
         // Initialize and start the DS before running any test, if we have a DS annotation
         directoryService = DSAnnotationProcessor.getDirectoryService( description );
-        
+
         // and inject LDIFs if needed
         if ( directoryService != null )
         {
             DSAnnotationProcessor.applyLdifs( description, directoryService );
         }
     }
-    
-    
+
+
     /**
      * Stop and clean the DS
      */
@@ -138,13 +139,13 @@ public class FrameworkSuite extends Suite
         }
     }
 
-    
+
     private void startLdapServer( Description description ) throws Exception
     {
         ldapServer = ServerAnnotationProcessor.createLdapServer( description, directoryService );
     }
-    
-    
+
+
     private void stopLdapServer()
     {
         if ( ( ldapServer != null ) && ( ldapServer.isStarted() ) )
@@ -152,8 +153,8 @@ public class FrameworkSuite extends Suite
             ldapServer.stop();
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -169,22 +170,22 @@ public class FrameworkSuite extends Suite
 
             // Create and initialize the Suite DS
             startDS( getDescription() );
-            
+
             // create and initialize the suite LdapServer
             startLdapServer( getDescription() );
-            
+
             // Run the suite
             super.run( notifier );
-            
+
             // Stop the LdapServer
             stopLdapServer();
-            
+
             // last, stop the DS if we have one
             stopDS();
         }
         catch ( Exception e )
         {
-            notifier.fireTestFailure(new Failure(getDescription(), e));
+            notifier.fireTestFailure( new Failure( getDescription(), e ) );
         }
         finally
         {
@@ -195,6 +196,7 @@ public class FrameworkSuite extends Suite
         }
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -202,10 +204,10 @@ public class FrameworkSuite extends Suite
     protected void runChild( Runner runner, RunNotifier notifier )
     {
         // Store the suite into the class we will run
-        if( runner instanceof FrameworkRunner )
+        if ( runner instanceof FrameworkRunner )
         {
             ( ( FrameworkRunner ) runner ).setSuite( this );
-            
+
             // Now, call the class containing the tests
             super.runChild( runner, notifier );
         }

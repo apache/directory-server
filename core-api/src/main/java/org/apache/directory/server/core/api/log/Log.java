@@ -72,8 +72,8 @@ public interface Log
      * @return A scanner to read the logs one by one
      */
     LogScanner beginScan();
-    
-    
+
+
     /**
      * Advances the checkpoint in the logs
      * 
@@ -81,14 +81,14 @@ public interface Log
      */
     void advanceCheckPoint( LogAnchor checkPoint );
 
-    
+
     /**
      * Return the current checkpoint anchor
      * 
      * @return the current checkpoint anchor
      */
     LogAnchor getCheckPoint();
-    
+
 
     /**
      * Synchronizes the log up to the given LSN. If LSN is equal to unknown 

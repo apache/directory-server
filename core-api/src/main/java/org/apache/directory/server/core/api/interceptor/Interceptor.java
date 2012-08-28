@@ -124,8 +124,8 @@ public interface Interceptor
      * when this intercepter is unloaded from interceptor chain.
      */
     void destroy();
-    
-    
+
+
     /**
      * Reintializes the logical data from the data managed by txn layer
      *

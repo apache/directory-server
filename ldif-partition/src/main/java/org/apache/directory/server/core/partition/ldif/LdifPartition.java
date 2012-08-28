@@ -156,7 +156,7 @@ public class LdifPartition extends AbstractLdifPartition
             if ( suffixDirectory.exists() )
             {
                 loadEntries( partitionDir );
-                
+
                 // Apply the txn logs
                 txnManagerFactory.txnManagerInstance().recoverPartition( this );
             }

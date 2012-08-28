@@ -1,5 +1,5 @@
-
 package org.apache.directory.server.xdbm.search.impl;
+
 
 import java.util.UUID;
 
@@ -19,21 +19,21 @@ public abstract class AbstractEvaluator<T extends ExprNode> implements Evaluator
 {
     /** The backend */
     protected final Partition db;
-    
+
     /** Txn log manager */
     protected TxnLogManager txnLogManager;
-    
+
     /** Master table */
     private MasterTable masterTable;
-    
+
     /** Operation execution manager */
     protected OperationExecutionManager executionManager;
-    
+
     /** Txn and Operation Execution Factories */
     protected TxnManagerFactory txnManagerFactory;
     protected OperationExecutionManagerFactory executionManagerFactory;
-    
-    
+
+
     public AbstractEvaluator( Partition db, TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
@@ -41,29 +41,29 @@ public abstract class AbstractEvaluator<T extends ExprNode> implements Evaluator
         txnLogManager = txnManagerFactory.txnLogManagerInstance();
         masterTable = txnLogManager.wrap( db.getSuffixDn(), db.getMasterTable() );
         executionManager = executionManagerFactory.instance();
-        
+
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
     }
-    
-    
+
+
     public AbstractEvaluator()
     {
         // If no partition is there, we wont initialize the txn and operation execution manager
         db = null;
     }
-    
-    
+
+
     protected Entry getEntry( UUID id ) throws Exception
     {
         Entry entry = masterTable.get( id );
-        
+
         if ( entry != null )
         {
             Dn dn = executionManager.buildEntryDn( db, id );
             entry.setDn( dn );
         }
-        
+
         return entry;
     }
 }

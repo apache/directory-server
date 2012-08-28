@@ -10,5 +10,5 @@ import org.apache.felix.ipojo.annotations.Component;
 @Component(name = "ads-ppolicyconfigcontainer")
 public class pPolicyConfigContainerOsgi extends PpolicyConfigContainer
 {
-    
+
 }

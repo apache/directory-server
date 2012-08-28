@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.integration.http;
 
+
 import java.io.File;
 
 
@@ -46,13 +47,13 @@ public class WebApp
 
     public String getContextPath()
     {
-        if( contextPath != null )
+        if ( contextPath != null )
         {
             return contextPath;
         }
-        
+
         String fileName = new File( warFile ).getName();
-        
+
         return fileName.substring( 0, fileName.lastIndexOf( '.' ) );
     }
 

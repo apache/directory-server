@@ -49,15 +49,16 @@ public class OneLevelScopeEvaluator extends AbstractEvaluator<ScopeNode>
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
-    
+
     /** One level idx */
     private Index<UUID> oneLevelIdx;
-    
+
     /** One level alias idx. Set if dereferencing aliases */
     private Index<UUID> oneAliasIdx;
-    
+
     /** Alias idx. Set if dereferencing aliases */
     private Index<String> aliasIdx;
+
 
     /**
      * Creates a one level scope node Evaluator for search expressions.
@@ -68,10 +69,10 @@ public class OneLevelScopeEvaluator extends AbstractEvaluator<ScopeNode>
      */
     @SuppressWarnings("unchecked")
     public OneLevelScopeEvaluator( Partition db, ScopeNode node, TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
-        super(db, txnManagerFactory, executionManagerFactory );
-        
+        super( db, txnManagerFactory, executionManagerFactory );
+
         this.node = node;
 
         if ( node.getScope() != SearchScope.ONELEVEL )
@@ -81,17 +82,17 @@ public class OneLevelScopeEvaluator extends AbstractEvaluator<ScopeNode>
 
         baseId = executionManager.getEntryId( db, node.getBaseDn() );
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
-        
-        oneLevelIdx = ( Index<UUID> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
-        oneLevelIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
-        
+
+        oneLevelIdx = ( Index<UUID> ) db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
+        oneLevelIdx = ( Index<UUID> ) txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
+
         if ( dereferencing )
         {
-            oneAliasIdx = ( Index<UUID> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-            oneAliasIdx = ( Index<UUID> )txnLogManager.wrap( db.getSuffixDn(), oneAliasIdx );
-            
-            aliasIdx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
+            oneAliasIdx = ( Index<UUID> ) db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+            oneAliasIdx = ( Index<UUID> ) txnLogManager.wrap( db.getSuffixDn(), oneAliasIdx );
+
+            aliasIdx = ( Index<String> ) db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> ) txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
         }
     }
 

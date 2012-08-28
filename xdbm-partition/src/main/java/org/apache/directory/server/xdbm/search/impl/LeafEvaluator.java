@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm.search.impl;
 
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.index.Index;
 import org.apache.directory.server.core.shared.partition.OperationExecutionManagerFactory;
@@ -28,6 +29,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+
 
 /**
  * An abstract evaluator to store the common fileds for the Simple node evaluators
@@ -40,35 +42,36 @@ public abstract class LeafEvaluator<T> extends AbstractEvaluator<SimpleNode<T>>
 {
     /** The ExprNode to evaluate */
     protected final SimpleNode<T> node;
-    
+
     /** The SchemaManager instance */
     protected final SchemaManager schemaManager;
-    
+
     /** The AttributeType we will use for the evaluation */
     protected final AttributeType attributeType;
-    
+
     /** The associated normalizer */
     protected Normalizer normalizer;
-    
+
     /** The associated comparator */
     protected LdapComparator<? super Object> ldapComparator;
-    
+
     /** The index to use if any */
     protected Index<T> idx;
 
+
     @SuppressWarnings("unchecked")
-    public LeafEvaluator( SimpleNode<T> node, Partition db, SchemaManager schemaManager, 
+    public LeafEvaluator( SimpleNode<T> node, Partition db, SchemaManager schemaManager,
         TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory )
-    throws Exception
+        throws Exception
     {
-        super(db, txnManagerFactory, executionManagerFactory );      
+        super( db, txnManagerFactory, executionManagerFactory );
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
     }
 
-    
+
     /**
      * @return The AttributeType
      */
@@ -94,5 +97,5 @@ public abstract class LeafEvaluator<T> extends AbstractEvaluator<SimpleNode<T>>
     {
         return ldapComparator;
     }
-    
+
 }

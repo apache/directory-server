@@ -228,7 +228,8 @@ public class LdapServer extends DirectoryBackedService
         saslQop.add( SaslQoP.AUTH.getValue() );
         saslQop.add( SaslQoP.AUTH_INT.getValue() );
         saslQop.add( SaslQoP.AUTH_CONF.getValue() );
-        saslQopString = SaslQoP.AUTH.getValue() + ',' + SaslQoP.AUTH_INT.getValue() + ',' + SaslQoP.AUTH_CONF.getValue();
+        saslQopString = SaslQoP.AUTH.getValue() + ',' + SaslQoP.AUTH_INT.getValue() + ','
+            + SaslQoP.AUTH_CONF.getValue();
 
         saslRealms = new ArrayList<String>();
         saslRealms.add( "example.com" );
@@ -322,7 +323,7 @@ public class LdapServer extends DirectoryBackedService
     @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadKeyStore() throws Exception
     {
-        if ( Strings.isEmpty(keystoreFile) )
+        if ( Strings.isEmpty( keystoreFile ) )
         {
             Provider provider = Security.getProvider( "SUN" );
             LOG.debug( "provider = {}", provider );
@@ -465,7 +466,7 @@ public class LdapServer extends DirectoryBackedService
 
             startNetwork( transport, chain );
         }
-        
+
         /*
          * The server is now initialized, we can
          * install the default requests handlers, which need 
@@ -494,7 +495,7 @@ public class LdapServer extends DirectoryBackedService
 
         LOG.info( "Ldap service started." );
     }
-    
+
 
     /**
      * Install the replication handler if we have one
@@ -774,7 +775,7 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>,ExtendedResponse> 
+    public ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>
         getExtendedOperationHandler( String oid )
     {
         for ( ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> h : extendedOperationHandlers )
@@ -1138,7 +1139,8 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @param extendedHandler The ExtendedRequest handler
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     public void setExtendedHandler( ExtendedHandler extendedHandler )
     {
         this.handler.removeReceivedMessageHandler( ExtendedRequest.class );

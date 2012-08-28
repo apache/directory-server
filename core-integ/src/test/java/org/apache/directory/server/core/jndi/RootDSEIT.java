@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "RootDSEIT")
 public class RootDSEIT extends AbstractLdapTestUnit
 {
@@ -62,7 +62,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContext() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -84,7 +84,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -111,7 +111,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -139,7 +139,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributesByNameWithOC() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -167,7 +167,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testDelete() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -202,7 +202,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testRename() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -237,7 +237,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testModify() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -272,7 +272,7 @@ public class RootDSEIT extends AbstractLdapTestUnit
     @Test
     public void testModify2() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.jndi.referral;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -70,362 +71,366 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "ModifyReferralIT")
-@ApplyLdifs( {
-    // Root
-    "dn: c=WW,ou=system",
-    "objectClass: country",
-    "objectClass: top",
-    "c: WW",
-    
-    // Sub-root
-    "dn: o=MNN,c=WW,ou=system",
-    "objectClass: organization",
-    "objectClass: top",
-    "o: MNN",
-    
-    // Referral #1
-    "dn: ou=Roles,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: Roles",
-    "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
-    
-    // Referral #2
-    "dn: ou=People,o=MNN,c=WW,ou=system",
-    "objectClass: extensibleObject",
-    "objectClass: referral",
-    "objectClass: top",
-    "ou: People",
-    "ref: ldap://hostb/OU=People,DC=example,DC=com",
-    "ref: ldap://hostc/OU=People,O=MNN,C=WW",
-    
-    // Entry # 1
-    "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
-    "objectClass: person",
-    "objectClass: top",
-    "cn: Alex Karasulu",
-    "sn: akarasulu"
-    }
-)
+@ApplyLdifs(
+    {
+        // Root
+        "dn: c=WW,ou=system",
+        "objectClass: country",
+        "objectClass: top",
+        "c: WW",
+
+        // Sub-root
+        "dn: o=MNN,c=WW,ou=system",
+        "objectClass: organization",
+        "objectClass: top",
+        "o: MNN",
+
+        // Referral #1
+        "dn: ou=Roles,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: Roles",
+        "ref: ldap://hostd/ou=Roles,dc=apache,dc=org",
+
+        // Referral #2
+        "dn: ou=People,o=MNN,c=WW,ou=system",
+        "objectClass: extensibleObject",
+        "objectClass: referral",
+        "objectClass: top",
+        "ou: People",
+        "ref: ldap://hostb/OU=People,DC=example,DC=com",
+        "ref: ldap://hostc/OU=People,O=MNN,C=WW",
+
+        // Entry # 1
+        "dn: cn=Alex Karasulu,o=MNN,c=WW,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Alex Karasulu",
+        "sn: akarasulu"
+})
 public class ModifyReferralIT extends AbstractLdapTestUnit
 {
 
-    /** The Context we are using to inject entries with JNDI */
-    LdapContext MNNCtx;
-    
-    /** The entries we are using to do the tests */
-    Attributes userEntry;
-    Entry serverEntry;
-    
-    @Before
-    public void setUp() throws Exception
-    {
-        MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
+/** The Context we are using to inject entries with JNDI */
+LdapContext MNNCtx;
 
-        // JNDI entry
-        userEntry = new BasicAttributes( "objectClass", "top", true );
-        userEntry.get( "objectClass" ).add( "person" );
-        userEntry.put( "sn", "elecharny" );
-        userEntry.put( "cn", "Emmanuel Lecharny" );
-        
-        // Core API entry
-        Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
-        serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
-
-        serverEntry.put( "ObjectClass", "top", "person" );
-        serverEntry.put( "sn", "elecharny" );
-        serverEntry.put( "cn", "Emmanuel Lecharny" );
-    }
-
-    
-    /**
-     * Test modification of a non existing entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testModifyNonExistingEntry() throws Exception
-    {
-        try
-        {
-            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
-            Attributes attrs = new BasicAttributes( true );
-            attrs.put( description );
-            
-            MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny", DirContext.ADD_ATTRIBUTE, attrs );
-            fail();
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
-        }
-    }
+/** The entries we are using to do the tests */
+Attributes userEntry;
+Entry serverEntry;
 
 
-    /**
-     * Test a modification of an entry with an ancestor referral, using JNDI,
-     * with 'throw'
-     */
-    @Test
-    public void testModifyEntryWithAncestorJNDIThrow() throws Exception
-    {
-        try
-        {
-            // Set to 'throw'
-            MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
+@Before
+public void setUp() throws Exception
+{
+    MNNCtx = getContext( ServerDNConstants.ADMIN_SYSTEM_DN, getService(), "o=MNN,c=WW,ou=system" );
 
-            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
-            Attributes attrs = new BasicAttributes( true );
-            attrs.put( description );
+    // JNDI entry
+    userEntry = new BasicAttributes( "objectClass", "top", true );
+    userEntry.get( "objectClass" ).add( "person" );
+    userEntry.put( "sn", "elecharny" );
+    userEntry.put( "cn", "Emmanuel Lecharny" );
 
-            MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny,ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
+    // Core API entry
+    Dn dn = new Dn( "cn=Emmanuel Lecharny, ou=apache, ou=people, o=MNN, c=WW, ou=system" );
+    serverEntry = new DefaultEntry( getService().getSchemaManager(), dn );
+
+    serverEntry.put( "ObjectClass", "top", "person" );
+    serverEntry.put( "sn", "elecharny" );
+    serverEntry.put( "cn", "Emmanuel Lecharny" );
+}
 
 
-    /**
-     * Test a modification of an entry with an ancestor referral, using JNDI,
-     * with 'ignore'
-     */
-    @Test
-    public void testModifyEntryWithAncestorJNDIIgnore() throws Exception
-    {
-        try
-        {
-            // Set to 'throw'
-            MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-
-            javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
-            Attributes attrs = new BasicAttributes( true );
-            attrs.put( description );
-
-            MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny,ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
-            fail();
-        }
-        catch ( PartialResultException pre )
-        {
-            assertTrue( true );
-        }
-    }
-
-
-    /**
-     * Test the modification of an entry with an ancestor referral, using the core API,
-     * without a ManageDsaIT.
-     */
-    @Test
-    public void testModifyEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
-    {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            Attribute attr = new DefaultAttribute( "Description", "this is a test" );
-            Modification mod = new DefaultModification(
-                ModificationOperation.ADD_ATTRIBUTE, attr );
-            
-            session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mod );
-            fail();
-        }
-        catch ( LdapNoSuchObjectException lnsoe )
-        {
-            assertTrue( true );
-        }
-    }
-
-
-    /**
-     * Test the modification of an entry with an ancestor referral, using the core API,
-     * with a ManageDsaIT flag.
-     */
-    @Test
-    public void testModifyEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
-    {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            Attribute attr = new DefaultAttribute( "Description", "this is a test" );
-            Modification mod = new DefaultModification(
-                ModificationOperation.ADD_ATTRIBUTE, attr );
-            List<Modification> mods = new ArrayList<Modification>();
-            
-            mods.add( mod );
-            
-            session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods, true );
-            fail();
-        }
-        catch ( LdapNoSuchObjectException lnsoe )
-        {
-            assertTrue( true );
-        }
-    }
-    
-    
-    /**
-     * Test modification of an existing entry (not a referral), with no referral 
-     * in its ancestor, using JNDI.
-     */
-    @Test
-    public void testModifyExistingEntryNoReferral() throws Exception
+/**
+ * Test modification of a non existing entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testModifyNonExistingEntry() throws Exception
+{
+    try
     {
         javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( description );
-        
-        MNNCtx.modifyAttributes( "cn=Alex Karasulu", DirContext.ADD_ATTRIBUTE, attrs );
-        
-        // Now try to retrieve this attribute
-        Attributes result = MNNCtx.getAttributes( "cn=Alex Karasulu", new String[]{ "description" } );
-        
-        assertNotNull( result );
-        assertEquals( 1, result.size() );
-        assertEquals( "This is a description", result.get( "description" ).get() );
-    }
 
-    
-    /**
-     * Test modification of an existing referral entry, using JNDI "throw".
-     */
-    @Test
-    public void testModifyExistingEntryReferralJNDIThrow() throws Exception
+        MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny", DirContext.ADD_ATTRIBUTE, attrs );
+        fail();
+    }
+    catch ( NameNotFoundException nnfe )
     {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test a modification of an entry with an ancestor referral, using JNDI,
+ * with 'throw'
+ */
+@Test
+public void testModifyEntryWithAncestorJNDIThrow() throws Exception
+{
+    try
+    {
+        // Set to 'throw'
+        MNNCtx.addToEnvironment( Context.REFERRAL, "throw" );
+
         javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
         Attributes attrs = new BasicAttributes( true );
         attrs.put( description );
-        
-        try
-        {
-            MNNCtx.modifyAttributes( "ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
-            fail();
-        }
-        catch ( ReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
 
-    
-    /**
-     * Test modification of an existing referral entry, using JNDI "ignore".
-     */
-    @Test
-    public void testModifyExistingEntryReferralJNDIIgnore() throws Exception
+        MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny,ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
+        fail();
+    }
+    catch ( ReferralException re )
     {
-        javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
-        Attributes attrs = new BasicAttributes( true );
-        attrs.put( description );
-        
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/cn=Emmanuel%20Lecharny,ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test a modification of an entry with an ancestor referral, using JNDI,
+ * with 'ignore'
+ */
+@Test
+public void testModifyEntryWithAncestorJNDIIgnore() throws Exception
+{
+    try
+    {
+        // Set to 'throw'
         MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
-        
-        MNNCtx.modifyAttributes( "ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
-        
-        // Now try to retrieve this attribute
-        Attributes result = MNNCtx.getAttributes( "ou=Roles", new String[]{ "description" } );
-        
-        assertNotNull( result );
-        assertEquals( 1, result.size() );
-        assertEquals( "This is a description", result.get( "description" ).get() );
-    }
 
-    
-    /**
-     * Test modification of an existing referral entry, using the Core API 
-     * and no ManageDsaIT flag
-     */
-    @Test
-    public void testModifyExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
-    {
-        CoreSession session = getService().getAdminSession();
-        
-        try
-        {
-            Attribute attr = new DefaultAttribute( "Description", "this is a test" );
-            Modification mod = new DefaultModification(
-                ModificationOperation.ADD_ATTRIBUTE, attr );
-            List<Modification> mods = new ArrayList<Modification>();
-            
-            mods.add( mod );
-            
-            session.modify( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, false );
-            fail();
-        }
-        catch ( LdapReferralException re )
-        {
-            int nbRefs = 0;
-            Set<String> expectedRefs = new HashSet<String>();
-            expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
-            
-            do 
-            {
-                String ref = (String)re.getReferralInfo();
-                
-                assertTrue( expectedRefs.contains( ref ) );
-                nbRefs ++;
-            }
-            while ( re.skipReferral() );
-            
-            assertEquals( 1, nbRefs );
-        }
-    }
+        javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
+        Attributes attrs = new BasicAttributes( true );
+        attrs.put( description );
 
-    
-    /**
-     * Test modification of an existing referral entry, using the Core API 
-     * and the ManageDsaIT flag
-     */
-    @Test
-    public void testModifyExistingEntryReferralCoreAPIManageDsaIT() throws Exception
+        MNNCtx.modifyAttributes( "cn=Emmanuel Lecharny,ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
+        fail();
+    }
+    catch ( PartialResultException pre )
     {
-        CoreSession session = getService().getAdminSession();
-        
-        Attribute attr = new DefaultAttribute( "Description", "This is a description" );
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test the modification of an entry with an ancestor referral, using the core API,
+ * without a ManageDsaIT.
+ */
+@Test
+public void testModifyEntryWithAncestorCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        Attribute attr = new DefaultAttribute( "Description", "this is a test" );
+        Modification mod = new DefaultModification(
+            ModificationOperation.ADD_ATTRIBUTE, attr );
+
+        session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mod );
+        fail();
+    }
+    catch ( LdapNoSuchObjectException lnsoe )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test the modification of an entry with an ancestor referral, using the core API,
+ * with a ManageDsaIT flag.
+ */
+@Test
+public void testModifyEntryWithAncestorCoreAPIWithManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        Attribute attr = new DefaultAttribute( "Description", "this is a test" );
         Modification mod = new DefaultModification(
             ModificationOperation.ADD_ATTRIBUTE, attr );
         List<Modification> mods = new ArrayList<Modification>();
-        
+
         mods.add( mod );
-        
-        session.modify( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, true );
-        
-        // Now try to retrieve this attribute
-        Attributes result = MNNCtx.getAttributes( "ou=Roles", new String[]{ "description" } );
-        
-        assertNotNull( result );
-        assertEquals( 1, result.size() );
-        assertEquals( "This is a description", result.get( "description" ).get() );
+
+        session.modify( new Dn( "cn=Emmanuel Lecharny,ou=Roles,c=MNN,o=WW,ou=system" ), mods, true );
+        fail();
     }
+    catch ( LdapNoSuchObjectException lnsoe )
+    {
+        assertTrue( true );
+    }
+}
+
+
+/**
+ * Test modification of an existing entry (not a referral), with no referral 
+ * in its ancestor, using JNDI.
+ */
+@Test
+public void testModifyExistingEntryNoReferral() throws Exception
+{
+    javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
+    Attributes attrs = new BasicAttributes( true );
+    attrs.put( description );
+
+    MNNCtx.modifyAttributes( "cn=Alex Karasulu", DirContext.ADD_ATTRIBUTE, attrs );
+
+    // Now try to retrieve this attribute
+    Attributes result = MNNCtx.getAttributes( "cn=Alex Karasulu", new String[]
+        { "description" } );
+
+    assertNotNull( result );
+    assertEquals( 1, result.size() );
+    assertEquals( "This is a description", result.get( "description" ).get() );
+}
+
+
+/**
+ * Test modification of an existing referral entry, using JNDI "throw".
+ */
+@Test
+public void testModifyExistingEntryReferralJNDIThrow() throws Exception
+{
+    javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
+    Attributes attrs = new BasicAttributes( true );
+    attrs.put( description );
+
+    try
+    {
+        MNNCtx.modifyAttributes( "ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
+        fail();
+    }
+    catch ( ReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test modification of an existing referral entry, using JNDI "ignore".
+ */
+@Test
+public void testModifyExistingEntryReferralJNDIIgnore() throws Exception
+{
+    javax.naming.directory.Attribute description = new BasicAttribute( "description", "This is a description" );
+    Attributes attrs = new BasicAttributes( true );
+    attrs.put( description );
+
+    MNNCtx.addToEnvironment( Context.REFERRAL, "ignore" );
+
+    MNNCtx.modifyAttributes( "ou=Roles", DirContext.ADD_ATTRIBUTE, attrs );
+
+    // Now try to retrieve this attribute
+    Attributes result = MNNCtx.getAttributes( "ou=Roles", new String[]
+        { "description" } );
+
+    assertNotNull( result );
+    assertEquals( 1, result.size() );
+    assertEquals( "This is a description", result.get( "description" ).get() );
+}
+
+
+/**
+ * Test modification of an existing referral entry, using the Core API 
+ * and no ManageDsaIT flag
+ */
+@Test
+public void testModifyExistingEntryReferralCoreAPIWithoutManageDsaIt() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    try
+    {
+        Attribute attr = new DefaultAttribute( "Description", "this is a test" );
+        Modification mod = new DefaultModification(
+            ModificationOperation.ADD_ATTRIBUTE, attr );
+        List<Modification> mods = new ArrayList<Modification>();
+
+        mods.add( mod );
+
+        session.modify( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, false );
+        fail();
+    }
+    catch ( LdapReferralException re )
+    {
+        int nbRefs = 0;
+        Set<String> expectedRefs = new HashSet<String>();
+        expectedRefs.add( "ldap://hostd/ou=Roles,dc=apache,dc=org" );
+
+        do
+        {
+            String ref = ( String ) re.getReferralInfo();
+
+            assertTrue( expectedRefs.contains( ref ) );
+            nbRefs++;
+        }
+        while ( re.skipReferral() );
+
+        assertEquals( 1, nbRefs );
+    }
+}
+
+
+/**
+ * Test modification of an existing referral entry, using the Core API 
+ * and the ManageDsaIT flag
+ */
+@Test
+public void testModifyExistingEntryReferralCoreAPIManageDsaIT() throws Exception
+{
+    CoreSession session = getService().getAdminSession();
+
+    Attribute attr = new DefaultAttribute( "Description", "This is a description" );
+    Modification mod = new DefaultModification(
+        ModificationOperation.ADD_ATTRIBUTE, attr );
+    List<Modification> mods = new ArrayList<Modification>();
+
+    mods.add( mod );
+
+    session.modify( new Dn( "ou=Roles,o=MNN,c=WW,ou=system" ), mods, true );
+
+    // Now try to retrieve this attribute
+    Attributes result = MNNCtx.getAttributes( "ou=Roles", new String[]
+        { "description" } );
+
+    assertNotNull( result );
+    assertEquals( 1, result.size() );
+    assertEquals( "This is a description", result.get( "description" ).get() );
+}
 }

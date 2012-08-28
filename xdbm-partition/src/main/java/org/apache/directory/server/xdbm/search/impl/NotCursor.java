@@ -45,26 +45,27 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final IndexCursor<String> uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Partition store, Evaluator<? extends ExprNode> childEvaluator, TxnManagerFactory txnManagerFactory,
+    public NotCursor( Partition store, Evaluator<? extends ExprNode> childEvaluator,
+        TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         this.childEvaluator = childEvaluator;
- 
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
         entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
-        uuidCursor = ( ( Index<String> )entryUuidIdx ).forwardCursor();
+        uuidCursor = ( ( Index<String> ) entryUuidIdx ).forwardCursor();
     }
 
 
@@ -76,7 +77,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -96,7 +97,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     public boolean first() throws Exception
     {
         beforeFirst();
-        
+
         return next();
     }
 
@@ -104,7 +105,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     public boolean last() throws Exception
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -115,7 +116,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "previous()" );
             IndexEntry<?> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -132,7 +133,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "next()" );
             IndexEntry<?> candidate = uuidCursor.get();
-            
+
             if ( !childEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -146,7 +147,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return ( IndexEntry<V> ) uuidCursor.get();

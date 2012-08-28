@@ -73,29 +73,29 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="StartTlsUpdateCertificateIT-class")
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "StartTlsUpdateCertificateIT-class")
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     },
-    extendedOpHandlers={ StartTlsHandler.class }
-    )
+    extendedOpHandlers =
+        { StartTlsHandler.class })
 public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsUpdateCertificateIT.class );
-    private static final String[] CERT_IDS = new String[] { "userCertificate" };
+    private static final String[] CERT_IDS = new String[]
+        { "userCertificate" };
     private File ksFile;
 
-    
     boolean oldConfidentialityRequiredValue;
-    
-    
+
+
     /**
      * Sets up the key store and installs the self signed certificate for the 
      * server (created on first startup) which is to be used by the StartTLS 
@@ -113,7 +113,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         ksFile = File.createTempFile( "testStore", "ks" );
         CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
         Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
@@ -128,11 +128,11 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         ks.setCertificateEntry( "apacheds", cert );
         ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
         LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-        
+
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
-    
-    
+
+
     /**
      * Just deletes the generated key store file.
      */
@@ -143,11 +143,11 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         {
             ksFile.delete();
         }
-        
+
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
-    
+
 
     /**
      * Test for DIRSERVER-1373.
@@ -164,11 +164,12 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         env.put( "java.naming.security.authentication", "simple" );
         LdapContext ctx = new InitialLdapContext( env, null );
         StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
-        tls.setHostnameVerifier( new HostnameVerifier() {
+        tls.setHostnameVerifier( new HostnameVerifier()
+        {
             public boolean verify( String hostname, SSLSession session )
             {
                 return true;
-            } 
+            }
         } );
         tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
 
@@ -191,15 +192,16 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         ctx.close();
 
         getLdapServer().reloadSslContext();
-        
+
         // create a new secure connection
         ctx = new InitialLdapContext( env, null );
         tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
-        tls.setHostnameVerifier( new HostnameVerifier() {
+        tls.setHostnameVerifier( new HostnameVerifier()
+        {
             public boolean verify( String hostname, SSLSession session )
             {
                 return true;
-            } 
+            }
         } );
         tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
 
@@ -209,7 +211,9 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         assertEquals( 1, lastReceivedServerCertificates.length );
         String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
-        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
-        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
+        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCase( newIssuerDN ),
+            Strings.toLowerCase( issuerDN ) );
+        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCase( newSubjectDN ),
+            Strings.toLowerCase( subjectDN ) );
     }
 }

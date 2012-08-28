@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.exceptions;
 
+
 import org.apache.directory.shared.kerberos.messages.KrbError;
 
 
@@ -33,7 +34,7 @@ public class KerberosException extends Exception
 
     /** the kerberos error */
     private KrbError error;
-    
+
     /**
      * The Kerberos error code associated with this exception.
      */
@@ -58,7 +59,7 @@ public class KerberosException extends Exception
         this.errorCode = errorType.getValue();
     }
 
-    
+
     /**
      * 
      * Creates a new instance of KerberosException.
@@ -72,7 +73,7 @@ public class KerberosException extends Exception
         this.error = error;
     }
 
-    
+
     /**
      * Creates a KerberosException with an {@link ErrorType} and an
      * underlying {@link Throwable} that caused this fault.

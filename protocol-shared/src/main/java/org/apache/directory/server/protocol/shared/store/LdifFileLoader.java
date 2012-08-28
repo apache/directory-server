@@ -107,7 +107,8 @@ public class LdifFileLoader
      * @param filters
      * @param loader
      */
-    public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters, ClassLoader loader )
+    public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters,
+        ClassLoader loader )
     {
         this.coreSession = coreSession;
         this.ldif = ldif;
@@ -116,7 +117,8 @@ public class LdifFileLoader
         if ( filters == null )
         {
             this.filters = Collections.emptyList();
-        } else
+        }
+        else
         {
             this.filters = Collections.unmodifiableList( filters );
         }
@@ -174,7 +176,7 @@ public class LdifFileLoader
         {
             in = getLdifStream();
 
-            for ( LdifEntry ldifEntry:new LdifReader( in ) )
+            for ( LdifEntry ldifEntry : new LdifReader( in ) )
             {
                 Dn dn = ldifEntry.getDn();
 
@@ -197,22 +199,23 @@ public class LdifFileLoader
                     {
                         try
                         {
-                            coreSession.add( 
+                            coreSession.add(
                                 new DefaultEntry(
-                                    coreSession.getDirectoryService().getSchemaManager(), entry ) ); 
-                           count++;
+                                    coreSession.getDirectoryService().getSchemaManager(), entry ) );
+                            count++;
                             log.info( "Created {}.", dn );
-                        } 
+                        }
                         catch ( LdapException e1 )
                         {
                             log.info( "Could not create entry " + entry, e1 );
                         }
                     }
-                } else
+                }
+                else
                 {
                     //modify
                     List<Modification> items = ldifEntry.getModifications();
-                    
+
                     try
                     {
                         coreSession.modify( dn, items );
@@ -265,7 +268,8 @@ public class LdifFileLoader
         if ( ldif.exists() )
         {
             in = new FileInputStream( ldif );
-        } else
+        }
+        else
         {
             if ( loader != null && ( in = loader.getResourceAsStream( ldif.getName() ) ) != null )
             {

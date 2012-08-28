@@ -33,6 +33,7 @@ import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Test the AuthorizationData encoding and decoding
  * 
@@ -54,14 +55,14 @@ public class AuthorizationDataTest
         ad.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x0F, 
-                0x30, 0x0d, 
-                  ( byte ) 0xA0, 0x03, 
-                    0x02, 0x01, 0x04, 
-                  ( byte ) 0xA1, 0x06, 
-                    0x04, 0x04, 0x01, 0x02, 0x03, 0x04 
-            };
+            {
+                0x30, 0x0F,
+                0x30, 0x0d,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x04,
+                ( byte ) 0xA1, 0x06,
+                0x04, 0x04, 0x01, 0x02, 0x03, 0x04
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }
@@ -83,27 +84,27 @@ public class AuthorizationDataTest
         ad.encode( encoded );
 
         byte[] expectedResult = new byte[]
-            { 
-              0x30, 0x2D, 
-                0x30, 0x0d, 
-                  ( byte ) 0xA0, 0x03, 
-                    0x02, 0x01, 0x04, 
-                  ( byte ) 0xA1, 0x06, 
-                    0x04, 0x04, 
-                      0x01, 0x02, 0x03, 0x04, 
-                0x30, 0x0d, 
-                  ( byte ) 0xA0, 0x03, 
-                    0x02, 0x01, 0x01, 
-                  ( byte ) 0xA1, 0x06, 
-                    0x04, 0x04,
-                      0x05, 0x06, 0x07, 0x08, 
-                0x30, 0x0d, 
-                  ( byte ) 0xA0, 0x03, 
-                    0x02, 0x01, 0x06, 
-                  ( byte ) 0xA1, 0x06, 
-                    0x04, 0x04, 
-                      0x09, 0x0A, 0x0B, 0x0C 
-            };
+            {
+                0x30, 0x2D,
+                0x30, 0x0d,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x04,
+                ( byte ) 0xA1, 0x06,
+                0x04, 0x04,
+                0x01, 0x02, 0x03, 0x04,
+                0x30, 0x0d,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x06,
+                0x04, 0x04,
+                0x05, 0x06, 0x07, 0x08,
+                0x30, 0x0d,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x06,
+                ( byte ) 0xA1, 0x06,
+                0x04, 0x04,
+                0x09, 0x0A, 0x0B, 0x0C
+        };
 
         assertTrue( Arrays.equals( expectedResult, encoded.array() ) );
     }

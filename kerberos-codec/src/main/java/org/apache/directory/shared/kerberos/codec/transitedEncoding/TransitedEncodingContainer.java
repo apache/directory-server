@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.transitedEncoding;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 
@@ -32,6 +33,7 @@ public class TransitedEncodingContainer extends AbstractContainer
 {
     /** An EncryptedData container */
     private TransitedEncoding transitedEncoding;
+
 
     /**
      * Creates a new TransitedEncodingContainer object.
@@ -53,7 +55,7 @@ public class TransitedEncodingContainer extends AbstractContainer
         return transitedEncoding;
     }
 
-    
+
     /**
      * Set a TransitedEncoding Object into the container. It will be completed by the
      * KerberosDecoder.

@@ -48,7 +48,7 @@ public class BindOperationContext extends AbstractOperationContext
 
     /** The password */
     private byte[] credentials;
-    
+
     /** Original credentials */
     private byte[] originalCredentials;
 
@@ -98,7 +98,7 @@ public class BindOperationContext extends AbstractOperationContext
             //
             if ( dn.isEmpty() )
             {
-                if ( Strings.isEmpty(credentials) )
+                if ( Strings.isEmpty( credentials ) )
                 {
                     // Dn and Credentials are empty, this is an anonymous authent
                     return AuthenticationLevel.NONE;
@@ -110,7 +110,7 @@ public class BindOperationContext extends AbstractOperationContext
                     throw new LdapAuthenticationException( "Invalid authentication" );
                 }
             }
-            else if ( Strings.isEmpty(credentials) )
+            else if ( Strings.isEmpty( credentials ) )
             {
                 return AuthenticationLevel.UNAUTHENT;
             }
@@ -125,27 +125,28 @@ public class BindOperationContext extends AbstractOperationContext
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void saveOriginalContext()
     {
         super.saveOriginalContext();
-      
+
         originalCredentials = credentials;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void resetContext()
     {
         super.resetContext();
-        
+
         credentials = originalCredentials;
     }
+
 
     /**
      * @return the SASL mechanisms
@@ -213,7 +214,7 @@ public class BindOperationContext extends AbstractOperationContext
     public String toString()
     {
         return "BindContext for Dn '" + getDn().getName() + "', credentials <" +
-            ( credentials != null ? Strings.dumpBytes(credentials) : "" ) + ">" +
+            ( credentials != null ? Strings.dumpBytes( credentials ) : "" ) + ">" +
             ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" ) +
             ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
     }

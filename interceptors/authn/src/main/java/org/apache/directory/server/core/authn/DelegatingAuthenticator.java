@@ -45,13 +45,14 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 {
     /** A speedup for logger in debug mode */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-    
+
     /** The host in charge of delegated authentication */
     private String delegateHost;
-    
+
     /** The associated port */
     private int delegatePort;
-    
+
+
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
@@ -113,26 +114,26 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
      * {@inheritDoc}
      */
     public LdapPrincipal authenticate( BindOperationContext bindContext )
-            throws Exception
+        throws Exception
     {
         LdapPrincipal principal = null;
-        
+
         if ( IS_DEBUG )
         {
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
-        
+
         // Create a connection on the remote host 
         LdapConnection ldapConnection = LdapConnectionFactory.getNetworkConnection( delegateHost, delegatePort );
-        
+
         try
         {
             // Try to bind
             try
             {
                 ldapConnection.bind( bindContext.getDn(),
-                    Strings.utf8ToString(bindContext.getCredentials()) );
-                
+                    Strings.utf8ToString( bindContext.getCredentials() ) );
+
                 // no need to remain bound to delegate host
                 ldapConnection.unBind();
             }
@@ -142,13 +143,14 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
-            
+
             // Create the new principal
-            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(), AuthenticationLevel.SIMPLE,
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
+                AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
-            
+
             IoSession session = bindContext.getIoSession();
-            
+
             if ( session != null )
             {
                 SocketAddress clientAddress = session.getRemoteAddress();
@@ -156,7 +158,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
                 SocketAddress serverAddress = session.getServiceAddress();
                 principal.setServerAddress( serverAddress );
             }
-            
+
             return principal;
 
         }

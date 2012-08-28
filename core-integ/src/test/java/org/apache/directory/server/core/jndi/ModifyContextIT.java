@@ -52,8 +52,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ModifyContextIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "ModifyContextIT-class")
 public class ModifyContextIT extends AbstractLdapTestUnit
 {
 
@@ -65,7 +65,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     protected void createData() throws Exception
     {
         LdifEntry akarasulu = getUserAddLdif();
-        getService().getAdminSession().add( 
+        getService().getAdminSession().add(
             new DefaultEntry( getService().getSchemaManager(), akarasulu.getEntry() ) );
 
         LdapContext sysRoot = getSystemContext( getService() );
@@ -199,7 +199,6 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     }
 
 
-
     @Test
     public void testModifyOperation() throws Exception
     {
@@ -242,7 +241,7 @@ public class ModifyContextIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
         Attributes attributes = new BasicAttributes( true );
         attributes.put( "ou", "testCases" );
-        
+
         try
         {
             sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
@@ -255,8 +254,8 @@ public class ModifyContextIT extends AbstractLdapTestUnit
         }
     }
 
-    
-    @Test( expected = NamingException.class )
+
+    @Test(expected = NamingException.class)
     public void testRemoveNonExistingValue() throws Exception
     {
         createData();

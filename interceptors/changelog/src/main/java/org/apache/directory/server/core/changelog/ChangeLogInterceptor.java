@@ -84,7 +84,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         super( InterceptorEnum.CHANGE_LOG_INTERCEPTOR );
     }
 
-    
+
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
@@ -129,10 +129,10 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Add );
         forward.setDn( addContext.getDn() );
 
-        for ( Attribute attribute:addEntry.getAttributes() )
+        for ( Attribute attribute : addEntry.getAttributes() )
         {
             AttributeType attributeType = attribute.getAttributeType();
-            forward.addAttribute( addEntry.get( attributeType).clone() );
+            forward.addAttribute( addEntry.get( attributeType ).clone() );
         }
 
         LdifEntry reverse = LdifRevertor.reverseAdd( addContext.getDn() );
@@ -166,7 +166,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         // we don't want to record deleting a tag as a change
-        if( serverEntry.get( REV_AT_OID ) != null )
+        if ( serverEntry.get( REV_AT_OID ) != null )
         {
             return;
         }
@@ -220,7 +220,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // Call the next interceptor
         next( modifyContext );
-        
+
         // If op doesnt want to be logged, skip
         if ( !modifyContext.isLogChange() )
         {
@@ -229,9 +229,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if (
-            isDelete ||
-            ! changeLog.isEnabled() ||
+        if ( isDelete ||
+            !changeLog.isEnabled() ||
 
             // if there are no modifications due to stripping out bogus non-
             // existing attributes then we will have no modification items and
@@ -263,7 +262,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         Entry clientEntry = new DefaultEntry( serverEntry.getDn() );
 
-        for ( Attribute attribute:serverEntry )
+        for ( Attribute attribute : serverEntry )
         {
             clientEntry.add( attribute.clone() );
         }
@@ -294,7 +293,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( moveContext.getDn() );
         forward.setNewSuperior( moveContext.getNewSuperior().getName() );
 
-        LdifEntry reverse = LdifRevertor.reverseMove(moveContext.getNewSuperior(), moveContext.getDn());
+        LdifEntry reverse = LdifRevertor.reverseMove( moveContext.getNewSuperior(), moveContext.getDn() );
         moveContext.setChangeLogEvent( changeLog.log( getPrincipal( moveContext ), forward, reverse ) );
     }
 
@@ -336,7 +335,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
             reversedEntry.addControl( new ManageDsaITImpl() );
         }
 
-        moveAndRenameContext.setChangeLogEvent( changeLog.log( getPrincipal( moveAndRenameContext ), forward, reverses ) );
+        moveAndRenameContext
+            .setChangeLogEvent( changeLog.log( getPrincipal( moveAndRenameContext ), forward, reverses ) );
     }
 
 
@@ -349,7 +349,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         if ( renameContext.getEntry() != null )
         {
-            serverEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+            serverEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
         }
 
         next( renameContext );
@@ -397,7 +397,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            serverEntry = directoryService.getPartitionNexus().lookup( lookupContext  );
+            serverEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
         return serverEntry;

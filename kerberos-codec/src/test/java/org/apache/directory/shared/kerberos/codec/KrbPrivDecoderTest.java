@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -35,6 +36,7 @@ import org.apache.directory.shared.kerberos.messages.KrbPriv;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for KrbPriv codec
  *
@@ -45,57 +47,72 @@ public class KrbPrivDecoderTest
     @Test
     public void testKrbPrivDecoderTest() throws Exception
     {
-        byte[] data = new byte[]{
-            0x75, 0x1B,
-              0x30, 0x19,
-               (byte)0xA0, 0x03,        // pvno
-                      0x02, 0x01, 0x05,
-               (byte)0xA1, 0x03,        // msg-type
-                      0x02, 0x01, 0x15,
-               (byte)0xA3, 0x0D,
-                      0x30, 0x0B,
-                       (byte)0xA0, 0x03,
-                              0x02, 0x01, 0x03,
-                       (byte)0xA2, 0x04,
-                              0x04, 0x02, 0x00, 0x01 
+        byte[] data = new byte[]
+            {
+                0x75, 0x1B,
+                0x30, 0x19,
+                ( byte ) 0xA0, 0x03, // pvno
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x03, // msg-type
+                0x02,
+                0x01,
+                0x15,
+                ( byte ) 0xA3,
+                0x0D,
+                0x30,
+                0x0B,
+                ( byte ) 0xA0,
+                0x03,
+                0x02,
+                0x01,
+                0x03,
+                ( byte ) 0xA2,
+                0x04,
+                0x04,
+                0x02,
+                0x00,
+                0x01
         };
 
         int streamLen = data.length;
         ByteBuffer stream = ByteBuffer.wrap( data );
-        
-        String decoded = Strings.dumpBytes(stream.array());
-        
+
+        String decoded = Strings.dumpBytes( stream.array() );
+
         Asn1Decoder decoder = new Asn1Decoder();
-        
-        KrbPrivContainer container = new  KrbPrivContainer( stream );
-        
+
+        KrbPrivContainer container = new KrbPrivContainer( stream );
+
         try
         {
             decoder.decode( stream, container );
         }
-        catch( DecoderException e )
+        catch ( DecoderException e )
         {
             fail();
         }
-        
+
         KrbPriv krbPriv = container.getKrbPriv();
-        
+
         assertEquals( 5, krbPriv.getProtocolVersionNumber() );
         assertEquals( KerberosMessageType.KRB_PRIV, krbPriv.getMessageType() );
         assertNotNull( krbPriv.getEncPart() );
-        
+
         int encodedLen = krbPriv.computeLength();
         assertEquals( streamLen, encodedLen );
-        
+
         try
         {
             ByteBuffer bb = ByteBuffer.allocate( encodedLen );
             krbPriv.encode( bb );
-            
-            String encoded = Strings.dumpBytes(bb.array());
+
+            String encoded = Strings.dumpBytes( bb.array() );
             assertEquals( decoded, encoded );
         }
-        catch( EncoderException e )
+        catch ( EncoderException e )
         {
             fail();
         }

@@ -45,8 +45,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="ExtensibleObjectIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "ExtensibleObjectIT-class")
 public class ExtensibleObjectIT extends AbstractLdapTestUnit
 {
 

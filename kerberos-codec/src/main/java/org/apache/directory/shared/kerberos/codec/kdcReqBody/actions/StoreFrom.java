@@ -76,7 +76,7 @@ public class StoreFrom extends GrammarAction<KdcReqBodyContainer>
 
         // The value is the KerberosTime
         Value value = tlv.getValue();
-        String date = Strings.utf8ToString(value.getData());
+        String date = Strings.utf8ToString( value.getData() );
 
         try
         {

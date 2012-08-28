@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.journal;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 
+
 /**
  * @todo : Missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -41,17 +43,17 @@ public class DefaultJournalStore implements JournalStore
 {
     /** The directory where the journal is stored */
     private File workingDirectory;
-    
+
     /** The journal file name */
     private String fileName;
-    
+
     /** The file containing the journal */
     private File journal;
-    
+
     /** The stream used to write data into the journal */
     private Writer writer;
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -62,8 +64,8 @@ public class DefaultJournalStore implements JournalStore
             writer.close();
         }
     }
-    
-    
+
+
     /**
      * Initialize the interceptor
      */
@@ -79,16 +81,16 @@ public class DefaultJournalStore implements JournalStore
         {
             fileName = "journal.ldif";
         }
-        
+
         journal = new File( workingDirectory, fileName );
-        
+
         // The new requests are added at the end of the existing journal
-        writer = new PrintWriter( 
+        writer = new PrintWriter(
             new OutputStreamWriter(
                 new FileOutputStream( journal, true ) ) );
     }
-    
-    
+
+
     /**
      * Stores an event into the journal.
      * 
@@ -106,19 +108,19 @@ public class DefaultJournalStore implements JournalStore
                 writer.write( "# principal: " );
                 writer.write( principal.getName() );
                 writer.write( '\n' );
-                
+
                 // Write the timestamp
                 writer.write( "# timestamp: " );
                 writer.write( Long.toString( System.currentTimeMillis() ) );
                 writer.write( '\n' );
-                
+
                 // Write the revision
                 writer.write( "# revision: " );
                 writer.write( Long.toString( revision ) );
                 writer.write( "\n" );
-                
+
                 // Write the entry
-                writer.write( LdifUtils.convertToLdif(forward, 80) );
+                writer.write( LdifUtils.convertToLdif( forward, 80 ) );
                 writer.flush();
             }
             catch ( LdapException ne )
@@ -130,11 +132,11 @@ public class DefaultJournalStore implements JournalStore
                 return false;
             }
         }
-        
+
         return true;
     }
-    
-    
+
+
     /**
      * Records a ack for a change
      *
@@ -160,11 +162,11 @@ public class DefaultJournalStore implements JournalStore
                 return false;
             }
         }
-        
+
         return true;
     }
-    
-    
+
+
     /**
      * Records a nack for a change
      *
@@ -190,17 +192,18 @@ public class DefaultJournalStore implements JournalStore
                 return false;
             }
         }
-        
+
         return true;
     }
 
-    
+
     public void sync() throws Exception
     {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
+
     public long getCurrentRevision()
     {
         // TODO Auto-generated method stub

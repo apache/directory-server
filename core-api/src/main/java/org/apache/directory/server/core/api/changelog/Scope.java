@@ -30,14 +30,13 @@ import javax.naming.directory.SearchControls;
  */
 public enum Scope
 {
-    Subtree( SearchControls.SUBTREE_SCOPE ),
-    OneLevel( SearchControls.ONELEVEL_SCOPE ),
-    Object( SearchControls.OBJECT_SCOPE );
-    
-    
+    Subtree(SearchControls.SUBTREE_SCOPE),
+    OneLevel(SearchControls.ONELEVEL_SCOPE),
+    Object(SearchControls.OBJECT_SCOPE);
+
     private final int scope;
-    
-    
+
+
     private Scope( int scope )
     {
         this.scope = scope;

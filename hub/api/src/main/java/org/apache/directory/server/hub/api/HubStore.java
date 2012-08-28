@@ -30,7 +30,6 @@ import org.apache.directory.server.hub.api.exception.StoreNotValidException;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 
 
-
 public interface HubStore
 {
 

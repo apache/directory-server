@@ -129,7 +129,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the addition and get out
                 String msg = I18n.err( I18n.ERR_350, entry.getDn().getName(), Strings.listToString(
-                        schemaManager.getErrors()) );
+                    schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -162,7 +162,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             // The schema is disabled, nothing to do.
             LOG.debug( "The Comparator {} cannot be deleted from the disabled schema {}", dn.getName(), schemaName );
-            
+
             return;
         }
 
@@ -206,7 +206,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 String msg = I18n.err( I18n.ERR_352, entry.getDn().getName(), Strings.listToString(
-                        errors) );
+                    errors ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }

@@ -33,23 +33,22 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum ApRepStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
     // ----- AP-REP message --------------------------------------
-    AP_REP_STATE,                           // 1
-    AP_REP_SEQ_STATE,                       // 2
+    AP_REP_STATE, // 1
+    AP_REP_SEQ_STATE, // 2
 
-    AP_REP_PVNO_TAG_STATE,                  // 3
-    AP_REP_PVNO_STATE,                      // 4
+    AP_REP_PVNO_TAG_STATE, // 3
+    AP_REP_PVNO_STATE, // 4
 
-    AP_REP_MSG_TYPE_TAG_STATE,              // 5
-    AP_REP_MSG_TYPE_STATE,                  // 6
+    AP_REP_MSG_TYPE_TAG_STATE, // 5
+    AP_REP_MSG_TYPE_STATE, // 6
 
-    AP_REP_ENC_PART_STATE,                  // 7
+    AP_REP_ENC_PART_STATE, // 7
 
     // End
-    LAST_AP_REP_STATE;                      // 8
-
+    LAST_AP_REP_STATE; // 8
 
     /**
      * Get the grammar name

@@ -71,7 +71,8 @@ public class ConfigWriterTest
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
-    
+
+
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -86,7 +87,7 @@ public class ConfigWriterTest
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -107,7 +108,7 @@ public class ConfigWriterTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -120,7 +121,8 @@ public class ConfigWriterTest
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
 
         // Creating of the config partition
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory,
+            executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
@@ -138,12 +140,12 @@ public class ConfigWriterTest
         // Reading the original config file
         LdifReader ldifReader = new LdifReader( configFile );
         List<LdifEntry> originalConfigEntries = new ArrayList<LdifEntry>();
-        
+
         while ( ldifReader.hasNext() )
         {
             originalConfigEntries.add( ldifReader.next() );
         }
-        
+
         ldifReader.close();
 
         // Getting the list of entries of generated config

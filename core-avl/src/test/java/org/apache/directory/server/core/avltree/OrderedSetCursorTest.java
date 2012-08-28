@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.junit.Test;
 
+
 public class OrderedSetCursorTest
 {
     @Test
@@ -37,10 +39,10 @@ public class OrderedSetCursorTest
     {
         OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
         OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        
+
         try
         {
             cursor.get();
@@ -50,46 +52,46 @@ public class OrderedSetCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.first() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.last() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
         cursor.before( 3 );
         assertFalse( cursor.available() );
-        
+
         cursor.after( 3 );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
         assertTrue( cursor.isClosed() );
     }
-    
-    
+
+
     @Test
     public void testOneEntryCursor() throws Exception
     {
         OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
         set.insert( new Integer( 7 ) );
         OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
-        
+
         try
         {
             cursor.get();
@@ -99,27 +101,27 @@ public class OrderedSetCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertFalse( cursor.previous() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( 7, cursor.get().intValue() );
-        
+
         cursor.afterLast();
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
@@ -173,22 +175,22 @@ public class OrderedSetCursorTest
         assertTrue( cursor.available() );
         assertEquals( 7, cursor.get().intValue() );
     }
-    
-    
+
+
     @Test
     public void testManyEntriesCursor() throws Exception
-    {        
+    {
         OrderedSet<Integer> set = new OrderedSet<Integer>( new IntegerComparator() );
         set.insert( new Integer( 3 ) );
         set.insert( new Integer( 7 ) );
         set.insert( new Integer( 10 ) );
         set.insert( new Integer( 11 ) );
         OrderedSetCursor<Integer> cursor = new OrderedSetCursor<Integer>( set );
-        
+
         assertFalse( cursor.isClosed() );
         assertFalse( cursor.available() );
         assertEquals( 4, set.getSize() );
-        
+
         try
         {
             cursor.get();
@@ -198,7 +200,7 @@ public class OrderedSetCursorTest
         {
             assertNotNull( e );
         }
-        
+
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
@@ -215,8 +217,7 @@ public class OrderedSetCursorTest
         assertEquals( 11, cursor.get().intValue() );
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
-        
+
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
@@ -233,16 +234,16 @@ public class OrderedSetCursorTest
         assertEquals( 3, cursor.get().intValue() );
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        
+
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        
+
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
-        
+
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
 
@@ -372,8 +373,7 @@ public class OrderedSetCursorTest
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
     }
-   
-    
+
     class IntegerComparator implements Comparator<Integer>
     {
         public int compare( Integer o1, Integer o2 )

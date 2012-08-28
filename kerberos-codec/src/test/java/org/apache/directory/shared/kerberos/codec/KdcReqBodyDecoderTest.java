@@ -66,123 +66,123 @@ public class KdcReqBodyDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x15B );
-        
+
         stream.put( new byte[]
-        {
-            0x30, (byte)0x82, 0x01, 0x57, 
-              (byte)0xA0, 0x07,
-                0x03, 0x05, 
-                  0x00, 0x01, 0x04, 0x00, 0x32, 
-              (byte)0xA1, 0x13, 
-                0x30, 0x11, 
-                  (byte)0xA0, 0x03, 
-                    0x02, 0x01, 0x0A, 
-                  (byte)0xA1, 0x0A, 
-                    0x30, 0x08, 
-                      0x1B, 0x06, 
-                        'c', 'l', 'i', 'e', 'n', 't', 
-              (byte)0xA2, 0x0D, 
-                0x1B, 0x0B, 
-                  'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-              (byte)0xA3, 0x13, 
-                0x30, 0x11, 
-                  (byte)0xA0, 0x03, 
-                    0x02, 0x01, 0x0A, 
-                  (byte)0xA1, 0x0A, 
-                    0x30, 0x08, 
-                      0x1B, 0x06, 
-                        's', 'e', 'r', 'v', 'e', 'r', 
-              (byte)0xA4, 0x11, 
-                0x18, 0x0F, 
-                  '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-              (byte)0xA5, 0x11, 
-                0x18, 0x0F, 
-                  '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-              (byte)0xA6, 0x11, 
-                0x18, 0x0F, 
-                  '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-              (byte)0xA7, 0x04, 
-                0x02, 0x02, 
-                  0x30, 0x39, 
-              (byte)0xA8, 0x0B, 
-                0x30, 0x09, 
-                  0x02, 0x01, 0x06, 
-                  0x02, 0x01, 0x11, 
-                  0x02, 0x01, 0x12, 
-              (byte)0xA9, 0x2E, 
-                0x30, 0x2C, 
-                  0x30, 0x14, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x02, 
-                    (byte)0xA1, 0x0D, 
-                      0x04, 0x0B, 
-                        '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1', 
-                  0x30, 0x14, 
-                    (byte)0xA0, 0x03, 
-                      0x02, 0x01, 0x02, 
-                    (byte)0xA1, 0x0D, 
-                      0x04, 0x0B, 
-                        '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '2', 
-              (byte)0xAA, 0x11, 
-                0x30, 0x0F, 
-                  (byte)0xA0, 0x03, 
-                    0x02, 0x01, 0x11, 
-                  (byte)0xA2, 0x08, 
-                    0x04, 0x06, 
-                      'a', 'b', 'c', 'd', 'e', 'f', 
-              (byte)0xAB, (byte)0x81, (byte)0x83, 
-                0x30, (byte)0x81, (byte)0x80, 
-                  0x61, 0x3E, 
-                    0x30, 0x3C, 
-                      (byte)0xA0, 0x03, 
-                        0x02, 0x01, 0x05, 
-                      (byte)0xA1, 0x0D, 
-                        0x1B, 0x0B, 
-                          'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-                      (byte)0xA2, 0x13, 
-                        0x30, 0x11, 
-                          (byte)0xA0, 0x03, 
-                            0x02, 0x01, 0x01, 
-                          (byte)0xA1, 0x0A, 
-                            0x30, 0x08, 
-                              0x1B, 0x06, 
-                                'c', 'l', 'i', 'e', 'n', 't', 
-                      (byte)0xA3, 0x11, 
-                        0x30, 0x0F, 
-                          (byte)0xA0, 0x03, 
-                            0x02, 0x01, 0x11, 
-                          (byte)0xA2, 0x08, 
-                            0x04, 0x06, 
-                              'a', 'b', 'c', 'd', 'e', 'f', 
-                  0x61, 0x3E, 
-                    0x30, 0x3C, 
-                      (byte)0xA0, 0x03, 
-                        0x02, 0x01, 0x05, 
-                      (byte)0xA1, 0x0D, 
-                        0x1B, 0x0B, 
-                          'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                      (byte)0xA2, 0x13, 
-                        0x30, 0x11, 
-                          (byte)0xA0, 0x03, 
-                            0x02, 0x01, 0x01, 
-                          (byte)0xA1, 0x0A, 
-                            0x30, 0x08, 
-                              0x1B, 0x06, 
-                                's', 'e', 'r', 'v', 'e', 'r', 
-                      (byte)0xA3, 0x11, 
-                        0x30, 0x0F, 
-                          (byte)0xA0, 0x03, 
-                            0x02, 0x01, 0x11, 
-                          (byte)0xA2, 0x08, 
-                            0x04, 0x06, 
-                              'a', 'b', 'c', 'd', 'e', 'f'
-        });
+            {
+                0x30, ( byte ) 0x82, 0x01, 0x57,
+                ( byte ) 0xA0, 0x07,
+                0x03, 0x05,
+                0x00, 0x01, 0x04, 0x00, 0x32,
+                ( byte ) 0xA1, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                'c', 'l', 'i', 'e', 'n', 't',
+                ( byte ) 0xA2, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA3, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                's', 'e', 'r', 'v', 'e', 'r',
+                ( byte ) 0xA4, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA5, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA6, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA7, 0x04,
+                0x02, 0x02,
+                0x30, 0x39,
+                ( byte ) 0xA8, 0x0B,
+                0x30, 0x09,
+                0x02, 0x01, 0x06,
+                0x02, 0x01, 0x11,
+                0x02, 0x01, 0x12,
+                ( byte ) 0xA9, 0x2E,
+                0x30, 0x2C,
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x02,
+                ( byte ) 0xA1, 0x0D,
+                0x04, 0x0B,
+                '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1',
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x02,
+                ( byte ) 0xA1, 0x0D,
+                0x04, 0x0B,
+                '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '2',
+                ( byte ) 0xAA, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f',
+                ( byte ) 0xAB, ( byte ) 0x81, ( byte ) 0x83,
+                0x30, ( byte ) 0x81, ( byte ) 0x80,
+                0x61, 0x3E,
+                0x30, 0x3C,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                'c', 'l', 'i', 'e', 'n', 't',
+                ( byte ) 0xA3, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f',
+                0x61, 0x3E,
+                0x30, 0x3C,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                's', 'e', 'r', 'v', 'e', 'r',
+                ( byte ) 0xA3, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f'
+        } );
 
         stream.flip();
 
         // Allocate a KdcReqBody Container
         Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
-        
+
         // Decode the KdcReqBody PDU
         try
         {
@@ -194,35 +194,37 @@ public class KdcReqBodyDecoderTest
         }
 
         KdcReqBody body = new KdcReqBody();
-        
-        body.setKdcOptions( new KdcOptions( new byte[]{0x00, 0x01, 0x04, 0x00, 0x32} ) );
+
+        body.setKdcOptions( new KdcOptions( new byte[]
+            { 0x00, 0x01, 0x04, 0x00, 0x32 } ) );
         body.setCName( new PrincipalName( "client", PrincipalNameType.KRB_NT_ENTERPRISE ) );
         body.setRealm( "EXAMPLE.COM" );
         body.setSName( new PrincipalName( "server", PrincipalNameType.KRB_NT_ENTERPRISE ) );
-        
+
         body.setFrom( new KerberosTime( System.currentTimeMillis() ) );
         body.setTill( new KerberosTime( System.currentTimeMillis() ) );
         body.setRtime( new KerberosTime( System.currentTimeMillis() ) );
         body.setNonce( 12345 );
-        
+
         body.addEType( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
         body.addEType( EncryptionType.DES3_CBC_MD5 );
         body.addEType( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        
+
         HostAddresses addresses = new HostAddresses();
         addresses.addHostAddress( new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.1".getBytes() ) );
         addresses.addHostAddress( new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.2".getBytes() ) );
         body.setAddresses( addresses );
 
-        EncryptedData encAuthorizationData = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes() );
+        EncryptedData encAuthorizationData = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96,
+            "abcdef".getBytes() );
         body.setEncAuthorizationData( encAuthorizationData );
-        
+
         Ticket ticket1 = new Ticket();
         ticket1.setTktVno( 5 );
         ticket1.setRealm( "EXAMPLE.COM" );
         ticket1.setSName( new PrincipalName( "client", PrincipalNameType.KRB_NT_PRINCIPAL ) );
         ticket1.setEncPart( new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes() ) );
-        
+
         body.addAdditionalTicket( ticket1 );
 
         Ticket ticket2 = new Ticket();
@@ -230,22 +232,22 @@ public class KdcReqBodyDecoderTest
         ticket2.setRealm( "EXAMPLE.COM" );
         ticket2.setSName( new PrincipalName( "server", PrincipalNameType.KRB_NT_PRINCIPAL ) );
         ticket2.setEncPart( new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes() ) );
-        
+
         body.addAdditionalTicket( ticket2 );
-        
+
         // Check the encoding
         int length = body.computeLength();
 
         // Check the length
         assertEquals( 0x15B, length );
-        
+
         // Check the encoding
         ByteBuffer encodedPdu = ByteBuffer.allocate( length );
-        
+
         try
         {
             encodedPdu = body.encode( encodedPdu );
-    
+
             // Check the length
             assertEquals( 0x15B, encodedPdu.limit() );
         }
@@ -254,18 +256,18 @@ public class KdcReqBodyDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a KDC-REQ-BODY with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -278,23 +280,23 @@ public class KdcReqBodyDecoderTest
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a KDC-REQ-BODY with empty options tag
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmptyOptionTag() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x02,
-                  (byte)0xA0, 0x00
-            } );
+                ( byte ) 0xA0, 0x00
+        } );
 
         stream.flip();
 
@@ -305,24 +307,24 @@ public class KdcReqBodyDecoderTest
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a KDC-REQ-BODY with empty options value
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmptyOptionValue() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
-        
+
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x04,
-                  (byte)0xA0, 0x02,
-                    0x02, 0x00
-            } );
+                ( byte ) 0xA0, 0x02,
+                0x02, 0x00
+        } );
 
         stream.flip();
 
@@ -333,125 +335,125 @@ public class KdcReqBodyDecoderTest
         kerberosDecoder.decode( stream, kdcReqBodyContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a KDC-REQ-BODY with no options
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testKdcReqBodyNoOptions() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x152 );
-        
+
         stream.put( new byte[]
-             {
-                 0x30, (byte)0x82, 0x01, 0x4E, 
-                   (byte)0xA1, 0x13, 
-                     0x30, 0x11, 
-                       (byte)0xA0, 0x03, 
-                         0x02, 0x01, 0x0A, 
-                       (byte)0xA1, 0x0A, 
-                         0x30, 0x08, 
-                           0x1B, 0x06, 
-                             'c', 'l', 'i', 'e', 'n', 't', 
-                   (byte)0xA2, 0x0D, 
-                     0x1B, 0x0B, 
-                       'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-                   (byte)0xA3, 0x13, 
-                     0x30, 0x11, 
-                       (byte)0xA0, 0x03, 
-                         0x02, 0x01, 0x0A, 
-                       (byte)0xA1, 0x0A, 
-                         0x30, 0x08, 
-                           0x1B, 0x06, 
-                             's', 'e', 'r', 'v', 'e', 'r', 
-                   (byte)0xA4, 0x11, 
-                     0x18, 0x0F, 
-                       '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-                   (byte)0xA5, 0x11, 
-                     0x18, 0x0F, 
-                       '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-                   (byte)0xA6, 0x11, 
-                     0x18, 0x0F, 
-                       '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-                   (byte)0xA7, 0x04, 
-                     0x02, 0x02, 
-                       0x30, 0x39, 
-                   (byte)0xA8, 0x0B, 
-                     0x30, 0x09, 
-                       0x02, 0x01, 0x06, 
-                       0x02, 0x01, 0x11, 
-                       0x02, 0x01, 0x12, 
-                   (byte)0xA9, 0x2E, 
-                     0x30, 0x2C, 
-                       0x30, 0x14, 
-                         (byte)0xA0, 0x03, 
-                           0x02, 0x01, 0x02, 
-                         (byte)0xA1, 0x0D, 
-                           0x04, 0x0B, 
-                             '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1', 
-                       0x30, 0x14, 
-                         (byte)0xA0, 0x03, 
-                           0x02, 0x01, 0x02, 
-                         (byte)0xA1, 0x0D, 
-                           0x04, 0x0B, 
-                             '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '2', 
-                   (byte)0xAA, 0x11, 
-                     0x30, 0x0F, 
-                       (byte)0xA0, 0x03, 
-                         0x02, 0x01, 0x11, 
-                       (byte)0xA2, 0x08, 
-                         0x04, 0x06, 
-                           'a', 'b', 'c', 'd', 'e', 'f', 
-                   (byte)0xAB, (byte)0x81, (byte)0x83, 
-                     0x30, (byte)0x81, (byte)0x80, 
-                       0x61, 0x3E, 
-                         0x30, 0x3C, 
-                           (byte)0xA0, 0x03, 
-                             0x02, 0x01, 0x05, 
-                           (byte)0xA1, 0x0D, 
-                             0x1B, 0x0B, 
-                               'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-                           (byte)0xA2, 0x13, 
-                             0x30, 0x11, 
-                               (byte)0xA0, 0x03, 
-                                 0x02, 0x01, 0x01, 
-                               (byte)0xA1, 0x0A, 
-                                 0x30, 0x08, 
-                                   0x1B, 0x06, 
-                                     'c', 'l', 'i', 'e', 'n', 't', 
-                           (byte)0xA3, 0x11, 
-                             0x30, 0x0F, 
-                               (byte)0xA0, 0x03, 
-                                 0x02, 0x01, 0x11, 
-                               (byte)0xA2, 0x08, 
-                                 0x04, 0x06, 
-                                   'a', 'b', 'c', 'd', 'e', 'f', 
-                       0x61, 0x3E, 
-                         0x30, 0x3C, 
-                           (byte)0xA0, 0x03, 
-                             0x02, 0x01, 0x05, 
-                           (byte)0xA1, 0x0D, 
-                             0x1B, 0x0B, 
-                               'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                           (byte)0xA2, 0x13, 
-                             0x30, 0x11, 
-                               (byte)0xA0, 0x03, 
-                                 0x02, 0x01, 0x01, 
-                               (byte)0xA1, 0x0A, 
-                                 0x30, 0x08, 
-                                   0x1B, 0x06, 
-                                     's', 'e', 'r', 'v', 'e', 'r', 
-                           (byte)0xA3, 0x11, 
-                             0x30, 0x0F, 
-                               (byte)0xA0, 0x03, 
-                                 0x02, 0x01, 0x11, 
-                               (byte)0xA2, 0x08, 
-                                 0x04, 0x06, 
-                                   'a', 'b', 'c', 'd', 'e', 'f'
-             });
+            {
+                0x30, ( byte ) 0x82, 0x01, 0x4E,
+                ( byte ) 0xA1, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                'c', 'l', 'i', 'e', 'n', 't',
+                ( byte ) 0xA2, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA3, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x0A,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                's', 'e', 'r', 'v', 'e', 'r',
+                ( byte ) 0xA4, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA5, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA6, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA7, 0x04,
+                0x02, 0x02,
+                0x30, 0x39,
+                ( byte ) 0xA8, 0x0B,
+                0x30, 0x09,
+                0x02, 0x01, 0x06,
+                0x02, 0x01, 0x11,
+                0x02, 0x01, 0x12,
+                ( byte ) 0xA9, 0x2E,
+                0x30, 0x2C,
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x02,
+                ( byte ) 0xA1, 0x0D,
+                0x04, 0x0B,
+                '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '1',
+                0x30, 0x14,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x02,
+                ( byte ) 0xA1, 0x0D,
+                0x04, 0x0B,
+                '1', '9', '2', '.', '1', '6', '8', '.', '0', '.', '2',
+                ( byte ) 0xAA, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f',
+                ( byte ) 0xAB, ( byte ) 0x81, ( byte ) 0x83,
+                0x30, ( byte ) 0x81, ( byte ) 0x80,
+                0x61, 0x3E,
+                0x30, 0x3C,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                'c', 'l', 'i', 'e', 'n', 't',
+                ( byte ) 0xA3, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f',
+                0x61, 0x3E,
+                0x30, 0x3C,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x05,
+                ( byte ) 0xA1, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA2, 0x13,
+                0x30, 0x11,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x01,
+                ( byte ) 0xA1, 0x0A,
+                0x30, 0x08,
+                0x1B, 0x06,
+                's', 'e', 'r', 'v', 'e', 'r',
+                ( byte ) 0xA3, 0x11,
+                0x30, 0x0F,
+                ( byte ) 0xA0, 0x03,
+                0x02, 0x01, 0x11,
+                ( byte ) 0xA2, 0x08,
+                0x04, 0x06,
+                'a', 'b', 'c', 'd', 'e', 'f'
+        } );
 
         stream.flip();
 
@@ -474,35 +476,35 @@ public class KdcReqBodyDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x40 );
-        
-        stream.put( new byte[]
-        {
-            0x30, (byte)0x3E, 
-              (byte)0xA0, 0x07,
-                0x03, 0x05, 
-                  0x00, 0x01, 0x04, 0x00, 0x32, 
-              (byte)0xA2, 0x0D, 
-                0x1B, 0x0B, 
-                  'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M', 
-              (byte)0xA5, 0x11, 
-                0x18, 0x0F, 
-                  '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z', 
-              (byte)0xA7, 0x04, 
-                0x02, 0x02, 
-                  0x30, 0x39, 
-              (byte)0xA8, 0x0B, 
-                0x30, 0x09, 
-                  0x02, 0x01, 0x06, 
-                  0x02, 0x01, 0x11, 
-                  0x02, 0x01, 0x12
-        });
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, ( byte ) 0x3E,
+                ( byte ) 0xA0, 0x07,
+                0x03, 0x05,
+                0x00, 0x01, 0x04, 0x00, 0x32,
+                ( byte ) 0xA2, 0x0D,
+                0x1B, 0x0B,
+                'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
+                ( byte ) 0xA5, 0x11,
+                0x18, 0x0F,
+                '2', '0', '1', '0', '1', '1', '1', '0', '1', '5', '4', '5', '2', '5', 'Z',
+                ( byte ) 0xA7, 0x04,
+                0x02, 0x02,
+                0x30, 0x39,
+                ( byte ) 0xA8, 0x0B,
+                0x30, 0x09,
+                0x02, 0x01, 0x06,
+                0x02, 0x01, 0x11,
+                0x02, 0x01, 0x12
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a KdcReqBody Container
         KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer( stream );
-        
+
         // Decode the KdcReqBody PDU
         try
         {
@@ -514,21 +516,21 @@ public class KdcReqBodyDecoderTest
         }
 
         KdcReqBody body = kdcReqBodyContainer.getKdcReqBody();
-        
+
         assertNotNull( body );
-        
+
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( body.computeLength() );
 
         try
         {
             bb = body.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x40, bb.limit() );
 
-            String encodedPdu = Strings.dumpBytes(bb.array());
-            
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             //assertEquals( decodedPdu, encodedPdu );
         }
         catch ( EncoderException ee )

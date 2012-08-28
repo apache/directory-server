@@ -54,13 +54,13 @@ public abstract class AbstractOperationContext implements OperationContext
     protected Entry originalEntry;
 
     /** The associated request's controls */
-    protected Map<String, Control> requestControls = new HashMap<String, Control>(4);
-    
+    protected Map<String, Control> requestControls = new HashMap<String, Control>( 4 );
+
     /** Original request controls used in case of a reset */
-    protected Map<String, Control> originalRequestControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> originalRequestControls = new HashMap<String, Control>( 4 );
 
     /** The associated response's controls */
-    protected Map<String, Control> responseControls = new HashMap<String, Control>(4);
+    protected Map<String, Control> responseControls = new HashMap<String, Control>( 4 );
 
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
@@ -108,8 +108,8 @@ public abstract class AbstractOperationContext implements OperationContext
         // the entries, even if they are referrals.
         ignoreReferral();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -117,8 +117,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         originalRequestControls.putAll( requestControls );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -132,7 +132,7 @@ public abstract class AbstractOperationContext implements OperationContext
         entry = null;
         responseControls.clear();
         requestControls = originalRequestControls;
-        originalRequestControls = new HashMap<String, Control>(4);
+        originalRequestControls = new HashMap<String, Control>( 4 );
     }
 
 
@@ -215,7 +215,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasRequestControls()
     {
-        return ! requestControls.isEmpty();
+        return !requestControls.isEmpty();
     }
 
 
@@ -265,7 +265,7 @@ public abstract class AbstractOperationContext implements OperationContext
      */
     public boolean hasResponseControls()
     {
-        return ! responseControls.isEmpty();
+        return !responseControls.isEmpty();
     }
 
 
@@ -347,8 +347,8 @@ public abstract class AbstractOperationContext implements OperationContext
 
         return interceptor;
     }
-    
-    
+
+
     /**
      * @return The number of the current interceptor in the list
      */
@@ -356,8 +356,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         return currentInterceptor;
     }
-    
-    
+
+
     /**
      * Sets the current interceptor number to a new value.
      * 
@@ -409,11 +409,11 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
         setup( lookupContext );
-        
+
         return lookupContext;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

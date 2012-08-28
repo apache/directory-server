@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.codec;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -33,6 +34,7 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
+
 /**
  * Test cases for PaEncTsEnc codec.
  *
@@ -44,24 +46,42 @@ public class PaEncTsEncDecoderTest
     public void testDecodeFullPaEncTsEnc()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x1A );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x18,
-                  (byte)0xA0, 0x11,                 // PaTimestamp
-                    0x18, 0x0F, 
-                      '2', '0', '1', '0', '1', '0', '1', '0', '2', '3', '4', '5', '4', '5', 'Z',
-                  (byte)0xA1, 0x03,                 // PaUsec
-                    0x02, 0x01, 0x01
-            } );
-        
-        String decodedPdu = Strings.dumpBytes(stream.array());
+                ( byte ) 0xA0, 0x11, // PaTimestamp
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '0',
+                '1',
+                '0',
+                '2',
+                '3',
+                '4',
+                '5',
+                '4',
+                '5',
+                'Z',
+                ( byte ) 0xA1,
+                0x03, // PaUsec
+                0x02,
+                0x01,
+                0x01
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, paEncTsEncContainer );
@@ -72,21 +92,21 @@ public class PaEncTsEncDecoderTest
         }
 
         PaEncTsEnc paEncTsEnc = paEncTsEncContainer.getPaEncTsEnc();
-        
+
         assertEquals( "20101010234545Z", paEncTsEnc.getPaTimestamp().toString() );
         assertEquals( 1, paEncTsEnc.getPausec() );
-        
+
         ByteBuffer bb = ByteBuffer.allocate( paEncTsEnc.computeLength() );
-        
+
         try
         {
             bb = paEncTsEnc.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x1A, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -95,19 +115,19 @@ public class PaEncTsEncDecoderTest
         }
     }
 
-    
-    @Test( expected = DecoderException.class )
+
+    @Test(expected = DecoderException.class)
     public void testDecodePaEncTsEncWithEmptySeq() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 2 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x0
-            } );
-        
+        } );
+
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -116,20 +136,20 @@ public class PaEncTsEncDecoderTest
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class )
+
+    @Test(expected = DecoderException.class)
     public void testDecodePaEncTsEncEmptyPaTimestamp() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 4 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x02,
-                  (byte)0xA0, 0x00
-            } );
-        
+                ( byte ) 0xA0, 0x00
+        } );
+
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -138,21 +158,21 @@ public class PaEncTsEncDecoderTest
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class )
+
+    @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNullPaTimestamp() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 6 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x04,
-                  (byte)0xA0, 0x02,
-                    0x18, 0x00
-            } );
-        
+                ( byte ) 0xA0, 0x02,
+                0x18, 0x00
+        } );
+
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -161,21 +181,23 @@ public class PaEncTsEncDecoderTest
         fail();
     }
 
-    
-    @Test( expected = DecoderException.class )
+
+    @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNoPaTimestamp() throws DecoderException
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
-             { 
-                 0x30, 0x05,
-                   (byte)0xA1, 0x03,                 // PaUsec
-                     0x02, 0x01, 0x01
-             } );
-         
+            {
+                0x30, 0x05,
+                ( byte ) 0xA1, 0x03, // PaUsec
+                0x02,
+                0x01,
+                0x01
+        } );
+
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
@@ -189,22 +211,37 @@ public class PaEncTsEncDecoderTest
     public void testDecodePaEncTsEncNoPaUsec()
     {
         Asn1Decoder krbDecoder = new Asn1Decoder();
-        
+
         ByteBuffer stream = ByteBuffer.allocate( 0x15 );
 
         stream.put( new byte[]
-            { 
+            {
                 0x30, 0x13,
-                  (byte)0xA0, 0x11,                 // PaTimestamp
-                    0x18, 0x0F, 
-                      '2', '0', '1', '0', '1', '0', '1', '0', '2', '3', '4', '5', '4', '5', 'Z',
-            } );
-        
-        String decodedPdu = Strings.dumpBytes(stream.array());
+                ( byte ) 0xA0, 0x11, // PaTimestamp
+                0x18,
+                0x0F,
+                '2',
+                '0',
+                '1',
+                '0',
+                '1',
+                '0',
+                '1',
+                '0',
+                '2',
+                '3',
+                '4',
+                '5',
+                '4',
+                '5',
+                'Z',
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
-        
+
         try
         {
             krbDecoder.decode( stream, paEncTsEncContainer );
@@ -215,21 +252,21 @@ public class PaEncTsEncDecoderTest
         }
 
         PaEncTsEnc paEncTsEnc = paEncTsEncContainer.getPaEncTsEnc();
-        
+
         assertEquals( "20101010234545Z", paEncTsEnc.getPaTimestamp().toString() );
         assertEquals( -1, paEncTsEnc.getPausec() );
-        
+
         ByteBuffer bb = ByteBuffer.allocate( paEncTsEnc.computeLength() );
-        
+
         try
         {
             bb = paEncTsEnc.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x15, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )

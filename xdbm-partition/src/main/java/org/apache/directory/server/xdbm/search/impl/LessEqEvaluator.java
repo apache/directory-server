@@ -48,8 +48,8 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
     public LessEqEvaluator( LessEqNode<T> node, Partition db, SchemaManager schemaManager,
-            TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory    )
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         super( node, db, schemaManager, txnManagerFactory, executionManagerFactory );
@@ -57,7 +57,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T> ) db.getIndex( attributeType );
-            idx = ( Index<T> ) txnLogManager.wrap(db.getSuffixDn(), idx );
+            idx = ( Index<T> ) txnLogManager.wrap( db.getSuffixDn(), idx );
         }
         else
         {
@@ -89,7 +89,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
 
     public LessEqNode<T> getExpression()
     {
-        return (LessEqNode<T>)node;
+        return ( LessEqNode<T> ) node;
     }
 
 

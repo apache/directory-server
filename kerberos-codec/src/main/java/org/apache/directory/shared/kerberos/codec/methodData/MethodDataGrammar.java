@@ -69,10 +69,10 @@ public final class MethodDataGrammar extends AbstractGrammar<MethodDataContainer
         // METHOD-DATA         ::= SEQUENCE
         super.transitions[MethodDataStatesEnum.START_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<MethodDataContainer>(
-            MethodDataStatesEnum.START_STATE,
-            MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
-            UniversalTag.SEQUENCE,
-            new CheckNotNullLength<MethodDataContainer>() );
+                MethodDataStatesEnum.START_STATE,
+                MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
+                UniversalTag.SEQUENCE,
+                new CheckNotNullLength<MethodDataContainer>() );
 
         // --------------------------------------------------------------------------------------------
         // Transition from METHOD-DATA SEQ to PA-DATA
@@ -81,10 +81,10 @@ public final class MethodDataGrammar extends AbstractGrammar<MethodDataContainer
         //
         super.transitions[MethodDataStatesEnum.METHOD_DATA_SEQ_STATE.ordinal()][UniversalTag.SEQUENCE.getValue()] =
             new GrammarTransition<MethodDataContainer>(
-            MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
-            MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
-            UniversalTag.SEQUENCE,
-            new AddPaData() );
+                MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
+                MethodDataStatesEnum.METHOD_DATA_SEQ_STATE,
+                UniversalTag.SEQUENCE,
+                new AddPaData() );
     }
 
 

@@ -58,7 +58,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
     /** The encryption type */
     private EncryptionType etype;
-    
+
     /** The salt */
     private byte[] salt;
 
@@ -66,6 +66,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
     private int etypeTagLength;
     private int saltTagLength;
     private int etypeInfoEntrySeqLength;
+
 
     /**
      * Creates a new instance of ETypeInfoEntry.
@@ -107,7 +108,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
         this.salt = salt;
     }
 
-    
+
     /**
      * Returns the {@link EncryptionType}.
      *
@@ -218,14 +219,14 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "ETYPE-INFO-ENTRY encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "ETYPE-INFO-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "ETYPE-INFO-ENTRY initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -238,7 +239,7 @@ public class ETypeInfoEntry extends AbstractAsn1Object
 
         if ( salt != null )
         {
-            sb.append( "    salt: " ).append( Strings.dumpBytes(salt) ).append( '\n' );
+            sb.append( "    salt: " ).append( Strings.dumpBytes( salt ) ).append( '\n' );
         }
 
         sb.append( "}\n" );

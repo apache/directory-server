@@ -56,8 +56,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( factory=DefaultDirectoryServiceFactory.class, name="SubentryServiceEntryModificationHandlingIT-class" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "SubentryServiceEntryModificationHandlingIT-class")
 public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTestUnit
 {
 
@@ -109,16 +109,16 @@ public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTest
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-        
+
         while ( results.hasMore() )
         {
             SearchResult result = results.next();
             resultMap.put( result.getName(), result.getAttributes() );
         }
-        
+
         return resultMap;
     }
-    
+
 
     @Test
     public void testTrackingOfEntryModificationsInSubentryServiceModifyRoutine() throws Exception
@@ -140,10 +140,11 @@ public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTest
 
         //----------------------------------------------------------------------
 
-        Attribute attr = new BasicAttribute( "sn", "changedSn");
-        ModificationItem mod = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attr);
-        ModificationItem[] mods = new ModificationItem[] { mod };
-        
+        Attribute attr = new BasicAttribute( "sn", "changedSn" );
+        ModificationItem mod = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        ModificationItem[] mods = new ModificationItem[]
+            { mod };
+
         sysRoot.modifyAttributes( "cn=testEntry", mods );
 
         results = getAllEntries();

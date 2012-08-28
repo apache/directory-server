@@ -37,14 +37,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
+class DupsCursor<K, V> extends AbstractTupleCursor<K, V>
 {
     private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class.getSimpleName() );
-    
+
     /**
      * The JDBM backed table this Cursor traverses over.
      */
-    private final JdbmTable<K,V> table;
+    private final JdbmTable<K, V> table;
 
     /**
      * An wrappedCursor Cursor which returns Tuples whose values are
@@ -52,12 +52,12 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
      * objects used to store the values of duplicate keys.  It does not return
      * different values for the same key.
      */
-    private final DupsContainerCursor<K,V> containerCursor;
+    private final DupsContainerCursor<K, V> containerCursor;
 
     /**
      * The current Tuple returned from the wrappedCursor DupsContainerCursor.
      */
-    private final Tuple<K,DupsContainer<V>> containerTuple = new Tuple<K, DupsContainer<V>>();
+    private final Tuple<K, DupsContainer<V>> containerTuple = new Tuple<K, DupsContainer<V>>();
 
     /**
      * A Cursor over a set of value objects for the current key held in the
@@ -73,7 +73,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
      * same Tuple instance will be returned every time.  At different
      * positions it may return different values for the same key.
      */
-    private final Tuple<K,V> returnedTuple = new Tuple<K,V>();
+    private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
 
     /**
      * Whether or not a value is available when get() is called.
@@ -81,10 +81,10 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
     private boolean valueAvailable;
 
 
-    public DupsCursor( JdbmTable<K,V> table ) throws Exception
+    public DupsCursor( JdbmTable<K, V> table ) throws Exception
     {
         this.table = table;
-        this.containerCursor = new DupsContainerCursor<K,V>( table );
+        this.containerCursor = new DupsContainerCursor<K, V>( table );
         LOG.debug( "Created on table {}", table );
     }
 
@@ -104,7 +104,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
     public void beforeValue( K key, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        containerCursor.before( new Tuple<K,DupsContainer<V>>( key, null ) );
+        containerCursor.before( new Tuple<K, DupsContainer<V>>( key, null ) );
 
         if ( containerCursor.next() )
         {
@@ -174,11 +174,11 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
 
         if ( value == null )
         {
-            containerCursor.after( new Tuple<K,DupsContainer<V>>( key, null ) );
+            containerCursor.after( new Tuple<K, DupsContainer<V>>( key, null ) );
         }
         else
         {
-            containerCursor.before( new Tuple<K,DupsContainer<V>>( key, null ) );
+            containerCursor.before( new Tuple<K, DupsContainer<V>>( key, null ) );
         }
 
         if ( containerCursor.next() )
@@ -217,13 +217,13 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public void before( Tuple<K,V> element ) throws Exception
+    public void before( Tuple<K, V> element ) throws Exception
     {
         beforeValue( element.getKey(), element.getValue() );
     }
 
 
-    public void after( Tuple<K,V> element ) throws Exception
+    public void after( Tuple<K, V> element ) throws Exception
     {
         afterValue( element.getKey(), element.getValue() );
     }
@@ -278,7 +278,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
              * call to last() will always return true.
              */
             dupsCursor.first();
-            valueAvailable =  true;
+            valueAvailable = true;
             returnedTuple.setKey( containerTuple.getKey() );
             returnedTuple.setValue( dupsCursor.get() );
             return true;
@@ -326,7 +326,6 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-
     private void clearValue()
     {
         returnedTuple.setKey( null );
@@ -342,7 +341,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.
          */
-        if ( null == dupsCursor || ! dupsCursor.previous() )
+        if ( null == dupsCursor || !dupsCursor.previous() )
         {
             /*
              * If the wrappedCursor cursor has more elements we get the previous
@@ -394,7 +393,7 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the next key.
          */
-        if ( null == dupsCursor || ! dupsCursor.next() )
+        if ( null == dupsCursor || !dupsCursor.next() )
         {
             /*
              * If the wrappedCursor cursor has more elements we get the next
@@ -445,19 +444,19 @@ class DupsCursor<K,V> extends AbstractTupleCursor<K,V>
     }
 
 
-    public Tuple<K,V> get() throws Exception
+    public Tuple<K, V> get() throws Exception
     {
         checkNotClosed( "get()" );
 
-        if ( ! valueAvailable )
+        if ( !valueAvailable )
         {
             throw new InvalidCursorPositionException();
         }
 
         return returnedTuple;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

@@ -42,8 +42,8 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
 {
     private OperationContext opContext;
     private Map<Class<?>, MicroInjector> injectors;
-    
-    
+
+
     public AbstractStoredProcedureParameterInjector( OperationContext opContext )
     {
         this.opContext = opContext;
@@ -51,52 +51,51 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, $operationPrincipalInjector );
         injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, $ldapContextInjector );
     }
-    
-    
+
+
     protected Dn getOperationPrincipal() throws LdapInvalidDnException
     {
         Principal principal = opContext.getSession().getEffectivePrincipal();
         Dn userName = opContext.getSession().getDirectoryService().getDnFactory().create( principal.getName() );
         return userName;
     }
-    
-    
+
+
     protected Map<Class<?>, MicroInjector> getInjectors()
     {
         return injectors;
     }
-    
-    
+
+
     public OperationContext getOperationContext()
     {
         return opContext;
     }
-    
-    
+
+
     public void setOperationContext( OperationContext invocation )
     {
         this.opContext = invocation;
     }
-    
-    
-    public final List<Object> getArgumentsToInject( OperationContext opContext, 
+
+
+    public final List<Object> getArgumentsToInject( OperationContext opContext,
         List<StoredProcedureParameter> parameterList ) throws LdapException
     {
         List<Object> arguments = new ArrayList<Object>();
-        
+
         Iterator<StoredProcedureParameter> it = parameterList.iterator();
-        
+
         while ( it.hasNext() )
         {
             StoredProcedureParameter spParameter = it.next();
             MicroInjector injector = injectors.get( spParameter.getClass() );
             arguments.add( injector.inject( opContext, spParameter ) );
         }
-        
+
         return arguments;
     }
-    
-    
+
     MicroInjector $operationPrincipalInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
@@ -104,19 +103,18 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
             return getOperationPrincipal();
         }
     };
-    
-    
+
     MicroInjector $ldapContextInjector = new MicroInjector()
     {
-        public Object inject(  OperationContext opContext, StoredProcedureParameter param ) throws LdapException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             Dn ldapCtxName = ldapCtxParam.getCtxName();
-            
+
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, ldapCtxName );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            
+
             return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         }
     };

@@ -43,7 +43,8 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( aciContext.getAciTuples().size() <= 1 )
         {
@@ -54,9 +55,9 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // If there are any tuples matching the requestor with UserClasses
         // element name or thisEntry, discard all other tuples.
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
-            for ( UserClass userClass:tuple.getUserClasses() )
+            for ( UserClass userClass : tuple.getUserClasses() )
             {
                 if ( userClass instanceof UserClass.Name || userClass instanceof UserClass.ThisEntry )
                 {
@@ -73,9 +74,9 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching UserGroup,
         // discard all other tuples.
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
-            for ( UserClass userClass:tuple.getUserClasses() )
+            for ( UserClass userClass : tuple.getUserClasses() )
             {
                 if ( userClass instanceof UserClass.UserGroup )
                 {
@@ -92,9 +93,9 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching subtree,
         // discard all other tuples.
-        for ( ACITuple tuple:aciContext.getAciTuples() )
+        for ( ACITuple tuple : aciContext.getAciTuples() )
         {
-            for ( UserClass userClass:tuple.getUserClasses() )
+            for ( UserClass userClass : tuple.getUserClasses() )
             {
                 if ( userClass instanceof UserClass.Subtree )
                 {

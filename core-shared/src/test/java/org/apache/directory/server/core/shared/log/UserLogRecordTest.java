@@ -63,7 +63,7 @@ public class UserLogRecordTest
         {
             oIn = new ObjectInputStream( in );
             oIn.read();
-            
+
             return oIn;
         }
         catch ( IOException ioe )

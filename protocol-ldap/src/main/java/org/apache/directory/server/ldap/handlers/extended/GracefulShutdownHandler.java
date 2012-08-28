@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
  * @todo : missing Javadoc
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GracefulShutdownHandler implements ExtendedOperationHandler<GracefulShutdownRequest, GracefulShutdownResponse>
+public class GracefulShutdownHandler implements
+    ExtendedOperationHandler<GracefulShutdownRequest, GracefulShutdownResponse>
 {
     private static final Logger LOG = LoggerFactory.getLogger( GracefulShutdownHandler.class );
     public static final Set<String> EXTENSION_OIDS;
@@ -74,7 +75,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
     {
         // make sue only the administrator can issue this shutdown request if 
         // not we respond to the requestor with with insufficientAccessRights(50)
-        if ( ! requestor.getCoreSession().isAnAdministrator() )
+        if ( !requestor.getCoreSession().isAnAdministrator() )
         {
             if ( LOG.isInfoEnabled() )
             {
@@ -82,7 +83,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
                     + requestor.getCoreSession().getEffectivePrincipal().getName() );
             }
 
-            requestor.getIoSession().write( new GracefulShutdownResponseImpl( 
+            requestor.getIoSession().write( new GracefulShutdownResponseImpl(
                 req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
             return;
         }
@@ -93,7 +94,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
 
         IoAcceptor acceptor = ( IoAcceptor ) requestor.getIoSession().getService();
         List<IoSession> sessions = new ArrayList<IoSession>(
-                acceptor.getManagedSessions().values() );
+            acceptor.getManagedSessions().values() );
 
         // build the graceful disconnect message with replicationContexts
         GracefulDisconnectResponse notice = getGracefulDisconnect( req.getTimeOffline(), req.getDelay() );
@@ -167,7 +168,8 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
      * @param requestor the session of the graceful shutdown requestor
      * @param sessions the IoSessions to send disconnect message to
      */
-    public static void sendGracefulDisconnect( List<IoSession> sessions, GracefulDisconnectResponse msg, IoSession requestor )
+    public static void sendGracefulDisconnect( List<IoSession> sessions, GracefulDisconnectResponse msg,
+        IoSession requestor )
     {
         List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
 
@@ -249,7 +251,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler<Gracefu
 
         // And close the connections when the NoDs are sent.
         Iterator<IoSession> sessionIt = sessions.iterator();
-        
+
         for ( WriteFuture future : writeFutures )
         {
             try

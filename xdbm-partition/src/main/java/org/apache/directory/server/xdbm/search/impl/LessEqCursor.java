@@ -58,7 +58,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
     private final IndexCursor<String> uuidIdxCursor;
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
@@ -77,24 +77,24 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.lessEqEvaluator = lessEqEvaluator;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
-        
+
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<?> index = db.getIndex( attributeType );
             index = txnLogManager.wrap( db.getSuffixDn(), index );
-            userIdxCursor = ( ( Index<V> )index ).forwardCursor();
+            userIdxCursor = ( ( Index<V> ) index ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
         {
             Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
-            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
+            uuidIdxCursor = ( ( Index<String> ) entryUuidIdx ).forwardCursor();
             userIdxCursor = null;
         }
     }
@@ -108,14 +108,14 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public void beforeValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -138,7 +138,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
             if ( compareValue > 0 )
             {
                 afterLast();
-                
+
                 return;
             }
             else if ( compareValue == 0 )
@@ -146,7 +146,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
                 last();
                 previous();
                 setAvailable( false );
-                
+
                 return;
             }
 
@@ -166,7 +166,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     public void before( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -214,7 +214,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     public void afterValue( UUID id, V value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( value,
@@ -234,7 +234,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
             if ( comparedValue >= 0 )
             {
                 afterLast();
-                
+
                 return;
             }
 
@@ -255,7 +255,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     public void after( IndexEntry<V> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getValue(),
@@ -375,7 +375,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         if ( userIdxCursor != null )
         {
             /*
@@ -388,7 +388,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
             {
                 checkNotClosed( "next()" );
                 IndexEntry<?> candidate = userIdxCursor.get();
-                
+
                 if ( lessEqEvaluator.getComparator().compare( candidate.getValue(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
                 {
@@ -403,7 +403,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "next()" );
             ndnCandidate = uuidIdxCursor.get();
-            
+
             if ( lessEqEvaluator.evaluate( ndnCandidate ) )
             {
                 return setAvailable( true );
@@ -417,12 +417,12 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         return setAvailable( false );
     }
 
-    
+
     @SuppressWarnings("unchecked")
     public IndexEntry<V> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( userIdxCursor != null )
         {
             if ( available() )

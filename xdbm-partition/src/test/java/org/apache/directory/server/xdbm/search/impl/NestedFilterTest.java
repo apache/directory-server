@@ -79,7 +79,7 @@ public class NestedFilterTest
     CursorBuilder cursorBuilder;
     Optimizer optimizer;
     static FilterNormalizingVisitor visitor;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -108,14 +108,14 @@ public class NestedFilterTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
@@ -131,7 +131,7 @@ public class NestedFilterTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
-        
+
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -139,21 +139,22 @@ public class NestedFilterTest
 
         // initialize the store
         store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager, executionManagerFactory.instance() );
+        XdbmStoreUtils.loadExampleData( ( Partition ) store, schemaManager, executionManagerFactory.instance() );
 
-        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager, txnManagerFactory, executionManagerFactory );
-        cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
-        optimizer = new DefaultOptimizer( ( Partition )store, txnManagerFactory, executionManagerFactory );
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition ) store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
+        cursorBuilder = new CursorBuilder( ( Partition ) store, evaluatorBuilder );
+        optimizer = new DefaultOptimizer( ( Partition ) store, txnManagerFactory, executionManagerFactory );
 
         LOG.debug( "Created new store" );
     }
@@ -164,7 +165,7 @@ public class NestedFilterTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -212,7 +213,7 @@ public class NestedFilterTest
     {
         String filter = "(&(&(cn=Jo*)(sn=w*))(!(ou=apache)))";
 
-        ExprNode exprNode = FilterParser.parse(schemaManager, filter);
+        ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
         IndexCursor<?> cursor = cursorBuilder.build( exprNode );

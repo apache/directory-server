@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.operations.ldapsdk;
 
+
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getNsdkWiredConnection;
 import static org.junit.Assert.assertEquals;
@@ -71,8 +72,12 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
     {
-    // Entry # 1
-        "dn: cn=Kate Bush,ou=system", "objectClass: person", "objectClass: top", "cn: Kate Bush", "sn: Bush" })
+        // Entry # 1
+        "dn: cn=Kate Bush,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: Kate Bush",
+        "sn: Bush" })
 public class IllegalModificationIT extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=Kate Bush,ou=system";

@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.protocol.shared.transport;
 
+
 import java.net.InetSocketAddress;
 
 import org.apache.mina.core.service.IoAcceptor;
@@ -25,6 +26,7 @@ import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * @todo : missing javadoc
@@ -36,6 +38,7 @@ public class TcpTransport extends AbstractTransport
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TcpTransport.class );
 
+
     /**
      * Creates an instance of the TcpTransport class 
      */
@@ -43,8 +46,8 @@ public class TcpTransport extends AbstractTransport
     {
         super();
     }
-    
-    
+
+
     /**
      * Creates an instance of the TcpTransport class on localhost
      * @param tcpPort The port
@@ -52,13 +55,13 @@ public class TcpTransport extends AbstractTransport
     public TcpTransport( int tcpPort )
     {
         super( null, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
-        
+
         this.acceptor = createAcceptor( null, tcpPort, DEFAULT_NB_THREADS, DEFAULT_BACKLOG_NB );
-        
+
         LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
-    
-    
+
+
     /**
      * Creates an instance of the TcpTransport class on localhost
      * @param tcpPort The port
@@ -67,13 +70,13 @@ public class TcpTransport extends AbstractTransport
     public TcpTransport( int tcpPort, int nbThreads )
     {
         super( null, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
-        
+
         this.acceptor = createAcceptor( null, tcpPort, nbThreads, DEFAULT_BACKLOG_NB );
-        
+
         LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
-    
-    
+
+
     /**
      * Creates an instance of the TcpTransport class 
      * @param address The address
@@ -86,8 +89,8 @@ public class TcpTransport extends AbstractTransport
 
         LOG.debug( "TCP Transport created : <{}:{}>", address, tcpPort );
     }
-    
-    
+
+
     /**
      * Creates an instance of the TcpTransport class on localhost
      * @param tcpPort The port
@@ -102,8 +105,8 @@ public class TcpTransport extends AbstractTransport
 
         LOG.debug( "TCP Transport created : <*:{},>", tcpPort );
     }
-    
-    
+
+
     /**
      * Creates an instance of the TcpTransport class 
      * @param address The address
@@ -119,8 +122,8 @@ public class TcpTransport extends AbstractTransport
 
         LOG.debug( "TCP Transport created : <{}:{},>", address, tcpPort );
     }
-    
-    
+
+
     /**
      * Initialize the Acceptor if needed
      */
@@ -128,8 +131,8 @@ public class TcpTransport extends AbstractTransport
     {
         acceptor = createAcceptor( getAddress(), getPort(), getNbThreads(), getBackLog() );
     }
-    
-    
+
+
     /**
      * Helper method to create an IoAcceptor
      */
@@ -138,9 +141,9 @@ public class TcpTransport extends AbstractTransport
         NioSocketAcceptor acceptor = new NioSocketAcceptor( nbThreads );
         acceptor.setReuseAddress( true );
         acceptor.setBacklog( backLog );
-        
+
         InetSocketAddress socketAddress = null;
-        
+
         // The address can be null here, if one want to connect using the wildcard address
         if ( address == null )
         {
@@ -149,29 +152,29 @@ public class TcpTransport extends AbstractTransport
         }
         else
         {
-             socketAddress = new InetSocketAddress( address, port );
+            socketAddress = new InetSocketAddress( address, port );
         }
-        
+
         acceptor.setDefaultLocalAddress( socketAddress );
-        
+
         return acceptor;
     }
-    
-    
+
+
     /**
      * @return The associated SocketAcceptor
      */
     public SocketAcceptor getAcceptor()
     {
-        if( ( acceptor != null ) && acceptor.isDisposed() )
+        if ( ( acceptor != null ) && acceptor.isDisposed() )
         {
             acceptor = createAcceptor( getAddress(), getPort(), getNbThreads(), getBackLog() );
         }
 
-        return acceptor == null ? null : (SocketAcceptor)acceptor;
+        return acceptor == null ? null : ( SocketAcceptor ) acceptor;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

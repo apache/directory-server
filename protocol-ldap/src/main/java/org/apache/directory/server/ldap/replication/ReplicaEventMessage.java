@@ -35,9 +35,10 @@ public class ReplicaEventMessage
 {
     /** The message change type */
     private ChangeType changeType;
-    
+
     /** The entry */
     private Entry entry;
+
 
     /**
      * Create a new ReplicaEvent instance for a Add/Delete+Modify operation
@@ -79,9 +80,9 @@ public class ReplicaEventMessage
     public boolean isEventOlderThan( String csn ) throws Exception
     {
         String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
-        
+
         int i = entryCsn.compareTo( csn );
-        
+
         return ( i < 0 );
     }
 }

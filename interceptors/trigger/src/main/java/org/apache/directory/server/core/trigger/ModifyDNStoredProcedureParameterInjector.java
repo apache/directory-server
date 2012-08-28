@@ -41,17 +41,17 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
 
 
     public ModifyDNStoredProcedureParameterInjector( OperationContext opContext, boolean deleteOldRn,
-        Rdn oldRDN, Rdn newRdn, Dn oldSuperiorDn, Dn newSuperiorDn, Dn oldDn, Dn newDn)
+        Rdn oldRDN, Rdn newRdn, Dn oldSuperiorDn, Dn newSuperiorDn, Dn oldDn, Dn newDn )
     {
         super( opContext );
         this.deleteOldRn = deleteOldRn;
-        this.oldRdn = (Rdn)oldRDN.clone();
-        this.newRdn = (Rdn) newRdn.clone();
+        this.oldRdn = ( Rdn ) oldRDN.clone();
+        this.newRdn = ( Rdn ) newRdn.clone();
         this.oldSuperiorDn = oldSuperiorDn;
         this.newSuperiorDn = newSuperiorDn;
         this.oldDn = oldDn;
         this.newDn = newDn;
-        
+
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
         injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
@@ -60,14 +60,16 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, $oldRDNInjector );
         injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, $oldSuperiorDNInjector );
         injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, $newDNInjector );
-        
+
     }
+
     /**
      * Injector for 'entry' parameter of ModifyDNRequest as in RFC4511.
      */
     MicroInjector $entryInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( oldDn.getName() );
@@ -79,7 +81,8 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newrdnInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( newRdn.getName() );
@@ -91,7 +94,8 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $deleteoldrdnInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return deleteOldRn;
@@ -103,47 +107,51 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
      */
     MicroInjector $newSuperiorInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( newSuperiorDn.getName() );
         }
     };
-    
+
     /**
      * Extra injector for 'oldRdn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
     MicroInjector $oldRDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( oldRdn.getName() );
         }
     };
-    
+
     /**
      * Extra injector for 'oldRdn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
     MicroInjector $oldSuperiorDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( oldSuperiorDn.getName() );
         }
     };
-    
+
     /**
      * Extra injector for 'newDn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
     MicroInjector $newDNInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( newDn.getName() );
         }
     };
-    
+
 }

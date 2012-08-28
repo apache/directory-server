@@ -86,10 +86,10 @@ public class AutzIntegUtils
     public static Dn createGroup( String cn, String firstMemberDn ) throws Exception
     {
         Dn groupDn = new Dn( "cn=" + cn + ",ou=groups,ou=system" );
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             service.getSchemaManager(),
-            "cn=" + cn + ",ou=groups,ou=system", 
-            "ObjectClass: top", 
+            "cn=" + cn + ",ou=groups,ou=system",
+            "ObjectClass: top",
             "ObjectClass: groupOfUniqueNames",
             "uniqueMember:", firstMemberDn,
             "cn:", cn );
@@ -127,13 +127,13 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             service.getSchemaManager(),
             "uid=" + uid + ",ou=users,ou=system",
             "uid", uid,
-            "objectClass: top", 
-            "objectClass: person", 
-            "objectClass: organizationalPerson", 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
             "objectClass: inetOrgPerson",
             "sn", uid,
             "cn", uid,
@@ -159,10 +159,10 @@ public class AutzIntegUtils
     {
         Dn groupDn = new Dn( "cn=" + groupName + ",ou=groups,ou=system" );
 
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             service.getSchemaManager(),
             "cn=" + groupName + ",ou=groups,ou=system",
-            "objectClass: top", 
+            "objectClass: top",
             "objectClass: groupOfUniqueNames",
             "uniqueMember: uid=admin, ou=system",
             "cn", groupName );
@@ -257,17 +257,17 @@ public class AutzIntegUtils
         }
 
         // now add the A/C subentry below ou=system
-        Entry subEntry = new DefaultEntry( 
+        Entry subEntry = new DefaultEntry(
             "cn=" + cn + ",ou=system",
-            "objectClass: top", 
-            "objectClass: subentry", 
+            "objectClass: top",
+            "objectClass: subentry",
             "objectClass: accessControlSubentry",
             "subtreeSpecification", subtree,
             "prescriptiveACI", aciItem );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( subEntry );
-        
+
         AddResponse addResponse = connection.add( addRequest );
 
         return addResponse.getLdapResult().getResultCode();

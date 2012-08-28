@@ -46,7 +46,8 @@ public class StoreAuthorizationData extends AbstractReadAuthorizationData<EncTic
      * {@inheritDoc}
      */
     @Override
-    protected void setAuthorizationData( AuthorizationData authorizationData, EncTicketPartContainer encTicketPartContainer )
+    protected void setAuthorizationData( AuthorizationData authorizationData,
+        EncTicketPartContainer encTicketPartContainer )
     {
         encTicketPartContainer.getEncTicketPart().setAuthorizationData( authorizationData );
         encTicketPartContainer.setGrammarEndAllowed( true );

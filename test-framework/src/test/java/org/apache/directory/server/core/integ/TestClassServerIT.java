@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.integ;
 
+
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -25,20 +26,21 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
+
+@RunWith(FrameworkRunner.class)
 public class TestClassServerIT extends AbstractLdapTestUnit
 {
     @Test
-    @ApplyLdifFiles( "test-entry.ldif" )
+    @ApplyLdifFiles("test-entry.ldif")
     public void testWithApplyLdifFiles() throws Exception
     {
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
-        
+
         if ( isRunInSuite )
         {
             assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
         }
-        
+
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
     }
 }

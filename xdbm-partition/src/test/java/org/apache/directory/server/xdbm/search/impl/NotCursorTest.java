@@ -81,7 +81,7 @@ public class NotCursorTest
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -110,14 +110,14 @@ public class NotCursorTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -130,7 +130,7 @@ public class NotCursorTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
-        
+
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -138,22 +138,23 @@ public class NotCursorTest
 
         // initialize the store
         store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
-        ((Partition)store).setId( "example" );
+        ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
         store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        ((Partition)store).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ((Partition)store).initialize();
+        ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).initialize();
 
-        ((Partition)store).initialize();
-        
-        XdbmStoreUtils.loadExampleData( ( Partition )store, schemaManager, executionManagerFactory.instance() );
+        ( ( Partition ) store ).initialize();
 
-        evaluatorBuilder = new EvaluatorBuilder( ( Partition )store, schemaManager, txnManagerFactory, executionManagerFactory );
-        cursorBuilder = new CursorBuilder( ( Partition )store, evaluatorBuilder );
+        XdbmStoreUtils.loadExampleData( ( Partition ) store, schemaManager, executionManagerFactory.instance() );
+
+        evaluatorBuilder = new EvaluatorBuilder( ( Partition ) store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
+        cursorBuilder = new CursorBuilder( ( Partition ) store, evaluatorBuilder );
 
         LOG.debug( "Created new store" );
     }
@@ -164,11 +165,11 @@ public class NotCursorTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
-        
+
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -219,11 +220,11 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( (SubstringNode) exprNode, ( Partition )store,
+        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, ( Partition ) store,
             schemaManager, txnManagerFactory, executionManagerFactory );
         notNode.addNode( exprNode );
 
-        NotCursor<String> cursor = new NotCursor( ( Partition )store, eval, 
+        NotCursor<String> cursor = new NotCursor( ( Partition ) store, eval,
             txnManagerFactory, executionManagerFactory ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 

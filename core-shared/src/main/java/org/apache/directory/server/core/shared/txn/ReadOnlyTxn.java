@@ -27,5 +27,5 @@ package org.apache.directory.server.core.shared.txn;
 /** Package protected */
 class ReadOnlyTxn extends AbstractTransaction
 {
-   
+
 }

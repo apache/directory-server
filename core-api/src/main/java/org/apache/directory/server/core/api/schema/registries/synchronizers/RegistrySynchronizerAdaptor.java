@@ -84,18 +84,19 @@ public class RegistrySynchronizerAdaptor
     private static final int NAME_FORM_INDEX = 10;
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
-    private static final String[] META_OBJECT_CLASSES = new String[] {
-        MetaSchemaConstants.META_COMPARATOR_OC,
-        MetaSchemaConstants.META_NORMALIZER_OC,
-        MetaSchemaConstants.META_SYNTAX_CHECKER_OC,
-        MetaSchemaConstants.META_SYNTAX_OC,
-        MetaSchemaConstants.META_MATCHING_RULE_OC,
-        MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC,
-        MetaSchemaConstants.META_OBJECT_CLASS_OC,
-        MetaSchemaConstants.META_MATCHING_RULE_USE_OC,
-        MetaSchemaConstants.META_DIT_STRUCTURE_RULE_OC,
-        MetaSchemaConstants.META_DIT_CONTENT_RULE_OC,
-        MetaSchemaConstants.META_NAME_FORM_OC
+    private static final String[] META_OBJECT_CLASSES = new String[]
+        {
+            MetaSchemaConstants.META_COMPARATOR_OC,
+            MetaSchemaConstants.META_NORMALIZER_OC,
+            MetaSchemaConstants.META_SYNTAX_CHECKER_OC,
+            MetaSchemaConstants.META_SYNTAX_OC,
+            MetaSchemaConstants.META_MATCHING_RULE_OC,
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC,
+            MetaSchemaConstants.META_OBJECT_CLASS_OC,
+            MetaSchemaConstants.META_MATCHING_RULE_USE_OC,
+            MetaSchemaConstants.META_DIT_STRUCTURE_RULE_OC,
+            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC,
+            MetaSchemaConstants.META_NAME_FORM_OC
     };
 
     private final Registries registries;
@@ -104,7 +105,7 @@ public class RegistrySynchronizerAdaptor
     private final Map<String, RegistrySynchronizer> objectClass2synchronizerMap = new HashMap<String, RegistrySynchronizer>();
     private final SchemaSynchronizer schemaSynchronizer;
 
-    static 
+    static
     {
         VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
@@ -126,8 +127,8 @@ public class RegistrySynchronizerAdaptor
         this.schemaSynchronizer = new SchemaSynchronizer( schemaManager );
         this.objectClassAT = this.registries.getAttributeTypeRegistry()
             .lookup( SchemaConstants.OBJECT_CLASS_AT );
-        
-        this.registrySynchronizers[COMPARATOR_INDEX] = new ComparatorSynchronizer( schemaManager ); 
+
+        this.registrySynchronizers[COMPARATOR_INDEX] = new ComparatorSynchronizer( schemaManager );
         this.registrySynchronizers[NORMALIZER_INDEX] = new NormalizerSynchronizer( schemaManager );
         this.registrySynchronizers[SYNTAX_CHECKER_INDEX] = new SyntaxCheckerSynchronizer( schemaManager );
         this.registrySynchronizers[SYNTAX_INDEX] = new SyntaxSynchronizer( schemaManager );
@@ -135,9 +136,9 @@ public class RegistrySynchronizerAdaptor
         this.registrySynchronizers[ATTRIBUTE_TYPE_INDEX] = new AttributeTypeSynchronizer( schemaManager );
         this.registrySynchronizers[OBJECT_CLASS_INDEX] = new ObjectClassSynchronizer( schemaManager );
         this.registrySynchronizers[MATCHING_RULE_USE_INDEX] = new MatchingRuleUseSynchronizer( schemaManager );
-        this.registrySynchronizers[DIT_STRUCTURE_RULE_INDEX] = new DitStructureRuleSynchronizer( schemaManager ); 
-        this.registrySynchronizers[DIT_CONTENT_RULE_INDEX] = new DitContentRuleSynchronizer( schemaManager ); 
-        this.registrySynchronizers[NAME_FORM_INDEX] = new NameFormSynchronizer( schemaManager ); 
+        this.registrySynchronizers[DIT_STRUCTURE_RULE_INDEX] = new DitStructureRuleSynchronizer( schemaManager );
+        this.registrySynchronizers[DIT_CONTENT_RULE_INDEX] = new DitContentRuleSynchronizer( schemaManager );
+        this.registrySynchronizers[NAME_FORM_INDEX] = new NameFormSynchronizer( schemaManager );
 
         ObjectClassRegistry ocReg = registries.getObjectClassRegistry();
         for ( int ii = 0; ii < META_OBJECT_CLASSES.length; ii++ )
@@ -157,13 +158,13 @@ public class RegistrySynchronizerAdaptor
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Attribute oc = addContext.getEntry().get( objectClassAT );
-        
+
         // First check if we are adding a schemaObject
-        for ( Value<?> value:oc )
+        for ( Value<?> value : oc )
         {
 
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 // This is one of the eleven SchemaObject :
@@ -171,21 +172,21 @@ public class RegistrySynchronizerAdaptor
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
                 Entry entry = addContext.getEntry();
                 synchronizer.add( entry );
-                
+
                 return;
             }
         }
-        
+
         // This is a Schema
         // e.g. ou=my custom schema,ou=schema
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
             Entry entry = addContext.getEntry();
             schemaSynchronizer.add( entry );
-            
+
             return;
         }
-        
+
         // Check if it is a valid container for AT, C, DCR, DSR, MR, MRU, NF, N, OC, S, SC
         // e.g. ou=attributeTypes,ou=my custom schema,ou=schema
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
@@ -196,42 +197,41 @@ public class RegistrySynchronizerAdaptor
                 LOG.error( msg );
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
-            
+
             String ouValue = addContext.getDn().getRdn().getNormValue().getString();
             ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
-            
-            if ( ! VALID_OU_VALUES.contains( ouValue ) )
+
+            if ( !VALID_OU_VALUES.contains( ouValue ) )
             {
                 String msg = I18n.err( I18n.ERR_82, VALID_OU_VALUES );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
-            
+
             // this is a valid container.
             return;
         }
 
-        
         String msg = I18n.err( I18n.ERR_83, addContext.getDn() );
         LOG.error( msg );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
     }
-    
+
 
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext deleteContext, boolean doCascadeDelete ) 
+    public void delete( DeleteOperationContext deleteContext, boolean doCascadeDelete )
         throws LdapException
     {
         Entry entry = deleteContext.getEntry();
-        
+
         Attribute oc = entry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
+
+        for ( Value<?> value : oc )
         {
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
@@ -245,29 +245,29 @@ public class RegistrySynchronizerAdaptor
             schemaSynchronizer.delete( entry, doCascadeDelete );
             return;
         }
-        
+
         if ( oc.contains( SchemaConstants.ORGANIZATIONAL_UNIT_OC ) )
         {
             if ( deleteContext.getDn().size() != 3 )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
             }
-            
+
             String ouValue = deleteContext.getDn().getRdn().getNormValue().getString();
             ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
-            
-            if ( ! VALID_OU_VALUES.contains( ouValue ) )
+
+            if ( !VALID_OU_VALUES.contains( ouValue ) )
             {
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                     I18n.err( I18n.ERR_379, VALID_OU_VALUES ) );
             }
-            
+
             return;
         }
 
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
-    
+
 
     /**
      * Modify the schema
@@ -277,15 +277,16 @@ public class RegistrySynchronizerAdaptor
      * @param doCascadeModify Not used
      * @throws Exception If the modification failed
      */
-    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify ) throws LdapException
+    public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify )
+        throws LdapException
     {
         Entry entry = modifyContext.getEntry();
         Attribute oc = entry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
+
+        for ( Value<?> value : oc )
         {
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
@@ -300,12 +301,12 @@ public class RegistrySynchronizerAdaptor
             return hasModification;
         }
 
-        if ( oc.contains(  ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC ) )
+        if ( oc.contains( ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC ) )
         {
             return false;
         }
-        
-        LOG.error( String.format( I18n.err( I18n.ERR_84 ), 
+
+        LOG.error( String.format( I18n.err( I18n.ERR_84 ),
             modifyContext.getDn(), entry, modifyContext.getModItems() ) );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
@@ -318,16 +319,16 @@ public class RegistrySynchronizerAdaptor
      * @param doCascadeModify unused
      * @throws Exception If the rename failed
      */
-    public void rename( RenameOperationContext renameContext, boolean doCascadeModify ) 
+    public void rename( RenameOperationContext renameContext, boolean doCascadeModify )
         throws LdapException
     {
-        Entry originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+        Entry originalEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
         Attribute oc = originalEntry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
+
+        for ( Value<?> value : oc )
         {
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
@@ -341,7 +342,7 @@ public class RegistrySynchronizerAdaptor
             schemaSynchronizer.rename( originalEntry, renameContext.getNewRdn(), doCascadeModify );
             return;
         }
-        
+
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -352,11 +353,11 @@ public class RegistrySynchronizerAdaptor
     public void move( MoveOperationContext moveContext, Entry entry, boolean cascade ) throws LdapException
     {
         Attribute oc = entry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
+
+        for ( Value<?> value : oc )
         {
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
@@ -370,7 +371,7 @@ public class RegistrySynchronizerAdaptor
             schemaSynchronizer.move( moveContext.getDn(), moveContext.getNewSuperior(), entry, cascade );
             return;
         }
-        
+
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 
@@ -378,18 +379,20 @@ public class RegistrySynchronizerAdaptor
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeManager#move(org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext, org.apache.directory.server.core.entry.Entry, boolean)
      */
-    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext, Entry entry, boolean cascade ) throws LdapException
+    public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext, Entry entry, boolean cascade )
+        throws LdapException
     {
         Attribute oc = entry.get( objectClassAT );
-        
-        for ( Value<?> value:oc )
+
+        for ( Value<?> value : oc )
         {
             String oid = registries.getObjectClassRegistry().getOidByName( value.getString() );
-            
+
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                synchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(), 
+                synchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(),
+                    moveAndRenameContext.getNewRdn(),
                     moveAndRenameContext.getDeleteOldRdn(), entry, cascade );
                 return;
             }
@@ -397,11 +400,12 @@ public class RegistrySynchronizerAdaptor
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            schemaSynchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(), moveAndRenameContext.getNewRdn(), 
+            schemaSynchronizer.moveAndRename( moveAndRenameContext.getDn(), moveAndRenameContext.getNewSuperiorDn(),
+                moveAndRenameContext.getNewRdn(),
                 moveAndRenameContext.getDeleteOldRdn(), entry, cascade );
             return;
         }
-        
+
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }
 }

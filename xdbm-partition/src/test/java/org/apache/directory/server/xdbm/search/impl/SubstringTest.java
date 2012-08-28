@@ -67,7 +67,7 @@ public class SubstringTest
     File wkdir;
     Partition store;
     static SchemaManager schemaManager = null;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -95,14 +95,14 @@ public class SubstringTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -120,24 +120,24 @@ public class SubstringTest
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
         executionManagerFactory = new OperationExecutionManagerFactory( txnManagerFactory );
-        
+
         // initialize the store
         store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
-        ( (Store )store ).setCacheSize( 10 );
-        ( (Store )store ).setPartitionPath( wkdir.toURI() );
-        ( (Store )store ).setSyncOnWrite( false );
+        ( ( Store ) store ).setCacheSize( 10 );
+        ( ( Store ) store ).setPartitionPath( wkdir.toURI() );
+        ( ( Store ) store ).setSyncOnWrite( false );
 
-        ( (Store )store ).addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        ( (Store )store ).addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        
+        ( ( Store ) store ).addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
+        ( ( Store ) store ).addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
         store.initialize();
 
         XdbmStoreUtils.loadExampleData( store, schemaManager, executionManagerFactory.instance() );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -147,7 +147,7 @@ public class SubstringTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -164,7 +164,8 @@ public class SubstringTest
     public void testIndexedCnStartsWithJ() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         assertEquals( node, evaluator.getExpression() );
@@ -315,7 +316,8 @@ public class SubstringTest
     public void testIndexedCnStartsWithJim() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "jim", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         assertEquals( node, evaluator.getExpression() );
@@ -406,7 +408,8 @@ public class SubstringTest
     public void testIndexedCnEndsWithBean() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), null, "bean" );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         assertEquals( node, evaluator.getExpression() );
@@ -497,7 +500,8 @@ public class SubstringTest
     public void testNonIndexedSnStartsWithB() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         assertEquals( node, evaluator.getExpression() );
@@ -558,7 +562,8 @@ public class SubstringTest
     public void testIndexedSnEndsWithEr() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), null, "er" );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         assertEquals( node, evaluator.getExpression() );
@@ -618,7 +623,8 @@ public class SubstringTest
     public void testNonIndexedAttributes() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "walk", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 5 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -670,7 +676,8 @@ public class SubstringTest
     public void testEvaluatorIndexed() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "jim", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -704,7 +711,8 @@ public class SubstringTest
     public void testInvalidCursorPositionException() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "b", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.get();
     }
@@ -714,7 +722,8 @@ public class SubstringTest
     public void testInvalidCursorPositionException2() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
         cursor.get();
     }
@@ -724,7 +733,8 @@ public class SubstringTest
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         // test before()
@@ -738,7 +748,8 @@ public class SubstringTest
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "j", null );
-        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory, executionManagerFactory );
+        SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager, txnManagerFactory,
+            executionManagerFactory );
         SubstringCursor cursor = new SubstringCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
 
         // test before()

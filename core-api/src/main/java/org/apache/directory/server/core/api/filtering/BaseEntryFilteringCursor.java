@@ -314,14 +314,14 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
     public Entry get() throws Exception
     {
         Entry result;
-        
+
         pinCursor();
 
         if ( available() )
         {
             result = prefetched;
             unpinCursor();
-            
+
             return result;
         }
 
@@ -728,8 +728,3 @@ public class BaseEntryFilteringCursor extends AbstractEntryFilteringCursor
             .concat( "." ).concat( "isLast()" ) ) );
     }
 }
-
-
-    
-    
-    

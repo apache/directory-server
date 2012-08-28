@@ -32,12 +32,13 @@ import org.apache.directory.server.core.api.log.UserLogRecord;
  */
 public interface LogEdit extends Externalizable
 {
-	public enum EditType
+    public enum EditType
     {
-    	DATA_CHANGE,
-    	TXN_MARKER
+        DATA_CHANGE,
+        TXN_MARKER
     }
-	
+
+
     /**
      * Returns the position the edit is inserted in the wal.
      * Log anchor is initialized is set after the edit is serialized and inserted into

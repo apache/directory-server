@@ -49,7 +49,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
         }
     }
-    
+
 
     /**
      * Creates a new instance of DeleteOperationContext.
@@ -75,9 +75,9 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.DELETE ) );
         }
-        
+
         requestControls = deleteRequest.getControls();
-        
+
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
         {
             ignoreReferral();
@@ -87,8 +87,8 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
             throwReferral();
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -97,8 +97,8 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
         super.resetContext();
         entry = null;
     }
-    
-    
+
+
     /**
      * @return the operation name
      */
@@ -107,7 +107,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
         return MessageTypeEnum.DEL_REQUEST.name();
     }
 
-    
+
     /**
      * @see Object#toString()
      */

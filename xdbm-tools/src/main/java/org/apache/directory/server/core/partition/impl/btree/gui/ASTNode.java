@@ -47,7 +47,7 @@ public class ASTNode implements TreeNode
     private final List<ASTNode> children;
 
 
-    public ASTNode(ASTNode parent, ExprNode exprNode)
+    public ASTNode( ASTNode parent, ExprNode exprNode )
     {
         children = new ArrayList<ASTNode>( 2 );
         this.exprNode = exprNode;
@@ -69,8 +69,8 @@ public class ASTNode implements TreeNode
             }
 
             BranchNode branch = ( BranchNode ) exprNode;
-            
-            for ( ExprNode child:branch.getChildren() )
+
+            for ( ExprNode child : branch.getChildren() )
             {
                 children.add( new ASTNode( this, child ) );
             }

@@ -33,21 +33,20 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum TypedDataStatesEnum implements States
 {
     // Start
-    START_STATE,                        // 0
+    START_STATE, // 0
 
-    TYPED_DATA_SEQ_STATE,               // 1
+    TYPED_DATA_SEQ_STATE, // 1
 
-    TYPED_DATA_SEQ_SEQ_STATE,           // 2
+    TYPED_DATA_SEQ_SEQ_STATE, // 2
 
-    TYPED_DATA_TDTYPE_TAG_STATE,        // 3
-    TYPED_DATA_TDTYPE_STATE,            // 4
+    TYPED_DATA_TDTYPE_TAG_STATE, // 3
+    TYPED_DATA_TDTYPE_STATE, // 4
 
-    TYPED_DATA_TDDATA_TAG_STATE,        // 5
-    TYPED_DATA_TDDATA_STATE,            // 6
+    TYPED_DATA_TDDATA_TAG_STATE, // 5
+    TYPED_DATA_TDDATA_STATE, // 6
 
     // End
-    LAST_TYPED_DATA_STATE;              // 7
-
+    LAST_TYPED_DATA_STATE; // 7
 
     /**
      * Get the grammar name

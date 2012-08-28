@@ -42,8 +42,8 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     private Dn modifiedEntryName;
     private List<Modification> modifications;
     private Entry oldEntry;
-    
-    
+
+
     public ModifyStoredProcedureParameterInjector( ModifyOperationContext opContext ) throws LdapException
     {
         super( opContext );
@@ -56,34 +56,32 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );
         injectors.put( StoredProcedureParameter.Modify_NEW_ENTRY.class, $newEntryInjector );
     }
-    
-    
+
     MicroInjector $objectInjector = new MicroInjector()
     {
-        public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapInvalidDnException
+        public Object inject( OperationContext opContext, StoredProcedureParameter param )
+            throws LdapInvalidDnException
         {
             // Return a safe copy constructed with user provided name.
             return opContext.getSession().getDirectoryService().getDnFactory().create( modifiedEntryName.getName() );
         }
     };
-    
-    
+
     MicroInjector $modificationInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
             List<Modification> newMods = new ArrayList<Modification>();
-            
-            for ( Modification mod:modifications )
+
+            for ( Modification mod : modifications )
             {
                 newMods.add( mod.clone() );
             }
-            
+
             return newMods;
         }
     };
-    
-    
+
     MicroInjector $oldEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
@@ -91,8 +89,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
             return oldEntry;
         }
     };
-    
-    
+
     MicroInjector $newEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
@@ -100,8 +97,8 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
             return getEntry( opContext );
         }
     };
-    
-    
+
+
     private Entry getEntry( OperationContext opContext ) throws LdapException
     {
         /**
@@ -109,7 +106,8 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
          * especially subentry related ones like "triggerExecutionSubentries".
          */
         CoreSession session = opContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, modifiedEntryName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, modifiedEntryName,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
 
         return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }

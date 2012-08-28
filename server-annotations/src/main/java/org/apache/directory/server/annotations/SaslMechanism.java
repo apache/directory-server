@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.annotations;
 
+
 /**
  * TODO SaslMechanism.
  *
@@ -29,7 +30,8 @@ public @interface SaslMechanism
 {
     /** name of the SASL mechanism */
     String name();
-    
+
+
     /** class implementing the named SASL mechanism */
     Class<?> implClass();
 }

@@ -76,7 +76,7 @@ public class Checksum extends AbstractAsn1Object
     {
     }
 
-    
+
     /**
      * Creates a new instance of Checksum.
      *
@@ -99,7 +99,7 @@ public class Checksum extends AbstractAsn1Object
         int hash = 37;
         hash = hash * 17 + cksumtype.hashCode();
         hash = hash * 17 + Arrays.hashCode( checksum );
-        
+
         return hash;
     }
 
@@ -266,14 +266,14 @@ public class Checksum extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "Checksum encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "Checksum initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -291,11 +291,11 @@ public class Checksum extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
 
         sb.append( tabs ).append( "Checksum : {\n" );
-        sb.append( tabs ).append( "    cksumtype: " ).append(  cksumtype ).append( '\n' );
+        sb.append( tabs ).append( "    cksumtype: " ).append( cksumtype ).append( '\n' );
 
         if ( checksum != null )
         {
-            sb.append( tabs + "    checksum:" ).append( Strings.dumpBytes(checksum) ).append( '\n' );
+            sb.append( tabs + "    checksum:" ).append( Strings.dumpBytes( checksum ) ).append( '\n' );
         }
 
         sb.append( tabs + "}\n" );

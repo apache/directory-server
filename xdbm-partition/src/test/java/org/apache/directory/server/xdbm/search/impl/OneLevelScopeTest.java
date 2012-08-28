@@ -76,7 +76,7 @@ public class OneLevelScopeTest
     File wkdir;
     Partition store;
     static SchemaManager schemaManager = null;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -105,14 +105,14 @@ public class OneLevelScopeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -125,7 +125,7 @@ public class OneLevelScopeTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
-        
+
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -134,12 +134,12 @@ public class OneLevelScopeTest
         // initialize the store
         store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
-        ( ( Store )store).setCacheSize( 10 );
-        ( ( Store )store).setPartitionPath( wkdir.toURI() );
-        ( ( Store )store).setSyncOnWrite( true );
+        ( ( Store ) store ).setCacheSize( 10 );
+        ( ( Store ) store ).setPartitionPath( wkdir.toURI() );
+        ( ( Store ) store ).setSyncOnWrite( true );
 
-        ( ( Store )store).addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
-        ( ( Store )store).addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
+        ( ( Store ) store ).addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        ( ( Store ) store ).addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         store.initialize();
 
@@ -155,7 +155,7 @@ public class OneLevelScopeTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -175,7 +175,8 @@ public class OneLevelScopeTest
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -218,7 +219,6 @@ public class OneLevelScopeTest
         assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
         assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
 
-
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
 
@@ -234,7 +234,6 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( Strings.getUUIDString( 6 ), indexEntry.getId() );
         assertEquals( Strings.getUUIDString( 2 ), indexEntry.getValue() );
-
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -321,7 +320,8 @@ public class OneLevelScopeTest
             + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
         // --------- Test beforeFirst() ---------
 
         cursor.beforeFirst();
@@ -385,7 +385,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( Strings.getUUIDString( 8 ), indexEntry.getId() );
         assertEquals( Strings.getUUIDString( 4 ), indexEntry.getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -463,8 +463,9 @@ public class OneLevelScopeTest
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
-            node , txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+            node, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -587,7 +588,8 @@ public class OneLevelScopeTest
             + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -670,7 +672,8 @@ public class OneLevelScopeTest
     @Test
     public void testCursorWithDereferencing3() throws Exception
     {
-        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -683,7 +686,8 @@ public class OneLevelScopeTest
         AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
-        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         entry = new DefaultEntry( schemaManager, dn );
@@ -692,7 +696,7 @@ public class OneLevelScopeTest
         entry.add( "sn", "doe" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
-        
+
         addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
@@ -700,7 +704,8 @@ public class OneLevelScopeTest
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -877,7 +882,7 @@ public class OneLevelScopeTest
         assertNotNull( indexEntry );
         assertEquals( Strings.getUUIDString( 7 ), indexEntry.getId() );
         assertEquals( Strings.getUUIDString( 3 ), indexEntry.getValue() );
-        
+
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
@@ -948,7 +953,7 @@ public class OneLevelScopeTest
          * when alias dereferencing while searching is enabled.
          */
         ForwardIndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
-        indexEntry.setId( Strings.getUUIDString( 11 ));
+        indexEntry.setId( Strings.getUUIDString( 11 ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         indexEntry = new ForwardIndexEntry<UUID>();
@@ -972,7 +977,8 @@ public class OneLevelScopeTest
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
         cursor.get();
     }
 
@@ -984,7 +990,8 @@ public class OneLevelScopeTest
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // test before()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();
@@ -1000,7 +1007,8 @@ public class OneLevelScopeTest
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
         OneLevelScopeEvaluator evaluator = new OneLevelScopeEvaluator( store,
             node, txnManagerFactory, executionManagerFactory );
-        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        OneLevelScopeCursor cursor = new OneLevelScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // test after()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();

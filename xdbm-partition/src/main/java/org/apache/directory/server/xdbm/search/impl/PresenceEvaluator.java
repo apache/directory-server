@@ -47,7 +47,6 @@ public class PresenceEvaluator extends AbstractEvaluator<PresenceNode>
     /** The ExprNode to evaluate */
     private final PresenceNode node;
 
-
     /** The AttributeType we will use for the evaluation */
     private final AttributeType attributeType;
 
@@ -57,13 +56,14 @@ public class PresenceEvaluator extends AbstractEvaluator<PresenceNode>
     /** The index to use if any */
     private final Index<String> idx;
 
+
     @SuppressWarnings("unchecked")
     public PresenceEvaluator( PresenceNode node, Partition db, SchemaManager schemaManager,
-            TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory )
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
-        super(db, txnManagerFactory, executionManagerFactory );
+        super( db, txnManagerFactory, executionManagerFactory );
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
@@ -71,7 +71,7 @@ public class PresenceEvaluator extends AbstractEvaluator<PresenceNode>
         if ( db.hasUserIndexOn( attributeType ) )
         {
             Index<?> presenceIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-            idx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), presenceIdx );
+            idx = ( Index<String> ) txnLogManager.wrap( db.getSuffixDn(), presenceIdx );
         }
         else
         {

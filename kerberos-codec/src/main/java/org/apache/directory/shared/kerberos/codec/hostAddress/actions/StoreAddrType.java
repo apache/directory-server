@@ -41,6 +41,7 @@ public class StoreAddrType extends AbstractReadInteger<HostAddressContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Instantiates a new HostAddressInit action.
      */

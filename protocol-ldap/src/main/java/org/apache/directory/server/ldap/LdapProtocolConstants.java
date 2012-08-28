@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.ldap;
 
-import org.apache.directory.shared.ldap.model.message.Control;
 
+import org.apache.directory.shared.ldap.model.message.Control;
 
 
 /**

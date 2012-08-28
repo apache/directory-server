@@ -53,7 +53,7 @@ public class EvaluatorBuilder
 {
     private final Partition db;
     private final SchemaManager schemaManager;
-    
+
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
@@ -69,7 +69,7 @@ public class EvaluatorBuilder
      * @throws Exception failure to access db or lookup schema in registries
      */
     public EvaluatorBuilder( Partition db, SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory ) throws Exception
+        OperationExecutionManagerFactory executionManagerFactory ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
@@ -82,42 +82,42 @@ public class EvaluatorBuilder
     {
         switch ( node.getAssertionType() )
         {
-            /* ---------- LEAF NODE HANDLING ---------- */
+        /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateEvaluator<T>( ( ApproximateNode<T> ) node, db, schemaManager, 
+                return new ApproximateEvaluator<T>( ( ApproximateNode<T> ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
             case EQUALITY:
-                return new EqualityEvaluator<T>( ( EqualityNode<T> ) node, db, schemaManager, 
+                return new EqualityEvaluator<T>( ( EqualityNode<T> ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
             case GREATEREQ:
-                return new GreaterEqEvaluator<T>( ( GreaterEqNode<T> ) node, db, schemaManager, 
+                return new GreaterEqEvaluator<T>( ( GreaterEqNode<T> ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
             case LESSEQ:
-                return new LessEqEvaluator<T>( ( LessEqNode<T> ) node, db, schemaManager, 
+                return new LessEqEvaluator<T>( ( LessEqNode<T> ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
             case PRESENCE:
-                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager, 
+                return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
             case SCOPE:
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator( db, ( ScopeNode ) node, 
+                    return new OneLevelScopeEvaluator( db, ( ScopeNode ) node,
                         txnManagerFactory, executionManagerFactory );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node, 
+                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node,
                         txnManagerFactory, executionManagerFactory );
                 }
 
             case SUBSTRING:
-                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager, 
+                return new SubstringEvaluator( ( SubstringNode ) node, db, schemaManager,
                     txnManagerFactory, executionManagerFactory );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
@@ -126,7 +126,7 @@ public class EvaluatorBuilder
                 return buildAndEvaluator( ( AndNode ) node );
 
             case NOT:
-                return new NotEvaluator( (NotNode) node, build( ( ( NotNode ) node ).getFirstChild() ) );
+                return new NotEvaluator( ( NotNode ) node, build( ( ( NotNode ) node ).getFirstChild() ) );
 
             case OR:
                 return buildOrEvaluator( ( OrNode ) node );
@@ -167,14 +167,14 @@ public class EvaluatorBuilder
         }
         return new OrEvaluator( node, evaluators );
     }
-    
-    
+
+
     TxnManagerFactory getTxnManagerFactory()
     {
         return txnManagerFactory;
     }
-    
-    
+
+
     OperationExecutionManagerFactory getExecutionManagerFactory()
     {
         return executionManagerFactory;

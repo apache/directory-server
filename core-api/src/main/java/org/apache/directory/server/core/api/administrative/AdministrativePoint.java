@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.administrative;
 
+
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 

@@ -77,7 +77,7 @@ public class SubtreeScopeTest
     File wkdir;
     Partition store;
     static SchemaManager schemaManager = null;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -105,14 +105,14 @@ public class SubtreeScopeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( loader.getSchema( "collective" ) );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -125,7 +125,7 @@ public class SubtreeScopeTest
         wkdir.delete();
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
-        
+
         File logDir = new File( wkdir.getPath() + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -134,19 +134,19 @@ public class SubtreeScopeTest
         // initialize the store
         store = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         store.setId( "example" );
-        ( ( Store )store ).setCacheSize( 10 );
-        ( ( Store )store ).setPartitionPath( wkdir.toURI() );
-        ( ( Store )store ).setSyncOnWrite( true );
+        ( ( Store ) store ).setCacheSize( 10 );
+        ( ( Store ) store ).setPartitionPath( wkdir.toURI() );
+        ( ( Store ) store ).setSyncOnWrite( true );
 
-        ( ( Store )store ).addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
-        ( ( Store )store ).addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
+        ( ( Store ) store ).addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        ( ( Store ) store ).addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         store.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         store.initialize();
 
         store.initialize();
 
         XdbmStoreUtils.loadExampleData( store, schemaManager, executionManagerFactory.instance() );
-        
+
         LOG.debug( "Created new store" );
     }
 
@@ -156,7 +156,7 @@ public class SubtreeScopeTest
     {
         if ( store != null )
         {
-            ((Partition)store).destroy();
+            ( ( Partition ) store ).destroy();
         }
 
         store = null;
@@ -174,8 +174,10 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -330,8 +332,10 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -516,8 +520,10 @@ public class SubtreeScopeTest
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=apache," + SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID
             + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -635,7 +641,8 @@ public class SubtreeScopeTest
     @Test
     public void testCursorWithDereferencing3() throws Exception
     {
-        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        Dn dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jd," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         Entry entry = new DefaultEntry( schemaManager, dn );
@@ -648,7 +655,8 @@ public class SubtreeScopeTest
         AddOperationContext addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
-        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID + "=board of directors,"
+        dn = new Dn( schemaManager, SchemaConstants.CN_AT_OID + "=jdoe," + SchemaConstants.OU_AT_OID
+            + "=board of directors,"
             + SchemaConstants.O_AT_OID + "=good times co." );
 
         entry = new DefaultEntry( schemaManager, dn );
@@ -657,14 +665,16 @@ public class SubtreeScopeTest
         entry.add( "sn", "doe" );
         entry.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
         entry.add( "entryUUID", Strings.getUUIDString( 13 ).toString() );
-        
+
         addContext = new AddOperationContext( schemaManager, entry );
         executionManagerFactory.instance().add( store, addContext );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // --------- Test beforeFirst() ---------
 
@@ -926,7 +936,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
 
         ForwardIndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
         indexEntry.setId( Strings.getUUIDString( 6 ) );
@@ -939,7 +950,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, new Dn( SchemaConstants.OU_AT_OID
             + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
         assertEquals( node, evaluator.getExpression() );
 
         /*
@@ -965,8 +977,10 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
         cursor.get();
     }
 
@@ -976,8 +990,10 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // test before()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();
@@ -991,8 +1007,10 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.SUBTREE );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory );
-        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator , txnManagerFactory, executionManagerFactory );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
+        SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator, txnManagerFactory,
+            executionManagerFactory );
 
         // test after()
         ForwardIndexEntry<UUID> entry = new ForwardIndexEntry<UUID>();
@@ -1006,7 +1024,8 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), SearchScope.ONELEVEL );
-        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory, executionManagerFactory  );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node, txnManagerFactory,
+            executionManagerFactory );
         assertNull( evaluator );
     }
 }

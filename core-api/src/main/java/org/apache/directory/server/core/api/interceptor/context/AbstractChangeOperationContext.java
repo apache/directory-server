@@ -36,14 +36,14 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
 {
     /** The ChangeLog event */
     private ChangeLogEvent changeLogEvent;
-    
+
     /** The flag used to tell the server to store the changes into the changeLog */
     protected LogChange logChange;
-    
+
     /** The modified Entry as it will be stored into the backend */
     protected Entry modifiedEntry;
 
-    
+
     /**
      * 
      * Creates a new instance of AbstractChangeOperationContext.
@@ -53,11 +53,11 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     public AbstractChangeOperationContext( CoreSession session )
     {
         super( session );
-        
+
         logChange = LogChange.TRUE;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -69,7 +69,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
         changeLogEvent = null;
     }
 
-    
+
     /**
      * 
      * Creates a new instance of AbstractChangeOperationContext.
@@ -81,7 +81,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
         super( session, dn );
     }
 
-    
+
     /**
      * @return the modifiedEntry
      */
@@ -107,14 +107,14 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     {
         return changeLogEvent;
     }
-    
-    
+
+
     public void setChangeLogEvent( ChangeLogEvent changeLogEvent )
     {
         this.changeLogEvent = changeLogEvent;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -122,8 +122,8 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     {
         this.logChange = logChange;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

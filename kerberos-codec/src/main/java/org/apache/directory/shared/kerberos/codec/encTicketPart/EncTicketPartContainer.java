@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.encTicketPart;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
@@ -34,6 +35,7 @@ public class EncTicketPartContainer extends AbstractContainer
 {
     /** holds EncTicketPart */
     private EncTicketPart encTicketPart = new EncTicketPart();
+
 
     /**
      * Creates a new EncTicketPartContainer object.
@@ -56,7 +58,7 @@ public class EncTicketPartContainer extends AbstractContainer
         return encTicketPart;
     }
 
-    
+
     /**
      * Set a EncTicketPart Object into the container
      * 

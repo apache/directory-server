@@ -112,7 +112,8 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
         // --------------------------------------------------------------------------------------------
         // Authenticator    ::= [APPLICATION 2] SEQUENCE {
         //         authenticator-vno       [0] INTEGER (5),
-        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_AUTHENTICATOR_VNO_STATE,
@@ -138,7 +139,8 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
         // Authenticator    ::= [APPLICATION 2] SEQUENCE {
         //         ...
         //         crealm                  [1] Realm,
-        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
+        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING
+            .getValue()] =
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CREALM_STATE,
@@ -203,7 +205,8 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
         // Authenticator    ::= [APPLICATION 2] SEQUENCE {
         //         ...
         //         cusec                   [4] Microseconds,
-        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CUSEC_STATE,
@@ -229,7 +232,8 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
         // Authenticator    ::= [APPLICATION 2] SEQUENCE {
         //         ...
         //         ctime                   [5] KerberosTime,
-        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME.getValue()] =
+        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_TAG_STATE.ordinal()][UniversalTag.GENERALIZED_TIME
+            .getValue()] =
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_CTIME_STATE,
@@ -307,7 +311,8 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
         // Authenticator    ::= [APPLICATION 2] SEQUENCE {
         //         ...
         //         authorization-data      [8] AuthorizationData OPTIONAL
-        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<AuthenticatorContainer>(
                 AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_TAG_STATE,
                 AuthenticatorStatesEnum.AUTHENTICATOR_SEQ_NUMBER_STATE,
@@ -328,6 +333,7 @@ public final class AuthenticatorGrammar extends AbstractGrammar<AuthenticatorCon
                 KerberosConstants.AUTHENTICATOR_AUTHORIZATION_DATA_TAG,
                 new StoreAuthorizationData() );
     }
+
 
     /**
      * Get the instance of this grammar

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.encryptedData;
 
+
 import org.apache.directory.shared.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 
@@ -32,6 +33,7 @@ public class EncryptedDataContainer extends AbstractContainer
 {
     /** An EncryptedData container */
     private EncryptedData encryptedData;
+
 
     /**
      * Creates a new EncryptedDataContainer object.
@@ -53,7 +55,7 @@ public class EncryptedDataContainer extends AbstractContainer
         return encryptedData;
     }
 
-    
+
     /**
      * Set a EncryptedData Object into the container. It will be completed by the
      * KerberosDecoder.

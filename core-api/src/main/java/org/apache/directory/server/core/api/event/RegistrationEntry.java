@@ -29,11 +29,11 @@ public class RegistrationEntry
 {
     /** The associated listener */
     private final DirectoryListener listener;
-    
+
     /** The notification criteria */
     private final NotificationCriteria criteria;
 
-    
+
     /**
      * Creates a new instance of RegistrationEntry associated with a listener
      * @param listener The associated listener
@@ -43,7 +43,7 @@ public class RegistrationEntry
         this( listener, new NotificationCriteria() );
     }
 
-    
+
     /**
      * Creates a new instance of RegistrationEntry associated with a listener
      * and a notification criteria
@@ -73,22 +73,22 @@ public class RegistrationEntry
     {
         return listener;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( listener ).append( '/' );
-        
+
         if ( criteria != null )
         {
             sb.append( criteria.toString() );
         }
-        
+
         return sb.toString();
     }
 }

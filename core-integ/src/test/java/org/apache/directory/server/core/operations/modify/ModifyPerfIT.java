@@ -51,18 +51,18 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(
-    name = "ModifyPerfDS", 
+    name = "ModifyPerfDS",
     partitions =
-    { 
-        @CreatePartition(
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
-        + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
-        { 
-                @CreateIndex(attribute = "objectClass"), 
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") })
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(entryLdif = "dn: dc=example,dc=com\n"
+                    + "dc: example\n" + "objectClass: top\n" + "objectClass: domain\n\n"), indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn") })
 
     }, enableChangeLog = false)
 public class ModifyPerfIT extends AbstractLdapTestUnit
@@ -71,7 +71,7 @@ public class ModifyPerfIT extends AbstractLdapTestUnit
      * Test an modify operation performance
      */
     @Test
-    @Ignore ( "We should not have performance tests mixed with integration tests" )
+    @Ignore("We should not have performance tests mixed with integration tests")
     public void testModifyPerf() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.txn;
 
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 
@@ -38,8 +39,8 @@ public interface TxnManager
      * @throws Exception
      */
     TxnHandle beginTransaction( boolean readOnly ) throws Exception;
-    
-    
+
+
     /**
      * Retries a txn. Retry is not necessary for read only transactions and
      * this method should only expect RW transactions
@@ -47,7 +48,7 @@ public interface TxnManager
      */
     TxnHandle retryTransaction() throws Exception;
 
-    
+
     /**
      * Tries to commit the current txn associated with the current thread. ReadWrite txns have to be verified against txns
      * that committed after they started for any conflicting change and conflicting
@@ -59,7 +60,6 @@ public interface TxnManager
     void commitTransaction() throws Exception, TxnConflictException;
 
 
-    
     /**
      * Aborts the current txn associated with the current thread.
      *
@@ -106,8 +106,8 @@ public interface TxnManager
      * Flushes the committed txns to partitions.
      */
     void applyPendingTxns();
-    
-    
+
+
     /**
      * Called when data derived from the underlying
      * data managed by the txn manager is about to be
@@ -117,31 +117,32 @@ public interface TxnManager
      * @throws LdapException with a root cause as TxnConflictException
      */
     void startLogicalDataChange() throws LdapException;
-    
-    
+
+
     /**
      * Called when txn manager wont need data derived from  
      * data managed by the txn layer is not needed any more.  
      */
     void endLogicalDataRead();
-    
-    
+
+
     /**
      * Prepares the current txn for logical data reinit
      *
      * @return TRUE if txn needs to do logical data reinit
      */
     boolean prepareForLogicalDataReinit();
-    
-    
+
+
     /** 
      * Recovers the given partition
      */
     void recoverPartition( Partition partition );
-    
-    
+
+
     void setDoNotFlush();
-    
+
+
     void unsetDoNotFlush();
 
 }

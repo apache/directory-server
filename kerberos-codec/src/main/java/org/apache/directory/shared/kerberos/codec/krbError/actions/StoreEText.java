@@ -73,7 +73,7 @@ public class StoreEText extends GrammarAction<KrbErrorContainer>
 
         // The value is the realm
         Value value = tlv.getValue();
-        String eText = Strings.utf8ToString(value.getData());
+        String eText = Strings.utf8ToString( value.getData() );
 
         KrbError krbError = krbErrorContainer.getKrbError();
         krbError.setEText( eText );

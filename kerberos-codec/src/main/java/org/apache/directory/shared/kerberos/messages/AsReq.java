@@ -42,15 +42,16 @@ public class AsReq extends KdcReq
     // Storage for computed lengths
     private int kdcReqLength;
 
+
     /**
      * Creates a new instance of AS-REQ.
      */
-    public AsReq() 
+    public AsReq()
     {
         super( KerberosMessageType.AS_REQ );
     }
 
-    
+
     /**
      * Compute the AS-REQ length
      * <pre>
@@ -66,8 +67,8 @@ public class AsReq extends KdcReq
         kdcReqLength = super.computeLength();
         return 1 + TLV.getNbBytes( kdcReqLength ) + kdcReqLength;
     }
-    
-    
+
+
     /**
      * Encode the AS-REQ component
      * 
@@ -81,14 +82,14 @@ public class AsReq extends KdcReq
         {
             buffer = ByteBuffer.allocate( computeLength() );
         }
-        
+
         // The AS-REQ SEQ Tag
-        buffer.put( (byte)KerberosConstants.AS_REQ_TAG );
+        buffer.put( ( byte ) KerberosConstants.AS_REQ_TAG );
         buffer.put( TLV.getBytes( kdcReqLength ) );
-        
+
         // The KDC-REQ --------------------------------------------------------
         super.encode( buffer );
-        
+
         return buffer;
     }
 }

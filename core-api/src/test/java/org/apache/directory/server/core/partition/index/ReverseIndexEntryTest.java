@@ -89,8 +89,10 @@ public class ReverseIndexEntryTest
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getValue() );
 
-        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
-        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), indexEntry.getTuple() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ),
+            new DefaultEntry() );
+        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ),
+            indexEntry.getTuple() );
         assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
@@ -98,7 +100,8 @@ public class ReverseIndexEntryTest
     @Test
     public void testClear()
     {
-        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ),
+            new DefaultEntry() );
         indexEntry.clear();
 
         assertNull( indexEntry.getId() );
@@ -114,7 +117,8 @@ public class ReverseIndexEntryTest
     public void testCopy()
     {
         // prepare index entry
-        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ),
+            new DefaultEntry() );
 
         // create empty index entry and assert empty values
         ReverseIndexEntry<String> indexEntry2 = new ReverseIndexEntry<String>();
@@ -130,14 +134,16 @@ public class ReverseIndexEntryTest
         assertEquals( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getValue() );
         assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
-        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ), indexEntry2.getTuple() );
+        assertEquals( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000000001" ), "a" ),
+            indexEntry2.getTuple() );
     }
 
 
     @Test
     public void testToString()
     {
-        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000054321" ), "asdfghjkl" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<UUID, String>( UUID.fromString( "00000000-0000-0000-0000-000000054321" ),
+            "asdfghjkl" ), new DefaultEntry() );
         assertTrue( indexEntry.toString().contains( "asdfghjkl" ) );
         assertTrue( indexEntry.toString().contains( "54321" ) );
     }

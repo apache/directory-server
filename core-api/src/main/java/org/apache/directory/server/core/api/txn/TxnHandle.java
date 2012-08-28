@@ -33,7 +33,7 @@ public interface TxnHandle
      * @return
      */
     State getState();
-    
+
     enum State
     {
         INITIAL,

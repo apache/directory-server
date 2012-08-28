@@ -71,9 +71,10 @@ public class ReferralInterceptor extends BaseInterceptor
     /** A normalized form for the SubschemaSubentry Dn */
     private Dn subschemaSubentryDn;
 
+
     static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
-        StringValue ref = (StringValue) value;
+        StringValue ref = ( StringValue ) value;
 
         String refVal = ref.getString();
 
@@ -96,7 +97,7 @@ public class ReferralInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
-        if ( !Strings.isEmpty(ldapUrl.getFilter()) )
+        if ( !Strings.isEmpty( ldapUrl.getFilter() ) )
         {
             String message = I18n.err( I18n.ERR_37 );
             LOG.error( message );
@@ -192,6 +193,7 @@ public class ReferralInterceptor extends BaseInterceptor
         }
     }
 
+
     /**
      * Creates a new instance of a ReferralInterceptor.
      */
@@ -214,12 +216,12 @@ public class ReferralInterceptor extends BaseInterceptor
         Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void reinitLogicalData(  DirectoryService directoryService  ) throws LdapException
+    public void reinitLogicalData( DirectoryService directoryService ) throws LdapException
     {
         referralManager.reinitialize( directoryService );
     }
@@ -259,10 +261,10 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // We have to add it to the referralManager
-            
+
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             referralManager.addReferral( entry );
         }
     }
@@ -299,7 +301,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             referralManager.removeReferral( entry );
         }
     }
@@ -342,7 +344,7 @@ public class ReferralInterceptor extends BaseInterceptor
             {
                 // Ensure logical data consistency
                 directoryService.getTxnManager().startLogicalDataChange();
-                
+
                 referralManager.removeReferral( modifyContext.getEntry() );
                 referralManager.addReferral( newEntry );
             }
@@ -365,7 +367,7 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // Update the referralManager
-            
+
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
 
@@ -392,7 +394,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             referralManager.addReferral( newEntry );
             referralManager.removeReferral( moveAndRenameContext.getOriginalEntry() );
         }
@@ -412,17 +414,18 @@ public class ReferralInterceptor extends BaseInterceptor
         if ( isReferral )
         {
             // Update the referralManager
-            LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(), renameContext
-                .getNewDn() );
+            LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
+                renameContext
+                    .getNewDn() );
             lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry newEntry = nexus.lookup( lookupContext );
 
             // Ensure logical data consistency
             directoryService.getTxnManager().startLogicalDataChange();
-            
+
             referralManager.addReferral( newEntry );
-            referralManager.removeReferral( ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry() );
+            referralManager.removeReferral( ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry() );
         }
     }
 }

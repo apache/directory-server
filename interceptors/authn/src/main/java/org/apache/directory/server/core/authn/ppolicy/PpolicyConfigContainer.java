@@ -67,8 +67,8 @@ public class PpolicyConfigContainer
     {
         return ( !ppolicyConfigMap.isEmpty() );
     }
-    
-    
+
+
     /**
      * Get the password policy configuration defined at a given Dn
      *  
@@ -100,7 +100,7 @@ public class PpolicyConfigContainer
         this.defaultPolicy = defaultPolicy;
     }
 
-    
+
     /**
      * deactivate an existing password policy.
      *  

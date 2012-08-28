@@ -62,7 +62,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     private final SchemaManager schemaManager;
 
 
-    public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator, SchemaManager schemaManager )
+    public RelatedProtectedItemFilter( RefinementEvaluator refinementEvaluator, Evaluator entryEvaluator,
+        SchemaManager schemaManager )
     {
         this.refinementEvaluator = refinementEvaluator;
         this.entryEvaluator = entryEvaluator;
@@ -70,7 +71,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry ) throws LdapException
+    public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
+        throws LdapException
     {
         if ( aciContext.getAciTuples().size() == 0 )
         {
@@ -80,8 +82,9 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
         for ( Iterator<ACITuple> i = aciContext.getAciTuples().iterator(); i.hasNext(); )
         {
             ACITuple tuple = i.next();
-            
-            if ( !isRelated( tuple, scope, aciContext.getUserDn(), aciContext.getEntryDn(), aciContext.getAttributeType(), aciContext.getAttrValue(), aciContext.getEntry() ) )
+
+            if ( !isRelated( tuple, scope, aciContext.getUserDn(), aciContext.getEntryDn(),
+                aciContext.getAttributeType(), aciContext.getAttrValue(), aciContext.getEntry() ) )
             {
                 i.remove();
             }
@@ -91,16 +94,17 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName, AttributeType attributeType,
-                               Value<?> attrValue, Entry entry ) throws LdapException, InternalError
+    private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName,
+        AttributeType attributeType,
+        Value<?> attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;
-        
+
         if ( attributeType != null )
         {
             oid = attributeType.getOid();
         }
-        
+
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {
             if ( item == ProtectedItem.ENTRY )
@@ -109,7 +113,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 {
                     continue;
                 }
-                
+
                 return true;
             }
             else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
@@ -142,7 +146,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 for ( Iterator<AttributeType> iterator = aav.iterator(); iterator.hasNext(); )
                 {
                     AttributeType attr = iterator.next();
-                    
+
                     if ( oid.equals( attr.getOid() ) )
                     {
                         return true;
@@ -157,11 +161,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 AttributeTypeItem at = ( AttributeTypeItem ) item;
-                
+
                 for ( Iterator<AttributeType> iterator = at.iterator(); iterator.hasNext(); )
                 {
                     AttributeType attr = iterator.next();
-                    
+
                     if ( oid.equals( attr.getOid() ) )
                     {
                         return true;
@@ -176,14 +180,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 AttributeValueItem av = ( AttributeValueItem ) item;
-                
+
                 for ( Iterator<Attribute> j = av.iterator(); j.hasNext(); )
                 {
                     Attribute entryAttribute = j.next();
-                    
-                    AttributeType attr =  entryAttribute.getAttributeType();
+
+                    AttributeType attr = entryAttribute.getAttributeType();
                     String attrOid = null;
-                    
+
                     if ( attr != null )
                     {
                         attrOid = entryAttribute.getAttributeType().getOid();
@@ -194,7 +198,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                         attrOid = attr.getOid();
                         entryAttribute.apply( attr );
                     }
-                    
+
                     if ( oid.equals( attrOid ) && entryAttribute.contains( attrValue ) )
                     {
                         return true;
@@ -203,9 +207,10 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else if ( item instanceof ClassesItem )
             {
-                ClassesItem refinement = (ClassesItem ) item;
-                
-                if ( refinementEvaluator.evaluate( refinement.getClasses(), entry.get( SchemaConstants.OBJECT_CLASS_AT ) ) )
+                ClassesItem refinement = ( ClassesItem ) item;
+
+                if ( refinementEvaluator
+                    .evaluate( refinement.getClasses(), entry.get( SchemaConstants.OBJECT_CLASS_AT ) ) )
                 {
                     return true;
                 }
@@ -222,11 +227,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 MaxValueCountItem mvc = ( MaxValueCountItem ) item;
-                
+
                 for ( Iterator<MaxValueCountElem> j = mvc.iterator(); j.hasNext(); )
                 {
                     MaxValueCountElem mvcItem = j.next();
-                    
+
                     if ( oid.equals( mvcItem.getAttributeType().getOid() ) )
                     {
                         return true;
@@ -236,7 +241,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             else if ( item instanceof RangeOfValuesItem )
             {
                 RangeOfValuesItem rov = ( RangeOfValuesItem ) item;
-                
+
                 if ( entryEvaluator.evaluate( rov.getRefinement(), entryName, entry ) )
                 {
                     return true;
@@ -250,11 +255,11 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 RestrictedByItem rb = ( RestrictedByItem ) item;
-                
+
                 for ( Iterator<RestrictedByElem> j = rb.iterator(); j.hasNext(); )
                 {
                     RestrictedByElem rbItem = j.next();
-                    
+
                     if ( oid.equals( rbItem.getAttributeType().getOid() ) )
                     {
                         return true;
@@ -269,18 +274,18 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 }
 
                 SelfValueItem sv = ( SelfValueItem ) item;
-                
+
                 for ( Iterator<AttributeType> iterator = sv.iterator(); iterator.hasNext(); )
                 {
                     AttributeType attr = iterator.next();
-                    
+
                     if ( oid.equals( attr.getOid() ) )
                     {
                         Attribute entryAttribute = entry.get( oid );
-                        
-                        if ( ( entryAttribute != null ) && 
-                             ( ( entryAttribute.contains( userName.getNormName() ) || 
-                               ( entryAttribute.contains( userName.getName() ) ) ) ) )
+
+                        if ( ( entryAttribute != null ) &&
+                            ( ( entryAttribute.contains( userName.getNormName() ) ||
+                            ( entryAttribute.contains( userName.getName() ) ) ) ) )
                         {
                             return true;
                         }

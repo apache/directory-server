@@ -52,131 +52,132 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
     })
-@ApplyLdifs( {
-    "dn: ou=actors,ou=system",
-    "objectClass: top",
-    "objectClass: organizationalUnit",
-    "ou: actors",
+@ApplyLdifs(
+    {
+        "dn: ou=actors,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "ou: actors",
 
-    "dn: uid=jblack,ou=actors,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: uidObject",
-    "uid: jblack",
-    "ou: comedy",
-    "ou: adventure",
-    "cn: Jack Black",
-    "sn: Black",
+        "dn: uid=jblack,ou=actors,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: uidObject",
+        "uid: jblack",
+        "ou: comedy",
+        "ou: adventure",
+        "cn: Jack Black",
+        "sn: Black",
 
-    "dn: uid=bpitt,ou=actors,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: uidObject",
-    "uid: bpitt",
-    "ou: drama",
-    "ou: adventure",
-    "cn: Brad Pitt",
-    "sn: Pitt",
+        "dn: uid=bpitt,ou=actors,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: uidObject",
+        "uid: bpitt",
+        "ou: drama",
+        "ou: adventure",
+        "cn: Brad Pitt",
+        "sn: Pitt",
 
-    "dn: uid=gcloony,ou=actors,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: uidObject",
-    "uid: gcloony",
-    "ou: drama",
-    "cn: Goerge Cloony",
-    "sn: Cloony",
+        "dn: uid=gcloony,ou=actors,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: uidObject",
+        "uid: gcloony",
+        "ou: drama",
+        "cn: Goerge Cloony",
+        "sn: Cloony",
 
-    "dn: uid=jnewbie,ou=actors,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: organizationalPerson",
-    "objectClass: uidObject",
-    "uid: jnewbie",
-    "cn: Joe Newbie",
-    "sn: Newbie" 
+        "dn: uid=jnewbie,ou=actors,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: uidObject",
+        "uid: jnewbie",
+        "cn: Joe Newbie",
+        "sn: Newbie"
 
-    }
-)
-public class NegationSearchIT extends AbstractLdapTestUnit 
+})
+public class NegationSearchIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
+@Rule
+public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
 
-    /**
-     * Tests to make sure a negated search for actors without ou
-     * with value 'drama' returns those that do not have the attribute
-     * and do not have a 'drama' value for ou if the attribute still
-     * exists.  This test does not build an index on ou for the system
-     * partition.
-     */
-    @Test
-    public void testSearchNotDrama() throws Exception
-    {
-        // jack black has ou but not drama, and joe newbie has no ou what so ever
-        Set<SearchResult> results = getResults( "(!(ou=drama))" );
-        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
-        assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
-        assertEquals( 2, results.size() );
-    }
 
-    
-    /**
-     * Tests to make sure a negated search for actors without ou
-     * with value 'drama' returns those that do not have the attribute
-     * and do not have a 'drama' value for ou if the attribute still
-     * exists.  This test does not build an index on ou for the system
-     * partition.
-     */
-    @Test
-    public void testSearchNotDramaNotNewbie() throws Exception
-    {
-        // jack black has ou but not drama, and joe newbie has no ou what so ever
-        Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
-        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
-        assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
-        assertEquals( 1, results.size() );
-    }
+/**
+ * Tests to make sure a negated search for actors without ou
+ * with value 'drama' returns those that do not have the attribute
+ * and do not have a 'drama' value for ou if the attribute still
+ * exists.  This test does not build an index on ou for the system
+ * partition.
+ */
+@Test
+public void testSearchNotDrama() throws Exception
+{
+    // jack black has ou but not drama, and joe newbie has no ou what so ever
+    Set<SearchResult> results = getResults( "(!(ou=drama))" );
+    assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+    assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+    assertEquals( 2, results.size() );
+}
 
-    
-    boolean contains( String dn, Set<SearchResult> results )
+
+/**
+ * Tests to make sure a negated search for actors without ou
+ * with value 'drama' returns those that do not have the attribute
+ * and do not have a 'drama' value for ou if the attribute still
+ * exists.  This test does not build an index on ou for the system
+ * partition.
+ */
+@Test
+public void testSearchNotDramaNotNewbie() throws Exception
+{
+    // jack black has ou but not drama, and joe newbie has no ou what so ever
+    Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
+    assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+    assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+    assertEquals( 1, results.size() );
+}
+
+
+boolean contains( String dn, Set<SearchResult> results )
+{
+    for ( SearchResult result : results )
     {
-        for ( SearchResult result : results )
+        if ( result.getNameInNamespace().equals( dn ) )
         {
-            if ( result.getNameInNamespace().equals( dn ) )
-            {
-                return true;
-            }
+            return true;
         }
-        
-        return false;
     }
-    
-    
-    Set<SearchResult> getResults( String filter ) throws Exception
+
+    return false;
+}
+
+
+Set<SearchResult> getResults( String filter ) throws Exception
+{
+    DirContext ctx = getWiredContext( getLdapServer() );
+    Set<SearchResult> results = new HashSet<SearchResult>();
+    SearchControls controls = new SearchControls();
+    controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+    NamingEnumeration<SearchResult> namingEnumeration = ctx.search( "ou=actors,ou=system", filter, controls );
+    while ( namingEnumeration.hasMore() )
     {
-        DirContext ctx = getWiredContext( getLdapServer() );
-        Set<SearchResult> results = new HashSet<SearchResult>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration<SearchResult> namingEnumeration = ctx.search( "ou=actors,ou=system", filter, controls );
-        while( namingEnumeration.hasMore() )
-        {
-            results.add( namingEnumeration.next() );
-        }
-        
-        namingEnumeration.close();
-        ctx.close();
-        
-        return results;
+        results.add( namingEnumeration.next() );
     }
+
+    namingEnumeration.close();
+    ctx.close();
+
+    return results;
+}
 }

@@ -18,6 +18,8 @@
  *  
  */
 package org.apache.directory.server.core.api.entry;
+
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -33,6 +35,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayCompar
 import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.shared.util.Strings;
 
+
 /**
  * Some common declaration used by the serverEntry tests.
  *
@@ -47,18 +50,21 @@ public class TestServerEntryUtils
     {
         private static final long serialVersionUID = 0L;
 
+
         protected AT( String oid )
         {
             super( oid );
         }
     }
 
+
     public static MatchingRule matchingRuleFactory( String oid )
     {
         MatchingRule matchingRule = new MatchingRule( oid );
-        
+
         return matchingRule;
     }
+
     /**
      * A local MatchingRule class for tests
      */
@@ -77,14 +83,16 @@ public class TestServerEntryUtils
     public static LdapSyntax syntaxFactory( String oid, boolean humanReadable )
     {
         LdapSyntax ldapSyntax = new LdapSyntax( oid );
-        
+
         ldapSyntax.setHumanReadable( humanReadable );
-        
+
         return ldapSyntax;
     }
+
     static class S extends LdapSyntax
     {
         private static final long serialVersionUID = 0L;
+
 
         public S( String oid, boolean humanReadible )
         {
@@ -92,7 +100,8 @@ public class TestServerEntryUtils
         }
     }
 
-    /* no protection*/ 
+
+    /* no protection*/
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     static AttributeType getCaseIgnoringAttributeNoNumbersType()
@@ -110,8 +119,8 @@ public class TestServerEntryUtils
                 }
 
                 String strval = ( String ) value;
-                
-                for ( char c:strval.toCharArray() )
+
+                for ( char c : strval.toCharArray() )
                 {
                     if ( Character.isDigit( c ) )
                     {
@@ -121,39 +130,39 @@ public class TestServerEntryUtils
                 return true;
             }
         } );
-        
+
         MatchingRule matchingRule = new MatchingRule( "1.1.2.1" );
         matchingRule.setSyntax( syntax );
-
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
             public int compare( String o1, String o2 )
             {
-                return ( o1 == null ? 
+                return ( o1 == null ?
                     ( o2 == null ? 0 : -1 ) :
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
 
+
             int getValue( String val )
             {
-                if ( val.equals( "LOW" ) ) 
+                if ( val.equals( "LOW" ) )
                 {
                     return 0;
                 }
-                else if ( val.equals( "MEDIUM" ) ) 
+                else if ( val.equals( "MEDIUM" ) )
                 {
                     return 1;
                 }
-                else if ( val.equals( "HIGH" ) ) 
+                else if ( val.equals( "HIGH" ) )
                 {
                     return 2;
                 }
-                
+
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_472 ) );
             }
         } );
-        
+
         Normalizer normalizer = new Normalizer( "1.1.1" )
         {
             public Value<?> normalize( Value<?> value ) throws LdapException
@@ -165,24 +174,24 @@ public class TestServerEntryUtils
 
                 throw new IllegalStateException( I18n.err( I18n.ERR_473 ) );
             }
-            
-            
+
+
             public String normalize( String value ) throws LdapException
             {
                 return Strings.toLowerCase( value );
             }
         };
-        
+
         matchingRule.setNormalizer( normalizer );
-        
+
         attributeType.setEquality( matchingRule );
         attributeType.setSyntax( syntax );
-        
+
         return attributeType;
     }
 
 
-    /* no protection*/ static AttributeType getIA5StringAttributeType()
+    /* no protection*/static AttributeType getIA5StringAttributeType()
     {
         AttributeType attributeType = new AttributeType( "1.1" );
         attributeType.addName( "1.1" );
@@ -192,34 +201,33 @@ public class TestServerEntryUtils
         {
             public boolean isValidSyntax( Object value )
             {
-                return ((String)value == null) || (((String)value).length() < 7) ;
+                return ( ( String ) value == null ) || ( ( ( String ) value ).length() < 7 );
             }
         } );
-        
+
         MatchingRule matchingRule = new MatchingRule( "1.1.2" );
         matchingRule.setSyntax( syntax );
-
 
         matchingRule.setLdapComparator( new LdapComparator<String>( matchingRule.getOid() )
         {
             public int compare( String o1, String o2 )
             {
-                return ( ( o1 == null ) ? 
+                return ( ( o1 == null ) ?
                     ( o2 == null ? 0 : -1 ) :
                     ( o2 == null ? 1 : o1.compareTo( o2 ) ) );
             }
         } );
-        
+
         matchingRule.setNormalizer( new DeepTrimToLowerNormalizer( matchingRule.getOid() ) );
-        
+
         attributeType.setEquality( matchingRule );
         attributeType.setSyntax( syntax );
-        
+
         return attributeType;
     }
 
 
-    /* No protection */ static AttributeType getBytesAttributeType()
+    /* No protection */static AttributeType getBytesAttributeType()
     {
         AttributeType attributeType = new AttributeType( "1.2" );
         LdapSyntax syntax = new LdapSyntax( "1.2.1", "", true );
@@ -228,7 +236,7 @@ public class TestServerEntryUtils
         {
             public boolean isValidSyntax( Object value )
             {
-                return ( value == null ) || ( ((byte[])value).length < 5 );
+                return ( value == null ) || ( ( ( byte[] ) value ).length < 5 );
             }
         } );
 
@@ -236,7 +244,7 @@ public class TestServerEntryUtils
         matchingRule.setSyntax( syntax );
 
         matchingRule.setLdapComparator( new ByteArrayComparator( "1.2.2" ) );
-        
+
         matchingRule.setNormalizer( new Normalizer( "1.1.1" )
         {
             public Value<?> normalize( Value<?> value ) throws LdapException
@@ -244,29 +252,30 @@ public class TestServerEntryUtils
                 if ( !value.isHumanReadable() )
                 {
                     byte[] val = value.getBytes();
-                    
+
                     // each byte will be changed to be > 0, and spaces will be trimmed
-                    byte[] newVal = new byte[ val.length ];
-                    
+                    byte[] newVal = new byte[val.length];
+
                     int i = 0;
-                    
-                    for ( byte b:val )
+
+                    for ( byte b : val )
                     {
-                        newVal[i++] = (byte)(b & 0x007F); 
+                        newVal[i++] = ( byte ) ( b & 0x007F );
                     }
-                    
-                    return new BinaryValue( Strings.trim(newVal) );
+
+                    return new BinaryValue( Strings.trim( newVal ) );
                 }
 
                 throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }
+
 
             public String normalize( String value ) throws LdapException
             {
                 throw new IllegalStateException( I18n.err( I18n.ERR_474 ) );
             }
         } );
-        
+
         attributeType.setEquality( matchingRule );
         attributeType.setSyntax( syntax );
 

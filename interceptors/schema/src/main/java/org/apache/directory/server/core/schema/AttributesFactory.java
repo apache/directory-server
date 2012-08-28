@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.schema; 
+package org.apache.directory.server.core.schema;
 
 
 import java.util.List;
@@ -89,11 +89,11 @@ public class AttributesFactory
         {
             return getAttributes( ( NameForm ) obj, schema, schemaManager );
         }
-        
+
         throw new IllegalArgumentException( I18n.err( I18n.ERR_698, obj.getClass() ) );
     }
-    
-    
+
+
     public Entry getAttributes( Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -102,30 +102,31 @@ public class AttributesFactory
         entry.put( SchemaConstants.CN_AT, schema.getSchemaName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
+
         if ( schema.isDisabled() )
         {
             entry.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         }
-        
+
         String[] dependencies = schema.getDependencies();
-        
+
         if ( dependencies != null && dependencies.length > 0 )
         {
-            Attribute attr = new DefaultAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
-            
-            for ( String dependency:dependencies )
+            Attribute attr = new DefaultAttribute(
+                schemaManager.getAttributeType( MetaSchemaConstants.M_DEPENDENCIES_AT ) );
+
+            for ( String dependency : dependencies )
             {
                 attr.add( dependency );
             }
-            
+
             entry.put( attr );
         }
-        
+
         return entry;
     }
-    
-    
+
+
     public Entry getAttributes( SyntaxChecker syntaxChecker, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -135,11 +136,11 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_FQCN_AT, syntaxChecker.getClass().getName() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
+
         return entry;
     }
 
-    
+
     public Entry getAttributes( LdapSyntax syntax, Schema schema, SchemaManager schemaManager ) throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -149,11 +150,11 @@ public class AttributesFactory
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         injectCommon( syntax, entry, schemaManager );
-        
+
         return entry;
     }
 
-    
+
     public Entry getAttributes( String oid, Normalizer normalizer, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -166,8 +167,9 @@ public class AttributesFactory
         return entry;
     }
 
-    
-    public Entry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema, SchemaManager schemaManager )
+
+    public Entry getAttributes( String oid, LdapComparator<? super Object> comparator, Schema schema,
+        SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
 
@@ -186,7 +188,8 @@ public class AttributesFactory
      * @return Attributes
      * @throws LdapException
      */
-    public Entry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( MatchingRule matchingRule, Schema schema, SchemaManager schemaManager )
+        throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
 
@@ -198,7 +201,7 @@ public class AttributesFactory
         return entry;
     }
 
-    
+
     public Entry getAttributes( MatchingRuleUse matchingRuleUse, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -209,7 +212,7 @@ public class AttributesFactory
         return entry;
     }
 
-    
+
     public Entry getAttributes( DITStructureRule dITStructureRule, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -220,7 +223,7 @@ public class AttributesFactory
         return entry;
     }
 
-    
+
     public Entry getAttributes( DITContentRule dITContentRule, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -231,7 +234,7 @@ public class AttributesFactory
         return entry;
     }
 
-    
+
     public Entry getAttributes( NameForm nameForm, Schema schema, SchemaManager schemaManager )
     {
         Entry entry = new DefaultEntry( schemaManager );
@@ -261,28 +264,29 @@ public class AttributesFactory
      * @return Attributes
      * @throws LdapException
      */
-    public Entry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( AttributeType attributeType, Schema schema, SchemaManager schemaManager )
+        throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
 
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC );
         entry.put( MetaSchemaConstants.M_SYNTAX_AT, attributeType.getSyntaxOid() );
         entry.put( MetaSchemaConstants.M_COLLECTIVE_AT, getBoolean( attributeType.isCollective() ) );
-        entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( ! attributeType.isUserModifiable() ) );
+        entry.put( MetaSchemaConstants.M_NO_USER_MODIFICATION_AT, getBoolean( !attributeType.isUserModifiable() ) );
         entry.put( MetaSchemaConstants.M_SINGLE_VALUE_AT, getBoolean( attributeType.isSingleValued() ) );
         entry.put( MetaSchemaConstants.M_USAGE_AT, attributeType.getUsage().toString() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
         injectCommon( attributeType, entry, schemaManager );
-        
+
         String superiorOid = attributeType.getSuperiorOid();
-        
+
         if ( superiorOid != null )
         {
             entry.put( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT, superiorOid );
         }
-        
+
         if ( attributeType.getEqualityOid() != null )
         {
             entry.put( MetaSchemaConstants.M_EQUALITY_AT, attributeType.getEqualityOid() );
@@ -301,7 +305,7 @@ public class AttributesFactory
         return entry;
     }
 
-    
+
     /**
      * Creates the attributes of an entry representing an objectClass.
      * 
@@ -321,7 +325,8 @@ public class AttributesFactory
      * @return the attributes of the metaSchema entry representing the objectClass
      * @throws LdapException if there are any problems
      */
-    public Entry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager ) throws LdapException
+    public Entry getAttributes( ObjectClass objectClass, Schema schema, SchemaManager schemaManager )
+        throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager );
 
@@ -329,19 +334,20 @@ public class AttributesFactory
         entry.put( MetaSchemaConstants.M_TYPE_OBJECT_CLASS_AT, objectClass.getType().toString() );
         entry.put( SchemaConstants.CREATORS_NAME_AT, schema.getOwner() );
         entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
+
         injectCommon( objectClass, entry, schemaManager );
 
         // handle the superior objectClasses 
         if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() != 0 )
         {
-            Attribute attr = new DefaultAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
-            
-            for ( String superior:objectClass.getSuperiorOids() )
+            Attribute attr = new DefaultAttribute(
+                schemaManager.getAttributeType( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT ) );
+
+            for ( String superior : objectClass.getSuperiorOids() )
             {
-                attr.add( superior ); 
+                attr.add( superior );
             }
-            
+
             entry.put( attr );
         }
 
@@ -350,65 +356,66 @@ public class AttributesFactory
         {
             Attribute attr = new DefaultAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MUST_AT ) );
 
-            for ( String mustOid :objectClass.getMustAttributeTypeOids() )
+            for ( String mustOid : objectClass.getMustAttributeTypeOids() )
             {
                 attr.add( mustOid );
             }
-            
+
             entry.put( attr );
         }
-        
+
         // add the may list
         if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() != 0 )
         {
             Attribute attr = new DefaultAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_MAY_AT ) );
 
-            for ( String mayOid :objectClass.getMayAttributeTypeOids() )
+            for ( String mayOid : objectClass.getMayAttributeTypeOids() )
             {
                 attr.add( mayOid );
             }
-            
+
             entry.put( attr );
         }
-        
+
         return entry;
     }
-    
-    
-    private final void injectCommon( SchemaObject object, Entry entry, SchemaManager schemaManager ) throws LdapException
+
+
+    private final void injectCommon( SchemaObject object, Entry entry, SchemaManager schemaManager )
+        throws LdapException
     {
         injectNames( object.getNames(), entry, schemaManager );
         entry.put( MetaSchemaConstants.M_OBSOLETE_AT, getBoolean( object.isObsolete() ) );
         entry.put( MetaSchemaConstants.M_OID_AT, object.getOid() );
-        
+
         if ( object.getDescription() != null )
         {
             entry.put( MetaSchemaConstants.M_DESCRIPTION_AT, object.getDescription() );
         }
     }
-    
-    
+
+
     private final void injectNames( List<String> names, Entry entry, SchemaManager schemaManager ) throws LdapException
     {
         if ( ( names == null ) || ( names.size() == 0 ) )
         {
             return;
         }
-        
+
         Attribute attr = new DefaultAttribute( schemaManager.getAttributeType( MetaSchemaConstants.M_NAME_AT ) );
 
-        for ( String name:names )
+        for ( String name : names )
         {
             attr.add( name );
         }
-        
+
         entry.put( attr );
     }
 
-    
+
     private final String getBoolean( boolean value )
     {
-        if ( value ) 
+        if ( value )
         {
             return "TRUE";
         }

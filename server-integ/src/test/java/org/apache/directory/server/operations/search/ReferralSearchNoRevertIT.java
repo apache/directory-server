@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.operations.search;
 
- 
+
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -55,169 +55,172 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( 
+@RunWith(FrameworkRunner.class)
+@CreateDS(
     name = "ReferralSearchNoReertDS",
     partitions =
-    {
-        @CreatePartition(
-            name = "example",
-            suffix = "dc=example,dc=com",
-            contextEntry = @ContextEntry( 
-                entryLdif =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "dc: example\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes = 
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "dc" ),
-                @CreateIndex( attribute = "ou" )
-            } )
-    } )
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
     })
-@ApplyLdifs( {
-    // Add new ref for ou=RemoteUsers
-    "dn: ou=RemoteUsers,ou=system",
-    "objectClass: top",
-    "objectClass: referral",
-    "objectClass: extensibleObject",
-    "ou: RemoteUsers",
-    "ref: ldap://fermi:10389/ou=users,ou=system",
-    "ref: ldap://hertz:10389/ou=users,dc=example,dc=com",
-    "ref: ldap://maxwell:10389/ou=users,ou=system",
-    
-    "dn: c=France,ou=system",
-    "objectClass: top",
-    "objectClass: country",
-    "c: France",
-    
-    "dn: c=USA,ou=system",
-    "objectClass: top",
-    "objectClass: country",
-    "c: USA",
-    
-    "dn: l=Paris,c=france,ou=system",
-    "objectClass: top",
-    "objectClass: locality",
-    "l: Paris",
-    
-    "dn: l=Jacksonville,c=usa,ou=system",
-    "objectClass: top",
-    "objectClass: locality",
-    "l: Jacksonville",
-    
-    "dn: cn=emmanuel lecharny,l=paris,c=france,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: residentialPerson",
-    "cn: emmanuel lecharny",
-    "sn: elecharny",
-    "l: Paris",
-    
-    "dn: cn=alex karasulu,l=jacksonville,c=usa,ou=system",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: residentialPerson",
-    "cn: alex karasulu",
-    "sn: karasulu",
-    "l: Jacksonville",
-    
-    "dn: ou=Countries,ou=system",
-    "objectClass: top",
-    "objectClass: organizationalUnit",
-    "ou: Countries"
-    }
-)
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    })
+@ApplyLdifs(
+    {
+        // Add new ref for ou=RemoteUsers
+        "dn: ou=RemoteUsers,ou=system",
+        "objectClass: top",
+        "objectClass: referral",
+        "objectClass: extensibleObject",
+        "ou: RemoteUsers",
+        "ref: ldap://fermi:10389/ou=users,ou=system",
+        "ref: ldap://hertz:10389/ou=users,dc=example,dc=com",
+        "ref: ldap://maxwell:10389/ou=users,ou=system",
+
+        "dn: c=France,ou=system",
+        "objectClass: top",
+        "objectClass: country",
+        "c: France",
+
+        "dn: c=USA,ou=system",
+        "objectClass: top",
+        "objectClass: country",
+        "c: USA",
+
+        "dn: l=Paris,c=france,ou=system",
+        "objectClass: top",
+        "objectClass: locality",
+        "l: Paris",
+
+        "dn: l=Jacksonville,c=usa,ou=system",
+        "objectClass: top",
+        "objectClass: locality",
+        "l: Jacksonville",
+
+        "dn: cn=emmanuel lecharny,l=paris,c=france,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: residentialPerson",
+        "cn: emmanuel lecharny",
+        "sn: elecharny",
+        "l: Paris",
+
+        "dn: cn=alex karasulu,l=jacksonville,c=usa,ou=system",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: residentialPerson",
+        "cn: alex karasulu",
+        "sn: karasulu",
+        "l: Jacksonville",
+
+        "dn: ou=Countries,ou=system",
+        "objectClass: top",
+        "objectClass: organizationalUnit",
+        "ou: Countries"
+})
 public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
 {
-    
-    @Before
-    public void setupReferrals() throws Exception
-    {
-        getLdapServer().getDirectoryService().getChangeLog().setEnabled( false );
 
-        String ldif =
+@Before
+public void setupReferrals() throws Exception
+{
+    getLdapServer().getDirectoryService().getChangeLog().setEnabled( false );
+
+    String ldif =
         "dn: c=europ,ou=Countries,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: referral\n" +
-        "objectClass: extensibleObject\n" +
-        "c: europ\n" +
-        "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=france,ou=system\n\n" +
+            "objectClass: top\n" +
+            "objectClass: referral\n" +
+            "objectClass: extensibleObject\n" +
+            "c: europ\n" +
+            "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=france,ou=system\n\n" +
 
-        "dn: c=america,ou=Countries,ou=system\n" +
-        "objectClass: top\n" +
-        "objectClass: referral\n" +
-        "objectClass: extensibleObject\n" +
-        "c: america\n" +
-        "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system\n\n";
+            "dn: c=america,ou=Countries,ou=system\n" +
+            "objectClass: top\n" +
+            "objectClass: referral\n" +
+            "objectClass: extensibleObject\n" +
+            "c: america\n" +
+            "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system\n\n";
 
-        LdifReader reader = new LdifReader( new StringReader( ldif ) );
-        while ( reader.hasNext() )
-        {
-            LdifEntry entry = reader.next();
-            getLdapServer().getDirectoryService().getAdminSession().add( 
-                new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
-        }
-    }
-
-    
-    /**
-     * Test of an search operation with a referral after the entry
-     * has been moved.
-     *
-     * search for "cn=alex karasulu" on "c=america, ou=system"
-     * we should get a referral URL thrown, which point to
-     * "c=usa, ou=system", and ask for a subtree search
-     */
-    @Test
-    public void testSearchBaseWithReferralThrowAfterMove() throws Exception
+    LdifReader reader = new LdifReader( new StringReader( ldif ) );
+    while ( reader.hasNext() )
     {
-        DirContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
-
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-
-        try
-        {
-            ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
-            fail( "Should fail here throwing a ReferralException" );
-        }
-        catch ( ReferralException re )
-        {
-            String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
-        }
-        
-        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{new ManageReferralControl()} );
-
-        // Now let's move the entry
-        ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
-
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-
-        ((LdapContext)ctx).setRequestControls( new javax.naming.ldap.Control[]{} );
-
-        try
-        {
-            ctx.search( "c=america,ou=system", "(cn=alex karasulu)", controls );
-            fail( "Should fail here throwing a ReferralException" );
-        }
-        catch ( ReferralException re )
-        {
-            String referral = (String)re.getReferralInfo();
-            assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
-        }
+        LdifEntry entry = reader.next();
+        getLdapServer().getDirectoryService().getAdminSession().add(
+            new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
     }
-    
-    @After
-    public void after()
+}
+
+
+/**
+ * Test of an search operation with a referral after the entry
+ * has been moved.
+ *
+ * search for "cn=alex karasulu" on "c=america, ou=system"
+ * we should get a referral URL thrown, which point to
+ * "c=usa, ou=system", and ask for a subtree search
+ */
+@Test
+public void testSearchBaseWithReferralThrowAfterMove() throws Exception
+{
+    DirContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
+
+    SearchControls controls = new SearchControls();
+    controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+    try
     {
-        getLdapServer().getDirectoryService().getChangeLog().setEnabled( true );
+        ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
+        fail( "Should fail here throwing a ReferralException" );
     }
+    catch ( ReferralException re )
+    {
+        String referral = ( String ) re.getReferralInfo();
+        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
+    }
+
+    ( ( LdapContext ) ctx ).setRequestControls( new javax.naming.ldap.Control[]
+        { new ManageReferralControl() } );
+
+    // Now let's move the entry
+    ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
+
+    controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+
+    ( ( LdapContext ) ctx ).setRequestControls( new javax.naming.ldap.Control[]
+        {} );
+
+    try
+    {
+        ctx.search( "c=america,ou=system", "(cn=alex karasulu)", controls );
+        fail( "Should fail here throwing a ReferralException" );
+    }
+    catch ( ReferralException re )
+    {
+        String referral = ( String ) re.getReferralInfo();
+        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
+    }
+}
+
+
+@After
+public void after()
+{
+    getLdapServer().getDirectoryService().getChangeLog().setEnabled( true );
+}
 }

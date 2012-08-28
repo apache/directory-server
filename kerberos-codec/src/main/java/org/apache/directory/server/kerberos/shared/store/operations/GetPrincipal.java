@@ -121,7 +121,8 @@ public class GetPrincipal implements DirectoryServiceOperation
             catch ( ParseException e )
             {
                 throw new Exception( "Account expiration attribute "
-                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT + " contained an invalid value for generalizedTime: "
+                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT
+                    + " contained an invalid value for generalizedTime: "
                     + val );
             }
         }
@@ -135,7 +136,7 @@ public class GetPrincipal implements DirectoryServiceOperation
         if ( entry.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
             Attribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
-            
+
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );

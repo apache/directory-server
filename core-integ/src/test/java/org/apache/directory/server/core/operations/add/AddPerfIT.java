@@ -40,29 +40,29 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(
-        name="AddPerfDS",
-        partitions =
+    name = "AddPerfDS",
+    partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "sn" ),
-                    @CreateIndex( attribute = "cn" )
-                } )
-                
-        },
-        enableChangeLog = false )
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+
+    },
+    enableChangeLog = false)
 public class AddPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -119,7 +119,8 @@ public class AddPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }

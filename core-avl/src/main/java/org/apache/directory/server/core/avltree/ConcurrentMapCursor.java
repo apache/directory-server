@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentNavigableMap;
 
@@ -26,32 +27,34 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
-public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
+
+public class ConcurrentMapCursor<K, V> extends AbstractTupleCursor<K, V>
 {
     /** Backing map */
-    private ConcurrentNavigableMap<K,V> map;
-    
+    private ConcurrentNavigableMap<K, V> map;
+
     /** Keeps track of whether the cursor is positioned */
     private boolean positioned;
-    
+
     /** Keeps track of whether moving next */
     private boolean movingNext;
-    
+
     /** Currently available value */
     private Tuple<K, V> returnedTuple = new Tuple();
-    
+
     /** true if value is available */
     private K availableKey;
-    
+
     /** Iterator over the keys */
     Iterator<K> it;
-    
-    public ConcurrentMapCursor( ConcurrentNavigableMap<K,V> map )
+
+
+    public ConcurrentMapCursor( ConcurrentNavigableMap<K, V> map )
     {
         this.map = map;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -59,15 +62,15 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
     {
         return ( availableKey != null );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public Tuple<K,V> get() throws Exception
+    public Tuple<K, V> get() throws Exception
     {
         checkNotClosed( "get" );
-        
+
         if ( availableKey != null )
         {
             return returnedTuple;
@@ -75,33 +78,33 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
 
         throw new InvalidCursorPositionException();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K,V> element ) throws Exception
+    public void after( Tuple<K, V> element ) throws Exception
     {
         afterKey( element.getKey() );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void before( Tuple<K,V> element ) throws Exception
-    {   
-        beforeKey( element.getKey() );   
+    public void before( Tuple<K, V> element ) throws Exception
+    {
+        beforeKey( element.getKey() );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void afterKey( K key ) throws Exception
     {
         checkNotClosed( "afterKey" );
-        
+
         availableKey = null;
         positioned = true;
         movingNext = true;
@@ -112,34 +115,33 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
             return;
         }
 
-        
         // Simply position the iterator past the given element.
-        it = map.tailMap( key, false ).keySet().iterator();      
+        it = map.tailMap( key, false ).keySet().iterator();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void beforeKey( K key ) throws Exception
     {
         checkNotClosed( "beforeKey" );
-        
+
         availableKey = null;
         positioned = true;
         movingNext = true;
-        
+
         if ( key == null )
         {
             beforeFirst();
             return;
         }
-        
+
         // Simply position the iterator past the given element.
-        it = map.tailMap( key, true ).keySet().iterator();      
+        it = map.tailMap( key, true ).keySet().iterator();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -147,8 +149,8 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -156,19 +158,19 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst" );
-        
+
         positioned = true;
         availableKey = null;
         movingNext = true;
-        
+
         it = map.keySet().iterator();
     }
 
@@ -179,16 +181,16 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast" );
-        
+
         positioned = true;
         availableKey = null;
         movingNext = false;
 
         it = map.keySet().descendingIterator();
-        
+
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -209,15 +211,15 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
 
         return previous();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous" );
-        
+
         if ( positioned == false )
         {
             afterLast();
@@ -247,35 +249,34 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
             movingNext = false;
         }
 
-        
         V value;
         availableKey = null;
-        
+
         while ( it.hasNext() )
         {
             availableKey = it.next();
             value = map.get( availableKey );
-            
+
             if ( value != null )
             {
                 returnedTuple.setBoth( availableKey, value );
                 break;
             }
-            
+
             availableKey = null;
         }
-       
+
         return ( availableKey != null );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public boolean next() throws Exception
     {
         checkNotClosed( "next" );
-        
+
         if ( positioned == false )
         {
             beforeFirst();
@@ -305,24 +306,23 @@ public class ConcurrentMapCursor<K,V> extends AbstractTupleCursor<K,V>
             movingNext = true;
         }
 
-
         availableKey = null;
         V value;
-        
+
         while ( it.hasNext() )
         {
             availableKey = it.next();
             value = map.get( availableKey );
-            
+
             if ( value != null )
             {
                 returnedTuple.setBoth( availableKey, value );
                 break;
             }
-            
+
             availableKey = null;
         }
-       
+
         return ( availableKey != null );
     }
 }

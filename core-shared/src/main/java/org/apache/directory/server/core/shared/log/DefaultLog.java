@@ -106,7 +106,7 @@ public class DefaultLog implements Log
         return logScanner;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -126,10 +126,10 @@ public class DefaultLog implements Log
      */
     public LogAnchor getCheckPoint()
     {
-    	return logManager.getCheckPoint();
+        return logManager.getCheckPoint();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

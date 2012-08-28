@@ -57,7 +57,7 @@ public class PaData extends AbstractAsn1Object
 
     /** The Pre-authentication type */
     private PaDataType paDataType;
-    
+
     /** The authentication data */
     private byte[] paDataValue;
 
@@ -65,7 +65,7 @@ public class PaData extends AbstractAsn1Object
     private int paDataTypeTagLength;
     private int paDataValueTagLength;
     private int preAuthenticationDataSeqLength;
-    
+
 
     /**
      * Creates a new instance of PreAuthenticationData.
@@ -74,7 +74,7 @@ public class PaData extends AbstractAsn1Object
     {
     }
 
-    
+
     /**
      * Creates a new instance of PreAuthenticationData.
      *
@@ -109,7 +109,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataType = PaDataType.getTypeByValue( paDataType );
     }
 
-    
+
     /**
      * Set the PA-DATA type
      *
@@ -120,7 +120,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataType = paDataType;
     }
 
-    
+
     /**
      * Returns the raw bytes of the {@link PaData}.
      *
@@ -142,7 +142,7 @@ public class PaData extends AbstractAsn1Object
         this.paDataValue = paDataValue;
     }
 
-    
+
     /**
      * Compute the PreAuthenticationData length
      * <pre>
@@ -237,13 +237,13 @@ public class PaData extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "PreAuthenticationData initial value : {}", toString() );
         }
 
         return buffer;
     }
-    
+
 
     /**
      * @see Object#toString()
@@ -266,7 +266,7 @@ public class PaData extends AbstractAsn1Object
 
         if ( paDataValue != null )
         {
-            sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes(paDataValue) ).append( '\n' );
+            sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes( paDataValue ) ).append( '\n' );
         }
 
         sb.append( tabs + "}\n" );

@@ -44,8 +44,11 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @ApplyLdifs(
     {
-    // Entry # 1
-        "dn: cn=test,ou=system", "objectClass: person", "cn: test", "sn: sn_test" })
+        // Entry # 1
+        "dn: cn=test,ou=system",
+        "objectClass: person",
+        "cn: test",
+        "sn: sn_test" })
 public class LookupPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -97,7 +100,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     @Before
     public void init()
     {
-        AutzIntegUtils.service= getService();
+        AutzIntegUtils.service = getService();
     }
 
 

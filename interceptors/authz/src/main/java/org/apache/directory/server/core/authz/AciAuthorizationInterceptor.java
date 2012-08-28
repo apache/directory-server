@@ -169,7 +169,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /** The SubentryUtils instance */
     private static SubentryUtils subentryUtils;
 
-    
+
     /**
      * Create a AciAuthorizationInterceptor instance
      */
@@ -177,7 +177,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         super( InterceptorEnum.ACI_AUTHORIZATION_INTERCEPTOR );
     }
-    
+
 
     /**
      * Load the Tuples into the cache
@@ -195,7 +195,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ExprNode filter =
             new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
@@ -241,7 +242,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             directoryService );
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
@@ -285,7 +287,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
 
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             directoryService );
 
         // Create the caches
@@ -309,16 +312,16 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Init the SubentryUtils instance
         subentryUtils = new SubentryUtils( directoryService );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void reinitLogicalData(  DirectoryService directoryService  ) throws LdapException
+    public void reinitLogicalData( DirectoryService directoryService ) throws LdapException
     {
         tupleCache.reinitialize();
         groupCache.reinitialize();
-        
+
         initTupleCache();
         initGroupCache();
     }
@@ -358,13 +361,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry ) throws LdapException
+    private void addPerscriptiveAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry )
+        throws LdapException
     {
         Entry originalEntry = null;
 
         if ( entry instanceof ClonedServerEntry )
         {
-            originalEntry = ((ClonedServerEntry)entry).getOriginalEntry();
+            originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
         else
         {
@@ -455,7 +459,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
-    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry ) throws LdapException
+    private void addSubentryAciTuples( OperationContext opContext, Collection<ACITuple> tuples, Dn dn, Entry entry )
+        throws LdapException
     {
         // only perform this for subentries
         if ( !entry.contains( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
@@ -468,9 +473,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Dn parentDn = dn.getParent();
 
         CoreSession session = opContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-        Entry administrativeEntry = (( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
+        Entry administrativeEntry = ( ( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
 
         Attribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
@@ -758,7 +764,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return answer;
         }
 
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
@@ -775,7 +782,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         aciContext.setEntryDn( dn );
         aciContext.setMicroOperations( BROWSE_PERMS );
         aciContext.setAciTuples( tuples );
-        aciContext.setEntry( ((ClonedServerEntry)entry).getOriginalEntry() );
+        aciContext.setEntry( ( ( ClonedServerEntry ) entry ).getOriginalEntry() );
 
         engine.checkPermission( aciContext );
 
@@ -864,7 +871,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
              * @TODO: A virtual entry can be created here for not hitting the backend again.
              */
             CoreSession session = modifyContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
+                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
@@ -989,7 +997,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
          * @TODO: A virtual entry can be created here for not hitting the backend again.
          */
         CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         tupleCache.subentryModified( dn, mods, modifiedEntry );
@@ -1053,7 +1062,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
-        LookupOperationContext lookupContext = new LookupOperationContext( session, oriChildName, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, oriChildName,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
@@ -1127,7 +1137,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         Set<Dn> userGroups = groupCache.getGroups( principalDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oldDn,entry );
+        addPerscriptiveAciTuples( moveAndRenameContext, tuples, oldDn, entry );
         addEntryAciTuples( tuples, entry );
         addSubentryAciTuples( moveAndRenameContext, tuples, oldDn, entry );
 
@@ -1148,7 +1158,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
 
-        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn,
+            SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
@@ -1196,7 +1207,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( renameContext.getEntry() != null )
         {
-            originalEntry = ((ClonedServerEntry)renameContext.getEntry()).getOriginalEntry();
+            originalEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
         }
 
         LdapPrincipal principal = renameContext.getSession().getEffectivePrincipal();
@@ -1366,8 +1377,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Set<Dn> userGroups = groupCache.getGroups( userDn.getNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( opContext, tuples, normName, clonedEntry );
-        addEntryAciTuples( tuples, ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
-        addSubentryAciTuples( opContext, tuples, normName, ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
+        addEntryAciTuples( tuples, ( ( ClonedServerEntry ) clonedEntry ).getOriginalEntry() );
+        addSubentryAciTuples( opContext, tuples, normName, ( ( ClonedServerEntry ) clonedEntry ).getOriginalEntry() );
 
         AciContext aciContext = new AciContext( schemaManager, opContext );
         aciContext.setUserGroupNames( userGroups );
@@ -1376,7 +1387,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         aciContext.setEntryDn( normName );
         aciContext.setMicroOperations( SEARCH_ENTRY_PERMS );
         aciContext.setAciTuples( tuples );
-        aciContext.setEntry( ((ClonedServerEntry)clonedEntry).getOriginalEntry() );
+        aciContext.setEntry( ( ( ClonedServerEntry ) clonedEntry ).getOriginalEntry() );
 
         if ( !engine.hasPermission( aciContext ) )
         {
@@ -1455,7 +1466,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         return true;
     }
-
 
     /**
      * WARNING: create one of these filters fresh every time for each new search.

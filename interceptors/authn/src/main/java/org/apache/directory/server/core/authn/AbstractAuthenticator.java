@@ -47,6 +47,7 @@ import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Base class for all Authenticators.
  *
@@ -59,10 +60,11 @@ public abstract class AbstractAuthenticator implements Authenticator
 
     /** The associated DirectoryService */
     private DirectoryService directoryService;
-    
+
     /** authenticator type */
     private final AuthenticationLevel authenticatorType;
-    
+
+
     /**
      * Creates a new instance.
      *
@@ -82,7 +84,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     {
         return directoryService;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -153,25 +155,26 @@ public abstract class AbstractAuthenticator implements Authenticator
      */
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
-        if( !directoryService.isPwdPolicyEnabled() )
+        if ( !directoryService.isPwdPolicyEnabled() )
         {
             return;
         }
 
-        AuthenticationInterceptor authenticationInterceptor = (AuthenticationInterceptor)directoryService.getInterceptor(
+        AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) directoryService
+            .getInterceptor(
             InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
         PasswordPolicyConfiguration pPolicyConfig = authenticationInterceptor.getPwdPolicy( userEntry );
-        
+
         // check for locked out account
-        if( pPolicyConfig.isPwdLockout() )
+        if ( pPolicyConfig.isPwdLockout() )
         {
             LOG.debug( "checking if account with the Dn {} is locked", userEntry.getDn() );
-            
+
             Attribute accountLockAttr = userEntry.get( PWD_ACCOUNT_LOCKED_TIME_AT );
-            if( accountLockAttr != null )
+            if ( accountLockAttr != null )
             {
                 String lockedTime = accountLockAttr.getString();
-                if( lockedTime.equals( "000001010000Z" ) )
+                if ( lockedTime.equals( "000001010000Z" ) )
                 {
                     throw new PasswordPolicyException( "account was permanently locked", ACCOUNT_LOCKED.getValue() );
                 }
@@ -180,79 +183,87 @@ public abstract class AbstractAuthenticator implements Authenticator
                     Date lockedDate = DateUtils.getDate( lockedTime );
                     long time = pPolicyConfig.getPwdLockoutDuration() * 1000;
                     time += lockedDate.getTime();
-                    
+
                     Date unlockedDate = new Date( time );
-                    if( lockedDate.before( unlockedDate ) )
+                    if ( lockedDate.before( unlockedDate ) )
                     {
-                        throw new PasswordPolicyException( "account will remain locked till " + unlockedDate, ACCOUNT_LOCKED.getValue() );
+                        throw new PasswordPolicyException( "account will remain locked till " + unlockedDate,
+                            ACCOUNT_LOCKED.getValue() );
                     }
                     else
                     {
                         // remove pwdAccountLockedTime attribute
-                        Modification pwdAccountLockMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,  accountLockAttr );
-                        
+                        Modification pwdAccountLockMod = new DefaultModification(
+                            ModificationOperation.REMOVE_ATTRIBUTE, accountLockAttr );
+
                         // DO NOT bypass the interceptor chain, otherwise the changes can't be replicated
                         directoryService.getAdminSession().modify( userEntry.getDn(), pwdAccountLockMod );
                     }
                 }
             }
         }
-        
+
         Attribute pwdStartTimeAttr = userEntry.get( PWD_START_TIME_AT );
-        if( pwdStartTimeAttr != null )
+        if ( pwdStartTimeAttr != null )
         {
             Date pwdStartTime = DateUtils.getDate( pwdStartTimeAttr.getString() );
-            
-            if( System.currentTimeMillis() < pwdStartTime.getTime() )
+
+            if ( System.currentTimeMillis() < pwdStartTime.getTime() )
             {
-                throw new PasswordPolicyException( "account is locked, will be activated after " + pwdStartTime, ACCOUNT_LOCKED.getValue() );
+                throw new PasswordPolicyException( "account is locked, will be activated after " + pwdStartTime,
+                    ACCOUNT_LOCKED.getValue() );
             }
         }
-        
+
         Attribute pwdEndTimeAttr = userEntry.get( PWD_END_TIME_AT );
-        if( pwdEndTimeAttr != null )
+        if ( pwdEndTimeAttr != null )
         {
             Date pwdEndTime = DateUtils.getDate( pwdEndTimeAttr.getString() );
-            
-            if( System.currentTimeMillis() >= pwdEndTime.getTime() )
+
+            if ( System.currentTimeMillis() >= pwdEndTime.getTime() )
             {
-                throw new PasswordPolicyException( "password end time reached, will be locked till administrator activates it", ACCOUNT_LOCKED.getValue() );
+                throw new PasswordPolicyException(
+                    "password end time reached, will be locked till administrator activates it",
+                    ACCOUNT_LOCKED.getValue() );
             }
         }
-        
-        if( pPolicyConfig.getPwdMaxIdle() > 0 )
+
+        if ( pPolicyConfig.getPwdMaxIdle() > 0 )
         {
             Attribute pwdLastSuccessTimeAttr = userEntry.get( PWD_LAST_SUCCESS_AT );
             long time = pPolicyConfig.getPwdMaxIdle() * 1000;
             time += DateUtils.getDate( pwdLastSuccessTimeAttr.getString() ).getTime();
-            
-            if( System.currentTimeMillis() >= time )
+
+            if ( System.currentTimeMillis() >= time )
             {
-                throw new PasswordPolicyException( "account locked due to the max idle time of the password was exceeded", ACCOUNT_LOCKED.getValue() );
+                throw new PasswordPolicyException(
+                    "account locked due to the max idle time of the password was exceeded", ACCOUNT_LOCKED.getValue() );
             }
         }
-        
+
         if ( pPolicyConfig.getPwdMaxAge() > 0 )
         {
-            if( pPolicyConfig.getPwdGraceAuthNLimit() > 0 )
+            if ( pPolicyConfig.getPwdGraceAuthNLimit() > 0 )
             {
                 Attribute pwdGraceUseAttr = userEntry.get( PWD_GRACE_USE_TIME_AT );
 
                 // check for grace authentication count
-                if( pwdGraceUseAttr != null )
+                if ( pwdGraceUseAttr != null )
                 {
-                    if( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() )
+                    if ( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() )
                     {
-                        throw new PasswordPolicyException( "paasword expired and max grace logins were used", PASSWORD_EXPIRED.getValue() );
+                        throw new PasswordPolicyException( "paasword expired and max grace logins were used",
+                            PASSWORD_EXPIRED.getValue() );
                     }
                 }
             }
             else
             {
                 Attribute pwdChangeTimeAttr = userEntry.get( PWD_CHANGED_TIME_AT );
-                boolean expired = PasswordUtil.isPwdExpired( pwdChangeTimeAttr.getString(), pPolicyConfig.getPwdMaxAge() );
-                
-                if( expired )
+                boolean expired = PasswordUtil.isPwdExpired( pwdChangeTimeAttr.getString(),
+                    pPolicyConfig.getPwdMaxAge() );
+
+                if ( expired )
                 {
                     throw new PasswordPolicyException( "paasword expired", PASSWORD_EXPIRED.getValue() );
                 }

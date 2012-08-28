@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.journal;
 
+
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.journal.Journal;
@@ -26,6 +27,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The default journal implementation. It stores the operation and the
@@ -39,7 +41,7 @@ public class DefaultJournal implements Journal
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultJournal.class );
 
-    /** Tells if the service is activated or not */ 
+    /** Tells if the service is activated or not */
     private boolean enabled;
 
     /** An instance of the Journal store */
@@ -48,16 +50,17 @@ public class DefaultJournal implements Journal
     /** 
      * A parameter indicating the number of operations stored in a journal
      * before it is rotated. If set to 0, no rotation is done
-     */ 
+     */
     private int rotation;
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void destroy() throws Exception
     {
         LOG.debug( "Stopping the journal" );
-        
+
         // We have to release the file, otherwise Windows won't be able
         // to stop the server
         if ( store != null )
@@ -83,7 +86,7 @@ public class DefaultJournal implements Journal
     {
         LOG.debug( "Starting the journal" );
 
-        if( store == null )
+        if ( store == null )
         {
             store = new DefaultJournalStore();
         }
@@ -147,10 +150,10 @@ public class DefaultJournal implements Journal
         this.rotation = rotation;
     }
 
-    
+
     public void setEnabled( boolean enabled )
     {
-        this.enabled = enabled; 
+        this.enabled = enabled;
     }
 
 

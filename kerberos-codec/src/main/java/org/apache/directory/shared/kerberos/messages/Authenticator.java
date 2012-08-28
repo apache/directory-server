@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.messages;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -37,8 +38,6 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 
 /**
@@ -69,22 +68,22 @@ public class Authenticator extends KerberosMessage
 
     /** The authenticator version number */
     private int versionNumber;
-    
+
     /** The client realm */
     private String crealm;
-    
+
     /** The client principalName */
     private PrincipalName cname;
-    
+
     /** The checksum */
     private Checksum cksum;
-    
+
     /** The client microseconds */
     private int cusec;
-    
+
     /** The client time */
     private KerberosTime ctime;
-    
+
     /** The sub-session key */
     private EncryptionKey subKey;
 
@@ -107,7 +106,6 @@ public class Authenticator extends KerberosMessage
     private int authorizationDataLength;
     private int authenticatorSeqLength;
     private int authenticatorLength;
-    
 
 
     /**
@@ -283,8 +281,8 @@ public class Authenticator extends KerberosMessage
     {
         this.versionNumber = versionNumber;
     }
-    
-    
+
+
     /**
      * Compute the Authenticator length
      * <pre>
@@ -327,20 +325,20 @@ public class Authenticator extends KerberosMessage
     public int computeLength()
     {
         reset();
-        
+
         // Compute the Authenticator version length.
         authenticatorVnoLength = 1 + 1 + Value.getNbBytes( getProtocolVersionNumber() );
-        authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
+        authenticatorSeqLength = 1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
 
         // Compute the  crealm length.
-        crealmBytes = Strings.getBytesUtf8(crealm);
+        crealmBytes = Strings.getBytesUtf8( crealm );
         crealmLength = 1 + TLV.getNbBytes( crealmBytes.length ) + crealmBytes.length;
         authenticatorSeqLength += 1 + TLV.getNbBytes( crealmLength ) + crealmLength;
 
         // Compute the cname length
         cnameLength = cname.computeLength();
         authenticatorSeqLength += 1 + TLV.getNbBytes( cnameLength ) + cnameLength;
-        
+
         // Compute the cksum length if any
         if ( cksum != null )
         {
@@ -369,7 +367,7 @@ public class Authenticator extends KerberosMessage
             seqNumberLength = 1 + 1 + Value.getNbBytes( seqNumber );
             authenticatorSeqLength += 1 + TLV.getNbBytes( seqNumberLength ) + seqNumberLength;
         }
-        
+
         // Compute the authorization-data length if any
         if ( authorizationData != null )
         {
@@ -379,10 +377,10 @@ public class Authenticator extends KerberosMessage
 
         // compute the global size
         authenticatorLength = 1 + TLV.getNbBytes( authenticatorSeqLength ) + authenticatorSeqLength;
-        
+
         return 1 + TLV.getNbBytes( authenticatorLength ) + authenticatorLength;
     }
-    
+
 
     /**
      * Encode the Authenticator message to a PDU.
@@ -423,94 +421,94 @@ public class Authenticator extends KerberosMessage
         try
         {
             // The Authenticator APPLICATION Tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_TAG );
             buffer.put( TLV.getBytes( authenticatorLength ) );
 
             // The Authenticator SEQUENCE Tag
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( authenticatorSeqLength ) );
-            
+
             // The authenticator-vno ------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_AUTHENTICATOR_VNO_TAG );
             buffer.put( TLV.getBytes( authenticatorVnoLength ) );
-            
+
             // The value
             Value.encode( buffer, getProtocolVersionNumber() );
-            
+
             // The crealm -----------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_CREALM_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CREALM_TAG );
             buffer.put( TLV.getBytes( crealmLength ) );
-            
+
             // The value
             buffer.put( UniversalTag.GENERAL_STRING.getValue() );
             buffer.put( TLV.getBytes( crealmBytes.length ) );
             buffer.put( crealmBytes );
-            
+
             // The cname ------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_CNAME_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CNAME_TAG );
             buffer.put( TLV.getBytes( cnameLength ) );
-            
+
             // The value
             cname.encode( buffer );
-            
+
             // The cksum, if any ----------------------------------------------
             if ( cksum != null )
             {
                 // The tag
-                buffer.put( (byte)KerberosConstants.AUTHENTICATOR_CKSUM_TAG );
+                buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CKSUM_TAG );
                 buffer.put( TLV.getBytes( cksumLength ) );
-                
+
                 // The value
                 cksum.encode( buffer );
             }
-            
+
             // The cusec ------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_CUSEC_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CUSEC_TAG );
             buffer.put( TLV.getBytes( cusecLength ) );
-            
+
             // The value
             Value.encode( buffer, cusec );
-            
+
             // The ctime ------------------------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_CTIME_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CTIME_TAG );
             buffer.put( TLV.getBytes( ctimeLength ) );
-            
+
             // The value
             buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
-            buffer.put( (byte)0x0F );
+            buffer.put( ( byte ) 0x0F );
             buffer.put( ctime.getBytes() );
-            
+
             // The subkey if any ---------------------------------------------------
             if ( subKey != null )
             {
                 // The tag
-                buffer.put( (byte)KerberosConstants.AUTHENTICATOR_SUBKEY_TAG );
+                buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_SUBKEY_TAG );
                 buffer.put( TLV.getBytes( subkeyLength ) );
-                
+
                 // The value
                 subKey.encode( buffer );
             }
-            
+
             // The seq-number, if any -----------------------------------------
             // The tag
-            buffer.put( (byte)KerberosConstants.AUTHENTICATOR_SEQ_NUMBER_TAG );
+            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_SEQ_NUMBER_TAG );
             buffer.put( TLV.getBytes( seqNumberLength ) );
-            
+
             // The value
             Value.encode( buffer, seqNumber );
-            
+
             // The authorization-data, if any ---------------------------------
             if ( authorizationData != null )
             {
                 // The tag
-                buffer.put( (byte)KerberosConstants.AUTHENTICATOR_AUTHORIZATION_DATA_TAG );
+                buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_AUTHORIZATION_DATA_TAG );
                 buffer.put( TLV.getBytes( authorizationDataLength ) );
-                
+
                 // The value
                 authorizationData.encode( buffer );
             }
@@ -524,7 +522,7 @@ public class Authenticator extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Authenticator encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "Authenticator encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "Authenticator initial value : {}", toString() );
         }
 
@@ -550,8 +548,8 @@ public class Authenticator extends KerberosMessage
         authenticatorSeqLength = 0;
         authenticatorLength = 0;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -560,29 +558,29 @@ public class Authenticator extends KerberosMessage
         StringBuilder sb = new StringBuilder();
 
         sb.append( "Authenticator : \n" );
-        
+
         sb.append( "    authenticator-vno : " ).append( getVersionNumber() ).append( '\n' );
         sb.append( "    crealm : " ).append( crealm ).append( '\n' );
         sb.append( "    cname : " ).append( cname ).append( '\n' );
-        
+
         if ( cksum != null )
         {
             sb.append( "    cksum : " ).append( cksum ).append( '\n' );
         }
-        
+
         sb.append( "    cusec : " ).append( cusec ).append( '\n' );
         sb.append( "    ctime : " ).append( ctime ).append( '\n' );
-        
+
         if ( subKey != null )
         {
             sb.append( "    subkey : " ).append( subKey ).append( '\n' );
         }
-        
+
         if ( seqNumber != null )
         {
             sb.append( "    seq-number : " ).append( seqNumber ).append( '\n' );
         }
-        
+
         if ( authorizationData != null )
         {
             sb.append( "    authorization-data : " ).append( authorizationData ).append( '\n' );

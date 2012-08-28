@@ -60,23 +60,41 @@ public class ETypeInfoDecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x1E,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x04, 0x04, 0x31, 0x32, 0x33, 0x34,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x04, 0x04, 0x35, 0x36, 0x37, 0x38
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x1E,
+                0x30, 0x0D,
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x06, // salt
+                0x04,
+                0x04,
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x30,
+                0x0D,
+                ( byte ) 0xA0,
+                0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x06, // salt
+                0x04,
+                0x04,
+                0x35,
+                0x36,
+                0x37,
+                0x38
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a ETypeInfo Container
@@ -97,29 +115,30 @@ public class ETypeInfoDecoderTest
         ETypeInfo etypeInfo = ( ( ETypeInfoContainer ) etypeInfoContainer ).getETypeInfo();
 
         assertEquals( 2, etypeInfo.getETypeInfoEntries().length );
-        
-        String[] expected = new String[]{ "1234", "5678" };
+
+        String[] expected = new String[]
+            { "1234", "5678" };
         int i = 0;
-        
+
         for ( ETypeInfoEntry etypeInfoEntry : etypeInfo.getETypeInfoEntries() )
         {
             assertEquals( EncryptionType.DES3_CBC_MD5, etypeInfoEntry.getEType() );
-            assertTrue( Arrays.equals( Strings.getBytesUtf8(expected[i]), etypeInfoEntry.getSalt() ) );
+            assertTrue( Arrays.equals( Strings.getBytesUtf8( expected[i] ), etypeInfoEntry.getSalt() ) );
             i++;
         }
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( etypeInfo.computeLength() );
-        
+
         try
         {
             bb = etypeInfo.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x20, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -127,18 +146,18 @@ public class ETypeInfoDecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETypeInfo with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfoEmpty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -151,23 +170,23 @@ public class ETypeInfoDecoderTest
         kerberosDecoder.decode( stream, etypeInfoContainer );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETypeInfo with empty ETypeInfoEntry in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x02,
-                (byte)0x30, 0x00                  // empty ETypeInfoEntry
-            } );
+            {
+                0x30, 0x02,
+                ( byte ) 0x30, 0x00 // empty ETypeInfoEntry
+        } );
 
         stream.flip();
 

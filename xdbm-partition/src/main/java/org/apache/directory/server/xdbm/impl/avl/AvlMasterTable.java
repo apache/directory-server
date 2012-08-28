@@ -38,9 +38,9 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 public class AvlMasterTable extends AvlTable<UUID, Entry> implements MasterTable
 {
     private AtomicLong counter = new AtomicLong( 0 );
-    
-    
-    public AvlMasterTable( String name, Comparator<UUID> keyComparator, Comparator<Entry> valComparator, 
+
+
+    public AvlMasterTable( String name, Comparator<UUID> keyComparator, Comparator<Entry> valComparator,
         boolean dupsEnabled )
     {
         super( name, keyComparator, valComparator, dupsEnabled );
@@ -54,15 +54,15 @@ public class AvlMasterTable extends AvlTable<UUID, Entry> implements MasterTable
     {
         String name = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
         UUID uuid = UUID.fromString( name );
-        return uuid; 
+        return uuid;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void resetCounter() throws Exception
     {
-        
+
     }
 }

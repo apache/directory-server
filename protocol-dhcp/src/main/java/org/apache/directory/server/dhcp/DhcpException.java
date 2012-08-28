@@ -45,7 +45,7 @@ public class DhcpException extends Exception
      * 
      * @param description this is a description of the exception
      */
-    public DhcpException(String description)
+    public DhcpException( String description )
     {
         super( description );
     }
@@ -59,7 +59,7 @@ public class DhcpException extends Exception
      *            this is a description of the exception
      * @param e
      */
-    public DhcpException(String description, Exception e)
+    public DhcpException( String description, Exception e )
     {
         super( description, e );
     }

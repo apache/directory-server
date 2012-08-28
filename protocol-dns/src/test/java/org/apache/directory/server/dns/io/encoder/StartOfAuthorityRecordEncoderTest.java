@@ -58,7 +58,7 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
         map.put( Strings.toLowerCase( DnsAttribute.SOA_RETRY ), retry );
         map.put( Strings.toLowerCase( DnsAttribute.SOA_EXPIRE ), expire );
         map.put( Strings.toLowerCase( DnsAttribute.SOA_MINIMUM ), minimum );
-        
+
         return map;
     }
 

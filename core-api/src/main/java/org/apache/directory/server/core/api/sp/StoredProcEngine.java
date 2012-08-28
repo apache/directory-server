@@ -32,14 +32,14 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
  */
 public interface StoredProcEngine
 {
-    
+
     /**
      * Returns the unique identifier of the supported stored procedure language.
      * 
      */
     public String getSPLangId();
-    
-    
+
+
     /**
      * Registers an entry found to be contaning a stored procedure unit which this engine can operate on.
      *
@@ -47,8 +47,8 @@ public interface StoredProcEngine
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
      */
     public void setSPUnitEntry( final Entry spUnit );
-    
-    
+
+
     /**
      * Invokes the stored procedure handled by the engine.
      * 

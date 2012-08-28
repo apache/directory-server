@@ -81,7 +81,7 @@ public class StoreDataType extends GrammarAction<PaDataContainer>
 
         try
         {
-            int paDataType = IntegerDecoder.parse(value);
+            int paDataType = IntegerDecoder.parse( value );
 
             paData.setPaDataType( PaDataType.getTypeByValue( paDataType ) );
 
@@ -92,7 +92,7 @@ public class StoreDataType extends GrammarAction<PaDataContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

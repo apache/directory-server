@@ -123,7 +123,7 @@ public class DnsProtocolHandler implements IoHandler
             dnsContext.setStore( store );
             session.setAttribute( getContextKey(), dnsContext );
 
-            DomainNameService.execute( dnsContext, (DnsMessage)message );
+            DomainNameService.execute( dnsContext, ( DnsMessage ) message );
 
             DnsMessage response = dnsContext.getReply();
 

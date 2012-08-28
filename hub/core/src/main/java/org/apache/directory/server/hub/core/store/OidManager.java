@@ -52,9 +52,8 @@ public class OidManager
     {
         metaOCBases.clear();
         metaAttributeBases.clear();
-        
+
         EntryFilteringCursor cursor = null;
-        
 
         try
         {

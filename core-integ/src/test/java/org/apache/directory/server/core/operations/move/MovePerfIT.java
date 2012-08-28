@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.move;
 
+
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -41,26 +42,26 @@ import org.junit.runner.RunWith;
  * @version $Rev$
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "MovePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+@CreateDS(name = "MovePerfDS",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry =
                 @ContextEntry(
-                    entryLdif = 
-                        "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
-            indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
-            })
-    }, 
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+    },
     enableChangeLog = false)
 public class MovePerfIT extends AbstractLdapTestUnit
 {
@@ -89,7 +90,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+
         for ( int i = 0; i < nbIterations; i++ )
         {
             if ( i % 100 == 0 )
@@ -106,13 +107,13 @@ public class MovePerfIT extends AbstractLdapTestUnit
             }
 
             String newRdn = "cn=test" + i;
-            
+
             long ttt0 = System.nanoTime();
             connection.move( oldDn, newSuperior );
-            
+
             //SearchResponse oldEntry = connection.lookup( oldDn );
             //SearchResponse newEntry = connection.lookup( newDn );
-            
+
             //assertNull( oldEntry );
             //assertNotNull( newEntry );
             long ttt1 = System.nanoTime();
@@ -121,7 +122,7 @@ public class MovePerfIT extends AbstractLdapTestUnit
             String tmpDn = newDn;
             newDn = oldDn;
             oldDn = tmpDn;
-            
+
             // Swap the superiors
             String tmpSuperior = newSuperior;
             newSuperior = oldSuperior;
@@ -132,7 +133,8 @@ public class MovePerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 15000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 

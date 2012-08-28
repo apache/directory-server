@@ -19,7 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * Base authenticator bean
@@ -31,7 +33,8 @@ public abstract class AuthenticatorBean extends AdsBaseBean
     /** The authenticator id */
     @ConfigurationElement(attributeType = "ads-authenticatorId", isRdn = true)
     private String authenticatorId;
-    
+
+
     /**
      * @return the authenticatorId
      */

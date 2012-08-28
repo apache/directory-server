@@ -53,20 +53,21 @@ public abstract class AbstractPartition implements Partition
 
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
-    
+
     /** The partition ID */
     protected String id;
-    
+
     /** The root Dn for this partition */
     protected Dn suffixDn;
-    
+
     /** Default ID */
     UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void initialize( ) throws LdapException
+    public void initialize() throws LdapException
     {
         if ( initialized )
         {
@@ -185,8 +186,8 @@ public abstract class AbstractPartition implements Partition
     {
         return suffixDn;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -201,8 +202,8 @@ public abstract class AbstractPartition implements Partition
             this.suffixDn.apply( schemaManager );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -210,7 +211,7 @@ public abstract class AbstractPartition implements Partition
     {
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -291,7 +292,8 @@ public abstract class AbstractPartition implements Partition
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
     }
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -313,7 +315,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
-    public boolean hasSystemIndexOn( String oid) throws Exception
+    public boolean hasSystemIndexOn( String oid ) throws Exception
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_751 ) );
     }
@@ -353,7 +355,7 @@ public abstract class AbstractPartition implements Partition
     {
         return false;
     }
-    
+
 
     /**
      * Check that the operation is done on an initialized store
@@ -366,5 +368,5 @@ public abstract class AbstractPartition implements Partition
             throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
         }
     }
-   
+
 }

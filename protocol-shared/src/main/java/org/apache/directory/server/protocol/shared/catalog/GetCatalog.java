@@ -50,37 +50,36 @@ public class GetCatalog implements DirectoryServiceOperation
     {
         String filter = "(objectClass=" + ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC + ")";
 
-        EntryFilteringCursor list = session.search( 
+        EntryFilteringCursor list = session.search(
             Dn.ROOT_DSE,
-            SearchScope.SUBTREE, 
-            FilterParser.parse(session.getDirectoryService().getSchemaManager(), filter),
+            SearchScope.SUBTREE,
+            FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ),
             AliasDerefMode.DEREF_ALWAYS,
             null );
 
         Map<String, String> catalog = new HashMap<String, String>();
 
         list.beforeFirst();
-        
+
         while ( list.next() )
         {
             Entry result = list.get();
 
             String name = null;
             Attribute attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_NAME_AT );
-            
+
             if ( attribute != null )
             {
                 name = attribute.getString();
             }
-            
+
             String basedn = null;
             attribute = result.get( ApacheSchemaConstants.APACHE_CATALOGUE_ENTRY_BASE_DN_AT );
-            
+
             if ( attribute != null )
             {
                 basedn = attribute.getString();
             }
-            
 
             catalog.put( name, basedn );
         }

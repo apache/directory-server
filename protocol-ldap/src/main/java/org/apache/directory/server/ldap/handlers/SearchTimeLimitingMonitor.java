@@ -37,11 +37,11 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
 {
     private final long startTime = System.currentTimeMillis();
     private final long millisToLive;
-    
+
     private boolean closed;
     private Exception cause;
-    
-    
+
+
     /**
      * Creates a new instance of SearchTimeLimitingMonitor.
      *
@@ -67,7 +67,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
         }
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#checkNotClosed()
@@ -81,7 +81,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
             // state check needed to "try" not to overwrite exception (lack of 
             // synchronization may still allow overwriting but who cares that 
             // much
-            if ( ! closed )
+            if ( !closed )
             {
                 // not going to sync because who cares if it takes a little 
                 // longer to stop but we need to set cause before toggling 
@@ -90,21 +90,21 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
                 closed = true;
             }
         }
-        
+
         if ( closed )
         {
             throw cause;
         }
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#close()
      */
     public void close()
     {
-        if ( ! closed )
+        if ( !closed )
         {
             // not going to sync because who cares if it takes a little longer 
             // to stop but we need to set cause before toggling closed state 
@@ -114,14 +114,14 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
         }
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#close(java.lang.String)
      */
     public void close( String cause )
     {
-        if ( ! closed )
+        if ( !closed )
         {
             // not going to sync because who cares if it takes a little longer 
             // to stop but we need to set cause before toggling closed state 
@@ -138,7 +138,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
      */
     public void close( Exception cause )
     {
-        if ( ! closed )
+        if ( !closed )
         {
             // not going to sync because who cares if it takes a little longer 
             // to stop but we need to set cause before toggling closed state 
@@ -148,7 +148,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
         }
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#getCause()
@@ -158,7 +158,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
         return cause;
     }
 
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.directory.server.core.cursor.ClosureMonitor#isClosed()
@@ -171,9 +171,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
             cause = new LdapTimeLimitExceededException();
             closed = true;
         }
-        
+
         return closed;
     }
 }
-
-

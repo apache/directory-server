@@ -18,7 +18,9 @@
  */
 package org.apache.directory.server.protocol.shared.transport;
 
+
 import org.apache.mina.core.service.IoAcceptor;
+
 
 public interface Transport
 {
@@ -27,27 +29,28 @@ public interface Transport
      */
     void init();
 
+
     /**
      * @return The associated Address
      */
     String getAddress();
-    
-    
+
+
     /**
      * Set the InetAddress for this transport.
      * @param address The address to set
      */
     void setAddress( String address );
-    
-    
+
+
     /**
      * Gets the port for this service.
      *
      * @return the port for this service
      */
     int getPort();
-    
-    
+
+
     /**
      * Sets the port for this service.
      *
@@ -55,56 +58,56 @@ public interface Transport
      * @throws IllegalArgumentException if the port number is not within a valid range
      */
     void setPort( int port );
-    
-    
+
+
     /**
      * @return The associated IoAcceptor
      */
     IoAcceptor getAcceptor();
-    
-    
+
+
     /**
      * @return The number of processing threads for this acceptor
      */
-    int getNbThreads(); 
-    
-    
+    int getNbThreads();
+
+
     /**
      * Set the number of processing threads for the acceptor
      * @param nbThreads The number of threads to create in the acceptor
      */
     void setNbThreads( int nbThreads );
-    
-    
+
+
     /**
      * @return The number of messages stored into the backlog when the 
      * acceptor is being busy processing the current messages
      */
     int getBackLog();
-    
-    
+
+
     /**
      * Set the size of the messages queue waiting for the acceptor to
      * be ready.
      * @param backLog The queue size
      */
     void setBackLog( int backLog );
-    
-    
+
+
     /**
      * Enable or disable SSL
      * @param sslEnabled if <code>true</code>, SSL is enabled.
      */
     void setEnableSSL( boolean sslEnabled );
-    
-    
+
+
     /**
      * Enable or disable SSL
      * @param sslEnabled if <code>true</code>, SSL is enabled.
      */
     void enableSSL( boolean sslEnabled );
-    
-    
+
+
     /**
      * @return <code>true</code> id SSL is enabled for this transport
      */

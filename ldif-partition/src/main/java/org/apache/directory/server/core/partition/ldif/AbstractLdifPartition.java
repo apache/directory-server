@@ -40,13 +40,13 @@ public abstract class AbstractLdifPartition extends AvlPartition
 {
     /** The extension used for LDIF entry files */
     protected static final String CONF_FILE_EXTN = ".ldif";
-    
+
     /** The extension used for LDIF shadow files */
     protected static final String CONF_SHADOW_FILE_EXTN = ".shadow";
 
     /** A default CSN factory */
     protected static CsnFactory defaultCSNFactory;
-    
+
     /** Operation execution manager */
     protected OperationExecutionManager executionManager;
 
@@ -55,15 +55,15 @@ public abstract class AbstractLdifPartition extends AvlPartition
         OperationExecutionManagerFactory executionManagerFactory )
     {
         super( schemaManager, txnManagerFactory, executionManagerFactory );
-        
+
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );
-        
+
         executionManager = executionManagerFactory.instance();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

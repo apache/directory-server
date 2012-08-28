@@ -89,7 +89,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
 
         sb.append( data );
 
-        return Strings.getBytesUtf8(sb.toString());
+        return Strings.getBytesUtf8( sb.toString() );
     }
 
 
@@ -134,7 +134,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
         PasswordHistory other = ( PasswordHistory ) o;
 
         return this.getTime().equals( other.getTime() ) &&
-               this.data.equals( other.data );
+            this.data.equals( other.data );
     }
 
 

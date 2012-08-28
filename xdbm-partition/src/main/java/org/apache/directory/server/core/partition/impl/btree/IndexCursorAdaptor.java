@@ -61,7 +61,7 @@ public class IndexCursorAdaptor<K> implements IndexCursor<K>
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
         this.wrappedCursor = wrappedCursor;
-        
+
         if ( forwardIndex )
         {
             forwardEntry = new ForwardIndexEntry<K>();
@@ -96,7 +96,7 @@ public class IndexCursorAdaptor<K> implements IndexCursor<K>
     {
         if ( wrappedCursor instanceof TupleCursor )
         {
-            ( (TupleCursor) wrappedCursor ).afterValue( key, id );
+            ( ( TupleCursor ) wrappedCursor ).afterValue( key, id );
         }
     }
 

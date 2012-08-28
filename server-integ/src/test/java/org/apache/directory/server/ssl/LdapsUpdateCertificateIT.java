@@ -61,34 +61,34 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( allowAnonAccess=true, name="LdapsUpdateCertificateIT-class")
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" ),
-        @CreateTransport( protocol = "LDAPS" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "LdapsUpdateCertificateIT-class")
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP"),
+            @CreateTransport(protocol = "LDAPS")
     },
-    saslHost="localhost",
-    saslMechanisms = 
-    {
-        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-        @SaslMechanism( name= SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
+    saslHost = "localhost",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
     },
-    extendedOpHandlers = 
-    {
-        StoredProcedureExtendedOperationHandler.class
+    extendedOpHandlers =
+        {
+            StoredProcedureExtendedOperationHandler.class
     },
-    ntlmProvider=BogusNtlmProvider.class
-    )
+    ntlmProvider = BogusNtlmProvider.class)
 public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
 {
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
 
     /**
      * Create an entry for a person.
@@ -141,7 +141,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         ctx.close();
 
         getLdapServer().reloadSslContext();
-        
+
         // create a secure connection
         ctx = new InitialDirContext( env );
 
@@ -153,9 +153,9 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
-        assertEquals( "Expected the new certificate with the new issuer", 
+        assertEquals( "Expected the new certificate with the new issuer",
             Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
-        assertEquals( "Expected the new certificate with the new subject", 
+        assertEquals( "Expected the new certificate with the new subject",
             Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
     }
 

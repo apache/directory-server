@@ -44,10 +44,10 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
 
     /** marshaller to be used for marshalling the keys */
     private Marshaller<E> keyMarshaller;
-    
+
     /** key Comparator for the AvlTree */
     private Comparator<E> comparator;
-    
+
 
     /**
      * Creates a new instance of AvlTreeMarshaller with a custom key
@@ -90,7 +90,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream( byteStream );
         byte[] data = null;
-        
+
         try
         {
             out.writeByte( 0 ); // represents the start of an Array byte stream
@@ -100,42 +100,42 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             {
                 E value = tree.get( position );
                 byte[] bytes = keyMarshaller.serialize( value );
-                
+
                 // Write the key length
                 out.writeInt( bytes.length );
-                
+
                 // Write the key if its length is not null
                 if ( bytes.length != 0 )
                 {
                     out.write( bytes );
                 }
             }
-            
+
             out.flush();
             data = byteStream.toByteArray();
-            
+
             // Try to deserialize, just to see
             try
             {
                 deserialize( data );
             }
-            catch (NullPointerException npe )
+            catch ( NullPointerException npe )
             {
-                System.out.println( I18n.err( I18n.ERR_438, Strings.dumpBytes(data) ) );
+                System.out.println( I18n.err( I18n.ERR_438, Strings.dumpBytes( data ) ) );
                 throw npe;
             }
 
             out.close();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             e.printStackTrace();
         }
-        
+
         return data;
     }
 
-    
+
     /**
      * Creates an Array from given bytes of data.
      * 
@@ -151,36 +151,37 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             {
                 throw new IOException( I18n.err( I18n.ERR_439 ) );
             }
-    
+
             if ( ( data.length == 1 ) && ( data[0] == 0 ) )
             {
-                E[] array = (E[])new Object[]{};
+                E[] array = ( E[] ) new Object[]
+                    {};
                 ArrayTree<E> tree = new ArrayTree<E>( comparator, array );
                 return tree;
             }
-    
+
             ByteArrayInputStream bin = new ByteArrayInputStream( data );
             DataInputStream din = new DataInputStream( bin );
-            
+
             byte startByte = din.readByte();
-            
-            if( startByte != 0 )
+
+            if ( startByte != 0 )
             {
                 throw new IOException( I18n.err( I18n.ERR_440 ) );
             }
-            
+
             int size = din.readInt();
-            E[] nodes = (E[])new Object[size];
-            
+            E[] nodes = ( E[] ) new Object[size];
+
             for ( int i = 0; i < size; i++ )
             {
                 // Read the object's size
                 int dataSize = din.readInt();
-                
+
                 if ( dataSize != 0 )
                 {
-                    byte[] bytes = new byte[ dataSize ];
-                    
+                    byte[] bytes = new byte[dataSize];
+
                     din.readFully( bytes );
                     E key = keyMarshaller.deserialize( bytes );
                     nodes[i] = key;
@@ -188,12 +189,12 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             }
 
             ArrayTree<E> arrayTree = new ArrayTree<E>( comparator, nodes );
-            
+
             return arrayTree;
         }
-        catch (NullPointerException npe )
+        catch ( NullPointerException npe )
         {
-            System.out.println( I18n.err( I18n.ERR_441, Strings.dumpBytes(data) ) );
+            System.out.println( I18n.err( I18n.ERR_441, Strings.dumpBytes( data ) ) );
             throw npe;
         }
     }

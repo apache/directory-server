@@ -82,7 +82,7 @@ public class StoreEType extends GrammarAction<ETypeInfoEntryContainer>
 
         try
         {
-            int eType = IntegerDecoder.parse(value);
+            int eType = IntegerDecoder.parse( value );
             etype = EncryptionType.getTypeByValue( eType );
 
             etypeInfoEntry.setEType( etype );
@@ -97,7 +97,7 @@ public class StoreEType extends GrammarAction<ETypeInfoEntryContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

@@ -93,8 +93,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         Entry entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
-            .getBytesUtf8("secret") ) );
-        
+            .getBytesUtf8( "secret" ) ) );
+
         connection.close();
 
         getService().shutdown();
@@ -104,10 +104,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
         assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
-            .getBytesUtf8("secret") ) );
-        
+            .getBytesUtf8( "secret" ) ) );
 
-        
         connection.close();
     }
 

@@ -78,102 +78,102 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class ) 
-@CreateDS( name="KeyDerivationServiceIT-class",
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "KeyDerivationServiceIT-class",
     partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
+                contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        },
-        additionalInterceptors = 
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
+                })
+    },
+    additionalInterceptors =
         {
             KeyDerivationInterceptor.class
-        })
-@CreateLdapServer ( 
-    transports = 
-    {
-        @CreateTransport( protocol = "LDAP" )
-    },
-    saslHost="localhost",
-    saslMechanisms = 
-    {
-        @SaslMechanism( name=SupportedSaslMechanisms.PLAIN, implClass=PlainMechanismHandler.class ),
-        @SaslMechanism( name=SupportedSaslMechanisms.CRAM_MD5, implClass=CramMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.DIGEST_MD5, implClass=DigestMd5MechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSSAPI, implClass=GssapiMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.NTLM, implClass=NtlmMechanismHandler.class),
-        @SaslMechanism( name=SupportedSaslMechanisms.GSS_SPNEGO, implClass=NtlmMechanismHandler.class)
-    },
-    extendedOpHandlers = 
-    {
-        StoredProcedureExtendedOperationHandler.class
     })
-public class KeyDerivationServiceIT extends AbstractLdapTestUnit 
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    },
+    saslHost = "localhost",
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers =
+        {
+            StoredProcedureExtendedOperationHandler.class
+    })
+public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
 
-     private void checkKeyNumber( Attributes attributes )
-     {
-         Attribute krb5key = attributes.get( "krb5key" );
-         
-         String vendor = System.getProperty( "java.vm.vendor" );
-         
-         if ( vendor.equalsIgnoreCase( "IBM Corporation") )
-         {
-             // Will be 2 or 3 on IBM JRE whether AES-256 is enabled or not
-             assertTrue( "Number of keys", krb5key.size() > 1 );
-         }
-         else if ( vendor.equalsIgnoreCase( "Sun Microsystems Inc." ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on SUN JRE
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else if ( vendor.equalsIgnoreCase( "BEA Systems, Inc." ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on BEA JRockit
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else if ( vendor.equalsIgnoreCase( "Oracle Corporation" ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Oracle JRockit
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else if ( vendor.equalsIgnoreCase( "\"Apple Computer, Inc.\"" ) )
-         {
-             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
-             assertTrue( "Number of keys", krb5key.size() > 3 );
-         }
-         else
-         {
-             fail( "Unkown JVM" );
-         }
-     }
-     
-     
+    private void checkKeyNumber( Attributes attributes )
+    {
+        Attribute krb5key = attributes.get( "krb5key" );
+
+        String vendor = System.getProperty( "java.vm.vendor" );
+
+        if ( vendor.equalsIgnoreCase( "IBM Corporation" ) )
+        {
+            // Will be 2 or 3 on IBM JRE whether AES-256 is enabled or not
+            assertTrue( "Number of keys", krb5key.size() > 1 );
+        }
+        else if ( vendor.equalsIgnoreCase( "Sun Microsystems Inc." ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on SUN JRE
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "BEA Systems, Inc." ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on BEA JRockit
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "Oracle Corporation" ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Oracle JRockit
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "Apple Inc." ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "\"Apple Computer, Inc.\"" ) )
+        {
+            // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
+            assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else
+        {
+            fail( "Unkown JVM" );
+        }
+    }
+
+
     /**
      * Set up a partition for EXAMPLE.COM, add the Key Derivation interceptor, enable
      * the krb5kdc schema, and add a user principal to test authentication with.
@@ -190,7 +190,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
         boolean isKrb5KdcDisabled = false;
-        
+
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -278,7 +278,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 0, keyVersionNumber );
@@ -293,7 +294,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
-     @Test
+    @Test
     public void testModifyDerivedKeys() throws NamingException, KerberosException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -353,7 +354,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 1, keyVersionNumber );
@@ -384,7 +386,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 2, keyVersionNumber );
@@ -415,7 +418,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
@@ -431,7 +435,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
-     @Test
+    @Test
     public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, KerberosException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -488,7 +492,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 1, keyVersionNumber );
@@ -517,7 +522,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 2, keyVersionNumber );
@@ -546,7 +552,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         if ( attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ) != null )
         {
-            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
+            keyVersionNumber = Integer.valueOf( ( String ) attributes
+                .get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).get() );
         }
 
         assertEquals( "Key version number", 3, keyVersionNumber );
@@ -561,12 +568,13 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      * @throws InvalidKeyException if the incorrect key results
      */
-     @Test
+    @Test
     public void testAddRandomKeys() throws NamingException, KerberosException, InvalidKeyException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() + "/ou=users,dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort()
+            + "/ou=users,dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

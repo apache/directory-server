@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @Ignore
 public class TriggerInterceptorIT extends AbstractLdapTestUnit
 {
@@ -63,55 +63,55 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
-    
+
 
     @Test
     public void testAfterDeleteBackupDeletedEntryEntryTrigger() throws Exception
     {
-        String ldif  = 
+        String ldif =
             "version: 1\n" +
-            "\n" +
-            "dn: ou=backupContext, ou=system\n"+
-            "objectClass: top\n" +
-            "objectClass: organizationalUnit\n" +
-            "ou: backupContext\n" +
-            "\n" +
-            "dn: ou=testEntry, ou=system\n" +
-            "objectClass: top\n" +
-            "objectClass: organizationalUnit\n" +
-            "ou: testEntry\n";
+                "\n" +
+                "dn: ou=backupContext, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: organizationalUnit\n" +
+                "ou: backupContext\n" +
+                "\n" +
+                "dn: ou=testEntry, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: organizationalUnit\n" +
+                "ou: testEntry\n";
 
         LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // Inject the ldif file into the server.
         injectEntries( getService(), ldif );
-        
+
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
-        
+
         // Create the Entry Trigger Specification.
         TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
         LdapContext entry = ( LdapContext ) sysRoot.lookup( "ou=testEntry" );
-        
+
         // TODO - change the spec to make this pass
-        
+
         String triggerSpec = "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() +
             ":backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );";
         TriggerUtils.loadEntryTriggerSpecification( entry, triggerSpec );
-        
+
         // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testEntry" );
-        
+
         // ------------------------------------------
         // The trigger should be fired at this point.
         // ------------------------------------------
-        
+
         // Check if the Trigger really worked (backed up the deleted entry).
         assertNotNull( sysRoot.lookup( "ou=testEntry,ou=backupContext" ) );
     }
-    
-    
+
+
     public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
@@ -119,27 +119,27 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
 
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
-        
+
         // Create a container for backing up deleted entries.
-        String ldif  = 
+        String ldif =
             "version: 1\n" +
-            "\n" +
-            "dn: ou=backupContext, ou=system\n"+
-            "objectClass: top\n" +
-            "objectClass: organizationalUnit\n" +
-            "ou: backupContext\n";
-        
+                "\n" +
+                "dn: ou=backupContext, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: organizationalUnit\n" +
+                "ou: backupContext\n";
+
         // Inject the ldif file into the server.
         injectEntries( getService(), ldif );
-        
+
         // Create the Trigger Specification within a Trigger Subentry.
         TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
         TriggerUtils.createTriggerExecutionSubentry( sysRoot,
-                                                     "triggerSubentry1",
-                                                     "{}",
-                                                     "AFTER Delete " +
-                                                         "CALL \"" + BackupUtilitiesSP.class.getName() + ":backupDeleted\" " +
-                                                             " ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );        
+            "triggerSubentry1",
+            "{}",
+            "AFTER Delete " +
+                "CALL \"" + BackupUtilitiesSP.class.getName() + ":backupDeleted\" " +
+                " ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );
 
         /**
          * The Trigger Specification without Java clutter:
@@ -147,73 +147,74 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
          * AFTER Delete
          *     CALL "BackupUtilitiesSP.backupDeleted" ( $ldapContext "", $name, $operationPrincipal, $deletedEntry );
          * 
-         */   
-        
+         */
+
         // Create a test entry which is selected by the Trigger Subentry.
-        String ldif2  = 
+        String ldif2 =
             "version: 1\n" +
-            "\n" +
-            "dn: ou=testou, ou=system\n" +
-            "objectClass: top\n" +
-            "objectClass: organizationalUnit\n" +
-            "ou: testou\n";
-        
+                "\n" +
+                "dn: ou=testou, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: organizationalUnit\n" +
+                "ou: testou\n";
+
         // Inject the ldif file into the server.
         injectEntries( getService(), ldif2 );
-        
+
         // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testou" );
-        
+
         // ------------------------------------------
         // The trigger should be fired at this point.
         // ------------------------------------------
-        
+
         // Check if the Trigger really worked (backed up the deleted entry).
         assertNotNull( sysRoot.lookup( "ou=testou,ou=backupContext" ) );
     }
-    
-    
+
+
     public void testAfterAddSubscribeUserToSomeGroupsPrescriptiveTrigger() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
         // Create two groups to be subscribed to : staff and teachers.
-        String ldif  = 
+        String ldif =
             "version: 1\n" +
-            "\n" +
-            "dn: cn=staff, ou=system\n"+
-            "objectClass: top\n" +
-            "objectClass: groupOfUniqueNames\n" +
-            "uniqueMember: cn=dummy\n"+
-            "cn: staff\n" +
-            "\n" +
-            "dn: cn=teachers, ou=system\n"+
-            "objectClass: top\n" +
-            "objectClass: groupOfUniqueNames\n" +
-            "uniqueMember: cn=dummy\n"+
-            "cn: teachers\n";
-        
+                "\n" +
+                "dn: cn=staff, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: groupOfUniqueNames\n" +
+                "uniqueMember: cn=dummy\n" +
+                "cn: staff\n" +
+                "\n" +
+                "dn: cn=teachers, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: groupOfUniqueNames\n" +
+                "uniqueMember: cn=dummy\n" +
+                "cn: teachers\n";
+
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
 
         // Inject the ldif file into the server
         injectEntries( getService(), ldif );
-            
+
         // Create the Trigger Specification within a Trigger Subentry.
         String staffDN = "cn=staff, ou=system";
         String teachersDN = "cn=teachers, ou=system";
 
-        
         // Create the Triger Specification within a Trigger Subentry.
         TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
         TriggerUtils.createTriggerExecutionSubentry( sysRoot,
-                                                     "triggerSubentry1",
-                                                     "{}",
-                                                     "AFTER Add " +
-                                                         "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
-                                                         "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
-        
+            "triggerSubentry1",
+            "{}",
+            "AFTER Add " +
+                "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN
+                + "\" ); " +
+                "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN
+                + "\" );" );
+
         /**
          * The Trigger Specification without Java clutter:
          * 
@@ -224,14 +225,14 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
          */
 
         // Create a test entry which is selected by the Trigger Subentry.
-        String testEntry  = 
+        String testEntry =
             "version: 1\n" +
-            "\n" +
-            "dn: cn=The Teacher of All Times, ou=system\n"+
-            "objectClass: top\n" +
-            "objectClass: inetOrgPerson\n" +
-            "cn: The Teacher of All Times\n" +
-            "sn: TheTeacher";
+                "\n" +
+                "dn: cn=The Teacher of All Times, ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: inetOrgPerson\n" +
+                "cn: The Teacher of All Times\n" +
+                "sn: TheTeacher";
 
         // Inject the entry into the server
         injectEntries( getService(), testEntry );
@@ -239,13 +240,13 @@ public class TriggerInterceptorIT extends AbstractLdapTestUnit
         // ------------------------------------------
         // The trigger should be fired at this point.
         // ------------------------------------------
-        
+
         // Check if the Trigger really worked (subscribed the user to the groups).
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
-        String testEntryName = ( ( LdapContext )sysRoot.lookup( "cn=The Teacher of All Times" ) ).getNameInNamespace();
-        assertTrue( AttributeUtils.containsValueCaseIgnore(staff.get("uniqueMember"), testEntryName) );
+        String testEntryName = ( ( LdapContext ) sysRoot.lookup( "cn=The Teacher of All Times" ) ).getNameInNamespace();
+        assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get( "uniqueMember" ), testEntryName ) );
         assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get( "uniqueMember" ), testEntryName ) );
     }
- 
+
 }

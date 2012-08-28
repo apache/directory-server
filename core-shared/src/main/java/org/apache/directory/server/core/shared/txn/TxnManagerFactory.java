@@ -42,10 +42,10 @@ public class TxnManagerFactory
 
     /** The only txn log manager */
     private TxnLogManagerInternal txnLogManager;
-    
+
     /** The only leaked cursor manager */
     private LeakedCursorManager leakedCursorManager;
-    
+
     /** WAL */
     private Log log;
 
@@ -53,12 +53,11 @@ public class TxnManagerFactory
     private String LOG_SUFFIX = "log";
 
     private boolean inited;
-    
-    
+
     private String logFolderPath;
-    
+
     private int logBufferSize;
-    
+
     private long logFileSize;
 
 
@@ -74,43 +73,43 @@ public class TxnManagerFactory
     public TxnManagerFactory( String logFolderPath,
         int logBufferSize, long logFileSize ) throws IOException
     {
-    	this.logFolderPath = logFolderPath;
-    	this.logBufferSize = logBufferSize;
-    	this.logFileSize = logFileSize;
-    	
+        this.logFolderPath = logFolderPath;
+        this.logBufferSize = logBufferSize;
+        this.logFileSize = logFileSize;
+
         log = new DefaultLog();
 
         txnManager = new DefaultTxnManager();
 
         txnLogManager = new DefaultTxnLogManager( log, this );
-        
+
         leakedCursorManager = new DefaultLeakedCursorManager( logFolderPath + File.separatorChar + "cursors" );
-        
+
         this.init();
     }
-    
-    
+
+
     public void init() throws IOException
     {
-    	if ( inited )
-    	{
-    		return;
-    	}
-    	
-    	try
-    	{
-    		log.init( logFolderPath, LOG_SUFFIX, logBufferSize, logFileSize );
-        }	
+        if ( inited )
+        {
+            return;
+        }
+
+        try
+        {
+            log.init( logFolderPath, LOG_SUFFIX, logBufferSize, logFileSize );
+        }
         catch ( InvalidLogException e )
         {
-        	throw new IOException( e );
-        }	
-    	
-    	( ( DefaultTxnManager ) txnManager ).init(txnLogManager);
-    	
-    	( ( DefaultLeakedCursorManager )leakedCursorManager ).init();
-    	 
-    	inited = true;
+            throw new IOException( e );
+        }
+
+        ( ( DefaultTxnManager ) txnManager ).init( txnLogManager );
+
+        ( ( DefaultLeakedCursorManager ) leakedCursorManager ).init();
+
+        inited = true;
     }
 
 
@@ -123,7 +122,7 @@ public class TxnManagerFactory
 
         ( ( DefaultTxnManager ) txnManager ).shutdown();
         ( ( DefaultTxnLogManager ) txnLogManager ).shutdown();
-        ( ( DefaultLeakedCursorManager )leakedCursorManager ).shutdown();
+        ( ( DefaultLeakedCursorManager ) leakedCursorManager ).shutdown();
         inited = false;
     }
 
@@ -144,8 +143,8 @@ public class TxnManagerFactory
     {
         return leakedCursorManager;
     }
-    
-    
+
+
     TxnManagerInternal txnManagerInternalInstance()
     {
         return txnManager;

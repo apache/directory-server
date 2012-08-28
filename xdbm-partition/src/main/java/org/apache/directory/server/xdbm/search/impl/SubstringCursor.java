@@ -46,20 +46,21 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     private final IndexCursor<String> wrapped;
     private final SubstringEvaluator evaluator;
     private final ForwardIndexEntry<String> indexEntry = new ForwardIndexEntry<String>();
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Partition store, final SubstringEvaluator substringEvaluator, TxnManagerFactory txnManagerFactory,
+    public SubstringCursor( Partition store, final SubstringEvaluator substringEvaluator,
+        TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
@@ -85,7 +86,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
              */
             Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
-            wrapped = ( ( Index<String> )entryUuidIdx ).forwardCursor();
+            wrapped = ( ( Index<String> ) entryUuidIdx ).forwardCursor();
         }
     }
 
@@ -98,7 +99,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -171,7 +172,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         {
             checkNotClosed( "previous()" );
             IndexEntry<String> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
@@ -193,7 +194,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         {
             checkNotClosed( "next()" );
             IndexEntry<String> entry = wrapped.get();
-            
+
             if ( evaluateCandidate( entry ) )
             {
                 setAvailable( true );
@@ -212,7 +213,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     public IndexEntry<String> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             return indexEntry;

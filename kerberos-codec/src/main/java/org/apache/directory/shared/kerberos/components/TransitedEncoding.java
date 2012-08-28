@@ -93,8 +93,8 @@ public class TransitedEncoding extends AbstractAsn1Object
     {
         return contents;
     }
-    
-    
+
+
     /**
      * Set the contents
      * @param contents The contents
@@ -114,8 +114,8 @@ public class TransitedEncoding extends AbstractAsn1Object
     {
         return trType;
     }
-    
-    
+
+
     /**
      * Set the transited encoding type
      * @param trType The transited encoding type
@@ -203,12 +203,12 @@ public class TransitedEncoding extends AbstractAsn1Object
             buffer.put( TLV.getBytes( transitedEncodingLength ) );
 
             // The tr-type, first the tag, then the value
-            buffer.put( ( byte )KerberosConstants.TRANSITED_ENCODING_TR_TYPE_TAG );
+            buffer.put( ( byte ) KerberosConstants.TRANSITED_ENCODING_TR_TYPE_TAG );
             buffer.put( TLV.getBytes( trTypeLength ) );
             Value.encode( buffer, trType.getValue() );
 
             // The contents, first the tag, then the value
-            buffer.put( ( byte )KerberosConstants.TRANSITED_ENCODING_CONTENTS_TAG );
+            buffer.put( ( byte ) KerberosConstants.TRANSITED_ENCODING_CONTENTS_TAG );
             buffer.put( TLV.getBytes( contentsLength ) );
             Value.encode( buffer, contents );
         }
@@ -221,7 +221,7 @@ public class TransitedEncoding extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "TransitedEncoding encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "TransitedEncoding encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "TransitedEncoding initial value : {}", toString() );
         }
 
@@ -253,24 +253,24 @@ public class TransitedEncoding extends AbstractAsn1Object
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         TransitedEncoding other = ( TransitedEncoding ) obj;
-        
+
         if ( !Arrays.equals( contents, other.contents ) )
         {
             return false;
         }
-        
+
         if ( trType != other.trType )
         {
             return false;
         }
-        
+
         return true;
     }
 
@@ -285,7 +285,7 @@ public class TransitedEncoding extends AbstractAsn1Object
         sb.append( "TransitedEncoding : {\n" );
         sb.append( "    tr-type: " ).append( trType ).append( '\n' );
 
-        sb.append( "    contents: " ).append( Strings.dumpBytes(contents) ).append( "\n}\n" );
+        sb.append( "    contents: " ).append( Strings.dumpBytes( contents ) ).append( "\n}\n" );
 
         return sb.toString();
     }

@@ -64,8 +64,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      * @param schemaManager
      *      the schema manager
      */
-    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager, 
-        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory)
+    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager,
+        TxnManagerFactory txnManagerFactory, OperationExecutionManagerFactory executionManagerFactory )
     {
         super( schemaManager, txnManagerFactory, executionManagerFactory );
         this.inputStream = inputStream;

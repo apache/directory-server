@@ -95,7 +95,8 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
         // --------------------------------------------------------------------------------------------
         // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
         //         etype           [0] Int32,
-        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER.getValue()] =
+        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE.ordinal()][UniversalTag.INTEGER
+            .getValue()] =
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_ETYPE_STATE,
@@ -134,7 +135,8 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
         // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
         //        ...
         //         salt            [1] KerberosString OPTIONAL,
-        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
+        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING
+            .getValue()] =
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_SALT_STATE,
@@ -160,7 +162,8 @@ public final class ETypeInfo2EntryGrammar extends AbstractGrammar<ETypeInfo2Entr
         // ETYPE-INFO2-ENTRY         ::= SEQUENCE {
         //        ...
         //         s2kparams       [2] OCTET STRING OPTIONAL
-        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] =
+        super.transitions[ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING
+            .getValue()] =
             new GrammarTransition<ETypeInfo2EntryContainer>(
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE,
                 ETypeInfo2EntryStatesEnum.ETYPE_INFO2_ENTRY_S2KPARAMS_STATE,

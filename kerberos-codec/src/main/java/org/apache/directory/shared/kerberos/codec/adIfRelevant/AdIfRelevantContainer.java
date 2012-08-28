@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.codec.adIfRelevant;
 
+
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.components.AdIfRelevant;
 
@@ -36,7 +37,7 @@ public class AdIfRelevantContainer extends AuthorizationDataContainer
     public AdIfRelevantContainer()
     {
         super();
-        
+
         setAuthorizationData( new AdIfRelevant() );
     }
 
@@ -46,6 +47,6 @@ public class AdIfRelevantContainer extends AuthorizationDataContainer
      */
     public AdIfRelevant getAdIfRelevant()
     {
-        return (AdIfRelevant)getAuthorizationData();
+        return ( AdIfRelevant ) getAuthorizationData();
     }
 }

@@ -81,8 +81,8 @@ import org.junit.runner.RunWith;
 @CreateDS(allowAnonAccess = true, name = "BindIT-class")
 @CreateLdapServer(
     transports =
-    {
-        @CreateTransport(protocol = "LDAP")
+        {
+            @CreateTransport(protocol = "LDAP")
     })
 public class BindIT extends AbstractLdapTestUnit
 {
@@ -121,8 +121,11 @@ public class BindIT extends AbstractLdapTestUnit
             getWiredContext( getLdapServer(), "system", "blah" );
             fail( "should never get here due to a " );
         }
-        catch ( InvalidNameException e ){}
+        catch ( InvalidNameException e )
+        {
+        }
     }
+
 
     /**
      * Test with bindDn that is under a naming context but points to non-existant user.

@@ -61,6 +61,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+
 /**
  * Tests for replication subsystem in client-server mode.
  *
@@ -73,13 +74,14 @@ public class ClientServerReplicationIT
     private static LdapServer consumerServer;
 
     private static SchemaManager schemaManager;
-    
+
     private static CoreSession providerSession;
-    
+
     private static CoreSession consumerSession;
-    
+
     private static AtomicInteger entryCount = new AtomicInteger();
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -95,38 +97,40 @@ public class ClientServerReplicationIT
         consumerServer.stop();
         providerServer.stop();
     }
-    
-    
+
+
     private void dump( CoreSession session, Dn entryDn )
     {
         try
         {
             SearchRequest searchRequest = new SearchRequestImpl();
-            
+
             searchRequest.setBase( new Dn( schemaManager, "dc=example,dc=com" ) );
             searchRequest.setFilter( "(objectClass=*)" );
             searchRequest.setScope( SearchScope.SUBTREE );
             searchRequest.addAttributes( "entryUuid" );
-            
+
             System.out.println( "-----------> Dumping the server <-----------" );
             System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
-            
+
             EntryFilteringCursor cursor = session.search( searchRequest );
-            
+
             while ( cursor.next() )
             {
                 Entry entry = cursor.get();
-                
+
                 if ( entry.getDn().equals( entryDn ) )
                 {
                     System.out.println( "The searched entry exists !!!" );
-                    System.out.println( "found Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
+                    System.out.println( "found Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = "
+                        + entry.get( "entryUuid" ) );
                     continue;
                 }
-                
-                System.out.println( "Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = " + entry.get( "entryUuid" ) );
+
+                System.out.println( "Entry " + entry.getDn().getNormName() + " exists, entrtyUuid = "
+                    + entry.get( "entryUuid" ) );
             }
-            
+
             cursor.close();
 
             System.out.println( "-----------> Dump done <-----------" );
@@ -138,7 +142,7 @@ public class ClientServerReplicationIT
         }
     }
 
-    
+
     /**
      * Check that the entry exists in the target server. We wait up to 10 seconds, by
      * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
@@ -147,8 +151,8 @@ public class ClientServerReplicationIT
     {
         return checkEntryExistence( session, entryDn, false );
     }
-    
-    
+
+
     /**
      * Check that the entry exists in the target server. We wait up to 10 seconds, by
      * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
@@ -156,34 +160,34 @@ public class ClientServerReplicationIT
     private boolean checkEntryExistence( CoreSession session, Dn entryDn, boolean print ) throws Exception
     {
         boolean replicated = false;
-        
+
         for ( int i = 0; i < 100; i++ )
         {
             Thread.sleep( 50 );
-            
+
             if ( session.exists( entryDn ) )
             {
                 if ( print )
-                {      
+                {
                     System.out.println( entryDn.getName() + " exists " );
                 }
-                
+
                 replicated = true;
                 break;
             }
-            
+
             Thread.sleep( 50 );
         }
-        
+
         if ( replicated == false )
         {
             dump( session, entryDn );
         }
-        
+
         return replicated;
     }
-    
-    
+
+
     /**
      * Check that the entry exists and has been deleted in the target server. We wait up to 10 seconds, by
      * 100ms steps, until either the entry is deleted, or we have exhausted the 10 seconds delay,
@@ -192,18 +196,18 @@ public class ClientServerReplicationIT
     private boolean checkEntryDeletion( CoreSession session, Dn entryDn ) throws Exception
     {
         boolean exists = session.exists( entryDn );
-        
-        if ( ! exists )
+
+        if ( !exists )
         {
             return true;
         }
-        
+
         for ( int i = 0; i < 100; i++ )
         {
             Thread.sleep( 50 );
 
             exists = session.exists( entryDn );
-            
+
             if ( !exists )
             {
                 return true;
@@ -211,160 +215,160 @@ public class ClientServerReplicationIT
 
             Thread.sleep( 50 );
         }
-        
+
         dump( session, entryDn );
-        
+
         return false;
     }
 
-    
+
     @Test
     public void testModify() throws Exception
     {
         Entry provUser = createEntry();
-        
+
         assertFalse( consumerSession.exists( provUser.getDn() ) );
-        
+
         providerSession.add( provUser );
-        
+
         assertTrue( providerSession.exists( provUser.getDn() ) );
-        
+
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
-        
+
         providerSession.modify( modReq );
-        
+
         assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
     }
-    
-    
+
+
     @Test
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
-        
+
         assertFalse( consumerSession.exists( provUser.getDn() ) );
-        
+
         // Add entry : "cn=entryN,dc=example,dc=com"
         providerSession.add( provUser ); // 1
-        
+
         Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
-        
+
         DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer,
             "objectClass: organizationalUnit",
             "ou: users" );
-        
+
         // Add entry "ou=users,dc=example,dc=com"
         providerSession.add( entry ); // 2
-        
+
         assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
         waitAndCompareEntries( entry.getDn() );
-        
+
         // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
         Dn userDn = provUser.getDn();
         providerSession.move( userDn, usersContainer );
-        
+
         // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
         Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
-        
+
         assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
         waitAndCompareEntries( movedEntryDn );
-        
-        Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed");
-        
+
+        Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
+
         // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com"
         providerSession.rename( movedEntryDn, newName, true );
-        
+
         Dn renamedEntryDn = usersContainer.add( newName );
-        
+
         assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
         waitAndCompareEntries( renamedEntryDn );
-        
+
         // now move and rename
         Dn newParent = usersContainer.getParent();
-        
-        newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed");
-        
+
+        newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed" );
+
         // Move and rename "cn=entryNrenamed,ou=users,dc=example,dc=com" to
         // "cn=entryNMovedAndRenamed,dc=example,dc=com"
         providerSession.moveAndRename( renamedEntryDn, newParent, newName, false ); //4
-        
+
         Dn movedAndRenamedEntry = newParent.add( newName );
 
         assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
         waitAndCompareEntries( movedAndRenamedEntry );
     }
-    
-    
+
+
     @Test
-    @Ignore( "Run this test alone, otherwise it conflicts with moddn" )
+    @Ignore("Run this test alone, otherwise it conflicts with moddn")
     public void testModDnLoop() throws Exception
     {
         for ( int i = 0; i < 10; i++ )
         {
             System.out.println( ">>>>>> loop " + ( i + 1 ) + " <<<<<<" );
             Entry newuser = createEntry();
-            
+
             assertFalse( consumerSession.exists( newuser.getDn() ) );
-            
+
             // Add entry : "cn=entryN,dc=example,dc=com"
             providerSession.add( newuser ); // 1
-            
+
             Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
-            
+
             DefaultEntry usersEntry = new DefaultEntry( schemaManager, usersContainer,
                 "objectClass: organizationalUnit",
                 "ou: users" );
-            
+
             // Add entry "ou=users,dc=example,dc=com"
             providerSession.add( usersEntry ); // 2
-            
+
             assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
             waitAndCompareEntries( usersEntry.getDn() );
-            
+
             // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
             Dn userDn = newuser.getDn();
             providerSession.move( userDn, usersContainer );
-            
+
             // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
             Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
-            
+
             assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
             waitAndCompareEntries( movedEntryDn );
-            
-            Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed");
-            
+
+            Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
+
             // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com"
             providerSession.rename( movedEntryDn, newName, true );
-            
+
             Dn renamedEntryDn = usersContainer.add( newName );
-            
+
             assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
             waitAndCompareEntries( renamedEntryDn );
-            
+
             // now move and rename
             Dn newParent = usersContainer.getParent();
-            
-            newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed");
-            
+
+            newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed" );
+
             // Move and rename "cn=entryNrenamed,ou=users,dc=example,dc=com" to
             // "cn=entryNMovedAndRenamed,dc=example,dc=com"
             providerSession.moveAndRename( renamedEntryDn, newParent, newName, false ); //4
-            
+
             Dn movedAndRenamedEntry = newParent.add( newName );
-    
+
             assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
             waitAndCompareEntries( movedAndRenamedEntry );
-            
+
             // Ok, no failure, revert everything
             providerSession.delete( movedAndRenamedEntry );
             providerSession.delete( usersContainer );
         }
     }
-    
-    
+
+
     /**
      * Test the replication of a deleted entry
      */
@@ -372,125 +376,125 @@ public class ClientServerReplicationIT
     public void testDelete() throws Exception
     {
         Entry provUser = createEntry();
-        
+
         providerSession.add( provUser );
-        
+
         assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
-        
+
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( consumerSession.exists( provUser.getDn() ) );
 
         providerSession.delete( provUser.getDn() );
-        
+
         assertTrue( checkEntryDeletion( consumerSession, provUser.getDn() ) );
         assertFalse( providerSession.exists( provUser.getDn() ) );
     }
-    
-    
+
+
     private Entry restartConsumer( Entry provUser ) throws Exception
     {
         // Now stop the consumer
         consumerServer.stop();
-        
+
         // And delete the entry in the provider
         Dn deletedUserDn = provUser.getDn();
 
         providerSession.delete( deletedUserDn );
-        
+
         // Create a new entry
         provUser = createEntry();
         Dn addedUserDn = provUser.getDn();
 
         providerSession.add( provUser );
-        
+
         // let the provider log the events before the consumer sends a request
         // we are dealing with fraction of seconds cause of the programmatic simulation
         // it is impossible in the real world scenario
         Thread.sleep( 1000 );
-        
+
         // Restart the consumer
         consumerServer.start();
-        
+
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
-        
+
         assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
         waitAndCompareEntries( addedUserDn );
 
         return provUser;
     }
-    
-    
+
+
     @Test
     public void testRebootConsumer() throws Exception
     {
         Entry provUser = createEntry();
-        
-        assertFalse( providerSession.exists(provUser.getDn() ) );
-        assertFalse( consumerSession.exists(provUser.getDn() ) );
-        
+
+        assertFalse( providerSession.exists( provUser.getDn() ) );
+        assertFalse( consumerSession.exists( provUser.getDn() ) );
+
         providerSession.add( provUser );
-        
+
         assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
 
-        assertTrue( providerSession.exists(provUser.getDn() ) );
-        assertTrue( consumerSession.exists(provUser.getDn() ) );
-        
+        assertTrue( providerSession.exists( provUser.getDn() ) );
+        assertTrue( consumerSession.exists( provUser.getDn() ) );
+
         for ( int i = 0; i < 10; i++ )
         {
             provUser = restartConsumer( provUser );
         }
     }
-    
-    
+
+
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
         // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
         Entry providerEntry = providerSession.lookup( dn, "*", "+" );
-        
+
         Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
         assertEquals( providerEntry, consumerEntry );
     }
-    
-    
+
+
     private Entry createEntry() throws Exception
     {
-        String user = "user"+ entryCount.incrementAndGet();
-        
+        String user = "user" + entryCount.incrementAndGet();
+
         String dn = "cn=" + user + ",dc=example,dc=com";
-        
+
         DefaultEntry entry = new DefaultEntry( schemaManager, dn,
             "objectClass", "person",
             "cn", user,
             "sn", user );
-        
+
         return entry;
     }
-    
-    
+
+
     @CreateDS(
-        allowAnonAccess = true, 
-        name = "provider-replication", 
+        allowAnonAccess = true,
+        name = "provider-replication",
         enableChangeLog = false,
         partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                indexes =
-                {
-                    @CreateIndex(attribute = "objectClass"),
-                    @CreateIndex(attribute = "dc"),
-                    @CreateIndex(attribute = "ou")
-                },
-                contextEntry=@ContextEntry( entryLdif = 
-                    "dn: dc=example,dc=com\n" +
-                    "objectClass: domain\n" +
-                    "dc: example" ) )
-             })
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    },
+                    contextEntry = @ContextEntry(entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                            "objectClass: domain\n" +
+                            "dc: example"))
+        })
     @CreateLdapServer(transports =
-        { @CreateTransport( port=16000, protocol = "LDAP") })
+        { @CreateTransport(port = 16000, protocol = "LDAP") })
     public static void startProvider() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
@@ -498,10 +502,10 @@ public class ClientServerReplicationIT
         providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         providerServer.startReplicationProducer();
-        
+
         Runnable r = new Runnable()
         {
-            
+
             public void run()
             {
                 try
@@ -509,7 +513,7 @@ public class ClientServerReplicationIT
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                 }
@@ -521,30 +525,30 @@ public class ClientServerReplicationIT
         t.start();
         t.join();
     }
-    
-    
+
+
     @CreateDS(
-        allowAnonAccess = true, 
+        allowAnonAccess = true,
         enableChangeLog = false,
-        name = "consumer-replication", 
+        name = "consumer-replication",
         partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                indexes =
-                {
-                    @CreateIndex(attribute = "objectClass"),
-                    @CreateIndex(attribute = "dc"),
-                    @CreateIndex(attribute = "ou")
-                },
-                contextEntry=@ContextEntry( entryLdif = 
-                    "dn: dc=example,dc=com\n" +
-                    "objectClass: domain\n" +
-                    "dc: example" ) )
-             })
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    },
+                    contextEntry = @ContextEntry(entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                            "objectClass: domain\n" +
+                            "dc: example"))
+        })
     @CreateLdapServer(transports =
-        { @CreateTransport( port=17000, protocol = "LDAP") })
+        { @CreateTransport(port = 17000, protocol = "LDAP") })
     @CreateConsumer
         (
             remoteHost = "localhost",
@@ -556,19 +560,19 @@ public class ClientServerReplicationIT
             refreshInterval = 1000,
             replicaId = 1
         )
-    public static void startConsumer() throws Exception
+        public static void startConsumer() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
         consumerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
-        
-        final ReplicationConsumerImpl consumer = (ReplicationConsumerImpl)ServerAnnotationProcessor.createConsumer();
-        
+
+        final ReplicationConsumerImpl consumer = ( ReplicationConsumerImpl ) ServerAnnotationProcessor.createConsumer();
+
         List<ReplicationConsumer> replConsumers = new ArrayList<ReplicationConsumer>();
         replConsumers.add( consumer );
-        
+
         consumerServer.setReplConsumers( replConsumers );
         consumerServer.startReplicationConsumers();
-        
+
         Runnable r = new Runnable()
         {
             public void run()
@@ -576,10 +580,10 @@ public class ClientServerReplicationIT
                 try
                 {
                     DirectoryService ds = consumerServer.getDirectoryService();
-                    
+
                     Dn configDn = new Dn( ds.getSchemaManager(), "ads-replConsumerId=localhost,ou=system" );
                     consumer.getConfig().setConfigEntryDn( configDn );
-                    
+
                     Entry provConfigEntry = new DefaultEntry( ds.getSchemaManager(), configDn,
                         "objectClass: ads-replConsumer",
                         "ads-replConsumerId: localhost",
@@ -594,15 +598,15 @@ public class ClientServerReplicationIT
                         "ads-replSearchTimeOut", String.valueOf( consumer.getConfig().getSearchTimeout() ),
                         "ads-replUserDn", consumer.getConfig().getReplUserDn(),
                         "ads-replUserPassword", consumer.getConfig().getReplUserPassword() );
-                    
-                    provConfigEntry.put( "ads-replAliasDerefMode", consumer.getConfig().getAliasDerefMode().getJndiValue() );
+
+                    provConfigEntry.put( "ads-replAliasDerefMode", consumer.getConfig().getAliasDerefMode()
+                        .getJndiValue() );
                     provConfigEntry.put( "ads-replAttributes", consumer.getConfig().getAttributes() );
 
-                    
                     consumerSession = consumerServer.getDirectoryService().getAdminSession();
                     consumerSession.add( provConfigEntry );
                 }
-                catch( Exception e )
+                catch ( Exception e )
                 {
                     e.printStackTrace();
                 }

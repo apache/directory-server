@@ -44,6 +44,7 @@ import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * This test is simply used to test that handlers can be set properly.
  *
@@ -61,7 +62,7 @@ public class SettingAlternativeHandlersTest
      * provider
      */
     @Test
-    public void testDefaultOperation() 
+    public void testDefaultOperation()
     {
         LdapServer ldapServer = new LdapServer();
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
@@ -89,19 +90,18 @@ public class SettingAlternativeHandlersTest
         ldapServer.setSearchHandler( new BogusSearchHandler() );
         ldapServer.setUnbindHandler( new BogusUnbindHandler() );
 
-        assertEquals( ldapServer.getAbandonHandler().getClass(), BogusAbandonHandler.class  );
-        assertEquals( ldapServer.getAddHandler().getClass(), BogusAddHandler.class  );
-        assertEquals( ldapServer.getBindHandler().getClass(), BogusBindHandler.class  );
-        assertEquals( ldapServer.getCompareHandler().getClass(), BogusCompareHandler.class  );
-        assertEquals( ldapServer.getDeleteHandler().getClass(), BogusDeleteHandler.class  );
-        assertEquals( ldapServer.getModifyDnHandler().getClass(), BogusModifyDnHandler.class  );
-        assertEquals( ldapServer.getModifyHandler().getClass(), BogusModifyHandler.class  );
-        assertEquals( ldapServer.getSearchHandler().getClass(), BogusSearchHandler.class  );
-        assertEquals( ldapServer.getUnbindHandler().getClass(), BogusUnbindHandler.class  );
+        assertEquals( ldapServer.getAbandonHandler().getClass(), BogusAbandonHandler.class );
+        assertEquals( ldapServer.getAddHandler().getClass(), BogusAddHandler.class );
+        assertEquals( ldapServer.getBindHandler().getClass(), BogusBindHandler.class );
+        assertEquals( ldapServer.getCompareHandler().getClass(), BogusCompareHandler.class );
+        assertEquals( ldapServer.getDeleteHandler().getClass(), BogusDeleteHandler.class );
+        assertEquals( ldapServer.getModifyDnHandler().getClass(), BogusModifyDnHandler.class );
+        assertEquals( ldapServer.getModifyHandler().getClass(), BogusModifyHandler.class );
+        assertEquals( ldapServer.getSearchHandler().getClass(), BogusSearchHandler.class );
+        assertEquals( ldapServer.getUnbindHandler().getClass(), BogusUnbindHandler.class );
         assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
-    
     public static class BogusAbandonHandler extends AbandonHandler
     {
         public void abandonMessageReceived( IoSession session, AbandonRequest request )
@@ -110,7 +110,6 @@ public class SettingAlternativeHandlersTest
         }
     }
 
-    
     public static class BogusUnbindHandler extends UnbindHandler
     {
         public void unbindMessageReceived( IoSession session, UnbindRequest request )
@@ -148,7 +147,7 @@ public class SettingAlternativeHandlersTest
         }
     }
 
-    public static class BogusDeleteHandler extends  DeleteHandler
+    public static class BogusDeleteHandler extends DeleteHandler
     {
         public void deleteMessageReceived( IoSession session, DeleteRequest request )
         {
@@ -156,7 +155,7 @@ public class SettingAlternativeHandlersTest
         }
     }
 
-    public static class BogusModifyDnHandler extends  ModifyDnHandler
+    public static class BogusModifyDnHandler extends ModifyDnHandler
     {
         public void modifyDnMessageReceived( IoSession session, ModifyDnRequest request )
         {

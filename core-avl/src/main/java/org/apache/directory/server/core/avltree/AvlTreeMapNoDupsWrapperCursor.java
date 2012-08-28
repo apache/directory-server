@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import org.apache.directory.shared.ldap.model.cursor.AbstractTupleCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -31,109 +32,110 @@ import org.apache.directory.shared.ldap.model.cursor.Tuple;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlTreeMapNoDupsWrapperCursor<K,V> extends AbstractTupleCursor<K, V>
+public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractTupleCursor<K, V>
 {
     private final ConcurrentMapCursor<K, SingletonOrOrderedSet<V>> wrapped;
-    private final Tuple<K,V> returnedTuple = new Tuple<K, V>();
-    
-    
+    private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
+
+
     public AvlTreeMapNoDupsWrapperCursor( ConcurrentMapCursor<K, SingletonOrOrderedSet<V>> wrapped )
     {
         this.wrapped = wrapped;
     }
-    
+
 
     public void afterKey( K key ) throws Exception
     {
         wrapped.afterKey( key );
     }
 
-    
+
     public void afterValue( K key, V value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }
 
-    
+
     public void beforeKey( K key ) throws Exception
     {
         wrapped.beforeKey( key );
     }
 
-    
+
     public void beforeValue( K key, V value ) throws Exception
     {
         throw new UnsupportedOperationException( "This Cursor does not support duplicate keys." );
     }
 
-    
+
     public void after( Tuple<K, V> element ) throws Exception
     {
         wrapped.afterKey( element.getKey() );
     }
 
-    
+
     public void afterLast() throws Exception
     {
         wrapped.afterLast();
     }
 
-    
+
     public boolean available()
     {
         return wrapped.available();
     }
 
-    
+
     public void before( Tuple<K, V> element ) throws Exception
     {
         wrapped.beforeKey( element.getKey() );
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         wrapped.beforeFirst();
     }
 
-    
+
     public boolean first() throws Exception
     {
         return wrapped.first();
     }
-    
+
 
     public Tuple<K, V> get() throws Exception
     {
         if ( wrapped.available() )
         {
             Tuple<K, SingletonOrOrderedSet<V>> tuple = wrapped.get();
-            
+
             if ( tuple.getValue().isOrderedSet() )
             {
-                throw new IllegalStateException( "Avl: No dups cursor has a set of elemets for its value" + tuple.getKey() );
+                throw new IllegalStateException( "Avl: No dups cursor has a set of elemets for its value"
+                    + tuple.getKey() );
             }
-            
+
             returnedTuple.setBoth( tuple.getKey(), tuple.getValue().getSingleton() );
             return returnedTuple;
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 
-    
+
     public boolean last() throws Exception
     {
         return wrapped.last();
     }
 
-    
+
     public boolean next() throws Exception
     {
         return wrapped.next();
     }
 
-    
+
     public boolean previous() throws Exception
     {
         return wrapped.previous();

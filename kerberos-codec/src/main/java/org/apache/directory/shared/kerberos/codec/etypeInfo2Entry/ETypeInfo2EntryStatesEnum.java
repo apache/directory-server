@@ -33,25 +33,24 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum ETypeInfo2EntryStatesEnum implements States
 {
     // Start
-    START_STATE,                            // 0
+    START_STATE, // 0
 
-    ETYPE_INFO2_ENTRY_SEQ_STATE,            // 1
+    ETYPE_INFO2_ENTRY_SEQ_STATE, // 1
 
-    ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE,      // 2
+    ETYPE_INFO2_ENTRY_ETYPE_TAG_STATE, // 2
 
-    ETYPE_INFO2_ENTRY_ETYPE_STATE,          // 3
+    ETYPE_INFO2_ENTRY_ETYPE_STATE, // 3
 
-    ETYPE_INFO2_ENTRY_SALT_TAG_STATE,       // 4
+    ETYPE_INFO2_ENTRY_SALT_TAG_STATE, // 4
 
-    ETYPE_INFO2_ENTRY_SALT_STATE,           // 5
+    ETYPE_INFO2_ENTRY_SALT_STATE, // 5
 
-    ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE,  // 6
+    ETYPE_INFO2_ENTRY_S2KPARAMS_TAG_STATE, // 6
 
-    ETYPE_INFO2_ENTRY_S2KPARAMS_STATE,      // 7
+    ETYPE_INFO2_ENTRY_S2KPARAMS_STATE, // 7
 
     // End
-    LAST_ETYPE_INFO2_ENTRY_STATE;            // 8
-
+    LAST_ETYPE_INFO2_ENTRY_STATE; // 8
 
     /**
      * Get the grammar name

@@ -77,16 +77,17 @@ public class ACDFEngine
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( schemaManager );
         RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( schemaManager ) );
 
-        filters = new ACITupleFilter[] {
-            new RelatedUserClassFilter( subtreeEvaluator ),
-            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, schemaManager ),
-            new MaxValueCountFilter(),
-            new MaxImmSubFilter( schemaManager ),
-            new RestrictedByFilter(),
-            new MicroOperationFilter(),
-            new HighestPrecedenceFilter(),
-            new MostSpecificUserClassFilter(),
-            new MostSpecificProtectedItemFilter() };
+        filters = new ACITupleFilter[]
+            {
+                new RelatedUserClassFilter( subtreeEvaluator ),
+                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, schemaManager ),
+                new MaxValueCountFilter(),
+                new MaxImmSubFilter( schemaManager ),
+                new RestrictedByFilter(),
+                new MicroOperationFilter(),
+                new HighestPrecedenceFilter(),
+                new MostSpecificUserClassFilter(),
+                new MostSpecificProtectedItemFilter() };
     }
 
 
@@ -98,13 +99,14 @@ public class ACDFEngine
      * @param aciContext the container for ACI items
      * @throws LdapException if failed to evaluate ACI items
      */
-    public void checkPermission( AciContext aciContext )throws LdapException
+    public void checkPermission( AciContext aciContext ) throws LdapException
     {
         if ( !hasPermission( aciContext ) )
         {
             throw new LdapNoPermissionException();
         }
     }
+
 
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
@@ -122,7 +124,8 @@ public class ACDFEngine
         }
 
         CoreSession session = aciContext.getOperationContext().getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, aciContext.getUserDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, aciContext.getUserDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Entry userEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
         // Determine the scope of the requested operation.

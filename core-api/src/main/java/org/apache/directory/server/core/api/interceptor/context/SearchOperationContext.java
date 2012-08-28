@@ -58,7 +58,7 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session )
     {
         super( session );
-        
+
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
@@ -73,7 +73,7 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws LdapException
     {
         super( session );
-        
+
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
@@ -114,7 +114,8 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( CoreSession session, Dn dn, ExprNode filter, SearchControls searchControls ) throws LdapException
+    public SearchOperationContext( CoreSession session, Dn dn, ExprNode filter, SearchControls searchControls )
+        throws LdapException
     {
         super( session, dn );
         this.filter = filter;
@@ -122,7 +123,7 @@ public class SearchOperationContext extends SearchingOperationContext
         timeLimit = searchControls.getTimeLimit();
         sizeLimit = searchControls.getCountLimit();
         typesOnly = searchControls.getReturningObjFlag();
-        
+
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
@@ -155,7 +156,7 @@ public class SearchOperationContext extends SearchingOperationContext
         super( session, dn, returningAttributes );
         super.setScope( scope );
         this.filter = filter;
-        
+
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );

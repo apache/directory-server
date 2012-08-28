@@ -19,12 +19,12 @@
  */
 package org.apache.directory.shared.kerberos.codec.types;
 
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.shared.util.Strings;
-
 
 
 /**
@@ -37,127 +37,127 @@ public enum EncryptionType
     /**
      * The "unknown" encryption type.
      */
-    UNKNOWN( -1, "UNKNOWN" ),
+    UNKNOWN(-1, "UNKNOWN"),
 
     /**
      * The "null" encryption type.
      */
-    NULL( 0, "null" ),
+    NULL(0, "null"),
 
     /**
      * The des-cbc-crc encryption type.
      */
-    DES_CBC_CRC( 1, "des-cbc-crc" ),
+    DES_CBC_CRC(1, "des-cbc-crc"),
 
     /**
      * The des-cbc-md4 encryption type.
      */
-    DES_CBC_MD4( 2, "des-cbc-md4" ),
+    DES_CBC_MD4(2, "des-cbc-md4"),
 
     /**
      * The des-cbc-md5 encryption type.
      */
-    DES_CBC_MD5( 3, "des-cbc-md5" ),
+    DES_CBC_MD5(3, "des-cbc-md5"),
 
     /**
      * The reserved (4) encryption type.
      */
-    RESERVED4( 4, "[reserved]" ),
+    RESERVED4(4, "[reserved]"),
 
     /**
      * The des3-cbc-md5 encryption type.
      */
-    DES3_CBC_MD5( 5, "des3-cbc-md5" ),
+    DES3_CBC_MD5(5, "des3-cbc-md5"),
 
     /**
      * The reserved (6) encryption type.
      */
-    RESERVED6( 6, "[reserved]" ),
+    RESERVED6(6, "[reserved]"),
 
     /**
      * The des3-cbc-sha1 encryption type.
      */
-    DES3_CBC_SHA1( 7, "des3-cbc-sha1" ),
+    DES3_CBC_SHA1(7, "des3-cbc-sha1"),
 
     /**
      * The dsaWithSHA1-CmsOID encryption type.
      */
-    DSAWITHSHA1_CMSOID( 9, "dsaWithSHA1-CmsOID" ),
+    DSAWITHSHA1_CMSOID(9, "dsaWithSHA1-CmsOID"),
 
     /**
      * The md5WithRSAEncryption-CmsOID encryption type.
      */
-    MD5WITHRSAENCRYPTION_CMSOID( 10, "md5WithRSAEncryption-CmsOID" ),
+    MD5WITHRSAENCRYPTION_CMSOID(10, "md5WithRSAEncryption-CmsOID"),
 
     /**
      * The sha1WithRSAEncryption-CmsOID encryption type.
      */
-    SHA1WITHRSAENCRYPTION_CMSOID( 11, "sha1WithRSAEncryption-CmsOID" ),
+    SHA1WITHRSAENCRYPTION_CMSOID(11, "sha1WithRSAEncryption-CmsOID"),
 
     /**
      * The rc2CBC-EnvOID encryption type.
      */
-    RC2CBC_ENVOID( 12, "rc2CBC-EnvOID" ),
+    RC2CBC_ENVOID(12, "rc2CBC-EnvOID"),
 
     /**
      * The rsaEncryption-EnvOID encryption type.
      */
-    RSAENCRYPTION_ENVOID( 13, "rsaEncryption-EnvOID" ),
+    RSAENCRYPTION_ENVOID(13, "rsaEncryption-EnvOID"),
 
     /**
      * The rsaES-OAEP-ENV-OID encryption type.
      */
-    RSAES_OAEP_ENV_OID( 14, "rsaES-OAEP-ENV-OID" ),
+    RSAES_OAEP_ENV_OID(14, "rsaES-OAEP-ENV-OID"),
 
     /**
      * The des-ede3-cbc-Env-OID encryption type.
      */
-    DES_EDE3_CBC_ENV_OID( 15, "des-ede3-cbc-Env-OID" ),
+    DES_EDE3_CBC_ENV_OID(15, "des-ede3-cbc-Env-OID"),
 
     /**
      * The des3-cbc-sha1-kd encryption type.
      */
-    DES3_CBC_SHA1_KD( 16, "des3-cbc-sha1-kd" ),
+    DES3_CBC_SHA1_KD(16, "des3-cbc-sha1-kd"),
 
     /**
      * The aes128-cts-hmac-sha1-96 encryption type.
      */
-    AES128_CTS_HMAC_SHA1_96( 17, "aes128-cts-hmac-sha1-96" ),
+    AES128_CTS_HMAC_SHA1_96(17, "aes128-cts-hmac-sha1-96"),
 
     /**
      * The aes256-cts-hmac-sha1-96 encryption type.
      */
-    AES256_CTS_HMAC_SHA1_96( 18, "aes256-cts-hmac-sha1-96" ),
+    AES256_CTS_HMAC_SHA1_96(18, "aes256-cts-hmac-sha1-96"),
 
     /**
      * The rc4-hmac encryption type.
      */
-    RC4_HMAC( 23, "rc4-hmac" ),
+    RC4_HMAC(23, "rc4-hmac"),
 
     /**
      * The rc4-hmac-exp encryption type.
      */
-    RC4_HMAC_EXP( 24, "rc4-hmac-exp" ),
+    RC4_HMAC_EXP(24, "rc4-hmac-exp"),
 
     /**
      * The subkey-keymaterial encryption type.
      */
-    SUBKEY_KEYMATERIAL( 65, "subkey-keymaterial" ),
+    SUBKEY_KEYMATERIAL(65, "subkey-keymaterial"),
 
     /**
      * The rc4-md4 encryption type.
      */
-    RC4_MD4( -128, "rc4-md4" ),
+    RC4_MD4(-128, "rc4-md4"),
 
     /**
      * The c4-hmac-old encryption type.
      */
-    RC4_HMAC_OLD( -133, "rc4-hmac-old" ),
+    RC4_HMAC_OLD(-133, "rc4-hmac-old"),
 
     /**
      * The rc4-hmac-old-exp encryption type.
      */
-    RC4_HMAC_OLD_EXP( -135, "rc4-hmac-old-exp" );
+    RC4_HMAC_OLD_EXP(-135, "rc4-hmac-old-exp");
 
     /**
      * The value/code for the encryption type.
@@ -195,7 +195,7 @@ public enum EncryptionType
         this.name = name;
     }
 
-    
+
     /**
      * Get all the encryption types
      *
@@ -205,6 +205,7 @@ public enum EncryptionType
     {
         return encryptionTypesByName.values();
     }
+
 
     /**
      * Returns the encryption type when specified by its value.
@@ -246,6 +247,7 @@ public enum EncryptionType
         return name;
     }
 
+
     /**
      * Get the EncryptionType given a String.
      * @param type The encryption string we want to find
@@ -257,9 +259,9 @@ public enum EncryptionType
         {
             return UNKNOWN;
         }
-        
+
         String lcType = Strings.toLowerCase( type );
-        
+
         if ( encryptionTypesByName.containsKey( lcType ) )
         {
             return encryptionTypesByName.get( lcType );
@@ -269,8 +271,8 @@ public enum EncryptionType
             return UNKNOWN;
         }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

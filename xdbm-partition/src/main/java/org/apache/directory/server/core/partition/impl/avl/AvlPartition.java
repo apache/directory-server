@@ -51,11 +51,11 @@ public class AvlPartition extends AbstractBTreePartition
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartition.class );
 
-    
+
     /**
      * Creates a store based on AVL Trees.
      */
-    public AvlPartition( SchemaManager schemaManager,TxnManagerFactory txnManagerFactory,
+    public AvlPartition( SchemaManager schemaManager, TxnManagerFactory txnManagerFactory,
         OperationExecutionManagerFactory executionManagerFactory )
     {
         super( schemaManager, txnManagerFactory, executionManagerFactory );
@@ -69,9 +69,10 @@ public class AvlPartition extends AbstractBTreePartition
     {
         if ( !initialized )
         {
-            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager, txnManagerFactory, executionManagerFactory );
+            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager, txnManagerFactory,
+                executionManagerFactory );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
-    
+
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
@@ -81,20 +82,21 @@ public class AvlPartition extends AbstractBTreePartition
             {
                 optimizer = new DefaultOptimizer( this, txnManagerFactory, executionManagerFactory );
             }
-    
+
             searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
-    
+
             if ( isInitialized() )
             {
                 return;
             }
-            
+
             // Create the master table (the table containing all the entries)
             master = new AvlMasterTable( id, UUIDComparator.INSTANCE, null, false );
-    
+
             super.doInit();
         }
     }
+
 
     /**
      * {@inheritDoc}
@@ -136,7 +138,7 @@ public class AvlPartition extends AbstractBTreePartition
         }
         else if ( index instanceof AvlIndex<?> )
         {
-            avlIndex = (AvlIndex<?> ) index;
+            avlIndex = ( AvlIndex<?> ) index;
         }
         else
         {
@@ -144,13 +146,13 @@ public class AvlPartition extends AbstractBTreePartition
                 + "Will create new AvlIndex using copied configuration parameters.", index );
             avlIndex = new AvlIndex( index.getAttributeId() );
         }
-     
+
         avlIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
-      
+
         return avlIndex;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

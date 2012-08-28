@@ -25,6 +25,7 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 
+
 /**
  * 3.3.13. SOA RDATA format
  * 

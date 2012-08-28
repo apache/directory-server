@@ -51,14 +51,13 @@ public class AvlIndex<K> extends AbstractIndex<K>
 {
     protected Normalizer normalizer;
     protected AvlTable<K, UUID> forward;
-    protected AvlTable<UUID, K> reverse; 
-    
+    protected AvlTable<UUID, K> reverse;
+
     /** Forward index entry comparator */
     protected ForwardIndexComparator<K> fIndexEntryComparator;
-    
+
     /** Reverse index entry comparator */
     protected ReverseIndexComparator<K> rIndexEntryComparator;
-    
 
 
     public AvlIndex()
@@ -97,10 +96,10 @@ public class AvlIndex<K> extends AbstractIndex<K>
         }
 
         Comparator comp = ( LdapComparator<K> ) mr.getLdapComparator();
-        ( ( LdapComparator<K> )comp ).setSchemaManager( schemaManager );
-        
+        ( ( LdapComparator<K> ) comp ).setSchemaManager( schemaManager );
+
         String attributeOid = attributeType.getOid();
-        
+
         if ( attributeOid.equals( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID ) ||
             attributeOid.equals( ApacheSchemaConstants.APACHE_SUB_LEVEL_AT_OID ) ||
             attributeOid.equals( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) ||
@@ -108,7 +107,7 @@ public class AvlIndex<K> extends AbstractIndex<K>
         {
             comp = UUIDComparator.INSTANCE;
         }
-                  
+
         /*
          * The forward key/value map stores attribute values to master table 
          * primary keys.  A value for an attribute can occur several times in
@@ -130,7 +129,7 @@ public class AvlIndex<K> extends AbstractIndex<K>
         {
             reverse = new AvlTable<UUID, K>( attributeType.getName(), UUIDComparator.INSTANCE, comp, true );
         }
-        
+
         fIndexEntryComparator = new ForwardIndexComparator<K>( comp );
         rIndexEntryComparator = new ReverseIndexComparator<K>( comp );
     }
@@ -152,7 +151,7 @@ public class AvlIndex<K> extends AbstractIndex<K>
         {
             forward.close();
         }
-        
+
         if ( reverse != null )
         {
             reverse.close();
@@ -454,17 +453,20 @@ public class AvlIndex<K> extends AbstractIndex<K>
     {
         return reverse.isDupsEnabled();
     }
-    
+
+
     public ForwardIndexComparator<K> getForwardIndexEntryComparator()
     {
         return this.fIndexEntryComparator;
     }
-    
+
+
     public ReverseIndexComparator<K> getReverseIndexEntryComparator()
     {
         return this.rIndexEntryComparator;
     }
-   
+
+
     /**
      * {@inheritDoc}
      */

@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+
 /**
  * Test cases for the encryption types used by Kerberos "5.2" per RFC 4120,
  * "The Kerberos Network Authentication Service (V5)."
@@ -291,12 +292,12 @@ public class KeyTypeTest
         Set<String> result = new HashSet<String>();
 
         Provider[] providers = Security.getProviders();
-        
+
         for ( Provider provider : providers )
         {
             // Get services provided by each provider
             Set<Object> keys = provider.keySet();
-            
+
             for ( Object keyObject : keys )
             {
                 String key = ( String ) keyObject;

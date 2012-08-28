@@ -80,7 +80,7 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
         // The PrincipalName must be pure ASCII witout any control character
         if ( KerberosUtils.isKerberosString( value.getData() ) )
         {
-            String nameString = Strings.utf8ToString(value.getData());
+            String nameString = Strings.utf8ToString( value.getData() );
 
             principalName.addName( nameString );
             principalNameContainer.setGrammarEndAllowed( true );
@@ -92,8 +92,8 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
         }
         else
         {
-            String valBytes = Strings.dumpBytes(value.getData());
-            String valStr = Strings.utf8ToString(value.getData());
+            String valBytes = Strings.dumpBytes( value.getData() );
+            String valStr = Strings.utf8ToString( value.getData() );
             String valAll = valBytes + "/" + valStr;
             LOG.error( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
 

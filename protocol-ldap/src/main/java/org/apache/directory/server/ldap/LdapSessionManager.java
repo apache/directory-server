@@ -40,7 +40,7 @@ public class LdapSessionManager
     /** Concurrent hashMap backing for IoSession to LdapSession mapping */
     private Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<IoSession, LdapSession>( 100 );
 
-    
+
     /**
      * Gets the active sessions managed by the LdapServer.
      */
@@ -48,7 +48,7 @@ public class LdapSessionManager
     {
         return ldapSessions.values().toArray( new LdapSession[0] );
     }
-    
+
 
     /**
      * Adds a new LdapSession to the LdapServer.
@@ -62,8 +62,8 @@ public class LdapSessionManager
             ldapSessions.put( ldapSession.getIoSession(), ldapSession );
         }
     }
-    
-    
+
+
     /**
      * Removes an LdapSession managed by the {@link LdapServer}.  This method
      * has no side effects: meaning it does not perform cleanup tasks after
@@ -79,8 +79,8 @@ public class LdapSessionManager
             return ldapSessions.remove( session );
         }
     }
-    
-    
+
+
     /**
      * Gets the LdapSession associated with the MINA session.
      *

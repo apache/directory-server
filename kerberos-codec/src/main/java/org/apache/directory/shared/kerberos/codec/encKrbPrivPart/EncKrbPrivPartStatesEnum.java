@@ -33,33 +33,32 @@ import org.apache.directory.shared.asn1.ber.grammar.States;
 public enum EncKrbPrivPartStatesEnum implements States
 {
     // Start
-    START_STATE,                                    // 0
+    START_STATE, // 0
 
     // ----- EncKrbPrivPart component --------------------------------------
 
-    ENC_KRB_PRIV_PART_TAG_STATE,                    // 2
+    ENC_KRB_PRIV_PART_TAG_STATE, // 2
 
-    ENC_KRB_PRIV_PART_SEQ_TAG_STATE,                // 3
+    ENC_KRB_PRIV_PART_SEQ_TAG_STATE, // 3
 
-    ENC_KRB_PRIV_PART_USER_DATA_TAG_STATE,          // 4
-    ENC_KRB_PRIV_PART_USER_DATA_STATE,              // 5
+    ENC_KRB_PRIV_PART_USER_DATA_TAG_STATE, // 4
+    ENC_KRB_PRIV_PART_USER_DATA_STATE, // 5
 
-    ENC_KRB_PRIV_PART_TIMESTAMP_TAG_STATE,          // 5
-    ENC_KRB_PRIV_PART_TIMESTAMP_STATE,              // 6
+    ENC_KRB_PRIV_PART_TIMESTAMP_TAG_STATE, // 5
+    ENC_KRB_PRIV_PART_TIMESTAMP_STATE, // 6
 
-    ENC_KRB_PRIV_PART_USEC_TAG_STATE,               // 7
-    ENC_KRB_PRIV_PART_USEC_STATE,                   // 8
+    ENC_KRB_PRIV_PART_USEC_TAG_STATE, // 7
+    ENC_KRB_PRIV_PART_USEC_STATE, // 8
 
-    ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG_STATE,         // 9
-    ENC_KRB_PRIV_PART_SEQ_NUMBER_STATE,             // 10
+    ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG_STATE, // 9
+    ENC_KRB_PRIV_PART_SEQ_NUMBER_STATE, // 10
 
-    ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG_STATE,     // 11
+    ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG_STATE, // 11
 
-    ENC_KRB_PRIV_PART_RECIPIENT_ADDRESS_TAG_STATE,  // 12
+    ENC_KRB_PRIV_PART_RECIPIENT_ADDRESS_TAG_STATE, // 12
 
     // End
-    LAST_ENC_KRB_PRIV_PART_STATE;                   // 13
-
+    LAST_ENC_KRB_PRIV_PART_STATE; // 13
 
     /**
      * Get the grammar name

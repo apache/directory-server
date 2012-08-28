@@ -28,6 +28,7 @@ public class InjectionRegistry
 {
     private Hashtable<String, Object> injections = new Hashtable<String, Object>();
 
+
     public void addInjection( String type, Object object )
     {
         injections.put( type, object );

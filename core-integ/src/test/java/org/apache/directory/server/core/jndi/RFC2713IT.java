@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "RFC2713IT")
 public class RFC2713IT extends AbstractLdapTestUnit
 {

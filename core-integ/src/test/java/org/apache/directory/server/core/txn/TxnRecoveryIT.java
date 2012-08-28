@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.txn;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.*;
 
@@ -45,35 +46,34 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "MovePerfDS", 
-    partitions = 
-    { 
-        @CreatePartition( 
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = 
+@CreateDS(name = "MovePerfDS",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry =
                 @ContextEntry(
-                    entryLdif = 
-                        "dn: dc=example,dc=com\n" +
-                        "dc: example\n" + 
-                        "objectClass: top\n" + 
-                        "objectClass: domain\n\n"), 
-            indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
-            })
-    }, 
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+    },
     enableChangeLog = false)
-
-public class TxnRecoveryIT  extends AbstractLdapTestUnit
+public class TxnRecoveryIT extends AbstractLdapTestUnit
 {
     @Test
     public void testRecovery() throws Exception
     {
         getService().getTxnManager().setDoNotFlush();
-        
+
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         String oldDn = "cn=test,ou=system";
@@ -85,37 +85,35 @@ public class TxnRecoveryIT  extends AbstractLdapTestUnit
             entry.add( "ObjectClass", "top", "person" );
             entry.add( "sn", "TEST" );
             entry.add( "cn", "test" );
-    
+
             // First add the entry
             connection.add( entry );
-            
-            
+
             // Do a move
             String newDn = "cn=test,ou=users,ou=system";
             String newSuperior = "ou=users,ou=system";
             connection.move( oldDn, newSuperior );
-            
+
             // Do a modify
             LdapContext sysRoot = getSystemContext( getService() );
             Attributes attrs = new BasicAttributes( "telephoneNumber", "1 650 300 6088", true );
             sysRoot.modifyAttributes( "cn=test,ou=users", DirContext.ADD_ATTRIBUTE, attrs );
-            
+
             //Restart the service
             getService().shutdown();
             getService().startup();
-            
+
             Entry oldEntry = connection.lookup( oldDn );
             Entry newEntry = connection.lookup( newDn );
-            
+
             assertTrue( oldEntry == null );
             assertTrue( newEntry != null );
-            
-            
+
             attrs = sysRoot.getAttributes( "cn=test,ou=users" );
             Attribute attr = attrs.get( "telephoneNumber" );
             assertNotNull( attr );
             assertTrue( attr.contains( "1 650 300 6088" ) );
-            
+
         }
         catch ( Exception e )
         {

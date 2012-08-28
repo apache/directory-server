@@ -58,23 +58,41 @@ public class ETypeInfo2DecoderTest
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
-        
-        stream.put( new byte[]
-            { 
-              0x30, 0x1E,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x1B, 0x04, 0x31, 0x32, 0x33, 0x34,
-                0x30, 0x0D,
-                  (byte)0xA0, 0x03,                 // etype
-                    0x02, 0x01, 0x05,
-                  (byte)0xA1, 0x06,                 // salt
-                    0x1B, 0x04, 0x35, 0x36, 0x37, 0x38
-            } );
 
-        String decodedPdu = Strings.dumpBytes(stream.array());
+        stream.put( new byte[]
+            {
+                0x30, 0x1E,
+                0x30, 0x0D,
+                ( byte ) 0xA0, 0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x06, // salt
+                0x1B,
+                0x04,
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x30,
+                0x0D,
+                ( byte ) 0xA0,
+                0x03, // etype
+                0x02,
+                0x01,
+                0x05,
+                ( byte ) 0xA1,
+                0x06, // salt
+                0x1B,
+                0x04,
+                0x35,
+                0x36,
+                0x37,
+                0x38
+        } );
+
+        String decodedPdu = Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a ETypeInfo2 Container
@@ -95,10 +113,11 @@ public class ETypeInfo2DecoderTest
         ETypeInfo2 etypeInfo2 = ( ( ETypeInfo2Container ) etypeInfo2Container ).getETypeInfo2();
 
         assertEquals( 2, etypeInfo2.getETypeInfo2Entries().length );
-        
-        String[] expected = new String[]{ "1234", "5678" };
+
+        String[] expected = new String[]
+            { "1234", "5678" };
         int i = 0;
-        
+
         for ( ETypeInfo2Entry etypeInfo2Entry : etypeInfo2.getETypeInfo2Entries() )
         {
             assertEquals( EncryptionType.DES3_CBC_MD5, etypeInfo2Entry.getEType() );
@@ -108,16 +127,16 @@ public class ETypeInfo2DecoderTest
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( etypeInfo2.computeLength() );
-        
+
         try
         {
             bb = etypeInfo2.encode( bb );
-    
+
             // Check the length
             assertEquals( 0x20, bb.limit() );
-    
-            String encodedPdu = Strings.dumpBytes(bb.array());
-    
+
+            String encodedPdu = Strings.dumpBytes( bb.array() );
+
             assertEquals( encodedPdu, decodedPdu );
         }
         catch ( EncoderException ee )
@@ -125,18 +144,18 @@ public class ETypeInfo2DecoderTest
             fail();
         }
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETypeInfo2 with nothing in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfo2Empty() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
-        
+
         stream.put( new byte[]
             { 0x30, 0x00 } );
 
@@ -149,23 +168,23 @@ public class ETypeInfo2DecoderTest
         kerberosDecoder.decode( stream, etypeInfo2Container );
         fail();
     }
-    
-    
+
+
     /**
      * Test the decoding of a ETypeInfo2 with empty ETypeInfo2Entry in it
      */
-    @Test( expected = DecoderException.class)
+    @Test(expected = DecoderException.class)
     public void testETypeInfo2NoETypeInfo2Entry() throws DecoderException
     {
         Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
-        
+
         stream.put( new byte[]
-            { 
-              0x30, 0x02,
-                (byte)0x30, 0x00                  // empty ETypeInfo2Entry
-            } );
+            {
+                0x30, 0x02,
+                ( byte ) 0x30, 0x00 // empty ETypeInfo2Entry
+        } );
 
         stream.flip();
 

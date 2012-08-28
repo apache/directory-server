@@ -63,7 +63,6 @@ public class KrbCred extends KerberosMessage
     /** encrypted part of the message */
     private EncryptedData encPart;
 
-
     private int pvnoLen;
     private int msgTypeLen;
     private int ticketsSeqLen;
@@ -71,6 +70,7 @@ public class KrbCred extends KerberosMessage
     private int encPartLen;
     private int krbCredSeqLen;
     private int krbCredLen;
+
 
     /**
      * Creates a new instance of KrbCred.
@@ -190,7 +190,7 @@ public class KrbCred extends KerberosMessage
 
         if ( IS_DEBUG )
         {
-            log.debug( "KrbCred encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "KrbCred encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "KrbCred initial value : {}", toString() );
         }
 

@@ -40,6 +40,7 @@ public class StoreAddress extends AbstractReadOctetString<HostAddressContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Instantiates a new HostAddressAddress action.
      */
@@ -60,7 +61,7 @@ public class StoreAddress extends AbstractReadOctetString<HostAddressContainer>
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Address : {}", Strings.utf8ToString(data) );
+            LOG.debug( "Address : {}", Strings.utf8ToString( data ) );
         }
     }
 }

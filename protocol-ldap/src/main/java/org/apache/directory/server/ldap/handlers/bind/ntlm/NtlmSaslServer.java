@@ -48,14 +48,18 @@ import org.apache.directory.shared.util.Strings;
 public class NtlmSaslServer extends AbstractSaslServer
 {
     /** The different states during a NTLM negotiation */
-    enum NegotiationState { INITIALIZED, TYPE_1_RECEIVED, TYPE_2_SENT, TYPE_3_RECEIVED, COMPLETED }
+    enum NegotiationState
+    {
+        INITIALIZED, TYPE_1_RECEIVED, TYPE_2_SENT, TYPE_3_RECEIVED, COMPLETED
+    }
 
     /** The current state */
     private NegotiationState state = NegotiationState.INITIALIZED;
     private final NtlmProvider provider;
 
 
-    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession, CoreSession adminSession )
+    public NtlmSaslServer( NtlmProvider provider, BindRequest bindRequest, LdapSession ldapSession,
+        CoreSession adminSession )
     {
         super( ldapSession, adminSession, bindRequest );
         this.provider = provider;
@@ -158,17 +162,19 @@ public class NtlmSaslServer extends AbstractSaslServer
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
                     Dn dn = getBindRequest().getName();
                     dn.apply( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager() );
-                    LdapPrincipal ldapPrincipal = new LdapPrincipal( getAdminSession().getDirectoryService().getSchemaManager(), 
+                    LdapPrincipal ldapPrincipal = new LdapPrincipal( getAdminSession().getDirectoryService()
+                        .getSchemaManager(),
                         dn, AuthenticationLevel.STRONG );
                     getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
-                    getLdapSession().putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
+                    getLdapSession()
+                        .putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
                 }
                 catch ( Exception e )
                 {
                     throw new SaslException( I18n.err( I18n.ERR_669 ), e );
                 }
 
-                if ( ! result )
+                if ( !result )
                 {
                     throw new SaslException( I18n.err( I18n.ERR_670 ) );
                 }
@@ -188,7 +194,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new Dn( user ) );
-        bindContext.setCredentials( Strings.getBytesUtf8(password) );
+        bindContext.setCredentials( Strings.getBytesUtf8( password ) );
 
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
 

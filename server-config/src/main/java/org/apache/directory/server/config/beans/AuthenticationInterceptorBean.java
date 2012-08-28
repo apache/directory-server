@@ -19,10 +19,12 @@
  */
 package org.apache.directory.server.config.beans;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.config.ConfigurationElement;
+
 
 /**
  * A bean used to store the Authentictor interceptor condifuration
@@ -43,12 +45,12 @@ public class AuthenticationInterceptorBean extends InterceptorBean
     /**
      * Creates a new AuthenticationInterceptorBean instance
      */
-    public AuthenticationInterceptorBean() 
+    public AuthenticationInterceptorBean()
     {
         super();
     }
-    
-    
+
+
     /**
      * @param authenticators the authenticators to set
      */
@@ -57,18 +59,18 @@ public class AuthenticationInterceptorBean extends InterceptorBean
         this.authenticators = authenticators;
     }
 
-    
+
     /**
      * @param authenticators the authenticators to add
      */
     public void addAuthenticators( AuthenticatorBean... authenticators )
     {
         for ( AuthenticatorBean authenticator : authenticators )
-        {   
+        {
             this.authenticators.add( authenticator );
         }
     }
-    
+
 
     /**
      * @return the extendedOps
@@ -77,7 +79,7 @@ public class AuthenticationInterceptorBean extends InterceptorBean
     {
         return authenticators;
     }
-    
+
 
     /**
      * @return the passwordPolicies
@@ -108,17 +110,17 @@ public class AuthenticationInterceptorBean extends InterceptorBean
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "AuthenticationInterceptor :\n" );
         sb.append( super.toString( tabs + "  " ) );
-        
+
         if ( ( authenticators != null ) && ( authenticators.size() > 0 ) )
         {
             sb.append( tabs ).append( "  authenticator :\n" );
@@ -128,7 +130,7 @@ public class AuthenticationInterceptorBean extends InterceptorBean
                 sb.append( authenticator.toString( tabs + "    " ) );
             }
         }
-        
+
         if ( ( passwordPolicies != null ) && ( passwordPolicies.size() > 0 ) )
         {
             for ( PasswordPolicyBean ppolicy : passwordPolicies )

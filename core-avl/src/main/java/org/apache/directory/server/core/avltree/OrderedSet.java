@@ -19,51 +19,55 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+
 
 public class OrderedSet<V>
 {
     /** string used for all values */
     private final static String EMPTY_STRING = "";
-    
+
     /** Backing store */
     private ConcurrentNavigableMap<V, String> orderedMap;
-    
+
     /** Size of the map */
     private int count = 0;
-    
+
     /** Value comparator */
     Comparator<V> valueComparator;
-    
-    
+
+
     public Comparator<V> getValueComparator()
     {
         return valueComparator;
     }
-    
+
+
     public OrderedSet( Comparator<V> comparator )
     {
         orderedMap = new ConcurrentSkipListMap<V, String>( comparator );
         valueComparator = comparator;
     }
-    
-    
+
+
     public ConcurrentNavigableMap<V, String> getBackingMap()
     {
         return orderedMap;
     }
-    
+
+
     public synchronized boolean insert( V value )
     {
         if ( value == null )
         {
             throw new IllegalArgumentException( "Cannot insert null value into ordered set" );
         }
-        
+
         String existingString = orderedMap.put( value, EMPTY_STRING );
-        
+
         if ( existingString == null )
         {
             count++;
@@ -74,16 +78,15 @@ public class OrderedSet<V>
             return false;
         }
     }
-    
-    
+
+
     public synchronized boolean remove( V value )
     {
         if ( value == null )
         {
             throw new IllegalArgumentException( "Cannot remove null value from ordered set" );
         }
-        
-        
+
         if ( orderedMap.remove( value ) != null )
         {
             count--;
@@ -94,51 +97,53 @@ public class OrderedSet<V>
             return false;
         }
     }
-    
-    
+
+
     public boolean contains( V value )
     {
         String contained = orderedMap.get( value );
-        
+
         return ( contained != null );
     }
-    
+
+
     public V first()
     {
         return orderedMap.firstKey();
     }
-    
+
+
     public V last()
     {
         return orderedMap.lastKey();
     }
-    
-    
+
+
     public boolean hasGreaterOrEqual( V value )
     {
         if ( value == null )
         {
             return false;
         }
-        
+
         return ( orderedMap.ceilingKey( value ) != null );
     }
-    
-    
+
+
     public boolean hasLessOrEqual( V value )
     {
         if ( value == null )
         {
             return false;
         }
-        
+
         return ( orderedMap.floorKey( value ) != null );
     }
-    
-    
+
+
     public int getSize()
-    {        
-        return count; 
+    {
+        return count;
     }
 
 }

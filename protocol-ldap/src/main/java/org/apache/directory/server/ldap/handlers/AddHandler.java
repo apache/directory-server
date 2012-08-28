@@ -39,16 +39,16 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AddHandler.class );
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, AddRequest req ) 
+    public void handle( LdapSession session, AddRequest req )
     {
         LOG.debug( "Handling request: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
-        
+
         try
         {
             // Call the underlying layer to inject the new entry
@@ -57,7 +57,7 @@ public class AddHandler extends LdapRequestHandler<AddRequest>
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            
+
             // Write the AddResponse message
             session.getIoSession().write( req.getResultResponse() );
         }

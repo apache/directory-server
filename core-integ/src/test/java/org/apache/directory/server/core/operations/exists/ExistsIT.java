@@ -45,47 +45,47 @@ import org.junit.runner.RunWith;
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: cn=test,ou=system", 
-        "objectClass: person", 
-        "cn: test", 
-        "sn: sn_test" 
-    })
+        "dn: cn=test,ou=system",
+        "objectClass: person",
+        "cn: test",
+        "sn: sn_test"
+})
 public class ExistsIT extends AbstractLdapTestUnit
 {
-    /** The ldap connection */
-    private LdapConnection connection;
+/** The ldap connection */
+private LdapConnection connection;
 
 
-    @Before
-    public void setup() throws Exception
-    {
-        connection = IntegrationUtils.getAdminConnection( getService() );
-    }
+@Before
+public void setup() throws Exception
+{
+    connection = IntegrationUtils.getAdminConnection( getService() );
+}
 
 
-    @After
-    public void shutdown() throws Exception
-    {
-        connection.close();
-    }
+@After
+public void shutdown() throws Exception
+{
+    connection.close();
+}
 
 
-    /**
-     * Test a exists( Dn ) operation
-     */
-    @Test
-    public void testExists() throws Exception
-    {
-        assertTrue( connection.exists( "cn=test,ou=system" ) );
-    }
+/**
+ * Test a exists( Dn ) operation
+ */
+@Test
+public void testExists() throws Exception
+{
+    assertTrue( connection.exists( "cn=test,ou=system" ) );
+}
 
 
-    /**
-     * Test a wrong exists( Dn ) operation
-     */
-    @Test
-    public void testNotExists() throws Exception
-    {
-        assertFalse( connection.exists( "cn=test2,ou=system" ) );
-    }
+/**
+ * Test a wrong exists( Dn ) operation
+ */
+@Test
+public void testNotExists() throws Exception
+{
+    assertFalse( connection.exists( "cn=test2,ou=system" ) );
+}
 }

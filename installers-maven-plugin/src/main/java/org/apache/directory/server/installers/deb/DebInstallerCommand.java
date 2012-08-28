@@ -118,13 +118,13 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         try
         {
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "control" ),
-                        new File( debDebianDirectory, "control" ), true );
+                new File( debDebianDirectory, "control" ), true );
 
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
-                        new File( debDebianDirectory, "postinst" ), true );
+                new File( debDebianDirectory, "postinst" ), true );
 
             MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
-                        new File( debDebianDirectory, "prerm" ), true );
+                new File( debDebianDirectory, "prerm" ), true );
         }
         catch ( IOException e )
         {
@@ -134,10 +134,10 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
         // Setting correct permission on the postinst script
         MojoHelperUtils.exec( new String[]
-                    { "chmod", "755", new File( debDebianDirectory, "postinst" ).toString() }, debDebianDirectory,
+            { "chmod", "755", new File( debDebianDirectory, "postinst" ).toString() }, debDebianDirectory,
             false );
         MojoHelperUtils.exec( new String[]
-                    { "chmod", "755", new File( debDebianDirectory, "prerm" ).toString() }, debDebianDirectory, false );
+            { "chmod", "755", new File( debDebianDirectory, "prerm" ).toString() }, debDebianDirectory, false );
 
         // Generating the Deb
         log.info( "    Generating Deb installer" );
@@ -150,12 +150,12 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
         Execute createDebTask = new Execute();
         String[] cmd = new String[]
-                    {
-                        mojo.getDpkgUtility().getAbsolutePath(),
-                        "-b",
-                        getTargetDirectory().getName() + "/" + getDebDirectory().getName(),
-                        finalName
-                    };
+            {
+                mojo.getDpkgUtility().getAbsolutePath(),
+                "-b",
+                getTargetDirectory().getName() + "/" + getDebDirectory().getName(),
+                finalName
+        };
         createDebTask.setCommandline( cmd );
         createDebTask.setWorkingDirectory( mojo.getOutputDirectory() );
 

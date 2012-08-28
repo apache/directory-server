@@ -19,41 +19,44 @@
  */
 package org.apache.directory.server.core.avltree;
 
+
 import java.util.Comparator;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 
+
 public class OrderedSetCursor<V> extends AbstractCursor<V>
 {
     /** Backing set */
     private OrderedSet<V> set;
-    
+
     /** Cursor for the map backing OrderedSet */
     private ConcurrentMapCursor<V, String> wrappedCursor;
-    
+
+
     public OrderedSetCursor( OrderedSet<V> set )
     {
         this.set = set;
         wrappedCursor = new ConcurrentMapCursor<V, String>( set.getBackingMap() );
     }
-    
-    
+
+
     public Comparator<V> getValueComparator()
     {
         return set.getValueComparator();
     }
-    
-    
+
+
     public void after( V value ) throws Exception
     {
-       wrappedCursor.afterKey( value );
+        wrappedCursor.afterKey( value );
     }
 
 
     public void afterLast() throws Exception
     {
-       wrappedCursor.afterLast();
+        wrappedCursor.afterLast();
     }
 
 
@@ -84,14 +87,14 @@ public class OrderedSetCursor<V> extends AbstractCursor<V>
     public V get() throws Exception
     {
         V value;
-        
+
         if ( wrappedCursor.available() )
         {
             value = wrappedCursor.get().getKey();
-            
+
             return value;
         }
-        
+
         throw new InvalidCursorPositionException();
     }
 

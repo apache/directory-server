@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.partition.tree;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +55,7 @@ import org.junit.Test;
 public class PartitionTreeTest
 {
     private static SchemaManager schemaManager;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
@@ -71,7 +72,7 @@ public class PartitionTreeTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -87,15 +88,15 @@ public class PartitionTreeTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
-    
+
     /**
      * Test the addition of a single partition
      */
-    @Test 
+    @Test
     public void testNewPartitionTree() throws LdapException
     {
         /** A structure to hold all the partitions */
@@ -123,7 +124,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two disjointed partition
      */
-    @Test 
+    @Test
     public void testNewPartitionTree2Nodes() throws LdapException
     {
         /** A structure to hold all the partitions */
@@ -163,7 +164,7 @@ public class PartitionTreeTest
     /**
      * Test the addition of a two partitions with the same root
      */
-    @Test 
+    @Test
     public void testNewPartitionTree2NodesWithSameRoot() throws LdapException
     {
         /** A structure to hold all the partitions */

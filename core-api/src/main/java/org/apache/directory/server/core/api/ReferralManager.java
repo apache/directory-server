@@ -19,9 +19,11 @@
  */
 package org.apache.directory.server.core.api;
 
+
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
+
 
 /**
  * An interface for managing referrals in the server
@@ -111,7 +113,8 @@ public interface ReferralManager
      * @exception If the initialization failed
      */
     void init( DirectoryService directoryService, String... suffixes ) throws Exception;
-    
+
+
     /** Reinitalize the referrals 
      * 
      * Rereads the referalls

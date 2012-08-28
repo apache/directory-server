@@ -48,8 +48,8 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
     public GreaterEqEvaluator( GreaterEqNode<T> node, Partition db, SchemaManager schemaManager,
-            TxnManagerFactory txnManagerFactory,
-            OperationExecutionManagerFactory executionManagerFactory )
+        TxnManagerFactory txnManagerFactory,
+        OperationExecutionManagerFactory executionManagerFactory )
         throws Exception
     {
         super( node, db, schemaManager, txnManagerFactory, executionManagerFactory );
@@ -57,7 +57,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             idx = ( Index<T> ) db.getIndex( attributeType );
-            idx = ( Index<T> ) txnLogManager.wrap(db.getSuffixDn(), idx );
+            idx = ( Index<T> ) txnLogManager.wrap( db.getSuffixDn(), idx );
         }
         else
         {
@@ -89,7 +89,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
     public GreaterEqNode getExpression()
     {
-        return (GreaterEqNode)node;
+        return ( GreaterEqNode ) node;
     }
 
 

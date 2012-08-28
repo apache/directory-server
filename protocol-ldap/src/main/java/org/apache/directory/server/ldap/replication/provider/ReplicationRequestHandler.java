@@ -20,10 +20,12 @@
 
 package org.apache.directory.server.ldap.replication.provider;
 
+
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
+
 
 /**
  * Interface of a replication request handler in a provider/master.
@@ -39,13 +41,13 @@ public interface ReplicationRequestHandler
      */
     void start( LdapServer server );
 
-    
+
     /**
      * stops the replication provider
      */
     void stop();
 
-    
+
     /**
      * A method to be used by any RFC 4533 compatible provider implementation 
      *

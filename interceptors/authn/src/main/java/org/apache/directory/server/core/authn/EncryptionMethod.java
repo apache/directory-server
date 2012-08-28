@@ -51,7 +51,8 @@ public class EncryptionMethod
     private LdapSecurityConstants algorithm;
 
 
-    /** package protected */EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
+    /** package protected */
+    EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
     {
         this.algorithm = algorithm;
         this.salt = salt;
@@ -70,14 +71,15 @@ public class EncryptionMethod
     }
 
 
-    /** package protected */ void setSalt( byte[] salt )
+    /** package protected */
+    void setSalt( byte[] salt )
     {
         // just to make this class immutable, though we have a setter
         if ( this.salt != null )
         {
             throw new IllegalStateException( "salt will only be allowed to set once" );
         }
-        
+
         this.salt = salt;
     }
 
@@ -85,8 +87,8 @@ public class EncryptionMethod
     @Override
     public String toString()
     {
-        return "EncryptionMethod [algorithm=" + algorithm.getName().toUpperCase() + ", salt=" + Strings.dumpBytes(salt) + "]";
+        return "EncryptionMethod [algorithm=" + algorithm.getName().toUpperCase() + ", salt="
+            + Strings.dumpBytes( salt ) + "]";
     }
-    
-    
+
 }

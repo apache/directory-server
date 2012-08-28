@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface ChangeLogStore 
+public interface ChangeLogStore
 {
     /**
      * Initialize the store.
@@ -82,7 +82,7 @@ public interface ChangeLogStore
      */
     ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
 
-    
+
     /**
      * Records a change as a forward LDIF, some reverse changes to revert the change and
      * the authorized principal triggering the revertable change event.
@@ -95,7 +95,7 @@ public interface ChangeLogStore
      */
     ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception;
 
-    
+
     /**
      * Looks up the ChangeLogEvent for a revision.
      *

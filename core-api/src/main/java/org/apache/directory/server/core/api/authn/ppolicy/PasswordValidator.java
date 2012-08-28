@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.api.authn.ppolicy;
 
+
 /**
  * An interface for implementing password quality verifiers.
  *

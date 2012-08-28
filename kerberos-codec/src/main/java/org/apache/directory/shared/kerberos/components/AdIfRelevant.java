@@ -20,8 +20,6 @@
 package org.apache.directory.shared.kerberos.components;
 
 
-
-
 /**
  * The AdIfRelevant structure is used to store a AD-IF-RELEVANT associated to a type.
  * 
@@ -41,7 +39,7 @@ public class AdIfRelevant extends AuthorizationData
         super();
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -59,7 +57,7 @@ public class AdIfRelevant extends AuthorizationData
         StringBuilder sb = new StringBuilder();
 
         sb.append( tabs ).append( "AD-IF-RELEVANT : {\n" );
-        sb.append( tabs ).append( super.toString( "    " + tabs) ).append( '\n' );
+        sb.append( tabs ).append( super.toString( "    " + tabs ) ).append( '\n' );
 
         sb.append( tabs + "}\n" );
 

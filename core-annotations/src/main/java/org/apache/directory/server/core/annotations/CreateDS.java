@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,36 +26,48 @@ import java.lang.annotation.Target;
 
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 
+
 /**
  * An anntation for the DirectoryService builder
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateDS
 {
     /** The Factory to use to create a DirectoryService */
     Class<?> factory() default DefaultDirectoryServiceFactory.class;
-    
+
+
     /** The DS name */
     String name() default "defaultDS";
-    
+
+
     /** flag to enable/disable access control, default is false */
     boolean enableAccessControl() default false;
-    
+
+
     /** flag to enable/disable anonymous access, default is false */
     boolean allowAnonAccess() default false;
-    
+
+
     /** flag to enable/disable changelog, default is true */
     boolean enableChangeLog() default true;
-    
+
+
     /** The list of partitions to create */
-    CreatePartition[] partitions() default {};
-    
+    CreatePartition[] partitions() default
+        {};
+
+
     /** additional interceptors */
-    Class<?>[] additionalInterceptors() default {};
-    
+    Class<?>[] additionalInterceptors() default
+        {};
+
+
     /** authenticators, when empty the default authenticators are used, else this must contain the complete list */
-    CreateAuthenticator[] authenticators() default {};
+    CreateAuthenticator[] authenticators() default
+        {};
 }

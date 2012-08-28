@@ -19,7 +19,6 @@
  */
 //package org.apache.directory.server.kerberos.shared.messages.value;
 
-
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
@@ -131,10 +130,10 @@ public class PrincipalName extends AbstractAsn1Object
 
     /** The principal name - we may have more than one - */
     private List<String> nameString = new ArrayList<String>();
-    
+
     /** The principal name as a byte[], for encoding purpose */
     private List<byte[]> nameBytes;
-    
+
     // Storage for computed lengths
     private int principalNameSeqLength;
     private int principalTypeTagLength;
@@ -142,12 +141,14 @@ public class PrincipalName extends AbstractAsn1Object
     private int principalStringsTagLength;
     private int principalStringsSeqLength;
 
+
     /**
      * Creates a new empty instance of PrincipalName.
      */
     public PrincipalName()
     {
     }
+
 
     /**
      * Creates a new instance of PrincipalName, given a KerberosPrincipal.
@@ -170,7 +171,8 @@ public class PrincipalName extends AbstractAsn1Object
 
         this.nameType = PrincipalNameType.getTypeByValue( principal.getNameType() );
     }
-    
+
+
     /**
      * Creates a new instance of PrincipalName given a String and an 
      * prinipal type.
@@ -178,7 +180,7 @@ public class PrincipalName extends AbstractAsn1Object
      * @param nameString The name string, which can contains more than one nameComponent
      * @param nameType The principal name
      */
-    public PrincipalName( String nameString, PrincipalNameType nameType )  throws ParseException
+    public PrincipalName( String nameString, PrincipalNameType nameType ) throws ParseException
     {
         this.nameString.add( nameString );
         this.nameType = nameType;
@@ -201,7 +203,7 @@ public class PrincipalName extends AbstractAsn1Object
         {
             throw new IllegalArgumentException( pe );
         }
-        
+
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
@@ -215,7 +217,8 @@ public class PrincipalName extends AbstractAsn1Object
     {
         return nameType;
     }
-                    
+
+
     /** 
      * Set the Principal name Type
      * @param nameType the Principal name Type
@@ -225,6 +228,7 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = nameType;
     }
 
+
     /** 
      * Set the Principal name Type
      * @param nameType the Principal name Type
@@ -233,6 +237,7 @@ public class PrincipalName extends AbstractAsn1Object
     {
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
+
 
     /**
      * Returns the name components.
@@ -322,7 +327,7 @@ public class PrincipalName extends AbstractAsn1Object
         // The principalName can't be empty.
         principalTypeLength = Value.getNbBytes( nameType.getValue() );
         principalTypeTagLength = 1 + 1 + principalTypeLength;
-        
+
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
 
         // Compute the keyValue
@@ -339,7 +344,7 @@ public class PrincipalName extends AbstractAsn1Object
             {
                 if ( name != null )
                 {
-                    byte[] bytes = Strings.getBytesUtf8(name);
+                    byte[] bytes = Strings.getBytesUtf8( name );
                     nameBytes.add( bytes );
                     principalStringsSeqLength += 1 + TLV.getNbBytes( bytes.length ) + bytes.length;
                 }
@@ -437,7 +442,7 @@ public class PrincipalName extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrinipalName encoding : {}", Strings.dumpBytes(buffer.array()) );
+            LOG.debug( "PrinipalName encoding : {}", Strings.dumpBytes( buffer.array() ) );
             LOG.debug( "PrinipalName initial value : {}", toString() );
         }
 
@@ -504,12 +509,12 @@ public class PrincipalName extends AbstractAsn1Object
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         PrincipalName other = ( PrincipalName ) obj;
 
         if ( nameString == null )
@@ -528,8 +533,8 @@ public class PrincipalName extends AbstractAsn1Object
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
 }

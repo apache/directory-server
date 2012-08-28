@@ -66,6 +66,7 @@ public class DhcpServerConfigReaderTest
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
 
+
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -76,12 +77,12 @@ public class DhcpServerConfigReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -102,7 +103,7 @@ public class DhcpServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -113,19 +114,22 @@ public class DhcpServerConfigReaderTest
         File configDir = new File( workDir, "dhcpServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dhcpServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory,
+            executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager,
+            "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DHCP_SERVER_OC
+            .getValue() );
 
         assertNotNull( configBean );
-        DhcpServerBean dhcpServerBean = (DhcpServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        DhcpServerBean dhcpServerBean = ( DhcpServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( dhcpServerBean );
 
         configPartition.destroy();

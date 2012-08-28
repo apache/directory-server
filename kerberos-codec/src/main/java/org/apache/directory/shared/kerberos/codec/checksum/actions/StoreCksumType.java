@@ -49,6 +49,7 @@ public class StoreCksumType extends GrammarAction<ChecksumContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+
     /**
      * Creates a new instance of ChecksumReadType.
      */
@@ -91,7 +92,7 @@ public class StoreCksumType extends GrammarAction<ChecksumContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes(value.getData()), ide
+            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

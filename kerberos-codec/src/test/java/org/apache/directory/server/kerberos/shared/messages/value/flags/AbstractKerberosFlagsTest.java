@@ -47,9 +47,9 @@ public class AbstractKerberosFlagsTest
         // Flags 1, 2, 4, 8 set
         AbstractKerberosFlags akf = new AbstractKerberosFlags(
             ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
-                  + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
-                  + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
-                  + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) )
         {
             private static final long serialVersionUID = 1L;
         };
@@ -59,7 +59,7 @@ public class AbstractKerberosFlagsTest
         assertEquals(
             "clear(KerberosFlag)",
             (
-                  ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
+            ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ),
             akf.getIntValue() );
@@ -69,7 +69,7 @@ public class AbstractKerberosFlagsTest
         assertEquals(
             "clear(int)",
             ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
-                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ), akf.getIntValue() );
+            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ), akf.getIntValue() );
     }
 
 
@@ -79,9 +79,9 @@ public class AbstractKerberosFlagsTest
         // Flags 1, 2, 4, 8 set
         AbstractKerberosFlags akfIntConstructor = new AbstractKerberosFlags(
             ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
-            + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
-            + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
-            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ) )
+                + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ) )
         {
             private static final long serialVersionUID = 1L;
         };

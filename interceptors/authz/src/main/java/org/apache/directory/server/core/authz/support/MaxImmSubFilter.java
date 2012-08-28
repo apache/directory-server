@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
-
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
  * {@link org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem} constraint if available. (18.8.3.3, X.501)
@@ -138,7 +137,8 @@ public class MaxImmSubFilter implements ACITupleFilter
 
         try
         {
-            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(), entryName.getRdn( entryName.size() - 1 ) );
+            Dn baseDn = new Dn( opContext.getSession().getDirectoryService().getSchemaManager(),
+                entryName.getRdn( entryName.size() - 1 ) );
             SearchOperationContext searchContext = new SearchOperationContext( opContext.getSession(),
                 baseDn, childrenFilter, childrenSearchControls );
             searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );

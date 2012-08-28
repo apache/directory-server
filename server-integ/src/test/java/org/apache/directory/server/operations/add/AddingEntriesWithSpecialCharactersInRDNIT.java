@@ -93,7 +93,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Kate#Bush)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
@@ -131,7 +131,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Bush, Kate)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -168,7 +168,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(cn=Mackie \"The Knife\" Messer)",
             SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -241,7 +241,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             .search( "ou=system", "(ou=East -> West)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -279,7 +279,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         EntryCursor cursor = connection.search( "ou=system", "(ou=Scissors 8<)", SearchScope.SUBTREE, "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -319,7 +319,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             "*" );
 
         boolean entryFound = false;
-        
+
         while ( cursor.next() )
         {
             Entry sr = cursor.get();
@@ -375,33 +375,33 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         connection.delete( dn );
         connection.close();
     }
-    
-    
+
+
     @Test
-    public void testAddRdnWithEscapedSpaces() throws Exception 
+    public void testAddRdnWithEscapedSpaces() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
         connection.setTimeOut( -1 );
 
-        Entry entry = new DefaultEntry( 
+        Entry entry = new DefaultEntry(
             "cn=\\ User, ou=system",
             "objectClass: top",
             "objectClass: person",
             "objectClass: organizationalPerson",
-            "objectClass: inetOrgPerson", 
+            "objectClass: inetOrgPerson",
             "cn:  User",
             "sn:  Name " );
 
         connection.add( entry );
-        
+
         Entry addedEntry = connection.lookup( "cn=\\ User, ou=system" );
-        
+
         assertNotNull( addedEntry );
-        
+
         assertEquals( "Name", addedEntry.get( "sn" ).getString() );
         assertEquals( "User", addedEntry.get( "cn" ).getString() );
         assertEquals( 1, addedEntry.get( "cn" ).size() );
         assertTrue( addedEntry.contains( "cn", "User" ) );
         assertFalse( addedEntry.contains( "cn", " User" ) );
-      } 
+    }
 }

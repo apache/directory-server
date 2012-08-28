@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplayCacheImpl implements ReplayCache
 {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger( ReplayCacheImpl.class );
-    
+
     /** ehcache based storage to store the entries */
     private Cache cache;
 
@@ -242,8 +242,8 @@ public class ReplayCacheImpl implements ReplayCache
         Element element = new Element( entry.createKey(), entry );
         cache.put( element );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

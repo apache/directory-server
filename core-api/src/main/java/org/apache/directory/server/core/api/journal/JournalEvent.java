@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.journal;
 
+
 /**
  * TODO JournalEvent.
  *

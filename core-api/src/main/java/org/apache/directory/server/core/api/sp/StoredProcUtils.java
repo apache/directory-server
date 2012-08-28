@@ -18,7 +18,6 @@
  *  
  */
 
-
 package org.apache.directory.server.core.api.sp;
 
 
@@ -29,9 +28,10 @@ package org.apache.directory.server.core.api.sp;
  */
 public class StoredProcUtils
 {
-    
+
     /** The delimiter used to tokenize a full SP name into the unit and SP name */
     public static final String SPUnitDelimiter = ":";
+
 
     public static String extractStoredProcName( String fullSPName )
     {
@@ -39,12 +39,13 @@ public class StoredProcUtils
         String spName = fullSPName.substring( delimiter + SPUnitDelimiter.length() );
         return spName;
     }
-    
+
+
     public static String extractStoredProcUnitName( String fullSPName )
     {
         int delimiter = fullSPName.lastIndexOf( SPUnitDelimiter );
         String className = fullSPName.substring( 0, delimiter );
         return className;
     }
-    
+
 }

@@ -20,11 +20,10 @@
 
 package org.apache.directory.server.hub.api.meta;
 
+
 import org.apache.directory.server.hub.api.component.DirectoryComponent;
 import org.apache.directory.server.hub.api.exception.ComponentInstantiationException;
 import org.apache.directory.server.hub.api.exception.ComponentReconfigurationException;
-
-
 
 
 public interface DcOperationsManager

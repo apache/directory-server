@@ -53,16 +53,16 @@ public class ScopeEvaluator implements Evaluator
         {
             case OBJECT:
                 return dn.equals( snode.getBaseDn() );
-            
+
             case ONELEVEL:
                 if ( dn.isDescendantOf( snode.getBaseDn() ) )
                 {
                     return ( snode.getBaseDn().size() + 1 ) == dn.size();
                 }
-            
+
             case SUBTREE:
                 return dn.isDescendantOf( snode.getBaseDn() );
-            
+
             default:
                 throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_247 ) );
         }

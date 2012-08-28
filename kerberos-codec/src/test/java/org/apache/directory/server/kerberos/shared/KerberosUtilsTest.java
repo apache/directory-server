@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.kerberos.shared;
 
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.directory.shared.kerberos.KerberosUtils;
+
 
 /**
  * Test the KerberosUtils class
@@ -49,18 +51,18 @@ public class KerberosUtilsTest
         System.setProperty( "java.security.krb5.kdc", "localhost" );
     }
 
-    
+
     @Test
     public void testKerberosNameSimple() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc" );
         List<String> names = KerberosUtils.getNames( kp );
-     
+
         assertEquals( 1, names.size() );
         assertEquals( "abc", names.get( 0 ) );
     }
 
-    
+
     /**
     public void testKerberosNameEscaped() throws Exception
     {
@@ -74,43 +76,42 @@ public class KerberosUtilsTest
     }
     */
 
-
     @Test
     public void testKerberosNameSimpleWithRealm() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc@APACHE.ORG" );
         List<String> names = KerberosUtils.getNames( kp );
-     
+
         assertEquals( 1, names.size() );
         assertEquals( "abc", names.get( 0 ) );
     }
-    
+
+
     @Test
     public void testKerberosNameThree() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc/def/ghi" );
         List<String> names = KerberosUtils.getNames( kp );
-     
+
         assertEquals( 3, names.size() );
         assertEquals( "abc", names.get( 0 ) );
         assertEquals( "def", names.get( 1 ) );
         assertEquals( "ghi", names.get( 2 ) );
     }
+
 
     @Test
     public void testKerberosNameThreeWithRealm() throws Exception
     {
         KerberosPrincipal kp = new KerberosPrincipal( "abc/def/ghi@APACHE.ORG" );
         List<String> names = KerberosUtils.getNames( kp );
-     
+
         assertEquals( 3, names.size() );
         assertEquals( "abc", names.get( 0 ) );
         assertEquals( "def", names.get( 1 ) );
         assertEquals( "ghi", names.get( 2 ) );
     }
 
-
-    
     /*
     public void testKerberosEndingSlash()
     {
@@ -128,8 +129,7 @@ public class KerberosUtilsTest
         }
     }
     */
-    
-    
+
     /*
     public void testKerberosEndingSlashWithRealm()
     {

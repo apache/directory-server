@@ -35,80 +35,81 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 public class ReplConsumerBean extends AdsBaseBean
 {
     /** The consumer id */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_CONSUMER_ID, isRdn = true )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_ID, isRdn = true)
     private String replConsumerId;
 
     /** The Search Base Dn */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_SEARCH_BASE_DN )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_SEARCH_BASE_DN)
     private String searchBaseDn;
 
     /** The replication provider host name */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PROV_HOST_NAME )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PROV_HOST_NAME)
     private String replProvHostName;
 
     /** The replication provider port */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PROV_PORT )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PROV_PORT)
     private int replProvPort;
 
     /** The Alias Dereferencing mode */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE)
     private String replAliasDerefMode;
 
     /** The replication provider attribute */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_ATTRIBUTES )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ATTRIBUTES)
     private List<String> replAttributes = new ArrayList<String>();
 
     /** The refresh interval */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_REFRESH_INTERVAL )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_REFRESH_INTERVAL)
     private long replRefreshInterval;
 
     /** Tells if we should persist */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_REFRESH_N_PERSIST )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_REFRESH_N_PERSIST)
     private boolean replRefreshNPersist;
 
     /** The search scope */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_SCOPE )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_SEARCH_SCOPE)
     private String replSearchScope;
 
     /** The replication search filter */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_FILTER )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_SEARCH_FILTER)
     private String replSearchFilter;
 
     /** The search size limit */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_SIZE_LIMIT )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_SEARCH_SIZE_LIMIT)
     private int replSearchSizeLimit;
 
     /** The search time limit */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_SEARCH_TIMEOUT )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_SEARCH_TIMEOUT)
     private int replSearchTimeout;
 
     /** The replication user Dn */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USER_DN )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USER_DN)
     private String replUserDn;
 
     /** The replication user password */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USER_PASSWORD )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USER_PASSWORD)
     private byte[] replUserPassword;
 
     /** The replication cookie */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_COOKIE )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_COOKIE)
     private String replCookie;
 
     /** Tells if TLS should be used during replication */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_USE_TLS )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_TLS)
     private boolean replUseTls;
 
     /** Tells if the certificate validation should be strict or not */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION)
     private boolean replStrictCertValidation;
 
     /** The peer certificate */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE)
     private byte[] replPeerCertificate;
 
     /** The FQCN of replication client implementation */
-    @ConfigurationElement( attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL)
     private String replConsumerImpl;
+
 
     /**
      * Create a new Replication Consumer instance
@@ -241,7 +242,7 @@ public class ReplConsumerBean extends AdsBaseBean
         }
     }
 
-    
+
     /**
      * @return the replRefreshInterval
      */
@@ -498,11 +499,11 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( toString( tabs, "  search filter", replSearchFilter ) );
         sb.append( tabs ).append( "  search size limit : " ).append( replSearchSizeLimit ).append( '\n' );
         sb.append( tabs ).append( "  search time limit : " ).append( replSearchTimeout ).append( '\n' );
-        sb.append( toString( tabs, "  user Dn", replUserDn) );
+        sb.append( toString( tabs, "  user Dn", replUserDn ) );
         sb.append( toString( tabs, "  user password", String.valueOf( replUserPassword ) ) ); // do not reveal the password, just null or not
         sb.append( toString( tabs, "  cookie", replCookie ) );
         sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
-        
+
         // a hex dump would be good but printing the address is better to just know null or not
         sb.append( toString( tabs, "  peer certificate", String.valueOf( replPeerCertificate ) ) );
 

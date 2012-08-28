@@ -578,13 +578,14 @@ public class ConfigPartitionReader
                     {
                         // Try by removing 'es'
                         attributeName = fieldName.substring( 0, fieldName.length() - 2 );
-                        
+
                         // if not found try by removing 'ies' and adding 'y' , e.x ads-passwordPolicies
-                        if ( fieldName.endsWith( "ies" ) && !schemaManager.getObjectClassRegistry().contains( attributeName ) )
+                        if ( fieldName.endsWith( "ies" )
+                            && !schemaManager.getObjectClassRegistry().contains( attributeName ) )
                         {
                             attributeName = fieldName.substring( 0, fieldName.length() - 3 ) + "y";
                         }
-                        
+
                         if ( !schemaManager.getObjectClassRegistry().contains( attributeName ) )
                         {
                             String message = "Cannot find the ObjectClass named " + attributeName + " in the schema";

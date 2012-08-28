@@ -46,14 +46,15 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 /**
  * Tries to demonstrate DIRSERVER-783 ("Adding another value to an attribute
  * results in the value to be added twice").
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
-@CreateDS( allowAnonAccess=true, name = "DIRSERVER783IT" )
+@RunWith(FrameworkRunner.class)
+@CreateDS(allowAnonAccess = true, name = "DIRSERVER783IT")
 public class DIRSERVER783IT extends AbstractLdapTestUnit
 {
 
@@ -67,17 +68,17 @@ public class DIRSERVER783IT extends AbstractLdapTestUnit
     {
         // create a person without sn
         Attributes attrs = new BasicAttributes( true );
-        Attribute ocls = new BasicAttribute("objectClass");
+        Attribute ocls = new BasicAttribute( "objectClass" );
 
-        ocls.add("top");
-        ocls.add("person");
-        attrs.put(ocls);
-        attrs.put("cn", "Fiona Apple");
-        attrs.put("sn", "Apple");
+        ocls.add( "top" );
+        ocls.add( "person" );
+        attrs.put( ocls );
+        attrs.put( "cn", "Fiona Apple" );
+        attrs.put( "sn", "Apple" );
 
         String rdn = "cn=Fiona Apple";
 
-        Hashtable<String,Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, getService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
@@ -89,22 +90,25 @@ public class DIRSERVER783IT extends AbstractLdapTestUnit
         // Add the first value for description
         String description1 = "an American singer-songwriter";
         Attribute firstDescr = new BasicAttribute( "description", description1 );
-        ModificationItem modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, firstDescr);
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
+        ModificationItem modification = new ModificationItem( DirContext.ADD_ATTRIBUTE, firstDescr );
+        ctx.modifyAttributes( rdn, new ModificationItem[]
+            { modification } );
 
         // Add a second value to description
         String description2 = "Grammy award winning";
         Attribute otherDescr = new BasicAttribute( "description", description2 );
 
-        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, otherDescr );
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification } );
-      
+        modification = new ModificationItem( DirContext.ADD_ATTRIBUTE, otherDescr );
+        ctx.modifyAttributes( rdn, new ModificationItem[]
+            { modification } );
+
         // Add a third value to description
         String description3 = "MTV Music Award winning";
         Attribute thirdDescr = new BasicAttribute( "description", description3 );
 
-        modification = new ModificationItem(DirContext.ADD_ATTRIBUTE, thirdDescr );
-        ctx.modifyAttributes(rdn, new ModificationItem[] { modification });
+        modification = new ModificationItem( DirContext.ADD_ATTRIBUTE, thirdDescr );
+        ctx.modifyAttributes( rdn, new ModificationItem[]
+            { modification } );
 
         // Search Entry
         SearchControls sctls = new SearchControls();
@@ -113,22 +117,21 @@ public class DIRSERVER783IT extends AbstractLdapTestUnit
         String base = "";
 
         // Check entry
-        NamingEnumeration<SearchResult> enm = ctx.search(base, filter, sctls);
-        assertTrue(enm.hasMore());
+        NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
+        assertTrue( enm.hasMore() );
 
-        while (enm.hasMore()) 
+        while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
-            Attribute desc = sr.getAttributes().get("description");
-            assertNotNull(desc);
-            assertTrue(desc.contains(description1));
-            assertTrue(desc.contains(description2));
-            assertTrue(desc.contains(description3));
-            assertEquals(3, desc.size());
+            Attribute desc = sr.getAttributes().get( "description" );
+            assertNotNull( desc );
+            assertTrue( desc.contains( description1 ) );
+            assertTrue( desc.contains( description2 ) );
+            assertTrue( desc.contains( description3 ) );
+            assertEquals( 3, desc.size() );
         }
 
         // Remove the person entry
-        ctx.destroySubcontext(rdn);
+        ctx.destroySubcontext( rdn );
     }
 }
-

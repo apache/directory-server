@@ -26,7 +26,6 @@ import java.util.Hashtable;
 import org.apache.directory.server.hub.api.meta.DcOperationsManager;
 
 
-
 public class PidHandlerRegistry
 {
     private Hashtable<String, DcOperationsManager> handlers = new Hashtable<String, DcOperationsManager>();

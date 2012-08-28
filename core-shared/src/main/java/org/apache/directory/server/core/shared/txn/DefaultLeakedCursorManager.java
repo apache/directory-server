@@ -42,7 +42,7 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
 
     private static int LEAK_CHECK_INTERVAL = 1000;
 
-    private static int LEAK_TIMEOUT =  60 * 1000;
+    private static int LEAK_TIMEOUT = 60 * 1000;
 
     private static final String CURSOR_SUFFIX = "cursor";
 
@@ -56,7 +56,7 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
     public DefaultLeakedCursorManager( String folderPath )
     {
         cursorFolderPath = folderPath;
-        
+
         File folder = new File( cursorFolderPath );
         folder.mkdirs();
     }
@@ -85,7 +85,7 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
         {
             //Ignore
         }
-        
+
         cursors.clear();
     }
 
@@ -118,10 +118,9 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
         {
             canMoveBeforeFirst = true;
         }
-       
 
         return new RandomFileCursor( cursorFile, cursor, canMoveBeforeFirst,
-                cursor.getOperationContext().getSession().getDirectoryService().getSchemaManager() );
+            cursor.getOperationContext().getSession().getDirectoryService().getSchemaManager() );
     }
 
 
@@ -169,8 +168,8 @@ public class DefaultLeakedCursorManager implements LeakedCursorManager
                     continue;
                 }
 
-                System.out.println("Doing leaked cursor management2" + cursor);
-                
+                System.out.println( "Doing leaked cursor management2" + cursor );
+
                 try
                 {
                     cursor.doLeakedCursorManagement( this );

@@ -18,12 +18,14 @@
  */
 package org.apache.directory.server.core.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.directory.server.core.api.partition.Partition;
+
 
 /**
  * An annotation for the Partition creation. A partition is defined by
@@ -49,24 +51,31 @@ import org.apache.directory.server.core.api.partition.Partition;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( {ElementType.METHOD, ElementType.TYPE } )
+@Target(
+    { ElementType.METHOD, ElementType.TYPE })
 public @interface CreatePartition
 {
     /** The partition implementation class */
     Class<? extends Partition> type() default Partition.class;
-    
+
+
     /** The partition name */
     String name();
-    
+
+
     /** The partition suffix */
     String suffix();
-    
+
+
     /** The context entry */
-    ContextEntry contextEntry() default @ContextEntry( entryLdif = "" );
-    
+    ContextEntry contextEntry() default @ContextEntry(entryLdif = "");
+
+
     /** The associated indexes */
-    CreateIndex[] indexes() default {};
-    
+    CreateIndex[] indexes() default
+        {};
+
+
     /** The cache size */
     int cacheSize() default 1000;
 }

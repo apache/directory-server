@@ -42,6 +42,7 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     /** A pointer to the Subschema SAP */
     private SubschemaAdministrativePoint subschemaSap;
 
+
     /**
      * Create an instance of AutonomousAdministrativePoint
      *

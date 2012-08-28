@@ -51,7 +51,7 @@ public class CursorBuilder
 
     /** Evaluator dependency on a EvaluatorBuilder */
     private EvaluatorBuilder evaluatorBuilder;
-    
+
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
 
@@ -75,22 +75,22 @@ public class CursorBuilder
     {
         switch ( node.getAssertionType() )
         {
-            /* ---------- LEAF NODE HANDLING ---------- */
+        /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return new ApproximateCursor<T>( db, ( ApproximateEvaluator<T> ) evaluatorBuilder.build( node ), 
+                return new ApproximateCursor<T>( db, ( ApproximateEvaluator<T> ) evaluatorBuilder.build( node ),
                     txnManagerFactory, executionManagerFactory );
 
             case EQUALITY:
-                return new EqualityCursor<T>( db, ( EqualityEvaluator<T> ) evaluatorBuilder.build( node ), 
+                return new EqualityCursor<T>( db, ( EqualityEvaluator<T> ) evaluatorBuilder.build( node ),
                     txnManagerFactory, executionManagerFactory );
 
             case GREATEREQ:
-                return new GreaterEqCursor<T>( db, ( GreaterEqEvaluator<T> ) evaluatorBuilder.build( node ), 
+                return new GreaterEqCursor<T>( db, ( GreaterEqEvaluator<T> ) evaluatorBuilder.build( node ),
                     txnManagerFactory, executionManagerFactory );
 
             case LESSEQ:
-                return new LessEqCursor<T>( db, ( LessEqEvaluator<T> ) evaluatorBuilder.build( node ), 
+                return new LessEqCursor<T>( db, ( LessEqEvaluator<T> ) evaluatorBuilder.build( node ),
                     txnManagerFactory, executionManagerFactory );
 
             case PRESENCE:
@@ -101,7 +101,7 @@ public class CursorBuilder
                 if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
                     return new OneLevelScopeCursor( db,
-                        ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ), 
+                        ( OneLevelScopeEvaluator ) evaluatorBuilder.build( node ),
                         txnManagerFactory, executionManagerFactory );
                 }
                 else
@@ -111,7 +111,7 @@ public class CursorBuilder
                 }
 
             case SUBSTRING:
-                return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ), 
+                return new SubstringCursor( db, ( SubstringEvaluator ) evaluatorBuilder.build( node ),
                     txnManagerFactory, executionManagerFactory );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
@@ -120,7 +120,7 @@ public class CursorBuilder
                 return buildAndCursor( ( AndNode ) node );
 
             case NOT:
-                return new NotCursor<UUID>( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ), 
+                return new NotCursor<UUID>( db, evaluatorBuilder.build( ( ( NotNode ) node ).getFirstChild() ),
                     txnManagerFactory, executionManagerFactory );
 
             case OR:
@@ -188,12 +188,12 @@ public class CursorBuilder
         {
             ExprNode child = children.get( i );
             Object count = child.get( "count" );
-            
+
             if ( count == null )
             {
                 continue;
             }
-            
+
             value = ( Long ) count;
             minValue = Math.min( minValue, value );
 
@@ -207,7 +207,7 @@ public class CursorBuilder
         ExprNode minChild = children.get( minIndex );
         List<Evaluator<? extends ExprNode>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() - 1 );
-        
+
         for ( ExprNode child : children )
         {
             if ( child == minChild )
@@ -220,7 +220,7 @@ public class CursorBuilder
 
         // Do recursive call to build min child Cursor then create AndCursor
         IndexCursor<?> childCursor = build( minChild );
-        
+
         return new AndCursor( childCursor, childEvaluators );
     }
 }

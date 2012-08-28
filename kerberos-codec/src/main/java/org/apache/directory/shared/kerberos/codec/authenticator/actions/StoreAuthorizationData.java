@@ -46,7 +46,8 @@ public class StoreAuthorizationData extends AbstractReadAuthorizationData<Authen
      * {@inheritDoc}
      */
     @Override
-    protected void setAuthorizationData( AuthorizationData authorizationData, AuthenticatorContainer authenticatorContainer )
+    protected void setAuthorizationData( AuthorizationData authorizationData,
+        AuthenticatorContainer authenticatorContainer )
     {
         authenticatorContainer.getAuthenticator().setAuthorizationData( authorizationData );
         authenticatorContainer.setGrammarEndAllowed( true );

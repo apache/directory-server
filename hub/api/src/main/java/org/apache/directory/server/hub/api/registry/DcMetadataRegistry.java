@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.directory.server.hub.api.meta.DcMetadataDescriptor;
 
 
-
 public class DcMetadataRegistry
 {
     private Hashtable<String, DcMetadataDescriptor> metadatas = new Hashtable<String, DcMetadataDescriptor>();

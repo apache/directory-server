@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.dns.messages;
 
+
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 

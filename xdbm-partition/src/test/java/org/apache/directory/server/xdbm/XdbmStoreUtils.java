@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.xdbm;
 
+
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.OperationExecutionManager;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -41,8 +42,7 @@ public class XdbmStoreUtils
     /** CSN factory instance */
     private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
-    
-    
+
     /**
      * Initializes and loads a store with the example data shown in
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
@@ -57,7 +57,8 @@ public class XdbmStoreUtils
      */
     //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public static void loadExampleData( Partition store, SchemaManager schemaManager, OperationExecutionManager executionManager ) throws Exception
+    public static void loadExampleData( Partition store, SchemaManager schemaManager,
+        OperationExecutionManager executionManager ) throws Exception
     {
         int idx = 1;
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
@@ -167,8 +168,8 @@ public class XdbmStoreUtils
         entry.add( "aliasedObjectName", "cn=Johnny Walker,ou=Sales,o=Good Times Co." );
         injectEntryInStore( store, entry, idx++, executionManager );
     }
-    
-    
+
+
     /**
      * 
      * adds a given <i>ServerEntry</i> to the store after injecting entryCSN and entryUUID operational
@@ -180,7 +181,7 @@ public class XdbmStoreUtils
      * @param idx index used to build the entry uuid
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Partition store, Entry entry, int idx, 
+    public static void injectEntryInStore( Partition store, Entry entry, int idx,
         OperationExecutionManager executionManager ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );

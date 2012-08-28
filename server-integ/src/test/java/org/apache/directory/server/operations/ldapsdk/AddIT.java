@@ -120,10 +120,10 @@ import org.slf4j.LoggerFactory;
                     "objectClass: top\n" +
                     "objectClass: domain\n\n"),
             indexes =
-            {
-                @CreateIndex(attribute = "objectClass"),
-                @CreateIndex(attribute = "dc"),
-                @CreateIndex(attribute = "ou")
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
             }),
 
         @CreatePartition(
@@ -135,13 +135,13 @@ import org.slf4j.LoggerFactory;
                     "objectClass: top\n" +
                     "objectClass: domain\n\n"),
             indexes =
-            {
-                @CreateIndex(attribute = "objectClass"),
-                @CreateIndex(attribute = "dc"),
-                @CreateIndex(attribute = "ou")
+                {
+                    @CreateIndex(attribute = "objectClass"),
+                    @CreateIndex(attribute = "dc"),
+                    @CreateIndex(attribute = "ou")
             }) })
-@CreateLdapServer( name = "ADDIT",  transports =
-    { @CreateTransport(protocol = "LDAP", port = -1 ) })
+@CreateLdapServer(name = "ADDIT", transports =
+    { @CreateTransport(protocol = "LDAP", port = -1) })
 @ApplyLdifs(
     {
         // Entry # 0
@@ -200,7 +200,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         // modify object classes, add two more
         Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: organizationalPerson",
-                "objectClass: inetOrgPerson" );
+            "objectClass: inetOrgPerson" );
 
         DirContext person = ( DirContext ) ctx.lookup( RDN );
         person.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, attributes );
@@ -907,7 +907,7 @@ public class AddIT extends AbstractLdapTestUnit
         attrs.put( "cn", "Jim, Bean" );
 
         DirContext jimBeanCtx = ctx.createSubcontext( "cn=\"Jim, Bean\"", attrs );
-        
+
         assertNotNull( jimBeanCtx );
     }
 
@@ -1350,10 +1350,10 @@ public class AddIT extends AbstractLdapTestUnit
      * @throws NamingException 
      */
     @Test
-    @CreateDS( 
+    @CreateDS(
         enableChangeLog = false,
-        name = "DSAlias" )
-    @CreateLdapServer( name = "DSAlias", transports =
+        name = "DSAlias")
+    @CreateLdapServer(name = "DSAlias", transports =
         { @CreateTransport(protocol = "LDAP", port = -1) })
     public void test_DIRSERVER_1357() throws Exception
     {
@@ -1388,6 +1388,7 @@ public class AddIT extends AbstractLdapTestUnit
         ctx.destroySubcontext( "cn=alias,ou=engineering" );
     }
 
+
     /**
      * Adding an entry with a non existing attribute type.
      * 
@@ -1410,9 +1411,9 @@ public class AddIT extends AbstractLdapTestUnit
         try
         {
             connection.add( personEntry );
-            fail("should throw LdapNoSuchAttributeException");
+            fail( "should throw LdapNoSuchAttributeException" );
         }
-        catch( LdapNoSuchAttributeException e )
+        catch ( LdapNoSuchAttributeException e )
         {
             //expected exception
         }
@@ -1429,7 +1430,7 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test( expected = LdapOperationException.class )
+    @Test(expected = LdapOperationException.class)
     public void testAddEntryNonExistingOC() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
@@ -1451,41 +1452,41 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception 
      */
-    @Test( expected = LdapException.class )
+    @Test(expected = LdapException.class)
     public void testAddEntry100KData() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
 
-        int size = 100*1024;
+        int size = 100 * 1024;
         byte[] dataBytes = new byte[size];
-        
-        for ( int i = 0; i < size; i++)
+
+        for ( int i = 0; i < size; i++ )
         {
             dataBytes[i] = 'A';
         }
-        
+
         String data = Strings.utf8ToString( dataBytes );
 
         Dn dn = new Dn( "cn=Kate Bush," + BASE );
-        
+
         Entry personEntry = new DefaultEntry( "cn=Kate Bush," + BASE,
-        "objectClass: top",
-        "objectClass: person",
-        "cn: Kate Bush",
-        "sn: Bush",
-        "description", data );
+            "objectClass: top",
+            "objectClass: person",
+            "cn: Kate Bush",
+            "sn: Bush",
+            "description", data );
 
         connection.add( personEntry );
-        
+
         // Check that the entry has been stored 
         Entry entry = connection.lookup( dn, "description", "cn", "sn" );
-        
+
         String description = entry.get( "description" ).getString();
-        
+
         assertNotNull( description );
         assertTrue( description.startsWith( "AAA" ) );
         assertEquals( size, description.length() );
-        
+
         for ( int i = 0; i < size; i++ )
         {
             assertEquals( 'A', description.charAt( i ) );

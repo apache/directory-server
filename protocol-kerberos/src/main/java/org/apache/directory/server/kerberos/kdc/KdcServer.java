@@ -63,8 +63,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KdcServer.class.getName() );
-    
-    
+
     /** The default kdc port */
     private static final int DEFAULT_IP_PORT = 88;
 
@@ -155,6 +154,7 @@ public class KdcServer extends DirectoryBackedService
 
     /** the cache used for storing AS and TGS requests */
     private ReplayCache replayCache;
+
 
     /**
      * Creates a new instance of KdcConfiguration.
@@ -262,8 +262,8 @@ public class KdcServer extends DirectoryBackedService
         if ( encryptionTypes != null )
         {
             this.encryptionTypes.clear();
-            
-            for ( EncryptionType encryptionType:encryptionTypes )
+
+            for ( EncryptionType encryptionType : encryptionTypes )
             {
                 this.encryptionTypes.add( encryptionType );
             }
@@ -451,86 +451,86 @@ public class KdcServer extends DirectoryBackedService
         PrincipalStore store;
 
         // TODO - for now ignoring this catalog crap
-        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn(this.getSearchBaseDn())  );
-        
+        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn( this.getSearchBaseDn() ) );
+
         LOG.debug( "initializing the kerberos replay cache" );
 
         Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
         replayCache = new ReplayCacheImpl( cache, allowableClockSkew );
-        
+
         if ( ( transports == null ) || ( transports.size() == 0 ) )
         {
             // Default to UDP with port 88
             // We have to create a DatagramAcceptor
             UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
             setTransports( transport );
-            
-            DatagramAcceptor acceptor = (DatagramAcceptor)transport.getAcceptor();
+
+            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
 
             // Inject the chain
             IoFilterChainBuilder udpChainBuilder = new DefaultIoFilterChainBuilder();
 
-            ((DefaultIoFilterChainBuilder)udpChainBuilder).addFirst( "codec", 
-                    new ProtocolCodecFilter( 
-                            KerberosProtocolCodecFactory.getInstance() ) );
+            ( ( DefaultIoFilterChainBuilder ) udpChainBuilder ).addFirst( "codec",
+                new ProtocolCodecFilter(
+                    KerberosProtocolCodecFactory.getInstance() ) );
 
             acceptor.setFilterChainBuilder( udpChainBuilder );
 
             // Inject the protocol handler
             acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-            
+
             // Bind to the configured address
             acceptor.bind();
         }
         else
         {
             // Kerberos can use UDP or TCP
-            for ( Transport transport:transports )
+            for ( Transport transport : transports )
             {
                 IoAcceptor acceptor = transport.getAcceptor();
-                
+
                 // Now, configure the acceptor
                 // Inject the chain
                 IoFilterChainBuilder chainBuilder = new DefaultIoFilterChainBuilder();
-    
+
                 if ( transport instanceof TcpTransport )
                 {
                     // Now, configure the acceptor
                     // Disable the disconnection of the clients on unbind
                     acceptor.setCloseOnDeactivation( false );
-                    
+
                     // No Nagle's algorithm
-                    ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
-                    
+                    ( ( NioSocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
+
                     // Allow the port to be reused even if the socket is in TIME_WAIT state
-                    ((NioSocketAcceptor)acceptor).setReuseAddress( true );
+                    ( ( NioSocketAcceptor ) acceptor ).setReuseAddress( true );
                 }
-                
+
                 // Inject the codec
-                ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                    new ProtocolCodecFilter( 
+                ( ( DefaultIoFilterChainBuilder ) chainBuilder ).addFirst( "codec",
+                    new ProtocolCodecFilter(
                         KerberosProtocolCodecFactory.getInstance() ) );
 
                 acceptor.setFilterChainBuilder( chainBuilder );
-                
+
                 // Inject the protocol handler
                 acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-                
+
                 // Bind to the configured address
                 acceptor.bind();
             }
         }
-        
+
         LOG.info( "Kerberos service started." );
     }
 
-    
+
     public void stop()
     {
-        for ( Transport transport :getTransports() )
+        for ( Transport transport : getTransports() )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             if ( acceptor != null )
             {
                 acceptor.dispose();
@@ -541,7 +541,7 @@ public class KdcServer extends DirectoryBackedService
         {
             replayCache.clear();
         }
-        
+
         LOG.info( "Kerberos service stopped." );
     }
 
@@ -566,25 +566,25 @@ public class KdcServer extends DirectoryBackedService
             }
         }
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "KDCServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }

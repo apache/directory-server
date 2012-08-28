@@ -62,6 +62,7 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
      */
     protected abstract void setRealm( String realm, E container );
 
+
     /**
      * {@inheritDoc}
      */
@@ -80,7 +81,7 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
 
         // The value is the realm
         Value value = tlv.getValue();
-        String realm = Strings.utf8ToString(value.getData());
+        String realm = Strings.utf8ToString( value.getData() );
 
         if ( IS_DEBUG )
         {

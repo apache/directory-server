@@ -82,15 +82,15 @@ public class ReferralManagerImpl implements ReferralManager
         init( directoryService, suffixes.toArray( new String[]
             {} ) );
     }
-    
-    
+
+
     public void reinitialize( DirectoryService directoryService ) throws LdapException
     {
         referrals = new DnNode<Entry>();
-        
+
         PartitionNexus nexus = directoryService.getPartitionNexus();
         Set<String> suffixes = nexus.listSuffixes();
-        
+
         init( directoryService, suffixes.toArray( new String[]
             {} ) );
     }

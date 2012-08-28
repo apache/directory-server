@@ -367,7 +367,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapUnwillingToPerformException.class )
+    @Test(expected = LdapUnwillingToPerformException.class)
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );

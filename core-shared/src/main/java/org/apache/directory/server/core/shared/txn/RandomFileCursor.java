@@ -55,12 +55,12 @@ public class RandomFileCursor extends AbstractCursor<Entry>
 
     /* Whether cursor can move to beforefirst */
     private boolean canMoveBeforeFirst;
-    
+
     private SchemaManager schemaManager;
 
 
-    RandomFileCursor( File file, EntryFilteringCursor cursor, boolean canMoveBeforeFirst, 
-            SchemaManager schemaManager ) throws Exception
+    RandomFileCursor( File file, EntryFilteringCursor cursor, boolean canMoveBeforeFirst,
+        SchemaManager schemaManager ) throws Exception
     {
         this.file = file;
         this.canMoveBeforeFirst = canMoveBeforeFirst;
@@ -73,7 +73,7 @@ public class RandomFileCursor extends AbstractCursor<Entry>
         if ( cursor.available() )
         {
             entry = cursor.get();
-            prefetched = (( ClonedServerEntry )entry ).getClonedEntry();
+            prefetched = ( ( ClonedServerEntry ) entry ).getClonedEntry();
             lastEntrySize = writeEntry( raf, entry );
             currentOffset = lastEntrySize + 4;
         }
@@ -114,7 +114,7 @@ public class RandomFileCursor extends AbstractCursor<Entry>
 
         ObjectInputStream in = null;
         ByteArrayInputStream bin = null;
-        
+
         try
         {
             if ( currentOffset >= raf.length() )
@@ -185,7 +185,7 @@ public class RandomFileCursor extends AbstractCursor<Entry>
     public Entry get() throws Exception
     {
         if ( available() )
-        {   
+        {
             return new ClonedServerEntry( schemaManager, prefetched );
         }
 
@@ -264,7 +264,7 @@ public class RandomFileCursor extends AbstractCursor<Entry>
 
     private int writeEntry( RandomAccessFile raf, Entry entry ) throws Exception
     {
-        entry = ( ( ClonedServerEntry )entry ).getOriginalEntry();    
+        entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         byte[] data;
 
         ObjectOutputStream out = null;

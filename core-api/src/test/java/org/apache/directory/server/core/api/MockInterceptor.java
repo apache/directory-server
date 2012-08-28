@@ -171,7 +171,7 @@ public class MockInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void move(  MoveOperationContext moveContext ) throws LdapException
+    public void move( MoveOperationContext moveContext ) throws LdapException
     {
         interceptors.add( this );
         next( moveContext );

@@ -43,10 +43,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
 {
     /** The index entry we use to return entries one by one.  */
     private IndexEntry<UUID> indexEntry = new ForwardIndexEntry<UUID>();
-    
+
     /** The cursor on the EntryUUID index */
     private final IndexCursor<String> wrapped;
-     
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
@@ -60,7 +60,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     /**
      * Creates a new instance of AllEntriesCursor
      * @param db
@@ -72,13 +72,13 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         Index<?> entryUuidIdx = db.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
         entryUuidIdx = txnLogManager.wrap( db.getSuffixDn(), entryUuidIdx );
-        
+
         // Get a reverse cursor because we want to sort by ID
-        wrapped = ( ( Index<String> )entryUuidIdx ).reverseCursor();
+        wrapped = ( ( Index<String> ) entryUuidIdx ).reverseCursor();
     }
 
 
@@ -88,7 +88,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void afterValue( UUID key, UUID value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         wrapped.afterValue( key, null );
     }
 
@@ -99,7 +99,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void beforeValue( UUID id, UUID value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         wrapped.beforeValue( id, null );
     }
 
@@ -110,7 +110,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void after( IndexEntry<UUID> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         wrapped.afterValue( indexEntry.getId(), null );
     }
 
@@ -121,7 +121,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         wrapped.afterLast();
     }
 
@@ -141,7 +141,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void before( IndexEntry<UUID> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         wrapped.beforeValue( indexEntry.getId(), null );
     }
 
@@ -152,7 +152,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         wrapped.beforeFirst();
     }
 
@@ -163,7 +163,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public boolean first() throws Exception
     {
         checkNotClosed( "first()" );
-        
+
         return wrapped.first();
     }
 
@@ -174,13 +174,13 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public IndexEntry<UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
         IndexEntry<String> wrappedEntry = wrapped.get();
         indexEntry.setId( wrappedEntry.getId() );
         indexEntry.setValue( wrappedEntry.getId() );
         indexEntry.setEntry( wrappedEntry.getEntry() );
-        
+
         return indexEntry;
     }
 
@@ -191,7 +191,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
-        
+
         return wrapped.last();
     }
 
@@ -202,7 +202,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public boolean next() throws Exception
     {
         checkNotClosed( "next()" );
-        
+
         return wrapped.next();
     }
 
@@ -213,7 +213,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         return wrapped.previous();
     }
 

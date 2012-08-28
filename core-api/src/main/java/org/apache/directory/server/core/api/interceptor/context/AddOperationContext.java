@@ -44,7 +44,8 @@ public class AddOperationContext extends AbstractChangeOperationContext
 {
     /** Original version of the entry to be added */
     private Entry originalAddedEntry;
-    
+
+
     /**
      * Creates a new instance of AddOperationContext.
      * 
@@ -87,13 +88,13 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Entry entry )
     {
         super( session, entry.getDn() );
-        
+
         DirectoryService directoryService = session.getDirectoryService();
         setInterceptors( directoryService.getInterceptors( OperationEnum.ADD ) );
         this.entry = new ClonedServerEntry( directoryService.getSchemaManager(), entry );
     }
-    
-    
+
+
     /**
      * Creates a new instance of AddOperationContext.
      *
@@ -118,7 +119,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
     public AddOperationContext( CoreSession session, Dn dn, Entry entry )
     {
         super( session, dn );
-        
+
         DirectoryService directoryService = session.getDirectoryService();
         setInterceptors( directoryService.getInterceptors( OperationEnum.ADD ) );
         this.entry = new ClonedServerEntry( directoryService.getSchemaManager(), entry );
@@ -144,37 +145,37 @@ public class AddOperationContext extends AbstractChangeOperationContext
             throwReferral();
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void saveOriginalContext()
     {
         super.saveOriginalContext();
-        
+
         if ( entry instanceof ClonedServerEntry )
         {
-            originalAddedEntry = (( ClonedServerEntry )entry).getOriginalEntry();
+            originalAddedEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
         else
         {
             originalAddedEntry = entry;
             entry = new ClonedServerEntry( session.getDirectoryService().getSchemaManager(),
-                originalAddedEntry);
+                originalAddedEntry );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
     public void resetContext()
     {
         super.resetContext();
-           
+
         entry = new ClonedServerEntry( session.getDirectoryService().getSchemaManager(),
-            originalAddedEntry);
+            originalAddedEntry );
     }
 
 

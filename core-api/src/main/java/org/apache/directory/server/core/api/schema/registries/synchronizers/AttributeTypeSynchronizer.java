@@ -96,7 +96,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_345, entry.getDn().getName(), Strings.listToString(schemaManager.getErrors()) );
+                String msg = I18n.err( I18n.ERR_345, entry.getDn().getName(),
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -157,12 +158,12 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The AttributeType {} cannot be removed from the disabled schema {}.", 
+            LOG.debug( "The AttributeType {} cannot be removed from the disabled schema {}.",
                 dn.getName(), schemaName );
-            
+
             return;
         }
-        
+
         // Test that the Oid exists
         AttributeType attributeType = ( AttributeType ) checkOidExists( entry );
 
@@ -175,8 +176,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = I18n.err( I18n.ERR_346, entry.getDn().getName(), 
-                    Strings.listToString(schemaManager.getErrors()) );
+                String msg = I18n.err( I18n.ERR_346, entry.getDn().getName(),
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }

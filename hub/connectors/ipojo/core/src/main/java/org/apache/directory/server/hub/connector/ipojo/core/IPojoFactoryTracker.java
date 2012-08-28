@@ -85,8 +85,8 @@ public class IPojoFactoryTracker implements FactoryStateListener, ServiceTracker
         {
             return null;
         }
-        
-        System.out.println(factory.getName()+" tracked");
+
+        System.out.println( factory.getName() + " tracked" );
 
         componentFactory.addFactoryStateListener( this );
 

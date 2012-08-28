@@ -64,6 +64,7 @@ public class ClonedServerEntryTest
     private static Entry clonedServerEntryB1;
     private static Entry clonedServerEntryC1;
 
+
     /**
      * Initialize the registries once for the whole test suite
      */
@@ -91,7 +92,7 @@ public class ClonedServerEntryTest
 
         if ( errors.size() != 0 )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(errors) );
+            fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
         Entry eA = new DefaultEntry( "dc=example,dc=com" );

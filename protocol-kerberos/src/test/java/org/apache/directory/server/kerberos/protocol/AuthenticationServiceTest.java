@@ -85,8 +85,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     {
         config.stop();
     }
-    
-    
+
+
     /**
      * Tests the default minimum request, which consists of as little as the
      * client name, realm, till time, nonce, and encryption types.
@@ -112,7 +112,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KrbError error = ( KrbError ) session.getMessage();
 
-        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
+        assertEquals( "Additional pre-authentication required", ErrorType.KDC_ERR_PREAUTH_REQUIRED,
+            error.getErrorCode() );
     }
 
 
@@ -137,7 +138,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO, error.getErrorCode() );
+        assertEquals( "Requested protocol version number not supported", ErrorType.KDC_ERR_BAD_PVNO,
+            error.getErrorCode() );
     }
 
 
@@ -192,7 +194,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Client not found in Kerberos database", ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN, error.getErrorCode() );
+        assertEquals( "Client not found in Kerberos database", ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN,
+            error.getErrorCode() );
     }
 
 
@@ -232,7 +235,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -268,7 +271,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -279,7 +282,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN, error.getErrorCode() );
+        assertEquals( "Server not found in Kerberos database", ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN,
+            error.getErrorCode() );
     }
 
 
@@ -330,7 +334,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -380,7 +384,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -437,7 +441,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -494,7 +498,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -550,7 +554,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -561,7 +565,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID,
+            error.getErrorCode() );
     }
 
 
@@ -601,7 +606,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -612,7 +617,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         Object msg = session.getMessage();
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
-        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID, error.getErrorCode() );
+        assertEquals( "Requested start time is later than end time", ErrorType.KDC_ERR_NEVER_VALID,
+            error.getErrorCode() );
     }
 
 
@@ -651,7 +657,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -713,7 +719,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -730,7 +736,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         assertTrue( "POSTDATED flag", reply.getFlags().isPostdated() );
         assertTrue( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
+        assertTrue( "Requested start time",
+            requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().isPostdated() );
         assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
@@ -772,7 +779,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -824,7 +831,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -871,7 +878,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -919,7 +926,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -980,7 +987,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1038,7 +1045,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1091,7 +1098,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1144,7 +1151,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1203,7 +1210,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1265,7 +1272,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1319,7 +1326,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1364,7 +1371,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1409,7 +1416,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1454,7 +1461,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );
@@ -1499,7 +1506,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
-        
+
         for ( PaData paData : paDatas )
         {
             message.addPaData( paData );

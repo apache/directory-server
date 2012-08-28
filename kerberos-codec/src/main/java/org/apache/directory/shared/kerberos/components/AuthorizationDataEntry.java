@@ -19,11 +19,13 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.util.Arrays;
 
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
+
 
 /**
  * The class storing the individual AuthorizationDatas
@@ -36,16 +38,17 @@ public class AuthorizationDataEntry
 
     /** the authorization data */
     private byte[] adData;
-    
+
+
     /**
      * Creates a new instance of AD entry
      */
     public AuthorizationDataEntry()
     {
-        
+
     }
-    
-    
+
+
     /**
      * Creates a new Instance of AD entry
      * 
@@ -55,7 +58,7 @@ public class AuthorizationDataEntry
     public AuthorizationDataEntry( AuthorizationType adType, byte[] adData )
     {
         this.adType = adType;
-        
+
         if ( adData != null )
         {
             this.adData = new byte[adData.length];
@@ -63,7 +66,7 @@ public class AuthorizationDataEntry
         }
     }
 
-    
+
     /**
      * @return the adType
      */
@@ -87,20 +90,20 @@ public class AuthorizationDataEntry
      */
     public byte[] getAdData()
     {
-        if ( Strings.isEmpty(adData) )
+        if ( Strings.isEmpty( adData ) )
         {
             return StringConstants.EMPTY_BYTES;
         }
         else
         {
             byte[] copy = new byte[adData.length];
-            
+
             System.arraycopy( adData, 0, copy, 0, adData.length );
-            
+
             return copy;
         }
     }
-    
+
 
     /**
      * @return the reference on adData
@@ -109,21 +112,21 @@ public class AuthorizationDataEntry
     {
         return adData;
     }
-    
+
 
     /**
      * @param adData the adData to set
      */
     public void setAdData( byte[] adData )
     {
-        if ( Strings.isEmpty(adData) )
+        if ( Strings.isEmpty( adData ) )
         {
             this.adData = StringConstants.EMPTY_BYTES;
         }
         else
         {
             this.adData = new byte[adData.length];
-            
+
             System.arraycopy( adData, 0, this.adData, 0, adData.length );
         }
     }
@@ -142,6 +145,7 @@ public class AuthorizationDataEntry
         return result;
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -152,19 +156,19 @@ public class AuthorizationDataEntry
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return false;
         }
-        
+
         AuthorizationDataEntry other = ( AuthorizationDataEntry ) obj;
-        
+
         if ( !Arrays.equals( adData, other.adData ) )
         {
             return false;
         }
-        
+
         if ( adType != other.adType )
         {
             return false;
@@ -172,23 +176,23 @@ public class AuthorizationDataEntry
 
         return true;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "AuthorizationDataEntry : {\n" );
         sb.append( tabs ).append( "    adType : " ).append( adType ).append( "\n" );
-        sb.append( tabs ).append( "    adData : " ).append( Strings.dumpBytes(adData) ).append( "\n" );
+        sb.append( tabs ).append( "    adData : " ).append( Strings.dumpBytes( adData ) ).append( "\n" );
         sb.append( tabs ).append( "}" );
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
@@ -197,4 +201,3 @@ public class AuthorizationDataEntry
         return toString( "" );
     }
 }
-

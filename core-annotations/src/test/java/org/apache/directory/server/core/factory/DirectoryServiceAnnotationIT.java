@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.factory;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -42,75 +43,75 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@CreateDS( name = "classDS" )
+@CreateDS(name = "classDS")
 public class DirectoryServiceAnnotationIT
 {
     @Test
     public void testCreateDS() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "classDS", service.getInstanceId() );
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
 
     @Test
-    @CreateDS( name = "methodDS" )
+    @CreateDS(name = "methodDS")
     public void testCreateMethodDS() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "methodDS", service.getInstanceId() );
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
-    
-    
+
+
     @Test
-    @CreateDS( 
+    @CreateDS(
         name = "MethodDSWithPartition",
         partitions =
-        {
-            @CreatePartition(
-                name = "example",
-                suffix = "dc=example,dc=com",
-                contextEntry = @ContextEntry( 
-                    entryLdif =
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    contextEntry = @ContextEntry(
+                        entryLdif =
                         "dn: dc=example,dc=com\n" +
-                        "dc: example\n" +
-                        "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
-                indexes = 
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "dc" ),
-                    @CreateIndex( attribute = "ou" )
-                } )
-        } )
+                            "dc: example\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n"),
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    })
+        })
     public void testCreateMethodDSWithPartition() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
         assertEquals( "MethodDSWithPartition", service.getInstanceId() );
-        
+
         Set<String> expectedNames = new HashSet<String>();
-        
+
         expectedNames.add( "example" );
         expectedNames.add( "schema" );
-        
+
         assertEquals( 2, service.getPartitions().size() );
-        
+
         for ( Partition partition : service.getPartitions() )
         {
             assertTrue( expectedNames.contains( partition.getId() ) );
-            
+
             if ( "example".equalsIgnoreCase( partition.getId() ) )
             {
                 assertTrue( partition.isInitialized() );
@@ -122,22 +123,22 @@ public class DirectoryServiceAnnotationIT
                 assertEquals( "ou=schema", partition.getSuffixDn().getName() );
             }
         }
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
-    
-    
+
+
     @Test
-    @CreateDS( 
+    @CreateDS(
         name = "MethodDSWithAvlPartition",
         partitions =
             {
-            @CreatePartition(
-                type = AvlPartition.class,
-                name = "example",
-                suffix = "dc=example,dc=com" )
-            } )
+                @CreatePartition(
+                    type = AvlPartition.class,
+                    name = "example",
+                    suffix = "dc=example,dc=com")
+        })
     public void testCreateMethodDSWithAvlPartition() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();

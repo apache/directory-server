@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.core.factory;
 
+
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
@@ -45,11 +46,11 @@ public class DirectoryServiceFactoryIT
     {
         DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
         factory.init( "test" );
-        
+
         DirectoryService service = factory.getDirectoryService();
-        
+
         assertTrue( service.isStarted() );
-        
+
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }

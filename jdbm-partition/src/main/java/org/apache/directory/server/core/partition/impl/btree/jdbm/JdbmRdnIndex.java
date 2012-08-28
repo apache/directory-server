@@ -73,7 +73,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
+
         //System.out.println( "IDX Initializing RDNindex for AT " + attributeType.getOid() + ", wkDirPath : " + wkDirPath + ", base dir : " + this.wkDirPath );
 
         keyCache = new SynchronizedLRUMap( cacheSize );
@@ -83,17 +83,17 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
         {
             setAttributeId( attributeType.getName() );
         }
-        
+
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            
+
             e.printStackTrace();
             throw e;
         }
-        
+
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-        
+
         //System.out.println( "IDX Created index " + path );
         BaseRecordManager base = new BaseRecordManager( path );
         //base.disableTransactions();
@@ -115,7 +115,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
         // write the AttributeType description
         fw.write( attributeType.toString() );
         fw.close();
-        
+
         initialized = true;
     }
 
@@ -143,7 +143,7 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn>
             recMan, comp, null, UUIDSerializer.INSTANCE );
         reverse = new JdbmTable<UUID, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
             recMan, UUIDComparator.INSTANCE, UUIDSerializer.INSTANCE, null );
-        
+
         forwardIndexEntryComparator = new ForwardIndexComparator( comp );
         reverseIndexEntryComparator = new ReverseIndexComparator( comp );
     }

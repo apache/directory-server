@@ -32,10 +32,10 @@ import java.util.List;
  */
 public final class ErrorType implements Comparable<ErrorType>
 {
- 
+
     // TODO Add i18n. Don't no if these error messages are also a response to the client.
     // If so shall they really be i18n?
-    
+
     /**
      * No error.
      */
@@ -467,7 +467,7 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ErrorType(int value, String name)
+    private ErrorType( int value, String name )
     {
         this.value = value;
         this.name = name;
@@ -515,7 +515,7 @@ public final class ErrorType implements Comparable<ErrorType>
      * @param value the value value of the value
      * @return the type corresponding to the value value
      */
-    public static ErrorType getTypeByValue(int ordinal)
+    public static ErrorType getTypeByValue( int ordinal )
     {
         for ( int ii = 0; ii < values.length; ii++ )
         {

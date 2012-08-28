@@ -19,6 +19,7 @@
  */
 package org.apache.directory;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -45,13 +46,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-
-
 public class IndexTest
 {
     private static File dbFileDir;
     private static SchemaManager schemaManager;
-    
+
     private JdbmIndex<String> jdbmIndex;
     private AvlIndex<String> avlIndex;
 
@@ -78,7 +77,7 @@ public class IndexTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -91,16 +90,17 @@ public class IndexTest
         tmpIndexFile.deleteOnExit();
         dbFileDir = new File( tmpIndexFile.getParentFile(), IndexTest.class.getSimpleName() );
         dbFileDir.mkdirs();
-        
+
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIndex = new JdbmIndex<String>();
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, attributeType );
-        
+
         avlIndex = new AvlIndex<String>();
         avlIndex.init( schemaManager, attributeType );
     }
+
 
     @Test
     public void testAvlIndex() throws Exception
@@ -108,30 +108,32 @@ public class IndexTest
         doTest( avlIndex );
     }
 
+
     @Test
     public void testJdbmIndex() throws Exception
     {
         doTest( jdbmIndex );
     }
-    
-    private void doTest(Index<String> idx) throws Exception
+
+
+    private void doTest( Index<String> idx ) throws Exception
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
         for ( int i = 0; i < 26; i++ )
         {
-            String val = alphabet.substring( i, (i+1) );
+            String val = alphabet.substring( i, ( i + 1 ) );
             idx.add( val, Strings.getUUIDString( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
-        
+
         IndexCursor<String> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
         assertHasNext( cursor1, Strings.getUUIDString( 1 ) );
         assertHasNext( cursor1, Strings.getUUIDString( 2 ) );
-        
+
         idx.drop( "c", Strings.getUUIDString( 3 ) );
 
         int id;
@@ -143,14 +145,15 @@ public class IndexTest
         {
             id = 4;
         }
-        
+
         for ( ; id < 27; id++ )
         {
             assertHasNext( cursor1, Strings.getUUIDString( id ) );
         }
-        
-        assertFalse(cursor1.next());
+
+        assertFalse( cursor1.next() );
     }
+
 
     private void assertHasNext( IndexCursor<String> cursor1, UUID expectedId ) throws Exception
     {

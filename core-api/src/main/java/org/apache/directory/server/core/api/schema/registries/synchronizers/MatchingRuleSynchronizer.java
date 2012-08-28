@@ -110,7 +110,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         MatchingRule matchingRule = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             schemaName );
-        
+
         // At this point, the constructed MatchingRule has not been checked against the 
         // existing Registries. It may be broken (missing SUP, or such), it will be checked
         // there, if the schema and the MatchingRule are both enabled.
@@ -125,8 +125,8 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(), 
-                    Strings.listToString(schemaManager.getErrors()) );
+                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(),
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -154,13 +154,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
 
         // Get the schema 
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        
+
         if ( schema.isDisabled() )
         {
             // The schema is disabled, nothing to do.
-            LOG.debug( "The MatchingRule {} cannot be removed from the disabled schema {}.", 
+            LOG.debug( "The MatchingRule {} cannot be removed from the disabled schema {}.",
                 dn.getName(), schemaName );
-            
+
             return;
         }
 
@@ -177,8 +177,8 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // The schema is disabled. We still have to update the backend
-                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(), 
-                    Strings.listToString(schemaManager.getErrors()) );
+                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(),
+                    Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -197,7 +197,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
     {
         String schemaName = getSchemaName( entry.getDn() );
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
-        Entry targetEntry = (Entry) entry.clone();
+        Entry targetEntry = ( Entry ) entry.clone();
         String newOid = newRdn.getNormValue().getString();
         checkOidIsUnique( newOid );
 
@@ -293,7 +293,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         }
 
         Rdn rdn = newParent.getRdn();
-        
+
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {

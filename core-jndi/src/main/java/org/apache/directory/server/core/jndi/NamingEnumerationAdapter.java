@@ -41,14 +41,14 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
 {
     private final EntryFilteringCursor cursor;
     private boolean available = false;
-    
-    
+
+
     public NamingEnumerationAdapter( EntryFilteringCursor cursor ) throws NamingException
     {
         this.cursor = cursor;
         try
         {
-            if ( ! cursor.first() )
+            if ( !cursor.first() )
             {
                 cursor.close();
                 available = false;
@@ -63,8 +63,8 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
             JndiUtils.wrap( e );
         }
     }
-    
-    
+
+
     /* 
      * @see NamingEnumeration#close()
      */
@@ -97,11 +97,11 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
     public SearchResult next() throws NamingException
     {
         Entry entry = null;
-        
+
         try
         {
             entry = cursor.get();
-            
+
             if ( cursor.next() )
             {
                 available = true;
@@ -116,11 +116,11 @@ public class NamingEnumerationAdapter implements NamingEnumeration<SearchResult>
         {
             JndiUtils.wrap( e );
         }
-        
-        SearchResult result = new SearchResult( entry.getDn().getName(), null, 
+
+        SearchResult result = new SearchResult( entry.getDn().getName(), null,
             ServerEntryUtils.toBasicAttributes( entry ) );
         result.setRelative( false );
-        
+
         return result;
     }
 

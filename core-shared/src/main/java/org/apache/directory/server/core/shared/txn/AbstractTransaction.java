@@ -54,43 +54,44 @@ abstract class AbstractTransaction implements Transaction
     protected long id;
 
     private static AtomicLong counter = new AtomicLong( 0 );
-    
+
     /** True optimistic lock is held by the txn */
     private boolean isOptimisticLockHeld = false;
-    
+
     /** version of the logical data vseen by this txn */
     private long myLogicalDataVersion;
 
-    
+
     public void setTxnId( long id )
     {
-    	this.id = id;
+        this.id = id;
     }
-    
+
+
     public boolean isOptimisticLockHeld()
     {
         return isOptimisticLockHeld;
     }
-    
-    
+
+
     public void setOptimisticLockHeld()
     {
         isOptimisticLockHeld = true;
     }
-    
-    
+
+
     public void clearOptimisticLockHeld()
     {
         isOptimisticLockHeld = false;
     }
-    
-    
+
+
     public long getLogicalDataVersion()
     {
         return myLogicalDataVersion;
     }
-    
-    
+
+
     public void setLogicalDataVersion( long logicalDataVersion )
     {
         myLogicalDataVersion = logicalDataVersion;
@@ -106,16 +107,16 @@ abstract class AbstractTransaction implements Transaction
         id = counter.getAndIncrement();
     }
 
-    
 
     /**
      * {@inheritDoc}
      */
-    public void startTxn( long startTime, long logicalDataVerion  )
+    public void startTxn( long startTime, long logicalDataVerion )
     {
         this.startTime = startTime;
         txnState = State.READ;
     }
+
 
     /**
      * {@inheritDoc}

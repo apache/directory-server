@@ -42,11 +42,12 @@ public class SubnetMask extends AddressOption
     public SubnetMask()
     {
     }
-    
+
+
     /**
      * @param netmask
      */
-    public SubnetMask(InetAddress netmask)
+    public SubnetMask( InetAddress netmask )
     {
         setAddress( netmask );
     }

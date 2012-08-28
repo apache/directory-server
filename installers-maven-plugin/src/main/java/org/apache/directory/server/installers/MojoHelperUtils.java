@@ -227,7 +227,7 @@ public class MojoHelperUtils
 
             if ( !dest.mkdirs() )
             {
-                throw new IOException(I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dest ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dest ) );
             }
 
             for ( File file : files )

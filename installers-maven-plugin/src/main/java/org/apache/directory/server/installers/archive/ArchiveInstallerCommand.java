@@ -110,7 +110,7 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
             File wrapperConf = new File( getInstanceLayout().getConfDirectory(), "wrapper.conf" );
             if ( !wrapperConf.delete() )
             {
-                throw new IOException(I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, wrapperConf ) );
+                throw new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, wrapperConf ) );
             }
             FileUtils.deleteDirectory( getInstanceLayout().getRunDirectory() );
         }

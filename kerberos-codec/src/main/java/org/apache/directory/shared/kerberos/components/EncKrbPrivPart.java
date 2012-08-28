@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.kerberos.components;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
@@ -34,6 +35,7 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The EncKrbPrivPart structure is used to store a EncKrbPrivPart associated to a type.
@@ -87,6 +89,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
     private int recipientAddressLen;
     private int encKrbPrivPartSeqLen;
     private int encKrbPrivPartLen;
+
 
     /**
      * @return the userData
@@ -277,7 +280,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         }
 
         encKrbPrivPartLen = 1 + TLV.getNbBytes( encKrbPrivPartSeqLen ) + encKrbPrivPartSeqLen;
-        
+
         return 1 + TLV.getNbBytes( encKrbPrivPartLen ) + encKrbPrivPartLen;
     }
 
@@ -297,7 +300,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         {
             buffer.put( ( byte ) KerberosConstants.ENC_KRB_PRIV_PART_TAG );
             buffer.put( TLV.getBytes( encKrbPrivPartLen ) );
-            
+
             buffer.put( UniversalTag.SEQUENCE.getValue() );
             buffer.put( TLV.getBytes( encKrbPrivPartSeqLen ) );
 
@@ -356,14 +359,14 @@ public class EncKrbPrivPart extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "EncKrbPrivPart encoding : {}", Strings.dumpBytes(buffer.array()) );
+            log.debug( "EncKrbPrivPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
             log.debug( "EncKrbPrivPart initial value : {}", toString() );
         }
 
         return buffer;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
@@ -372,7 +375,7 @@ public class EncKrbPrivPart extends AbstractAsn1Object
         StringBuilder sb = new StringBuilder();
 
         sb.append( "EncKrbPrivPart : {\n" );
-        sb.append( "    user-data: " ).append( Strings.dumpBytes(userData) ).append( '\n' );
+        sb.append( "    user-data: " ).append( Strings.dumpBytes( userData ) ).append( '\n' );
 
         if ( timestamp != null )
         {

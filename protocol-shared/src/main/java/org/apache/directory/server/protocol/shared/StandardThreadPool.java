@@ -17,13 +17,14 @@
  * under the License.
  */
 
-
 package org.apache.directory.server.protocol.shared;
+
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * @todo : Missing Javadoc
@@ -39,10 +40,12 @@ public class StandardThreadPool implements Executor
         delegate = Executors.newFixedThreadPool( maxThreads );
     }
 
+
     public void execute( Runnable command )
     {
         delegate.execute( command );
     }
+
 
     /**
      * TODO wont this hang if some tasks are sufficiently badly behaved?
@@ -50,7 +53,7 @@ public class StandardThreadPool implements Executor
     public void stop()
     {
         delegate.shutdown();
-        for ( ; ; )
+        for ( ;; )
         {
             try
             {

@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.core.api.changelog;
 
-import org.apache.directory.server.core.api.partition.Partition;
 
+import org.apache.directory.server.core.api.partition.Partition;
 
 
 /**
@@ -36,7 +36,8 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * @return the snapshot query engine for this store.
      */
     TagSearchEngine getTagSearchEngine();
-    
+
+
     /**
      * 
      * Gets the read only Partition backed by this ChangeLogStore.
@@ -53,12 +54,13 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * @param tagContainerName the container's name for holding the tags ex. ou=tags
      */
     void createPartition( String partitionSuffix, String revContainerName, String tagContainerName );
-    
+
+
     /**
      * Gets the partition associated with this store
      *
      * @return the partition associated with this store, null if not initialized
      */
     Partition getPartition();
-    
+
 }

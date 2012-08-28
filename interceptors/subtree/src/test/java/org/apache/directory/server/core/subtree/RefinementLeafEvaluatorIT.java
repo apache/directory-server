@@ -60,10 +60,10 @@ public class RefinementLeafEvaluatorIT
 
     /** The ObjectClass AttributeType */
     private static AttributeType OBJECT_CLASS_AT;
-    
+
     /** The CN AttributeType */
     private static AttributeType CN_AT;
-    
+
     /** the refinement leaf evaluator to test */
     private static RefinementLeafEvaluator evaluator;
 
@@ -72,7 +72,7 @@ public class RefinementLeafEvaluatorIT
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass 
+    @BeforeClass
     public static void init() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
@@ -83,20 +83,20 @@ public class RefinementLeafEvaluatorIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
 
         evaluator = new RefinementLeafEvaluator( schemaManager );
     }
-    
+
 
     /**
      * Sets evaluator and registries to null.
      */
-    @AfterClass 
+    @AfterClass
     public static void tearDown()
     {
         evaluator = null;
@@ -107,7 +107,7 @@ public class RefinementLeafEvaluatorIT
      * Test cases for various bad combinations of arguments
      * @throws Exception if something goes wrongg
      */
-    @Test 
+    @Test
     public void testForBadArguments() throws Exception
     {
         Attribute objectClasses = null;
@@ -161,45 +161,52 @@ public class RefinementLeafEvaluatorIT
     }
 
 
-    @Test 
+    @Test
     public void testMatchByName() throws Exception
     {
         // positive test
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertTrue( evaluator
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ),
+            objectClasses ) );
     }
 
 
-    @Test 
+    @Test
     public void testMatchByOID() throws Exception
     {
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
 
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+            objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ), objectClasses ) );
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+            objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+            objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+            objectClasses ) );
     }
 }

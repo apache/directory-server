@@ -107,7 +107,8 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             + mojo.getProject().getVersion() );
         if ( !pkgRootUsrLocalApachedsDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootUsrLocalApachedsDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootUsrLocalApachedsDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -121,42 +122,48 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         File pkgRootInstancesDefaultDirectory = new File( pkgRootInstancesDirectory, "default" );
         if ( !pkgRootInstancesDefaultDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootInstancesDefaultDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
         File pkgRootInstancesDefaultConfDirectory = new File( pkgRootInstancesDefaultDirectory, "conf" );
         if ( !pkgRootInstancesDefaultConfDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultConfDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootInstancesDefaultConfDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
         File pkgRootInstancesDefaultDirectoryLog = new File( pkgRootInstancesDefaultDirectory, "log" );
         if ( !pkgRootInstancesDefaultDirectoryLog.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryLog ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootInstancesDefaultDirectoryLog ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
         File pkgRootInstancesDefaultDirectoryPartitions = new File( pkgRootInstancesDefaultDirectory, "partitions" );
         if ( !pkgRootInstancesDefaultDirectoryPartitions.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryPartitions ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootInstancesDefaultDirectoryPartitions ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
         File pkgRootInstancesDefaultDirectoryRun = new File( pkgRootInstancesDefaultDirectory, "run" );
         if ( !pkgRootInstancesDefaultDirectoryRun.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDefaultDirectoryRun ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootInstancesDefaultDirectoryRun ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
         File pkgRootLibraryLaunchDaemons = new File( pkgRootDirectory, "Library/LaunchDaemons" );
         if ( !pkgRootLibraryLaunchDaemons.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootLibraryLaunchDaemons ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                pkgRootLibraryLaunchDaemons ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -182,7 +189,8 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             File pkgResourcesEnglishDirectory = new File( targetDirectory, "Resources/en.lproj" );
             if ( !pkgResourcesEnglishDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgResourcesEnglishDirectory ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                    pkgResourcesEnglishDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }

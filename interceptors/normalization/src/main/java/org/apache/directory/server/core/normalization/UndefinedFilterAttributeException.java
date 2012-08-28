@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.normalization;
 
+
 import org.apache.directory.shared.ldap.model.filter.LeafNode;
 
 
@@ -33,7 +34,7 @@ public class UndefinedFilterAttributeException extends RuntimeException
     private static final long serialVersionUID = -8073762118319523479L;
     private final LeafNode node;
 
-    
+
     public UndefinedFilterAttributeException( LeafNode node )
     {
         super();
@@ -60,7 +61,7 @@ public class UndefinedFilterAttributeException extends RuntimeException
         super( cause );
         this.node = node;
     }
-    
+
 
     public LeafNode getUndefinedFilterNode()
     {

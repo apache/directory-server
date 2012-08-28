@@ -48,10 +48,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private final IndexCursor<String> uuidCursor;
     private final IndexCursor<String> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
+
 
     @SuppressWarnings("unchecked")
     public PresenceCursor( Partition store, PresenceEvaluator presenceEvaluator, TxnManagerFactory txnManagerFactory,
@@ -59,7 +60,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
@@ -72,7 +73,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
             Index<?> presenceIdx;
             presenceIdx = store.getSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
             presenceIdx = txnLogManager.wrap( store.getSuffixDn(), presenceIdx );
-            presenceCursor = ( ( Index<String> )presenceIdx ).forwardCursor( type.getOid() );
+            presenceCursor = ( ( Index<String> ) presenceIdx ).forwardCursor( type.getOid() );
             uuidCursor = null;
         }
         else
@@ -80,7 +81,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
             presenceCursor = null;
             Index<?> entryUuidIdx = store.getSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID );
             entryUuidIdx = txnLogManager.wrap( store.getSuffixDn(), entryUuidIdx );
-            uuidCursor = ( ( Index<String> ) entryUuidIdx).forwardCursor();
+            uuidCursor = ( ( Index<String> ) entryUuidIdx ).forwardCursor();
         }
     }
 
@@ -93,7 +94,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public boolean available()
     {
         if ( presenceCursor != null )
@@ -111,11 +112,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void beforeValue( UUID id, String value ) throws Exception
     {
         checkNotClosed( "beforeValue()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.beforeValue( id, value );
-            
+
             return;
         }
 
@@ -129,11 +130,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void before( IndexEntry<String> element ) throws Exception
     {
         checkNotClosed( "before()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.before( element );
-            
+
             return;
         }
 
@@ -147,11 +148,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void afterValue( UUID id, String value ) throws Exception
     {
         checkNotClosed( "afterValue()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.afterValue( id, value );
-            
+
             return;
         }
 
@@ -165,11 +166,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void after( IndexEntry<String> element ) throws Exception
     {
         checkNotClosed( "after()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.after( element );
-            
+
             return;
         }
 
@@ -180,11 +181,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.beforeFirst();
-            
+
             return;
         }
 
@@ -196,7 +197,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public void afterLast() throws Exception
     {
         checkNotClosed( "afterLast()" );
-        
+
         if ( presenceCursor != null )
         {
             presenceCursor.afterLast();
@@ -224,14 +225,14 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public boolean last() throws Exception
     {
         checkNotClosed( "last()" );
-        
+
         if ( presenceCursor != null )
         {
             return presenceCursor.last();
         }
 
         afterLast();
-        
+
         return previous();
     }
 
@@ -239,7 +240,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public boolean previous() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( presenceCursor != null )
         {
             return presenceCursor.previous();
@@ -249,7 +250,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         {
             checkNotClosed( "previous()" );
             IndexEntry<?> candidate = uuidCursor.get();
-            
+
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -272,7 +273,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         {
             checkNotClosed( "next()" );
             IndexEntry<?> candidate = uuidCursor.get();
-            
+
             if ( presenceEvaluator.evaluate( candidate ) )
             {
                 return setAvailable( true );
@@ -286,7 +287,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     public IndexEntry<String> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( presenceCursor != null )
         {
             if ( presenceCursor.available() )
@@ -306,7 +307,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
              */
             IndexEntry<String> indexEntry = uuidCursor.get();
             indexEntry.setValue( presenceEvaluator.getAttributeType().getOid() );
-            
+
             return indexEntry;
         }
 

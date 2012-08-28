@@ -103,9 +103,9 @@ public class DefaultTxnLogManager implements TxnLogManagerInternal
         ReadWriteTxn txn = ( ReadWriteTxn ) curTxn;
         UserLogRecord logRecord = txn.getUserLogRecord();
 
-        ( ( AbstractLogEdit ) logEdit ).setTxnID( txn.getId() );   
+        ( ( AbstractLogEdit ) logEdit ).setTxnID( txn.getId() );
         logEdit.injectData( logRecord, UserLogRecord.LogEditType.DATA );
-        
+
         logEdit.getLogAnchor().resetLogAnchor( logRecord.getLogAnchor() );
 
         log( logRecord, sync );
@@ -265,10 +265,12 @@ public class DefaultTxnLogManager implements TxnLogManagerInternal
         addDnSet( baseDn, scope, false );
     }
 
+
     public Log getWAL()
     {
-    	return wal;
+        return wal;
     }
+
 
     private void addDnSet( Dn baseDn, SearchScope scope, boolean read )
     {

@@ -40,8 +40,8 @@ public interface RegistrySynchronizer
 
     /** A constant to tell the caller that the schema has not been modified */
     static final boolean SCHEMA_UNCHANGED = false;
-    
-    
+
+
     /**
      * Adds a new SchemaObject to its registry
      *
@@ -49,8 +49,8 @@ public interface RegistrySynchronizer
      * @throws Exception If the addition failed
      */
     void add( Entry entry ) throws LdapException;
-    
-    
+
+
     /**
      * Delete the schema object and update the registries
      *
@@ -59,8 +59,8 @@ public interface RegistrySynchronizer
      * @throws Exception If the deletion failed
      */
     void delete( Entry entry, boolean cascaded ) throws LdapException;
-    
-    
+
+
     /**
      * Rename a schemaObject. It is not supposed to have any child
      *
@@ -70,7 +70,7 @@ public interface RegistrySynchronizer
      * @throws Exception If the rename failed
      */
     void rename( Entry entry, Rdn newRdn, boolean cascaded ) throws LdapException;
-    
+
 
     /**
      * Applies a set of modification to an entry
@@ -83,9 +83,11 @@ public interface RegistrySynchronizer
      */
     boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascaded )
         throws LdapException;
-    
+
+
     void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn, Entry entry,
         boolean cascaded ) throws LdapException;
-    
+
+
     void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascaded ) throws LdapException;
 }

@@ -46,26 +46,26 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(
-    name = "MovePerfDS", 
+    name = "MovePerfDS",
     partitions =
-    { 
-        @CreatePartition(
-            name = "example", 
-            suffix = "dc=example,dc=com", 
-            contextEntry = @ContextEntry(
-                entryLdif = 
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "dc: example\n" + 
-                    "objectClass: top\n" + 
-                    "objectClass: domain\n\n"), 
-            indexes =
-            { 
-                @CreateIndex(attribute = "objectClass"), 
-                @CreateIndex(attribute = "sn"),
-                @CreateIndex(attribute = "cn") 
-            }) 
-   }, 
-   enableChangeLog = false)
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+    },
+    enableChangeLog = false)
 public class MoveAndRenamePerfIT extends AbstractLdapTestUnit
 {
     /**

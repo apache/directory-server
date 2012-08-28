@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.operations.compare;
 
+
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
@@ -50,11 +51,11 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(name = "CompareDirserver1139IT")
 public class CompareDirserver1139IT extends AbstractLdapTestUnit
 {
-    
+
     /**
      * Activate the NIS and KRB5KDC schemas
      * @throws Exception
@@ -69,7 +70,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         LdapContext schemaRoot = getSchemaContext( getService() );
         Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
         boolean isNisDisabled = false;
-        
+
         if ( nisAttrs.get( "m-disabled" ) != null )
         {
             isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -79,8 +80,9 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         if ( isNisDisabled )
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            ModificationItem[] mods = new ModificationItem[]
+                {
+                    new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=nis", mods );
         }
 
@@ -96,7 +98,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=krb5kdc" );
         boolean isKrb5kdcDisabled = false;
-        
+
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5kdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
@@ -106,29 +108,30 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
         if ( isKrb5kdcDisabled )
         {
             Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            ModificationItem[] mods = new ModificationItem[]
+                {
+                    new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
             schemaRoot.modifyAttributes( "cn=krb5kdc", mods );
         }
     }
-    
-    
+
+
     /**
      * Inject entries into the server
      */
     private void injectEntries( LdapContext sysRoot ) throws Exception
     {
         // Add the group
-        Attributes attrs = LdifUtils.createJndiAttributes( 
+        Attributes attrs = LdifUtils.createJndiAttributes(
             "ObjectClass: top",
             "ObjectClass: groupOfNames",
             "cn: group",
             "member: cn=user,ou=users,ou=system" );
-        
+
         sysRoot.createSubcontext( "cn=group,ou=groups", attrs );
-        
+
         // Add the user
-        attrs = LdifUtils.createJndiAttributes( 
+        attrs = LdifUtils.createJndiAttributes(
             "objectClass: top",
             "objectClass: organizationalPerson",
             "objectClass: person",
@@ -148,11 +151,11 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
             "sn: User",
             "uid: user",
             "uidnumber: 1001" );
-        
+
         sysRoot.createSubcontext( "cn=user,ou=users", attrs );
     }
-    
-    
+
+
     /**
      * Compare a member attribute. This test is used to check DIRSERVER-1139
      */
@@ -160,28 +163,28 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     public void testCompare() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
-        
-        injectEntries( sysRoot);
+
+        injectEntries( sysRoot );
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes(  new String[0] );
+        controls.setReturningAttributes( new String[0] );
 
-        NamingEnumeration<SearchResult> list = 
+        NamingEnumeration<SearchResult> list =
             sysRoot.search( "cn=group,ou=groups", "(member=cn=user,ou=users,ou=system)", controls );
-        
+
         int count = 0;
-        
+
         while ( list.hasMore() )
         {
             SearchResult result = list.next();
             assertNotNull( result );
-            assertTrue( Strings.isEmpty(result.getName()) );
+            assertTrue( Strings.isEmpty( result.getName() ) );
             assertNotNull( result.getAttributes() );
             assertEquals( 0, result.getAttributes().size() );
             count++;
         }
-        
+
         assertEquals( 1, count );
     }
 

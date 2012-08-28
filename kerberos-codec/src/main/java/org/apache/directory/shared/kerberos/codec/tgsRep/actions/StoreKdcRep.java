@@ -102,7 +102,6 @@ public class StoreKdcRep extends GrammarAction<TgsRepContainer>
             throw new DecoderException( "Bad message type" );
         }
 
-
         tgsRepContainer.setTgsRep( tgsRep );
 
         if ( IS_DEBUG )

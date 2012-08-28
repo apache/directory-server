@@ -64,14 +64,14 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
 
     /** Currently active Cursor: we switch between two cursors */
     private Cursor<IndexEntry<UUID>> cursor;
-    
+
     /** Alias idx set if dereferencing aliases */
     private Index<String> aliasIdx;
-    
+
     /** Txn and Operation Execution Factories */
     private TxnManagerFactory txnManagerFactory;
     private OperationExecutionManagerFactory executionManagerFactory;
- 
+
 
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
@@ -87,11 +87,11 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     {
         this.txnManagerFactory = txnManagerFactory;
         this.executionManagerFactory = executionManagerFactory;
-        
+
         TxnLogManager txnLogManager = txnManagerFactory.txnLogManagerInstance();
         this.db = db;
         this.evaluator = evaluator;
-        
+
         Index<?> oneLevelIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_LEVEL_AT_OID );
         oneLevelIdx = txnLogManager.wrap( db.getSuffixDn(), oneLevelIdx );
         scopeCursor = ( ( Index<UUID> ) oneLevelIdx ).forwardCursor( evaluator.getBaseId() );
@@ -100,10 +100,10 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
         {
             Index<?> oneAliasIdx = db.getSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
             oneAliasIdx = txnLogManager.wrap( db.getSuffixDn(), oneAliasIdx );
-            dereferencedCursor = ( ( Index<UUID> )oneAliasIdx ).forwardCursor( evaluator.getBaseId() );
-            
-            aliasIdx = ( Index<String> )db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-            aliasIdx = ( Index<String> )txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
+            dereferencedCursor = ( ( Index<UUID> ) oneAliasIdx ).forwardCursor( evaluator.getBaseId() );
+
+            aliasIdx = ( Index<String> ) db.getSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            aliasIdx = ( Index<String> ) txnLogManager.wrap( db.getSuffixDn(), aliasIdx );
         }
         else
         {
@@ -120,7 +120,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
         return UNSUPPORTED_MSG;
     }
 
-    
+
     public void beforeFirst() throws Exception
     {
         checkNotClosed( "beforeFirst()" );
@@ -207,7 +207,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
          * last element.
          */
         setAvailable( cursor.previous() );
-        
+
         if ( !available() )
         {
             cursor = scopeCursor;
@@ -297,22 +297,22 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     public IndexEntry<UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
-        
+
         if ( available() )
         {
             IndexEntry<UUID> indexEntry = cursor.get();
-            
+
             /*
              *  If the entry is coming from the alias index, then search scope is enlarged
              *  to include the returned entry.
              */
-            
+
             if ( cursor == dereferencedCursor )
             {
                 Dn aliasTargetDn = executionManagerFactory.instance().buildEntryDn( db, indexEntry.getId() );
                 txnManagerFactory.txnLogManagerInstance().addRead( aliasTargetDn, SearchScope.OBJECT );
             }
-            
+
             return indexEntry;
         }
 
@@ -324,12 +324,12 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     public void close() throws Exception
     {
         scopeCursor.close();
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close();
         }
-        
+
         super.close();
     }
 
@@ -338,14 +338,13 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
     public void close( Exception cause ) throws Exception
     {
         scopeCursor.close( cause );
-        
+
         if ( dereferencedCursor != null )
         {
             dereferencedCursor.close( cause );
         }
-        
+
         super.close( cause );
     }
-    
-    
+
 }

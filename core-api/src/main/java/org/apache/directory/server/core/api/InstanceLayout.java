@@ -75,28 +75,28 @@ public class InstanceLayout extends AbstractLayout
     // Static final fields for system property names
     private static final String LOG_DIR = "apacheds.log.dir";
     private static final String RUN_DIR = "apacheds.run.dir";
-    
+
     /** Static directory names */
     private static final String LOG_NAME = "log";
     private static final String TXN_LOG_NAME = "txnlog";
     private static final String RUN_NAME = "run";
     private static final String CONF_NAME = "conf";
     private static final String PARTITIONS_NAME = "partitions";
-    
+
     /** Static file names */
     private static final String LOG4J_PROPERTIES = "log4j.properties";
     private static final String WRAPPER_CONF = "wrapper.conf";
     private static final String CONFIG_LDIF = "config.ldif";
-    
+
     /** The Log directory */
     private File logDir;
-    
+
     /** The Txn Log directory */
     private File txnLogDir;
 
     /** The Partitions directory */
     private File partitionsDir;
-    
+
     /** The Run directory */
     private File runDir;
 
@@ -142,7 +142,7 @@ public class InstanceLayout extends AbstractLayout
                 getTxnLogDirectory(),
                 getPartitionsDirectory(),
                 getRunDirectory()
-            };
+        };
         setRequiredDirectories( requiredDirectories );
 
         // The required files
@@ -150,8 +150,8 @@ public class InstanceLayout extends AbstractLayout
             {
                 getWrapperConfigurationFile(),
                 getLogConfigurationFile() /*,
-                getApacheDsConfigurationLdifFile() */// TODO re-activate this when possible.
-            };
+                                          getApacheDsConfigurationLdifFile() */// TODO re-activate this when possible.
+        };
         setRequiredFiles( requiredFiles );
     }
 
@@ -167,7 +167,7 @@ public class InstanceLayout extends AbstractLayout
         {
             confDir = new File( getInstanceDirectory(), CONF_NAME );
         }
-        
+
         return confDir;
     }
 
@@ -194,18 +194,18 @@ public class InstanceLayout extends AbstractLayout
 
             if ( systemLogDir != null )
             {
-                logDir =  new File( systemLogDir );
+                logDir = new File( systemLogDir );
             }
             else
             {
                 logDir = new File( getInstanceDirectory(), LOG_NAME );
             }
         }
-        
+
         return logDir;
     }
-    
-    
+
+
     /**
      * Gets the 'txn log' directory.
      *
@@ -217,7 +217,7 @@ public class InstanceLayout extends AbstractLayout
         {
             txnLogDir = new File( getInstanceDirectory(), TXN_LOG_NAME );
         }
-        
+
         return txnLogDir;
     }
 
@@ -242,7 +242,7 @@ public class InstanceLayout extends AbstractLayout
         {
             partitionsDir = new File( getInstanceDirectory(), PARTITIONS_NAME );
         }
-        
+
         return partitionsDir;
     }
 
@@ -269,14 +269,14 @@ public class InstanceLayout extends AbstractLayout
 
             if ( systemRunDir != null )
             {
-                runDir =  new File( systemRunDir );
+                runDir = new File( systemRunDir );
             }
             else
             {
                 runDir = new File( getInstanceDirectory(), RUN_NAME );
             }
         }
-        
+
         return runDir;
     }
 
@@ -332,15 +332,15 @@ public class InstanceLayout extends AbstractLayout
     {
         return new File( getConfDirectory(), CONFIG_LDIF );
     }
-    
-    
+
+
     public String toString()
     {
         return "Instance Layout: \n" +
-               "  Instance dir            : " + getInstanceDirectory() + "\n" +
-               "  Instance conf dir       : " + getConfDirectory() + "\n" +
-               "  Instance log dir        : " + getLogDirectory() + "\n" +
-               "  Instance run dir        : " + getRunDirectory() + "\n" +
-               "  Instance partitions dir : " + getPartitionsDirectory()  + "\n";
+            "  Instance dir            : " + getInstanceDirectory() + "\n" +
+            "  Instance conf dir       : " + getConfDirectory() + "\n" +
+            "  Instance log dir        : " + getLogDirectory() + "\n" +
+            "  Instance run dir        : " + getRunDirectory() + "\n" +
+            "  Instance partitions dir : " + getPartitionsDirectory() + "\n";
     }
 }

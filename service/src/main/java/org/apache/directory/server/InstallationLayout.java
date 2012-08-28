@@ -72,7 +72,7 @@ public class InstallationLayout extends AbstractLayout
                 getBinDirectory(),
                 getConfDirectory(),
                 getLibDirectory()
-            };
+        };
         setRequiredDirectories( requiredDirectories );
 
         // The required files
@@ -81,7 +81,7 @@ public class InstallationLayout extends AbstractLayout
                 getScriptFile(),
                 getWrapperFile(),
                 getWrapperConfigurationFile()
-            };
+        };
         setRequiredFiles( requiredFiles );
     }
 

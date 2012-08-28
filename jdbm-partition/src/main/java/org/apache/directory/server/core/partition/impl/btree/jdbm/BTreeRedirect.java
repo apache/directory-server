@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
+
 import java.io.Serializable;
 
 
@@ -33,19 +34,19 @@ public class BTreeRedirect implements Serializable
 
     final long recId;
 
-    
+
     public BTreeRedirect( long recId )
     {
         this.recId = recId;
     }
-    
-    
+
+
     public long getRecId()
     {
         return recId;
     }
-    
-    
+
+
     public String toString()
     {
         StringBuilder buf = new StringBuilder();

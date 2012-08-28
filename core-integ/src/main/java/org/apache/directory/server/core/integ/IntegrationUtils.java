@@ -71,6 +71,7 @@ public class IntegrationUtils
 
     private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
 
+
     /**
      * Deletes the working directory.
      *
@@ -142,7 +143,7 @@ public class IntegrationUtils
 
 
     public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
-            throws Exception
+        throws Exception
     {
         if ( principalDn == null )
         {
@@ -207,19 +208,19 @@ public class IntegrationUtils
         Dn dn = entry.getDn();
         CoreSession session = service.getAdminSession();
 
-        switch( entry.getChangeType().getChangeType() )
+        switch ( entry.getChangeType().getChangeType() )
         {
-            case( ChangeType.ADD_ORDINAL ):
+            case ( ChangeType.ADD_ORDINAL ):
                 session.add(
                     new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
                 break;
 
-            case( ChangeType.DELETE_ORDINAL ):
+            case ( ChangeType.DELETE_ORDINAL ):
                 session.delete( dn );
                 break;
 
-            case( ChangeType.MODDN_ORDINAL ):
-            case( ChangeType.MODRDN_ORDINAL ):
+            case ( ChangeType.MODDN_ORDINAL ):
+            case ( ChangeType.MODRDN_ORDINAL ):
                 Rdn newRdn = new Rdn( entry.getNewRdn() );
 
                 if ( entry.getNewSuperior() != null )
@@ -252,7 +253,7 @@ public class IntegrationUtils
 
                 break;
 
-            case( ChangeType.MODIFY_ORDINAL ):
+            case ( ChangeType.MODIFY_ORDINAL ):
                 session.modify( dn, entry.getModifications() );
                 break;
 
@@ -263,7 +264,7 @@ public class IntegrationUtils
 
 
     public static LdifEntry getUserAddLdif( String dnstr, byte[] password, String cn, String sn )
-            throws LdapException
+        throws LdapException
     {
         Dn dn = new Dn( dnstr );
         LdifEntry ldif = new LdifEntry();
@@ -294,10 +295,10 @@ public class IntegrationUtils
         return ldif;
     }
 
+
     // -----------------------------------------------------------------------
     // Enable/Disable Schema Tests
     // -----------------------------------------------------------------------
-
 
     public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
     {
@@ -317,7 +318,7 @@ public class IntegrationUtils
         // now enable the test schema
         Modification mod = new DefaultModification(
             ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "TRUE" );
-        
+
         connection.modify( "cn=" + schemaName + ",ou=schema", mod );
     }
 
@@ -365,13 +366,15 @@ public class IntegrationUtils
     }
 
 
-    public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password )
+        throws Exception
     {
         return getConnectionAs( dirService, new Dn( dn ), password );
     }
 
 
-    public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password ) throws Exception
+    public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password )
+        throws Exception
     {
         Object connectionObj = LdapConnectionFactory.getCoreSessionConnection();
 
@@ -384,7 +387,8 @@ public class IntegrationUtils
     }
 
 
-    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password ) throws Exception
+    public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
+        throws Exception
     {
         LdapConnection connection = LdapConnectionFactory.getNetworkConnection( host, port );
 
@@ -407,7 +411,8 @@ public class IntegrationUtils
     }
 
 
-    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password ) throws Exception
+    public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
+        throws Exception
     {
         return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
     }
@@ -416,21 +421,21 @@ public class IntegrationUtils
     public static void closeConnections()
     {
 
-        for( LdapConnection con : openConnections )
+        for ( LdapConnection con : openConnections )
         {
-            if( con == null )
+            if ( con == null )
             {
                 continue;
             }
 
             try
             {
-                if( con.isConnected() )
+                if ( con.isConnected() )
                 {
                     con.close();
                 }
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
                 e.printStackTrace();

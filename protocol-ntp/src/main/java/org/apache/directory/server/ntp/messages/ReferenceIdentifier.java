@@ -248,8 +248,8 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
     {
         return ordinal - that.ordinal;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -257,8 +257,8 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
     {
         return ordinal;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -268,14 +268,14 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
         {
             return true;
         }
-        
-        if ( ! ( that instanceof ReferenceIdentifier ) )
+
+        if ( !( that instanceof ReferenceIdentifier ) )
         {
             return false;
         }
-        
-        ReferenceIdentifier thatRef = (ReferenceIdentifier)that;
-        
+
+        ReferenceIdentifier thatRef = ( ReferenceIdentifier ) that;
+
         return ordinal == thatRef.ordinal;
     }
 

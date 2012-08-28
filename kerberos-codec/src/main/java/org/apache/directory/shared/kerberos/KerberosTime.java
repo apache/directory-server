@@ -19,6 +19,7 @@
  */
 package org.apache.directory.shared.kerberos;
 
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +27,7 @@ import java.util.TimeZone;
 
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
+
 
 /**
  * An specialization of the ASN.1 GeneralTime. The Kerberos time contains date and 
@@ -38,13 +40,13 @@ public class KerberosTime implements Comparable<KerberosTime>
 {
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
-    
+
     /** The KerberosTime as a String*/
     private String date;
-    
+
     /** The kerberosTime, as a long */
     private long kerberosTime;
-    
+
     /** Constant for the {@link KerberosTime} "infinity." */
     public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
 
@@ -57,17 +59,17 @@ public class KerberosTime implements Comparable<KerberosTime>
     /** The number of milliseconds in a week. */
     public static final int WEEK = MINUTE * 10080;
 
-    
+
     /**
      * Creates a new instance of a KerberosTime object
      */
     public KerberosTime()
     {
-        kerberosTime = (System.currentTimeMillis()/1000L)*1000L; // drop the ms
+        kerberosTime = ( System.currentTimeMillis() / 1000L ) * 1000L; // drop the ms
         convertInternal( kerberosTime );
     }
 
-    
+
     /**
      * Creates a new instance of a KerberosTime object
      * 
@@ -84,8 +86,8 @@ public class KerberosTime implements Comparable<KerberosTime>
             throw new IllegalArgumentException( "Bad time : " + date );
         }
     }
-    
-    
+
+
     /**
      * Creates a new instance of a KerberosTime object
      */
@@ -93,7 +95,7 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         convertInternal( date );
     }
-    
+
 
     /**
      * Creates a new instance of KerberosTime.
@@ -102,11 +104,11 @@ public class KerberosTime implements Comparable<KerberosTime>
      */
     public KerberosTime( Date time )
     {
-        kerberosTime = (time.getTime()/1000L)*1000L; // drop the ms
+        kerberosTime = ( time.getTime() / 1000L ) * 1000L; // drop the ms
         convertInternal( kerberosTime );
     }
 
-    
+
     /**
      * converts the given milliseconds time to seconds and
      * also formats the time to the generalized form
@@ -117,15 +119,15 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         Calendar calendar = Calendar.getInstance( UTC );
         calendar.setTimeInMillis( date );
-        
+
         synchronized ( DateUtils.DATE_FORMAT )
         {
             this.date = DateUtils.DATE_FORMAT.format( calendar.getTime() );
         }
-        
-        kerberosTime = (calendar.getTimeInMillis()/1000L)*1000L; // drop the ms
+
+        kerberosTime = ( calendar.getTimeInMillis() / 1000L ) * 1000L; // drop the ms
     }
-    
+
 
     /**
      * Returns the {@link KerberosTime} as a long.
@@ -159,16 +161,16 @@ public class KerberosTime implements Comparable<KerberosTime>
     public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
         Date date = null;
-        
+
         synchronized ( DateUtils.DATE_FORMAT )
         {
             date = DateUtils.DATE_FORMAT.parse( zuluTime );
         }
-        
+
         return new KerberosTime( date );
     }
 
-    
+
     /**
      * Sets the date if it's a valid KerberosTime
      * @param date The date to store
@@ -179,20 +181,20 @@ public class KerberosTime implements Comparable<KerberosTime>
         {
             kerberosTime = DateUtils.DATE_FORMAT.parse( date ).getTime();
         }
-        
+
         convertInternal( kerberosTime );
     }
-    
-    
+
+
     /**
      * @return The date as a byte[]
      */
     public byte[] getBytes()
     {
-        return Strings.getBytesUtf8(date);
+        return Strings.getBytesUtf8( date );
     }
-    
-    
+
+
     /**
      * @return The stored date
      */
@@ -205,7 +207,7 @@ public class KerberosTime implements Comparable<KerberosTime>
     @Override
     public int hashCode()
     {
-        return (int)kerberosTime;
+        return ( int ) kerberosTime;
     }
 
 
@@ -216,18 +218,18 @@ public class KerberosTime implements Comparable<KerberosTime>
         {
             return true;
         }
-        
+
         if ( obj == null )
         {
             return true;
         }
-        
+
         KerberosTime other = ( KerberosTime ) obj;
-        
+
         return kerberosTime == other.kerberosTime;
     }
-    
-    
+
+
     /**
      * Returns whether this {@link KerberosTime} is within the given clockskew.
      *
@@ -238,11 +240,11 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         // The KerberosTime does not have milliseconds
         long delta = Math.abs( kerberosTime - System.currentTimeMillis() );
-        
+
         return delta < clockSkew;
     }
-    
-    
+
+
     /**
      * compares current kerberos time with the given kerberos time
      * @param that the kerberos time against which the current kerberos time is compared
@@ -275,8 +277,8 @@ public class KerberosTime implements Comparable<KerberosTime>
 
         return EQUAL;
     }
-    
-    
+
+
     /**
      * checks if the current kerberos time is less or equal than the given kerberos time
      * @param ktime the kerberos time against which the current kerberos time needs to be compared
@@ -286,8 +288,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime <= ktime.kerberosTime;
     }
-    
-    
+
+
     /**
      * checks if the current kerberos time is greater than the given kerberos time
      * @param ktime the kerberos time against which the currnet kerberos time needs to be compared
@@ -297,8 +299,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime > ktime.kerberosTime;
     }
-    
-    
+
+
     /**
      * Returns whether this {@link KerberosTime} is zero.
      *
@@ -308,8 +310,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime == 0;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

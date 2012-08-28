@@ -99,7 +99,6 @@ public class StoreSafeBody extends GrammarAction<KrbSafeContainer>
 
         krbSafeContainer.getKrbSafe().setSafeBody( krbSafeBody );
 
-
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );
 

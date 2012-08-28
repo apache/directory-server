@@ -79,22 +79,23 @@ public class PartitionTest
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
-    
+
     /** The OU AttributType instance */
     private static AttributeType OU_AT;
-    
+
     /** The UID AttributType instance */
     private static AttributeType UID_AT;
-    
+
     /** The CN AttributType instance */
     private static AttributeType CN_AT;
-    
+
     /** Operation execution manager */
     private static OperationExecutionManager executionManager;
-    
+
     /** txn and operation execution manager factories */
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -107,7 +108,7 @@ public class PartitionTest
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -125,9 +126,9 @@ public class PartitionTest
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         OU_AT = schemaManager.getAttributeType( SchemaConstants.OU_AT );
         UID_AT = schemaManager.getAttributeType( SchemaConstants.UID_AT );
         CN_AT = schemaManager.getAttributeType( SchemaConstants.CN_AT );
@@ -137,7 +138,7 @@ public class PartitionTest
     @Before
     public void createStore() throws Exception
     {
-        
+
         // initialize the partition
         partition = new AvlPartition( schemaManager, txnManagerFactory, executionManagerFactory );
         partition.setId( "example" );
@@ -149,7 +150,7 @@ public class PartitionTest
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
         partition.initialize();
-        
+
         XdbmStoreUtils.loadExampleData( partition, schemaManager, executionManagerFactory.instance() );
         LOG.debug( "Created new partition" );
     }
@@ -175,10 +176,10 @@ public class PartitionTest
         assertEquals( 27, partition.getObjectClassIndex().count() );
         assertEquals( 11, partition.getEntryCsnIndex().count() );
         assertEquals( 11, partition.getEntryUuidIndex().count() );
-        
+
         Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
-        
+
         while ( userIndices.hasNext() )
         {
             userIndices.next();
@@ -346,7 +347,7 @@ public class PartitionTest
         assertNull( lookedup.get( "objectClass" ) );
     }
 
-    
+
     @Test
     public void testCheckCsnIndexUpdate() throws Exception
     {
@@ -354,7 +355,7 @@ public class PartitionTest
 
         AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
         Attribute attrib = new DefaultAttribute( csnAt );
-        
+
         CsnFactory csnF = new CsnFactory( 0 );
         String csn = csnF.newInstance().toString();
         attrib.add( csn );
@@ -363,71 +364,72 @@ public class PartitionTest
 
         UUID entryId = executionManager.getEntryId( partition, dn );
         Entry lookedup = executionManager.lookup( partition, entryId );
-        
+
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
         assertNotSame( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
 
         lookedup = executionManager.modify( partition, dn, add );
-        
+
         String updateCsn = lookedup.get( csnAt ).getString();
         assertEquals( csn, updateCsn );
         assertEquals( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
-        
+
         csn = csnF.newInstance().toString();
-        
+
         Entry modEntry = new DefaultEntry( schemaManager );
         modEntry.add( csnAt, csn );
-        
+
         assertNotSame( csn, updateCsn );
         assertNotSame( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
-        
-        lookedup = executionManager.modify( partition, dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
-        
+
+        lookedup = executionManager.modify( partition, dn, new DefaultModification(
+            ModificationOperation.REPLACE_ATTRIBUTE, csnAt, csn ) );
+
         assertEquals( csn, lookedup.get( csnAt ).getString() );
         assertEquals( csn, partition.getEntryCsnIndex().reverseLookup( entryId ) );
     }
-    
-    
+
+
     @Test
     public void testEntryParentIdPresence() throws Exception
     {
         Dn dn = new Dn( schemaManager, "cn=user,ou=Sales,o=Good Times Co." );
-        
+
         Entry entry = new DefaultEntry( schemaManager, dn );
         entry.add( "objectClass", "top", "person" );
         entry.add( "cn", "user" );
         entry.add( "sn", "user sn" );
-        
+
         // add
         XdbmStoreUtils.injectEntryInStore( partition, entry, 12, executionManagerFactory.instance() );
         verifyParentId( dn );
-        
+
         // move
         Dn newSuperior = new Dn( schemaManager, "o=Good Times Co." );
         Dn newDn = new Dn( schemaManager, "cn=user,o=Good Times Co." );
         executionManager.move( partition, dn, newSuperior, newDn, null, entry );
         entry = verifyParentId( newDn );
-        
+
         // move and rename
         Dn newParentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
         Dn oldDn = newDn;
         Rdn newRdn = new Rdn( schemaManager, "cn=userMovedAndRenamed" );
-        
+
         executionManager.moveAndRename( partition, oldDn, newParentDn, newRdn, entry.clone(), entry, false );
         verifyParentId( newParentDn.add( newRdn ) );
     }
-    
-    
+
+
     private Entry verifyParentId( Dn dn ) throws Exception
     {
         UUID entryId = executionManager.getEntryId( partition, dn );
         Entry entry = executionManager.lookup( partition, entryId );
         UUID parentId = executionManager.getParentId( partition, entryId );
-        
+
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );
         assertEquals( parentId.toString(), parentIdAt.getString() );
-        
+
         return entry;
     }
 }

@@ -82,7 +82,7 @@ public class JdbmIndexIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -124,7 +124,7 @@ public class JdbmIndexIT
 
             // created by TransactionManager, if transactions are not disabled
             File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-            
+
             if ( logFile.exists() )
             {
                 assertTrue( logFile.delete() );
@@ -149,7 +149,7 @@ public class JdbmIndexIT
         {
             jdbmIdx = new JdbmIndex<String>();
         }
-        
+
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         jdbmIdx.init( schemaManager, attributeType );
@@ -183,7 +183,7 @@ public class JdbmIndexIT
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
@@ -228,7 +228,7 @@ public class JdbmIndexIT
 
         // initialized index
         initIndex();
-        
+
         try
         {
             idx.setWkDirPath( wkdir.toURI() );
@@ -237,7 +237,7 @@ public class JdbmIndexIT
         catch ( Exception e )
         {
         }
-        
+
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
@@ -591,16 +591,17 @@ public class JdbmIndexIT
         jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         jdbmIndex.close();
     }
-    
+
+
     public static UUID getUUIDString( int idx )
     {
         /** UUID string */
         UUID baseUUID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
-        
+
         long low = baseUUID.getLeastSignificantBits();
         long high = baseUUID.getMostSignificantBits();
         low = low + idx;
-        
+
         return new UUID( high, low );
     }
 }

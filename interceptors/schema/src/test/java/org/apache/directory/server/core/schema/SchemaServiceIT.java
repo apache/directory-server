@@ -75,14 +75,14 @@ public class SchemaServiceIT
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
         loaded = schemaManager.loadWithDeps( "nis" );
 
         if ( !loaded )
         {
-            fail( "Schema load failed : " + Exceptions.printErrors(schemaManager.getErrors()) );
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
     }
 
@@ -103,7 +103,7 @@ public class SchemaServiceIT
         String[] expectedNames = new String[]
             { "sn", "generationQualifier", "ou", "c", "o", "l", "c-st", "givenName", "title", "cn", "initials",
                 "dmdName", "c-ou", "c-o", "apachePresence", "st", "c-l", "ads-serverId", "ads-indexAttributeId",
-                "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId", "ads-pwdId", 
+                "ads-transportId", "ads-directoryServiceId", "ads-Id", "ads-extendedOpId", "ads-pwdId",
                 "ads-compositeElement", "ads-replConsumerId", "ads-journalId", "ads-changeLogId", "ads-replProviderId" };
 
         for ( String name : expectedNames )

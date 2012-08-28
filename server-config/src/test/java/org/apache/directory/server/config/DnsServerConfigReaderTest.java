@@ -65,6 +65,7 @@ public class DnsServerConfigReaderTest
     private static TxnManagerFactory txnManagerFactory;
     private static OperationExecutionManagerFactory executionManagerFactory;
 
+
     @BeforeClass
     public static void readConfig() throws Exception
     {
@@ -74,12 +75,12 @@ public class DnsServerConfigReaderTest
         String workingDirectory = workDir.getPath();
         // Extract the schema on disk (a brand new one) and load the registries
         File schemaRepository = new File( workingDirectory, "schema" );
-        
+
         if ( schemaRepository.exists() )
         {
             FileUtils.deleteDirectory( schemaRepository );
         }
-        
+
         File logDir = new File( workingDirectory + File.separatorChar + "txnlog" + File.separatorChar );
         logDir.mkdirs();
         txnManagerFactory = new TxnManagerFactory( logDir.getPath(), 1 << 13, 1 << 14 );
@@ -100,7 +101,7 @@ public class DnsServerConfigReaderTest
 
         if ( errors.size() != 0 )
         {
-            throw new Exception( "Schema load failed : " + Exceptions.printErrors(errors) );
+            throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
 
@@ -111,19 +112,22 @@ public class DnsServerConfigReaderTest
         File configDir = new File( workDir, "dnsServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "dnsServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory, executionManagerFactory );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, txnManagerFactory,
+            executionManagerFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        
+
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
-        
-        ConfigBean configBean = cpReader.readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ), ConfigSchemaConstants.ADS_DNS_SERVER_OC.getValue() );
+
+        ConfigBean configBean = cpReader
+            .readConfig( new Dn( schemaManager, "ou=servers,ads-directoryServiceId=default,ou=config" ),
+                ConfigSchemaConstants.ADS_DNS_SERVER_OC.getValue() );
 
         assertNotNull( configBean );
-        DnsServerBean dnsServerBean = (DnsServerBean)configBean.getDirectoryServiceBeans().get( 0 );
+        DnsServerBean dnsServerBean = ( DnsServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( dnsServerBean );
 
         configPartition.destroy();

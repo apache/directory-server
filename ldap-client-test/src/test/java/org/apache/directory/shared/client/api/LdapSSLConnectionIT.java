@@ -63,26 +63,27 @@ import org.junit.runner.RunWith;
     {
         @CreateTransport(protocol = "LDAP"),
         @CreateTransport(protocol = "LDAPS")
-    },
+},
     saslHost = "localhost",
     saslMechanisms =
-    {
-        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
     },
     extendedOpHandlers =
-    {
-        StartTlsHandler.class
+        {
+            StartTlsHandler.class
     })
 public class LdapSSLConnectionIT extends AbstractLdapTestUnit
 {
     private LdapConnectionConfig sslConfig;
-    
+
     private LdapConnectionConfig tlsConfig;
+
 
     @Before
     public void setup()
@@ -92,7 +93,7 @@ public class LdapSSLConnectionIT extends AbstractLdapTestUnit
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
-        
+
         tlsConfig = new LdapConnectionConfig();
         tlsConfig.setLdapHost( "localhost" );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
@@ -140,8 +141,8 @@ public class LdapSSLConnectionIT extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
-    
+
+
     /**
      * Test a successful bind request after setting up TLS
      *
@@ -188,9 +189,9 @@ public class LdapSSLConnectionIT extends AbstractLdapTestUnit
 
         connection.close();
     }
-    
-    
-    @Test( expected = LdapException.class)
+
+
+    @Test(expected = LdapException.class)
     public void testFailsStartTLSWhenSSLIsInUse() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
@@ -200,7 +201,8 @@ public class LdapSSLConnectionIT extends AbstractLdapTestUnit
         connection.startTls();
     }
 
-    @Test( expected = InvalidConnectionException.class )
+
+    @Test(expected = InvalidConnectionException.class)
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
