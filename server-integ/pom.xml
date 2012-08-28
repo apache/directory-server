@@ -243,7 +243,10 @@
     <profile>
       <id>integration</id>
       <activation>
+        <!--
         <activeByDefault>true</activeByDefault>
+        -->
+        <property><name>integration</name></property>
       </activation>
       <build>
         <plugins>
