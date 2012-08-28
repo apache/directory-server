@@ -58,7 +58,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-public class LdapConnectionTest extends AbstractLdapTestUnit
+public class LdapConnectionIT extends AbstractLdapTestUnit
 {
 
     private static final String ADMIN_DN = "uid=admin,ou=system";

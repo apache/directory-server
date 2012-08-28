@@ -73,7 +73,7 @@ import org.junit.runner.RunWith;
     "sn: billyd",
     "cn: billyd"
 })
-public class ClientModifyRequestTest extends AbstractLdapTestUnit
+public class ClientModifyRequestIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
     private CoreSession session;

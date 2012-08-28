@@ -58,7 +58,7 @@ import org.junit.runner.RunWith;
       @CreateTransport(protocol = "LDAPS") 
     }, 
     extendedOpHandlers = { StartTlsHandler.class })
-public class ClientExtendedRequestTest extends AbstractLdapTestUnit
+public class ClientExtendedRequestIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
 

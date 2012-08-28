@@ -59,7 +59,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-public class ClientAbandonRequestTest extends AbstractLdapTestUnit
+public class ClientAbandonRequestIT extends AbstractLdapTestUnit
 {
 
     private LdapNetworkConnection connection;

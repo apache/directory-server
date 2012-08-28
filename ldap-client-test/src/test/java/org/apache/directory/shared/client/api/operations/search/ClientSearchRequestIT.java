@@ -86,7 +86,7 @@ import org.junit.runner.RunWith;
         "cn: elecharny"
 
 })
-public class ClientSearchRequestTest extends AbstractLdapTestUnit
+public class ClientSearchRequestIT extends AbstractLdapTestUnit
 {
 private LdapNetworkConnection connection;
 

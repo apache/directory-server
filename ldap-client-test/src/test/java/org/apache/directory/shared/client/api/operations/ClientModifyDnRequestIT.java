@@ -60,7 +60,7 @@ import org.junit.runner.RunWith;
     { "dn: cn=modDn,ou=system", "objectClass: person", "cn: modDn", "sn: snModDn" })
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
+public class ClientModifyDnRequestIT extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=modDn,ou=system";
     private LdapNetworkConnection connection;

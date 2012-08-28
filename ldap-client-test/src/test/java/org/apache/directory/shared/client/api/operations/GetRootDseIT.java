@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
-public class GetRootDseTest extends AbstractLdapTestUnit
+public class GetRootDseIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
 

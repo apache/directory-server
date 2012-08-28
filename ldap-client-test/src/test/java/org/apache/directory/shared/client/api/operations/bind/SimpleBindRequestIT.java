@@ -78,7 +78,7 @@ import org.junit.runner.RunWith;
         "displayName: Directory Superuser",
         "uid: superuser",
         "userPassword: test" })
-public class SimpleBindRequestTest extends AbstractLdapTestUnit
+public class SimpleBindRequestIT extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
 

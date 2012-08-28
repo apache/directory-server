@@ -85,7 +85,7 @@ import org.junit.runner.RunWith;
 
         "dn: cn=grand_child12,cn=child1,cn=parent,ou=system", "objectClass: person", "cn: grand_child12_cn",
         "sn: grand_child12_sn" })
-public class ClientDeleteRequestTest extends AbstractLdapTestUnit
+public class ClientDeleteRequestIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
     private CoreSession session;

@@ -78,7 +78,7 @@ import org.junit.runner.RunWith;
     {
         StartTlsHandler.class
     })
-public class LdapSSLConnectionTest extends AbstractLdapTestUnit
+public class LdapSSLConnectionIT extends AbstractLdapTestUnit
 {
     private LdapConnectionConfig sslConfig;
     

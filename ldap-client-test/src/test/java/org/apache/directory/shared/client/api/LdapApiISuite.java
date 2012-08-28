@@ -24,16 +24,16 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkSuite;
-import org.apache.directory.shared.client.api.operations.ClientAbandonRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientAddRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientCompareRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientDeleteRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientExtendedRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientModifyDnRequestTest;
-import org.apache.directory.shared.client.api.operations.ClientModifyRequestTest;
-import org.apache.directory.shared.client.api.operations.bind.SimpleBindRequestTest;
-import org.apache.directory.shared.client.api.operations.search.ClientSearchRequestTest;
-import org.apache.directory.shared.client.api.operations.search.SearchRequestReturningAttributesTest;
+import org.apache.directory.shared.client.api.operations.ClientAbandonRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientAddRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientCompareRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientDeleteRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientExtendedRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientModifyDnRequestIT;
+import org.apache.directory.shared.client.api.operations.ClientModifyRequestIT;
+import org.apache.directory.shared.client.api.operations.bind.SimpleBindRequestIT;
+import org.apache.directory.shared.client.api.operations.search.ClientSearchRequestIT;
+import org.apache.directory.shared.client.api.operations.search.SearchRequestReturningAttributesIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -46,22 +46,22 @@ import org.junit.runners.Suite;
 @RunWith(FrameworkSuite.class)
 @Suite.SuiteClasses(
     {
-        LdapConnectionTest.class,
-        LdapSSLConnectionTest.class,
-        NetworkSchemaLoaderTest.class,
+        LdapConnectionIT.class,
+        LdapSSLConnectionIT.class,
+        NetworkSchemaLoaderIT.class,
 
-        ClientAbandonRequestTest.class,
-        ClientAddRequestTest.class,
-        ClientCompareRequestTest.class,
-        ClientDeleteRequestTest.class,
-        ClientExtendedRequestTest.class,
-        ClientModifyDnRequestTest.class,
-        ClientModifyRequestTest.class,
+        ClientAbandonRequestIT.class,
+        ClientAddRequestIT.class,
+        ClientCompareRequestIT.class,
+        ClientDeleteRequestIT.class,
+        ClientExtendedRequestIT.class,
+        ClientModifyDnRequestIT.class,
+        ClientModifyRequestIT.class,
 
-        SimpleBindRequestTest.class,
+        SimpleBindRequestIT.class,
 
-        ClientSearchRequestTest.class,
-        SearchRequestReturningAttributesTest.class
+        ClientSearchRequestIT.class,
+        SearchRequestReturningAttributesIT.class
 
     })
 @CreateDS(

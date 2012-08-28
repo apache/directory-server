@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
         // alias to the above entry
         "dn: cn=user1-alias,ou=users,ou=system", "objectClass: alias", "objectClass: top",
         "objectClass: extensibleObject", "aliasedObjectName: cn=user1,ou=users,ou=system", "cn: user1-alias" })
-public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
+public class SearchRequestReturningAttributesIT extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
 
