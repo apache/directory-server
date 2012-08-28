@@ -165,6 +165,7 @@
               </includes>
               <excludes>
                 <exclude>**/*PerfIT.java</exclude>
+                <exclude>**/*PerfTest.java</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -207,6 +208,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
+                <exclude>**/*PerfIT.java</exclude>
                 <exclude>**/*PerfTest.java</exclude>
                 <exclude>**/*ITest.java</exclude>
                 <exclude>**/*IT.java</exclude>
