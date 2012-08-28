@@ -685,12 +685,6 @@
 
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-jdbm</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-jdbm-partition</artifactId>
         <version>${project.version}</version>
       </dependency>

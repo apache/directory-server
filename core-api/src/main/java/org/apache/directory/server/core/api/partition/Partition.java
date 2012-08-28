@@ -57,10 +57,10 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public interface Partition
 {
-    /** root ID common to all partitions */
+    /** Root ID common to all partitions */
     UUID rootID = UUID.fromString( "00000000-0000-0000-0000-000000000000" );
     
-    /** Default id used for context entry if context entry doesnt exists */
+    /** Default id used for context entry if context entry does not exist */
     UUID defaultID = UUID.fromString( "00000000-0000-0000-0000-000000000001" );
     
     // -----------------------------------------------------------------------
