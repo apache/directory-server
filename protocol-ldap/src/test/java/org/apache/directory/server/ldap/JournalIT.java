@@ -58,7 +58,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public class JournalTest
+public class JournalIT
 {
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
@@ -88,7 +88,7 @@ public class JournalTest
 
         if ( workingDirectory == null )
         {
-            String path = JournalTest.class.getResource( "" ).getPath();
+            String path = JournalIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
