@@ -39,7 +39,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class UberJarMainTest
+public class UberJarMainIT
 {
     /** Flag used by connection verification thread */
     private boolean verified = true;
