@@ -37,7 +37,7 @@ import org.apache.directory.server.core.authz.SearchAuthorizationIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.txn.TxnConflictIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
-import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
+import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -54,7 +54,7 @@ import org.junit.runners.Suite;
         // authn
         SimpleAuthenticationIT.class,
         PasswordPolicyIT.class,
-        PasswordHashingInterceptorTest.class,
+        PasswordHashingInterceptorIT.class,
 
         // authz
         AddAuthorizationIT.class,

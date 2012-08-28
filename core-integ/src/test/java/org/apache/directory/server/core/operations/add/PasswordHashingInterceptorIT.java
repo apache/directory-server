@@ -62,7 +62,7 @@ import org.junit.runner.RunWith;
     "sn: sn_test",
     "userPassword: secret"
 })
-public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
+public class PasswordHashingInterceptorIT extends AbstractLdapTestUnit
 {
 
     @Test

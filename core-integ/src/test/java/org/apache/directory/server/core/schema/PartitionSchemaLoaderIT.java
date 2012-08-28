@@ -51,7 +51,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PartitionSchemaLoaderTest
+public class PartitionSchemaLoaderIT
 {
     private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
@@ -63,7 +63,7 @@ public class PartitionSchemaLoaderTest
         // setup working directory
         directoryService = new DefaultDirectoryService();
         String tmpDirPath = System.getProperty( "workingDirectory", System.getProperty( "java.io.tmpdir" ) );
-        File workingDirectory = new File( tmpDirPath + "/server-work-" + PartitionSchemaLoaderTest.class.getSimpleName() );
+        File workingDirectory = new File( tmpDirPath + "/server-work-" + PartitionSchemaLoaderIT.class.getSimpleName() );
         instanceLayout = new InstanceLayout( workingDirectory );
         directoryService.setInstanceLayout( instanceLayout );
 
