@@ -48,7 +48,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  */
 @RunWith(ConcurrentJunitRunner.class)
 @Concurrency()
-public class SchemaServiceTest
+public class SchemaServiceIT
 {
     private static SchemaManager schemaManager;
 
@@ -60,7 +60,7 @@ public class SchemaServiceTest
 
         if ( workingDirectory == null )
         {
-            String path = SchemaServiceTest.class.getResource( "" ).getPath();
+            String path = SchemaServiceIT.class.getResource( "" ).getPath();
             int targetPos = path.indexOf( "target" );
             workingDirectory = path.substring( 0, targetPos + 6 );
         }
