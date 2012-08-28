@@ -57,7 +57,7 @@ import org.junit.rules.TemporaryFolder;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryUpdateMergeTest extends AbstractPartitionTest
+public class EntryUpdateMergeIT extends AbstractPartitionTest
 {
     /** Test partition Dn */
     private Dn dn;

@@ -62,9 +62,6 @@ public class IndexCursorWrapperTest extends AbstractPartitionTest
     /** Mock attribute oid */
     private String attributeOid = "mockOid";
 
-    /** Mock index with the mock attributeoid */
-    private MockIndex mockIndex;
-
     /** Log buffer size : 4096 bytes */
     private int logBufferSize = 1 << 12;
 
