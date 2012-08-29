@@ -115,6 +115,13 @@
                   </excludes>
                 </filter>
               </filters>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.osgi:*</exclude>
+                  <exclude>org.apache.felix:org.apache.felix.ipojo</exclude>
+                  <exclude>asm:asm-all</exclude>
+                </excludes>
+              </artifactSet>
             </configuration>
           </execution>
         </executions>
