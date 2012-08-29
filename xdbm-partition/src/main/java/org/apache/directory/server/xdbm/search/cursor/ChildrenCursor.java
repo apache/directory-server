@@ -49,7 +49,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor;
+    private final Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor;
 
     /** The Parent ID */
     private UUID parentId;
@@ -65,7 +65,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry> db, UUID parentId, Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor )
+    public ChildrenCursor( Store<Entry> db, UUID parentId, Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -120,7 +120,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
         {
             IndexEntry entry = cursor.get();
 
-            if ( ( ( ParentIdAndRdn<UUID> ) entry.getTuple().getKey() ).getParentId().equals( parentId ) )
+            if ( ( ( ParentIdAndRdn ) entry.getTuple().getKey() ).getParentId().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;
@@ -145,7 +145,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
             IndexEntry cursorEntry = cursor.get();
             IndexEntry<UUID, UUID> entry = new ForwardIndexEntry();
             entry.setId( ( UUID ) cursorEntry.getId() );
-            entry.setKey( ( ( ParentIdAndRdn<UUID> ) cursorEntry.getTuple().getKey() ).getParentId() );
+            entry.setKey( ( ( ParentIdAndRdn ) cursorEntry.getTuple().getKey() ).getParentId() );
 
             if ( entry.getKey().equals( parentId ) )
             {

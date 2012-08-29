@@ -20,9 +20,11 @@
 package org.apache.directory.server.xdbm;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+
 import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -31,12 +33,12 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -82,42 +84,43 @@ public class ParentIdAndRdnTest
     @Test
     public void testCompareEquals() throws LdapInvalidDnException
     {
-        ParentIdAndRdn<Long> rdn1 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "cn=test" ) );
-        ParentIdAndRdn<Long> rdn2 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "CN=test2" ) );
-        ParentIdAndRdn<Long> rdn3 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "ou=test" ) );
-        ParentIdAndRdn<Long> rdn4 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "2.5.4.11=test2" ) );
-        ParentIdAndRdn<Long> rdn5 = new ParentIdAndRdn<Long>( 1L, new Rdn( schemaManager, "CommonName= Test " ) );
-        ParentIdAndRdn<Long> rdn6 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "cn=test+sn=small" ) );
-        ParentIdAndRdn<Long> rdn7 = new ParentIdAndRdn<Long>( 2L, new Rdn( schemaManager, "2.5.4.4= Small + 2.5.4.3 = TEST " ) );
-        
+        ParentIdAndRdn rdn1 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager, "cn=test" ) );
+        ParentIdAndRdn rdn2 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager, "CN=test2" ) );
+        ParentIdAndRdn rdn3 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager, "ou=test" ) );
+        ParentIdAndRdn rdn4 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager, "2.5.4.11=test2" ) );
+        ParentIdAndRdn rdn5 = new ParentIdAndRdn( Strings.getUUID( 1L ), new Rdn( schemaManager, "CommonName= Test " ) );
+        ParentIdAndRdn rdn6 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager, "cn=test+sn=small" ) );
+        ParentIdAndRdn rdn7 = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( schemaManager,
+            "2.5.4.4= Small + 2.5.4.3 = TEST " ) );
+
         // First rdn
         assertEquals( 0, rdn1.compareTo( rdn1 ) );
         assertEquals( -1, rdn1.compareTo( rdn2 ) );
         assertEquals( 2, rdn1.compareTo( rdn3 ) );
         assertEquals( 2, rdn1.compareTo( rdn4 ) );
         assertEquals( 1, rdn1.compareTo( rdn5 ) );
-        
+
         // Second rdn
         assertEquals( 1, rdn2.compareTo( rdn1 ) );
         assertEquals( 0, rdn2.compareTo( rdn2 ) );
         assertEquals( 2, rdn2.compareTo( rdn3 ) );
         assertEquals( 2, rdn2.compareTo( rdn4 ) );
         assertEquals( 1, rdn2.compareTo( rdn5 ) );
-        
+
         // Third rdn
         assertEquals( -2, rdn3.compareTo( rdn1 ) );
         assertEquals( -2, rdn3.compareTo( rdn2 ) );
         assertEquals( 0, rdn3.compareTo( rdn3 ) );
         assertEquals( -1, rdn3.compareTo( rdn4 ) );
         assertEquals( 1, rdn3.compareTo( rdn5 ) );
-        
+
         // Forth rdn
         assertEquals( -2, rdn4.compareTo( rdn1 ) );
         assertEquals( -2, rdn4.compareTo( rdn2 ) );
         assertEquals( 1, rdn4.compareTo( rdn3 ) );
         assertEquals( 0, rdn4.compareTo( rdn4 ) );
         assertEquals( 1, rdn4.compareTo( rdn5 ) );
-        
+
         // Fifth rdn
         assertEquals( -1, rdn5.compareTo( rdn1 ) );
         assertEquals( -1, rdn5.compareTo( rdn2 ) );

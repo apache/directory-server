@@ -127,7 +127,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
 
         while ( true )
         {
-            ParentIdAndRdn<UUID> parentIdAndRdn = db.getRdnIndex().reverseLookup( tmp );
+            ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( tmp );
 
             if ( parentIdAndRdn == null )
             {

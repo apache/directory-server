@@ -100,7 +100,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      */
     public boolean evaluate( IndexEntry<?, UUID> candidate ) throws Exception
     {
-        ParentIdAndRdn<UUID> parent = db.getRdnIndex().reverseLookup( candidate.getId() );
+        ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( candidate.getId() );
         boolean isChild = parent.getParentId().equals( baseId );
 
         /*

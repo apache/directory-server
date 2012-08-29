@@ -85,9 +85,9 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
 
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of children
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = db.getRdnIndex().forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = db.getRdnIndex().forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
         startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), ( Rdn[] ) null ) );
         cursor.before( startingPos );
 

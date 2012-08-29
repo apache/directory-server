@@ -58,7 +58,7 @@ import org.junit.Test;
 public class AvlRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn<UUID>, Entry, UUID> idx;
+    Index<ParentIdAndRdn, Entry, UUID> idx;
     private static SchemaManager schemaManager;
 
 
@@ -189,13 +189,13 @@ public class AvlRdnIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
         idx.add( key, Strings.getUUID( 0L ) );
         assertEquals( 1, idx.count() );
 
         // setting a different parentId should make this key a different key
-        key = new ParentIdAndRdn<UUID>( Strings.getUUID( 1L ), new Rdn( "cn=key" ) );
+        key = new ParentIdAndRdn( Strings.getUUID( 1L ), new Rdn( "cn=key" ) );
 
         idx.add( key, Strings.getUUID( 1L ) );
         assertEquals( 2, idx.count() );
@@ -204,7 +204,7 @@ public class AvlRdnIndexTest
         idx.add( key, Strings.getUUID( 2L ) );
         assertEquals( 2, idx.count() );
 
-        key = new ParentIdAndRdn<UUID>( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
+        key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
         idx.add( key, Strings.getUUID( 3L ) );
         assertEquals( 3, idx.count() );
     }
@@ -215,7 +215,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count( key ) );
 
@@ -233,7 +233,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
@@ -248,7 +248,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
         assertNull( idx.forwardLookup( key ) );
 
@@ -271,7 +271,7 @@ public class AvlRdnIndexTest
     {
         initIndex();
 
-        ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
+        ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
         assertEquals( 0, idx.count() );
 
@@ -280,7 +280,7 @@ public class AvlRdnIndexTest
 
         for ( long i = 1; i < 5; i++ )
         {
-            key = new ParentIdAndRdn<UUID>( Strings.getUUID( i ), new Rdn( "cn=key" + i ) );
+            key = new ParentIdAndRdn( Strings.getUUID( i ), new Rdn( "cn=key" + i ) );
 
             idx.add( key, Strings.getUUID( i ) );
         }
@@ -288,23 +288,23 @@ public class AvlRdnIndexTest
         assertEquals( 5, idx.count() );
 
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> e1 = cursor.get();
+        IndexEntry<ParentIdAndRdn, UUID> e1 = cursor.get();
         assertEquals( Strings.getUUID( 0L ), e1.getId() );
         assertEquals( "cn=key", e1.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 0L ), e1.getKey().getParentId() );
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> e2 = cursor.get();
+        IndexEntry<ParentIdAndRdn, UUID> e2 = cursor.get();
         assertEquals( Strings.getUUID( 1L ), e2.getId() );
         assertEquals( "cn=key1", e2.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 1L ), e2.getKey().getParentId() );
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> e3 = cursor.get();
+        IndexEntry<ParentIdAndRdn, UUID> e3 = cursor.get();
         assertEquals( Strings.getUUID( 2L ), e3.getId() );
         assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 2L ), e3.getKey().getParentId() );

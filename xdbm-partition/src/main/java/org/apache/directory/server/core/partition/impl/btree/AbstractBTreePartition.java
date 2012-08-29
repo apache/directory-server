@@ -140,7 +140,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected Map<String, Index<?, Entry, UUID>> systemIndices = new HashMap<String, Index<?, Entry, UUID>>();
 
     /** the relative distinguished name index */
-    protected Index<ParentIdAndRdn<UUID>, Entry, UUID> rdnIdx;
+    protected Index<ParentIdAndRdn, Entry, UUID> rdnIdx;
 
     /** a system index on objectClass attribute*/
     protected Index<String, Entry, UUID> objectClassIdx;
@@ -292,7 +292,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( getRdnIndex() == null )
         {
-            Index<ParentIdAndRdn<UUID>, Entry, UUID> index = createSystemIndex(
+            Index<ParentIdAndRdn, Entry, UUID> index = createSystemIndex(
                 ApacheSchemaConstants.APACHE_RDN_AT_OID,
                 partitionPath, WITH_REVERSE );
             addIndex( index );
@@ -349,7 +349,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // set index shortcuts
-        rdnIdx = ( Index<ParentIdAndRdn<UUID>, Entry, UUID> ) systemIndices
+        rdnIdx = ( Index<ParentIdAndRdn, Entry, UUID> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
         presenceIdx = ( Index<String, Entry, UUID> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
         aliasIdx = ( Index<String, Entry, UUID> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
@@ -537,15 +537,15 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public void dumpRdnIdx( UUID id, String tabs ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
 
         while ( cursor.next() )
         {
-            IndexEntry<ParentIdAndRdn<UUID>, UUID> entry = cursor.get();
+            IndexEntry<ParentIdAndRdn, UUID> entry = cursor.get();
             System.out.println( tabs + entry );
         }
 
@@ -556,16 +556,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private void dumpRdnIdx( UUID id, int nbSibbling, String tabs ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
 
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
-            IndexEntry<ParentIdAndRdn<UUID>, UUID> entry = cursor.get();
+            IndexEntry<ParentIdAndRdn, UUID> entry = cursor.get();
             System.out.println( tabs + entry );
             countChildren++;
 
@@ -611,19 +611,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // entry sequences start at 1.
             //
             Dn parentDn = null;
-            ParentIdAndRdn<UUID> key = null;
+            ParentIdAndRdn key = null;
 
             if ( entryDn.equals( suffixDn ) )
             {
                 parentId = Partition.ROOT_ID;
-                key = new ParentIdAndRdn<UUID>( parentId, suffixDn.getRdns() );
+                key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
             }
             else
             {
                 parentDn = entryDn.getParent();
                 parentId = getEntryId( parentDn );
 
-                key = new ParentIdAndRdn<UUID>( parentId, entryDn.getRdn() );
+                key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
             }
 
             // don't keep going if we cannot find the parent Id
@@ -792,7 +792,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return;
         }
 
-        ParentIdAndRdn<UUID> parent = rdnIdx.reverseLookup( parentId );
+        ParentIdAndRdn parent = rdnIdx.reverseLookup( parentId );
 
         while ( parent != null )
         {
@@ -862,7 +862,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // Update the parent's nbChildren and nbDescendants values
-            ParentIdAndRdn<UUID> parent = rdnIdx.reverseLookup( id );
+            ParentIdAndRdn parent = rdnIdx.reverseLookup( id );
             updateRdnIdx( parent.getParentId(), REMOVE_CHILD, 0 );
 
             // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
@@ -931,9 +931,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             // We use the OneLevel index to get all the entries from a starting point
             // and below up to the number of children
-            Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = rdnIdx.forwardCursor();
+            Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = rdnIdx.forwardCursor();
 
-            IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+            IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
             startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
             cursor.before( startingPos );
 
@@ -1552,7 +1552,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Update the Rdn index
         // First drop the old entry
-        ParentIdAndRdn<UUID> movedEntry = rdnIdx.reverseLookup( entryId );
+        ParentIdAndRdn movedEntry = rdnIdx.reverseLookup( entryId );
 
         updateRdnIdx( oldParentId, REMOVE_CHILD, movedEntry.getNbDescendants() );
 
@@ -1732,7 +1732,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          * Update the Rdn index
          */
         // First drop the old entry
-        ParentIdAndRdn<UUID> movedEntry = rdnIdx.reverseLookup( entryId );
+        ParentIdAndRdn movedEntry = rdnIdx.reverseLookup( entryId );
 
         updateRdnIdx( oldParentId, REMOVE_CHILD, movedEntry.getNbDescendants() );
 
@@ -1924,7 +1924,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         UUID parentId = getParentId( oldId );
 
         // Get the old parentIdAndRdn to get the nb of children and descendant
-        ParentIdAndRdn<UUID> parentIdAndRdn = rdnIdx.reverseLookup( oldId );
+        ParentIdAndRdn parentIdAndRdn = rdnIdx.reverseLookup( oldId );
 
         // Now we can drop it
         rdnIdx.drop( oldId );
@@ -2015,7 +2015,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         do
         {
-            ParentIdAndRdn<UUID> cur = rdnIdx.reverseLookup( parentId );
+            ParentIdAndRdn cur = rdnIdx.reverseLookup( parentId );
             Rdn[] rdns = cur.getRdns();
 
             for ( Rdn rdn : rdns )
@@ -2057,7 +2057,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
-            ParentIdAndRdn<UUID> parentIdAndRdn = rdnIdx.reverseLookup( id );
+            ParentIdAndRdn parentIdAndRdn = rdnIdx.reverseLookup( id );
 
             return parentIdAndRdn.getNbChildren();
         }
@@ -2089,7 +2089,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 return Partition.ROOT_ID;
             }
 
-            ParentIdAndRdn<UUID> suffixKey = new ParentIdAndRdn<UUID>( Partition.ROOT_ID, suffixDn.getRdns() );
+            ParentIdAndRdn suffixKey = new ParentIdAndRdn( Partition.ROOT_ID, suffixDn.getRdns() );
 
             // Check into the Rdn index, starting with the partition Suffix
             UUID currentId = rdnIdx.forwardLookup( suffixKey );
@@ -2097,7 +2097,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             for ( int i = dn.size() - suffixDn.size(); i > 0; i-- )
             {
                 Rdn rdn = dn.getRdn( i - 1 );
-                ParentIdAndRdn<UUID> currentRdn = new ParentIdAndRdn<UUID>( currentId, rdn );
+                ParentIdAndRdn currentRdn = new ParentIdAndRdn( currentId, rdn );
                 currentId = rdnIdx.forwardLookup( currentRdn );
 
                 if ( currentId == null )
@@ -2120,7 +2120,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public UUID getParentId( UUID childId ) throws Exception
     {
-        ParentIdAndRdn<UUID> key = rdnIdx.reverseLookup( childId );
+        ParentIdAndRdn key = rdnIdx.reverseLookup( childId );
 
         if ( key == null )
         {
@@ -2138,7 +2138,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( suffixId == null )
         {
-            ParentIdAndRdn<UUID> key = new ParentIdAndRdn<UUID>( Partition.ROOT_ID, suffixDn.getRdns() );
+            ParentIdAndRdn key = new ParentIdAndRdn( Partition.ROOT_ID, suffixDn.getRdns() );
 
             suffixId = rdnIdx.forwardLookup( key );
         }
@@ -2371,9 +2371,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<ParentIdAndRdn<UUID>, Entry, UUID> getRdnIndex()
+    public Index<ParentIdAndRdn, Entry, UUID> getRdnIndex()
     {
-        return ( Index<ParentIdAndRdn<UUID>, Entry, UUID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+        return ( Index<ParentIdAndRdn, Entry, UUID> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
     }
 
 

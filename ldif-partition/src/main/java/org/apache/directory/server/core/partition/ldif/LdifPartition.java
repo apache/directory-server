@@ -386,13 +386,13 @@ public class LdifPartition extends AbstractLdifPartition
 
         UUID baseId = getEntryId( modifiedEntry.getDn() );
 
-        ParentIdAndRdn<UUID> parentIdAndRdn = getRdnIndex().reverseLookup( baseId );
+        ParentIdAndRdn parentIdAndRdn = getRdnIndex().reverseLookup( baseId );
         IndexEntry indexEntry = new ForwardIndexEntry();
 
         indexEntry.setId( baseId );
         indexEntry.setKey( parentIdAndRdn );
 
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn<UUID>>(
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
             indexEntry );
         UUID parentId = parentIdAndRdn.getParentId();
 

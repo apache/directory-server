@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.SerializableCom
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn<ID>>
+public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn>
 {
     /** The serial version UID */
     private static final long serialVersionUID = 2L;
@@ -50,7 +50,7 @@ public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends Seriali
      * {@inheritDoc}
      */
     @Override
-    public int compare( ParentIdAndRdn<ID> rdn1, ParentIdAndRdn<ID> rdn2 )
+    public int compare( ParentIdAndRdn rdn1, ParentIdAndRdn rdn2 )
     {
         return rdn1.compareTo( rdn2 );
     }

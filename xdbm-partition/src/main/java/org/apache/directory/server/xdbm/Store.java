@@ -192,7 +192,7 @@ public interface Store<E>
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn<UUID>, E, UUID> getRdnIndex();
+    Index<ParentIdAndRdn, E, UUID> getRdnIndex();
 
 
     /**

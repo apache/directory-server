@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn<UUID>, Entry>
+public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn, Entry>
 {
     public AvlRdnIndex()
     {
@@ -84,9 +84,9 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn<UUID>, Entry>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<ParentIdAndRdn<UUID>, UUID>( attributeType.getName(), comp, UuidComparator.INSTANCE,
+        forward = new AvlTable<ParentIdAndRdn, UUID>( attributeType.getName(), comp, UuidComparator.INSTANCE,
             false );
-        reverse = new AvlTable<UUID, ParentIdAndRdn<UUID>>( attributeType.getName(), UuidComparator.INSTANCE, comp,
+        reverse = new AvlTable<UUID, ParentIdAndRdn>( attributeType.getName(), UuidComparator.INSTANCE, comp,
             false );
     }
 }

@@ -58,7 +58,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
     private IndexEntry prefetched;
 
     /** The current Cursor over the entries in the scope of the search base */
-    private Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> currentCursor;
+    private Cursor<IndexEntry<ParentIdAndRdn, UUID>> currentCursor;
 
     /** The current Parent ID */
     private UUID currentParentId;
@@ -87,7 +87,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
      * @throws Exception on db access failures
      */
     public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor )
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor )
         throws Exception
     {
         this( db, baseId, parentId, cursor, TOP_LEVEL );
@@ -102,7 +102,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
      * @throws Exception on db access failures
      */
     public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor,
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor,
         boolean topLevel )
         throws Exception
     {
@@ -163,7 +163,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
         {
             IndexEntry entry = currentCursor.get();
 
-            if ( ( ( ParentIdAndRdn<UUID> ) entry.getTuple().getKey() ).getParentId().equals( currentParentId ) )
+            if ( ( ( ParentIdAndRdn ) entry.getTuple().getKey() ).getParentId().equals( currentParentId ) )
             {
                 prefetched = entry;
                 return true;
@@ -193,7 +193,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
             if ( hasNext )
             {
                 IndexEntry cursorEntry = currentCursor.get();
-                ParentIdAndRdn<UUID> parentIdAndRdn = ( ( ParentIdAndRdn<UUID> ) ( cursorEntry.getKey() ) );
+                ParentIdAndRdn parentIdAndRdn = ( ( ParentIdAndRdn ) ( cursorEntry.getKey() ) );
 
                 // Check that we aren't out of the cursor's limit
                 if ( !parentIdAndRdn.getParentId().equals( currentParentId ) )
@@ -204,7 +204,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                     if ( !finished )
                     {
                         currentCursor.close();
-                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> ) cursorStack.pop();
+                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, UUID>> ) cursorStack.pop();
                         currentParentId = ( UUID ) parentIdStack.pop();
                     }
 
@@ -230,9 +230,9 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                         UUID newParentId = ( UUID ) cursorEntry.getId();
 
                         // Yes, then create a new cursor and go down one level
-                        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = db.getRdnIndex().forwardCursor();
+                        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = db.getRdnIndex().forwardCursor();
 
-                        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+                        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
                         startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
                         cursor.before( startingPos );
 
@@ -254,7 +254,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                 if ( !finished )
                 {
                     currentCursor.close();
-                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> ) cursorStack.pop();
+                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, UUID>> ) cursorStack.pop();
                     currentParentId = ( UUID ) parentIdStack.pop();
                 }
                 // and continue...

@@ -92,13 +92,13 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
             // We use the RdnIndex to get all the entries from a starting point
             // and below up to the number of children
             UUID baseId = evaluator.getBaseId();
-            ParentIdAndRdn<UUID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
+            ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
             IndexEntry indexEntry = new ForwardIndexEntry();
 
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );
 
-            Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn<UUID>>(
+            Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
                 indexEntry );
             UUID parentId = parentIdAndRdn.getParentId();
 

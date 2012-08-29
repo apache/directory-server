@@ -299,7 +299,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     return;
                 }
 
-                ParentIdAndRdn<UUID> suffixEntry = rdnIdx.reverseLookup( suffixId );
+                ParentIdAndRdn suffixEntry = rdnIdx.reverseLookup( suffixId );
 
                 if ( suffixEntry != null )
                 {
@@ -328,16 +328,16 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     private void appendRecursive( UUID id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
-        startingPos.setKey( new ParentIdAndRdn<UUID>( id, ( Rdn[] ) null ) );
+        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
+        startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
 
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
-            IndexEntry<ParentIdAndRdn<UUID>, UUID> element = cursor.get();
+            IndexEntry<ParentIdAndRdn, UUID> element = cursor.get();
             UUID childId = element.getId();
             Entry entry = lookup( childId );
 
