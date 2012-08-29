@@ -246,7 +246,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     {
         if ( browser != null )
         {
-            browser.close();
+            //browser.close();
         }
     }
 }

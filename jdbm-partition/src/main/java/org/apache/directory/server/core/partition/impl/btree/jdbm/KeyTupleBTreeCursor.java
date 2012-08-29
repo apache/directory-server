@@ -349,7 +349,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     {
         if ( browser != null )
         {
-            browser.close();
+            //browser.close();
         }
     }
 }

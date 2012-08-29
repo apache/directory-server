@@ -74,7 +74,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     public DupsContainerCursor( JdbmTable<K, V> table ) throws IOException
     {
         LOG_CURSOR.debug( "Creating DupsContainerCursor {}", this );
-        
+
         if ( !table.isDupsEnabled() )
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_572 ) );
@@ -405,7 +405,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     {
         if ( browser != null )
         {
-            browser.close();
+            //browser.close();
         }
     }
 }

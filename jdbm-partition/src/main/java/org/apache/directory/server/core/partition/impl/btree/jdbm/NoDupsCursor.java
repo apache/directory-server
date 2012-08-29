@@ -217,7 +217,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public boolean next() throws Exception
     {
         checkNotClosed( "previous()" );
-        
+
         if ( browser == null )
         {
             beforeFirst();
@@ -283,7 +283,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     {
         if ( browser != null )
         {
-            browser.close();
+            //browser.close();
         }
     }
 }

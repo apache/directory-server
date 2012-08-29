@@ -24,13 +24,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
-import jdbm.recman.SnapshotRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
@@ -43,6 +42,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
+public class JdbmIndex<K, V> extends AbstractIndex<K, V, UUID>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
@@ -73,14 +73,14 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
      * the value of the btree is the entry id of the entry containing an attribute with
      * that value
      */
-    protected JdbmTable<K, Long> forward;
+    protected JdbmTable<K, UUID> forward;
 
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
-    protected JdbmTable<Long, K> reverse;
+    protected JdbmTable<UUID, K> reverse;
 
     /**
      * the JDBM record manager for the file containing this index
@@ -158,7 +158,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
 
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
-        this.recMan = new SnapshotRecordManager( base, DEFAULT_INDEX_CACHE_SIZE );
+        this.recMan = base; //new SnapshotRecordManager( base, DEFAULT_INDEX_CACHE_SIZE );
 
         try
         {
@@ -206,11 +206,11 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        LongComparator.INSTANCE.setSchemaManager( schemaManager );
+        UuidComparator.INSTANCE.setSchemaManager( schemaManager );
         comp.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<K, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
-            comp, LongComparator.INSTANCE, null, LongSerializer.INSTANCE );
+        forward = new JdbmTable<K, UUID>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
+            comp, UuidComparator.INSTANCE, null, UuidSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -222,14 +222,14 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
         {
             if ( attributeType.isSingleValued() )
             {
-                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
-                    LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+                reverse = new JdbmTable<UUID, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
+                    UuidComparator.INSTANCE, UuidSerializer.INSTANCE, null );
             }
             else
             {
-                reverse = new JdbmTable<Long, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                reverse = new JdbmTable<UUID, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
                     recMan,
-                    LongComparator.INSTANCE, comp, LongSerializer.INSTANCE, null );
+                    UuidComparator.INSTANCE, comp, UuidSerializer.INSTANCE, null );
             }
         }
     }
@@ -332,7 +332,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public Long forwardLookup( K attrVal ) throws Exception
+    public UUID forwardLookup( K attrVal ) throws Exception
     {
         return forward.get( attrVal );
     }
@@ -341,7 +341,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( Long id ) throws Exception
+    public K reverseLookup( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -361,7 +361,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public synchronized void add( K attrVal, Long id ) throws Exception
+    public synchronized void add( K attrVal, UUID id ) throws Exception
     {
         // The pair to be removed must exists
         forward.put( attrVal, id );
@@ -376,7 +376,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public synchronized void drop( K attrVal, Long id ) throws Exception
+    public synchronized void drop( K attrVal, UUID id ) throws Exception
     {
         // The pair to be removed must exists
         if ( forward.has( attrVal, id ) )
@@ -394,7 +394,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public void drop( Long entryId ) throws Exception
+    public void drop( UUID entryId ) throws Exception
     {
         if ( withReverse )
         {
@@ -402,7 +402,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
             {
                 // Build a cursor to iterate on all the keys referencing
                 // this entryId
-                Cursor<Tuple<Long, K>> values = reverse.cursor( entryId );
+                Cursor<Tuple<UUID, K>> values = reverse.cursor( entryId );
 
                 while ( values.next() )
                 {
@@ -429,48 +429,48 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     // Index Cursor Operations
     // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> reverseCursor() throws Exception
+    public Cursor<IndexEntry<K, UUID>> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, Long>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, Long>();
+            return new EmptyIndexCursor<K>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, UUID>> forwardCursor() throws Exception
     {
-        return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor(), true );
     }
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> reverseCursor( Long id ) throws Exception
+    public Cursor<IndexEntry<K, UUID>> reverseCursor( UUID id ) throws Exception
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K, Long>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor( id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K, Long>();
+            return new EmptyIndexCursor<K>();
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, UUID>> forwardCursor( K key ) throws Exception
     {
-        return new IndexCursorAdaptor<K, Long>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor( key ), true );
     }
 
 
-    public Cursor<K> reverseValueCursor( Long id ) throws Exception
+    public Cursor<K> reverseValueCursor( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -483,7 +483,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     }
 
 
-    public Cursor<Long> forwardValueCursor( K key ) throws Exception
+    public Cursor<UUID> forwardValueCursor( K key ) throws Exception
     {
         return forward.valueCursor( key );
     }
@@ -504,7 +504,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, Long id ) throws Exception
+    public boolean forward( K attrVal, UUID id ) throws Exception
     {
         return forward.has( attrVal, id );
     }
@@ -513,7 +513,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( Long id ) throws Exception
+    public boolean reverse( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -529,7 +529,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( Long id, K attrVal ) throws Exception
+    public boolean reverse( UUID id, K attrVal ) throws Exception
     {
         return forward.has( attrVal, id );
     }
@@ -547,7 +547,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
+    public boolean forwardGreaterOrEq( K attrVal, UUID id ) throws Exception
     {
         return forward.hasGreaterOrEqual( attrVal, id );
     }
@@ -565,7 +565,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
+    public boolean forwardLessOrEq( K attrVal, UUID id ) throws Exception
     {
         return forward.hasLessOrEqual( attrVal, id );
     }
@@ -574,7 +574,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( Long id ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -590,7 +590,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id, K attrVal ) throws Exception
     {
         if ( withReverse )
         {
@@ -606,7 +606,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( Long id ) throws Exception
+    public boolean reverseLessOrEq( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -622,7 +622,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
+    public boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception
     {
         if ( withReverse )
         {

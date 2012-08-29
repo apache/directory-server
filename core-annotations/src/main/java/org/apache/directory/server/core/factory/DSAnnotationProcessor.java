@@ -171,9 +171,9 @@ public class DSAnnotationProcessor
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
 
-                if ( partition instanceof AbstractBTreePartition<?> )
+                if ( partition instanceof AbstractBTreePartition )
                 {
-                    AbstractBTreePartition<?> btreePartition = ( AbstractBTreePartition<?> ) partition;
+                    AbstractBTreePartition btreePartition = ( AbstractBTreePartition ) partition;
                     btreePartition.setCacheSize( createPartition.cacheSize() );
                     btreePartition.setPartitionPath( new File( service
                         .getInstanceLayout().getPartitionsDirectory(),

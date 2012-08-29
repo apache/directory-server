@@ -60,6 +60,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -221,7 +222,7 @@ public class JdbmStoreTest
         store2.add( new AddOperationContext( null, entry ) );
 
         // lookup the context entry
-        Long id = store2.getEntryId( suffixDn );
+        UUID id = store2.getEntryId( suffixDn );
         Entry lookup = store2.lookup( id, suffixDn );
         assertEquals( 2, lookup.getDn().size() );
 
@@ -237,9 +238,9 @@ public class JdbmStoreTest
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
-        Index<String, Entry, Long> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<String, Entry, UUID> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
-        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( index );
+        ( ( Store<Entry> ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
 
         assertEquals( JdbmPartition.DEFAULT_CACHE_SIZE, jdbmPartition.getCacheSize() );
@@ -259,7 +260,7 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
-        ( ( Store<Entry, Long> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+        ( ( Store<Entry> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getOneAliasIndex() );
 
@@ -465,43 +466,43 @@ public class JdbmStoreTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( 1L, ( long ) store.getEntryId( dn ) );
+        assertEquals( Strings.getUUID( 1L ), store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryDn( 1L ).getName() );
-        assertEquals( dn.getNormName(), store.getEntryDn( 1L ).getNormName() );
-        assertEquals( dn.getName(), store.getEntryDn( 1L ).getName() );
+        assertEquals( "o=Good Times Co.", store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
+        assertEquals( dn.getNormName(), store.getEntryDn( Strings.getUUID( 1L ) ).getNormName() );
+        assertEquals( dn.getName(), store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( 0L, ( long ) store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), store.getParentId( store.getEntryId( dn ) ) );
+        assertNull( store.getParentId( Strings.getUUID( 0L ) ) );
 
         // should NOW be allowed
-        store.delete( 1L );
+        store.delete( Strings.getUUID( 1L ) );
     }
 
 
     @Test
     public void testEntryOperations() throws Exception
     {
-        assertEquals( 3, store.getChildCount( 1L ) );
+        assertEquals( 3, store.getChildCount( Strings.getUUID( 1L ) ) );
 
-        Cursor<IndexEntry<Long, Long>> cursor = store.list( 1L );
+        Cursor<IndexEntry<UUID, UUID>> cursor = store.list( Strings.getUUID( 1L ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
-        assertEquals( 3L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 3L ), cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 4L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 4L ), cursor.get().getId() );
         assertTrue( cursor.next() );
-        assertEquals( 2L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 2L ), cursor.get().getId() );
         assertFalse( cursor.next() );
 
         cursor.close();
 
-        assertEquals( 3, store.getChildCount( 1L ) );
+        assertEquals( 3, store.getChildCount( Strings.getUUID( 1L ) ) );
 
-        store.delete( 2L );
-        assertEquals( 2, store.getChildCount( 1L ) );
+        store.delete( Strings.getUUID( 2L ) );
+        assertEquals( 2, store.getChildCount( Strings.getUUID( 1L ) ) );
         assertEquals( 10, store.count() );
 
         // add an alias and delete to test dropAliasIndices method
@@ -514,12 +515,12 @@ public class JdbmStoreTest
             "commonName: Jack Daniels",
             "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
-            "entryUUID", UUID.randomUUID().toString() );
+            "entryUUID", Strings.getUUID( 12L ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
-        store.delete( 12L ); // drops the alias indices
+        store.delete( Strings.getUUID( 12L ) ); // drops the alias indices
     }
 
 
@@ -612,7 +613,7 @@ public class JdbmStoreTest
         store.rename( dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        Long id = store.getEntryId( dn2 );
+        UUID id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id, dn2 );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );

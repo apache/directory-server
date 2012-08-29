@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.ConfigurationException;
 
@@ -140,6 +142,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
     /** The cn=schema Dn */
     private Dn subschemSubentryDn;
+
+    /** A lock used to protect against concurrent operations */
+    private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
 
 
     /**
@@ -446,8 +451,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        Partition partition = getPartition( addContext.getDn() );
-        partition.add( addContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            Partition partition = getPartition( addContext.getDn() );
+            partition.add( addContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         Attribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
         directoryService.setContextCsn( at.getString() );
@@ -502,8 +516,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        Partition partition = getPartition( deleteContext.getDn() );
-        partition.delete( deleteContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            Partition partition = getPartition( deleteContext.getDn() );
+            partition.delete( deleteContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
     }
 
 
@@ -524,9 +547,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return true;
         }
 
-        Partition partition = getPartition( dn );
+        try
+        {
+            rwLock.readLock().lock();
 
-        return partition.hasEntry( hasEntryContext );
+            Partition partition = getPartition( dn );
+
+            return partition.hasEntry( hasEntryContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
     }
 
 
@@ -535,9 +567,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        Partition partition = getPartition( listContext.getDn() );
+        try
+        {
+            rwLock.readLock().lock();
 
-        return partition.list( listContext );
+            Partition partition = getPartition( listContext.getDn() );
+
+            return partition.list( listContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
     }
 
 
@@ -561,18 +602,27 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return retval;
         }
 
-        Partition partition = getPartition( dn );
-        Entry entry = partition.lookup( lookupContext );
-
-        if ( entry == null )
+        try
         {
-            LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
-                + dn.getName() );
+            rwLock.readLock().lock();
 
-            throw e;
+            Partition partition = getPartition( dn );
+            Entry entry = partition.lookup( lookupContext );
+
+            if ( entry == null )
+            {
+                LdapNoSuchObjectException e = new LdapNoSuchObjectException( "Attempt to lookup non-existant entry: "
+                    + dn.getName() );
+
+                throw e;
+            }
+
+            return entry;
         }
-
-        return entry;
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
     }
 
 
@@ -587,9 +637,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             return;
         }
 
-        Partition partition = getPartition( modifyContext.getDn() );
+        try
+        {
+            rwLock.writeLock().lock();
 
-        partition.modify( modifyContext );
+            Partition partition = getPartition( modifyContext.getDn() );
+
+            partition.modify( modifyContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
@@ -605,13 +664,22 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        // Get the current partition
-        Partition partition = getPartition( moveContext.getDn() );
+        try
+        {
+            rwLock.writeLock().lock();
 
-        // We also have to get the new partition as it can be different
-        //Partition newBackend = getPartition( opContext.getNewDn() );
+            // Get the current partition
+            Partition partition = getPartition( moveContext.getDn() );
 
-        partition.move( moveContext );
+            // We also have to get the new partition as it can be different
+            //Partition newBackend = getPartition( opContext.getNewDn() );
+
+            partition.move( moveContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
     }
 
 
@@ -620,8 +688,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        Partition partition = getPartition( moveAndRenameContext.getDn() );
-        partition.moveAndRename( moveAndRenameContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            Partition partition = getPartition( moveAndRenameContext.getDn() );
+            partition.moveAndRename( moveAndRenameContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
     }
 
 
@@ -630,8 +707,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        Partition partition = getPartition( renameContext.getDn() );
-        partition.rename( renameContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            Partition partition = getPartition( renameContext.getDn() );
+            partition.rename( renameContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
     }
 
 
@@ -809,9 +895,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             base.apply( schemaManager );
         }
 
-        Partition backend = getPartition( base );
+        try
+        {
+            rwLock.readLock().lock();
 
-        return backend.search( searchContext );
+            Partition backend = getPartition( base );
+
+            return backend.search( searchContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
     }
 
 

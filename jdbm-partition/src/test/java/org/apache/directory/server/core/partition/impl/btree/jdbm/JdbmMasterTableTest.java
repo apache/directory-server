@@ -29,11 +29,13 @@ import java.io.File;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +54,7 @@ public class JdbmMasterTableTest
     private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class.getSimpleName() );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
-    JdbmMasterTable<Integer> table;
+    JdbmMasterTable<Entry> table;
     File dbFile;
     RecordManager recman;
     SchemaManager schemaManager = null;
@@ -98,10 +100,10 @@ public class JdbmMasterTableTest
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
 
-        table = new JdbmMasterTable<Integer>( recman, schemaManager );
+        table = new JdbmMasterTable<Entry>( recman, schemaManager );
         LOG.debug( "Created new table and populated it with data" );
 
-        JdbmMasterTable<Integer> t2 = new JdbmMasterTable<Integer>( recman, schemaManager );
+        JdbmMasterTable<Entry> t2 = new JdbmMasterTable<Entry>( recman, schemaManager );
         t2.close();
     }
 
@@ -139,12 +141,7 @@ public class JdbmMasterTableTest
     @Test
     public void testAll() throws Exception
     {
-        assertNull( table.get( 0L ) );
+        assertNull( table.get( Strings.getUUID( 0L ) ) );
         assertEquals( 0, table.count() );
-
-        assertEquals( 1, ( long ) table.getNextId( null ) );
-        assertEquals( 0, table.count() );
-
-        assertEquals( 2, ( long ) table.getNextId( null ) );
     }
 }

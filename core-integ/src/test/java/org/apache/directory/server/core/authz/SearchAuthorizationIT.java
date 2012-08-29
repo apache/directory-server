@@ -190,11 +190,12 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         {
             Entry entry = entries.get();
             Dn childRdn = entry.getDn();
+
             recursivelyDelete( childRdn );
         }
 
         entries.close();
-        
+
         reusableAdminCon.delete( rdn );
     }
 
@@ -319,7 +320,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             results.put( result.getDn().getName(), result );
             counter++;
         }
-        
+
         cursor.close();
 
         recursivelyDelete( base );
@@ -340,7 +341,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection();
         Dn base = addSearchData( new Dn( "ou=system" ), 3, 10 );
-        
+
         EntryCursor entries = connection.search( base.getName(), "(objectClass=*)", SearchScope.SUBTREE,
             "+" );
         int counter = 0;
@@ -350,7 +351,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
             entries.get();
             counter++;
         }
-        
+
         entries.close();
 
         assertEquals( 10, counter );

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.factory;
 
 import java.io.File;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
@@ -67,7 +68,7 @@ public class LdifPartitionFactory implements PartitionFactory
         }
 
         LdifPartition ldifPartition = ( LdifPartition ) partition;
-        Set<Index<?, Entry, Long>> indexedAttributes = ldifPartition.getIndexedAttributes();
+        Set<Index<?, Entry, UUID>> indexedAttributes = ldifPartition.getIndexedAttributes();
 
         AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId, false );
         //index.setCacheSize( cacheSize );
