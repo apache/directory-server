@@ -20,12 +20,15 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.util.UUID;
+
+
 /**
  * A master table used to store indexable entries.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface MasterTable<ID, E> extends Table<ID, E>
+public interface MasterTable<E> extends Table<UUID, E>
 {
     /** the base name for the db file for this table */
     String DBF = "master";
@@ -42,14 +45,5 @@ public interface MasterTable<ID, E> extends Table<ID, E>
      * @return the current value of this MasterTable's sequence incremented by one
      * @throws Exception on failure to update the id sequence
      */
-    ID getNextId( E entry ) throws Exception;
-
-
-    /**
-     * Resets the root ID to 0, this method should be called after deleting the
-     * context entry of the partition
-     * 
-     * @throws Exception in case of any failure while resetting the root id value
-     */
-    void resetCounter() throws Exception;
+    UUID getNextId( E entry ) throws Exception;
 }

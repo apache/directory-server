@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -39,20 +41,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, ID>
+public class SubstringCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final Cursor<IndexEntry<String, ID>> wrapped;
-    private final SubstringEvaluator<ID> evaluator;
-    private final ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
+    private final Cursor<IndexEntry<String, UUID>> wrapped;
+    private final SubstringEvaluator evaluator;
+    private final ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<Entry, ID> store, final SubstringEvaluator<ID> substringEvaluator )
+    public SubstringCursor( Store<Entry> store, final SubstringEvaluator substringEvaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
@@ -61,7 +63,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, ID> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String, Entry, UUID> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
@@ -96,7 +98,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String, ID> indexEntry = new ForwardIndexEntry<String, ID>();
+            ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
             indexEntry.setKey( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -137,7 +139,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String, ID> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String, UUID> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -163,7 +165,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<String, ID> entry = wrapped.get();
+            IndexEntry<String, UUID> entry = wrapped.get();
 
             if ( evaluateCandidate( entry ) )
             {
@@ -185,7 +187,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, ID> entry = wrapped.get();
+            IndexEntry<String, UUID> entry = wrapped.get();
 
             if ( evaluateCandidate( entry ) )
             {
@@ -203,7 +205,7 @@ public class SubstringCursor<ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public IndexEntry<String, ID> get() throws Exception
+    public IndexEntry<String, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

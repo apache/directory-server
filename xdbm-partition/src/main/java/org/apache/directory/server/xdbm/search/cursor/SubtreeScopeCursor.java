@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
+public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -50,21 +52,21 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store<Entry, ID> db;
+    private final Store<Entry> db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator<Entry, ID> evaluator;
+    private final SubtreeScopeEvaluator<Entry> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<ID, ID>> scopeCursor;
+    private final Cursor<IndexEntry<UUID, UUID>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
+    private final Cursor<IndexEntry<UUID, UUID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<ID, ID>> cursor;
+    private Cursor<IndexEntry<UUID, UUID>> cursor;
 
-    private ID contextEntryId;
+    private UUID contextEntryId;
 
 
     /**
@@ -74,7 +76,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<Entry, ID> db, SubtreeScopeEvaluator<Entry, ID> evaluator )
+    public SubtreeScopeCursor( Store<Entry> db, SubtreeScopeEvaluator<Entry> evaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating SubtreeScopeCursor {}", this );
@@ -83,22 +85,22 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
 
         if ( evaluator.getBaseId() == getContextEntryId() )
         {
-            scopeCursor = new AllEntriesCursor<ID>( db );
+            scopeCursor = new AllEntriesCursor( db );
         }
         else
         {
             // We use the RdnIndex to get all the entries from a starting point
             // and below up to the number of children
-            ID baseId = evaluator.getBaseId();
-            ParentIdAndRdn<ID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
+            UUID baseId = evaluator.getBaseId();
+            ParentIdAndRdn<UUID> parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
             IndexEntry indexEntry = new ForwardIndexEntry();
 
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );
 
-            Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = new SingletonIndexCursor<ParentIdAndRdn<ID>, ID>(
+            Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn<UUID>>(
                 indexEntry );
-            ID parentId = parentIdAndRdn.getParentId();
+            UUID parentId = parentIdAndRdn.getParentId();
 
             scopeCursor = new DescendantCursor( db, baseId, parentId, cursor );
         }
@@ -124,24 +126,23 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    private ID getContextEntryId() throws Exception
+    private UUID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
+                contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
-                // might not have been created
                 // might not have been created
             }
         }
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.DEFAULT_ID;
         }
 
         return contextEntryId;
@@ -323,7 +324,7 @@ public class SubtreeScopeCursor<ID extends Comparable<ID>> extends AbstractIndex
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

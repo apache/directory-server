@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -37,10 +38,10 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
+public class AndEvaluator implements Evaluator<AndNode>
 {
     /** The list of evaluators associated with each of the children */
-    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode>> evaluators;
 
     /** The AndNode */
     private final AndNode node;
@@ -51,7 +52,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
      * @param node The And Node
      * @param evaluators The list of evaluators for all the contaned nodes
      */
-    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode, ID>> evaluators )
+    public AndEvaluator( AndNode node, List<Evaluator<? extends ExprNode>> evaluators )
     {
         this.node = node;
         this.evaluators = optimize( evaluators );
@@ -69,14 +70,14 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, ID>> optimize(
-        List<Evaluator<? extends ExprNode, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode>> optimize(
+        List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ID>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new ScanCountComparator<ID>() );
+        Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;
     }
@@ -87,7 +88,7 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
      */
     public boolean evaluate( Entry entry ) throws Exception
     {
-        for ( Evaluator<?, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( entry ) )
             {
@@ -102,9 +103,9 @@ public class AndEvaluator<ID> implements Evaluator<AndNode, ID>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -44,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
+public class LessEqCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -52,24 +54,24 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_716 );
 
     /** An less eq evaluator for candidates */
-    private final LessEqEvaluator<V, ID> lessEqEvaluator;
+    private final LessEqEvaluator<V> lessEqEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<V, ID>> userIdxCursor;
+    private final Cursor<IndexEntry<V, UUID>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<V, ID>> uuidIdxCursor;
+    private final Cursor<IndexEntry<V, UUID>> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uudCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the UUID but to the value of the attribute instead.
      */
-    private IndexEntry<V, ID> uuidCandidate;
+    private IndexEntry<V, UUID> uuidCandidate;
 
 
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store<Entry, ID> db, LessEqEvaluator<V, ID> lessEqEvaluator ) throws Exception
+    public LessEqCursor( Store<Entry> db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating LessEqCursor {}", this );
         this.lessEqEvaluator = lessEqEvaluator;
@@ -78,7 +80,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, ID> ) db.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, Entry, UUID> ) db.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
@@ -101,7 +103,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, ID> element ) throws Exception
+    public void before( IndexEntry<V, UUID> element ) throws Exception
     {
         checkNotClosed( "before()" );
 
@@ -149,7 +151,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, ID> element ) throws Exception
+    public void after( IndexEntry<V, UUID> element ) throws Exception
     {
         checkNotClosed( "after()" );
 
@@ -208,7 +210,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, ID> advanceTo = new ForwardIndexEntry<V, ID>();
+            IndexEntry<V, UUID> advanceTo = new ForwardIndexEntry<V, UUID>();
             //noinspection unchecked
             advanceTo.setKey( lessEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.after( advanceTo );
@@ -284,7 +286,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
             while ( userIdxCursor.next() )
             {
                 checkNotClosed( "next()" );
-                IndexEntry<?, ID> candidate = userIdxCursor.get();
+                IndexEntry<?, UUID> candidate = userIdxCursor.get();
 
                 if ( lessEqEvaluator.getComparator().compare( candidate.getKey(),
                     lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
@@ -315,7 +317,7 @@ public class LessEqCursor<V, ID extends Comparable<ID>> extends AbstractIndexCur
     }
 
 
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

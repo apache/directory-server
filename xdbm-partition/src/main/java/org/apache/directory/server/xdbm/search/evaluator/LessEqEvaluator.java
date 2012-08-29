@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -41,17 +42,17 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
+public class LessEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
-    public LessEqEvaluator( LessEqNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public LessEqEvaluator( LessEqNode<T> node, Store<Entry> db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
         }
         else
         {
@@ -87,7 +88,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
     }
 
 
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 
@@ -108,7 +109,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
         // if the attribute does not exist just return false
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object, ID> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, UUID> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -130,7 +131,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
                 attr = entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object, ID> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, UUID> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -183,7 +184,7 @@ public class LessEqEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( IndexEntry<Object, ID> indexEntry, Attribute attribute )
+    private boolean evaluate( IndexEntry<Object, UUID> indexEntry, Attribute attribute )
         throws Exception
     {
         /*

@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -38,21 +40,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<String, ID>
+public class PresenceCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final Cursor<IndexEntry<String, ID>> uuidCursor;
-    private final Cursor<IndexEntry<String, ID>> presenceCursor;
-    private final PresenceEvaluator<ID> presenceEvaluator;
+    private final Cursor<IndexEntry<String, UUID>> uuidCursor;
+    private final Cursor<IndexEntry<String, UUID>> presenceCursor;
+    private final PresenceEvaluator presenceEvaluator;
 
     /** The prefetched entry, if it's a valid one */
-    private IndexEntry<String, ID> prefetched;
+    private IndexEntry<String, UUID> prefetched;
 
 
-    public PresenceCursor( Store<Entry, ID> store, PresenceEvaluator<ID> presenceEvaluator ) throws Exception
+    public PresenceCursor( Store<Entry> store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
         this.presenceEvaluator = presenceEvaluator;
@@ -97,7 +99,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<String, ID> element ) throws Exception
+    public void before( IndexEntry<String, UUID> element ) throws Exception
     {
         checkNotClosed( "before()" );
 
@@ -115,7 +117,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<String, ID> element ) throws Exception
+    public void after( IndexEntry<String, UUID> element ) throws Exception
     {
         checkNotClosed( "after()" );
 
@@ -201,7 +203,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?, UUID> candidate = uuidCursor.get();
 
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -225,7 +227,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, ID> candidate = uuidCursor.get();
+            IndexEntry<String, UUID> candidate = uuidCursor.get();
 
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -239,7 +241,7 @@ public class PresenceCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
-    public IndexEntry<String, ID> get() throws Exception
+    public IndexEntry<String, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

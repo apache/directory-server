@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -38,18 +40,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
+public class NotCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final Cursor<IndexEntry<V, ID>> uuidCursor;
-    private final Evaluator<? extends ExprNode, ID> childEvaluator;
+    private final Cursor<IndexEntry<V, UUID>> uuidCursor;
+    private final Evaluator<? extends ExprNode> childEvaluator;
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<Entry, ID> store, Evaluator<? extends ExprNode, ID> childEvaluator )
+    public NotCursor( Store<Entry> store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating NotCursor {}", this );
@@ -104,7 +106,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?, UUID> candidate = uuidCursor.get();
 
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -121,7 +123,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ID> candidate = uuidCursor.get();
+            IndexEntry<?, UUID> candidate = uuidCursor.get();
 
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -133,7 +135,7 @@ public class NotCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor
     }
 
 
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

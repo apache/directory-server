@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
+public class OneLevelScopeCursor extends AbstractIndexCursor<UUID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -50,20 +52,20 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<Entry, ID> db;
+    private final Store<Entry> db;
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
     private final OneLevelScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<ID, ID>> scopeCursor;
+    private final Cursor<IndexEntry<UUID, UUID>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<ID, ID>> dereferencedCursor;
+    private final Cursor<IndexEntry<UUID, UUID>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<ID, ID>> cursor;
+    private Cursor<IndexEntry<UUID, UUID>> cursor;
 
 
     /**
@@ -74,7 +76,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
      * @throws Exception on db access failures
      */
     //@SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Store<Entry, ID> db, OneLevelScopeEvaluator<Entry, ID> evaluator )
+    public OneLevelScopeCursor( Store<Entry> db, OneLevelScopeEvaluator<Entry> evaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating OneLevelScopeCursor {}", this );
@@ -83,9 +85,9 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
 
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of children
-        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = db.getRdnIndex().forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = db.getRdnIndex().forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
         startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), ( Rdn[] ) null ) );
         cursor.before( startingPos );
 
@@ -284,7 +286,7 @@ public class OneLevelScopeCursor<ID extends Comparable<ID>> extends AbstractInde
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

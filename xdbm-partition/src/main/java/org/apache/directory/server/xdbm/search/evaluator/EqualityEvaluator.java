@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -45,7 +46,7 @@ import org.apache.directory.shared.util.Strings;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
+public class EqualityEvaluator<T> extends LeafEvaluator<T>
 {
     /** The default byte[] comparator if no comparator has been defined */
     private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
@@ -55,14 +56,14 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
 
 
     @SuppressWarnings("unchecked")
-    public EqualityEvaluator( EqualityNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public EqualityEvaluator( EqualityNode<T> node, Store<Entry> db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
             normalizer = null;
             ldapComparator = null;
         }
@@ -92,7 +93,7 @@ public class EqualityEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluat
     }
 
 
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

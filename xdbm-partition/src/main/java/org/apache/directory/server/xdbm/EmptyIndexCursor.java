@@ -19,6 +19,8 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
+public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -45,7 +47,7 @@ public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, ID> element ) throws Exception
+    public void before( IndexEntry<K, UUID> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -63,7 +65,7 @@ public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, ID> element ) throws Exception
+    public void after( IndexEntry<K, UUID> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -109,7 +111,7 @@ public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
     }
 
 
-    public IndexEntry<K, ID> get() throws Exception
+    public IndexEntry<K, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -119,7 +121,7 @@ public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, K indexValue ) throws Exception
+    public void afterValue( UUID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -128,7 +130,7 @@ public class EmptyIndexCursor<K, ID> extends AbstractIndexCursor<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, K indexValue ) throws Exception
+    public void beforeValue( UUID id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }

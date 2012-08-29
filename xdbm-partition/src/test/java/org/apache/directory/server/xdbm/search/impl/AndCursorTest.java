@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -57,6 +58,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -77,7 +79,7 @@ public class AndCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store<Entry> store;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
     private static SchemaManager schemaManager;
@@ -180,23 +182,23 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -212,12 +214,12 @@ public class AndCursorTest
     {
         AndNode andNode = new AndNode();
 
-        List<Evaluator<? extends ExprNode, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Long>>();
-        Evaluator<? extends ExprNode, Long> eval;
+        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
+        Evaluator<? extends ExprNode> eval;
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        Cursor<IndexEntry<?, Long>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor<IndexEntry<String, UUID>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */
@@ -237,19 +239,19 @@ public class AndCursorTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getKey() );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -259,19 +261,19 @@ public class AndCursorTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
         assertEquals( "johnny walker", cursor.get().getKey() );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
         assertEquals( "jim bean", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
         assertEquals( "jack daniels", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );

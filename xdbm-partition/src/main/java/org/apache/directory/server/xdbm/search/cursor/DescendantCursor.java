@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
+public class DescendantCursor extends AbstractIndexCursor<UUID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -50,16 +52,16 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<Entry, ID> db;
+    private final Store<Entry> db;
 
     /** The prefetched element */
     private IndexEntry prefetched;
 
     /** The current Cursor over the entries in the scope of the search base */
-    private Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> currentCursor;
+    private Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> currentCursor;
 
     /** The current Parent ID */
-    private ID currentParentId;
+    private UUID currentParentId;
 
     /** The stack of cursors used to process the depth-first traversal */
     private ArrayStack cursorStack;
@@ -68,7 +70,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     private ArrayStack parentIdStack;
 
     /** The initial entry ID we are looking descendants for */
-    private ID baseId;
+    private UUID baseId;
 
     /** A flag to tell that we are in the top level cursor or not */
     private boolean topLevel;
@@ -84,8 +86,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor )
+    public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
+        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor )
         throws Exception
     {
         this( db, baseId, parentId, cursor, TOP_LEVEL );
@@ -99,8 +101,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry, ID> db, ID baseId, ID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor,
+    public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
+        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor,
         boolean topLevel )
         throws Exception
     {
@@ -161,7 +163,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
         {
             IndexEntry entry = currentCursor.get();
 
-            if ( ( ( ParentIdAndRdn<ID> ) entry.getTuple().getKey() ).getParentId().equals( currentParentId ) )
+            if ( ( ( ParentIdAndRdn<UUID> ) entry.getTuple().getKey() ).getParentId().equals( currentParentId ) )
             {
                 prefetched = entry;
                 return true;
@@ -191,7 +193,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
             if ( hasNext )
             {
                 IndexEntry cursorEntry = currentCursor.get();
-                ParentIdAndRdn<ID> parentIdAndRdn = ( ( ParentIdAndRdn<ID> ) ( cursorEntry.getKey() ) );
+                ParentIdAndRdn<UUID> parentIdAndRdn = ( ( ParentIdAndRdn<UUID> ) ( cursorEntry.getKey() ) );
 
                 // Check that we aren't out of the cursor's limit
                 if ( !parentIdAndRdn.getParentId().equals( currentParentId ) )
@@ -202,8 +204,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                     if ( !finished )
                     {
                         currentCursor.close();
-                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> ) cursorStack.pop();
-                        currentParentId = ( ID ) parentIdStack.pop();
+                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> ) cursorStack.pop();
+                        currentParentId = ( UUID ) parentIdStack.pop();
                     }
 
                     // And continue...
@@ -225,12 +227,12 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                     // Check if the current entry has children or not.
                     if ( parentIdAndRdn.getNbDescendants() > 0 )
                     {
-                        ID newParentId = ( ID ) cursorEntry.getId();
+                        UUID newParentId = ( UUID ) cursorEntry.getId();
 
                         // Yes, then create a new cursor and go down one level
-                        Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor = db.getRdnIndex().forwardCursor();
+                        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = db.getRdnIndex().forwardCursor();
 
-                        IndexEntry<ParentIdAndRdn<ID>, ID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<ID>, ID>();
+                        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
                         startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
                         cursor.before( startingPos );
 
@@ -252,8 +254,8 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
                 if ( !finished )
                 {
                     currentCursor.close();
-                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> ) cursorStack.pop();
-                    currentParentId = ( ID ) parentIdStack.pop();
+                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> ) cursorStack.pop();
+                    currentParentId = ( UUID ) parentIdStack.pop();
                 }
                 // and continue...
             }
@@ -263,7 +265,7 @@ public class DescendantCursor<ID extends Comparable<ID>> extends AbstractIndexCu
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

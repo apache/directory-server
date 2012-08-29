@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -35,7 +37,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface SearchEngine<E, ID>
+public interface SearchEngine<E>
 {
     /**
      * @todo put this in the right place
@@ -82,7 +84,7 @@ public interface SearchEngine<E, ID>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    Cursor<IndexEntry<ID, ID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    Cursor<IndexEntry<UUID, UUID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception;
 
 
@@ -93,5 +95,5 @@ public interface SearchEngine<E, ID>
      * @return true if the filter passes the entry, false otherwise
      * @throws Exception if something goes wrong while accessing the db
      */
-    Evaluator<? extends ExprNode, ID> evaluator( ExprNode filter ) throws Exception;
+    Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception;
 }

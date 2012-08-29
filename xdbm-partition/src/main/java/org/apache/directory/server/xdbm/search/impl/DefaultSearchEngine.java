@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
@@ -48,19 +50,19 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEngine<Entry, ID>
+public class DefaultSearchEngine implements SearchEngine<Entry>
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
 
     /** the Database this DefaultSearchEngine operates on */
-    private final Store<Entry, ID> db;
+    private final Store<Entry> db;
 
     /** creates Cursors over entries satisfying filter expressions */
-    private final CursorBuilder<ID> cursorBuilder;
+    private final CursorBuilder cursorBuilder;
 
     /** creates evaluators which check to see if candidates satisfy a filter expression */
-    private final EvaluatorBuilder<ID> evaluatorBuilder;
+    private final EvaluatorBuilder evaluatorBuilder;
 
 
     // ------------------------------------------------------------------------
@@ -75,8 +77,8 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<Entry, ID> db, CursorBuilder<ID> cursorBuilder,
-        EvaluatorBuilder<ID> evaluatorBuilder, Optimizer optimizer )
+    public DefaultSearchEngine( Store<Entry> db, CursorBuilder cursorBuilder,
+        EvaluatorBuilder evaluatorBuilder, Optimizer optimizer )
     {
         this.db = db;
         this.optimizer = optimizer;
@@ -99,11 +101,11 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
     /**
      * {@inheritDoc}
      */
-    public Cursor<IndexEntry<ID, ID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public Cursor<IndexEntry<UUID, UUID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
-        ID baseId = db.getEntryId( base );
+        UUID baseId = db.getEntryId( base );
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
@@ -111,7 +113,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
-                return new EmptyIndexCursor<ID, ID>();
+                return new EmptyIndexCursor<UUID>();
             }
             else
             {
@@ -148,7 +150,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
-        ID effectiveBaseId = baseId;
+        UUID effectiveBaseId = baseId;
 
         if ( effectiveBase != base )
         {
@@ -157,10 +159,10 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
         if ( scope == SearchScope.OBJECT )
         {
-            IndexEntry<ID, ID> indexEntry = new ForwardIndexEntry<ID, ID>();
+            IndexEntry<UUID, UUID> indexEntry = new ForwardIndexEntry<UUID, UUID>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
-            Evaluator<? extends ExprNode, ID> evaluator = evaluatorBuilder.build( filter );
+            Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
 
             // Fetch the entry, as we have only one
             Entry entry = null;
@@ -178,17 +180,17 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<ID, ID>( indexEntry );
+                return new SingletonIndexCursor<UUID>( indexEntry );
             }
             else
             {
-                return new EmptyIndexCursor<ID, ID>();
+                return new EmptyIndexCursor<UUID>();
             }
         }
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode<ID>( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
@@ -202,7 +204,7 @@ public class DefaultSearchEngine<ID extends Comparable<ID>> implements SearchEng
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
-    public Evaluator<? extends ExprNode, ID> evaluator( ExprNode filter ) throws Exception
+    public Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );
     }

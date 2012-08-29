@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
@@ -50,11 +51,11 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
+public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store<E, ID> db;
-    private ID contextEntryId;
+    private final Store<E> db;
+    private UUID contextEntryId;
 
 
     /**
@@ -62,7 +63,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E, ID> db ) throws Exception
+    public DefaultOptimizer( Store<E> db ) throws Exception
     {
         this.db = db;
     }
@@ -70,7 +71,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private ID getContextEntryId() throws Exception
+    private UUID getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -86,7 +87,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.DEFAULT_ID;
         }
 
         return contextEntryId;
@@ -122,7 +123,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode<ID> ) node );
+            count = getScopeScan( ( ScopeNode<UUID> ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -210,7 +211,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         }
 
         node.set( "count", count );
-        
+
         return count;
     }
 
@@ -278,7 +279,8 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, UUID> idx = ( Index<V, E, UUID> ) db.getIndex( node.getAttributeType() );
+
             return idx.count( node.getValue().getValue() );
         }
 
@@ -301,7 +303,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, UUID> idx = ( Index<V, E, UUID> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -350,7 +352,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, ID> idx = db.getPresenceIndex();
+            Index<String, E, UUID> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
@@ -371,10 +373,10 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode<ID> node ) throws Exception
+    private long getScopeScan( ScopeNode<UUID> node ) throws Exception
     {
-        ID id = node.getBaseId();
-        
+        UUID id = node.getBaseId();
+
         switch ( node.getScope() )
         {
             case OBJECT:

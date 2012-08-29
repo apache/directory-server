@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -41,7 +42,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEvaluator<T, ID>
+public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 {
     /**
      * Creates a new ApproximateEvaluator
@@ -50,14 +51,14 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
      * @param schemaManager The SchemaManager
      * @throws Exception If the creation failed
      */
-    public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry, ID> db, SchemaManager schemaManager )
+    public ApproximateEvaluator( ApproximateNode<T> node, Store<Entry> db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, ID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
             normalizer = null;
             ldapComparator = null;
         }
@@ -132,7 +133,7 @@ public class ApproximateEvaluator<T, ID extends Comparable<ID>> extends LeafEval
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

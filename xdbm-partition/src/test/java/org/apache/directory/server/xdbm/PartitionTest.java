@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.UUID;
 
 import net.sf.ehcache.store.AbstractStore;
 
@@ -188,7 +189,7 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         // before modification: no "uidObject" tuple in objectClass index
@@ -218,11 +219,11 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) partition.getUserIndex( OU_AT );
+        Index<String, Entry, UUID> ouIndex = ( Index<String, Entry, UUID> ) partition.getUserIndex( OU_AT );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
@@ -247,11 +248,11 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, Long> ouIndex = ( Index<String, Entry, Long> ) partition.getUserIndex( OU_AT );
+        Index<String, Entry, UUID> ouIndex = ( Index<String, Entry, UUID> ) partition.getUserIndex( OU_AT );
         assertTrue( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
@@ -282,7 +283,7 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "person" tuple in objectClass index
@@ -310,7 +311,7 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         // before modification: expect "person" tuple in objectClass index
@@ -339,7 +340,7 @@ public class PartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry lookedup = partition.lookup( entryId );
 
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
@@ -369,13 +370,13 @@ public class PartitionTest
         Dn dn = new Dn( schemaManager, "cn=user,ou=Sales,o=Good Times Co." );
 
         Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top", 
+            "objectClass: top",
             "objectClass: person",
             "cn: user",
             "sn: user sn" );
 
         // add
-        StoreUtils.injectEntryInStore( partition, entry );
+        StoreUtils.injectEntryInStore( partition, entry, 12 );
         verifyParentId( dn );
 
         // move
@@ -396,9 +397,9 @@ public class PartitionTest
 
     private Entry verifyParentId( Dn dn ) throws Exception
     {
-        Long entryId = partition.getEntryId( dn );
+        UUID entryId = partition.getEntryId( dn );
         Entry entry = partition.lookup( entryId );
-        Long parentId = partition.getParentId( entryId );
+        UUID parentId = partition.getParentId( entryId );
 
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );

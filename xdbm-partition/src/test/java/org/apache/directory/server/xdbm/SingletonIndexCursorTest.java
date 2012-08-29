@@ -24,6 +24,9 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.UUID;
+
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -40,18 +43,18 @@ import org.junit.Test;
 public class SingletonIndexCursorTest
 {
 
-    private ForwardIndexEntry<String, Long> indexEntry;
-    private SingletonIndexCursor<String, Long> indexCursor;
+    private ForwardIndexEntry<String, UUID> indexEntry;
+    private SingletonIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 1L );
+        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry.setId( Partition.DEFAULT_ID );
         indexEntry.setEntry( new DefaultEntry() );
         indexEntry.setKey( "test" );
-        indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
+        indexCursor = new SingletonIndexCursor<String>( indexEntry );
     }
 
 
@@ -65,7 +68,7 @@ public class SingletonIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        Cursor cursor = new SingletonIndexCursor<String, Long>( indexEntry );
+        Cursor cursor = new SingletonIndexCursor<String>( indexEntry );
 
         cursor.close();
     }

@@ -21,7 +21,7 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 import org.apache.directory.server.xdbm.MasterTable;
 
@@ -32,12 +32,9 @@ import org.apache.directory.server.xdbm.MasterTable;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<Long, E>
+public class AvlMasterTable<E> extends AvlTable<UUID, E> implements MasterTable<E>
 {
-    private AtomicLong counter = new AtomicLong( 0 );
-
-
-    public AvlMasterTable( String name, Comparator<Long> keyComparator, Comparator<E> valComparator,
+    public AvlMasterTable( String name, Comparator<UUID> keyComparator, Comparator<E> valComparator,
         boolean dupsEnabled )
     {
         super( name, keyComparator, valComparator, dupsEnabled );
@@ -47,17 +44,8 @@ public class AvlMasterTable<E> extends AvlTable<Long, E> implements MasterTable<
     /**
      * {@inheritDoc}
      */
-    public Long getNextId( E entry ) throws Exception
+    public UUID getNextId( E entry ) throws Exception
     {
-        return counter.incrementAndGet();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void resetCounter() throws Exception
-    {
-        counter.set( 0L );
+        return UUID.randomUUID();
     }
 }

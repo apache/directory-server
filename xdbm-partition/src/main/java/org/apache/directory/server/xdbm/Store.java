@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -43,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface Store<E, ID extends Comparable<ID>>
+public interface Store<E>
 {
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
@@ -122,14 +123,6 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the root ID of this store implementation.
-     *
-     * @return the root ID
-     */
-    ID getRootId();
-
-
-    /**
      * Sets the flag telling the server to flush on disk when some
      * modification has been done.
      * @param isSyncOnWrite A boolean set to true if we have to flush on disk
@@ -166,7 +159,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, E, ID> index ) throws Exception;
+    void addIndex( Index<?, E, UUID> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -175,49 +168,49 @@ public interface Store<E, ID extends Comparable<ID>>
     /**
      * @return The Presence system index
      */
-    Index<String, E, ID> getPresenceIndex();
+    Index<String, E, UUID> getPresenceIndex();
 
 
     /**
      * @return The Alias system index
      */
-    Index<String, E, ID> getAliasIndex();
+    Index<String, E, UUID> getAliasIndex();
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<ID, E, ID> getOneAliasIndex();
+    Index<UUID, E, UUID> getOneAliasIndex();
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<ID, E, ID> getSubAliasIndex();
+    Index<UUID, E, UUID> getSubAliasIndex();
 
 
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn<ID>, E, ID> getRdnIndex();
+    Index<ParentIdAndRdn<UUID>, E, UUID> getRdnIndex();
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, E, ID> getObjectClassIndex();
+    Index<String, E, UUID> getObjectClassIndex();
 
 
     /**
      * @return The EntryUUID system index
      */
-    Index<String, E, ID> getEntryUuidIndex();
+    Index<String, E, UUID> getEntryUuidIndex();
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, E, ID> getEntryCsnIndex();
+    Index<String, E, UUID> getEntryCsnIndex();
 
 
     /**
@@ -269,7 +262,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, UUID> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -278,7 +271,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, UUID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -287,7 +280,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, ID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, UUID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -296,7 +289,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param dn the normalized entry Dn
      * @return the entry's id, or <code>null</code> if the Dn doesn't exists
      */
-    ID getEntryId( Dn dn ) throws Exception;
+    UUID getEntryId( Dn dn ) throws Exception;
 
 
     /**
@@ -305,18 +298,18 @@ public interface Store<E, ID extends Comparable<ID>>
      * @param id the entry's id
      * @return the entry's Dn
      */
-    Dn getEntryDn( ID id ) throws Exception;
+    Dn getEntryDn( UUID id ) throws Exception;
 
 
     /**
-     * Gets the ID of an entry's parent using the child entry's ID.
+     * Gets the UUID of an entry's parent using the child entry's UUID.
      * Note that the suffix entry returns 0, which does not map to any entry.
      *
-     * @param childId the ID of the entry
-     * @return the id of the parent entry or zero if the suffix entry ID is used
+     * @param childId the UUID of the entry
+     * @return the id of the parent entry or zero if the suffix entry UUID is used
      * @throws Exception on failures to access the underlying store
      */
-    ID getParentId( ID childId ) throws Exception;
+    UUID getParentId( UUID childId ) throws Exception;
 
 
     /**
@@ -331,10 +324,10 @@ public interface Store<E, ID extends Comparable<ID>>
     /**
      * Delete an entry from the store
      *
-     * @param id The Entry ID we want to delete
+     * @param id The Entry UUID we want to delete
      * @throws Exception If the deletion failed for any reason
      */
-    void delete( ID id ) throws Exception;
+    void delete( UUID id ) throws Exception;
 
 
     /**
@@ -344,38 +337,38 @@ public interface Store<E, ID extends Comparable<ID>>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    Cursor<IndexEntry<ID, ID>> list( ID id ) throws Exception;
+    Cursor<IndexEntry<UUID, UUID>> list( UUID id ) throws Exception;
 
 
     /**
-     * Get back an entry knowing its ID
+     * Get back an entry knowing its UUID
      *
-     * @param id The Entry ID we want to get back
+     * @param id The Entry UUID we want to get back
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( ID id ) throws Exception;
+    Entry lookup( UUID id ) throws Exception;
 
 
     /**
-     * Get back an entry knowing its ID
+     * Get back an entry knowing its UUID
      *
-     * @param id The Entry ID we want to get back
+     * @param id The Entry UUID we want to get back
      * @param dn The entry DN when we have it
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( ID id, Dn dn ) throws Exception;
+    Entry lookup( UUID id, Dn dn ) throws Exception;
 
 
     /**
-     * Gets the count of immediate children of the given entry ID.
+     * Gets the count of immediate children of the given entry UUID.
      *
-     * @param id the entry ID
+     * @param id the entry UUID
      * @return the child count
      * @throws Exception on failures to access the underlying store
      */
-    int getChildCount( ID id ) throws Exception;
+    int getChildCount( UUID id ) throws Exception;
 
 
     /**
@@ -428,7 +421,7 @@ public interface Store<E, ID extends Comparable<ID>>
      * <li><b>oneAlias</b> index</li>
      * <li><b>subAlias</b> index</li>
      * </ul>
-     * <p>The <b>Alias</b> index is not updated, as the entry ID won't change.</p>
+     * <p>The <b>Alias</b> index is not updated, as the entry UUID won't change.</p>
      * <p>We have a few check we must do before moving the entry :
      * <ul>
      * <li>The destination must not exist
@@ -446,16 +439,8 @@ public interface Store<E, ID extends Comparable<ID>>
 
 
     /**
-     * Gets the default ID.
-     *
-     * @return the default ID.
-     */
-    ID getDefaultId() throws Exception;
-
-
-    /**
      * Expose the Master table
      * @return The masterTable instance
      */
-    MasterTable<ID, E> getMasterTable();
+    MasterTable<E> getMasterTable();
 }

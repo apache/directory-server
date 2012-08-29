@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -51,6 +52,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +73,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store<Entry> store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
@@ -176,21 +178,21 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 9L ), cursor.get().getId() );
         assertEquals( "apache", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -206,11 +208,11 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "walker", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -228,20 +230,23 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
 
-        Set<Long> set = new HashSet<Long>();
+        Set<UUID> set = new HashSet<UUID>();
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
+
+            IndexEntry<?, UUID> elem = cursor.get();
+
+            set.add( elem.getId() );
+            assertTrue( uuidSynChecker.isValidSyntax( elem.getKey() ) );
         }
 
         assertEquals( 2, set.size() );
-        assertTrue( set.contains( 7L ) );
-        assertTrue( set.contains( 8L ) );
+        assertTrue( set.contains( Strings.getUUID( 7L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 8L ) ) );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -256,7 +261,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, Long>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
         cursor.close();
     }
 }

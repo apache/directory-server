@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -30,6 +28,7 @@ import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -55,11 +54,10 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
-    //This will suppress PMD.AvoidUsingHardCodedIP warnings in this class
-    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    public static void loadExampleData( Store<Entry, Long> store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Store<Entry> store, SchemaManager schemaManager ) throws Exception
     {
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
+        long index = 1L;
 
         // Entry #1
         Entry entry = new DefaultEntry( schemaManager, suffixDn,
@@ -67,7 +65,7 @@ public class StoreUtils
             "o: Good Times Co.",
             "postalCode: 1",
             "postOfficeBox: 1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #2
         Dn dn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
@@ -77,7 +75,7 @@ public class StoreUtils
             "ou: Sales",
             "postalCode: 1",
             "postOfficeBox: 1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #3
         dn = new Dn( schemaManager, "ou=Board of Directors,o=Good Times Co." );
@@ -87,7 +85,7 @@ public class StoreUtils
             "ou: Board of Directors",
             "postalCode: 1",
             "postOfficeBox: 1" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #4
         dn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
@@ -97,7 +95,7 @@ public class StoreUtils
             "ou: Engineering",
             "postalCode: 2",
             "postOfficeBox: 2" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #5
         dn = new Dn( schemaManager, "cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co." );
@@ -110,7 +108,7 @@ public class StoreUtils
             "sn: WAlkeR",
             "postalCode: 3",
             "postOfficeBox: 3" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #6
         dn = new Dn( schemaManager, "cn=JIM BEAN,ou=Sales,o=Good Times Co." );
@@ -123,7 +121,7 @@ public class StoreUtils
             "surName: BEAN",
             "postalCode: 4",
             "postOfficeBox: 4" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #7
         dn = new Dn( schemaManager, "ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -133,7 +131,7 @@ public class StoreUtils
             "ou: Apache",
             "postalCode: 5",
             "postOfficeBox: 5" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #8
         dn = new Dn( schemaManager, "cn=Jack Daniels,ou=Engineering,o=Good Times Co." );
@@ -146,7 +144,7 @@ public class StoreUtils
             "SN: Daniels",
             "postalCode: 6",
             "postOfficeBox: 6" );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // aliases -------------
 
@@ -159,7 +157,7 @@ public class StoreUtils
             "ou: Apache",
             "commonName: Jim Bean",
             "aliasedObjectName: cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #10
         dn = new Dn( schemaManager, "commonName=Jim Bean,ou=Board of Directors,o=Good Times Co." );
@@ -169,7 +167,7 @@ public class StoreUtils
             "objectClass: extensibleObject",
             "commonName: Jim Bean",
             "aliasedObjectName: cn=Jim Bean,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
 
         // Entry #11
         dn = new Dn( schemaManager, "2.5.4.3=Johnny Walker,ou=Engineering,o=Good Times Co." );
@@ -180,7 +178,7 @@ public class StoreUtils
             "ou: Engineering",
             "2.5.4.3: Johnny Walker",
             "aliasedObjectName: cn=Johnny Walker,ou=Sales,o=Good Times Co." );
-        injectEntryInStore( store, entry );
+        injectEntryInStore( store, entry, index++ );
     }
 
 
@@ -192,12 +190,13 @@ public class StoreUtils
      * @param store the store
      * @param dn the normalized Dn
      * @param entry the server entry
+     * @param index the UUID number
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store<Entry, Long> store, Entry entry ) throws Exception
+    public static void injectEntryInStore( Store<Entry> store, Entry entry, long index ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
-        entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+        entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUID( index ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
         ( ( Partition ) store ).add( addContext );

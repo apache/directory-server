@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -34,16 +36,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryCursorAdaptor<ID extends Comparable<ID>> extends AbstractCursor<Entry>
+public class EntryCursorAdaptor extends AbstractCursor<Entry>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
-    private final AbstractBTreePartition<ID> db;
-    private final Cursor<IndexEntry<ID, ID>> indexCursor;
+    private final AbstractBTreePartition db;
+    private final Cursor<IndexEntry<UUID, UUID>> indexCursor;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, Cursor<IndexEntry<ID, ID>> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition db, Cursor<IndexEntry<UUID, UUID>> indexCursor )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;
@@ -136,7 +138,7 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> extends AbstractCurso
      */
     public Entry get() throws Exception
     {
-        IndexEntry<ID, ID> indexEntry = indexCursor.get();
+        IndexEntry<UUID, UUID> indexEntry = indexCursor.get();
 
         if ( indexEntry.getEntry() == null )
         {

@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -38,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCursor<ID, ID>
+public class ChildrenCursor extends AbstractIndexCursor<UUID>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -47,13 +49,13 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor;
+    private final Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor;
 
     /** The Parent ID */
-    private ID parentId;
+    private UUID parentId;
 
     /** The prefetched element */
-    private IndexEntry<ID, ID> prefetched;
+    private IndexEntry<UUID, UUID> prefetched;
 
 
     /**
@@ -63,7 +65,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry, ID> db, ID parentId, Cursor<IndexEntry<ParentIdAndRdn<ID>, ID>> cursor )
+    public ChildrenCursor( Store<Entry> db, UUID parentId, Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -118,7 +120,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         {
             IndexEntry entry = cursor.get();
 
-            if ( ( ( ParentIdAndRdn<ID> ) entry.getTuple().getKey() ).getParentId().equals( parentId ) )
+            if ( ( ( ParentIdAndRdn<UUID> ) entry.getTuple().getKey() ).getParentId().equals( parentId ) )
             {
                 prefetched = entry;
                 return true;
@@ -141,9 +143,9 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
         if ( hasNext )
         {
             IndexEntry cursorEntry = cursor.get();
-            IndexEntry<ID, ID> entry = new ForwardIndexEntry();
-            entry.setId( ( ID ) cursorEntry.getId() );
-            entry.setKey( ( ( ParentIdAndRdn<ID> ) cursorEntry.getTuple().getKey() ).getParentId() );
+            IndexEntry<UUID, UUID> entry = new ForwardIndexEntry();
+            entry.setId( ( UUID ) cursorEntry.getId() );
+            entry.setKey( ( ( ParentIdAndRdn<UUID> ) cursorEntry.getTuple().getKey() ).getParentId() );
 
             if ( entry.getKey().equals( parentId ) )
             {
@@ -156,7 +158,7 @@ public class ChildrenCursor<ID extends Comparable<ID>> extends AbstractIndexCurs
     }
 
 
-    public IndexEntry<ID, ID> get() throws Exception
+    public IndexEntry<UUID, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 

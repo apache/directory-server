@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -32,16 +34,16 @@ import org.apache.directory.shared.ldap.model.filter.NotNode;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotEvaluator<ID> implements Evaluator<NotNode, ID>
+public class NotEvaluator implements Evaluator<NotNode>
 {
     /** The ExprNode to evaluate */
     private final NotNode node;
 
     /** The Evaluator to use for the inner Node */
-    private final Evaluator<? extends ExprNode, ID> childEvaluator;
+    private final Evaluator<? extends ExprNode> childEvaluator;
 
 
-    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode, ID> childEvaluator )
+    public NotEvaluator( NotNode node, Evaluator<? extends ExprNode> childEvaluator )
     {
         this.node = node;
         this.childEvaluator = childEvaluator;
@@ -54,7 +56,7 @@ public class NotEvaluator<ID> implements Evaluator<NotNode, ID>
     }
 
 
-    public boolean evaluate( IndexEntry<?, ID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
     {
         return !childEvaluator.evaluate( indexEntry );
     }

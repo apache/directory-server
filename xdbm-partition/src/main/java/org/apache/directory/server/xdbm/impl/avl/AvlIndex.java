@@ -21,9 +21,9 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
 
 
 /**
@@ -43,11 +44,11 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
+public class AvlIndex<K, O> extends AbstractIndex<K, O, UUID>
 {
     protected Normalizer normalizer;
-    protected AvlTable<K, Long> forward;
-    protected AvlTable<Long, K> reverse;
+    protected AvlTable<K, UUID> forward;
+    protected AvlTable<UUID, K> reverse;
 
 
     public AvlIndex()
@@ -98,7 +99,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<K, Long>( attributeType.getName(), comp, LongComparator.INSTANCE, true );
+        forward = new AvlTable<K, UUID>( attributeType.getName(), comp, UuidComparator.INSTANCE, true );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -110,17 +111,17 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         {
             if ( attributeType.isSingleValued() )
             {
-                reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, false );
+                reverse = new AvlTable<UUID, K>( attributeType.getName(), UuidComparator.INSTANCE, comp, false );
             }
             else
             {
-                reverse = new AvlTable<Long, K>( attributeType.getName(), LongComparator.INSTANCE, comp, true );
+                reverse = new AvlTable<UUID, K>( attributeType.getName(), UuidComparator.INSTANCE, comp, true );
             }
         }
     }
 
 
-    public void add( K attrVal, Long id ) throws Exception
+    public void add( K attrVal, UUID id ) throws Exception
     {
         forward.put( attrVal, id );
 
@@ -169,17 +170,17 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public void drop( Long id ) throws Exception
+    public void drop( UUID id ) throws Exception
     {
         if ( withReverse )
         {
             if ( isDupsEnabled() )
             {
-                Cursor<Tuple<Long, K>> cursor = reverse.cursor( id );
+                Cursor<Tuple<UUID, K>> cursor = reverse.cursor( id );
 
                 while ( cursor.next() )
                 {
-                    Tuple<Long, K> tuple = cursor.get();
+                    Tuple<UUID, K> tuple = cursor.get();
                     forward.remove( tuple.getValue(), id );
                 }
 
@@ -200,7 +201,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public void drop( K attrVal, Long id ) throws Exception
+    public void drop( K attrVal, UUID id ) throws Exception
     {
         forward.remove( attrVal, id );
 
@@ -223,7 +224,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, Long id ) throws Exception
+    public boolean forward( K attrVal, UUID id ) throws Exception
     {
         return forward.has( attrVal, id );
     }
@@ -233,7 +234,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, UUID>> forwardCursor() throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor(), true );
     }
@@ -243,7 +244,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, UUID>> forwardCursor( K key ) throws Exception
     {
         return new IndexCursorAdaptor( forward.cursor( key ), true );
     }
@@ -261,7 +262,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardGreaterOrEq( K attrVal, Long id ) throws Exception
+    public boolean forwardGreaterOrEq( K attrVal, UUID id ) throws Exception
     {
         return forward.hasGreaterOrEqual( attrVal, id );
     }
@@ -279,7 +280,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardLessOrEq( K attrVal, Long id ) throws Exception
+    public boolean forwardLessOrEq( K attrVal, UUID id ) throws Exception
     {
         return forward.hasLessOrEqual( attrVal, id );
     }
@@ -288,7 +289,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public Long forwardLookup( K attrVal ) throws Exception
+    public UUID forwardLookup( K attrVal ) throws Exception
     {
         return forward.get( attrVal );
     }
@@ -297,7 +298,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Long> forwardValueCursor( K key ) throws Exception
+    public Cursor<UUID> forwardValueCursor( K key ) throws Exception
     {
         return forward.valueCursor( key );
     }
@@ -324,7 +325,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( Long id ) throws Exception
+    public boolean reverse( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -340,7 +341,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( Long id, K attrVal ) throws Exception
+    public boolean reverse( UUID id, K attrVal ) throws Exception
     {
         if ( withReverse )
         {
@@ -357,7 +358,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> reverseCursor() throws Exception
+    public Cursor<IndexEntry<K, UUID>> reverseCursor() throws Exception
     {
         if ( withReverse )
         {
@@ -365,7 +366,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            return new EmptyIndexCursor<K, Long>();
+            return new EmptyIndexCursor<K>();
         }
     }
 
@@ -374,7 +375,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, Long>> reverseCursor( Long id ) throws Exception
+    public Cursor<IndexEntry<K, UUID>> reverseCursor( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -382,7 +383,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
         }
         else
         {
-            return new EmptyIndexCursor<K, Long>();
+            return new EmptyIndexCursor<K>();
         }
     }
 
@@ -390,7 +391,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( Long id ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -406,7 +407,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( Long id, K attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( UUID id, K attrVal ) throws Exception
     {
         if ( withReverse )
         {
@@ -422,7 +423,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( Long id ) throws Exception
+    public boolean reverseLessOrEq( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -438,7 +439,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseLessOrEq( Long id, K attrVal ) throws Exception
+    public boolean reverseLessOrEq( UUID id, K attrVal ) throws Exception
     {
         if ( withReverse )
         {
@@ -454,7 +455,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( Long id ) throws Exception
+    public K reverseLookup( UUID id ) throws Exception
     {
         if ( withReverse )
         {
@@ -470,7 +471,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, Long>
     /**
      * {@inheritDoc}
      */
-    public Cursor<K> reverseValueCursor( Long id ) throws Exception
+    public Cursor<K> reverseValueCursor( UUID id ) throws Exception
     {
         if ( withReverse )
         {

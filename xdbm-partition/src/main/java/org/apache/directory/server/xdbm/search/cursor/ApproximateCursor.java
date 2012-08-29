@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
@@ -46,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractIndexCursor<V, ID>
+public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -55,13 +57,13 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     private static final String UNSUPPORTED_MSG = "ApproximateCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An approximate evaluator for candidates */
-    private final ApproximateEvaluator<V, ID> approximateEvaluator;
+    private final ApproximateEvaluator<V> approximateEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<V, ID>> userIdxCursor;
+    private final Cursor<IndexEntry<V, UUID>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String, ID>> uuidIdxCursor;
+    private final Cursor<IndexEntry<String, UUID>> uuidIdxCursor;
 
 
     /**
@@ -71,7 +73,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Store<Entry, ID> db, ApproximateEvaluator<V, ID> approximateEvaluator ) throws Exception
+    public ApproximateCursor( Store<Entry> db, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating ApproximateCursor {}", this );
         this.approximateEvaluator = approximateEvaluator;
@@ -81,7 +83,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, ID> index = ( Index<V, Entry, ID> ) db.getIndex( attributeType );
+            Index<V, Entry, UUID> index = ( Index<V, Entry, UUID> ) db.getIndex( attributeType );
             userIdxCursor = index.forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
@@ -119,7 +121,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, ID> element ) throws Exception
+    public void before( IndexEntry<V, UUID> element ) throws Exception
     {
         checkNotClosed( "before()" );
 
@@ -138,7 +140,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
      * {@inheritDoc}
      */
     @Override
-    public void after( IndexEntry<V, ID> element ) throws Exception
+    public void after( IndexEntry<V, UUID> element ) throws Exception
     {
         checkNotClosed( "after()" );
 
@@ -225,7 +227,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, UUID> candidate = uuidIdxCursor.get();
 
             if ( approximateEvaluator.evaluate( candidate ) )
             {
@@ -250,7 +252,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, ID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, UUID> candidate = uuidIdxCursor.get();
 
             if ( approximateEvaluator.evaluate( candidate ) )
             {
@@ -266,7 +268,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 
@@ -277,7 +279,7 @@ public class ApproximateCursor<V, ID extends Comparable<ID>> extends AbstractInd
 
         if ( available() )
         {
-            return ( IndexEntry<V, ID> ) uuidIdxCursor.get();
+            return ( IndexEntry<V, UUID> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

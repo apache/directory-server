@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
+public class AndCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -50,10 +51,10 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
 
     /** */
-    private final Cursor<IndexEntry<V, ID>> wrapped;
+    private final Cursor<IndexEntry<V, UUID>> wrapped;
 
     /** The evaluators used for the members of the And filter */
-    private final List<Evaluator<? extends ExprNode, ID>> evaluators;
+    private final List<Evaluator<? extends ExprNode>> evaluators;
 
 
     /**
@@ -63,8 +64,8 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      * @param wrapped The encapsulated IndexCursor
      * @param evaluators The list of evaluators associated wth the elements
      */
-    public AndCursor( Cursor<IndexEntry<V, ID>> wrapped,
-        List<Evaluator<? extends ExprNode, ID>> evaluators )
+    public AndCursor( Cursor<IndexEntry<V, UUID>> wrapped,
+        List<Evaluator<? extends ExprNode>> evaluators )
     {
         LOG_CURSOR.debug( "Creating AndCursor {}", this );
         this.wrapped = wrapped;
@@ -134,7 +135,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<V, ID> candidate = wrapped.get();
+            IndexEntry<V, UUID> candidate = wrapped.get();
 
             if ( matches( candidate ) )
             {
@@ -154,7 +155,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<V, ID> candidate = wrapped.get();
+            IndexEntry<V, UUID> candidate = wrapped.get();
 
             if ( matches( candidate ) )
             {
@@ -169,7 +170,7 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, ID> get() throws Exception
+    public IndexEntry<V, UUID> get() throws Exception
     {
         checkNotClosed( "get()" );
 
@@ -215,14 +216,14 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
      * @param unoptimized the unoptimized list of Evaluators
      * @return optimized Evaluator list with increasing scan count ordering
      */
-    private List<Evaluator<? extends ExprNode, ID>> optimize(
-        List<Evaluator<? extends ExprNode, ID>> unoptimized )
+    private List<Evaluator<? extends ExprNode>> optimize(
+        List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode, ID>> optimized = new ArrayList<Evaluator<? extends ExprNode, ID>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new ScanCountComparator<ID>() );
+        Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;
     }
@@ -231,9 +232,9 @@ public class AndCursor<V, ID> extends AbstractIndexCursor<V, ID>
     /**
      * Checks if the entry is a valid candidate by using the evaluators.
      */
-    private boolean matches( IndexEntry<V, ID> indexEntry ) throws Exception
+    private boolean matches( IndexEntry<V, UUID> indexEntry ) throws Exception
     {
-        for ( Evaluator<?, ID> evaluator : evaluators )
+        for ( Evaluator<?> evaluator : evaluators )
         {
             if ( !evaluator.evaluate( indexEntry ) )
             {

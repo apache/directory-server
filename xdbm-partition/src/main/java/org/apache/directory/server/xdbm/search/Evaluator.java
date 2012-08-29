@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import java.util.UUID;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -49,7 +51,7 @@ import org.apache.directory.shared.ldap.model.filter.ExprNode;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface Evaluator<N extends ExprNode, ID>
+public interface Evaluator<N extends ExprNode>
 {
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
@@ -63,7 +65,7 @@ public interface Evaluator<N extends ExprNode, ID>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( IndexEntry<?, ID> entry ) throws Exception;
+    boolean evaluate( IndexEntry<?, UUID> entry ) throws Exception;
 
 
     /**
