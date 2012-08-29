@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn<UUID>, Entry>
+public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
 {
 
     /** A logger for this class */
@@ -131,9 +131,9 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn<UUID>, Entry>
 
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<ParentIdAndRdn<UUID>, UUID>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
+        forward = new JdbmTable<ParentIdAndRdn, UUID>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
             recMan, comp, null, UuidSerializer.INSTANCE );
-        reverse = new JdbmTable<UUID, ParentIdAndRdn<UUID>>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
+        reverse = new JdbmTable<UUID, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
             recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE, null );
     }
 }
