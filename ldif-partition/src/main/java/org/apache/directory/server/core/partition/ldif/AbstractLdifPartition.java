@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.ldif;
 
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -55,9 +56,9 @@ public abstract class AbstractLdifPartition extends AvlPartition
     /**
      * {@inheritDoc}
      */
-    public Long getDefaultId()
+    public UUID getDefaultId()
     {
-        return 1L;
+        return new UUID( 0L, 1L );
     }
 
 

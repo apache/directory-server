@@ -262,7 +262,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( Long id ) throws LdapException
+    public void delete( UUID id ) throws LdapException
     {
         synchronized ( lock )
         {
@@ -292,14 +292,14 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                Long suffixId = getEntryId( suffixDn );
+                UUID suffixId = getEntryId( suffixDn );
 
                 if ( suffixId == null )
                 {
                     return;
                 }
 
-                ParentIdAndRdn<Long> suffixEntry = rdnIdx.reverseLookup( suffixId );
+                ParentIdAndRdn<UUID> suffixEntry = rdnIdx.reverseLookup( suffixId );
 
                 if ( suffixEntry != null )
                 {
@@ -325,20 +325,20 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    private void appendRecursive( Long id, int nbSibbling ) throws Exception
+    private void appendRecursive( UUID id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn<Long>, Long>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn<UUID>, UUID>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
-        startingPos.setKey( new ParentIdAndRdn<Long>( id, ( Rdn[] ) null ) );
+        IndexEntry<ParentIdAndRdn<UUID>, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn<UUID>, UUID>();
+        startingPos.setKey( new ParentIdAndRdn<UUID>( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
 
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
-            IndexEntry<ParentIdAndRdn<Long>, Long> element = cursor.get();
-            Long childId = element.getId();
+            IndexEntry<ParentIdAndRdn<UUID>, UUID> element = cursor.get();
+            UUID childId = element.getId();
             Entry entry = lookup( childId );
 
             appendLdif( entry );

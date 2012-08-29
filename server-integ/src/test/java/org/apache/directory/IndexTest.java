@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
@@ -40,6 +41,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -118,29 +120,29 @@ public class IndexTest
     }
 
 
-    private void doTest( Index<String, Entry, Long> idx ) throws Exception
+    private void doTest( Index<String, Entry, UUID> idx ) throws Exception
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
-        for ( long i = 0L; i < 26L; i++ )
+        for ( int i = 0; i < 26; i++ )
         {
-            String val = alphabet.substring( ( int ) i, ( int ) ( i + 1 ) );
-            idx.add( val, i + 1 );
+            String val = alphabet.substring( i, i + 1 );
+            idx.add( val, Strings.getUUID( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
 
-        Cursor<IndexEntry<String, Long>> cursor1 = idx.forwardCursor();
+        Cursor<IndexEntry<String, UUID>> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
-        assertHasNext( cursor1, 1L );
-        assertHasNext( cursor1, 2L );
+        assertHasNext( cursor1, Strings.getUUID( 1L ) );
+        assertHasNext( cursor1, Strings.getUUID( 2L ) );
 
-        idx.drop( "c", 3L );
+        idx.drop( "c", Strings.getUUID( 3L ) );
 
         for ( long i = 4L; i < 27L; i++ )
         {
-            assertHasNext( cursor1, i );
+            assertHasNext( cursor1, Strings.getUUID( i ) );
         }
 
         assertFalse( cursor1.next() );
@@ -149,9 +151,9 @@ public class IndexTest
     }
 
 
-    private void assertHasNext( Cursor<IndexEntry<String, Long>> cursor1, long expectedId ) throws Exception
+    private void assertHasNext( Cursor<IndexEntry<String, UUID>> cursor1, UUID expectedId ) throws Exception
     {
         assertTrue( cursor1.next() );
-        assertEquals( expectedId, cursor1.get().getId().longValue() );
+        assertEquals( expectedId, cursor1.get().getId() );
     }
 }
