@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -55,7 +54,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     private final SchemaManager schemaManager;
 
     /** The index to use if any */
-    private final Index<String, Entry, UUID> idx;
+    private final Index<String, Entry, String> idx;
 
 
     public PresenceEvaluator( PresenceNode node, Store<Entry> db, SchemaManager schemaManager )
@@ -91,7 +90,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

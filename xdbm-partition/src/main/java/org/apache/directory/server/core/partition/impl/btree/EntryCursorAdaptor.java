@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -42,10 +40,10 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private final AbstractBTreePartition db;
-    private final Cursor<IndexEntry<UUID, UUID>> indexCursor;
+    private final Cursor<IndexEntry<String, String>> indexCursor;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition db, Cursor<IndexEntry<UUID, UUID>> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition db, Cursor<IndexEntry<String, String>> indexCursor )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;
@@ -138,7 +136,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
      */
     public Entry get() throws Exception
     {
-        IndexEntry<UUID, UUID> indexEntry = indexCursor.get();
+        IndexEntry<String, String> indexEntry = indexCursor.get();
 
         if ( indexEntry.getEntry() == null )
         {

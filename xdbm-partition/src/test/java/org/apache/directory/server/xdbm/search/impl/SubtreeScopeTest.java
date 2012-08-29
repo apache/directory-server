@@ -165,14 +165,14 @@ public class SubtreeScopeTest
     {
         Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID
             + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId,
             SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
         SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
 
-        UUID[] expected = new UUID[]
+        String[] expected = new String[]
             {
                 Strings.getUUID( 3L ),
                 Strings.getUUID( 3L ),
@@ -187,7 +187,7 @@ public class SubtreeScopeTest
         // --------- Test beforeFirst() ---------
         //( ( AbstractBTreePartition<Long> ) ((Partition)store) ).dumpRdnIdx( 0L, "" );
 
-        IndexEntry<UUID, UUID> indexEntry = null;
+        IndexEntry<String, String> indexEntry = null;
 
         cursor.beforeFirst();
         assertFalse( cursor.available() );
@@ -281,7 +281,7 @@ public class SubtreeScopeTest
     {
         Dn dn = new Dn( SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
@@ -294,7 +294,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<UUID, UUID> indexEntry = cursor.get();
+        IndexEntry<String, String> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( Strings.getUUID( 3L ), indexEntry.getId() );
         assertEquals( Strings.getUUID( 3L ), indexEntry.getKey() );
@@ -479,7 +479,7 @@ public class SubtreeScopeTest
             + "=apache," + SchemaConstants.OU_AT_OID
             + "=board of directors," + SchemaConstants.O_AT_OID
             + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
@@ -492,7 +492,7 @@ public class SubtreeScopeTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        IndexEntry<UUID, UUID> indexEntry = cursor.get();
+        IndexEntry<String, String> indexEntry = cursor.get();
         assertNotNull( indexEntry );
         assertEquals( Strings.getUUID( 7L ), indexEntry.getId() );
         assertEquals( Strings.getUUID( 7L ), indexEntry.getKey() );
@@ -639,7 +639,7 @@ public class SubtreeScopeTest
         ( ( Partition ) store ).add( addContext );
 
         dn = new Dn( SchemaConstants.OU_AT_OID + "=board of directors," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode(
             AliasDerefMode.DEREF_IN_SEARCHING,
@@ -652,7 +652,7 @@ public class SubtreeScopeTest
         // --------- Test beforeFirst() ---------
         //( ( AbstractBTreePartition<Long> ) ((Partition)store) ).dumpRdnIdx( 0L, "" );
 
-        UUID[] expected = new UUID[]
+        String[] expected = new String[]
             {
                 Strings.getUUID( 3L ),
                 Strings.getUUID( 3L ),
@@ -666,7 +666,7 @@ public class SubtreeScopeTest
                 Strings.getUUID( 3L )
         };
 
-        IndexEntry<UUID, UUID> indexEntry = null;
+        IndexEntry<String, String> indexEntry = null;
 
         int pos = 0;
 
@@ -690,7 +690,7 @@ public class SubtreeScopeTest
         assertFalse( cursor.available() );
         cursor.first();
 
-        expected = new UUID[]
+        expected = new String[]
             {
                 Strings.getUUID( 7L ),
                 Strings.getUUID( 3L ),
@@ -857,7 +857,7 @@ public class SubtreeScopeTest
         cursor = new SubtreeScopeCursor( store, evaluator );
         assertFalse( cursor.available() );
 
-        expected = new UUID[]
+        expected = new String[]
             {
                 Strings.getUUID( 3L ),
                 Strings.getUUID( 3L ),
@@ -894,12 +894,12 @@ public class SubtreeScopeTest
     {
         Dn dn = new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
 
-        ForwardIndexEntry<UUID, UUID> indexEntry = new ForwardIndexEntry<UUID, UUID>();
+        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -910,7 +910,7 @@ public class SubtreeScopeTest
     {
         Dn dn = new Dn( SchemaConstants.OU_AT_OID
             + "=engineering," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
@@ -920,15 +920,15 @@ public class SubtreeScopeTest
          * With dereferencing the evaluator does not accept candidates that
          * are aliases.  This is done to filter out aliases from the results.
          */
-        ForwardIndexEntry<UUID, UUID> indexEntry = new ForwardIndexEntry<UUID, UUID>();
+        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 11L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<UUID, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 8L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<UUID, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -939,7 +939,7 @@ public class SubtreeScopeTest
     {
         SubtreeScopeCursor cursor = null;
         Dn dn = new Dn( SchemaConstants.OU_AT_OID + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         try
         {
@@ -962,7 +962,7 @@ public class SubtreeScopeTest
         SubtreeScopeCursor cursor = null;
         Dn dn = new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         try
         {
@@ -972,7 +972,7 @@ public class SubtreeScopeTest
             cursor = new SubtreeScopeCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<UUID, UUID> entry = new ForwardIndexEntry<UUID, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( Strings.getUUID( 3L ) );
             cursor.before( entry );
         }
@@ -989,7 +989,7 @@ public class SubtreeScopeTest
         SubtreeScopeCursor cursor = null;
         Dn dn = new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." );
-        UUID baseId = store.getEntryId( dn );
+        String baseId = store.getEntryId( dn );
 
         try
         {
@@ -998,7 +998,7 @@ public class SubtreeScopeTest
             cursor = new SubtreeScopeCursor( store, evaluator );
 
             // test after()
-            ForwardIndexEntry<UUID, UUID> entry = new ForwardIndexEntry<UUID, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( Strings.getUUID( 3L ) );
             cursor.after( entry );
         }

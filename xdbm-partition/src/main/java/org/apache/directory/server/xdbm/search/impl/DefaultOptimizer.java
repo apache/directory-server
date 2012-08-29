@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
@@ -55,7 +54,7 @@ public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
     private final Store<E> db;
-    private UUID contextEntryId;
+    private String contextEntryId;
 
 
     /**
@@ -71,7 +70,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private UUID getContextEntryId() throws Exception
+    private String getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -123,7 +122,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode<UUID> ) node );
+            count = getScopeScan( ( ScopeNode<String> ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -279,7 +278,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, UUID> idx = ( Index<V, E, UUID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
 
             return idx.count( node.getValue().getValue() );
         }
@@ -303,7 +302,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, UUID> idx = ( Index<V, E, UUID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -352,7 +351,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, UUID> idx = db.getPresenceIndex();
+            Index<String, E, String> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
@@ -373,9 +372,9 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode<UUID> node ) throws Exception
+    private long getScopeScan( ScopeNode<String> node ) throws Exception
     {
-        UUID id = node.getBaseId();
+        String id = node.getBaseId();
 
         switch ( node.getScope() )
         {

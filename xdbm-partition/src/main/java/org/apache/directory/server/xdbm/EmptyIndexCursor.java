@@ -19,8 +19,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
@@ -47,7 +45,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, UUID> element ) throws Exception
+    public void before( IndexEntry<K, String> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -65,7 +63,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, UUID> element ) throws Exception
+    public void after( IndexEntry<K, String> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -111,7 +109,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     }
 
 
-    public IndexEntry<K, UUID> get() throws Exception
+    public IndexEntry<K, String> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -121,7 +119,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( UUID id, K indexValue ) throws Exception
+    public void afterValue( String id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -130,7 +128,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( UUID id, K indexValue ) throws Exception
+    public void beforeValue( String id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }

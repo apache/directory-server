@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
@@ -58,10 +56,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     private final EqualityEvaluator<V> equalityEvaluator;
 
     /** Cursor over attribute entry matching filter: set when index present */
-    private final Cursor<IndexEntry<V, UUID>> userIdxCursor;
+    private final Cursor<IndexEntry<V, String>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<String, UUID>> uuidIdxCursor;
+    private final Cursor<IndexEntry<String, String>> uuidIdxCursor;
 
 
     /**
@@ -81,7 +79,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, UUID> userIndex = ( Index<V, Entry, UUID> ) db.getIndex( attributeType );
+            Index<V, Entry, String> userIndex = ( Index<V, Entry, String> ) db.getIndex( attributeType );
             userIdxCursor = userIndex.forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
@@ -119,7 +117,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, UUID> element ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws Exception
     {
         checkNotClosed( "before()" );
 
@@ -137,7 +135,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, UUID> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws Exception
     {
         checkNotClosed( "after()" );
 
@@ -227,7 +225,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         while ( uuidIdxCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, UUID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -252,7 +250,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         while ( uuidIdxCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, UUID> candidate = uuidIdxCursor.get();
+            IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
             if ( equalityEvaluator.evaluate( candidate ) )
             {
@@ -268,7 +266,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public IndexEntry<V, UUID> get() throws Exception
+    public IndexEntry<V, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 
@@ -279,7 +277,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
         if ( available() )
         {
-            return ( IndexEntry<V, UUID> ) uuidIdxCursor.get();
+            return ( IndexEntry<V, String> ) uuidIdxCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

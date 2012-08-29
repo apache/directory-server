@@ -32,9 +32,9 @@ import org.apache.directory.server.xdbm.MasterTable;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlMasterTable<E> extends AvlTable<UUID, E> implements MasterTable<E>
+public class AvlMasterTable<E> extends AvlTable<String, E> implements MasterTable<E>
 {
-    public AvlMasterTable( String name, Comparator<UUID> keyComparator, Comparator<E> valComparator,
+    public AvlMasterTable( String name, Comparator<String> keyComparator, Comparator<E> valComparator,
         boolean dupsEnabled )
     {
         super( name, keyComparator, valComparator, dupsEnabled );
@@ -44,8 +44,8 @@ public class AvlMasterTable<E> extends AvlTable<UUID, E> implements MasterTable<
     /**
      * {@inheritDoc}
      */
-    public UUID getNextId( E entry ) throws Exception
+    public String getNextId( E entry ) throws Exception
     {
-        return UUID.randomUUID();
+        return UUID.randomUUID().toString();
     }
 }

@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -728,7 +727,7 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        Cursor<IndexEntry<UUID, UUID>> cursor = null;
+        Cursor<IndexEntry<String, String>> cursor = null;
 
         // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
@@ -760,7 +759,7 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                ForwardIndexEntry<UUID, UUID> forwardEntry = ( ForwardIndexEntry<UUID, UUID> ) cursor
+                ForwardIndexEntry<String, String> forwardEntry = ( ForwardIndexEntry<String, String> ) cursor
                     .get();
 
                 // Now, get the entry

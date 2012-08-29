@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
@@ -101,11 +99,11 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
     /**
      * {@inheritDoc}
      */
-    public Cursor<IndexEntry<UUID, UUID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public Cursor<IndexEntry<String, String>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
-        UUID baseId = db.getEntryId( base );
+        String baseId = db.getEntryId( base );
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
@@ -113,7 +111,7 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
-                return new EmptyIndexCursor<UUID>();
+                return new EmptyIndexCursor<String>();
             }
             else
             {
@@ -150,7 +148,7 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
-        UUID effectiveBaseId = baseId;
+        String effectiveBaseId = baseId;
 
         if ( effectiveBase != base )
         {
@@ -159,7 +157,7 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
 
         if ( scope == SearchScope.OBJECT )
         {
-            IndexEntry<UUID, UUID> indexEntry = new ForwardIndexEntry<UUID, UUID>();
+            IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
@@ -180,11 +178,11 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<UUID>( indexEntry );
+                return new SingletonIndexCursor<String>( indexEntry );
             }
             else
             {
-                return new EmptyIndexCursor<UUID>();
+                return new EmptyIndexCursor<String>();
             }
         }
 

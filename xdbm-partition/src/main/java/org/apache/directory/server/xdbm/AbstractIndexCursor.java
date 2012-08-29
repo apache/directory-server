@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.UUID;
-
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 
 
@@ -30,7 +28,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V, UUID>>
+public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V, String>>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
@@ -59,7 +57,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, UUID> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -68,7 +66,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, UUID> element ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }

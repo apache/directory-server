@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.UUID;
 
 
 /**
@@ -28,7 +27,7 @@ import java.util.UUID;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface MasterTable<E> extends Table<UUID, E>
+public interface MasterTable<E> extends Table<String, E>
 {
     /** the base name for the db file for this table */
     String DBF = "master";
@@ -45,5 +44,5 @@ public interface MasterTable<E> extends Table<UUID, E>
      * @return the current value of this MasterTable's sequence incremented by one
      * @throws Exception on failure to update the id sequence
      */
-    UUID getNextId( E entry ) throws Exception;
+    String getNextId( E entry ) throws Exception;
 }

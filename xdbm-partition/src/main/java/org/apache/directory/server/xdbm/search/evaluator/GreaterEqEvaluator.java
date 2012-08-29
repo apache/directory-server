@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -52,7 +51,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
         }
         else
         {
@@ -88,7 +87,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         if ( idx != null && idx.isDupsEnabled() )
         {
@@ -117,7 +116,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
         // if the attribute exists and has a greater than or equal value return true
         //noinspection unchecked
-        if ( attr != null && evaluate( ( IndexEntry<Object, UUID> ) indexEntry, attr ) )
+        if ( attr != null && evaluate( ( IndexEntry<Object, String> ) indexEntry, attr ) )
         {
             return true;
         }
@@ -139,7 +138,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
                 attr = entry.get( descendant );
 
                 //noinspection unchecked
-                if ( attr != null && evaluate( ( IndexEntry<Object, UUID> ) indexEntry, attr ) )
+                if ( attr != null && evaluate( ( IndexEntry<Object, String> ) indexEntry, attr ) )
                 {
                     return true;
                 }
@@ -192,7 +191,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value 
-    private boolean evaluate( IndexEntry<Object, UUID> indexEntry, Attribute attribute )
+    private boolean evaluate( IndexEntry<Object, String> indexEntry, Attribute attribute )
         throws Exception
     {
         /*

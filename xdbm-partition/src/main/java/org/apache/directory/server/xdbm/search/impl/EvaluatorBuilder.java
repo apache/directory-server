@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Store;
@@ -103,13 +102,13 @@ public class EvaluatorBuilder
                 return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
-                if ( ( ( ScopeNode<UUID> ) node ).getScope() == SearchScope.ONELEVEL )
+                if ( ( ( ScopeNode<String> ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<Entry>( db, ( ScopeNode<UUID> ) node );
+                    return new OneLevelScopeEvaluator<Entry>( db, ( ScopeNode<String> ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Entry>( db, ( ScopeNode<UUID> ) node );
+                    return new SubtreeScopeEvaluator<Entry>( db, ( ScopeNode<String> ) node );
                 }
 
             case SUBSTRING:

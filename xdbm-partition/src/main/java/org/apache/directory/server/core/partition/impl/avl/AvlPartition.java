@@ -21,9 +21,9 @@ package org.apache.directory.server.core.partition.impl.avl;
 
 
 import java.net.URI;
-import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -99,18 +99,18 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    public UUID getDefaultId()
+    public String getDefaultId()
     {
-        return new UUID( 0L, 1L );
+        return Partition.DEFAULT_ID;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public UUID getRootId()
+    public String getRootId()
     {
-        return new UUID( 0L, 0L );
+        return Partition.ROOT_ID;
     }
 
 
@@ -144,7 +144,7 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, Entry, UUID> convertAndInit( Index<?, Entry, UUID> index ) throws Exception
+    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
     {
         AvlIndex<?, Entry> avlIndex;
 

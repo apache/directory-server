@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -46,7 +44,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final Cursor<IndexEntry<V, UUID>> uuidCursor;
+    private final Cursor<IndexEntry<V, String>> uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
 
 
@@ -106,7 +104,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, UUID> candidate = uuidCursor.get();
+            IndexEntry<?, String> candidate = uuidCursor.get();
 
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -123,7 +121,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, UUID> candidate = uuidCursor.get();
+            IndexEntry<?, String> candidate = uuidCursor.get();
 
             if ( !childEvaluator.evaluate( candidate ) )
             {
@@ -135,7 +133,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, UUID> get() throws Exception
+    public IndexEntry<V, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

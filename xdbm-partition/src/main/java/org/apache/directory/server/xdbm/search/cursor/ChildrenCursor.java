@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -40,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChildrenCursor extends AbstractIndexCursor<UUID>
+public class ChildrenCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -49,13 +47,13 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor;
+    private final Cursor<IndexEntry<ParentIdAndRdn, String>> cursor;
 
     /** The Parent ID */
-    private UUID parentId;
+    private String parentId;
 
     /** The prefetched element */
-    private IndexEntry<UUID, UUID> prefetched;
+    private IndexEntry<String, String> prefetched;
 
 
     /**
@@ -65,7 +63,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry> db, UUID parentId, Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor )
+    public ChildrenCursor( Store<Entry> db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -143,8 +141,8 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
         if ( hasNext )
         {
             IndexEntry cursorEntry = cursor.get();
-            IndexEntry<UUID, UUID> entry = new ForwardIndexEntry();
-            entry.setId( ( UUID ) cursorEntry.getId() );
+            IndexEntry<String, String> entry = new ForwardIndexEntry();
+            entry.setId( ( String ) cursorEntry.getId() );
             entry.setKey( ( ( ParentIdAndRdn ) cursorEntry.getTuple().getKey() ).getParentId() );
 
             if ( entry.getKey().equals( parentId ) )
@@ -158,7 +156,7 @@ public class ChildrenCursor extends AbstractIndexCursor<UUID>
     }
 
 
-    public IndexEntry<UUID, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

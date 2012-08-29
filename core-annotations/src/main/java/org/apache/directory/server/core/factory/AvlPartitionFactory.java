@@ -21,7 +21,6 @@ package org.apache.directory.server.core.factory;
 
 import java.io.File;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
@@ -68,7 +67,7 @@ public class AvlPartitionFactory implements PartitionFactory
         }
 
         AvlPartition avlPartition = ( AvlPartition ) partition;
-        Set<Index<?, Entry, UUID>> indexedAttributes = avlPartition.getIndexedAttributes();
+        Set<Index<?, Entry, String>> indexedAttributes = avlPartition.getIndexedAttributes();
 
         AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId, false );
         //index.setCacheSize( cacheSize );

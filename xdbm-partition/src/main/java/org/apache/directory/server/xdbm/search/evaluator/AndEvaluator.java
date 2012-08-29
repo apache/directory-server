@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -103,7 +102,7 @@ public class AndEvaluator implements Evaluator<AndNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         for ( Evaluator<?> evaluator : evaluators )
         {

@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -43,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DescendantCursor extends AbstractIndexCursor<UUID>
+public class DescendantCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -58,10 +56,10 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
     private IndexEntry prefetched;
 
     /** The current Cursor over the entries in the scope of the search base */
-    private Cursor<IndexEntry<ParentIdAndRdn, UUID>> currentCursor;
+    private Cursor<IndexEntry<ParentIdAndRdn, String>> currentCursor;
 
     /** The current Parent ID */
-    private UUID currentParentId;
+    private String currentParentId;
 
     /** The stack of cursors used to process the depth-first traversal */
     private ArrayStack cursorStack;
@@ -70,7 +68,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
     private ArrayStack parentIdStack;
 
     /** The initial entry ID we are looking descendants for */
-    private UUID baseId;
+    private String baseId;
 
     /** A flag to tell that we are in the top level cursor or not */
     private boolean topLevel;
@@ -86,8 +84,8 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor )
+    public DescendantCursor( Store<Entry> db, String baseId, String parentId,
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
         throws Exception
     {
         this( db, baseId, parentId, cursor, TOP_LEVEL );
@@ -101,8 +99,8 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry> db, UUID baseId, UUID parentId,
-        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor,
+    public DescendantCursor( Store<Entry> db, String baseId, String parentId,
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor,
         boolean topLevel )
         throws Exception
     {
@@ -204,8 +202,8 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                     if ( !finished )
                     {
                         currentCursor.close();
-                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, UUID>> ) cursorStack.pop();
-                        currentParentId = ( UUID ) parentIdStack.pop();
+                        currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, String>> ) cursorStack.pop();
+                        currentParentId = ( String ) parentIdStack.pop();
                     }
 
                     // And continue...
@@ -227,12 +225,12 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                     // Check if the current entry has children or not.
                     if ( parentIdAndRdn.getNbDescendants() > 0 )
                     {
-                        UUID newParentId = ( UUID ) cursorEntry.getId();
+                        String newParentId = ( String ) cursorEntry.getId();
 
                         // Yes, then create a new cursor and go down one level
-                        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = db.getRdnIndex().forwardCursor();
+                        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = db.getRdnIndex().forwardCursor();
 
-                        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
+                        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
                         startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
                         cursor.before( startingPos );
 
@@ -254,8 +252,8 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
                 if ( !finished )
                 {
                     currentCursor.close();
-                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, UUID>> ) cursorStack.pop();
-                    currentParentId = ( UUID ) parentIdStack.pop();
+                    currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, String>> ) cursorStack.pop();
+                    currentParentId = ( String ) parentIdStack.pop();
                 }
                 // and continue...
             }
@@ -265,7 +263,7 @@ public class DescendantCursor extends AbstractIndexCursor<UUID>
     }
 
 
-    public IndexEntry<UUID, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

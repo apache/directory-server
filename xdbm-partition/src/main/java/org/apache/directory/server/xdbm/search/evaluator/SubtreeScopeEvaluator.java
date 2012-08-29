@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -39,13 +37,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
+public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
 {
     /** The ScopeNode containing initial search scope constraints */
-    private final ScopeNode<UUID> node;
+    private final ScopeNode<String> node;
 
     /** The entry identifier of the scope base */
-    private final UUID baseId;
+    private final String baseId;
 
     /** 
      * Whether or not to accept all candidates.  If this evaluator's baseId is
@@ -73,7 +71,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E> db, ScopeNode<UUID> node ) throws Exception
+    public SubtreeScopeEvaluator( Store<E> db, ScopeNode<String> node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -88,12 +86,12 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 
-    private UUID contextEntryId;
+    private String contextEntryId;
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private UUID getContextEntryId() throws Exception
+    private String getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -121,9 +119,9 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      * the parentIdAndRdn up to the baseId. If we terminate on the context entry without 
      * having found the baseId, then the candidate is not a descendant.
      */
-    private boolean isDescendant( UUID candidateId ) throws Exception
+    private boolean isDescendant( String candidateId ) throws Exception
     {
-        UUID tmp = candidateId;
+        String tmp = candidateId;
 
         while ( true )
         {
@@ -159,9 +157,9 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, UUID> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> candidate ) throws Exception
     {
-        UUID id = candidate.getId();
+        String id = candidate.getId();
 
         /*
          * This condition catches situations where the candidate is equal to 
@@ -234,13 +232,13 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
     }
 
 
-    public ScopeNode<UUID> getExpression()
+    public ScopeNode<String> getExpression()
     {
         return node;
     }
 
 
-    public UUID getBaseId()
+    public String getBaseId()
     {
         return baseId;
     }

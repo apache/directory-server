@@ -222,7 +222,7 @@ public class JdbmStoreTest
         store2.add( new AddOperationContext( null, entry ) );
 
         // lookup the context entry
-        UUID id = store2.getEntryId( suffixDn );
+        String id = store2.getEntryId( suffixDn );
         Entry lookup = store2.lookup( id, suffixDn );
         assertEquals( 2, lookup.getDn().size() );
 
@@ -238,7 +238,7 @@ public class JdbmStoreTest
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
-        Index<String, Entry, UUID> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<String, Entry, String> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
         ( ( Store<Entry> ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
@@ -486,7 +486,7 @@ public class JdbmStoreTest
     {
         assertEquals( 3, store.getChildCount( Strings.getUUID( 1L ) ) );
 
-        Cursor<IndexEntry<UUID, UUID>> cursor = store.list( Strings.getUUID( 1L ) );
+        Cursor<IndexEntry<String, String>> cursor = store.list( Strings.getUUID( 1L ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -613,7 +613,7 @@ public class JdbmStoreTest
         store.rename( dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        UUID id = store.getEntryId( dn2 );
+        String id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.lookup( id, dn2 );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );

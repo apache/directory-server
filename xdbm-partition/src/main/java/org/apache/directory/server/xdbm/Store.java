@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -159,7 +158,7 @@ public interface Store<E>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, E, UUID> index ) throws Exception;
+    void addIndex( Index<?, E, String> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -168,49 +167,49 @@ public interface Store<E>
     /**
      * @return The Presence system index
      */
-    Index<String, E, UUID> getPresenceIndex();
+    Index<String, E, String> getPresenceIndex();
 
 
     /**
      * @return The Alias system index
      */
-    Index<String, E, UUID> getAliasIndex();
+    Index<String, E, String> getAliasIndex();
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<UUID, E, UUID> getOneAliasIndex();
+    Index<String, E, String> getOneAliasIndex();
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<UUID, E, UUID> getSubAliasIndex();
+    Index<String, E, String> getSubAliasIndex();
 
 
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn, E, UUID> getRdnIndex();
+    Index<ParentIdAndRdn, E, String> getRdnIndex();
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, E, UUID> getObjectClassIndex();
+    Index<String, E, String> getObjectClassIndex();
 
 
     /**
      * @return The EntryUUID system index
      */
-    Index<String, E, UUID> getEntryUuidIndex();
+    Index<String, E, String> getEntryUuidIndex();
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, E, UUID> getEntryCsnIndex();
+    Index<String, E, String> getEntryCsnIndex();
 
 
     /**
@@ -262,7 +261,7 @@ public interface Store<E>
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, UUID> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -271,7 +270,7 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, UUID> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -280,7 +279,7 @@ public interface Store<E>
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, UUID> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, E, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -289,7 +288,7 @@ public interface Store<E>
      * @param dn the normalized entry Dn
      * @return the entry's id, or <code>null</code> if the Dn doesn't exists
      */
-    UUID getEntryId( Dn dn ) throws Exception;
+    String getEntryId( Dn dn ) throws Exception;
 
 
     /**
@@ -298,7 +297,7 @@ public interface Store<E>
      * @param id the entry's id
      * @return the entry's Dn
      */
-    Dn getEntryDn( UUID id ) throws Exception;
+    Dn getEntryDn( String id ) throws Exception;
 
 
     /**
@@ -309,7 +308,7 @@ public interface Store<E>
      * @return the id of the parent entry or zero if the suffix entry UUID is used
      * @throws Exception on failures to access the underlying store
      */
-    UUID getParentId( UUID childId ) throws Exception;
+    String getParentId( String childId ) throws Exception;
 
 
     /**
@@ -327,7 +326,7 @@ public interface Store<E>
      * @param id The Entry UUID we want to delete
      * @throws Exception If the deletion failed for any reason
      */
-    void delete( UUID id ) throws Exception;
+    void delete( String id ) throws Exception;
 
 
     /**
@@ -337,7 +336,7 @@ public interface Store<E>
      * @return an IndexEntry Cursor over the child entries
      * @throws Exception on failures to access the underlying store
      */
-    Cursor<IndexEntry<UUID, UUID>> list( UUID id ) throws Exception;
+    Cursor<IndexEntry<String, String>> list( String id ) throws Exception;
 
 
     /**
@@ -347,7 +346,7 @@ public interface Store<E>
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( UUID id ) throws Exception;
+    Entry lookup( String id ) throws Exception;
 
 
     /**
@@ -358,7 +357,7 @@ public interface Store<E>
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( UUID id, Dn dn ) throws Exception;
+    Entry lookup( String id, Dn dn ) throws Exception;
 
 
     /**
@@ -368,7 +367,7 @@ public interface Store<E>
      * @return the child count
      * @throws Exception on failures to access the underlying store
      */
-    int getChildCount( UUID id ) throws Exception;
+    int getChildCount( String id ) throws Exception;
 
 
     /**

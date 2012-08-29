@@ -276,7 +276,7 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        UUID id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 
@@ -843,7 +843,7 @@ public class SingleFileLdifPartitionTest
         partition.add( addCtx );
 
         // search works fine
-        UUID id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 

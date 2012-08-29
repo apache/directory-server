@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -49,8 +48,8 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
-    final ForwardIndexEntry<K, UUID> forwardEntry;
-    final ReverseIndexEntry<K, UUID> reverseEntry;
+    final ForwardIndexEntry<K, String> forwardEntry;
+    final ReverseIndexEntry<K, String> reverseEntry;
 
 
     /**
@@ -69,13 +68,13 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
         if ( forwardIndex )
         {
-            forwardEntry = new ForwardIndexEntry<K, UUID>();
+            forwardEntry = new ForwardIndexEntry<K, String>();
             reverseEntry = null;
         }
         else
         {
             forwardEntry = null;
-            reverseEntry = new ReverseIndexEntry<K, UUID>();
+            reverseEntry = new ReverseIndexEntry<K, String>();
         }
     }
 
@@ -86,13 +85,13 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
-    public void before( IndexEntry<K, UUID> element ) throws Exception
+    public void before( IndexEntry<K, String> element ) throws Exception
     {
         wrappedCursor.before( element.getTuple() );
     }
 
 
-    public void after( IndexEntry<K, UUID> element ) throws Exception
+    public void after( IndexEntry<K, String> element ) throws Exception
     {
         wrappedCursor.after( element.getTuple() );
     }
@@ -141,17 +140,17 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<K, UUID> get() throws Exception
+    public IndexEntry<K, String> get() throws Exception
     {
         if ( forwardEntry != null )
         {
-            Tuple<K, UUID> tuple = wrappedCursor.get();
+            Tuple<K, String> tuple = wrappedCursor.get();
             forwardEntry.setTuple( tuple, null );
             return forwardEntry;
         }
         else
         {
-            Tuple<UUID, K> tuple = wrappedCursor.get();
+            Tuple<String, K> tuple = wrappedCursor.get();
             reverseEntry.setTuple( tuple, null );
             return reverseEntry;
         }
@@ -178,9 +177,9 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
-    public Iterator<IndexEntry<K, UUID>> iterator()
+    public Iterator<IndexEntry<K, String>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, UUID>>( this );
+        return new CursorIterator<IndexEntry<K, String>>( this );
     }
 
 

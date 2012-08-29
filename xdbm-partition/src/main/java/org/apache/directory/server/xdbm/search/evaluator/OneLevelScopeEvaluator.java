@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -37,13 +35,13 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
+public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
 {
     /** The ScopeNode containing initial search scope constraints */
-    private final ScopeNode<UUID> node;
+    private final ScopeNode<String> node;
 
     /** The entry identifier of the scope base */
-    private final UUID baseId;
+    private final String baseId;
 
     /** True if the scope requires alias dereferencing while searching */
     private final boolean dereferencing;
@@ -59,7 +57,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store<E> db, ScopeNode<UUID> node ) throws Exception
+    public OneLevelScopeEvaluator( Store<E> db, ScopeNode<String> node ) throws Exception
     {
         this.node = node;
 
@@ -98,7 +96,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, UUID> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> candidate ) throws Exception
     {
         ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( candidate.getId() );
         boolean isChild = parent.getParentId().equals( baseId );
@@ -146,7 +144,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
     }
 
 
-    public ScopeNode<UUID> getExpression()
+    public ScopeNode<String> getExpression()
     {
         return node;
     }
@@ -157,7 +155,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<UUID>>
      *
      * @return identifier of the search base
      */
-    public UUID getBaseId()
+    public String getBaseId()
     {
         return baseId;
     }

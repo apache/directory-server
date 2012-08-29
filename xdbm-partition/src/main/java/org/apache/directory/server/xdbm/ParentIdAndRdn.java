@@ -26,7 +26,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.name.Rdn;
 
@@ -41,7 +40,7 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn>
 {
     /** The entry ID */
-    protected UUID parentId;
+    protected String parentId;
 
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
@@ -67,7 +66,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( UUID parentId, Rdn... rdns )
+    public ParentIdAndRdn( String parentId, Rdn... rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns;
@@ -80,7 +79,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( UUID parentId, List<Rdn> rdns )
+    public ParentIdAndRdn( String parentId, List<Rdn> rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns.toArray( new Rdn[rdns.size()] );
@@ -94,7 +93,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
      * 
      * @return the parent ID
      */
-    public UUID getParentId()
+    public String getParentId()
     {
         return parentId;
     }
@@ -105,7 +104,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
      * 
      * @param parentId the new parent ID
      */
-    public void setParentId( UUID parentId )
+    public void setParentId( String parentId )
     {
         this.parentId = parentId;
     }
@@ -264,8 +263,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
 
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        out.writeLong( parentId.getMostSignificantBits() );
-        out.writeLong( parentId.getLeastSignificantBits() );
+        out.writeUTF( parentId );
         out.writeInt( nbChildren );
         out.writeInt( nbDescendants );
         out.writeInt( rdns.length );
@@ -280,9 +278,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        long uuidMsb = in.readLong();
-        long uuidLsb = in.readLong();
-        parentId = new UUID( uuidMsb, uuidLsb );
+        parentId = in.readUTF();
         nbChildren = in.readInt();
         nbDescendants = in.readInt();
         int size = in.readInt();

@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.xdbm.Index;
@@ -58,7 +57,7 @@ import org.junit.Test;
 public class JdbmIndexTest
 {
     private static File dbFileDir;
-    Index<String, Entry, UUID> idx;
+    Index<String, Entry, String> idx;
     private static SchemaManager schemaManager;
 
 
@@ -377,11 +376,11 @@ public class JdbmIndexTest
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "foo", Strings.getUUID( 1L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
@@ -389,12 +388,12 @@ public class JdbmIndexTest
         assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "bar", Strings.getUUID( 0L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
@@ -404,15 +403,15 @@ public class JdbmIndexTest
         assertTrue( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
         assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
         assertFalse( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 1L ) ) );
         assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
         assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardLessOrEq( "bar", Strings.getUUID( -1L ) ) );
+        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
+        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( -1L ) ) );
     }
 
 
@@ -506,23 +505,23 @@ public class JdbmIndexTest
         assertEquals( 3, idx.count() );
 
         // use forward index's cursor
-        Cursor<IndexEntry<String, UUID>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         assertEquals( 3, idx.count() );
 
         cursor.next();
-        IndexEntry<String, UUID> e1 = cursor.get();
+        IndexEntry<String, String> e1 = cursor.get();
         assertEquals( Strings.getUUID( 555L ), e1.getId() );
         assertEquals( "bar", e1.getKey() );
 
         cursor.next();
-        IndexEntry<String, UUID> e2 = cursor.get();
+        IndexEntry<String, String> e2 = cursor.get();
         assertEquals( Strings.getUUID( 333L ), e2.getId() );
         assertEquals( "foo", e2.getKey() );
 
         cursor.next();
-        IndexEntry<String, UUID> e3 = cursor.get();
+        IndexEntry<String, String> e3 = cursor.get();
         assertEquals( Strings.getUUID( 1234L ), e3.getId() );
         assertEquals( "foo", e3.getKey() );
 

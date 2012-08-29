@@ -19,8 +19,6 @@
 package org.apache.directory.server.xdbm;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
@@ -40,10 +38,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
-    private final IndexEntry<V, UUID> singleton;
+    private final IndexEntry<V, String> singleton;
 
 
-    public SingletonIndexCursor( IndexEntry<V, UUID> singleton )
+    public SingletonIndexCursor( IndexEntry<V, String> singleton )
     {
         LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
         this.singleton = singleton;
@@ -179,7 +177,7 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, UUID> get() throws Exception
+    public IndexEntry<V, String> get() throws Exception
     {
         checkNotClosed( "()" );
 

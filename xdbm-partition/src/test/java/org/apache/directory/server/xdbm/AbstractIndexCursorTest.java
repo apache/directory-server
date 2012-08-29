@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.shared.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.model.cursor.DefaultClosureMonitor;
@@ -125,7 +124,7 @@ public class AbstractIndexCursorTest
     @Test
     public void testIterator()
     {
-        Iterator<IndexEntry<String, UUID>> iterator = indexCursor.iterator();
+        Iterator<IndexEntry<String, String>> iterator = indexCursor.iterator();
         assertNotNull( iterator );
     }
 

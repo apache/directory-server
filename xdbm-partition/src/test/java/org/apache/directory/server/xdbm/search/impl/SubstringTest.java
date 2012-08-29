@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -631,7 +630,7 @@ public class SubstringTest
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "walk", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
         indexEntry.setId( Strings.getUUID( 3L ) );
@@ -643,35 +642,35 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "wa", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 5L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
@@ -683,7 +682,7 @@ public class SubstringTest
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "jim", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
         indexEntry.setId( Strings.getUUID( 3L ) );
@@ -692,14 +691,14 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
-        indexEntry = new ForwardIndexEntry<String, UUID>();
+        indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
@@ -762,7 +761,7 @@ public class SubstringTest
             cursor = new SubstringCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( SchemaConstants.SN_AT_OID );
             cursor.before( entry );
         }
@@ -785,7 +784,7 @@ public class SubstringTest
             cursor = new SubstringCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( SchemaConstants.SN_AT_OID );
             cursor.after( entry );
         }

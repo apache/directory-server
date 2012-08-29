@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -46,12 +44,12 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
-    private final Cursor<IndexEntry<String, UUID>> uuidCursor;
-    private final Cursor<IndexEntry<String, UUID>> presenceCursor;
+    private final Cursor<IndexEntry<String, String>> uuidCursor;
+    private final Cursor<IndexEntry<String, String>> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
 
     /** The prefetched entry, if it's a valid one */
-    private IndexEntry<String, UUID> prefetched;
+    private IndexEntry<String, String> prefetched;
 
 
     public PresenceCursor( Store<Entry> store, PresenceEvaluator presenceEvaluator ) throws Exception
@@ -99,7 +97,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<String, UUID> element ) throws Exception
+    public void before( IndexEntry<String, String> element ) throws Exception
     {
         checkNotClosed( "before()" );
 
@@ -117,7 +115,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<String, UUID> element ) throws Exception
+    public void after( IndexEntry<String, String> element ) throws Exception
     {
         checkNotClosed( "after()" );
 
@@ -203,7 +201,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         while ( uuidCursor.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, UUID> candidate = uuidCursor.get();
+            IndexEntry<?, String> candidate = uuidCursor.get();
 
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -227,7 +225,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         while ( uuidCursor.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, UUID> candidate = uuidCursor.get();
+            IndexEntry<String, String> candidate = uuidCursor.get();
 
             if ( presenceEvaluator.evaluate( candidate ) )
             {
@@ -241,7 +239,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     }
 
 
-    public IndexEntry<String, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

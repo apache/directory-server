@@ -21,8 +21,6 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
@@ -75,7 +73,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn, Entry>
             throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
-        ParentIdAndRdnComparator<UUID> comp = new ParentIdAndRdnComparator<UUID>( mr.getOid() );
+        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<String>( mr.getOid() );
 
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 
@@ -84,9 +82,9 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn, Entry>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<ParentIdAndRdn, UUID>( attributeType.getName(), comp, UuidComparator.INSTANCE,
+        forward = new AvlTable<ParentIdAndRdn, String>( attributeType.getName(), comp, UuidComparator.INSTANCE,
             false );
-        reverse = new AvlTable<UUID, ParentIdAndRdn>( attributeType.getName(), UuidComparator.INSTANCE, comp,
+        reverse = new AvlTable<String, ParentIdAndRdn>( attributeType.getName(), UuidComparator.INSTANCE, comp,
             false );
     }
 }

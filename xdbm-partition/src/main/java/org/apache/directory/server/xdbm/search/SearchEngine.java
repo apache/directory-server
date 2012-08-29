@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -84,7 +82,7 @@ public interface SearchEngine<E>
      * @return enumeration over SearchResults
      * @throws Exception if the search fails
      */
-    Cursor<IndexEntry<UUID, UUID>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    Cursor<IndexEntry<String, String>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception;
 
 

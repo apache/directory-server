@@ -27,7 +27,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
@@ -160,18 +159,18 @@ public class JdbmPartition extends AbstractBTreePartition
             // then add all index objects to a list
             List<String> allIndices = new ArrayList<String>();
 
-            for ( Index<?, Entry, UUID> index : systemIndices.values() )
+            for ( Index<?, Entry, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
 
-            List<Index<?, Entry, UUID>> indexToBuild = new ArrayList<Index<?, Entry, UUID>>();
+            List<Index<?, Entry, String>> indexToBuild = new ArrayList<Index<?, Entry, String>>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
             // two for finding a new index to be built
             // just to avoid another iteration for determining which is the new index
-            for ( Index<?, Entry, UUID> index : userIndices.values() )
+            for ( Index<?, Entry, String> index : userIndices.values() )
             {
                 String indexOid = index.getAttribute().getOid();
                 allIndices.add( indexOid );
@@ -203,18 +202,18 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}}
      */
-    public UUID getDefaultId()
+    public String getDefaultId()
     {
-        return new UUID( 0L, 1L );
+        return Partition.DEFAULT_ID;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public UUID getRootId()
+    public String getRootId()
     {
-        return new UUID( 0L, 0L );
+        return Partition.ROOT_ID;
     }
 
 
@@ -232,13 +231,13 @@ public class JdbmPartition extends AbstractBTreePartition
         }
 
         // Sync all system indices
-        for ( Index<?, Entry, UUID> idx : systemIndices.values() )
+        for ( Index<?, Entry, String> idx : systemIndices.values() )
         {
             idx.sync();
         }
 
         // Sync all user defined userIndices
-        for ( Index<?, Entry, UUID> idx : userIndices.values() )
+        for ( Index<?, Entry, String> idx : userIndices.values() )
         {
             idx.sync();
         }
@@ -254,9 +253,9 @@ public class JdbmPartition extends AbstractBTreePartition
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, Entry, UUID>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, Entry, String>> userIndexes ) throws Exception
     {
-        Cursor<Tuple<UUID, Entry>> cursor = master.cursor();
+        Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
 
         while ( cursor.next() )
@@ -269,9 +268,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 LOG.info( "building the index for attribute type {}", atType );
 
-                Tuple<UUID, Entry> tuple = cursor.get();
+                Tuple<String, Entry> tuple = cursor.get();
 
-                UUID id = tuple.getKey();
+                String id = tuple.getKey();
                 Entry entry = tuple.getValue();
 
                 Attribute entryAttr = entry.get( atType );
@@ -344,7 +343,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    protected Index<?, Entry, UUID> convertAndInit( Index<?, Entry, UUID> index ) throws Exception
+    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
     {
         JdbmIndex<?, Entry> jdbmIndex;
 

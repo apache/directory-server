@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -212,7 +211,7 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
 
         // test before()
-        ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.CN_AT_OID );
         cursor.before( entry );
         assertTrue( cursor.next() );
@@ -220,7 +219,7 @@ public class PresenceTest
         assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
 
         // test after()
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         cursor.after( entry );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
@@ -287,7 +286,7 @@ public class PresenceTest
 
         cursor.beforeFirst();
 
-        List<UUID> ids = new ArrayList<UUID>();
+        List<String> ids = new ArrayList<String>();
 
         while ( cursor.next() && cursor.available() )
         {
@@ -313,7 +312,7 @@ public class PresenceTest
 
         cursor.beforeFirst();
 
-        Set<UUID> set = new HashSet<UUID>();
+        Set<String> set = new HashSet<String>();
 
         while ( cursor.next() )
         {
@@ -393,11 +392,11 @@ public class PresenceTest
     {
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.CN_AT_OID );
         entry.setId( Strings.getUUID( 3L ) );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.CN_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
@@ -418,12 +417,12 @@ public class PresenceTest
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( oid ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
 
-        ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
         // no need to set a value or id, because the evaluator must always evaluate to true
         // as each entry contains an objectClass, entryUUID, and entryCSN attribute
         assertTrue( evaluator.evaluate( entry ) );
 
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( oid );
         entry.setId( Strings.getUUID( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
@@ -435,22 +434,22 @@ public class PresenceTest
     {
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "name" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+        ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.NAME_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
         assertTrue( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.NAME_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
         assertTrue( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "searchGuide" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
         entry.setEntry( store.lookup( Strings.getUUID( 5 ) ) );
@@ -458,11 +457,11 @@ public class PresenceTest
 
         node = new PresenceNode( schemaManager.getAttributeType( "st" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.ST_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
         assertFalse( evaluator.evaluate( entry ) );
-        entry = new ForwardIndexEntry<String, UUID>();
+        entry = new ForwardIndexEntry<String, String>();
         entry.setKey( SchemaConstants.ST_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
         entry.setEntry( store.lookup( Strings.getUUID( 5 ) ) );
@@ -520,7 +519,7 @@ public class PresenceTest
             cursor = new PresenceCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( SchemaConstants.SN_AT_OID );
             cursor.before( entry );
         }
@@ -543,7 +542,7 @@ public class PresenceTest
             cursor = new PresenceCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<String, UUID> entry = new ForwardIndexEntry<String, UUID>();
+            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
             entry.setKey( SchemaConstants.SN_AT_OID );
             cursor.after( entry );
         }

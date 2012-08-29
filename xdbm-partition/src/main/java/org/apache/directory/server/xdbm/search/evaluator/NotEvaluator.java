@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -56,7 +54,7 @@ public class NotEvaluator implements Evaluator<NotNode>
     }
 
 
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         return !childEvaluator.evaluate( indexEntry );
     }

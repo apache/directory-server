@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -48,14 +47,14 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
-    private final List<Cursor<IndexEntry<V, UUID>>> cursors;
+    private final List<Cursor<IndexEntry<V, String>>> cursors;
     private final List<Evaluator<? extends ExprNode>> evaluators;
-    private final List<Set<UUID>> blacklists;
+    private final List<Set<String>> blacklists;
     private int cursorIndex = -1;
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<Cursor<IndexEntry<V, UUID>>> cursors,
+    public OrCursor( List<Cursor<IndexEntry<V, String>>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
         LOG_CURSOR.debug( "Creating OrCursor {}", this );
@@ -67,11 +66,11 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         this.cursors = cursors;
         this.evaluators = evaluators;
-        this.blacklists = new ArrayList<Set<UUID>>();
+        this.blacklists = new ArrayList<Set<String>>();
 
         for ( int i = 0; i < cursors.size(); i++ )
         {
-            this.blacklists.add( new HashSet<UUID>() );
+            this.blacklists.add( new HashSet<String>() );
         }
 
         this.cursorIndex = 0;
@@ -121,7 +120,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    private boolean isBlackListed( UUID id )
+    private boolean isBlackListed( String id )
     {
         return blacklists.get( cursorIndex ).contains( id );
     }
@@ -134,7 +133,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -156,7 +155,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         while ( cursors.get( cursorIndex ).previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, UUID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
@@ -175,7 +174,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             while ( cursors.get( cursorIndex ).previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, UUID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
 
                 if ( !isBlackListed( candidate.getId() ) )
                 {
@@ -195,7 +194,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         while ( cursors.get( cursorIndex ).next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, UUID> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
@@ -214,7 +213,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             while ( cursors.get( cursorIndex ).next() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, UUID> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
@@ -228,7 +227,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, UUID> get() throws Exception
+    public IndexEntry<V, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

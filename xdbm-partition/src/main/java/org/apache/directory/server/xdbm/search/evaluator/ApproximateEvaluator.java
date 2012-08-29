@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -58,7 +57,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
             normalizer = null;
             ldapComparator = null;
         }
@@ -133,7 +132,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

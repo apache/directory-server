@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -178,7 +177,7 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -208,7 +207,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -230,15 +229,15 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
-        Set<UUID> set = new HashSet<UUID>();
+        Set<String> set = new HashSet<String>();
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
 
-            IndexEntry<?, UUID> elem = cursor.get();
+            IndexEntry<?, String> elem = cursor.get();
 
             set.add( elem.getId() );
             assertTrue( uuidSynChecker.isValidSyntax( elem.getKey() ) );
@@ -261,7 +260,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
         cursor.close();
     }
 }

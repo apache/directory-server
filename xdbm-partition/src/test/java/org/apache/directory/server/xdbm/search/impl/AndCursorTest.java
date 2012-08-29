@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -182,7 +181,7 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
         cursor.beforeFirst();
 
@@ -219,7 +218,7 @@ public class AndCursorTest
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        Cursor<IndexEntry<String, UUID>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor<IndexEntry<String, String>> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
 
         /* adding this results in NPE  adding Presence evaluator not 
          Substring evaluator but adding Substring cursor as wrapped cursor */

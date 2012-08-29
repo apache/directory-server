@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -61,7 +59,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected LdapComparator<? super Object> ldapComparator;
 
     /** The index to use if any */
-    protected Index<T, Entry, UUID> idx;
+    protected Index<T, Entry, String> idx;
 
 
     @SuppressWarnings("unchecked")

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import org.apache.directory.server.config.ConfigSchemaConstants;
 import org.apache.directory.server.config.ConfigurationException;
@@ -1135,10 +1134,11 @@ public class ServiceBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, Entry, UUID>> createJdbmIndexes( JdbmPartition partition, List<IndexBean> indexesBeans,
+    private static Set<Index<?, Entry, String>> createJdbmIndexes( JdbmPartition partition,
+        List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, Entry, UUID>> indexes = new HashSet<Index<?, Entry, UUID>>();
+        Set<Index<?, Entry, String>> indexes = new HashSet<Index<?, Entry, String>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {

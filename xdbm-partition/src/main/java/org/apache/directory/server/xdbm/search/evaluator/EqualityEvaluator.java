@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -63,7 +62,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, UUID> ) db.getIndex( attributeType );
+            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
             normalizer = null;
             ldapComparator = null;
         }
@@ -93,7 +92,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     }
 
 
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

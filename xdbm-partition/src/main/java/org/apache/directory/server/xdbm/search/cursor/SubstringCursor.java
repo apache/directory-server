@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -48,9 +46,9 @@ public class SubstringCursor extends AbstractIndexCursor<String>
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
-    private final Cursor<IndexEntry<String, UUID>> wrapped;
+    private final Cursor<IndexEntry<String, String>> wrapped;
     private final SubstringEvaluator evaluator;
-    private final ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
+    private final ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
 
 
     @SuppressWarnings("unchecked")
@@ -63,7 +61,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, UUID> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String, Entry, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
@@ -98,7 +96,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String, UUID> indexEntry = new ForwardIndexEntry<String, UUID>();
+            ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
             indexEntry.setKey( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }
@@ -139,7 +137,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String, UUID> indexEntry ) throws Exception
+    private boolean evaluateCandidate( IndexEntry<String, String> indexEntry ) throws Exception
     {
         if ( hasIndex )
         {
@@ -165,7 +163,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         while ( wrapped.previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<String, UUID> entry = wrapped.get();
+            IndexEntry<String, String> entry = wrapped.get();
 
             if ( evaluateCandidate( entry ) )
             {
@@ -187,7 +185,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<String, UUID> entry = wrapped.get();
+            IndexEntry<String, String> entry = wrapped.get();
 
             if ( evaluateCandidate( entry ) )
             {
@@ -205,7 +203,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     }
 
 
-    public IndexEntry<String, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

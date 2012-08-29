@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
@@ -38,16 +36,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AllEntriesCursor extends AbstractIndexCursor<UUID>
+public class AllEntriesCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     /** The index entry we use to return entries one by one.  */
-    private IndexEntry<UUID, UUID> indexEntry = new ForwardIndexEntry<UUID, UUID>();
+    private IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
 
     /** The cursor on the EntryUUID index */
-    private final Cursor<IndexEntry<String, UUID>> wrapped;
+    private final Cursor<IndexEntry<String, String>> wrapped;
 
 
     /**
@@ -75,7 +73,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<UUID, UUID> indexEntry ) throws Exception
+    public void after( IndexEntry<String, String> indexEntry ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -104,7 +102,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<UUID, UUID> indexEntry ) throws Exception
+    public void before( IndexEntry<String, String> indexEntry ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -135,14 +133,14 @@ public class AllEntriesCursor extends AbstractIndexCursor<UUID>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<UUID, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
-        IndexEntry<?, UUID> wrappedEntry = wrapped.get();
-        indexEntry.setId( ( UUID ) wrappedEntry.getKey() );
-        indexEntry.setKey( ( UUID ) wrappedEntry.getKey() );
+        IndexEntry<?, String> wrappedEntry = wrapped.get();
+        indexEntry.setId( ( String ) wrappedEntry.getKey() );
+        indexEntry.setKey( ( String ) wrappedEntry.getKey() );
         indexEntry.setEntry( ( Entry ) wrappedEntry.getTuple().getValue() );
 
         return indexEntry;

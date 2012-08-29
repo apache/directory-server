@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
-import java.util.UUID;
-
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -44,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
+public class SubtreeScopeCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -58,15 +56,15 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
     private final SubtreeScopeEvaluator<Entry> evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
-    private final Cursor<IndexEntry<UUID, UUID>> scopeCursor;
+    private final Cursor<IndexEntry<String, String>> scopeCursor;
 
     /** A Cursor over entries brought into scope by alias dereferencing */
-    private final Cursor<IndexEntry<UUID, UUID>> dereferencedCursor;
+    private final Cursor<IndexEntry<String, String>> dereferencedCursor;
 
     /** Currently active Cursor: we switch between two cursors */
-    private Cursor<IndexEntry<UUID, UUID>> cursor;
+    private Cursor<IndexEntry<String, String>> cursor;
 
-    private UUID contextEntryId;
+    private String contextEntryId;
 
 
     /**
@@ -91,16 +89,16 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
         {
             // We use the RdnIndex to get all the entries from a starting point
             // and below up to the number of children
-            UUID baseId = evaluator.getBaseId();
+            String baseId = evaluator.getBaseId();
             ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
             IndexEntry indexEntry = new ForwardIndexEntry();
 
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );
 
-            Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
+            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
                 indexEntry );
-            UUID parentId = parentIdAndRdn.getParentId();
+            String parentId = parentIdAndRdn.getParentId();
 
             scopeCursor = new DescendantCursor( db, baseId, parentId, cursor );
         }
@@ -126,7 +124,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    private UUID getContextEntryId() throws Exception
+    private String getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -324,7 +322,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<UUID>
     }
 
 
-    public IndexEntry<UUID, UUID> get() throws Exception
+    public IndexEntry<String, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 

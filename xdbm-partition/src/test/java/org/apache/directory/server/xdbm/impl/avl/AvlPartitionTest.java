@@ -384,7 +384,7 @@ public class AvlPartitionTest
     {
         assertEquals( 3, partition.getChildCount( Strings.getUUID( 1L ) ) );
 
-        Cursor<IndexEntry<UUID, UUID>> cursor = partition.list( Strings.getUUID( 2L ) );
+        Cursor<IndexEntry<String, String>> cursor = partition.list( Strings.getUUID( 2L ) );
         assertNotNull( cursor );
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -500,7 +500,7 @@ public class AvlPartitionTest
         partition.rename( dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        UUID id = partition.getEntryId( dn2 );
+        String id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.lookup( id );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.factory;
 
 import java.io.File;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -68,7 +67,7 @@ public class JdbmPartitionFactory implements PartitionFactory
         }
 
         JdbmPartition jdbmPartition = ( JdbmPartition ) partition;
-        Set<Index<?, Entry, UUID>> indexedAttributes = jdbmPartition.getIndexedAttributes();
+        Set<Index<?, Entry, String>> indexedAttributes = jdbmPartition.getIndexedAttributes();
 
         JdbmIndex<Object, Entry> index = new JdbmIndex<Object, Entry>( attributeId, false );
         index.setCacheSize( cacheSize );

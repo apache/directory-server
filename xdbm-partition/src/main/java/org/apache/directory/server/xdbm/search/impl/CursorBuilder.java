@@ -77,7 +77,7 @@ public class CursorBuilder
     }
 
 
-    public <T> Cursor<IndexEntry<?, UUID>> build( ExprNode node ) throws Exception
+    public <T> Cursor<IndexEntry<?, String>> build( ExprNode node ) throws Exception
     {
         switch ( node.getAssertionType() )
         {
@@ -135,7 +135,7 @@ public class CursorBuilder
                 return buildAndCursor( ( AndNode ) node );
 
             case NOT:
-                return ( Cursor ) new NotCursor<UUID>( db, evaluatorBuilder.build( ( ( NotNode ) node )
+                return ( Cursor ) new NotCursor<String>( db, evaluatorBuilder.build( ( ( NotNode ) node )
                     .getFirstChild() ) );
 
             case OR:
@@ -160,10 +160,10 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?, UUID>> buildOrCursor( OrNode node ) throws Exception
+    private Cursor<IndexEntry<?, String>> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Cursor<IndexEntry<?, UUID>>> childCursors = new ArrayList<Cursor<IndexEntry<?, UUID>>>(
+        List<Cursor<IndexEntry<?, String>>> childCursors = new ArrayList<Cursor<IndexEntry<?, String>>>(
             children.size() );
         List<Evaluator<? extends ExprNode>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() );
@@ -186,7 +186,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?, UUID>> buildAndCursor( AndNode node ) throws Exception
+    private Cursor<IndexEntry<?, String>> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -234,7 +234,7 @@ public class CursorBuilder
         }
 
         // Do recursive call to build min child Cursor then create AndCursor
-        Cursor<IndexEntry<?, UUID>> childCursor = build( minChild );
+        Cursor<IndexEntry<?, String>> childCursor = build( minChild );
 
         return new AndCursor( childCursor, childEvaluators );
     }

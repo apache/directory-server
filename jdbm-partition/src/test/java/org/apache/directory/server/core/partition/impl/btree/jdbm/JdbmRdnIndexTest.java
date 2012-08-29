@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -58,7 +57,7 @@ import org.junit.Test;
 public class JdbmRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn, Entry, UUID> idx;
+    Index<ParentIdAndRdn, Entry, String> idx;
     private static SchemaManager schemaManager;
 
 
@@ -350,23 +349,23 @@ public class JdbmRdnIndexTest
         assertEquals( 5, idx.count() );
 
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn, UUID> e1 = cursor.get();
+        IndexEntry<ParentIdAndRdn, String> e1 = cursor.get();
         assertEquals( Strings.getUUID( 0L ), e1.getId() );
         assertEquals( "cn=key", e1.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 0L ), e1.getKey().getParentId() );
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn, UUID> e2 = cursor.get();
+        IndexEntry<ParentIdAndRdn, String> e2 = cursor.get();
         assertEquals( Strings.getUUID( 1L ), e2.getId() );
         assertEquals( "cn=key1", e2.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 1L ), e2.getKey().getParentId() );
 
         cursor.next();
-        IndexEntry<ParentIdAndRdn, UUID> e3 = cursor.get();
+        IndexEntry<ParentIdAndRdn, String> e3 = cursor.get();
         assertEquals( Strings.getUUID( 2L ), e3.getId() );
         assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 2 ), e3.getKey().getParentId() );

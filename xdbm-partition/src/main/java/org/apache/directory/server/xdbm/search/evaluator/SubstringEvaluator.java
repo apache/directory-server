@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 
 import java.util.Iterator;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.directory.server.xdbm.Index;
@@ -66,7 +65,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     private final Normalizer normalizer;
 
     /** The index to use if any */
-    private final Index<String, Entry, UUID> idx;
+    private final Index<String, Entry, String> idx;
 
 
     /**
@@ -115,7 +114,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<String, Entry, UUID> ) db.getIndex( attributeType );
+            idx = ( Index<String, Entry, String> ) db.getIndex( attributeType );
         }
         else
         {
@@ -125,11 +124,11 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, UUID> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
     {
         if ( ( idx == null ) || ( !idx.hasReverse() ) )
         {
-            return evaluateWithoutIndex( ( IndexEntry<String, UUID> ) indexEntry );
+            return evaluateWithoutIndex( ( IndexEntry<String, String> ) indexEntry );
         }
         else
         {
@@ -156,7 +155,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     }
 
 
-    private boolean evaluateWithIndex( IndexEntry<?, UUID> indexEntry ) throws Exception
+    private boolean evaluateWithIndex( IndexEntry<?, String> indexEntry ) throws Exception
     {
         /*
          * Note that this is using the reverse half of the index giving a
@@ -164,12 +163,12 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
          * Otherwise we would have to scan the entire index if there were
          * no reverse lookups.
          */
-        Cursor<IndexEntry<String, UUID>> entries = idx.reverseCursor( indexEntry.getId() );
+        Cursor<IndexEntry<String, String>> entries = idx.reverseCursor( indexEntry.getId() );
 
         // cycle through the attribute values testing for a match
         while ( entries.next() )
         {
-            IndexEntry<String, UUID> rec = entries.get();
+            IndexEntry<String, String> rec = entries.get();
 
             // once match is found cleanup and return true
             if ( regex.matcher( rec.getKey() ).matches() )
@@ -262,7 +261,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( IndexEntry<String, UUID> indexEntry ) throws Exception
+    private boolean evaluateWithoutIndex( IndexEntry<String, String> indexEntry ) throws Exception
     {
         Entry entry = indexEntry.getEntry();
 

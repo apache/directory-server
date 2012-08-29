@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -178,13 +177,13 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
         assertFalse( cursor.available() );
 
         cursor.beforeFirst();
 
-        Set<UUID> set = new HashSet<UUID>();
+        Set<String> set = new HashSet<String>();
 
         while ( cursor.next() )
         {
@@ -221,7 +220,7 @@ public class NotCursorTest
         NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
-        Set<UUID> set = new HashSet<UUID>();
+        Set<String> set = new HashSet<String>();
 
         while ( cursor.next() )
         {
@@ -272,7 +271,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry<String, UUID>() );
+            cursor.after( new ForwardIndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -281,7 +280,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry<String, UUID>() );
+            cursor.before( new ForwardIndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

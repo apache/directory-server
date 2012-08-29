@@ -226,7 +226,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( UUID id ) throws LdapException
+    public void delete( String id ) throws LdapException
     {
         Entry entry = lookup( id );
 
@@ -258,7 +258,7 @@ public class LdifPartition extends AbstractLdifPartition
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        UUID id = getEntryId( modifyContext.getDn() );
+        String id = getEntryId( modifyContext.getDn() );
 
         try
         {
@@ -297,7 +297,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
-        UUID id = getEntryId( oldDn );
+        String id = getEntryId( oldDn );
 
         super.move( moveContext );
 
@@ -321,7 +321,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
-        UUID id = getEntryId( oldDn );
+        String id = getEntryId( oldDn );
 
         super.moveAndRename( moveAndRenameContext );
 
@@ -346,7 +346,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
-        UUID id = getEntryId( oldDn );
+        String id = getEntryId( oldDn );
 
         // Create the new entry
         super.rename( renameContext );
@@ -379,12 +379,12 @@ public class LdifPartition extends AbstractLdifPartition
      * @param deleteOldEntry a flag to tell whether to delete the old entry files
      * @throws Exception
      */
-    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, UUID entryIdOld ) throws Exception
+    private void entryMoved( Dn oldEntryDn, Entry modifiedEntry, String entryIdOld ) throws Exception
     {
         // First, add the new entry
         addEntry( modifiedEntry );
 
-        UUID baseId = getEntryId( modifiedEntry.getDn() );
+        String baseId = getEntryId( modifiedEntry.getDn() );
 
         ParentIdAndRdn parentIdAndRdn = getRdnIndex().reverseLookup( baseId );
         IndexEntry indexEntry = new ForwardIndexEntry();
@@ -392,18 +392,18 @@ public class LdifPartition extends AbstractLdifPartition
         indexEntry.setId( baseId );
         indexEntry.setKey( parentIdAndRdn );
 
-        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = new SingletonIndexCursor<ParentIdAndRdn>(
             indexEntry );
-        UUID parentId = parentIdAndRdn.getParentId();
+        String parentId = parentIdAndRdn.getParentId();
 
-        Cursor<IndexEntry<UUID, UUID>> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
+        Cursor<IndexEntry<String, String>> scopeCursor = new DescendantCursor( this, baseId, parentId, cursor );
 
         // Then, if there are some children, move then to the new place
         try
         {
             while ( scopeCursor.next() )
             {
-                IndexEntry<UUID, UUID> entry = scopeCursor.get();
+                IndexEntry<String, String> entry = scopeCursor.get();
 
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )

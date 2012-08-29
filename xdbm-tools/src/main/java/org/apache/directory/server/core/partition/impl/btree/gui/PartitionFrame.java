@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
-import java.util.UUID;
 
 import javax.naming.NamingException;
 import javax.swing.JFileChooser;
@@ -114,7 +113,7 @@ public class PartitionFrame extends JFrame
     // Non Swing Stuff
     private AbstractBTreePartition partition;
     private boolean doCleanUp;
-    private Map<UUID, EntryNode> nodes;
+    private Map<String, EntryNode> nodes;
     private EntryNode root;
 
     /** A handle on the global schemaManager */
@@ -655,7 +654,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        Cursor<IndexEntry<UUID, UUID>> cursor = partition.getSearchEngine().cursor( new Dn( base ),
+        Cursor<IndexEntry<String, String>> cursor = partition.getSearchEngine().cursor( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, searchScope );
         String[] cols = new String[2];
         cols[0] = "id";
@@ -667,7 +666,7 @@ public class PartitionFrame extends JFrame
         {
             IndexEntry rec = cursor.get();
             row[0] = rec.getId();
-            row[1] = partition.getEntryDn( ( UUID ) row[0] ).getNormName();
+            row[1] = partition.getEntryDn( ( String ) row[0] ).getNormName();
             tableModel.addRow( row );
             count++;
         }
@@ -861,7 +860,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( UUID id, Entry entry ) throws Exception
+    void displayEntry( String id, Entry entry ) throws Exception
     {
         String dn = partition.getEntryDn( id ).getName();
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -878,10 +877,10 @@ public class PartitionFrame extends JFrame
     private void load() throws Exception
     {
         // boolean doFiltered = false;
-        nodes = new HashMap<UUID, EntryNode>();
+        nodes = new HashMap<String, EntryNode>();
 
         Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
-        UUID id = partition.getEntryId( partition.getSuffixDn() );
+        String id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

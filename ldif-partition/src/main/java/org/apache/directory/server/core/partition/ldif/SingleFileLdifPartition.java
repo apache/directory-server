@@ -262,7 +262,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( UUID id ) throws LdapException
+    public void delete( String id ) throws LdapException
     {
         synchronized ( lock )
         {
@@ -292,7 +292,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                UUID suffixId = getEntryId( suffixDn );
+                String suffixId = getEntryId( suffixDn );
 
                 if ( suffixId == null )
                 {
@@ -325,20 +325,20 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    private void appendRecursive( UUID id, int nbSibbling ) throws Exception
+    private void appendRecursive( String id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn, UUID>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, UUID> startingPos = new ForwardIndexEntry<ParentIdAndRdn, UUID>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
 
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
-            IndexEntry<ParentIdAndRdn, UUID> element = cursor.get();
-            UUID childId = element.getId();
+            IndexEntry<ParentIdAndRdn, String> element = cursor.get();
+            String childId = element.getId();
             Entry entry = lookup( childId );
 
             appendLdif( entry );

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.UUID;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
@@ -120,7 +119,7 @@ public class IndexTest
     }
 
 
-    private void doTest( Index<String, Entry, UUID> idx ) throws Exception
+    private void doTest( Index<String, Entry, String> idx ) throws Exception
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
@@ -132,7 +131,7 @@ public class IndexTest
 
         assertEquals( 26, idx.count() );
 
-        Cursor<IndexEntry<String, UUID>> cursor1 = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
         assertHasNext( cursor1, Strings.getUUID( 1L ) );
@@ -151,7 +150,7 @@ public class IndexTest
     }
 
 
-    private void assertHasNext( Cursor<IndexEntry<String, UUID>> cursor1, UUID expectedId ) throws Exception
+    private void assertHasNext( Cursor<IndexEntry<String, String>> cursor1, String expectedId ) throws Exception
     {
         assertTrue( cursor1.next() );
         assertEquals( expectedId, cursor1.get().getId() );

@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmMasterTable<E> extends JdbmTable<UUID, E> implements MasterTable<E>
+public class JdbmMasterTable<E> extends JdbmTable<String, E> implements MasterTable<E>
 {
     private static final StringComparator STRCOMP = new StringComparator();
 
@@ -104,9 +104,9 @@ public class JdbmMasterTable<E> extends JdbmTable<UUID, E> implements MasterTabl
      * @throws Exception if the admin table storing sequences cannot be
      *                         read and written to.
      */
-    public UUID getNextId( E entry ) throws Exception
+    public String getNextId( E entry ) throws Exception
     {
-        return UUID.randomUUID();
+        return UUID.randomUUID().toString();
     }
 
 

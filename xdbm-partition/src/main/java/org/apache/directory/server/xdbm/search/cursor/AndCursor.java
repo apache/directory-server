@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -51,7 +50,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
 
     /** */
-    private final Cursor<IndexEntry<V, UUID>> wrapped;
+    private final Cursor<IndexEntry<V, String>> wrapped;
 
     /** The evaluators used for the members of the And filter */
     private final List<Evaluator<? extends ExprNode>> evaluators;
@@ -64,7 +63,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      * @param wrapped The encapsulated IndexCursor
      * @param evaluators The list of evaluators associated wth the elements
      */
-    public AndCursor( Cursor<IndexEntry<V, UUID>> wrapped,
+    public AndCursor( Cursor<IndexEntry<V, String>> wrapped,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
         LOG_CURSOR.debug( "Creating AndCursor {}", this );
@@ -135,7 +134,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "previous()" );
 
-            IndexEntry<V, UUID> candidate = wrapped.get();
+            IndexEntry<V, String> candidate = wrapped.get();
 
             if ( matches( candidate ) )
             {
@@ -155,7 +154,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         while ( wrapped.next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<V, UUID> candidate = wrapped.get();
+            IndexEntry<V, String> candidate = wrapped.get();
 
             if ( matches( candidate ) )
             {
@@ -170,7 +169,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, UUID> get() throws Exception
+    public IndexEntry<V, String> get() throws Exception
     {
         checkNotClosed( "get()" );
 
@@ -232,7 +231,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * Checks if the entry is a valid candidate by using the evaluators.
      */
-    private boolean matches( IndexEntry<V, UUID> indexEntry ) throws Exception
+    private boolean matches( IndexEntry<V, String> indexEntry ) throws Exception
     {
         for ( Evaluator<?> evaluator : evaluators )
         {

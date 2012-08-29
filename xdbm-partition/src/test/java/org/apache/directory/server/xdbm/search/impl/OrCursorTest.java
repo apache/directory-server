@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -178,7 +177,7 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, UUID>> cursor = cursorBuilder.build( exprNode );
+        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
 
         cursor.afterLast();
 
@@ -260,7 +259,7 @@ public class OrCursorTest
     public void testOrCursor() throws Exception
     {
         List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
-        List<Cursor<IndexEntry<?, UUID>>> cursors = new ArrayList<Cursor<IndexEntry<?, UUID>>>();
+        List<Cursor<IndexEntry<?, String>>> cursors = new ArrayList<Cursor<IndexEntry<?, String>>>();
         Evaluator<? extends ExprNode> eval;
         Cursor<IndexEntry<?, Long>> cursor;
 
