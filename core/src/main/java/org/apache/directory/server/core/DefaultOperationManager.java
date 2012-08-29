@@ -22,6 +22,8 @@ package org.apache.directory.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -80,6 +82,9 @@ public class DefaultOperationManager implements OperationManager
 
     /** The directory service instance */
     private final DirectoryService directoryService;
+
+    /** A lock used to protect against concurrent operations */
+    private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
 
 
     public DefaultOperationManager( DirectoryService directoryService )
@@ -321,7 +326,16 @@ public class DefaultOperationManager implements OperationManager
             // Call the Add method
             Interceptor head = directoryService.getInterceptor( addContext.getNextInterceptor() );
 
-            head.add( addContext );
+            try
+            {
+                rwLock.writeLock().lock();
+
+                head.add( addContext );
+            }
+            finally
+            {
+                rwLock.writeLock().unlock();
+            }
         }
 
         LOG.debug( "<< AddOperation successful" );
@@ -341,7 +355,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
 
-        head.bind( bindContext );
+        try
+        {
+            rwLock.readLock().lock();
+
+            head.bind( bindContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< BindOperation successful" );
     }
@@ -415,7 +438,18 @@ public class DefaultOperationManager implements OperationManager
         // Call the Compare method
         Interceptor head = directoryService.getInterceptor( compareContext.getNextInterceptor() );
 
-        boolean result = head.compare( compareContext );
+        boolean result = false;
+
+        try
+        {
+            rwLock.readLock().lock();
+
+            result = head.compare( compareContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< CompareOperation successful" );
 
@@ -494,7 +528,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
-        head.delete( deleteContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            head.delete( deleteContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         LOG.debug( "<< DeleteOperation successful" );
         LOG_CHANGES.debug( "<< DeleteOperation successful" );
@@ -531,7 +574,18 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( hasEntryContext.getNextInterceptor() );
 
-        boolean result = head.hasEntry( hasEntryContext );
+        boolean result = false;
+
+        try
+        {
+            rwLock.readLock().lock();
+
+            result = head.hasEntry( hasEntryContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< HasEntryOperation successful" );
 
@@ -550,7 +604,18 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
 
-        EntryFilteringCursor cursor = head.list( listContext );
+        EntryFilteringCursor cursor = null;
+
+        try
+        {
+            rwLock.readLock().lock();
+
+            cursor = head.list( listContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< ListOperation successful" );
 
@@ -569,7 +634,18 @@ public class DefaultOperationManager implements OperationManager
 
         Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
 
-        Entry entry = head.lookup( lookupContext );
+        Entry entry = null;
+
+        try
+        {
+            rwLock.readLock().lock();
+
+            entry = head.lookup( lookupContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< LookupOperation successful" );
 
@@ -657,7 +733,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the Modify method
         Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
-        head.modify( modifyContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            head.modify( modifyContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         LOG.debug( "<< ModifyOperation successful" );
         LOG_CHANGES.debug( "<< ModifyOperation successful" );
@@ -756,7 +841,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the Move method
         Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
-        head.move( moveContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            head.move( moveContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         LOG.debug( "<< MoveOperation successful" );
         LOG_CHANGES.debug( "<< MoveOperation successful" );
@@ -856,7 +950,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the MoveAndRename method
         Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
 
-        head.moveAndRename( moveAndRenameContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            head.moveAndRename( moveAndRenameContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         LOG.debug( "<< MoveAndRenameOperation successful" );
         LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
@@ -948,7 +1051,16 @@ public class DefaultOperationManager implements OperationManager
         // Call the Rename method
         Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
 
-        head.rename( renameContext );
+        try
+        {
+            rwLock.writeLock().lock();
+
+            head.rename( renameContext );
+        }
+        finally
+        {
+            rwLock.writeLock().unlock();
+        }
 
         LOG.debug( "<< RenameOperation successful" );
         LOG_CHANGES.debug( "<< RenameOperation successful" );
@@ -1025,7 +1137,18 @@ public class DefaultOperationManager implements OperationManager
         // Call the Search method
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
 
-        EntryFilteringCursor cursor = head.search( searchContext );
+        EntryFilteringCursor cursor = null;
+
+        try
+        {
+            rwLock.readLock().lock();
+
+            cursor = head.search( searchContext );
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         LOG.debug( "<< SearchOperation successful" );
 
