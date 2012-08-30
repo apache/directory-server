@@ -63,25 +63,19 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
         if ( db.hasIndexOn( attributeType ) )
         {
             idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
-            normalizer = null;
+        }
+
+        MatchingRule mr = attributeType.getEquality();
+
+        if ( mr == null )
+        {
+            normalizer = new NoOpNormalizer( attributeType.getOid() );
             ldapComparator = null;
         }
         else
         {
-            idx = null;
-
-            MatchingRule mr = attributeType.getEquality();
-
-            if ( mr == null )
-            {
-                normalizer = new NoOpNormalizer( attributeType.getOid() );
-                ldapComparator = null;
-            }
-            else
-            {
-                normalizer = mr.getNormalizer();
-                ldapComparator = mr.getLdapComparator();
-            }
+            normalizer = mr.getNormalizer();
+            ldapComparator = mr.getLdapComparator();
         }
     }
 
