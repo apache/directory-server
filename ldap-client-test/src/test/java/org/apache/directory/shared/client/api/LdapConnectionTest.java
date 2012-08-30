@@ -50,7 +50,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -145,7 +144,6 @@ public void testLookup() throws Exception
 
 
     @Test
-    @Ignore("Currently failing because we store UUID as UUID, not as String or byte[]")
     public void searchByEntryUuid() throws Exception
     {
         Entry entry = connection.lookup( ADMIN_DN, "+" );
