@@ -140,7 +140,8 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
         if ( indexEntry.getEntry() == null )
         {
-            indexEntry.setEntry( db.lookup( indexEntry.getId() ) );
+            Entry entry = db.lookup( indexEntry.getId() );
+            indexEntry.setEntry( entry );
         }
 
         return indexEntry.getEntry();
