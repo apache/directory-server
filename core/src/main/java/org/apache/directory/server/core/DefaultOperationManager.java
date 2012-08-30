@@ -94,6 +94,42 @@ public class DefaultOperationManager implements OperationManager
 
 
     /**
+     * Acquires a ReadLock
+     */
+    private void lockRead()
+    {
+        rwLock.readLock().lock();
+    }
+
+
+    /**
+     * Acquires a WriteLock
+     */
+    private void lockWrite()
+    {
+        rwLock.writeLock().lock();
+    }
+
+
+    /**
+     * Releases a ReadLock
+     */
+    private void unlockRead()
+    {
+        rwLock.readLock().unlock();
+    }
+
+
+    /**
+     * Releases a WriteLock
+     */
+    private void unlockWrite()
+    {
+        rwLock.writeLock().unlock();
+    }
+
+
+    /**
      * Eagerly populates fields of operation contexts so multiple Interceptors
      * in the processing pathway can reuse this value without performing a
      * redundant lookup operation.
@@ -328,13 +364,13 @@ public class DefaultOperationManager implements OperationManager
 
             try
             {
-                rwLock.writeLock().lock();
+                lockWrite();
 
                 head.add( addContext );
             }
             finally
             {
-                rwLock.writeLock().unlock();
+                unlockWrite();
             }
         }
 
@@ -357,13 +393,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             head.bind( bindContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< BindOperation successful" );
@@ -442,13 +478,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             result = head.compare( compareContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< CompareOperation successful" );
@@ -530,13 +566,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.writeLock().lock();
+            lockWrite();
 
             head.delete( deleteContext );
         }
         finally
         {
-            rwLock.writeLock().unlock();
+            unlockWrite();
         }
 
         LOG.debug( "<< DeleteOperation successful" );
@@ -578,13 +614,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             result = head.hasEntry( hasEntryContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< HasEntryOperation successful" );
@@ -608,13 +644,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             cursor = head.list( listContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< ListOperation successful" );
@@ -638,13 +674,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             entry = head.lookup( lookupContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< LookupOperation successful" );
@@ -735,13 +771,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.writeLock().lock();
+            lockWrite();
 
             head.modify( modifyContext );
         }
         finally
         {
-            rwLock.writeLock().unlock();
+            lockWrite();
         }
 
         LOG.debug( "<< ModifyOperation successful" );
@@ -843,13 +879,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.writeLock().lock();
+            lockWrite();
 
             head.move( moveContext );
         }
         finally
         {
-            rwLock.writeLock().unlock();
+            unlockWrite();
         }
 
         LOG.debug( "<< MoveOperation successful" );
@@ -952,13 +988,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.writeLock().lock();
+            lockWrite();
 
             head.moveAndRename( moveAndRenameContext );
         }
         finally
         {
-            rwLock.writeLock().unlock();
+            unlockWrite();
         }
 
         LOG.debug( "<< MoveAndRenameOperation successful" );
@@ -1053,13 +1089,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.writeLock().lock();
+            lockWrite();
 
             head.rename( renameContext );
         }
         finally
         {
-            rwLock.writeLock().unlock();
+            unlockWrite();
         }
 
         LOG.debug( "<< RenameOperation successful" );
@@ -1141,13 +1177,13 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            rwLock.readLock().lock();
+            lockRead();
 
             cursor = head.search( searchContext );
         }
         finally
         {
-            rwLock.readLock().unlock();
+            unlockRead();
         }
 
         LOG.debug( "<< SearchOperation successful" );
