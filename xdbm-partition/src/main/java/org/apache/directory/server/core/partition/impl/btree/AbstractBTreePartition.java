@@ -975,7 +975,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
     }
