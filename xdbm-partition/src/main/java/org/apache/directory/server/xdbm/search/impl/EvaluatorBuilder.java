@@ -82,6 +82,12 @@ public class EvaluatorBuilder
 
     public <T> Evaluator<? extends ExprNode> build( ExprNode node ) throws Exception
     {
+        Object count = node.get( "count" );
+        if ( ( count != null ) && ( ( Long ) count == 0L ) )
+        {
+            return null;
+        }
+
         switch ( node.getAssertionType() )
         {
         /* ---------- LEAF NODE HANDLING ---------- */
@@ -137,28 +143,63 @@ public class EvaluatorBuilder
     }
 
 
-    AndEvaluator buildAndEvaluator( AndNode node ) throws Exception
+    private <T> Evaluator<? extends ExprNode> buildAndEvaluator( AndNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
-        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>(
-            children.size() );
-        for ( ExprNode child : children )
+        List<Evaluator<? extends ExprNode>> evaluators = buildList( children );
+
+        int size = evaluators.size();
+
+        switch ( size )
         {
-            evaluators.add( build( child ) );
+            case 0:
+                return null;
+
+            case 1:
+                return evaluators.get( 0 );
+
+            default:
+                return new AndEvaluator( node, evaluators );
         }
-        return new AndEvaluator( node, evaluators );
     }
 
 
-    OrEvaluator buildOrEvaluator( OrNode node ) throws Exception
+    private <T> Evaluator<? extends ExprNode> buildOrEvaluator( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
+        List<Evaluator<? extends ExprNode>> evaluators = buildList( children );
+
+        int size = evaluators.size();
+
+        switch ( size )
+        {
+            case 0:
+                return null;
+
+            case 1:
+                return evaluators.get( 0 );
+
+            default:
+                return new OrEvaluator( node, evaluators );
+        }
+    }
+
+
+    private List<Evaluator<? extends ExprNode>> buildList( List<ExprNode> children ) throws Exception
+    {
         List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() );
+
         for ( ExprNode child : children )
         {
-            evaluators.add( build( child ) );
+            Evaluator<? extends ExprNode> evaluator = build( child );
+
+            if ( evaluator != null )
+            {
+                evaluators.add( build( child ) );
+            }
         }
-        return new OrEvaluator( node, evaluators );
+
+        return evaluators;
     }
 }

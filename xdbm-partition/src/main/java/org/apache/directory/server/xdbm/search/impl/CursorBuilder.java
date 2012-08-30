@@ -22,9 +22,9 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -79,6 +79,13 @@ public class CursorBuilder
 
     public <T> Cursor<IndexEntry<?, String>> build( ExprNode node ) throws Exception
     {
+        Object count = node.get( "count" );
+
+        if ( ( count != null ) && ( ( Long ) count ) == 0L )
+        {
+            return ( Cursor ) new EmptyIndexCursor<T>();
+        }
+
         switch ( node.getAssertionType() )
         {
         /* ---------- LEAF NODE HANDLING ---------- */
@@ -160,7 +167,7 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?, String>> buildOrCursor( OrNode node ) throws Exception
+    private <T> Cursor<IndexEntry<?, String>> buildOrCursor( OrNode node ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
         List<Cursor<IndexEntry<?, String>>> childCursors = new ArrayList<Cursor<IndexEntry<?, String>>>(
@@ -171,11 +178,41 @@ public class CursorBuilder
         // Recursively create Cursors and Evaluators for each child expression node
         for ( ExprNode child : children )
         {
-            childCursors.add( build( child ) );
+            Object count = child.get( "count" );
+
+            if ( ( count != null ) && ( ( Long ) count == 0L ) )
+            {
+                // We can skip the cursor, it will not return any candidate
+                continue;
+            }
+
+            Cursor<IndexEntry<?, String>> childCursor = build( child );
+
+            if ( childCursor instanceof EmptyIndexCursor )
+            {
+                // We can skip it
+                continue;
+            }
+
+            childCursors.add( childCursor );
             childEvaluators.add( evaluatorBuilder.build( child ) );
         }
 
-        return new OrCursor( childCursors, childEvaluators );
+        int size = childCursors.size();
+
+        switch ( size )
+        {
+            case 0:
+                // All the cursor return 0, return an empty cursor
+                return ( Cursor ) new EmptyIndexCursor<T>();
+
+            case 1:
+                // W can just return the remaining cursor
+                return childCursors.get( 0 );
+
+            default:
+                return new OrCursor( childCursors, childEvaluators );
+        }
     }
 
 
@@ -186,7 +223,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private Cursor<IndexEntry<?, String>> buildAndCursor( AndNode node ) throws Exception
+    private <T> Cursor<IndexEntry<?, String>> buildAndCursor( AndNode node ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -210,10 +247,16 @@ public class CursorBuilder
             }
 
             value = ( Long ) count;
-            minValue = Math.min( minValue, value );
 
-            if ( minValue == value )
+            if ( value == 0L )
             {
+                // No need to go any further : we won't have matching candidates anyway
+                return ( Cursor ) new EmptyIndexCursor<T>();
+            }
+
+            if ( value < minValue )
+            {
+                minValue = value;
                 minIndex = i;
             }
         }
@@ -222,6 +265,15 @@ public class CursorBuilder
         ExprNode minChild = children.get( minIndex );
         List<Evaluator<? extends ExprNode>> childEvaluators = new ArrayList<Evaluator<? extends ExprNode>>(
             children.size() - 1 );
+
+        // Do recursive call to build min child Cursor then create AndCursor
+        Cursor<IndexEntry<?, String>> childCursor = build( minChild );
+
+        if ( childCursor instanceof EmptyIndexCursor )
+        {
+            // We can return directly : the And will not select any candidate
+            return childCursor;
+        }
 
         for ( ExprNode child : children )
         {
@@ -232,9 +284,6 @@ public class CursorBuilder
 
             childEvaluators.add( evaluatorBuilder.build( child ) );
         }
-
-        // Do recursive call to build min child Cursor then create AndCursor
-        Cursor<IndexEntry<?, String>> childCursor = build( minChild );
 
         return new AndCursor( childCursor, childEvaluators );
     }
