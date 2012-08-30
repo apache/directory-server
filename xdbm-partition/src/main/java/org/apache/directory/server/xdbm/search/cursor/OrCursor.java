@@ -52,6 +52,9 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     private final List<Set<String>> blacklists;
     private int cursorIndex = -1;
 
+    /** The candidate we have fetched in the next/previous call */
+    private IndexEntry<V, String> prefetched;
+
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
     public OrCursor( List<Cursor<IndexEntry<V, String>>> cursors,
@@ -92,6 +95,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         cursorIndex = 0;
         cursors.get( cursorIndex ).beforeFirst();
         setAvailable( false );
+        prefetched = null;
     }
 
 
@@ -101,6 +105,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         cursorIndex = cursors.size() - 1;
         cursors.get( cursorIndex ).afterLast();
         setAvailable( false );
+        prefetched = null;
     }
 
 
@@ -155,12 +160,13 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         while ( cursors.get( cursorIndex ).previous() )
         {
             checkNotClosed( "previous()" );
-            IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
 
+                prefetched = candidate;
                 return setAvailable( true );
             }
         }
@@ -174,16 +180,19 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             while ( cursors.get( cursorIndex ).previous() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
 
+                    prefetched = candidate;
                     return setAvailable( true );
                 }
             }
         }
+
+        prefetched = null;
 
         return setAvailable( false );
     }
@@ -194,11 +203,13 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         while ( cursors.get( cursorIndex ).next() )
         {
             checkNotClosed( "next()" );
-            IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
+            IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
                 blackListIfDuplicate( candidate );
+
+                prefetched = candidate;
 
                 return setAvailable( true );
             }
@@ -213,15 +224,20 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             while ( cursors.get( cursorIndex ).next() )
             {
                 checkNotClosed( "previous()" );
-                IndexEntry<?, String> candidate = cursors.get( cursorIndex ).get();
+                IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
+
                 if ( !isBlackListed( candidate.getId() ) )
                 {
                     blackListIfDuplicate( candidate );
+
+                    prefetched = candidate;
 
                     return setAvailable( true );
                 }
             }
         }
+
+        prefetched = null;
 
         return setAvailable( false );
     }
@@ -233,7 +249,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         if ( available() )
         {
-            return cursors.get( cursorIndex ).get();
+            return prefetched;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
