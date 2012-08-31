@@ -243,4 +243,60 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
 
         return true;
     }
+
+
+    /**
+     * Dumps the evaluators
+     */
+    private String dumpEvaluators( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for ( Evaluator<? extends ExprNode> evaluator : evaluators )
+        {
+            sb.append( tabs + "  [" );
+            sb.append( evaluator );
+            sb.append( "]\n" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "AndCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available) :\n" );
+        }
+        else
+        {
+            sb.append( "absent) :\n" );
+        }
+
+        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        {
+            sb.append( dumpEvaluators( tabs ) );
+        }
+
+        sb.append( wrapped.toString( tabs + "  " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

@@ -320,4 +320,51 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
             uuidIdxCursor.close( cause );
         }
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "EqualityCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( tabs + "  " ).append( equalityEvaluator ).append( '\n' );
+
+        if ( userIdxCursor != null )
+        {
+            sb.append( tabs + "  <user>\n" );
+            sb.append( userIdxCursor.toString( tabs + "    " ) );
+        }
+
+        if ( uuidIdxCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( userIdxCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

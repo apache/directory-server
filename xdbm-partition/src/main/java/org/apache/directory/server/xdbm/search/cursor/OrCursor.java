@@ -278,4 +278,82 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             cursor.close( cause );
         }
     }
+
+
+    /**
+     * Dumps the evaluators
+     */
+    private String dumpEvaluators( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for ( Evaluator<? extends ExprNode> evaluator : evaluators )
+        {
+            sb.append( tabs + "  [" );
+            sb.append( evaluator );
+            sb.append( "]\n" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * Dumps the cursors
+     */
+    private String dumpCursors( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for ( Cursor<IndexEntry<V, String>> cursor : cursors )
+        {
+            sb.append( cursor.toString( tabs + "  " ) );
+            sb.append( "\n" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "OrCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#" ).append( cursorIndex ).append( " : \n" );
+
+        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        {
+            sb.append( dumpEvaluators( tabs ) ).append( '\n' );
+        }
+
+        if ( ( cursors != null ) && ( cursors.size() > 0 ) )
+        {
+            sb.append( dumpCursors( tabs ) ).append( '\n' );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }
