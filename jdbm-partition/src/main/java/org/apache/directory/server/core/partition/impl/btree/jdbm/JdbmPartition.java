@@ -144,7 +144,7 @@ public class JdbmPartition extends AbstractBTreePartition
             }
 
             // Create the master table (the table containing all the entries)
-            master = new JdbmMasterTable<Entry>( recMan, schemaManager );
+            master = new JdbmMasterTable( recMan, schemaManager );
 
             // get all index db files first
             File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
@@ -238,7 +238,7 @@ public class JdbmPartition extends AbstractBTreePartition
             idx.sync();
         }
 
-        ( ( JdbmMasterTable<Entry> ) master ).sync();
+        ( ( JdbmMasterTable ) master ).sync();
         recMan.commit();
     }
 

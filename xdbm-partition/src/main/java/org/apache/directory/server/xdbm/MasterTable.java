@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -27,7 +28,7 @@ package org.apache.directory.server.xdbm;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface MasterTable<E> extends Table<String, E>
+public interface MasterTable extends Table<String, Entry>
 {
     /** the base name for the db file for this table */
     String DBF = "master";
@@ -44,5 +45,5 @@ public interface MasterTable<E> extends Table<String, E>
      * @return the current value of this MasterTable's sequence incremented by one
      * @throws Exception on failure to update the id sequence
      */
-    String getNextId( E entry ) throws Exception;
+    String getNextId( Entry entry ) throws Exception;
 }

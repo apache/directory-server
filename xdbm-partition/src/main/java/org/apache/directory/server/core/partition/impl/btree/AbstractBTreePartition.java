@@ -130,7 +130,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private Set<Index<?, Entry, String>> indexedAttributes;
 
     /** the master table storing entries by primary key */
-    protected MasterTable<Entry> master;
+    protected MasterTable master;
 
     /** a map of attributeType numeric UUID to user userIndices */
     protected Map<String, Index<?, Entry, String>> userIndices = new HashMap<String, Index<?, Entry, String>>();
@@ -2719,7 +2719,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public MasterTable<Entry> getMasterTable()
+    public MasterTable getMasterTable()
     {
         return master;
     }

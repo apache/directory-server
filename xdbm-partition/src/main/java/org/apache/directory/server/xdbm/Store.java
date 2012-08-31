@@ -441,5 +441,5 @@ public interface Store<E>
      * Expose the Master table
      * @return The masterTable instance
      */
-    MasterTable<E> getMasterTable();
+    MasterTable getMasterTable();
 }

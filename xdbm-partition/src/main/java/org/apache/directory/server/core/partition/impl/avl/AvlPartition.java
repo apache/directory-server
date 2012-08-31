@@ -89,7 +89,7 @@ public class AvlPartition extends AbstractBTreePartition
             }
 
             // Create the master table (the table containing all the entries)
-            master = new AvlMasterTable<Entry>( id, UuidComparator.INSTANCE, null, false );
+            master = new AvlMasterTable( id, UuidComparator.INSTANCE, null, false );
 
             super.doInit();
         }

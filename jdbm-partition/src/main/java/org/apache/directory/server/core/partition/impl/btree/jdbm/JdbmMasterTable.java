@@ -27,6 +27,7 @@ import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.xdbm.MasterTable;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
@@ -37,7 +38,7 @@ import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmMasterTable<E> extends JdbmTable<String, E> implements MasterTable<E>
+public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterTable
 {
     private static final StringComparator STRCOMP = new StringComparator();
 
@@ -60,7 +61,7 @@ public class JdbmMasterTable<E> extends JdbmTable<String, E> implements MasterTa
      * Creates the master table using JDBM B+Trees for the backing store.
      *
      * @param recMan the JDBM record manager
-     * @param schemaManager the schema mamanger
+     * @param schemaManager the schema manager
      * @throws Exception if there is an error opening the Db file.
      */
     public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
@@ -104,7 +105,7 @@ public class JdbmMasterTable<E> extends JdbmTable<String, E> implements MasterTa
      * @throws Exception if the admin table storing sequences cannot be
      *                         read and written to.
      */
-    public String getNextId( E entry ) throws Exception
+    public String getNextId( Entry entry ) throws Exception
     {
         return UUID.randomUUID().toString();
     }

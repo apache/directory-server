@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.UUID;
 
 import org.apache.directory.server.xdbm.MasterTable;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -32,9 +33,9 @@ import org.apache.directory.server.xdbm.MasterTable;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlMasterTable<E> extends AvlTable<String, E> implements MasterTable<E>
+public class AvlMasterTable extends AvlTable<String, Entry> implements MasterTable
 {
-    public AvlMasterTable( String name, Comparator<String> keyComparator, Comparator<E> valComparator,
+    public AvlMasterTable( String name, Comparator<String> keyComparator, Comparator<Entry> valComparator,
         boolean dupsEnabled )
     {
         super( name, keyComparator, valComparator, dupsEnabled );
@@ -44,7 +45,7 @@ public class AvlMasterTable<E> extends AvlTable<String, E> implements MasterTabl
     /**
      * {@inheritDoc}
      */
-    public String getNextId( E entry ) throws Exception
+    public String getNextId( Entry entry ) throws Exception
     {
         return UUID.randomUUID().toString();
     }
