@@ -1081,7 +1081,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         if ( browser != null )
         {
-            //browser.close();
+            browser.close();
         }
     }
 }

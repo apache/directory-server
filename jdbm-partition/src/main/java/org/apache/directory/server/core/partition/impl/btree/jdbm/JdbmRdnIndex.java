@@ -83,9 +83,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
         //System.out.println( "IDX Created index " + path );
-        BaseRecordManager base = new BaseRecordManager( path );
-        base.disableTransactions();
-        this.recMan = base; //new SnapshotRecordManager( base, cacheSize );
+        recMan = new BaseRecordManager( path );
 
         try
         {

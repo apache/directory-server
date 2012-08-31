@@ -155,9 +155,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
-        BaseRecordManager base = new BaseRecordManager( path );
-        base.disableTransactions();
-        this.recMan = base; //new SnapshotRecordManager( base, DEFAULT_INDEX_CACHE_SIZE );
+        recMan = new BaseRecordManager( path );
 
         try
         {

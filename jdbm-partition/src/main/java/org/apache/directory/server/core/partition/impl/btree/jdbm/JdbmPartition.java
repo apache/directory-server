@@ -131,8 +131,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
             // First, check if the file storing the data exists
             String path = partitionDir.getPath() + File.separator + "master";
-            BaseRecordManager baseRecordManager = new BaseRecordManager( path );
-            baseRecordManager.disableTransactions();
+            recMan = new BaseRecordManager( path );
 
             if ( cacheSize < 0 )
             {
@@ -143,9 +142,6 @@ public class JdbmPartition extends AbstractBTreePartition
             {
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
-
-            // Now, create the entry cache for this partition
-            recMan = baseRecordManager; //new SnapshotRecordManager( baseRecordManager, cacheSize );
 
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable<Entry>( recMan, schemaManager );

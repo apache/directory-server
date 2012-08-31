@@ -405,7 +405,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     {
         if ( browser != null )
         {
-            //browser.close();
+            browser.close();
         }
     }
 }
