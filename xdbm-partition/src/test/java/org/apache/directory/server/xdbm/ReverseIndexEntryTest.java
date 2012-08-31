@@ -86,16 +86,15 @@ public class ReverseIndexEntryTest
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getValue() );
 
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ) );
         assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry.getTuple() );
-        assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
 
     @Test
     public void testClear()
     {
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ) );
         indexEntry.clear();
 
         assertNull( indexEntry.getId() );
@@ -111,7 +110,7 @@ public class ReverseIndexEntryTest
     public void testCopy()
     {
         // prepare index entry
-        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1L, "a" ) );
 
         // create empty index entry and assert empty values
         ReverseIndexEntry<String, Long> indexEntry2 = new ReverseIndexEntry<String, Long>();
@@ -126,7 +125,6 @@ public class ReverseIndexEntryTest
         indexEntry2.copy( indexEntry );
         assertEquals( Long.valueOf( 1L ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getKey() );
-        assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
         assertEquals( new Tuple<Long, String>( 1L, "a" ), indexEntry2.getTuple() );
     }
 
@@ -134,7 +132,7 @@ public class ReverseIndexEntryTest
     @Test
     public void testToString()
     {
-        indexEntry.setTuple( new Tuple<Long, String>( 1234567890L, "asdfghjkl" ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<Long, String>( 1234567890L, "asdfghjkl" ) );
         assertTrue( indexEntry.toString().contains( "asdfghjkl" ) );
         assertTrue( indexEntry.toString().contains( "1234567890" ) );
     }

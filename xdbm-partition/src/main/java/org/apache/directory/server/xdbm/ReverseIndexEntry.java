@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -43,21 +42,22 @@ public class ReverseIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
      */
     public ReverseIndexEntry()
     {
-        super( null );
+        super();
     }
 
 
     /**
-     * Sets the Tuple value represented by this ReverseIndexEntry optionally
-     * setting the Entry associated with the id if one was loaded from the
-     * master table.
+     * Sets the Tuple value represented by this ReverseIndexEntry, after having 
+     * reset the IndexEntry content (the Entry will now be null)
      *
      * @param tuple the tuple for the ReverseIndexEntry
-     * @param obj the resusitated Entry that is indexed if any
      */
-    public void setTuple( Tuple<ID, K> tuple, Entry entry )
+    public void setTuple( Tuple<ID, K> tuple )
     {
-        setEntry( entry );
+        // Clear the entry
+        super.clear();
+
+        // And inject the tuple key and value 
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
     }
@@ -102,7 +102,7 @@ public class ReverseIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
     /**
      * {@inheritDoc}
      */
-    public Tuple<?, ?> getTuple()
+    public Tuple<ID, K> getTuple()
     {
         return tuple;
     }

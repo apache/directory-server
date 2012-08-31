@@ -21,7 +21,6 @@ package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -43,21 +42,22 @@ public class ForwardIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
      */
     public ForwardIndexEntry()
     {
-        super( null );
+        super();
     }
 
 
     /**
-     * Sets the key value tuple represented by this ForwardIndexEntry optionally
-     * setting the Entry associated with the id if one was loaded from the
-     * master table.
+     * Sets the key value tuple represented by this ForwardIndexEntry, after having 
+     * reset the IndexEntry content (the Entry will now be null)
      *
      * @param tuple the tuple for the ForwardIndexEntry
-     * @param entry the resuscitated Entry if any
      */
-    public void setTuple( Tuple<K, ID> tuple, Entry entry )
+    public void setTuple( Tuple<K, ID> tuple )
     {
-        setEntry( entry );
+        // Clear the entry
+        super.clear();
+
+        // And inject the tuple key and value 
         this.tuple.setKey( tuple.getKey() );
         this.tuple.setValue( tuple.getValue() );
     }

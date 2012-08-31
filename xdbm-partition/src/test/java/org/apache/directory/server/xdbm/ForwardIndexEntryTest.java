@@ -86,16 +86,15 @@ public class ForwardIndexEntryTest
         assertNull( indexEntry.getTuple().getKey() );
         assertNull( indexEntry.getTuple().getKey() );
 
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ) );
         assertEquals( new Tuple<String, Long>( "a", 1L ), indexEntry.getTuple() );
-        assertEquals( new DefaultEntry(), indexEntry.getEntry() );
     }
 
 
     @Test
     public void testClear()
     {
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ) );
         indexEntry.clear();
 
         assertNull( indexEntry.getId() );
@@ -111,7 +110,7 @@ public class ForwardIndexEntryTest
     public void testCopy()
     {
         // prepare index entry
-        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ) );
 
         // create empty index entry and assert empty values
         ForwardIndexEntry<String, Long> indexEntry2 = new ForwardIndexEntry<String, Long>();
@@ -126,7 +125,6 @@ public class ForwardIndexEntryTest
         indexEntry2.copy( indexEntry );
         assertEquals( Long.valueOf( 1L ), indexEntry2.getId() );
         assertEquals( "a", indexEntry2.getKey() );
-        assertEquals( new DefaultEntry(), indexEntry2.getEntry() );
         assertEquals( new Tuple<String, Long>( "a", 1L ), indexEntry2.getTuple() );
     }
 
@@ -134,7 +132,7 @@ public class ForwardIndexEntryTest
     @Test
     public void testToString()
     {
-        indexEntry.setTuple( new Tuple<String, Long>( "asdfghjkl", 1234567890L ), new DefaultEntry() );
+        indexEntry.setTuple( new Tuple<String, Long>( "asdfghjkl", 1234567890L ) );
         assertTrue( indexEntry.toString().contains( "asdfghjkl" ) );
         assertTrue( indexEntry.toString().contains( "1234567890" ) );
     }

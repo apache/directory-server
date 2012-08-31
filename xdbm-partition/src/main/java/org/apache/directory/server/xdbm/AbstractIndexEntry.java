@@ -39,12 +39,10 @@ public abstract class AbstractIndexEntry<K, ID> implements IndexEntry<K, ID>
 
     /**
      * Creates an instance of AbstractIndexEntry
-     * 
-     * @param object The interned Entry
      */
-    protected AbstractIndexEntry( Entry entry )
+    protected AbstractIndexEntry()
     {
-        this.entry = entry;
+        this.entry = null;
     }
 
 

@@ -25,9 +25,11 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
- * Interface for index entries. An index entry associate an Entry with 
- * a key and the Entry ID in the table where it's stored. The Entry
- * may be present in this instance once we read it from the table.
+ * Interface for index entries.
+ * <br/> 
+ * An index entry associate an Entry with the key that was used to find it,
+ * and the Entry UUID in the masterTable where it's stored. The Entry
+ * may be present in this instance once we read it from the masterTable.<p/>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <V> The value stored in the Tuple, associated key for the object

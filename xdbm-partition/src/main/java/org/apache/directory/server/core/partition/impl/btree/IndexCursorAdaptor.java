@@ -73,6 +73,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
         }
         else
         {
+            System.out.println( "~~~~~~~~~~~~~~~~> Using the reverse index !!!" );
             forwardEntry = null;
             reverseEntry = new ReverseIndexEntry<K, String>();
         }
@@ -145,13 +146,13 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
         if ( forwardEntry != null )
         {
             Tuple<K, String> tuple = wrappedCursor.get();
-            forwardEntry.setTuple( tuple, null );
+            forwardEntry.setTuple( tuple );
             return forwardEntry;
         }
         else
         {
             Tuple<String, K> tuple = wrappedCursor.get();
-            reverseEntry.setTuple( tuple, null );
+            reverseEntry.setTuple( tuple );
             return reverseEntry;
         }
     }
