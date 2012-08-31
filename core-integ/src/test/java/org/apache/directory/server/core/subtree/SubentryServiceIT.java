@@ -1303,7 +1303,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
         SubentriesDecorator decorator = new SubentriesDecorator( codec );
-        Subentries ctl = ( Subentries ) decorator.getDecorated();
+        Subentries ctl = decorator.getDecorated();
         ctl.setVisibility( true );
         decorator.getValue();
         sysRoot.setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
