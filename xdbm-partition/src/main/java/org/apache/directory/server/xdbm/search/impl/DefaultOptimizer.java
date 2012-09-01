@@ -27,6 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.filter.AssertionNode;
@@ -53,7 +54,7 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store<E> db;
+    private final Store db;
     private String contextEntryId;
 
 
@@ -62,7 +63,7 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E> db ) throws Exception
+    public DefaultOptimizer( Store db ) throws Exception
     {
         this.db = db;
     }
@@ -351,7 +352,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, String> idx = db.getPresenceIndex();
+            Index<String, Entry, String> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() ) )

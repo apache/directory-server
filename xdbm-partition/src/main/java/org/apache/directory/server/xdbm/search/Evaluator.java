@@ -83,4 +83,12 @@ public interface Evaluator<N extends ExprNode>
      * @return the AST for the expression
      */
     N getExpression();
+
+
+    /**
+     * Pretty-print an Evaluator
+     * @param tabs The tabs to add before the evaluator
+     * @return The pretty-printed evaluator and its descendants
+     */
+    String toString( String tabs );
 }

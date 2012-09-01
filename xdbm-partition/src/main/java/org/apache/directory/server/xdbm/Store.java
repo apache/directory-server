@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface Store<E>
+public interface Store
 {
     /*
      * W H Y   H A V E   A   S T O R E   I N T E R F A C E  ?
@@ -158,7 +158,7 @@ public interface Store<E>
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, E, String> index ) throws Exception;
+    void addIndex( Index<?, Entry, String> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -167,49 +167,49 @@ public interface Store<E>
     /**
      * @return The Presence system index
      */
-    Index<String, E, String> getPresenceIndex();
+    Index<String, Entry, String> getPresenceIndex();
 
 
     /**
      * @return The Alias system index
      */
-    Index<String, E, String> getAliasIndex();
+    Index<String, Entry, String> getAliasIndex();
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<String, E, String> getOneAliasIndex();
+    Index<String, Entry, String> getOneAliasIndex();
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<String, E, String> getSubAliasIndex();
+    Index<String, Entry, String> getSubAliasIndex();
 
 
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn, E, String> getRdnIndex();
+    Index<ParentIdAndRdn, Entry, String> getRdnIndex();
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, E, String> getObjectClassIndex();
+    Index<String, Entry, String> getObjectClassIndex();
 
 
     /**
      * @return The EntryUUID system index
      */
-    Index<String, E, String> getEntryUuidIndex();
+    Index<String, Entry, String> getEntryUuidIndex();
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, E, String> getEntryCsnIndex();
+    Index<String, Entry, String> getEntryCsnIndex();
 
 
     /**
@@ -261,7 +261,7 @@ public interface Store<E>
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, Entry, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -270,7 +270,7 @@ public interface Store<E>
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, Entry, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -279,7 +279,7 @@ public interface Store<E>
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, E, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, Entry, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**

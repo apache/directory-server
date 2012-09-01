@@ -43,6 +43,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -76,7 +77,7 @@ public class ConfigPartitionReader
     private AbstractBTreePartition configPartition;
 
     /** the search engine of the partition */
-    private SearchEngine<Entry> se;
+    private SearchEngine se;
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
@@ -735,7 +736,10 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, scope );
+            Set<IndexEntry<String, String>> result = se.buildResultSet( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
+                filter, scope );
+
+            cursor = new SetCursor<IndexEntry<String, String>>( result );
 
             // First, check if we have some entries to process.
             if ( !cursor.next() )

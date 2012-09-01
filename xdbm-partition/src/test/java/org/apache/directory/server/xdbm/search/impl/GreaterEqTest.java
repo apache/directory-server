@@ -82,7 +82,7 @@ public class GreaterEqTest
     public static final Logger LOG = LoggerFactory.getLogger( GreaterEqTest.class );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 

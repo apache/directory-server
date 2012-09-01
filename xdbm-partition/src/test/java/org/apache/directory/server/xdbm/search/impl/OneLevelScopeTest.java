@@ -74,7 +74,7 @@ public class OneLevelScopeTest
     public static final Logger LOG = LoggerFactory.getLogger( OneLevelScopeTest.class );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 

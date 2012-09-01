@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.naming.NamingException;
@@ -64,6 +65,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -654,8 +656,11 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        Cursor<IndexEntry<String, String>> cursor = partition.getSearchEngine().cursor( new Dn( base ),
+        Set<IndexEntry<String, String>> result = partition.getSearchEngine().buildResultSet( new Dn( base ),
             AliasDerefMode.DEREF_ALWAYS, root, searchScope );
+
+        Cursor cursor = new SetCursor<IndexEntry<String, String>>( result );
+
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
@@ -664,7 +669,7 @@ public class PartitionFrame extends JFrame
         int count = 0;
         while ( cursor.next() && count < limitMax )
         {
-            IndexEntry rec = cursor.get();
+            IndexEntry rec = ( IndexEntry ) cursor.get();
             row[0] = rec.getId();
             row[1] = partition.getEntryDn( ( String ) row[0] ).getNormName();
             tableModel.addRow( row );

@@ -82,7 +82,7 @@ public class LessEqTest
     public static final Logger LOG = LoggerFactory.getLogger( LessEqTest.class );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 

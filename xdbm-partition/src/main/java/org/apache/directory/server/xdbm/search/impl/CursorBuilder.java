@@ -39,6 +39,14 @@ import org.apache.directory.server.xdbm.search.cursor.OrCursor;
 import org.apache.directory.server.xdbm.search.cursor.PresenceCursor;
 import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
 import org.apache.directory.server.xdbm.search.cursor.SubtreeScopeCursor;
+import org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.OneLevelScopeEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
@@ -58,7 +66,7 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
 public class CursorBuilder
 {
     /** The database used by this builder */
-    private Store<Entry> db = null;
+    private Store db = null;
 
     /** Evaluator dependency on a EvaluatorBuilder */
     private EvaluatorBuilder evaluatorBuilder;
@@ -70,7 +78,7 @@ public class CursorBuilder
      * @param db database used by this enumerator
      * @param evaluatorBuilder the evaluator builder
      */
-    public CursorBuilder( Store<Entry> db, EvaluatorBuilder evaluatorBuilder )
+    public CursorBuilder( Store db, EvaluatorBuilder evaluatorBuilder )
     {
         this.db = db;
         this.evaluatorBuilder = evaluatorBuilder;
@@ -92,27 +100,27 @@ public class CursorBuilder
 
             case APPROXIMATE:
                 return ( Cursor ) new ApproximateCursor<T>( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator<T> ) evaluatorBuilder
+                    ( ApproximateEvaluator<T> ) evaluatorBuilder
                         .build( node ) );
 
             case EQUALITY:
                 return ( Cursor ) new EqualityCursor<T>( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator<T> ) evaluatorBuilder
+                    ( EqualityEvaluator<T> ) evaluatorBuilder
                         .build( node ) );
 
             case GREATEREQ:
                 return ( Cursor ) new GreaterEqCursor<T>( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator<T> ) evaluatorBuilder
+                    ( GreaterEqEvaluator<T> ) evaluatorBuilder
                         .build( node ) );
 
             case LESSEQ:
                 return ( Cursor ) new LessEqCursor<T>( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator<T> ) evaluatorBuilder
+                    ( LessEqEvaluator<T> ) evaluatorBuilder
                         .build( node ) );
 
             case PRESENCE:
                 return ( Cursor ) new PresenceCursor( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator ) evaluatorBuilder
+                    ( PresenceEvaluator ) evaluatorBuilder
                         .build( node ) );
 
             case SCOPE:
@@ -120,20 +128,20 @@ public class CursorBuilder
                 {
                     return ( Cursor ) new OneLevelScopeCursor(
                         db,
-                        ( org.apache.directory.server.xdbm.search.evaluator.OneLevelScopeEvaluator<Entry> ) evaluatorBuilder
+                        ( OneLevelScopeEvaluator<Entry> ) evaluatorBuilder
                             .build( node ) );
                 }
                 else
                 {
                     return ( Cursor ) new SubtreeScopeCursor(
                         db,
-                        ( org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator<Entry> ) evaluatorBuilder
+                        ( SubtreeScopeEvaluator ) evaluatorBuilder
                             .build( node ) );
                 }
 
             case SUBSTRING:
                 return ( Cursor ) new SubstringCursor( db,
-                    ( org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator ) evaluatorBuilder
+                    ( SubstringEvaluator ) evaluatorBuilder
                         .build( node ) );
 
                 /* ---------- LOGICAL OPERATORS ---------- */

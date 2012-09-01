@@ -20,9 +20,10 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import java.util.Set;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
@@ -35,7 +36,7 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface SearchEngine<E>
+public interface SearchEngine
 {
     /**
      * @todo put this in the right place
@@ -73,16 +74,17 @@ public interface SearchEngine<E>
 
 
     /**
-     * Conducts a search on a database.
+     * Conducts a search on a database. It returns a set of UUID we found for the 
+     * given filter.
      * 
      * @param base the search base
      * @param aliasDerefMode the alias dereferencing mode to use
      * @param filter the search filter AST root
      * @param scope the Scope
-     * @return enumeration over SearchResults
+     * @return A set of UUID representing the full result, up to he sizeLimit
      * @throws Exception if the search fails
      */
-    Cursor<IndexEntry<String, String>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    Set<IndexEntry<String, String>> buildResultSet( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception;
 
 

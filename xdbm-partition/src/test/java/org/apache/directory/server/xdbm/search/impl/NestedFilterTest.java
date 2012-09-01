@@ -39,7 +39,6 @@ import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -72,7 +71,7 @@ public class NestedFilterTest
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;

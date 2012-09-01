@@ -42,7 +42,6 @@ import org.apache.directory.server.xdbm.search.cursor.PresenceCursor;
 import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -70,7 +69,7 @@ public class PresenceTest
     private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 

@@ -61,7 +61,7 @@ import org.apache.directory.shared.util.exception.NotImplementedException;
  */
 public class EvaluatorBuilder
 {
-    private final Store<Entry> db;
+    private final Store db;
     private final SchemaManager schemaManager;
 
 
@@ -73,7 +73,7 @@ public class EvaluatorBuilder
      * @param schemaManager the schema manager
      * @throws Exception failure to access db or lookup schema in registries
      */
-    public EvaluatorBuilder( Store<Entry> db, SchemaManager schemaManager ) throws Exception
+    public EvaluatorBuilder( Store db, SchemaManager schemaManager ) throws Exception
     {
         this.db = db;
         this.schemaManager = schemaManager;
@@ -114,7 +114,7 @@ public class EvaluatorBuilder
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator<Entry>( db, ( ScopeNode<String> ) node );
+                    return new SubtreeScopeEvaluator( db, ( ScopeNode<String> ) node );
                 }
 
             case SUBSTRING:

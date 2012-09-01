@@ -20,12 +20,13 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
@@ -48,13 +49,13 @@ import org.apache.directory.shared.ldap.model.name.Dn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultSearchEngine implements SearchEngine<Entry>
+public class DefaultSearchEngine implements SearchEngine
 {
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
 
     /** the Database this DefaultSearchEngine operates on */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** creates Cursors over entries satisfying filter expressions */
     private final CursorBuilder cursorBuilder;
@@ -75,7 +76,7 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
      * @param evaluatorBuilder an expression evaluator builder
      * @param optimizer an optimizer to use during search
      */
-    public DefaultSearchEngine( Store<Entry> db, CursorBuilder cursorBuilder,
+    public DefaultSearchEngine( Store db, CursorBuilder cursorBuilder,
         EvaluatorBuilder evaluatorBuilder, Optimizer optimizer )
     {
         this.db = db;
@@ -99,11 +100,12 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
     /**
      * {@inheritDoc}
      */
-    public Cursor<IndexEntry<String, String>> cursor( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public Set<IndexEntry<String, String>> buildResultSet( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
         String baseId = db.getEntryId( base );
+        Set<IndexEntry<String, String>> result = new HashSet<IndexEntry<String, String>>();
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
@@ -111,7 +113,7 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty cursor
-                return new EmptyIndexCursor<String>();
+                return result;
             }
             else
             {
@@ -178,12 +180,10 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
 
             if ( evaluator.evaluate( indexEntry ) )
             {
-                return new SingletonIndexCursor<String>( indexEntry );
+                result.add( indexEntry );
             }
-            else
-            {
-                return new EmptyIndexCursor<String>();
-            }
+
+            return result;
         }
 
         // Add the scope node using the effective base to the filter
@@ -195,7 +195,15 @@ public class DefaultSearchEngine implements SearchEngine<Entry>
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
 
-        return ( Cursor ) cursorBuilder.build( root );
+        Cursor<IndexEntry<Object, String>> cursor = ( Cursor ) cursorBuilder.build( root );
+
+        while ( cursor.next() )
+        {
+            IndexEntry indexEntry = cursor.get();
+            result.add( indexEntry );
+        }
+
+        return result;
     }
 
 

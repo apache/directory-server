@@ -54,7 +54,7 @@ public class StoreUtils
      * @param registries oid registries
      * @throws Exception on access exceptions
      */
-    public static void loadExampleData( Store<Entry> store, SchemaManager schemaManager ) throws Exception
+    public static void loadExampleData( Store store, SchemaManager schemaManager ) throws Exception
     {
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         long index = 1L;
@@ -193,7 +193,7 @@ public class StoreUtils
      * @param index the UUID number
      * @throws Exception in case of any problems in adding the entry to the store
      */
-    public static void injectEntryInStore( Store<Entry> store, Entry entry, long index ) throws Exception
+    public static void injectEntryInStore( Store store, Entry entry, long index ) throws Exception
     {
         entry.add( SchemaConstants.ENTRY_CSN_AT, CSN_FACTORY.newInstance().toString() );
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUID( index ).toString() );

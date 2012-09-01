@@ -240,7 +240,7 @@ public class JdbmStoreTest
         assertNull( jdbmPartition.getAliasIndex() );
         Index<String, Entry, String> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
-        ( ( Store<Entry> ) jdbmPartition ).addIndex( index );
+        ( ( Store ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
 
         assertEquals( JdbmPartition.DEFAULT_CACHE_SIZE, jdbmPartition.getCacheSize() );
@@ -260,7 +260,7 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
-        ( ( Store<Entry> ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+        ( ( Store ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getOneAliasIndex() );
 

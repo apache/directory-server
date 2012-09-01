@@ -75,7 +75,7 @@ public class SubtreeScopeTest
     public static final Logger LOG = LoggerFactory.getLogger( SubtreeScopeTest.class );
 
     File wkdir;
-    Store<Entry> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 
@@ -169,7 +169,7 @@ public class SubtreeScopeTest
 
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId,
             SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
 
         String[] expected = new String[]
@@ -284,7 +284,7 @@ public class SubtreeScopeTest
         String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
 
         // --------- Test beforeFirst() ---------
@@ -482,7 +482,7 @@ public class SubtreeScopeTest
         String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_IN_SEARCHING, dn, baseId, SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
 
         // --------- Test beforeFirst() ---------
@@ -646,7 +646,7 @@ public class SubtreeScopeTest
             dn,
             baseId,
             SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         SubtreeScopeCursor cursor = new SubtreeScopeCursor( store, evaluator );
 
         // --------- Test beforeFirst() ---------
@@ -897,7 +897,7 @@ public class SubtreeScopeTest
         String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
 
         ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
@@ -913,7 +913,7 @@ public class SubtreeScopeTest
         String baseId = store.getEntryId( dn );
 
         ScopeNode node = new ScopeNode( AliasDerefMode.DEREF_ALWAYS, dn, baseId, SearchScope.SUBTREE );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         assertEquals( node, evaluator.getExpression() );
 
         /*
@@ -945,7 +945,7 @@ public class SubtreeScopeTest
         {
             ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId,
                 SearchScope.SUBTREE );
-            SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+            SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
             cursor = new SubtreeScopeCursor( store, evaluator );
             cursor.get();
         }
@@ -968,7 +968,7 @@ public class SubtreeScopeTest
         {
             ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId,
                 SearchScope.SUBTREE );
-            SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+            SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
             cursor = new SubtreeScopeCursor( store, evaluator );
 
             // test before()
@@ -1014,7 +1014,7 @@ public class SubtreeScopeTest
     {
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, new Dn( SchemaConstants.OU_AT_OID
             + "=sales," + SchemaConstants.O_AT_OID + "=good times co." ), null, SearchScope.ONELEVEL );
-        SubtreeScopeEvaluator<Entry> evaluator = new SubtreeScopeEvaluator<Entry>( store, node );
+        SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
         assertNull( evaluator );
     }
 }
