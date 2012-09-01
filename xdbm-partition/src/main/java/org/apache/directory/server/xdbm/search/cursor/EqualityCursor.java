@@ -69,7 +69,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public EqualityCursor( Store<Entry> db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
+    public EqualityCursor( Store db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating EqualityCursor {}", this );
         this.equalityEvaluator = equalityEvaluator;
@@ -342,7 +342,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
         sb.append( " :\n" );
 
-        sb.append( tabs + "  " ).append( equalityEvaluator ).append( '\n' );
+        sb.append( tabs + "  >>" ).append( equalityEvaluator );
 
         if ( userIdxCursor != null )
         {
@@ -353,7 +353,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         if ( uuidIdxCursor != null )
         {
             sb.append( tabs + "  <uuid>\n" );
-            sb.append( userIdxCursor.toString( tabs + "  " ) );
+            sb.append( uuidIdxCursor.toString( tabs + "  " ) );
         }
 
         return sb.toString();

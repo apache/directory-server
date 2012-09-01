@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
+public class SubtreeScopeEvaluator implements Evaluator<ScopeNode<String>>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode<String> node;
@@ -61,7 +61,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
     private final boolean dereferencing;
 
     /** The entry database/store */
-    private final Store<E> db;
+    private final Store db;
 
 
     /**
@@ -71,7 +71,7 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store<E> db, ScopeNode<String> node ) throws Exception
+    public SubtreeScopeEvaluator( Store db, ScopeNode<String> node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -247,5 +247,27 @@ public class SubtreeScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
     public boolean isDereferencing()
     {
         return dereferencing;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "SubstreeScopeEvaluator : " ).append( node ).append( '\n' );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

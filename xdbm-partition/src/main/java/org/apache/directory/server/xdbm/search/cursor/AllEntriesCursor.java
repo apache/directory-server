@@ -62,7 +62,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      * @param db
      * @throws Exception
      */
-    public AllEntriesCursor( Store<Entry> db ) throws Exception
+    public AllEntriesCursor( Store db ) throws Exception
     {
         LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
         // Uses the MasterTable 
@@ -199,5 +199,40 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     {
         LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
         wrapped.close( cause );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "AllEntriesCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( wrapped.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

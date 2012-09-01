@@ -69,7 +69,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
 
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store<Entry> db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
+    public LessEqCursor( Store db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating LessEqCursor {}", this );
         this.lessEqEvaluator = lessEqEvaluator;
@@ -372,5 +372,52 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
             uuidIdxCursor.close( cause );
             uuidCandidate = null;
         }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "LessEqCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#candidate<" ).append( uuidCandidate ).append( ">:\n" );
+
+        sb.append( tabs + "  >>" ).append( lessEqEvaluator ).append( '\n' );
+
+        if ( userIdxCursor != null )
+        {
+            sb.append( tabs + "  <user>\n" );
+            sb.append( userIdxCursor.toString( tabs + "    " ) );
+        }
+
+        if ( uuidIdxCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( uuidIdxCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

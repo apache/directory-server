@@ -50,7 +50,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<String>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** A onelevel ScopeNode Evaluator */
     @SuppressWarnings("unchecked")
@@ -74,7 +74,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<String>
      * @throws Exception on db access failures
      */
     //@SuppressWarnings("unchecked")
-    public OneLevelScopeCursor( Store<Entry> db, OneLevelScopeEvaluator<Entry> evaluator )
+    public OneLevelScopeCursor( Store db, OneLevelScopeEvaluator<Entry> evaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating OneLevelScopeCursor {}", this );
@@ -338,4 +338,52 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<String>
         super.close( cause );
     }
 
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "OneLevelCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#" ).append( db );
+
+        sb.append( " :\n" );
+
+        sb.append( tabs + "  >>" ).append( evaluator ).append( '\n' );
+
+        if ( scopeCursor != null )
+        {
+            sb.append( tabs + "  <scope>\n" );
+            sb.append( scopeCursor.toString( tabs + "    " ) );
+        }
+
+        if ( dereferencedCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( dereferencedCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

@@ -27,7 +27,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +62,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store<Entry> db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
+    public ChildrenCursor( Store db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -181,5 +180,40 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
         cursor.close( cause );
 
         super.close( cause );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "ChildrenCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#parent<" ).append( parentId ).append( "> :\n" );
+
+        sb.append( cursor.toString( tabs + "  " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

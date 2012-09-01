@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
 public class SubstringEvaluator implements Evaluator<SubstringNode>
 {
     /** Database used while evaluating candidates */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** Reference to the SchemaManager */
     private final SchemaManager schemaManager;
@@ -77,7 +77,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * @throws Exception if there are failures accessing resources and the db
      */
     @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Store<Entry> db, SchemaManager schemaManager )
+    public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -372,5 +372,27 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
         // we fell through so a match was not found - assertion was false.
         return false;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "SubsctringEvaluator : " ).append( node ).append( "\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

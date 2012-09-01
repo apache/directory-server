@@ -27,7 +27,6 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
 
     @SuppressWarnings("unchecked")
-    public NotCursor( Store<Entry> store, Evaluator<? extends ExprNode> childEvaluator )
+    public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating NotCursor {}", this );
@@ -159,5 +158,40 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         LOG_CURSOR.debug( "Closing NotCursor {}", this );
         super.close( cause );
         uuidCursor.close( cause );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "NotCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( tabs + "  >>" ).append( childEvaluator ).append( '\n' );
+
+        sb.append( uuidCursor.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

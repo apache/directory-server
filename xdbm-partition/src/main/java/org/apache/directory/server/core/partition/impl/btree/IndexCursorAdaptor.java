@@ -73,7 +73,6 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
         }
         else
         {
-            System.out.println( "~~~~~~~~~~~~~~~~> Using the reverse index !!!" );
             forwardEntry = null;
             reverseEntry = new ReverseIndexEntry<K, String>();
         }
@@ -230,5 +229,40 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     protected String getUnsupportedMessage()
     {
         return UNSUPPORTED_MSG;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "IndexCursorAdaptor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( wrappedCursor.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

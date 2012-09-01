@@ -71,7 +71,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Store<Entry> db, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
+    public ApproximateCursor( Store db, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating ApproximateCursor {}", this );
         this.approximateEvaluator = approximateEvaluator;
@@ -321,4 +321,50 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
         }
     }
 
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "ApproximateCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( tabs + "  >>" ).append( approximateEvaluator ).append( '\n' );
+
+        if ( userIdxCursor != null )
+        {
+            sb.append( tabs + "  <user>\n" );
+            sb.append( userIdxCursor.toString( tabs + "    " ) );
+        }
+
+        if ( uuidIdxCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( uuidIdxCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

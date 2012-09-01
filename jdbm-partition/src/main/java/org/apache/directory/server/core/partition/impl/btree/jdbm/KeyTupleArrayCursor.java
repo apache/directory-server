@@ -220,12 +220,12 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
-        
+
         if ( wrapped != null )
         {
             wrapped.close();
         }
-        
+
         super.close();
     }
 
@@ -236,12 +236,49 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void close( Exception reason ) throws Exception
     {
         LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
-        
+
         if ( wrapped != null )
         {
             wrapped.close( reason );
         }
-        
+
         super.close( reason );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "KeyTupleArrayCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#" ).append( key );
+
+        sb.append( " :\n" );
+
+        sb.append( wrapped.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

@@ -28,7 +28,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The entry database/store */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** The prefetched element */
     private IndexEntry prefetched;
@@ -84,7 +83,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry> db, String baseId, String parentId,
+    public DescendantCursor( Store db, String baseId, String parentId,
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
         throws Exception
     {
@@ -99,7 +98,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public DescendantCursor( Store<Entry> db, String baseId, String parentId,
+    public DescendantCursor( Store db, String baseId, String parentId,
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor,
         boolean topLevel )
         throws Exception
@@ -304,5 +303,64 @@ public class DescendantCursor extends AbstractIndexCursor<String>
         currentCursor.close( cause );
 
         super.close( cause );
+    }
+
+
+    /**
+     * Dumps the cursors
+     */
+    private String dumpCursors( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for ( Object cursor : cursorStack )
+        {
+            sb.append( ( ( Cursor<IndexEntry<ParentIdAndRdn, String>> ) cursor ).toString( tabs + "  " ) );
+            sb.append( "\n" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "DescendantCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#baseId<" ).append( baseId );
+        sb.append( ", " ).append( db ).append( "> :\n" );
+
+        sb.append( dumpCursors( tabs + "  " ) );
+
+        if ( currentCursor != null )
+        {
+            sb.append( tabs + "  <current>\n" );
+            sb.append( currentCursor.toString( tabs + "    " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

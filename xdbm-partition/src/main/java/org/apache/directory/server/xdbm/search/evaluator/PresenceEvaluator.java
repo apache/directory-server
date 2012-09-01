@@ -45,7 +45,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     private final PresenceNode node;
 
     /** The backend */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** The AttributeType we will use for the evaluation */
     private final AttributeType attributeType;
@@ -57,7 +57,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     private final Index<String, Entry, String> idx;
 
 
-    public PresenceEvaluator( PresenceNode node, Store<Entry> db, SchemaManager schemaManager )
+    public PresenceEvaluator( PresenceNode node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -151,5 +151,27 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
         // we fell through so a match was not found - assertion was false.
         return false;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "PresenceEvaluator : " ).append( node ).append( "\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

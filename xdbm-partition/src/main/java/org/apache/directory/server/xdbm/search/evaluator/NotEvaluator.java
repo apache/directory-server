@@ -64,4 +64,28 @@ public class NotEvaluator implements Evaluator<NotNode>
     {
         return node;
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "NotEvaluator : " ).append( node ).append( '\n' );
+
+        sb.append( childEvaluator.toString( tabs + "  " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

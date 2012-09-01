@@ -55,7 +55,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
 
 
     @SuppressWarnings("unchecked")
-    public EqualityEvaluator( EqualityNode<T> node, Store<Entry> db, SchemaManager schemaManager )
+    public EqualityEvaluator( EqualityNode<T> node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
@@ -207,5 +207,27 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
         }
 
         return false;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "EqualityEvaluator : " ).append( super.toString() ).append( '\n' );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

@@ -31,7 +31,6 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.SubtreeScopeEvaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +49,10 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<String>
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
     /** The Entry database/store */
-    private final Store<Entry> db;
+    private final Store db;
 
     /** A ScopeNode Evaluator */
-    private final SubtreeScopeEvaluator<Entry> evaluator;
+    private final SubtreeScopeEvaluator evaluator;
 
     /** A Cursor over the entries in the scope of the search base */
     private final Cursor<IndexEntry<String, String>> scopeCursor;
@@ -74,7 +73,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<String>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public SubtreeScopeCursor( Store<Entry> db, SubtreeScopeEvaluator<Entry> evaluator )
+    public SubtreeScopeCursor( Store db, SubtreeScopeEvaluator evaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating SubtreeScopeCursor {}", this );
@@ -384,5 +383,59 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<String>
         }
 
         super.close( cause );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "SubtreeScopeCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#ctxId<" ).append( contextEntryId );
+        sb.append( ", " ).append( db ).append( "> :\n" );
+
+        sb.append( tabs + "  >>" ).append( evaluator ).append( '\n' );
+
+        if ( scopeCursor != null )
+        {
+            sb.append( tabs + "  <scope>\n" );
+            sb.append( scopeCursor.toString( tabs + "    " ) );
+        }
+
+        if ( dereferencedCursor != null )
+        {
+            sb.append( tabs + "  <dereferenced>\n" );
+            sb.append( dereferencedCursor.toString( tabs + "  " ) );
+        }
+
+        if ( dereferencedCursor != null )
+        {
+            sb.append( tabs + "  <current>\n" );
+            sb.append( cursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

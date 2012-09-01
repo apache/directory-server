@@ -44,7 +44,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected final SimpleNode<T> node;
 
     /** The backend */
-    protected final Store<Entry> db;
+    protected final Store db;
 
     /** The SchemaManager instance */
     protected final SchemaManager schemaManager;
@@ -63,7 +63,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
 
 
     @SuppressWarnings("unchecked")
-    public LeafEvaluator( SimpleNode<T> node, Store<Entry> db, SchemaManager schemaManager )
+    public LeafEvaluator( SimpleNode<T> node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         this.db = db;
@@ -97,5 +97,18 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     public LdapComparator<? super Object> getComparator()
     {
         return ldapComparator;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( node );
+
+        return sb.toString();
     }
 }

@@ -75,7 +75,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store<Entry> db, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store db, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
         this.greaterEqEvaluator = greaterEqEvaluator;
@@ -389,5 +389,52 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
             uuidIdxCursor.close( cause );
             uuidCandidate = null;
         }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "GreaterEqCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#candidate<" ).append( uuidCandidate ).append( ">:\n" );
+
+        sb.append( tabs + "  >>" ).append( greaterEqEvaluator ).append( '\n' );
+
+        if ( userIdxCursor != null )
+        {
+            sb.append( tabs + "  <user>\n" );
+            sb.append( userIdxCursor.toString( tabs + "    " ) );
+        }
+
+        if ( uuidIdxCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( uuidIdxCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

@@ -27,7 +27,6 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private IndexEntry<String, String> prefetched;
 
 
-    public PresenceCursor( Store<Entry> store, PresenceEvaluator presenceEvaluator ) throws Exception
+    public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
         this.presenceEvaluator = presenceEvaluator;
@@ -303,5 +302,52 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         {
             uuidCursor.close( cause );
         }
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "PresenceCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( tabs + "  >>" ).append( presenceEvaluator ).append( '\n' );
+
+        if ( presenceCursor != null )
+        {
+            sb.append( tabs + "  <presence>\n" );
+            sb.append( presenceCursor.toString( tabs + "    " ) );
+        }
+
+        if ( uuidCursor != null )
+        {
+            sb.append( tabs + "  <uuid>\n" );
+            sb.append( uuidCursor.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

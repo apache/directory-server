@@ -289,9 +289,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         for ( Evaluator<? extends ExprNode> evaluator : evaluators )
         {
-            sb.append( tabs + "  [" );
-            sb.append( evaluator );
-            sb.append( "]\n" );
+            sb.append( evaluator.toString( tabs + "  >>" ) );
         }
 
         return sb.toString();
@@ -337,7 +335,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
         {
-            sb.append( dumpEvaluators( tabs ) ).append( '\n' );
+            sb.append( dumpEvaluators( tabs ) );
         }
 
         if ( ( cursors != null ) && ( cursors.size() > 0 ) )

@@ -61,6 +61,7 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -97,13 +98,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public abstract class AbstractBTreePartition extends AbstractPartition implements
-    Store<Entry>
+    Store
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBTreePartition.class );
 
     /** the search engine used to search the database */
-    protected SearchEngine<Entry> searchEngine;
+    protected SearchEngine searchEngine;
 
     /** The optimizer to use during search operation */
     protected Optimizer optimizer;
@@ -398,7 +399,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      *
      * @return the search engine
      */
-    public SearchEngine<Entry> getSearchEngine()
+    public SearchEngine getSearchEngine()
     {
         return searchEngine;
     }
@@ -959,12 +960,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             SearchScope scope = searchContext.getScope();
-            Cursor<IndexEntry<String, String>> underlying;
             Dn dn = searchContext.getDn();
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
 
-            underlying = searchEngine.cursor( dn, derefMode, filter, scope );
+            Set<IndexEntry<String, String>> result = searchEngine.buildResultSet( dn, derefMode, filter, scope );
+
+            Cursor underlying = new SetCursor<IndexEntry<String, String>>( result );
 
             return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, underlying ), searchContext );
         }

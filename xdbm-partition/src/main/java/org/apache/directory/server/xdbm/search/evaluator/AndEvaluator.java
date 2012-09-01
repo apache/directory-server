@@ -123,4 +123,47 @@ public class AndEvaluator implements Evaluator<AndNode>
     {
         return node;
     }
+
+
+    /**
+     * Dumps the evaluators
+     */
+    private String dumpEvaluators( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for ( Evaluator<? extends ExprNode> evaluator : evaluators )
+        {
+            sb.append( evaluator.toString( tabs + "  " ) );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "AndEvaluator : " ).append( node ).append( "\n" );
+
+        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        {
+            sb.append( dumpEvaluators( tabs + "  " ) ).append( "\n" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

@@ -254,9 +254,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
 
         for ( Evaluator<? extends ExprNode> evaluator : evaluators )
         {
-            sb.append( tabs + "  [" );
-            sb.append( evaluator );
-            sb.append( "]\n" );
+            sb.append( evaluator.toString( tabs + "  >>" ) );
         }
 
         return sb.toString();

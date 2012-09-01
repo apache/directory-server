@@ -52,7 +52,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store<Entry> store, final SubstringEvaluator substringEvaluator )
+    public SubstringCursor( Store store, final SubstringEvaluator substringEvaluator )
         throws Exception
     {
         LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
@@ -237,5 +237,42 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         super.close( cause );
         wrapped.close( cause );
         clear();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "SubstringCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( "#index<" ).append( hasIndex ).append( "> :\n" );
+
+        sb.append( tabs + "  >>" ).append( evaluator ).append( '\n' );
+
+        sb.append( wrapped.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

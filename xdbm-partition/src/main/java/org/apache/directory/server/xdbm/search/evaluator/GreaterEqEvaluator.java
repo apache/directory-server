@@ -44,7 +44,7 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 {
     @SuppressWarnings("unchecked")
-    public GreaterEqEvaluator( GreaterEqNode<T> node, Store<Entry> db, SchemaManager schemaManager )
+    public GreaterEqEvaluator( GreaterEqNode<T> node, Store db, SchemaManager schemaManager )
         throws Exception
     {
         super( node, db, schemaManager );
@@ -215,5 +215,27 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
         }
 
         return false;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "GreaterEqEvaluator : " ).append( super.toString() ).append( "\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

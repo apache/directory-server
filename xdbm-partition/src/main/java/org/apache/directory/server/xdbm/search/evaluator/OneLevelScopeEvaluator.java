@@ -47,7 +47,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
     private final boolean dereferencing;
 
     /** the entry db storing entries */
-    private final Store<E> db;
+    private final Store db;
 
 
     /**
@@ -57,7 +57,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store<E> db, ScopeNode<String> node ) throws Exception
+    public OneLevelScopeEvaluator( Store db, ScopeNode<String> node ) throws Exception
     {
         this.node = node;
 
@@ -169,5 +169,27 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode<String>>
     public boolean isDereferencing()
     {
         return dereferencing;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "OneLevelScopEvaluator : " ).append( node ).append( "\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }
