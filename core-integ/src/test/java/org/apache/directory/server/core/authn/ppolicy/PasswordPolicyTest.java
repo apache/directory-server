@@ -23,13 +23,14 @@ package org.apache.directory.server.core.authn.ppolicy;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
-import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
+import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -38,13 +39,13 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -549,6 +550,72 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
     }
     
+    
+    @Test
+    public void testGraceAuth() throws Exception
+    {
+        policyConfig.setPwdMaxFailure( 2 );
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdLockoutDuration( 0 );
+        policyConfig.setPwdGraceAuthNLimit( 2 );
+        policyConfig.setPwdFailureCountInterval( 60 );
+        policyConfig.setPwdMaxAge( 1 );
+        
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+        
+        Dn userDn = new Dn( "cn=userGrace,ou=system" );
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: userGrace",
+            "sn: userGrace_sn",
+            "userPassword: 12345" );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        AddResponse addResp = adminConnection.add( addRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        assertNull( respCtrl );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( "12345" ); // grace login
+        bindReq.addControl( PP_REQ_CTRL );
+        
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        Thread.sleep( 2000 ); // let the password expire
+        BindResponse bindResp = userConnection.bind( bindReq );
+        assertTrue( userConnection.isAuthenticated() );
+        PasswordPolicy ppolicy = getPwdRespCtrl( bindResp );
+        assertEquals( 1, ppolicy.getResponse().getGraceAuthNsRemaining() );
+        
+        userEntry = adminConnection.lookup( userDn, "+" );
+        Attribute pwdGraceAuthUseTime = userEntry.get( PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT );
+        assertNotNull( pwdGraceAuthUseTime );
+
+        Attribute pwdChangedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT );
+        
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "secret1" );
+        ModifyResponse modResp = userConnection.modify( modReq );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+
+        userEntry = adminConnection.lookup( userDn, "+" );
+        pwdGraceAuthUseTime = userEntry.get( PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT );
+        assertNull( pwdGraceAuthUseTime );
+        
+        Attribute latestPwdChangedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT );
+        assertNotSame( pwdChangedTime.getString(), latestPwdChangedTime.getString() );
+        
+        userConnection.close();
+    }
+
     
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
