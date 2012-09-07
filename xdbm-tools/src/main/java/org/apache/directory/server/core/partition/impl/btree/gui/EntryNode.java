@@ -81,7 +81,7 @@ public class EntryNode implements TreeNode
         try
         {
             List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            Cursor<IndexEntry<String, String>> childList = db.list( id );
+            Cursor<IndexEntry<String, String>> childList = null; //db.list( id );
 
             while ( childList.next() )
             {
