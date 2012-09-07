@@ -474,6 +474,12 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
             Entry tempEntry = wrapped.get();
 
+            if ( tempEntry == null )
+            {
+                // no candidate
+                continue;
+            }
+
             if ( tempEntry instanceof ClonedServerEntry )
             {
                 tempResult = tempEntry;
@@ -546,7 +552,14 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         outer: while ( wrapped.previous() )
         {
             boolean accepted = true;
-            tempResult = new ClonedServerEntrySearch( wrapped.get() );
+            Entry entry = wrapped.get();
+
+            if ( entry == null )
+            {
+                continue;
+            }
+
+            tempResult = new ClonedServerEntrySearch( entry );
 
             /*
              * O P T I M I Z A T I O N
