@@ -39,8 +39,20 @@ public class ScanCountComparator implements Comparator<Evaluator<?>>
      */
     public int compare( Evaluator<?> e1, Evaluator<?> e2 )
     {
-        long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-        long scanCount2 = ( Long ) e2.getExpression().get( "count" );
+        Object count1 = e1.getExpression().get( "count" );;
+        Object count2 = e2.getExpression().get( "count" );;
+        long scanCount1 = Long.MAX_VALUE;
+        long scanCount2 = Long.MAX_VALUE;
+
+        if ( count1 != null )
+        {
+            scanCount1 = ( Long ) e1.getExpression().get( "count" );
+        }
+
+        if ( count2 != null )
+        {
+            scanCount2 = ( Long ) e2.getExpression().get( "count" );
+        }
 
         if ( scanCount1 == scanCount2 )
         {
@@ -60,5 +72,4 @@ public class ScanCountComparator implements Comparator<Evaluator<?>>
 
         return 1;
     }
-
 }
