@@ -777,7 +777,7 @@ public class DefaultOperationManager implements OperationManager
         }
         finally
         {
-            lockWrite();
+            unlockWrite();
         }
 
         LOG.debug( "<< ModifyOperation successful" );
