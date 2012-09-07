@@ -244,25 +244,26 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         {
             Map<String, Control> controlMap = req.getControls();
             Control[] controls = null;
-            
+
             if ( controlMap != null )
             {
                 Collection<Control> controlValues = controlMap.values();
-                
+
                 controls = new Control[controlValues.size()];
                 int pos = 0;
-                
+
                 for ( Control control : controlMap.values() )
                 {
                     controls[pos++] = control;
                 }
             }
-            
+
             Entry entry = session.getCoreSession().lookup(
                 req.getBase(),
                 controls,
-                req.getAttributes().toArray( new String[]{} ) );
-                
+                req.getAttributes().toArray( new String[]
+                    {} ) );
+
             session.getIoSession().write( generateResponse( session, req, entry ) );
 
             // write the SearchResultDone message
@@ -976,8 +977,8 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         // using varags to add two expressions to an OR node
         req.setFilter( new OrNode( req.getFilter(), newIsReferralEqualityNode( session ) ) );
     }
-    
-    
+
+
     /**
      * Handles the RootDSE and lookups searches
      */
@@ -1003,20 +1004,20 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-/*
-        if ( isBaseScope && isObjectClassFilter )
-        {
-            // This is a lookup
-            handleLookup( session, req );
+        /*
+                if ( isBaseScope && isObjectClassFilter )
+                {
+                    // This is a lookup
+                    handleLookup( session, req );
 
-            return true;
-        }
-        else
-        {
-            // a standard search
-            return false;
-        }
-*/
+                    return true;
+                }
+                else
+                {
+                    // a standard search
+                    return false;
+                }
+        */
         boolean isBaseIsRoot = req.getBase().isEmpty();
 
         if ( isBaseScope && isObjectClassFilter )
@@ -1080,7 +1081,6 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             {
                 return;
             }
-            
 
             // modify the filter to affect continuation support
             modifyFilter( session, req );
