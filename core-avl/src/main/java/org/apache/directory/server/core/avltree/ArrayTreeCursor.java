@@ -332,13 +332,12 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
         if ( available() )
         {
             sb.append( "available)" );
+            sb.append( "#<" ).append( current ).append( ":" ).append( array.get( current ) ).append( ">" );
         }
         else
         {
             sb.append( "absent)" );
         }
-
-        sb.append( "#<" ).append( current ).append( ":" ).append( array.get( current ) ).append( ">" );
 
         return sb.toString();
     }
