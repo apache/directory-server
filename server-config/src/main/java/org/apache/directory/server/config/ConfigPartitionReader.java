@@ -40,10 +40,10 @@ import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartit
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -736,10 +736,10 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            Set<IndexEntry<String, String>> result = se.buildResultSet( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
+            PartitionSearchResult searchResult = se.computeResult( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
                 filter, scope );
 
-            cursor = new SetCursor<IndexEntry<String, String>>( result );
+            cursor = searchResult.getResultSet();
 
             // First, check if we have some entries to process.
             if ( !cursor.next() )
