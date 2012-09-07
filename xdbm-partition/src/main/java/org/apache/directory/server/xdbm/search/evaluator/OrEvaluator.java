@@ -70,6 +70,7 @@ public class OrEvaluator implements Evaluator<OrNode>
         List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
+
         Collections.sort( optimized, new Comparator<Evaluator<? extends ExprNode>>()
         {
             public int compare( Evaluator<? extends ExprNode> e1,
