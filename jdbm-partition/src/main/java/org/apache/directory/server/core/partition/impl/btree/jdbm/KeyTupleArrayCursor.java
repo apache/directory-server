@@ -56,9 +56,9 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public KeyTupleArrayCursor( ArrayTree<V> arrayTree, K key )
     {
-        LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
         this.key = key;
         this.wrapped = new ArrayTreeCursor<V>( arrayTree );
+        LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
     }
 
 
