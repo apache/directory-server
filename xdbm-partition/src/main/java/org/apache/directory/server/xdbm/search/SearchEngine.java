@@ -20,9 +20,6 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import java.util.Set;
-
-import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -84,7 +81,7 @@ public interface SearchEngine
      * @return A set of UUID representing the full result, up to he sizeLimit
      * @throws Exception if the search fails
      */
-    Set<IndexEntry<String, String>> buildResultSet( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    PartitionSearchResult computeResult( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception;
 
 
