@@ -103,7 +103,6 @@ public class DescendantCursor extends AbstractIndexCursor<String>
         boolean topLevel )
         throws Exception
     {
-        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
         this.db = db;
         currentParentId = parentId;
         currentCursor = cursor;
@@ -111,6 +110,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
         parentIdStack = new ArrayStack();
         this.baseId = baseId;
         this.topLevel = topLevel;
+        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
     }
 
 
