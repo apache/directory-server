@@ -65,9 +65,9 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     public ChildrenCursor( Store db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
         throws Exception
     {
-        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
         this.parentId = parentId;
         this.cursor = cursor;
+        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
     }
 
 
