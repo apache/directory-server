@@ -24,12 +24,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -100,20 +102,21 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * {@inheritDoc}
      */
-    public Set<IndexEntry<String, String>> buildResultSet( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
+    public PartitionSearchResult computeResult( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
         SearchScope scope ) throws Exception
     {
         Dn effectiveBase;
         String baseId = db.getEntryId( base );
-        Set<IndexEntry<String, String>> result = new HashSet<IndexEntry<String, String>>();
+        PartitionSearchResult searchSet = new PartitionSearchResult();
+        Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
-                // The context entry is not created yet, return an empty cursor
-                return result;
+                // The context entry is not created yet, return an empty result
+                return searchSet;
             }
             else
             {
@@ -177,13 +180,12 @@ public class DefaultSearchEngine implements SearchEngine
             }
 
             indexEntry.setEntry( entry );
+            resultSet.add( indexEntry );
 
-            if ( evaluator.evaluate( indexEntry ) )
-            {
-                result.add( indexEntry );
-            }
+            searchSet.setEvaluator( evaluator );
+            searchSet.setResultSet( resultSet );
 
-            return result;
+            return searchSet;
         }
 
         // Add the scope node using the effective base to the filter
@@ -194,16 +196,44 @@ public class DefaultSearchEngine implements SearchEngine
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );
+        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
 
-        Cursor<IndexEntry<Object, String>> cursor = ( Cursor ) cursorBuilder.build( root );
+        Set<String> uuidSet = new HashSet<String>();
 
-        while ( cursor.next() )
+        long nbResults = cursorBuilder.build( root, uuidSet );
+
+        if ( nbResults < Long.MAX_VALUE )
         {
-            IndexEntry indexEntry = cursor.get();
-            result.add( indexEntry );
+            for ( String uuid : uuidSet )
+            {
+                ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+                indexEntry.setId( uuid );
+                resultSet.add( indexEntry );
+            }
+        }
+        else
+        {
+            // Full scan : use the MasterTable
+            Cursor<IndexEntry<String, String>> cursor = new IndexCursorAdaptor( db.getMasterTable().cursor(), true );
+
+            while ( cursor.next() )
+            {
+                IndexEntry<String, String> indexEntry = cursor.get();
+
+                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID> 
+                ForwardIndexEntry<String, String> forwardIndexEntry = new ForwardIndexEntry<String, String>();
+                forwardIndexEntry.setKey( indexEntry.getKey() );
+                forwardIndexEntry.setId( indexEntry.getKey() );
+                forwardIndexEntry.setEntry( ( Entry ) indexEntry.getTuple().getValue() );
+
+                resultSet.add( forwardIndexEntry );
+            }
         }
 
-        return result;
+        searchSet.setEvaluator( evaluator );
+        searchSet.setResultSet( resultSet );
+
+        return searchSet;
     }
 
 

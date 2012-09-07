@@ -21,10 +21,13 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +44,15 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
     private final AbstractBTreePartition db;
     private final Cursor<IndexEntry<String, String>> indexCursor;
+    private final Evaluator<? extends ExprNode> evaluator;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition db, Cursor<IndexEntry<String, String>> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition db, PartitionSearchResult searchResult )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;
-        this.indexCursor = indexCursor;
+        indexCursor = searchResult.getResultSet();
+        evaluator = searchResult.getEvaluator();
     }
 
 
@@ -138,13 +143,12 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     {
         IndexEntry<String, String> indexEntry = indexCursor.get();
 
-        if ( indexEntry.getEntry() == null )
+        if ( evaluator.evaluate( indexEntry ) )
         {
-            Entry entry = db.lookup( indexEntry.getId() );
-            indexEntry.setEntry( entry );
+            return indexEntry.getEntry();
         }
 
-        return indexEntry.getEntry();
+        return null;
     }
 
 

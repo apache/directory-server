@@ -130,6 +130,45 @@ public class ForwardIndexEntry<K, ID> extends AbstractIndexEntry<K, ID>
     }
 
 
+    public int hashCode()
+    {
+        if ( getId() == null )
+        {
+            return 0;
+        }
+
+        return getId().hashCode();
+    }
+
+
+    public boolean equals( IndexEntry<K, ID> that )
+    {
+        if ( that == this )
+        {
+            return true;
+        }
+
+        if ( !( that instanceof ForwardIndexEntry ) )
+        {
+            return false;
+        }
+
+        ForwardIndexEntry<K, ID> thatIndexEntry = ( ForwardIndexEntry<K, ID> ) that;
+
+        if ( thatIndexEntry.getId() == null )
+        {
+            return getId() == null;
+        }
+
+        if ( thatIndexEntry.getId().equals( getId() ) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
     /**
      * {@inheritDoc}
      */

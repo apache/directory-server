@@ -63,7 +63,6 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     @SuppressWarnings("unchecked")
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
-        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
         this.wrappedCursor = wrappedCursor;
 
         if ( forwardIndex )
@@ -76,6 +75,8 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
             forwardEntry = null;
             reverseEntry = new ReverseIndexEntry<K, String>();
         }
+
+        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
     }
 
 

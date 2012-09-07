@@ -57,11 +57,12 @@ import org.apache.directory.server.xdbm.MasterTable;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
+import org.apache.directory.server.xdbm.search.evaluator.PassThroughEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -917,16 +918,43 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        return new BaseEntryFilteringCursor(
-            new EntryCursorAdaptor( this,
-                list( getEntryId( listContext.getDn() ) ) ), listContext );
+        return list( getEntryId( listContext.getDn() ), listContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public final Cursor<IndexEntry<String, String>> list( String id ) throws LdapException
+    public Cursor<IndexEntry<String, String>> list( String id ) throws LdapException
+    {
+        try
+        {
+            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
+
+            IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+            startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
+            cursor.before( startingPos );
+
+            dumpRdnIdx();
+
+            PartitionSearchResult searchResult = new PartitionSearchResult();
+            Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
+
+            Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
+
+            return childrenCursor;
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public final EntryFilteringCursor list( String id, ListOperationContext listContext ) throws LdapException
     {
         try
         {
@@ -940,7 +968,22 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             dumpRdnIdx();
 
-            return new ChildrenCursor( this, id, cursor );
+            PartitionSearchResult searchResult = new PartitionSearchResult();
+            Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
+
+            Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
+
+            while ( childrenCursor.next() )
+            {
+                IndexEntry<String, String> element = childrenCursor.get();
+                resultSet.add( element );
+            }
+
+            searchResult.setResultSet( resultSet );
+            searchResult.setEvaluator( new PassThroughEvaluator( this ) );
+
+            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, searchResult ),
+                listContext );
         }
         catch ( Exception e )
         {
@@ -964,11 +1007,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             AliasDerefMode derefMode = searchContext.getAliasDerefMode();
             ExprNode filter = searchContext.getFilter();
 
-            Set<IndexEntry<String, String>> result = searchEngine.buildResultSet( dn, derefMode, filter, scope );
+            PartitionSearchResult searchResult = searchEngine.computeResult( dn, derefMode, filter, scope );
 
-            Cursor underlying = new SetCursor<IndexEntry<String, String>>( result );
-
-            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, underlying ), searchContext );
+            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, searchResult ),
+                searchContext );
         }
         catch ( LdapException le )
         {
