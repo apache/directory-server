@@ -27,7 +27,6 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -124,145 +123,10 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntryQM ) throws Exception
     {
-        if ( ( idx == null ) || ( !idx.hasReverse() ) )
-        {
-            return evaluateWithoutIndex( ( IndexEntry<String, String> ) indexEntry );
-        }
-        else
-        {
-            return evaluateWithIndex( indexEntry );
-        }
-    }
+        IndexEntry<String, String> indexEntry = ( IndexEntry<String, String> ) indexEntryQM;
 
-
-    public boolean evaluate( Entry entry ) throws Exception
-    {
-        return evaluateWithoutIndex( entry );
-    }
-
-
-    public Pattern getPattern()
-    {
-        return regex;
-    }
-
-
-    public SubstringNode getExpression()
-    {
-        return node;
-    }
-
-
-    private boolean evaluateWithIndex( IndexEntry<?, String> indexEntry ) throws Exception
-    {
-        /*
-         * Note that this is using the reverse half of the index giving a
-         * considerable performance improvement on this kind of operation.
-         * Otherwise we would have to scan the entire index if there were
-         * no reverse lookups.
-         */
-        Cursor<IndexEntry<String, String>> entries = idx.reverseCursor( indexEntry.getId() );
-
-        // cycle through the attribute values testing for a match
-        while ( entries.next() )
-        {
-            IndexEntry<String, String> rec = entries.get();
-
-            // once match is found cleanup and return true
-            if ( regex.matcher( rec.getKey() ).matches() )
-            {
-                entries.close();
-                return true;
-            }
-        }
-
-        entries.close();
-
-        // we fell through so a match was not found - assertion was false.
-        return false;
-    }
-
-
-    // TODO - determine if comaparator and index entry should have the Value
-    // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( Entry entry ) throws Exception
-    {
-        // get the attribute
-        Attribute attr = entry.get( attributeType );
-
-        // if the attribute exists and the pattern matches return true
-        if ( attr != null )
-        {
-            /*
-             * Cycle through the attribute values testing normalized version
-             * obtained from using the substring matching rule's normalizer.
-             * The test uses the comparator obtained from the appropriate
-             * substring matching rule.
-             */
-            for ( Value<?> value : attr )
-            {
-                String strValue = ( String ) value.getNormValue();
-
-                // Once match is found cleanup and return true
-                if ( regex.matcher( strValue ).matches() )
-                {
-                    return true;
-                }
-            }
-
-            // Fall through as we didn't find any matching value for this attribute.
-            // We will have to check in the potential descendant, if any.
-        }
-
-        // If we do not have the attribute, loop through the descendant
-        // May be the node Attribute has descendant ?
-        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
-        {
-            // TODO check to see if descendant handling is necessary for the
-            // index so we can match properly even when for example a name
-            // attribute is used instead of more specific commonName
-            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
-
-            while ( descendants.hasNext() )
-            {
-                AttributeType descendant = descendants.next();
-
-                attr = entry.get( descendant );
-
-                if ( null != attr )
-                {
-
-                    /*
-                     * Cycle through the attribute values testing normalized version
-                     * obtained from using the substring matching rule's normalizer.
-                     * The test uses the comparator obtained from the appropriate
-                     * substring matching rule.
-                     */
-                    for ( Value<?> value : attr )
-                    {
-                        String strValue = ( String ) value.getNormValue();
-
-                        // Once match is found cleanup and return true
-                        if ( regex.matcher( strValue ).matches() )
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        // we fell through so a match was not found - assertion was false.
-        return false;
-    }
-
-
-    // TODO - determine if comaparator and index entry should have the Value
-    // wrapper or the raw normalized value
-    private boolean evaluateWithoutIndex( IndexEntry<String, String> indexEntry ) throws Exception
-    {
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
@@ -375,6 +239,90 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     }
 
 
+    public boolean evaluate( Entry entry ) throws Exception
+    {
+        // get the attribute
+        Attribute attr = entry.get( attributeType );
+
+        // if the attribute exists and the pattern matches return true
+        if ( attr != null )
+        {
+            /*
+             * Cycle through the attribute values testing normalized version
+             * obtained from using the substring matching rule's normalizer.
+             * The test uses the comparator obtained from the appropriate
+             * substring matching rule.
+             */
+            for ( Value<?> value : attr )
+            {
+                String strValue = ( String ) value.getNormValue();
+
+                // Once match is found cleanup and return true
+                if ( regex.matcher( strValue ).matches() )
+                {
+                    return true;
+                }
+            }
+
+            // Fall through as we didn't find any matching value for this attribute.
+            // We will have to check in the potential descendant, if any.
+        }
+
+        // If we do not have the attribute, loop through the descendant
+        // May be the node Attribute has descendant ?
+        if ( schemaManager.getAttributeTypeRegistry().hasDescendants( attributeType ) )
+        {
+            // TODO check to see if descendant handling is necessary for the
+            // index so we can match properly even when for example a name
+            // attribute is used instead of more specific commonName
+            Iterator<AttributeType> descendants = schemaManager.getAttributeTypeRegistry().descendants( attributeType );
+
+            while ( descendants.hasNext() )
+            {
+                AttributeType descendant = descendants.next();
+
+                attr = entry.get( descendant );
+
+                if ( null != attr )
+                {
+
+                    /*
+                     * Cycle through the attribute values testing normalized version
+                     * obtained from using the substring matching rule's normalizer.
+                     * The test uses the comparator obtained from the appropriate
+                     * substring matching rule.
+                     */
+                    for ( Value<?> value : attr )
+                    {
+                        String strValue = ( String ) value.getNormValue();
+
+                        // Once match is found cleanup and return true
+                        if ( regex.matcher( strValue ).matches() )
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // we fell through so a match was not found - assertion was false.
+        return false;
+    }
+
+
+    public Pattern getPattern()
+    {
+        return regex;
+    }
+
+
+    public SubstringNode getExpression()
+    {
+        return node;
+    }
+
+
     /**
      * @see Object#toString()
      */
@@ -382,7 +330,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "SubsctringEvaluator : " ).append( node ).append( "\n" );
+        sb.append( tabs ).append( "SubstringEvaluator : " ).append( node ).append( "\n" );
 
         return sb.toString();
     }
