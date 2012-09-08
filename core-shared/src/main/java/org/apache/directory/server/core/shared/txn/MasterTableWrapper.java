@@ -175,8 +175,7 @@ public class MasterTableWrapper implements MasterTable
             return null;
         }
 
-        Entry originalEntry = wrappedTable.get( key );
-        Entry entry = logManager.mergeUpdates( partitionDn, key, originalEntry );
+        Entry entry = logManager.mergeUpdates( partitionDn, key, null );
 
         return entry;
     }
