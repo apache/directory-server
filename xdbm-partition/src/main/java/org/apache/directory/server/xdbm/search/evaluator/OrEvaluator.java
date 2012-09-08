@@ -22,11 +22,11 @@ package org.apache.directory.server.xdbm.search.evaluator;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
@@ -71,33 +71,7 @@ public class OrEvaluator implements Evaluator<OrNode>
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
-        Collections.sort( optimized, new Comparator<Evaluator<? extends ExprNode>>()
-        {
-            public int compare( Evaluator<? extends ExprNode> e1,
-                Evaluator<? extends ExprNode> e2 )
-            {
-                long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-                long scanCount2 = ( Long ) e2.getExpression().get( "count" );
-
-                if ( scanCount1 == scanCount2 )
-                {
-                    return 0;
-                }
-
-                /*
-                 * We want the Evaluator with the largest scan count first
-                 * since this node has the highest probability of accepting,
-                 * or rather the least probability of failing.  That way we
-                 * can short the sub-expression evaluation process.
-                 */
-                if ( scanCount1 < scanCount2 )
-                {
-                    return 1;
-                }
-
-                return -1;
-            }
-        } );
+        Collections.sort( optimized, new ScanCountComparator() );
 
         return optimized;
     }
