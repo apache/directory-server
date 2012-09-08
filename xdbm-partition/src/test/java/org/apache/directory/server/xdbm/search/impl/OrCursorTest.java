@@ -27,23 +27,32 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.cursor.OrCursor;
 import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
@@ -83,6 +92,34 @@ public class OrCursorTest
     static SchemaManager schemaManager = null;
     EvaluatorBuilder evaluatorBuilder;
     CursorBuilder cursorBuilder;
+
+
+    private Cursor<Entry> buildCursor( ExprNode root ) throws Exception
+    {
+        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
+
+        PartitionSearchResult searchResult = new PartitionSearchResult();
+        Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
+
+        Set<String> uuids = new HashSet<String>();
+
+        long candidates = cursorBuilder.build( root, uuids );
+
+        for ( String uuid : uuids )
+        {
+            ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+            indexEntry.setId( uuid );
+            resultSet.add( indexEntry );
+        }
+
+        searchResult.setResultSet( resultSet );
+        searchResult.setEvaluator( evaluator );
+
+        SearchingOperationContext operationContext = new SearchOperationContext( null );
+
+        return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
+            operationContext );
+    }
 
 
     @BeforeClass
@@ -176,39 +213,45 @@ public class OrCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.afterLast();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        Entry entry = cursor.get();
+        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 11L ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 9 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 10L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 10 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 9L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 11 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Johnny Walker", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -217,33 +260,39 @@ public class OrCursorTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 9L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 11 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Johnny Walker", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 10L ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 10 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 11L ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 9 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
