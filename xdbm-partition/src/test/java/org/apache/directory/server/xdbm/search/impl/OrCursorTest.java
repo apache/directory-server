@@ -27,25 +27,16 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
-import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.cursor.OrCursor;
 import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
@@ -83,43 +74,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OrCursorTest
+public class OrCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store store;
     static SchemaManager schemaManager = null;
-    EvaluatorBuilder evaluatorBuilder;
-    CursorBuilder cursorBuilder;
-
-
-    private Cursor<Entry> buildCursor( ExprNode root ) throws Exception
-    {
-        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
-
-        PartitionSearchResult searchResult = new PartitionSearchResult();
-        Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
-
-        Set<String> uuids = new HashSet<String>();
-
-        long candidates = cursorBuilder.build( root, uuids );
-
-        for ( String uuid : uuids )
-        {
-            ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
-            indexEntry.setId( uuid );
-            resultSet.add( indexEntry );
-        }
-
-        searchResult.setResultSet( resultSet );
-        searchResult.setEvaluator( evaluator );
-
-        SearchingOperationContext operationContext = new SearchOperationContext( null );
-
-        return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
-            operationContext );
-    }
 
 
     @BeforeClass

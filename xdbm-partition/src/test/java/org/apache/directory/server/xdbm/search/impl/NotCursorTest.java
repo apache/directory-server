@@ -33,8 +33,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -43,6 +41,7 @@ import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.filter.NotNode;
@@ -70,17 +69,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotCursorTest
+public class NotCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
     UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
 
     File wkdir;
-    Store store;
     static SchemaManager schemaManager = null;
-    EvaluatorBuilder evaluatorBuilder;
-    CursorBuilder cursorBuilder;
 
 
     @BeforeClass
@@ -176,7 +172,7 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        Cursor<IndexEntry<?, String>> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         assertFalse( cursor.available() );
 
@@ -187,8 +183,10 @@ public class NotCursorTest
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
+            Entry entry = cursor.get();
+            String uuid = entry.get( "entryUUID" ).getString();
+            set.add( uuid );
+            assertTrue( uuidSynChecker.isValidSyntax( uuid ) );
         }
 
         assertEquals( 5, set.size() );
