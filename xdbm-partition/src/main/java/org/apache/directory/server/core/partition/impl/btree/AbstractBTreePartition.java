@@ -1171,8 +1171,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entry != null )
             {
-                // We have to store the DN in this entry
-                entry.setDn( dn );
+                // We have to store the DN in this entry, if it has no DN yet
+                if ( !dn.equals( entry.getDn() ) )
+                {
+                    entry.setDn( dn );
+                }
 
                 return new ClonedServerEntry( entry );
             }
