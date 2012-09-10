@@ -116,6 +116,8 @@ public class DefaultSearchEngine implements SearchEngine
             if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
             {
                 // The context entry is not created yet, return an empty result
+                searchSet.setResultSet( resultSet );
+
                 return searchSet;
             }
             else
