@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.net.URI;
 
 import jdbm.RecordManager;
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -155,7 +157,8 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
-        recMan = new BaseRecordManager( path );
+        BaseRecordManager base = new BaseRecordManager( path );
+        recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
 
         try
         {

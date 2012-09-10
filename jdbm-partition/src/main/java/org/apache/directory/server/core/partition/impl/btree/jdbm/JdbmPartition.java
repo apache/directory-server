@@ -29,7 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import jdbm.RecordManager;
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -131,7 +133,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
             // First, check if the file storing the data exists
             String path = partitionDir.getPath() + File.separator + "master";
-            recMan = new BaseRecordManager( path );
+
+            BaseRecordManager base = new BaseRecordManager( path );
+            base.disableTransactions();
 
             if ( cacheSize < 0 )
             {
@@ -142,6 +146,8 @@ public class JdbmPartition extends AbstractBTreePartition
             {
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
+
+            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable( recMan, schemaManager );
