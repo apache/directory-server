@@ -37,11 +37,11 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -279,12 +279,27 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantModify, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "selfModifyUserPassword", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { thisEntry }, " + "    userPermissions " + "    { " + "      { "
-            + "        protectedItems {entry}, " + "        grantsAndDenials { grantModify, grantBrowse, grantRead } "
-            + "      }, " + "      { " + "        protectedItems {allAttributeValues {userPassword}}, "
-            + "        grantsAndDenials { grantAdd, grantRemove } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry(
+            "selfModifyUserPassword",
+            "{ " +
+                "  identificationTag \"addAci\", " +
+                "  precedence 14, " +
+                "  authenticationLevel none, " +
+                "  itemOrUserFirst userFirst: " +
+                "  { " +
+                "    userClasses { thisEntry }, " +
+                "    userPermissions " + "    { " +
+                "      { " +
+                "        protectedItems {entry}, " +
+                "        grantsAndDenials { grantModify, grantBrowse, grantRead } " +
+                "      }, " +
+                "      { " +
+                "        protectedItems {allAttributeValues {userPassword}}, " +
+                "        grantsAndDenials { grantAdd, grantRemove } " +
+                "      } " +
+                "    } " +
+                "  } " +
+                "}" );
 
         // try a modify operation which should succeed with ACI
         assertTrue( checkCanSelfModify( "billyd", "billyd", mods ) );
