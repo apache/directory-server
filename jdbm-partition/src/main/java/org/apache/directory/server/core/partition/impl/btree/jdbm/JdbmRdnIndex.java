@@ -27,7 +27,9 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.i18n.I18n;
@@ -85,7 +87,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
         //System.out.println( "IDX Created index " + path )
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
-        recMan = base; //new CacheRecordManager( base, new MRU( cacheSize ) );
+        recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         try
         {
