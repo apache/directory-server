@@ -25,7 +25,6 @@ import java.util.Iterator;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -49,7 +48,6 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
     final ForwardIndexEntry<K, String> forwardEntry;
-    final ReverseIndexEntry<K, String> reverseEntry;
 
 
     /**
@@ -65,16 +63,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     {
         this.wrappedCursor = wrappedCursor;
 
-        if ( forwardIndex )
-        {
-            forwardEntry = new ForwardIndexEntry<K, String>();
-            reverseEntry = null;
-        }
-        else
-        {
-            forwardEntry = null;
-            reverseEntry = new ReverseIndexEntry<K, String>();
-        }
+        forwardEntry = new ForwardIndexEntry<K, String>();
 
         LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
     }
@@ -143,18 +132,10 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     @SuppressWarnings("unchecked")
     public IndexEntry<K, String> get() throws Exception
     {
-        if ( forwardEntry != null )
-        {
-            Tuple<K, String> tuple = wrappedCursor.get();
-            forwardEntry.setTuple( tuple );
-            return forwardEntry;
-        }
-        else
-        {
-            Tuple<String, K> tuple = wrappedCursor.get();
-            reverseEntry.setTuple( tuple );
-            return reverseEntry;
-        }
+        Tuple<K, String> tuple = wrappedCursor.get();
+        forwardEntry.setTuple( tuple );
+
+        return forwardEntry;
     }
 
 
