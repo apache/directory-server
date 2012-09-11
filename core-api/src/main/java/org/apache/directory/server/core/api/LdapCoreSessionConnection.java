@@ -389,7 +389,6 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         }
         catch ( LdapException e )
         {
-            System.out.println( "Cannot delete " + dn );
             throw e;
         }
     }
