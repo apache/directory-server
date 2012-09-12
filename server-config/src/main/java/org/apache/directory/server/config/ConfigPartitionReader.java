@@ -38,7 +38,6 @@ import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -763,7 +762,7 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                ForwardIndexEntry<String, String> forwardEntry = ( ForwardIndexEntry<String, String> ) cursor
+                IndexEntry<String, String> forwardEntry = cursor
                     .get();
 
                 // Now, get the entry

@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
@@ -212,7 +211,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
                     // We have a candidate, it will be returned.
                     if ( topLevel )
                     {
-                        prefetched = new ForwardIndexEntry();
+                        prefetched = new IndexEntry();
                         prefetched.setId( cursorEntry.getId() );
                         prefetched.setKey( baseId );
                     }
@@ -229,7 +228,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
                         // Yes, then create a new cursor and go down one level
                         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = db.getRdnIndex().forwardCursor();
 
-                        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+                        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
                         startingPos.setKey( new ParentIdAndRdn( newParentId, ( Rdn[] ) null ) );
                         cursor.before( startingPos );
 

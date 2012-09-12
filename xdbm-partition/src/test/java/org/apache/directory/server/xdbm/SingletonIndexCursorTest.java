@@ -41,14 +41,14 @@ import org.junit.Test;
 public class SingletonIndexCursorTest
 {
 
-    private ForwardIndexEntry<String, String> indexEntry;
+    private IndexEntry<String, String> indexEntry;
     private SingletonIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Partition.DEFAULT_ID );
         indexEntry.setEntry( new DefaultEntry() );
         indexEntry.setKey( "test" );

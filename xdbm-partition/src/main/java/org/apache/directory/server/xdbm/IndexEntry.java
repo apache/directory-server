@@ -25,84 +25,184 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
- * Interface for index entries.
- * <br/> 
- * An index entry associate an Entry with the key that was used to find it,
- * and the Entry UUID in the masterTable where it's stored. The Entry
- * may be present in this instance once we read it from the masterTable.<p/>
- *
+ * An index id value pair based on a Tuple which can optionally reference the
+ * indexed Entry if one has already been loaded.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The value stored in the Tuple, associated key for the object
+ * @param <V> The key stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
-public interface IndexEntry<K, ID>
+public class IndexEntry<K, ID>
 {
+    /** The referenced Entry if loaded from the store */
+    private Entry entry;
+
+    /** The underlying Tuple */
+    private final Tuple<K, ID> tuple = new Tuple<K, ID>();
+
+
     /**
-     * Gets the key referred to by this IndexEntry.
+     * Creates a ForwardIndexEntry instance
+     */
+    public IndexEntry()
+    {
+        super();
+    }
+
+
+    /**
+     * Sets the key value tuple represented by this ForwardIndexEntry, after having 
+     * reset the IndexEntry content (the Entry will now be null)
      *
-     * @return the key of the Entry referred to
+     * @param tuple the tuple for the ForwardIndexEntry
      */
-    K getKey();
+    public void setTuple( Tuple<K, ID> tuple )
+    {
+        // Clear the entry
+        entry = null;
+
+        // And inject the tuple key and value 
+        this.tuple.setKey( tuple.getKey() );
+        this.tuple.setValue( tuple.getValue() );
+    }
 
 
     /**
-     * Sets the key referred to by this IndexEntry.
-     *
-     * @param key the key of the Entry referred to
+     * {@inheritDoc}
      */
-    void setKey( K key );
+    public ID getId()
+    {
+        return tuple.getValue();
+    }
 
 
     /**
-     * Gets the id of the indexed Entry.
-     *
-     * @return the id of the indexed Entry
+     * {@inheritDoc}
      */
-    ID getId();
+    public K getKey()
+    {
+        return tuple.getKey();
+    }
 
 
     /**
-     * Sets the id of the indexed.Entry
-     *
-     * @param id the id of the indexed Entry
+     * {@inheritDoc}
      */
-    void setId( ID id );
+    public void setId( ID id )
+    {
+        tuple.setValue( id );
+    }
 
 
     /**
-     * Gets the Entry indexed if found.
-     *
-     * @return the indexed Entry
+     * {@inheritDoc}
      */
-    Entry getEntry();
+    public void setKey( K value )
+    {
+        tuple.setKey( value );
+    }
 
 
     /**
-     * Gets access to the underlying tuple.
-     *
-     * @return the underlying tuple
+     * {@inheritDoc}
      */
-    Tuple<?, ?> getTuple();
+    public Entry getEntry()
+    {
+        return entry;
+    }
 
 
     /**
-     * Sets the indexed Entry.
-     *
-     * @param entry the indexed Entry
+     * {@inheritDoc}
      */
-    void setEntry( Entry entry );
+    public void setEntry( Entry entry )
+    {
+        this.entry = entry;
+    }
 
 
     /**
-     * Clears the id, value and Entry in this IndexEntry.
+     * {@inheritDoc}
      */
-    void clear();
+    public Tuple<K, ID> getTuple()
+    {
+        return tuple;
+    }
 
 
     /**
-     * Copies the values of another IndexEntry into this IndexEntry.
-     *
-     * @param entry the entry to copy fields of
+     * {@inheritDoc}
      */
-    void copy( IndexEntry<K, ID> entry );
+    public void clear()
+    {
+        entry = null;
+        tuple.setKey( null );
+        tuple.setValue( null );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void copy( IndexEntry<K, ID> entry )
+    {
+        this.entry = entry.getEntry();
+        tuple.setKey( entry.getKey() );
+        tuple.setValue( entry.getId() );
+    }
+
+
+    public int hashCode()
+    {
+        if ( getId() == null )
+        {
+            return 0;
+        }
+
+        return getId().hashCode();
+    }
+
+
+    public boolean equals( IndexEntry<K, ID> that )
+    {
+        if ( that == this )
+        {
+            return true;
+        }
+
+        if ( !( that instanceof IndexEntry ) )
+        {
+            return false;
+        }
+
+        IndexEntry<K, ID> thatIndexEntry = that;
+
+        if ( thatIndexEntry.getId() == null )
+        {
+            return getId() == null;
+        }
+
+        if ( thatIndexEntry.getId().equals( getId() ) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append( "IndexEntry[ " );
+        buf.append( tuple.getKey() );
+        buf.append( ", " );
+        buf.append( tuple.getValue() );
+        buf.append( " ]" );
+
+        return buf.toString();
+    }
 }

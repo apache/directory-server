@@ -34,7 +34,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
@@ -387,7 +386,7 @@ public class LdifPartition extends AbstractLdifPartition
         String baseId = getEntryId( modifiedEntry.getDn() );
 
         ParentIdAndRdn parentIdAndRdn = getRdnIndex().reverseLookup( baseId );
-        IndexEntry indexEntry = new ForwardIndexEntry();
+        IndexEntry indexEntry = new IndexEntry();
 
         indexEntry.setId( baseId );
         indexEntry.setKey( parentIdAndRdn );

@@ -36,7 +36,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -335,7 +335,7 @@ public class LessEqTest
         // ---------- test before() ----------
 
         cursor = new LessEqCursor( store, evaluator );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
 
         assertFalse( cursor.available() );
@@ -358,7 +358,7 @@ public class LessEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -368,7 +368,7 @@ public class LessEqTest
         cursor.close();
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
@@ -380,7 +380,7 @@ public class LessEqTest
         // ---------- test after() ----------
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "1" );
 
         assertFalse( cursor.available() );
@@ -403,7 +403,7 @@ public class LessEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -413,7 +413,7 @@ public class LessEqTest
         cursor.close();
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
@@ -551,7 +551,7 @@ public class LessEqTest
         // ---------- test before() ----------
 
         cursor = new LessEqCursor( store, evaluator );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
 
         try
@@ -568,7 +568,7 @@ public class LessEqTest
         // ---------- test after() ----------
 
         cursor = new LessEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
         try
         {
@@ -594,7 +594,7 @@ public class LessEqTest
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -603,31 +603,31 @@ public class LessEqTest
         indexEntry.setId( Strings.getUUID( 1L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 4L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 7L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 8L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 9L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 10L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -640,7 +640,7 @@ public class LessEqTest
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -670,7 +670,7 @@ public class LessEqTest
         LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -688,7 +688,7 @@ public class LessEqTest
         LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
 
         LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -697,31 +697,31 @@ public class LessEqTest
         indexEntry.setId( Strings.getUUID( 1L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 4L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 7L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 8L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 9L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 10L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }

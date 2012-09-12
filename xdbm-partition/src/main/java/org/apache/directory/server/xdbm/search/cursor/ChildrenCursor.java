@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
@@ -140,7 +139,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
         if ( hasNext )
         {
             IndexEntry cursorEntry = cursor.get();
-            IndexEntry<String, String> entry = new ForwardIndexEntry();
+            IndexEntry<String, String> entry = new IndexEntry();
             entry.setId( ( String ) cursorEntry.getId() );
             entry.setKey( ( ( ParentIdAndRdn ) cursorEntry.getTuple().getKey() ).getParentId() );
 

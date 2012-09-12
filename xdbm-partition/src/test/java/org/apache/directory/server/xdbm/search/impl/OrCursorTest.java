@@ -32,7 +32,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -373,7 +372,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry() );
+            cursor.after( new IndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -382,7 +381,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry() );
+            cursor.before( new IndexEntry() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

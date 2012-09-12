@@ -49,7 +49,6 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -63,6 +62,7 @@ import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
 import org.apache.directory.server.xdbm.search.evaluator.PassThroughEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -542,7 +542,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Start with the root
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
 
@@ -561,7 +561,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Start with the root
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
@@ -931,7 +931,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-            IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+            IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
             startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
             cursor.before( startingPos );
 
@@ -962,7 +962,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // and below up to the number of children
             Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-            IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+            IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
             startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
             cursor.before( startingPos );
 

@@ -32,20 +32,20 @@ import org.junit.Test;
 
 
 /**
- * Tests the {@link ForwardIndexEntry} class.
+ * Tests the {@link IndexEntry} class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ForwardIndexEntryTest
+public class IndexEntryTest
 {
 
-    private ForwardIndexEntry<String, Long> indexEntry;
+    private IndexEntry<String, Long> indexEntry;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, Long>();
     }
 
 
@@ -113,7 +113,7 @@ public class ForwardIndexEntryTest
         indexEntry.setTuple( new Tuple<String, Long>( "a", 1L ) );
 
         // create empty index entry and assert empty values
-        ForwardIndexEntry<String, Long> indexEntry2 = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, Long> indexEntry2 = new IndexEntry<String, Long>();
         assertNull( indexEntry2.getId() );
         assertNull( indexEntry2.getKey() );
         assertNull( indexEntry2.getEntry() );

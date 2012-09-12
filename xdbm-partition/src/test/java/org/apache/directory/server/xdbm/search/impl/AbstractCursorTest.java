@@ -29,7 +29,6 @@ import org.apache.directory.server.core.api.interceptor.context.SearchingOperati
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -73,7 +72,7 @@ public class AbstractCursorTest
         {
             for ( String uuid : uuids )
             {
-                ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+                IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
                 indexEntry.setId( uuid );
                 resultSet.add( indexEntry );
             }
@@ -88,10 +87,10 @@ public class AbstractCursorTest
                 IndexEntry<String, String> indexEntry = cursor.get();
 
                 // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID> 
-                ForwardIndexEntry<String, String> forwardIndexEntry = new ForwardIndexEntry<String, String>();
+                IndexEntry<String, String> forwardIndexEntry = new IndexEntry<String, String>();
                 forwardIndexEntry.setKey( indexEntry.getKey() );
                 forwardIndexEntry.setId( indexEntry.getKey() );
-                forwardIndexEntry.setEntry( ( Entry ) indexEntry.getTuple().getValue() );
+                forwardIndexEntry.setEntry( indexEntry.getEntry() );
 
                 resultSet.add( forwardIndexEntry );
             }

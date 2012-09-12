@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -48,7 +47,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     private final boolean hasIndex;
     private final Cursor<IndexEntry<String, String>> wrapped;
     private final SubstringEvaluator evaluator;
-    private final ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+    private final IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
 
 
     @SuppressWarnings("unchecked")
@@ -96,7 +95,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
             indexEntry.setKey( evaluator.getExpression().getInitial() );
             wrapped.before( indexEntry );
         }

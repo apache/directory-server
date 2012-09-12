@@ -23,7 +23,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -47,7 +46,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
-    final ForwardIndexEntry<K, String> forwardEntry;
+    final IndexEntry<K, String> forwardEntry;
 
 
     /**
@@ -63,7 +62,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     {
         this.wrappedCursor = wrappedCursor;
 
-        forwardEntry = new ForwardIndexEntry<K, String>();
+        forwardEntry = new IndexEntry<K, String>();
 
         LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
     }

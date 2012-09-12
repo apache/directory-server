@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -248,7 +247,7 @@ public class CursorBuilder
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<T, String> indexEntry = new ForwardIndexEntry<T, String>();
+            IndexEntry<T, String> indexEntry = new IndexEntry<T, String>();
             indexEntry.setKey( value.getValue() );
 
             userIdxCursor.before( indexEntry );
@@ -299,7 +298,7 @@ public class CursorBuilder
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<T, String> indexEntry = new ForwardIndexEntry<T, String>();
+            IndexEntry<T, String> indexEntry = new IndexEntry<T, String>();
             indexEntry.setKey( value.getValue() );
 
             userIdxCursor.after( indexEntry );
@@ -349,7 +348,7 @@ public class CursorBuilder
                 attributeType.getOid() );
 
             // Position the index on the element we should start from
-            IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
 
             // And loop on it
             while ( presenceCursor.next() )
@@ -391,7 +390,7 @@ public class CursorBuilder
         // and below up to the number of children
         Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = db.getRdnIndex().forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
         startingPos.setKey( new ParentIdAndRdn( node.getBaseId(), ( Rdn[] ) null ) );
         rdnCursor.before( startingPos );
 
@@ -440,7 +439,7 @@ public class CursorBuilder
         // and below up to the number of descendant
         String baseId = node.getBaseId();
         ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
-        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
 
         startingPos.setKey( parentIdAndRdn );
         startingPos.setId( baseId );
@@ -489,7 +488,7 @@ public class CursorBuilder
             Cursor<IndexEntry<String, String>> cursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
             indexEntry.setKey( node.getInitial() );
 
             cursor.before( indexEntry );

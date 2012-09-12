@@ -34,7 +34,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
@@ -899,7 +898,7 @@ public class SubtreeScopeTest
         ScopeNode node = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, dn, baseId, SearchScope.SUBTREE );
         SubtreeScopeEvaluator evaluator = new SubtreeScopeEvaluator( store, node );
 
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
@@ -920,15 +919,15 @@ public class SubtreeScopeTest
          * With dereferencing the evaluator does not accept candidates that
          * are aliases.  This is done to filter out aliases from the results.
          */
-        ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 11L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 8L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, String>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
@@ -972,7 +971,7 @@ public class SubtreeScopeTest
             cursor = new SubtreeScopeCursor( store, evaluator );
 
             // test before()
-            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> entry = new IndexEntry<String, String>();
             entry.setKey( Strings.getUUID( 3L ) );
             cursor.before( entry );
         }
@@ -998,7 +997,7 @@ public class SubtreeScopeTest
             cursor = new SubtreeScopeCursor( store, evaluator );
 
             // test after()
-            ForwardIndexEntry<String, String> entry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> entry = new IndexEntry<String, String>();
             entry.setKey( Strings.getUUID( 3L ) );
             cursor.after( entry );
         }

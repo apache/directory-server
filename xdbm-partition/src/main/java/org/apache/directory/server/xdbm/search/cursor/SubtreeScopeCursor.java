@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
@@ -90,7 +89,7 @@ public class SubtreeScopeCursor extends AbstractIndexCursor<String>
             // and below up to the number of children
             String baseId = evaluator.getBaseId();
             ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
-            IndexEntry indexEntry = new ForwardIndexEntry();
+            IndexEntry indexEntry = new IndexEntry();
 
             indexEntry.setId( baseId );
             indexEntry.setKey( parentIdAndRdn );

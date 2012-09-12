@@ -30,7 +30,6 @@ import java.util.Map;
 import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.SearchEngine;
@@ -80,13 +79,13 @@ public class EntryNode implements TreeNode
 
         try
         {
-            List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
+            List<IndexEntry> recordForwards = new ArrayList<IndexEntry>();
             Cursor<IndexEntry<String, String>> childList = null; //db.list( id );
 
             while ( childList.next() )
             {
                 IndexEntry old = childList.get();
-                ForwardIndexEntry newRec = new ForwardIndexEntry();
+                IndexEntry newRec = new IndexEntry();
                 newRec.copy( old );
                 recordForwards.add( newRec );
             }

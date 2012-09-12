@@ -20,15 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+
+import org.apache.directory.server.xdbm.IndexEntry;
 
 
 /**
@@ -40,11 +39,11 @@ import javax.naming.NamingException;
 public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
 {
     /** The prefetched candidate */
-    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
+    private final IndexEntry prefetched = new IndexEntry();
     /** The returned candidate */
-    private final ForwardIndexEntry candidate = new ForwardIndexEntry();
+    private final IndexEntry candidate = new IndexEntry();
     /** The iteration cursor */
-    private final NamingEnumeration<ForwardIndexEntry> underlying;
+    private final NamingEnumeration<IndexEntry> underlying;
     /** LUT used to avoid returning duplicates */
     private final Map<Object, Object> candidates;
     /** */
@@ -59,7 +58,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    public IndexAssertionEnumeration( NamingEnumeration<ForwardIndexEntry> underlying, IndexAssertion assertion )
+    public IndexAssertionEnumeration( NamingEnumeration<IndexEntry> underlying, IndexAssertion assertion )
         throws NamingException
     {
         this.underlying = underlying;
@@ -70,7 +69,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
     }
 
 
-    public IndexAssertionEnumeration( NamingEnumeration<ForwardIndexEntry> underlying, IndexAssertion assertion,
+    public IndexAssertionEnumeration( NamingEnumeration<IndexEntry> underlying, IndexAssertion assertion,
         boolean enableDupCheck ) throws NamingException
     {
         this.underlying = underlying;

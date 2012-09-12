@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
@@ -85,7 +84,7 @@ public class OneLevelScopeCursor extends AbstractIndexCursor<String>
         // and below up to the number of children
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = db.getRdnIndex().forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new ForwardIndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
         startingPos.setKey( new ParentIdAndRdn( evaluator.getBaseId(), ( Rdn[] ) null ) );
         cursor.before( startingPos );
 

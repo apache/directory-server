@@ -22,7 +22,6 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -194,7 +193,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, String> advanceTo = new ForwardIndexEntry<V, String>();
+            IndexEntry<V, String> advanceTo = new IndexEntry<V, String>();
             advanceTo.setKey( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
             userIdxCursor.before( advanceTo );
         }

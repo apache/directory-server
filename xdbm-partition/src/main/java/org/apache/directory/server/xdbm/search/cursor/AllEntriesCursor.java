@@ -22,11 +22,9 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +40,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     /** The index entry we use to return entries one by one.  */
-    private IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+    private IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
 
     /** The cursor on the EntryUUID index */
     private final Cursor<IndexEntry<String, String>> wrapped;
@@ -141,7 +139,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
         IndexEntry<?, String> wrappedEntry = wrapped.get();
         indexEntry.setId( ( String ) wrappedEntry.getKey() );
         indexEntry.setKey( ( String ) wrappedEntry.getKey() );
-        indexEntry.setEntry( ( Entry ) wrappedEntry.getTuple().getValue() );
+        indexEntry.setEntry( null );
 
         return indexEntry;
     }

@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -164,7 +163,7 @@ public class DefaultSearchEngine implements SearchEngine
 
         if ( scope == SearchScope.OBJECT )
         {
-            IndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
             indexEntry.setId( effectiveBaseId );
             optimizer.annotate( filter );
             Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
@@ -208,7 +207,7 @@ public class DefaultSearchEngine implements SearchEngine
         {
             for ( String uuid : uuidSet )
             {
-                ForwardIndexEntry<String, String> indexEntry = new ForwardIndexEntry<String, String>();
+                IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
                 indexEntry.setId( uuid );
                 resultSet.add( indexEntry );
             }
@@ -223,10 +222,10 @@ public class DefaultSearchEngine implements SearchEngine
                 IndexEntry<String, String> indexEntry = cursor.get();
 
                 // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID> 
-                ForwardIndexEntry<String, String> forwardIndexEntry = new ForwardIndexEntry<String, String>();
+                IndexEntry<String, String> forwardIndexEntry = new IndexEntry<String, String>();
                 forwardIndexEntry.setKey( indexEntry.getKey() );
                 forwardIndexEntry.setId( indexEntry.getKey() );
-                forwardIndexEntry.setEntry( ( Entry ) indexEntry.getTuple().getValue() );
+                forwardIndexEntry.setEntry( null );
 
                 resultSet.add( forwardIndexEntry );
             }
