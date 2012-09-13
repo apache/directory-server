@@ -717,101 +717,126 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         Dn base = searchContext.getDn();
-        ExprNode filter = searchContext.getFilter();
 
         // TODO since we're handling the *, and + in the EntryFilteringCursor
         // we may not need this code: we need see if this is actually the
         // case and remove this code.
         if ( base.size() == 0 )
         {
-            // We are searching from the rootDSE. We have to distinguish three cases :
-            // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
-            // 2) The scope is ONELEVEL : we have to return all the Naming Contexts
-            boolean isObjectScope = searchContext.getScope() == SearchScope.OBJECT;
-
-            boolean isOnelevelScope = searchContext.getScope() == SearchScope.ONELEVEL;
-
-            boolean isSublevelScope = searchContext.getScope() == SearchScope.SUBTREE;
-
-            // test for (objectClass=*)
-            boolean isSearchAll = false;
-
-            // We have to be careful, as we may have a filter which is not a PresenceFilter
-            if ( filter instanceof PresenceNode )
-            {
-                isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
-            }
-
-            /*
-             * if basedn is "", filter is "(objectclass=*)" and scope is object
-             * then we have a request for the rootDSE
-             */
-            if ( ( filter instanceof PresenceNode ) && isObjectScope && isSearchAll )
-            {
-                // A rootDSE search
-                return searchRootDse( searchContext );
-            }
-            else if ( isObjectScope && ( !isSearchAll ) )
-            {
-                // Strange... Why are we checking that it's not an (ObjectClass=*) ?
-                // Also here, we will return only one entry, why aren't we doing a lookup ?
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
-            }
-            else if ( isOnelevelScope )
-            {
-                // We will look into all the partitions, ths we create a list of cursors. 
-                List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-
-                for ( Partition partition : partitions.values() )
-                {
-                    Dn contextDn = partition.getSuffixDn();
-                    HasEntryOperationContext hasEntryContext = new HasEntryOperationContext(
-                        searchContext.getSession(), contextDn );
-
-                    // search only if the context entry exists
-                    if ( partition.hasEntry( hasEntryContext ) )
-                    {
-                        searchContext.setDn( contextDn );
-                        searchContext.setScope( SearchScope.OBJECT );
-                        cursors.add( partition.search( searchContext ) );
-                    }
-                }
-
-                return new CursorList( cursors, searchContext );
-            }
-            else if ( isSublevelScope )
-            {
-                List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
-
-                for ( Partition partition : partitions.values() )
-                {
-                    Entry entry = partition.lookup( new LookupOperationContext( directoryService.getAdminSession(),
-                        partition.getSuffixDn() ) );
-
-                    if ( entry != null )
-                    {
-                        Partition backend = getPartition( entry.getDn() );
-                        searchContext.setDn( entry.getDn() );
-                        cursors.add( backend.search( searchContext ) );
-                    }
-                }
-
-                // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition
-                return new CursorList( cursors, searchContext );
-            }
-
-            // TODO : handle searches based on the RootDSE
-            throw new LdapNoSuchObjectException();
+            return searchFromRoot( searchContext );
         }
 
+        // Not sure we need this code...
         if ( !base.isSchemaAware() )
         {
+            System.out.println( "~~~~~~~~~~~~~~~~~~~~~~~~~~~> " );
+            new Exception().printStackTrace();
             base.apply( schemaManager );
         }
 
+        // Normal case : do a search on the specific partition
         Partition backend = getPartition( base );
 
         return backend.search( searchContext );
+    }
+
+
+    /**
+     * Do a search from the root of the DIT. We have a few use cases to consider :
+     * A) The scope is OBJECT
+     * If the filter is (ObjectClass = *), then this is a RootDSE fetch, otherwise, we just
+     * return nothing.
+     * B) The scope is ONELEVEL
+     * We just return the contextEntries of all the existing partitions
+     * C) The scope is SUBLEVEL :
+     * In this case, we have to do a search in each of the existing partition. We will get
+     * back a list of cursors and we will wrap this list in the resulting EntryFilteringCursor.
+     *   
+     * @param searchContext
+     * @return
+     * @throws LdapException
+     */
+    private EntryFilteringCursor searchFromRoot( SearchOperationContext searchContext )
+        throws LdapException
+    {
+        ExprNode filter = searchContext.getFilter();
+
+        // We are searching from the rootDSE. We have to distinguish three cases :
+        // 1) The scope is OBJECT : we have to return the rootDSE entry, filtered
+        // 2) The scope is ONELEVEL : we have to return all the Naming Contexts
+        boolean isObjectScope = searchContext.getScope() == SearchScope.OBJECT;
+
+        boolean isOnelevelScope = searchContext.getScope() == SearchScope.ONELEVEL;
+
+        // test for (objectClass=*)
+        boolean isSearchAll = false;
+
+        // We have to be careful, as we may have a filter which is not a PresenceFilter
+        if ( filter instanceof PresenceNode )
+        {
+            isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
+        }
+
+        if ( isObjectScope )
+        {
+            if ( isSearchAll )
+            {
+                // if basedn is "", filter is "(objectclass=*)" and scope is object
+                // then we have a request for the rootDSE
+                return searchRootDse( searchContext );
+            }
+            else
+            {
+                // Nothing to return in this case
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+            }
+        }
+        else if ( isOnelevelScope )
+        {
+            // Loop on all the partitions
+            // We will look into all the partitions, thus we create a list of cursors. 
+            List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
+
+            for ( Partition partition : partitions.values() )
+            {
+                Dn contextDn = partition.getSuffixDn();
+                HasEntryOperationContext hasEntryContext = new HasEntryOperationContext(
+                    searchContext.getSession(), contextDn );
+
+                // search only if the context entry exists
+                if ( partition.hasEntry( hasEntryContext ) )
+                {
+                    searchContext.setDn( contextDn );
+                    searchContext.setScope( SearchScope.OBJECT );
+                    cursors.add( partition.search( searchContext ) );
+                }
+            }
+
+            return new CursorList( cursors, searchContext );
+        }
+        else
+        {
+            // This is a SUBLEVEL search. We will do multiple searches and wrap
+            // a CursorList into the EntryFilteringCursor
+            List<EntryFilteringCursor> cursors = new ArrayList<EntryFilteringCursor>();
+
+            for ( Partition partition : partitions.values() )
+            {
+                Dn contextDn = partition.getSuffixDn();
+                HasEntryOperationContext hasEntryContext = new HasEntryOperationContext(
+                    searchContext.getSession(), contextDn );
+
+                if ( partition.hasEntry( hasEntryContext ) )
+                {
+                    searchContext.setDn( contextDn );
+                    EntryFilteringCursor cursor = partition.search( searchContext );
+                    cursors.add( cursor );
+                }
+            }
+
+            // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition
+            return new CursorList( cursors, searchContext );
+        }
     }
 
 
