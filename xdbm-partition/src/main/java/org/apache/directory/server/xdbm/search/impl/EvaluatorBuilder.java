@@ -196,7 +196,7 @@ public class EvaluatorBuilder
 
             if ( evaluator != null )
             {
-                evaluators.add( build( child ) );
+                evaluators.add( evaluator );
             }
         }
 
