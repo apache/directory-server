@@ -595,25 +595,8 @@ class DefaultTxnManager implements TxnManagerInternal
         txn.setOptimisticLockHeld();
         txn.setLogicalDataVersion( logicalDataVersion );
 
-        /*
-         * Set the start time as the latest committed txn's commit time. We need to make sure that
-         * any change after our start time is not flushed to the partitions. Say we have txn1 as the
-         * lastest committed txn. There is a small window where we get ref to txn1, txn2 commits and
-         * becomes the latest committed txn, txn1's ref count becomes zero before we bump its ref
-         * count and changes to txn2 are flushed to partitions. Below we loop until we make sure
-         * that the txn for which we bumped up the ref count is indeed the latest committed txn.
-         */
-        do
-        {
-            if ( lastTxnToCheck != null )
-            {
-                lastTxnToCheck.getRefCount().decrementAndGet();
-            }
-
-            lastTxnToCheck = latestCommittedTxn.get();
-            lastTxnToCheck.getRefCount().getAndIncrement();
-        }
-        while ( lastTxnToCheck != latestCommittedTxn.get() );
+        lastTxnToCheck = latestCommittedTxn.get();
+        lastTxnToCheck.getRefCount().getAndIncrement();
 
         // Determine start time
         long startTime;
