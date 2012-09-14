@@ -450,7 +450,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 cursor.beforeFirst();
 
                 List<String> nextResults = new ArrayList<String>();
-                
+
                 while ( nextResults.size() < count && cursor.next() )
                 {
                     nextResults.add( cursor.get().getDn().getName() );
@@ -459,7 +459,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 cursor.next();
 
                 List<String> prevResults = new ArrayList<String>();
-                
+
                 while ( cursor.previous() )
                 {
                     prevResults.add( 0, cursor.get().getDn().getName() );
@@ -468,7 +468,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 assertEquals( nextResults.size(), prevResults.size() );
                 assertEquals( nextResults, prevResults );
             }
-            
+
             cursor.close();
         }
         catch ( UnsupportedOperationException e )
@@ -497,7 +497,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 cursor.afterLast();
 
                 List<String> prevResults = new ArrayList<String>();
-                
+
                 while ( prevResults.size() < count && cursor.previous() )
                 {
                     prevResults.add( cursor.get().getDn().getName() );
@@ -506,7 +506,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 cursor.previous();
 
                 List<String> nextResults = new ArrayList<String>();
-                
+
                 while ( cursor.next() )
                 {
                     nextResults.add( 0, cursor.get().getDn().getName() );
@@ -515,7 +515,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
                 assertEquals( nextResults.size(), prevResults.size() );
                 assertEquals( nextResults, prevResults );
             }
-            
+
             cursor.close();
         }
         catch ( UnsupportedOperationException e )
@@ -530,7 +530,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> result = search( base, scope, filter, aliasDerefMode );
         assertEquals( expectedResults.length, result.size() );
-        
+
         for ( String expected : expectedResults )
         {
             assertTrue( result.contains( expected ) );
@@ -582,11 +582,11 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     {
         List<String> nextResults = new ArrayList<String>();
 
-        ExprNode exprNode = FilterParser.parse(getService().getSchemaManager(), filter);
+        ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), filter );
         EntryFilteringCursor cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode, null );
         cursor.beforeFirst();
-        
+
         while ( cursor.next() )
         {
             nextResults.add( cursor.get().getDn().getName() );
@@ -596,7 +596,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         {
             List<String> prevResults = new ArrayList<String>();
             cursor.afterLast();
-            
+
             while ( cursor.previous() )
             {
                 prevResults.add( 0, cursor.get().getDn().getName() );
