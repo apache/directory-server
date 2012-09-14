@@ -39,7 +39,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
@@ -65,7 +64,6 @@ public class AndCursorTest extends AbstractCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    private static SchemaManager schemaManager;
 
 
     @BeforeClass

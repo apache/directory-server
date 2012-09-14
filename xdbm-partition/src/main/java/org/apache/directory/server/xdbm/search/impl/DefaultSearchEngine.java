@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -42,6 +43,7 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -101,66 +103,59 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * {@inheritDoc}
      */
-    public PartitionSearchResult computeResult( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
-        SearchScope scope ) throws Exception
+    public PartitionSearchResult computeResult( SchemaManager schemaManager, SearchOperationContext searchContext )
+        throws Exception
     {
-        Dn effectiveBase;
-        String baseId = db.getEntryId( base );
-        PartitionSearchResult searchSet = new PartitionSearchResult();
+        SearchScope scope = searchContext.getScope();
+        Dn baseDn = searchContext.getDn();
+        AliasDerefMode aliasDerefMode = searchContext.getAliasDerefMode();
+        ExprNode filter = searchContext.getFilter();
+
+        // Compute the UUID of the baseDN entry
+        String baseId = db.getEntryId( baseDn );
+
+        // Prepare the instance containing the search result
+        PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
         Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
         {
-            if ( ( ( Partition ) db ).getSuffixDn().equals( base ) )
+            if ( ( ( Partition ) db ).getSuffixDn().equals( baseDn ) )
             {
                 // The context entry is not created yet, return an empty result
-                searchSet.setResultSet( resultSet );
+                searchResult.setResultSet( resultSet );
 
-                return searchSet;
+                return searchResult;
             }
             else
             {
                 // The search base doesn't exist
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_648, base ) );
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_648, baseDn ) );
             }
         }
-
-        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
 
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
+        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Dn effectiveBase = baseDn;
+        String effectiveBaseId = baseId;
 
-        /*
-         * If the base is not an alias or if alias dereferencing does not
-         * occur on finding the base then we set the effective base to the
-         * given base.
-         */
-        if ( ( null == aliasedBase ) || !aliasDerefMode.isDerefFindingBase() )
+        if ( ( aliasedBase != null ) && aliasDerefMode.isDerefFindingBase() )
         {
-            effectiveBase = base;
-        }
-        /*
-         * If the base is an alias and alias dereferencing does occur on
-         * finding the base then we set the effective base to the alias target
-         * got from the alias index.
-         */
-        else
-        {
-            effectiveBase = new Dn( aliasedBase );
+            /*
+             * If the base is an alias and alias dereferencing does occur on
+             * finding the base, or always then we set the effective base to the alias target
+             * got from the alias index.
+             */
+            effectiveBase = new Dn( schemaManager, aliasedBase );
+            effectiveBaseId = db.getEntryId( effectiveBase );
         }
 
         // --------------------------------------------------------------------
         // Specifically Handle Object Level Scope
         // --------------------------------------------------------------------
-        String effectiveBaseId = baseId;
-
-        if ( effectiveBase != base )
-        {
-            effectiveBaseId = db.getEntryId( effectiveBase );
-        }
-
         if ( scope == SearchScope.OBJECT )
         {
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
@@ -169,25 +164,18 @@ public class DefaultSearchEngine implements SearchEngine
             Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
 
             // Fetch the entry, as we have only one
-            Entry entry = null;
-
-            if ( effectiveBase != base )
-            {
-                entry = db.lookup( indexEntry.getId() );
-            }
-            else
-            {
-                entry = db.lookup( indexEntry.getId(), effectiveBase );
-            }
+            Entry entry = db.lookup( indexEntry.getId(), effectiveBase );
 
             indexEntry.setEntry( entry );
             resultSet.add( indexEntry );
 
-            searchSet.setEvaluator( evaluator );
-            searchSet.setResultSet( resultSet );
+            searchResult.setEvaluator( evaluator );
+            searchResult.setResultSet( resultSet );
 
-            return searchSet;
+            return searchResult;
         }
+
+        // This is not a BaseObject scope search.
 
         // Add the scope node using the effective base to the filter
         BranchNode root = new AndNode();
@@ -200,8 +188,35 @@ public class DefaultSearchEngine implements SearchEngine
         Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
 
         Set<String> uuidSet = new HashSet<String>();
+        searchResult.setAliasDerefMode( aliasDerefMode );
+        searchResult.setCandidateSet( uuidSet );
 
-        long nbResults = cursorBuilder.build( root, uuidSet );
+        long nbResults = cursorBuilder.build( root, searchResult );
+
+        // Check if we have found aliases
+        /*
+        if ( searchResult.getAliasedIds().size() > 0 )
+        {
+            for ( String aliasedId : searchResult.getAliasedIds() )
+            {
+                // We have some. Deal with them accordingly to the requested mode
+                if ( searchResult.isAlwaysDeref() )
+                {
+                    // We have to dereference each alias
+
+                }
+                else if ( searchResult.isDerefFinding() )
+                {
+
+                }
+                else
+                // This is when we dereference in searching
+                {
+
+                }
+            }
+        }
+        */
 
         if ( nbResults < Long.MAX_VALUE )
         {
@@ -231,10 +246,10 @@ public class DefaultSearchEngine implements SearchEngine
             }
         }
 
-        searchSet.setEvaluator( evaluator );
-        searchSet.setResultSet( resultSet );
+        searchResult.setEvaluator( evaluator );
+        searchResult.setResultSet( resultSet );
 
-        return searchSet;
+        return searchResult;
     }
 
 

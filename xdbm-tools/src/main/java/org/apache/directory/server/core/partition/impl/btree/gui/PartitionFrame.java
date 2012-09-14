@@ -59,6 +59,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -650,13 +651,19 @@ public class PartitionFrame extends JFrame
         }
 
         int limitMax = Integer.MAX_VALUE;
+
         if ( !limit.equals( FilterDialog.UNLIMITED ) )
         {
             limitMax = Integer.parseInt( limit );
         }
 
-        PartitionSearchResult searchResult = partition.getSearchEngine().computeResult( new Dn( base ),
-            AliasDerefMode.DEREF_ALWAYS, root, searchScope );
+        SearchOperationContext searchContext = new SearchOperationContext( null );
+        searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+        searchContext.setDn( new Dn( base ) );
+        searchContext.setFilter( root );
+        searchContext.setScope( searchScope );
+
+        PartitionSearchResult searchResult = partition.getSearchEngine().computeResult( schemaManager, searchContext );
 
         Cursor cursor = searchResult.getResultSet();
 

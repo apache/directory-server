@@ -20,18 +20,24 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.SetCursor;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
  * A class containing the result of a search :
  * <ul>
- * <li>A set of cadidate UUIDs</li>
- * <li>A hierarchy of evaualtors to use to validate the candidates</li>
+ * <li>A set of candidate UUIDs</li>
+ * <li>A set of aliased entry if we have any</li>
+ * <li>A flag telling if we are dereferencing aliases or not</li>
+ * <li>A hierarchy of evaluators to use to validate the candidates</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -40,15 +46,28 @@ public class PartitionSearchResult
     /** The set of candidate UUIDs selected by the search */
     private SetCursor<IndexEntry<String, String>> resultSet;
 
+    /** The set of candidate UUIDs */
+    private Set<String> candidateSet;
+
+    /** The flag indicating if we are dereferencing the aliases. Default to Never. */
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.NEVER_DEREF_ALIASES;
+
+    /** The list of aliased entries that still have to be dereferenced */
+    private List<String> aliasedIds;
+
     /** The evaluator to validate the candidates */
     private Evaluator<? extends ExprNode> evaluator;
+
+    /** The SchemaManager */
+    private SchemaManager schemaManager;
 
 
     /**
      * Create a PartitionSearchResult instance
      */
-    public PartitionSearchResult()
+    public PartitionSearchResult( SchemaManager schemaManager )
     {
+        this.schemaManager = schemaManager;
     }
 
 
@@ -71,6 +90,24 @@ public class PartitionSearchResult
 
 
     /**
+     * @return the candidateSet
+     */
+    public Set<String> getCandidateSet()
+    {
+        return candidateSet;
+    }
+
+
+    /**
+     * @param candidateSet the candidateSet to set
+     */
+    public void setCandidateSet( Set<String> set )
+    {
+        candidateSet = set;
+    }
+
+
+    /**
      * @return the evaluator
      */
     public Evaluator<? extends ExprNode> getEvaluator()
@@ -89,6 +126,92 @@ public class PartitionSearchResult
 
 
     /**
+     * @return the aliasedIds
+     */
+    public List<String> getAliasedIds()
+    {
+        return aliasedIds;
+    }
+
+
+    /**
+     * @param aliasedIds the aliasedIds to set
+     */
+    public void setAliasedIds( List<String> aliasedIds )
+    {
+        this.aliasedIds = aliasedIds;
+    }
+
+
+    /**
+     * @param aliasDerefMode the aliasDerefMode to set
+     */
+    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
+    {
+        this.aliasDerefMode = aliasDerefMode;
+
+        if ( !isNeverDeref() )
+        {
+            aliasedIds = new ArrayList<String>();
+        }
+    }
+
+
+    /**
+     * @return True if the alias is never dereferenced
+     */
+    public boolean isNeverDeref()
+    {
+        return aliasDerefMode == AliasDerefMode.NEVER_DEREF_ALIASES;
+    }
+
+
+    /**
+     * @return True if the alias is always dereferenced
+     */
+    public boolean isAlwaysDeref()
+    {
+        return aliasDerefMode == AliasDerefMode.DEREF_ALWAYS;
+    }
+
+
+    /**
+     * @return True if the alias is dereferenced while searching
+     */
+    public boolean isDerefInSearching()
+    {
+        return aliasDerefMode == AliasDerefMode.DEREF_IN_SEARCHING;
+    }
+
+
+    /**
+     * @return True if the alias is dereferenced while finding
+     */
+    public boolean isDerefFinding()
+    {
+        return aliasDerefMode == AliasDerefMode.DEREF_FINDING_BASE_OBJ;
+    }
+
+
+    /**
+     * @return the schemaManager
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+
+
+    /**
+     * @param schemaManager the schemaManager to set
+     */
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
@@ -96,7 +219,8 @@ public class PartitionSearchResult
         StringBuilder sb = new StringBuilder();
 
         sb.append( "Search result : \n" );
-        sb.append( evaluator );
+        sb.append( "Alias : " ).append( aliasDerefMode ).append( "\n" );
+        sb.append( "Evaluator : " ).append( evaluator ).append( "\n" );
 
         if ( resultSet == null )
         {

@@ -31,6 +31,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.cursor.ApproximateCursor;
 import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
 import org.apache.directory.server.xdbm.search.cursor.DescendantCursor;
@@ -50,6 +51,7 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -85,7 +87,7 @@ public class CursorBuilder
     }
 
 
-    public <T> long build( ExprNode node, Set<String> uuidSet ) throws Exception
+    public <T> long build( ExprNode node, PartitionSearchResult searchResult ) throws Exception
     {
         Object count = node.get( "count" );
 
@@ -99,44 +101,44 @@ public class CursorBuilder
         /* ---------- LEAF NODE HANDLING ---------- */
 
             case APPROXIMATE:
-                return computeApproximate( ( ApproximateNode<T> ) node, uuidSet );
+                return computeApproximate( ( ApproximateNode<T> ) node, searchResult );
 
             case EQUALITY:
-                return computeEquality( ( EqualityNode<T> ) node, uuidSet );
+                return computeEquality( ( EqualityNode<T> ) node, searchResult );
 
             case GREATEREQ:
-                return computeGreaterEq( ( GreaterEqNode<T> ) node, uuidSet );
+                return computeGreaterEq( ( GreaterEqNode<T> ) node, searchResult );
 
             case LESSEQ:
-                return computeLessEq( ( LessEqNode<T> ) node, uuidSet );
+                return computeLessEq( ( LessEqNode<T> ) node, searchResult );
 
             case PRESENCE:
-                return computePresence( ( PresenceNode ) node, uuidSet );
+                return computePresence( ( PresenceNode ) node, searchResult );
 
             case SCOPE:
-                if ( ( ( ScopeNode<String> ) node ).getScope() == SearchScope.ONELEVEL )
+                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return computeOneLevelScope( ( ScopeNode<String> ) node, uuidSet );
+                    return computeOneLevelScope( ( ScopeNode ) node, searchResult );
                 }
                 else
                 {
-                    return computeSubLevelScope( ( ScopeNode<String> ) node, uuidSet );
+                    return computeSubLevelScope( ( ScopeNode ) node, searchResult );
                 }
 
             case SUBSTRING:
-                return computeSubstring( ( SubstringNode ) node, uuidSet );
+                return computeSubstring( ( SubstringNode ) node, searchResult );
 
                 /* ---------- LOGICAL OPERATORS ---------- */
 
             case AND:
-                return computeAnd( ( AndNode ) node, uuidSet );
+                return computeAnd( ( AndNode ) node, searchResult );
 
             case NOT:
                 // Always return infinite, except if the resulting eva 
-                return computeNot( ( NotNode ) node, uuidSet );
+                return computeNot( ( NotNode ) node, searchResult );
 
             case OR:
-                return computeOr( ( OrNode ) node, uuidSet );
+                return computeOr( ( OrNode ) node, searchResult );
 
                 /* ----------  NOT IMPLEMENTED  ---------- */
 
@@ -155,7 +157,7 @@ public class CursorBuilder
      * we have an index for the AT.
      */
 
-    private <T> long computeApproximate( ApproximateNode<T> node, Set<String> uuidSet )
+    private <T> long computeApproximate( ApproximateNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
         ApproximateCursor<T> cursor = new ApproximateCursor<T>( db,
@@ -163,6 +165,7 @@ public class CursorBuilder
                 .build( node ) );
 
         int nbResults = 0;
+        Set<String> uuidSet = searchResult.getCandidateSet();
 
         while ( cursor.next() )
         {
@@ -187,7 +190,7 @@ public class CursorBuilder
      * Computes the set of candidates for an Equality filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeEquality( EqualityNode<T> node, Set<String> uuidSet )
+    private <T> long computeEquality( EqualityNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
@@ -200,6 +203,7 @@ public class CursorBuilder
             // Get the cursor using the index
             Index<T, Entry, String> userIndex = ( Index<T, Entry, String> ) db.getIndex( attributeType );
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( value.getValue() );
+            Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
             while ( userIdxCursor.next() )
@@ -232,7 +236,7 @@ public class CursorBuilder
      * Computes the set of candidates for an GreateEq filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeGreaterEq( GreaterEqNode<T> node, Set<String> uuidSet )
+    private <T> long computeGreaterEq( GreaterEqNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
@@ -251,6 +255,7 @@ public class CursorBuilder
             indexEntry.setKey( value.getValue() );
 
             userIdxCursor.before( indexEntry );
+            Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
             while ( userIdxCursor.next() )
@@ -283,7 +288,7 @@ public class CursorBuilder
      * Computes the set of candidates for an LessEq filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeLessEq( LessEqNode<T> node, Set<String> uuidSet )
+    private <T> long computeLessEq( LessEqNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
@@ -302,6 +307,7 @@ public class CursorBuilder
             indexEntry.setKey( value.getValue() );
 
             userIdxCursor.after( indexEntry );
+            Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
             while ( userIdxCursor.previous() )
@@ -334,7 +340,7 @@ public class CursorBuilder
      * Computes the set of candidates for a Presence filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computePresence( PresenceNode node, Set<String> uuidSet )
+    private <T> long computePresence( PresenceNode node, PartitionSearchResult searchResult )
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
@@ -349,6 +355,7 @@ public class CursorBuilder
 
             // Position the index on the element we should start from
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+            Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
             while ( presenceCursor.next() )
@@ -381,7 +388,7 @@ public class CursorBuilder
      * Computes the set of candidates for a OneLevelScope filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeOneLevelScope( ScopeNode<String> node, Set<String> uuidSet )
+    private long computeOneLevelScope( ScopeNode node, PartitionSearchResult searchResult )
         throws Exception
     {
         int nbResults = 0;
@@ -395,6 +402,7 @@ public class CursorBuilder
         rdnCursor.before( startingPos );
 
         Cursor<IndexEntry<String, String>> scopeCursor = new ChildrenCursor( db, node.getBaseId(), rdnCursor );
+        Set<String> candidateSet = searchResult.getCandidateSet();
 
         // Fetch all the UUIDs if we have an index
         // And loop on it
@@ -404,11 +412,43 @@ public class CursorBuilder
 
             String uuid = indexEntry.getId();
 
-            if ( !uuidSet.contains( uuid ) )
+            // If the entry is an alias, and we asked for it to be dereferenced,
+            // we will dereference the alias
+            if ( searchResult.isAlwaysDeref() || searchResult.isDerefInSearching() )
             {
-                // The UUID is not present in the Set, we add it
-                uuidSet.add( uuid );
-                nbResults++;
+                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+
+                if ( aliasedDn != null )
+                {
+                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+
+                    // This is an alias. Add it to the set of candidates to process, if it's not already
+                    // present in the candidate set 
+                    if ( !candidateSet.contains( aliasedId ) )
+                    {
+                        candidateSet.add( aliasedId );
+                        nbResults++;
+                    }
+                }
+                else
+                {
+                    // This is not an alias
+                    if ( !candidateSet.contains( uuid ) )
+                    {
+                        // The UUID is not present in the Set, we add it
+                        candidateSet.add( uuid );
+                        nbResults++;
+                    }
+                }
+            }
+            else
+            {
+                if ( !candidateSet.contains( uuid ) )
+                {
+                    // The UUID is not present in the Set, we add it
+                    candidateSet.add( uuid );
+                    nbResults++;
+                }
             }
         }
 
@@ -422,7 +462,7 @@ public class CursorBuilder
      * Computes the set of candidates for a SubLevelScope filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeSubLevelScope( ScopeNode<String> node, Set<String> uuidSet )
+    private long computeSubLevelScope( ScopeNode node, PartitionSearchResult searchResult )
         throws Exception
     {
         // If we are searching from the partition DN, better get out.
@@ -449,6 +489,7 @@ public class CursorBuilder
         String parentId = parentIdAndRdn.getParentId();
 
         Cursor<IndexEntry<String, String>> scopeCursor = new DescendantCursor( db, baseId, parentId, rdnCursor );
+        Set<String> candidateSet = searchResult.getCandidateSet();
 
         // Fetch all the UUIDs if we have an index
         // And loop on it
@@ -458,11 +499,51 @@ public class CursorBuilder
 
             String uuid = indexEntry.getId();
 
-            if ( !uuidSet.contains( uuid ) )
+            // If the entry is an alias, and we asked for it to be dereferenced,
+            // we will dereference the alias
+            if ( searchResult.isAlwaysDeref() || searchResult.isDerefInSearching() )
             {
-                // The UUID is not present in the Set, we add it
-                uuidSet.add( uuid );
-                nbResults++;
+                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+
+                if ( aliasedDn != null )
+                {
+                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+
+                    // This is an alias. Add it to the set of candidates to process, if it's not already
+                    // present in the candidate set 
+                    if ( !candidateSet.contains( aliasedId ) )
+                    {
+                        candidateSet.add( aliasedId );
+                        nbResults++;
+
+                        ScopeNode newScopeNode = new ScopeNode(
+                            node.getDerefAliases(),
+                            new Dn( searchResult.getSchemaManager(), aliasedDn ),
+                            aliasedId,
+                            node.getScope() );
+
+                        nbResults += computeSubLevelScope( newScopeNode, searchResult );
+                    }
+                }
+                else
+                {
+                    // This is not an alias
+                    if ( !candidateSet.contains( uuid ) )
+                    {
+                        // The UUID is not present in the Set, we add it
+                        candidateSet.add( uuid );
+                        nbResults++;
+                    }
+                }
+            }
+            else
+            {
+                if ( !candidateSet.contains( uuid ) )
+                {
+                    // The UUID is not present in the Set, we add it
+                    candidateSet.add( uuid );
+                    nbResults++;
+                }
             }
         }
 
@@ -476,7 +557,7 @@ public class CursorBuilder
      * Computes the set of candidates for an Substring filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeSubstring( SubstringNode node, Set<String> uuidSet )
+    private long computeSubstring( SubstringNode node, PartitionSearchResult searchResult )
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
@@ -524,6 +605,8 @@ public class CursorBuilder
                 regexp = null;
             }
 
+            Set<String> uuidSet = searchResult.getCandidateSet();
+
             // And loop on it
             while ( cursor.next() )
             {
@@ -567,7 +650,7 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private <T> long computeOr( OrNode node, Set<String> uuidSet ) throws Exception
+    private <T> long computeOr( OrNode node, PartitionSearchResult searchResult ) throws Exception
     {
         List<ExprNode> children = node.getChildren();
 
@@ -594,7 +677,7 @@ public class CursorBuilder
                 }
             }
 
-            long nbResults = build( child, uuidSet );
+            long nbResults = build( child, searchResult );
 
             if ( nbResults == Long.MAX_VALUE )
             {
@@ -618,7 +701,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private long computeAnd( AndNode node, Set<String> uuidSet ) throws Exception
+    private long computeAnd( AndNode node, PartitionSearchResult searchResult ) throws Exception
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -658,7 +741,7 @@ public class CursorBuilder
 
         // Once found we return the number of candidates for this child
         ExprNode minChild = children.get( minIndex );
-        long nbResults = build( minChild, uuidSet );
+        long nbResults = build( minChild, searchResult );
 
         return nbResults;
     }
@@ -671,7 +754,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private long computeNot( NotNode node, Set<String> uuidSet ) throws Exception
+    private long computeNot( NotNode node, PartitionSearchResult searchResult ) throws Exception
     {
         final List<ExprNode> children = node.getChildren();
 

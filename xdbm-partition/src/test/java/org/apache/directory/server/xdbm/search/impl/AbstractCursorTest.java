@@ -36,6 +36,7 @@ import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -48,6 +49,7 @@ public class AbstractCursorTest
     protected EvaluatorBuilder evaluatorBuilder;
     protected CursorBuilder cursorBuilder;
     protected Store store;
+    protected static SchemaManager schemaManager;
 
 
     /**
@@ -61,12 +63,13 @@ public class AbstractCursorTest
     {
         Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
 
-        PartitionSearchResult searchResult = new PartitionSearchResult();
+        PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
         Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
 
         Set<String> uuids = new HashSet<String>();
+        searchResult.setCandidateSet( uuids );
 
-        long candidates = cursorBuilder.build( root, uuids );
+        long candidates = cursorBuilder.build( root, searchResult );
 
         if ( candidates < Long.MAX_VALUE )
         {

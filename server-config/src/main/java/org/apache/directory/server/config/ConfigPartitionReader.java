@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -735,8 +736,12 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            PartitionSearchResult searchResult = se.computeResult( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES,
-                filter, scope );
+            SearchOperationContext searchContext = new SearchOperationContext( null );
+            searchContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchContext.setDn( baseDn );
+            searchContext.setFilter( filter );
+            searchContext.setScope( scope );
+            PartitionSearchResult searchResult = se.computeResult( schemaManager, searchContext );
 
             cursor = searchResult.getResultSet();
 

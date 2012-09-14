@@ -62,7 +62,6 @@ import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
 import org.apache.directory.server.xdbm.search.evaluator.PassThroughEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -76,10 +75,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectExceptio
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
@@ -937,7 +933,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             dumpRdnIdx();
 
-            PartitionSearchResult searchResult = new PartitionSearchResult();
+            PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
             Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
 
             Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
@@ -968,7 +964,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             dumpRdnIdx();
 
-            PartitionSearchResult searchResult = new PartitionSearchResult();
+            PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
             Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
 
             Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
@@ -1002,15 +998,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
-            SearchScope scope = searchContext.getScope();
-            Dn dn = searchContext.getDn();
-            AliasDerefMode derefMode = searchContext.getAliasDerefMode();
-            ExprNode filter = searchContext.getFilter();
 
-            PartitionSearchResult searchResult = searchEngine.computeResult( dn, derefMode, filter, scope );
+            PartitionSearchResult searchResult = searchEngine.computeResult( schemaManager, searchContext );
 
-            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, searchResult ),
-                searchContext );
+            Cursor<Entry> result = new EntryCursorAdaptor( this, searchResult );
+
+            return new BaseEntryFilteringCursor( result, searchContext );
         }
         catch ( LdapException le )
         {

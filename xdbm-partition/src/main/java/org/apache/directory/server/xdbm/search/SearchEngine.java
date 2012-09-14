@@ -20,11 +20,10 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -74,15 +73,13 @@ public interface SearchEngine
      * Conducts a search on a database. It returns a set of UUID we found for the 
      * given filter.
      * 
-     * @param base the search base
-     * @param aliasDerefMode the alias dereferencing mode to use
-     * @param filter the search filter AST root
-     * @param scope the Scope
+     * @param The SchemaManager instance
+     * @param searchContext the search context
      * @return A set of UUID representing the full result, up to he sizeLimit
      * @throws Exception if the search fails
      */
-    PartitionSearchResult computeResult( Dn base, AliasDerefMode aliasDerefMode, ExprNode filter,
-        SearchScope scope ) throws Exception;
+    PartitionSearchResult computeResult( SchemaManager schemaManager, SearchOperationContext searchContext )
+        throws Exception;
 
 
     /**
