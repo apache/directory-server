@@ -193,31 +193,6 @@ public class DefaultSearchEngine implements SearchEngine
 
         long nbResults = cursorBuilder.build( root, searchResult );
 
-        // Check if we have found aliases
-        /*
-        if ( searchResult.getAliasedIds().size() > 0 )
-        {
-            for ( String aliasedId : searchResult.getAliasedIds() )
-            {
-                // We have some. Deal with them accordingly to the requested mode
-                if ( searchResult.isAlwaysDeref() )
-                {
-                    // We have to dereference each alias
-
-                }
-                else if ( searchResult.isDerefFinding() )
-                {
-
-                }
-                else
-                // This is when we dereference in searching
-                {
-
-                }
-            }
-        }
-        */
-
         if ( nbResults < Long.MAX_VALUE )
         {
             for ( String uuid : uuidSet )
