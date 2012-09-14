@@ -414,7 +414,7 @@ public class CursorBuilder
 
             // If the entry is an alias, and we asked for it to be dereferenced,
             // we will dereference the alias
-            if ( searchResult.isAlwaysDeref() || searchResult.isDerefInSearching() )
+            if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
                 String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 
@@ -501,7 +501,7 @@ public class CursorBuilder
 
             // If the entry is an alias, and we asked for it to be dereferenced,
             // we will dereference the alias
-            if ( searchResult.isAlwaysDeref() || searchResult.isDerefInSearching() )
+            if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
                 String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 

@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -51,9 +49,6 @@ public class PartitionSearchResult
 
     /** The flag indicating if we are dereferencing the aliases. Default to Never. */
     private AliasDerefMode aliasDerefMode = AliasDerefMode.NEVER_DEREF_ALIASES;
-
-    /** The list of aliased entries that still have to be dereferenced */
-    private List<String> aliasedIds;
 
     /** The evaluator to validate the candidates */
     private Evaluator<? extends ExprNode> evaluator;
@@ -126,34 +121,11 @@ public class PartitionSearchResult
 
 
     /**
-     * @return the aliasedIds
-     */
-    public List<String> getAliasedIds()
-    {
-        return aliasedIds;
-    }
-
-
-    /**
-     * @param aliasedIds the aliasedIds to set
-     */
-    public void setAliasedIds( List<String> aliasedIds )
-    {
-        this.aliasedIds = aliasedIds;
-    }
-
-
-    /**
      * @param aliasDerefMode the aliasDerefMode to set
      */
     public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
         this.aliasDerefMode = aliasDerefMode;
-
-        if ( !isNeverDeref() )
-        {
-            aliasedIds = new ArrayList<String>();
-        }
     }
 
 
@@ -169,7 +141,7 @@ public class PartitionSearchResult
     /**
      * @return True if the alias is always dereferenced
      */
-    public boolean isAlwaysDeref()
+    public boolean isDerefAlways()
     {
         return aliasDerefMode == AliasDerefMode.DEREF_ALWAYS;
     }
