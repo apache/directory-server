@@ -37,10 +37,10 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SubtreeScopeEvaluator implements Evaluator<ScopeNode<String>>
+public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 {
     /** The ScopeNode containing initial search scope constraints */
-    private final ScopeNode<String> node;
+    private final ScopeNode node;
 
     /** The entry identifier of the scope base */
     private final String baseId;
@@ -71,7 +71,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode<String>>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store db, ScopeNode<String> node ) throws Exception
+    public SubtreeScopeEvaluator( Store db, ScopeNode node ) throws Exception
     {
         this.db = db;
         this.node = node;
@@ -232,7 +232,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode<String>>
     }
 
 
-    public ScopeNode<String> getExpression()
+    public ScopeNode getExpression()
     {
         return node;
     }

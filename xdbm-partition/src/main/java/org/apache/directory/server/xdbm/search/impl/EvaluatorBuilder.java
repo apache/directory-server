@@ -108,13 +108,13 @@ public class EvaluatorBuilder
                 return new PresenceEvaluator( ( PresenceNode ) node, db, schemaManager );
 
             case SCOPE:
-                if ( ( ( ScopeNode<String> ) node ).getScope() == SearchScope.ONELEVEL )
+                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
                 {
-                    return new OneLevelScopeEvaluator<Entry>( db, ( ScopeNode<String> ) node );
+                    return new OneLevelScopeEvaluator<Entry>( db, ( ScopeNode ) node );
                 }
                 else
                 {
-                    return new SubtreeScopeEvaluator( db, ( ScopeNode<String> ) node );
+                    return new SubtreeScopeEvaluator( db, ( ScopeNode ) node );
                 }
 
             case SUBSTRING:

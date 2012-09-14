@@ -123,7 +123,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode<String> ) node );
+            count = getScopeScan( ( ScopeNode ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -373,7 +373,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode<String> node ) throws Exception
+    private long getScopeScan( ScopeNode node ) throws Exception
     {
         String id = node.getBaseId();
 
