@@ -305,14 +305,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         if ( getOneAliasIndex() == null )
         {
             Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
-                partitionPath, WITH_REVERSE );
+                partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
             Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
-                partitionPath, WITH_REVERSE );
+                partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
