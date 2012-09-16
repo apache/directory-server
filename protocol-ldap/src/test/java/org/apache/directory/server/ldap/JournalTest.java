@@ -136,7 +136,7 @@ public class JournalTest
         comparator.setSchemaManager( schemaManager );
 
         journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "test", recman, comparator,
-            new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
+            StringSerializer.INSTANCE, new ReplicaEventMessageSerializer( schemaManager ) );
 
     }
 
@@ -226,7 +226,7 @@ public class JournalTest
 
             pos++;
         }
-        
+
         cursor.close();
     }
 
@@ -272,7 +272,7 @@ public class JournalTest
             journal.sync();
             deleted++;
         }
-        
+
         deleteCursor.close();
 
         // Now check that the first mod is the 501th
@@ -286,7 +286,7 @@ public class JournalTest
         ReplicaEventMessage replicaEventMessage = tuple.getValue();
         assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
         assertEquals( "test500", replicaEventMessage.getEntry().get( "ou" ).getString() );
-        
+
         cursor.close();
     }
 

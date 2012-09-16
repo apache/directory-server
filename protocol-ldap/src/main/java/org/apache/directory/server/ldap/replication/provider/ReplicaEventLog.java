@@ -122,7 +122,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         comparator.setSchemaManager( schemaManager );
 
         journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "replication", recman, comparator,
-            new StringSerializer(), new ReplicaEventMessageSerializer( schemaManager ) );
+            StringSerializer.INSTANCE, new ReplicaEventMessageSerializer( schemaManager ) );
     }
 
 

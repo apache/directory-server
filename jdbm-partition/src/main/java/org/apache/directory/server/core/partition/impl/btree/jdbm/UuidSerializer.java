@@ -24,11 +24,9 @@ import java.io.IOException;
 
 import jdbm.helper.Serializer;
 
-import org.apache.directory.shared.util.Strings;
-
 
 /**
- * A {@link Serializer} for Longs
+ * A {@link Serializer} for UUIDs
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -38,16 +36,22 @@ public class UuidSerializer implements Serializer
     public static final UuidSerializer INSTANCE = new UuidSerializer();
 
 
+    /**
+     * {@inheritDoc}
+     */
     public byte[] serialize( Object o ) throws IOException
     {
         String uuid = ( String ) o;
 
-        return Strings.getBytesUtf8( uuid );
+        return StringSerializer.INSTANCE.serialize( uuid );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Object deserialize( byte[] bytes ) throws IOException
     {
-        return Strings.utf8ToString( bytes );
+        return StringSerializer.INSTANCE.deserialize( bytes );
     }
 }

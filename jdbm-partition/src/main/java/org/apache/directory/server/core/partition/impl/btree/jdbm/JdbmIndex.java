@@ -214,7 +214,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         {
             forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
                 recMan,
-                comp, UuidComparator.INSTANCE, new StringSerializer(), UuidSerializer.INSTANCE );
+                comp, UuidComparator.INSTANCE, StringSerializer.INSTANCE, UuidSerializer.INSTANCE );
         }
         else
         {
