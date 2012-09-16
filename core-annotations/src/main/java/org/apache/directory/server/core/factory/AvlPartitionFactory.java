@@ -67,7 +67,7 @@ public class AvlPartitionFactory implements PartitionFactory
         }
 
         AvlPartition avlPartition = ( AvlPartition ) partition;
-        Set<Index<?, Entry, String>> indexedAttributes = avlPartition.getIndexedAttributes();
+        Set<Index<?, ?, String>> indexedAttributes = avlPartition.getIndexedAttributes();
 
         AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId, false );
         //index.setCacheSize( cacheSize );

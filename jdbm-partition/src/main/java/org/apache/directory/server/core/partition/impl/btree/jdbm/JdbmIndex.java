@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import jdbm.RecordManager;
+import jdbm.helper.ByteArraySerializer;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
@@ -209,8 +210,18 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
         comp.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit, recMan,
-            comp, UuidComparator.INSTANCE, null, UuidSerializer.INSTANCE );
+        if ( mr.getSyntax().isHumanReadable() )
+        {
+            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
+                recMan,
+                comp, UuidComparator.INSTANCE, new StringSerializer(), UuidSerializer.INSTANCE );
+        }
+        else
+        {
+            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
+                recMan,
+                comp, UuidComparator.INSTANCE, new ByteArraySerializer(), UuidSerializer.INSTANCE );
+        }
 
         /*
          * Now the reverse map stores the primary key into the master table as

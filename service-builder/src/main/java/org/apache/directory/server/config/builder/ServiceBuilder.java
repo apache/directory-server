@@ -58,6 +58,7 @@ import org.apache.directory.server.config.beans.SaslMechHandlerBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
 import org.apache.directory.server.config.beans.UdpTransportBean;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -76,6 +77,7 @@ import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.DefaultJournalStore;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmRdnIndex;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -1082,7 +1084,7 @@ public class ServiceBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?, Entry> createJdbmIndex( JdbmPartition partition,
+    public static JdbmIndex<?, ?> createJdbmIndex( JdbmPartition partition,
         JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
@@ -1097,9 +1099,19 @@ public class ServiceBuilder
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
 
+        JdbmIndex<?, ?> index = null;
+
         boolean hasReverse = Boolean.parseBoolean( jdbmIndexBean.getIndexHasReverse() );
 
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
+        if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
+            jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            index = new JdbmRdnIndex();
+        }
+        else
+        {
+            index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
+        }
 
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
         index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
@@ -1134,11 +1146,11 @@ public class ServiceBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, Entry, String>> createJdbmIndexes( JdbmPartition partition,
+    private static Set<Index<?, ?, String>> createJdbmIndexes( JdbmPartition partition,
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, Entry, String>> indexes = new HashSet<Index<?, Entry, String>>();
+        Set<Index<?, ?, String>> indexes = new HashSet<Index<?, ?, String>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {

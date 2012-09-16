@@ -132,9 +132,11 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
 
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 
+        ParentIdAndRdnSerializer parentIdAndSerializer = new ParentIdAndRdnSerializer( schemaManager );
+
         forward = new JdbmTable<ParentIdAndRdn, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
-            recMan, comp, null, UuidSerializer.INSTANCE );
+            recMan, comp, parentIdAndSerializer, UuidSerializer.INSTANCE );
         reverse = new JdbmTable<String, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
-            recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE, null );
+            recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE, parentIdAndSerializer );
     }
 }

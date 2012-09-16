@@ -68,7 +68,8 @@ public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterT
     {
         super( schemaManager, DBF, recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE,
             new EntrySerializer( schemaManager ) );
-        adminTbl = new JdbmTable<String, String>( schemaManager, "admin", recMan, STRING_COMPARATOR, null, null );
+        adminTbl = new JdbmTable<String, String>( schemaManager, "admin", recMan, STRING_COMPARATOR,
+            new StringSerializer(), new StringSerializer() );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
@@ -85,7 +86,8 @@ public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterT
         throws Exception
     {
         super( schemaManager, DBF, recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE, serializer );
-        adminTbl = new JdbmTable<String, String>( schemaManager, dbName, recMan, STRING_COMPARATOR, null, null );
+        adminTbl = new JdbmTable<String, String>( schemaManager, dbName, recMan, STRING_COMPARATOR,
+            new StringSerializer(), new StringSerializer() );
         String seqValue = adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )

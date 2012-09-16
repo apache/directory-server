@@ -125,7 +125,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected URI partitionPath;
 
     /** The set of indexed attributes */
-    private Set<Index<?, Entry, String>> indexedAttributes;
+    private Set<Index<?, ?, String>> indexedAttributes;
 
     /** the master table storing entries by primary key */
     protected MasterTable master;
@@ -184,7 +184,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         this.schemaManager = schemaManager;
 
-        indexedAttributes = new HashSet<Index<?, Entry, String>>();
+        indexedAttributes = new HashSet<Index<?, ?, String>>();
 
         // Initialize Attribute types used all over this method
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -744,6 +744,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new LdapException( e );
         }
     }
@@ -2240,7 +2241,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Set the list of indexes for this partition
      * @param indexedAttributes The list of indexes
      */
-    public void setIndexedAttributes( Set<Index<?, Entry, String>> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<?, ?, String>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
@@ -2249,7 +2250,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * @return The list of indexed attributes
      */
-    public Set<Index<?, Entry, String>> getIndexedAttributes()
+    public Set<Index<?, ?, String>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
