@@ -36,6 +36,7 @@ import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
+import org.apache.directory.server.xdbm.KeyTupleArrayCursor;
 import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;

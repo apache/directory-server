@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm;
+package org.apache.directory.server.xdbm;
 
 
 import org.apache.directory.server.core.avltree.ArrayTree;
