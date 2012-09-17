@@ -42,7 +42,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /** The index entry we use to return entries one by one.  */
     private IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
 
-    /** The cursor on the EntryUUID index */
+    /** The cursor on the MsterTable index */
     private final Cursor<IndexEntry<String, String>> wrapped;
 
 
@@ -57,14 +57,14 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
 
     /**
      * Creates a new instance of AllEntriesCursor
-     * @param db
+     * @param store
      * @throws Exception
      */
-    public AllEntriesCursor( Store db ) throws Exception
+    public AllEntriesCursor( Store store ) throws Exception
     {
         LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
         // Uses the MasterTable 
-        wrapped = new IndexCursorAdaptor( db.getMasterTable().cursor(), true );
+        wrapped = new IndexCursorAdaptor( store.getMasterTable().cursor(), true );
     }
 
 
@@ -136,6 +136,8 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
         checkNotClosed( "get()" );
 
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
+        // As we are using the MasterTable, we have to use the key as the 
+        // ID and value
         IndexEntry<?, String> wrappedEntry = wrapped.get();
         indexEntry.setId( ( String ) wrappedEntry.getKey() );
         indexEntry.setKey( ( String ) wrappedEntry.getKey() );

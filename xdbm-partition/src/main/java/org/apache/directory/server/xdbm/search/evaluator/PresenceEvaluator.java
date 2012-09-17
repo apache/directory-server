@@ -26,6 +26,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
@@ -109,9 +110,10 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     // wrapper or the raw normalized value
     public boolean evaluate( Entry entry ) throws Exception
     {
-        if ( db.hasSystemIndexOn( attributeType ) )
+        if ( db.hasSystemIndexOn( attributeType )
+            || ( attributeType.getOid().equals( SchemaConstants.ENTRY_UUID_AT_OID ) ) )
         {
-            // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
+            // we don't maintain a presence index for objectClass, entryUUID and entryCSN
             // however as every entry has such an attribute this evaluator always evaluates to true
             return true;
         }

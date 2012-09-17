@@ -57,32 +57,32 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     private final Cursor<IndexEntry<V, String>> userIdxCursor;
 
     /** NDN Cursor on all entries in  (set when no index on user attribute) */
-    private final Cursor<IndexEntry<V, String>> uuidIdxCursor;
+    private final Cursor<IndexEntry<String, String>> uuidIdxCursor;
 
     /**
      * Used to store indexEntry from uudCandidate so it can be saved after
      * call to evaluate() which changes the value so it's not referring to
      * the String but to the value of the attribute instead.
      */
-    private IndexEntry<V, String> uuidCandidate;
+    private IndexEntry<String, String> uuidCandidate;
 
 
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store db, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
+    public LessEqCursor( Store store, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating LessEqCursor {}", this );
         this.lessEqEvaluator = lessEqEvaluator;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
 
-        if ( db.hasIndexOn( attributeType ) )
+        if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, String> ) db.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, Entry, String> ) store.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = ( Cursor ) db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = new AllEntriesCursor( store );
             userIdxCursor = null;
         }
     }
@@ -254,6 +254,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         {
             checkNotClosed( "previous()" );
             uuidCandidate = uuidIdxCursor.get();
+
             if ( lessEqEvaluator.evaluate( uuidCandidate ) )
             {
                 return setAvailable( true );
@@ -330,7 +331,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         if ( available() )
         {
-            return uuidCandidate;
+            return ( IndexEntry<V, String> ) uuidCandidate;
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

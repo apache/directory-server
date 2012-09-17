@@ -145,9 +145,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /** the attribute presence index */
     protected Index<String, Entry, String> presenceIdx;
 
-    /** a system index on entryUUID attribute */
-    protected Index<String, Entry, String> entryUuidIdx;
-
     /** a system index on entryCSN attribute */
     protected Index<String, Entry, String> entryCsnIdx;
 
@@ -323,13 +320,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             addIndex( index );
         }
 
-        if ( getEntryUuidIndex() == null )
-        {
-            Index<String, Entry, String> index = createSystemIndex( SchemaConstants.ENTRY_UUID_AT_OID, partitionPath,
-                NO_REVERSE );
-            addIndex( index );
-        }
-
         if ( getEntryCsnIndex() == null )
         {
             Index<String, Entry, String> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath,
@@ -355,7 +345,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         subAliasIdx = ( Index<String, Entry, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
         objectClassIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
-        entryUuidIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_UUID_AT_OID );
         entryCsnIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
     }
 
@@ -693,17 +682,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             entryCsnIdx.add( entryCsn.getString(), id );
 
-            // Update the EntryUuid index
-            Attribute entryUuid = entry.get( ENTRY_UUID_AT );
-
-            if ( entryUuid == null )
-            {
-                String msg = I18n.err( I18n.ERR_220, entryDn.getName(), entry );
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
-            }
-
-            entryUuidIdx.add( entryUuid.getString(), id );
-
             // Now work on the user defined userIndices
             for ( Attribute attribute : entry )
             {
@@ -864,13 +842,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             ParentIdAndRdn parent = rdnIdx.reverseLookup( id );
             updateRdnIdx( parent.getParentId(), REMOVE_CHILD, 0 );
 
-            // Update the rdn, oneLevel, subLevel, entryCsn and entryUuid indexes
+            // Update the rdn, oneLevel, subLevel, and entryCsn indexes
             rdnIdx.drop( id );
 
             dumpRdnIdx();
 
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
-            entryUuidIdx.drop( entry.get( ENTRY_UUID_AT ).getString(), id );
 
             // Update the user indexes
             for ( Attribute attribute : entry )
@@ -2374,16 +2351,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public Index<String, Entry, String> getObjectClassIndex()
     {
         return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getEntryUuidIndex()
-    {
-        return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_UUID_AT_OID );
     }
 
 

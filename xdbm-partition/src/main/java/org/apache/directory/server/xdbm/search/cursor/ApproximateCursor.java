@@ -66,12 +66,12 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of ApproximateCursor
-     * @param db The Store we want to build a cursor on
+     * @param store The Store we want to build a cursor on
      * @param approximateEvaluator The evaluator
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Store db, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
+    public ApproximateCursor( Store store, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating ApproximateCursor {}", this );
         this.approximateEvaluator = approximateEvaluator;
@@ -79,15 +79,15 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();
         Value<V> value = approximateEvaluator.getExpression().getValue();
 
-        if ( db.hasIndexOn( attributeType ) )
+        if ( store.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, String> index = ( Index<V, Entry, String> ) db.getIndex( attributeType );
+            Index<V, Entry, String> index = ( Index<V, Entry, String> ) store.getIndex( attributeType );
             userIdxCursor = index.forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = new AllEntriesCursor( store );
             userIdxCursor = null;
         }
     }

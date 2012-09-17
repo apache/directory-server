@@ -57,7 +57,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
-        // we don't maintain a presence index for objectClass, entryUUID, and entryCSN
+        // we don't maintain a presence index for objectClass, and entryCSN
         // as it doesn't make sense because every entry has such an attribute
         // instead for those attributes and all un-indexed attributes we use the ndn index
         if ( store.hasUserIndexOn( type ) )
@@ -68,7 +68,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         else
         {
             presenceCursor = null;
-            uuidCursor = store.getEntryUuidIndex().forwardCursor();
+            uuidCursor = new AllEntriesCursor( store );
         }
     }
 

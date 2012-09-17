@@ -333,8 +333,6 @@ public class JdbmStoreTest
         {
         }
 
-        assertNotNull( store.getEntryUuidIndex() );
-
         assertNotNull( store.getRdnIndex() );
         try
         {
@@ -377,7 +375,7 @@ public class JdbmStoreTest
 
         Iterator<String> systemIndices = store.getSystemIndices();
 
-        for ( int ii = 0; ii < 8; ii++ )
+        for ( int i = 0; i < 7; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
@@ -767,22 +765,17 @@ public class JdbmStoreTest
         File ouIndexDbFile = new File( wkdir, SchemaConstants.OU_AT_OID + ".db" );
         File ouIndexTxtFile = new File( wkdir, SchemaConstants.OU_AT_OID + "-ou.txt" );
         File uuidIndexDbFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + ".db" );
-        File uuidIndexTxtFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + "-entryUUID.txt" );
 
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
-        assertTrue( uuidIndexDbFile.exists() );
-        assertTrue( uuidIndexTxtFile.exists() );
 
         // destroy the store to manually start the init phase
         // by keeping the same work dir
         store.destroy();
 
-        // just assert again that ou and entryUUID files exist even after destroying the store
+        // just assert again that ou files exist even after destroying the store
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
-        assertTrue( uuidIndexDbFile.exists() );
-        assertTrue( uuidIndexTxtFile.exists() );
 
         store = new JdbmPartition( schemaManager );
         store.setId( "example" );
@@ -799,8 +792,5 @@ public class JdbmStoreTest
 
         assertFalse( ouIndexDbFile.exists() );
         assertFalse( ouIndexTxtFile.exists() );
-
-        assertTrue( uuidIndexDbFile.exists() );
-        assertTrue( uuidIndexTxtFile.exists() );
     }
 }

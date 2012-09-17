@@ -64,12 +64,12 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an EqualityCursor
-     * @param db The store
+     * @param store The store
      * @param equalityEvaluator The EqualityEvaluator
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public EqualityCursor( Store db, EqualityEvaluator<V> equalityEvaluator ) throws Exception
+    public EqualityCursor( Store store, EqualityEvaluator<V> equalityEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating EqualityCursor {}", this );
         this.equalityEvaluator = equalityEvaluator;
@@ -77,15 +77,15 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
         Value<V> value = equalityEvaluator.getExpression().getValue();
 
-        if ( db.hasIndexOn( attributeType ) )
+        if ( store.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, String> userIndex = ( Index<V, Entry, String> ) db.getIndex( attributeType );
+            Index<V, Entry, String> userIndex = ( Index<V, Entry, String> ) store.getIndex( attributeType );
             userIdxCursor = userIndex.forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = new AllEntriesCursor( store );
             userIdxCursor = null;
         }
     }

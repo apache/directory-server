@@ -25,7 +25,6 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
-    private final Cursor<IndexEntry<V, String>> uuidCursor;
+    private final AllEntriesCursor uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
 
 
@@ -53,7 +52,8 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     {
         LOG_CURSOR.debug( "Creating NotCursor {}", this );
         this.childEvaluator = childEvaluator;
-        this.uuidCursor = ( Cursor ) store.getEntryUuidIndex().forwardCursor();
+        this.uuidCursor = new AllEntriesCursor( store );
+
     }
 
 
@@ -138,7 +138,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
         if ( available() )
         {
-            return uuidCursor.get();
+            return ( IndexEntry<V, String> ) uuidCursor.get();
         }
 
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );

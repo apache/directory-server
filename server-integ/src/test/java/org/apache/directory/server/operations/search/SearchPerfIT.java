@@ -58,6 +58,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
+
     /**
      * test a search request perf.
      */
@@ -118,11 +119,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 if ( j % 10000 == 0 )
                 {
                     long tt1 = System.currentTimeMillis();
-                    
+
                     System.out.println( j + ", " + ( tt1 - tt0 ) );
                     tt0 = tt1;
                 }
-                
+
                 if ( j == 50000 )
                 {
                     t00 = System.currentTimeMillis();
@@ -134,7 +135,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 {
                     cursor.get();
                 }
-                
+
                 cursor.close();
             }
 
@@ -218,11 +219,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 if ( j % 10000 == 0 )
                 {
                     long tt1 = System.currentTimeMillis();
-                    
+
                     System.out.println( j + ", " + ( tt1 - tt0 ) );
                     tt0 = tt1;
                 }
-                
+
                 if ( j == 50000 )
                 {
                     t00 = System.currentTimeMillis();
@@ -234,7 +235,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 {
                     cursor.get();
                 }
-                
+
                 cursor.close();
             }
 
@@ -242,6 +243,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             Long deltaWarmed = ( t1 - t00 );
             System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+                * 5
                 + " per s ) /" + ( t1 - t0 ) );
         }
         catch ( LdapException e )
@@ -319,11 +321,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 if ( j % 10000 == 0 )
                 {
                     long tt1 = System.currentTimeMillis();
-                    
+
                     System.out.println( j + ", " + ( tt1 - tt0 ) );
                     tt0 = tt1;
                 }
-                
+
                 if ( j == 50000 )
                 {
                     t00 = System.currentTimeMillis();
@@ -335,7 +337,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 {
                     cursor.get();
                 }
-                
+
                 cursor.close();
             }
 
@@ -343,6 +345,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             Long deltaWarmed = ( t1 - t00 );
             System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+                * 10
                 + " per s ) /" + ( t1 - t0 ) );
         }
         catch ( LdapException e )

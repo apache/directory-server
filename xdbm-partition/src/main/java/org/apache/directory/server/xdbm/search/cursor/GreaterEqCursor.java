@@ -69,26 +69,26 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an GreaterEqCursor
-     * @param db The store
+     * @param store The store
      * @param equalityEvaluator The GreaterEqEvaluator
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store db, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
     {
         LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
         this.greaterEqEvaluator = greaterEqEvaluator;
 
         AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();
 
-        if ( db.hasIndexOn( attributeType ) )
+        if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, String> ) db.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, Entry, String> ) store.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = db.getEntryUuidIndex().forwardCursor();
+            uuidIdxCursor = new AllEntriesCursor( store );
             userIdxCursor = null;
         }
     }

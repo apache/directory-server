@@ -201,12 +201,6 @@ public interface Store
 
 
     /**
-     * @return The EntryUUID system index
-     */
-    Index<String, Entry, String> getEntryUuidIndex();
-
-
-    /**
      * @return The EntryCSN system index
      */
     Index<String, Entry, String> getEntryCsnIndex();

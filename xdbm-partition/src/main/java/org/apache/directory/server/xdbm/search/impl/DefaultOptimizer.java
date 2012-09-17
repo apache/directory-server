@@ -27,6 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
@@ -355,9 +356,10 @@ public class DefaultOptimizer<E> implements Optimizer
             Index<String, Entry, String> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
-        else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
+        else if ( db.hasSystemIndexOn( node.getAttributeType() )
+            || ( node.getAttributeType().getOid() == SchemaConstants.ENTRY_UUID_AT_OID ) )
         {
-            // the system indices (objectClass, entryUUID, entryCSN) are maintained for
+            // the system indices (objectClass, entryUUID and entryCSN) are maintained for
             // each entry, so we could just return the database count
             return db.count();
         }

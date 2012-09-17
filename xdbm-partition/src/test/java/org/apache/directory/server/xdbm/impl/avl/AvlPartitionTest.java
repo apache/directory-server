@@ -249,7 +249,6 @@ public class AvlPartitionTest
         {
         }
 
-        assertNotNull( partition.getEntryUuidIndex() );
         assertNotNull( partition.getRdnIndex() );
 
         try
@@ -287,7 +286,7 @@ public class AvlPartitionTest
 
         Iterator<String> systemIndices = partition.getSystemIndices();
 
-        for ( int i = 0; i < 8; i++ )
+        for ( int i = 0; i < 7; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );

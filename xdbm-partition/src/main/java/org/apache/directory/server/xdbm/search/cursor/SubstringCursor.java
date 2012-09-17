@@ -76,7 +76,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
              * knows to use it, when it itself detects the lack of an index on
              * the node's attribute.
              */
-            wrapped = store.getEntryUuidIndex().forwardCursor();
+            wrapped = new AllEntriesCursor( store );
         }
     }
 

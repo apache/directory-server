@@ -154,7 +154,6 @@ public class PartitionTest
         assertEquals( 15, partition.getPresenceIndex().count() );
         assertEquals( 27, partition.getObjectClassIndex().count() );
         assertEquals( 11, partition.getEntryCsnIndex().count() );
-        assertEquals( 11, partition.getEntryUuidIndex().count() );
 
         Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
