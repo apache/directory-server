@@ -94,6 +94,13 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
+
+            if ( null == entry )
+            {
+                // The entry is not anymore present : get out
+                return false;
+            }
+
             indexEntry.setEntry( entry );
         }
 

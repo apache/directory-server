@@ -59,6 +59,13 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
         if ( null == entry )
         {
             entry = db.lookup( indexEntry.getId() );
+
+            if ( null == entry )
+            {
+                // The entry is not anymore present : get out
+                return false;
+            }
+
             indexEntry.setEntry( entry );
         }
 
