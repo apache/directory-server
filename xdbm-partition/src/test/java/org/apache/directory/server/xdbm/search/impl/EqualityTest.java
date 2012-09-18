@@ -408,7 +408,7 @@ public class EqualityTest
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
         // no need to set a value or id, because the evaluator must always evaluate to true
         // as each entry contains an objectClass, entryUUID, and entryCSN attribute
-        assertTrue( evaluator.evaluate( entry ) );
+        assertFalse( evaluator.evaluate( entry ) );
 
         entry = new IndexEntry<String, String>();
         entry.setKey( oid );
