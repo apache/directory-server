@@ -559,14 +559,14 @@ public class DefaultOperationManager implements OperationManager
         directoryService.getReferralManager().unlock();
 
         // populate the context with the old entry
-        eagerlyPopulateFields( deleteContext );
-
-        // Call the Delete method
-        Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
-
         try
         {
             lockWrite();
+
+            eagerlyPopulateFields( deleteContext );
+
+            // Call the Delete method
+            Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
             head.delete( deleteContext );
         }
@@ -763,15 +763,15 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         referralManager.unlock();
 
-        // populate the context with the old entry
-        eagerlyPopulateFields( modifyContext );
-
-        // Call the Modify method
-        Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
-
         try
         {
             lockWrite();
+
+            // populate the context with the old entry
+            eagerlyPopulateFields( modifyContext );
+
+            // Call the Modify method
+            Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
             head.modify( modifyContext );
         }
@@ -870,16 +870,16 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
 
-        Entry originalEntry = getOriginalEntry( moveContext );
-
-        moveContext.setOriginalEntry( originalEntry );
-
-        // Call the Move method
-        Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
-
         try
         {
             lockWrite();
+
+            Entry originalEntry = getOriginalEntry( moveContext );
+
+            moveContext.setOriginalEntry( originalEntry );
+
+            // Call the Move method
+            Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
             head.move( moveContext );
         }
@@ -980,15 +980,15 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
 
-        moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
-        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
-
-        // Call the MoveAndRename method
-        Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
-
         try
         {
             lockWrite();
+
+            moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
+            moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
+
+            // Call the MoveAndRename method
+            Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
 
             head.moveAndRename( moveAndRenameContext );
         }
@@ -1079,17 +1079,18 @@ public class DefaultOperationManager implements OperationManager
 
         // Call the rename method
         // populate the context with the old entry
-        eagerlyPopulateFields( renameContext );
-        Entry originalEntry = getOriginalEntry( renameContext );
-        renameContext.setOriginalEntry( originalEntry );
-        renameContext.setModifiedEntry( originalEntry.clone() );
-
-        // Call the Rename method
-        Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
 
         try
         {
             lockWrite();
+
+            eagerlyPopulateFields( renameContext );
+            Entry originalEntry = getOriginalEntry( renameContext );
+            renameContext.setOriginalEntry( originalEntry );
+            renameContext.setModifiedEntry( originalEntry.clone() );
+
+            // Call the Rename method
+            Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
 
             head.rename( renameContext );
         }
