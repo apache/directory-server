@@ -802,6 +802,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // We now defer the deletion to the implementing class
             delete( id );
         }
+        catch ( LdapException le )
+        {
+            throw le;
+        }
         catch ( Exception e )
         {
             throw new LdapOperationErrorException( e.getMessage() );
