@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -168,6 +170,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     protected static final boolean ADD_CHILD = true;
     protected static final boolean REMOVE_CHILD = false;
+
+    /** A lock to protect the MasterTable from concurrent access */
+    private ReadWriteLock masterTableLock = new ReentrantReadWriteLock();
 
 
     // ------------------------------------------------------------------------
@@ -584,11 +589,20 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
-            if ( getEntryId( entryDn ) != null )
+            try
             {
-                LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
-                    I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
-                throw ne;
+                lockRead();
+
+                if ( getEntryId( entryDn ) != null )
+                {
+                    LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                        I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+                    throw ne;
+                }
+            }
+            finally
+            {
+                unlockRead();
             }
 
             String parentId = null;
@@ -609,7 +623,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             else
             {
                 parentDn = entryDn.getParent();
-                parentId = getEntryId( parentDn );
+
+                try
+                {
+                    lockRead();
+
+                    parentId = getEntryId( parentDn );
+                }
+                finally
+                {
+                    unlockRead();
+                }
 
                 key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
             }
@@ -632,15 +656,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             else
             {
                 id = entryUUID.getString();
-            }
-
-            // Update the RDN index
-            rdnIdx.add( key, id );
-
-            // Update the parent's nbChildren and nbDescendants values
-            if ( parentId != Partition.ROOT_ID )
-            {
-                updateRdnIdx( parentId, ADD_CHILD, 0 );
             }
 
             // Update the ObjectClass index
@@ -708,8 +723,26 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Add the parentId in the entry
             entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
 
-            // And finally add the entry into the master table
-            master.put( id, entry );
+            try
+            {
+                lockWrite();
+
+                // Update the RDN index
+                rdnIdx.add( key, id );
+
+                // Update the parent's nbChildren and nbDescendants values
+                if ( parentId != Partition.ROOT_ID )
+                {
+                    updateRdnIdx( parentId, ADD_CHILD, 0 );
+                }
+
+                // And finally add the entry into the master table
+                master.put( id, entry );
+            }
+            finally
+            {
+                unlockWrite();
+            }
 
             if ( isSyncOnWrite.get() )
             {
@@ -736,27 +769,43 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        Dn dn = deleteContext.getDn();
-
-        String id = getEntryId( dn );
-
-        // don't continue if id is null
-        if ( id == null )
+        try
         {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
+            Dn dn = deleteContext.getDn();
+            String id = null;
+
+            try
+            {
+                lockRead();
+                id = getEntryId( dn );
+            }
+            finally
+            {
+                unlockRead();
+            }
+
+            // don't continue if id is null
+            if ( id == null )
+            {
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
+            }
+
+            int childCount = getChildCount( id );
+
+            if ( childCount > 0 )
+            {
+                LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
+                //cnee.setRemainingName( dn );
+                throw cnee;
+            }
+
+            // We now defer the deletion to the implementing class
+            delete( id );
         }
-
-        int childCount = getChildCount( id );
-
-        if ( childCount > 0 )
+        catch ( Exception e )
         {
-            LdapContextNotEmptyException cnee = new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
-            //cnee.setRemainingName( dn );
-            throw cnee;
+            throw new LdapOperationErrorException( e.getMessage() );
         }
-
-        // We now defer the deletion to the implementing class
-        delete( id );
     }
 
 
@@ -817,7 +866,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             // First get the entry
-            Entry entry = master.get( id );
+            Entry entry = null;
+
+            try
+            {
+                lockRead();
+                entry = master.get( id );
+            }
+            finally
+            {
+                unlockRead();
+            }
 
             if ( entry == null )
             {
@@ -843,10 +902,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             updateRdnIdx( parent.getParentId(), REMOVE_CHILD, 0 );
 
             // Update the rdn, oneLevel, subLevel, and entryCsn indexes
-            rdnIdx.drop( id );
-
-            dumpRdnIdx();
-
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
 
             // Update the user indexes
@@ -870,7 +925,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
             }
 
-            master.remove( id );
+            try
+            {
+                lockWrite();
+                rdnIdx.drop( id );
+
+                dumpRdnIdx();
+
+                master.remove( id );
+            }
+            finally
+            {
+                unlockWrite();
+            }
 
             if ( isSyncOnWrite.get() )
             {
@@ -1107,12 +1174,20 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            lockRead();
             Entry entry = master.get( id );
 
             if ( entry != null )
             {
                 // We have to store the DN in this entry
                 Dn dn = buildEntryDn( id );
+
+                if ( dn == null )
+                {
+                    // No dn : we probably have removed the RDNs for this entry
+                    return null;
+                }
+
                 entry.setDn( dn );
 
                 return new ClonedServerEntry( entry );
@@ -1123,6 +1198,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         catch ( Exception e )
         {
             throw new LdapOperationErrorException( e.getMessage(), e );
+        }
+        finally
+        {
+            try
+            {
+                unlockRead();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage(), e );
+            }
         }
     }
 
@@ -1138,7 +1224,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
-            Entry entry = master.get( id );
+            Entry entry = null;
+
+            try
+            {
+                lockRead();
+                entry = master.get( id );
+            }
+            finally
+            {
+                unlockRead();
+            }
 
             if ( entry != null )
             {
@@ -2033,6 +2129,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         do
         {
             ParentIdAndRdn cur = rdnIdx.reverseLookup( parentId );
+
+            if ( cur == null )
+            {
+                return null;
+            }
+
             Rdn[] rdns = cur.getRdns();
 
             for ( Rdn rdn : rdns )
@@ -2730,5 +2832,41 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public MasterTable getMasterTable()
     {
         return master;
+    }
+
+
+    /**
+     * Acquire a Read lock
+     */
+    private void lockRead() throws Exception
+    {
+        masterTableLock.readLock().lock();
+    }
+
+
+    /**
+     * Release a Read lock
+     */
+    private void unlockRead() throws Exception
+    {
+        masterTableLock.readLock().unlock();
+    }
+
+
+    /**
+     * Acquire a Write lock
+     */
+    private void lockWrite() throws Exception
+    {
+        masterTableLock.writeLock().lock();
+    }
+
+
+    /**
+     * Release a Write lock
+     */
+    private void unlockWrite() throws Exception
+    {
+        masterTableLock.writeLock().unlock();
     }
 }
