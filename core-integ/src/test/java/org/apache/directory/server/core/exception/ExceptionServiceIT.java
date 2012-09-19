@@ -133,7 +133,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
             SearchScope.ONELEVEL, "*" );
 
         assertFalse( cursor.next() );
-        
+
         cursor.close();
     }
 
@@ -246,27 +246,27 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
         LdapConnection connection = getAdminConnection( getService() );
 
         Entry entry = connection.lookup( "ou=users,ou=system" );
-        
+
         assertNotNull( entry );
         assertEquals( 1, entry.get( "ou" ).size() );
         assertEquals( "users", entry.get( "ou" ).getString() );
 
         connection.rename( "ou=users,ou=system", "ou=Users" );
-        
+
         entry = connection.lookup( "ou=Users,ou=system" );
-        
+
         assertNotNull( entry );
         assertEquals( 1, entry.get( "ou" ).size() );
         assertEquals( "Users", entry.get( "ou" ).getString() );
     }
 
-    
+
     /**
      * Test modifyRdn operation failure when the object renamed is existant.
      *
      * @throws Exception on error
      */
-    @Test(expected=LdapEntryAlreadyExistsException.class)
+    @Test(expected = LdapEntryAlreadyExistsException.class)
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
         LdapConnection connection = getAdminConnection( getService() );
@@ -504,7 +504,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     // ------------------------------------------------------------------------
 
     /**
-     * Tests for delete failure when the entry to be deleted has child entires.
+     * Tests for delete failure when the entry to be deleted has child entries.
      *
      * @throws Exception on error
      */
