@@ -66,6 +66,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearchRequestObjectScopePerf() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        long deltaSearch = 0L;
+        long deltaGet = 0L;
+        long deltaClose = 0L;
 
         try
         {
@@ -113,6 +116,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t00 = 0L;
             long tt0 = System.currentTimeMillis();
             int nbIterations = 200000;
+            int count = 0;
 
             for ( int j = 0; j < nbIterations; j++ )
             {
@@ -129,21 +133,38 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                     t00 = System.currentTimeMillis();
                 }
 
+                long dt0 = System.nanoTime();
                 cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+                long dt1 = System.nanoTime();
+
+                deltaSearch += Math.abs( dt1 - dt0 );
 
                 while ( cursor.next() )
                 {
+                    long dt2 = System.nanoTime();
                     cursor.get();
+                    count++;
+                    long dt3 = System.nanoTime();
+
+                    deltaGet += Math.abs( dt3 - dt2 );
                 }
 
+                long dt4 = System.nanoTime();
                 cursor.close();
+                long dt5 = System.nanoTime();
+
+                deltaClose += Math.abs( dt5 - dt4 );
             }
 
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
             System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
-                + " per s ) /" + ( t1 - t0 ) );
+                + " per s ) /" + ( t1 - t0 ) + " , count : " + count );
+
+            System.out.println( "DeltaSearch : " + ( deltaSearch / nbIterations ) );
+            System.out.println( "DeltaGet : " + ( deltaGet / nbIterations ) );
+            System.out.println( "DeltaClose : " + ( deltaClose / nbIterations ) );
         }
         catch ( LdapException e )
         {
@@ -213,6 +234,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t00 = 0L;
             long tt0 = System.currentTimeMillis();
             int nbIterations = 200000;
+            int count = 0;
 
             for ( int j = 0; j < nbIterations; j++ )
             {
@@ -229,10 +251,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                     t00 = System.currentTimeMillis();
                 }
 
-                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+                cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.ONELEVEL, "*" );
 
                 while ( cursor.next() )
                 {
+                    count++;
                     cursor.get();
                 }
 
@@ -244,7 +267,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             Long deltaWarmed = ( t1 - t00 );
             System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 * 5
-                + " per s ) /" + ( t1 - t0 ) );
+                + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
         catch ( LdapException e )
         {
@@ -315,6 +338,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t00 = 0L;
             long tt0 = System.currentTimeMillis();
             int nbIterations = 200000;
+            int count = 0;
 
             for ( int j = 0; j < nbIterations; j++ )
             {
@@ -331,10 +355,11 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                     t00 = System.currentTimeMillis();
                 }
 
-                cursor = new EntryCursorImpl( connection.search( searchRequest ) );
+                cursor = connection.search( "ou=system", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
 
                 while ( cursor.next() )
                 {
+                    count++;
                     cursor.get();
                 }
 
@@ -346,7 +371,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             Long deltaWarmed = ( t1 - t00 );
             System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 * 10
-                + " per s ) /" + ( t1 - t0 ) );
+                + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
         catch ( LdapException e )
         {
