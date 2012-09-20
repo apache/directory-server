@@ -77,6 +77,9 @@ public class DefaultOperationManager implements OperationManager
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultOperationManager.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
     /** A logger specifically for change operations */
     private static final Logger LOG_CHANGES = LoggerFactory.getLogger( "LOG_CHANGES" );
 
@@ -319,8 +322,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        LOG.debug( ">> AddOperation : {}", addContext );
-        LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> AddOperation : {}", addContext );
+            LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
+        }
 
         ensureStarted();
 
@@ -374,8 +380,11 @@ public class DefaultOperationManager implements OperationManager
             }
         }
 
-        LOG.debug( "<< AddOperation successful" );
-        LOG_CHANGES.debug( "<< AddOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< AddOperation successful" );
+            LOG_CHANGES.debug( "<< AddOperation successful" );
+        }
     }
 
 
@@ -384,7 +393,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
-        LOG.debug( ">> BindOperation : {}", bindContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> BindOperation : {}", bindContext );
+        }
 
         ensureStarted();
 
@@ -402,7 +414,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< BindOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< BindOperation successful" );
+        }
     }
 
 
@@ -411,7 +426,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        LOG.debug( ">> CompareOperation : {}", compareContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> CompareOperation : {}", compareContext );
+        }
 
         ensureStarted();
         // Normalize the compareContext Dn
@@ -487,7 +505,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< CompareOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< CompareOperation successful" );
+        }
 
         return result;
     }
@@ -498,8 +519,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        LOG.debug( ">> DeleteOperation : {}", deleteContext );
-        LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> DeleteOperation : {}", deleteContext );
+            LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
+        }
 
         ensureStarted();
 
@@ -575,8 +599,11 @@ public class DefaultOperationManager implements OperationManager
             unlockWrite();
         }
 
-        LOG.debug( "<< DeleteOperation successful" );
-        LOG_CHANGES.debug( "<< DeleteOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< DeleteOperation successful" );
+            LOG_CHANGES.debug( "<< DeleteOperation successful" );
+        }
     }
 
 
@@ -585,7 +612,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
-        LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+        }
 
         ensureStarted();
 
@@ -593,7 +623,10 @@ public class DefaultOperationManager implements OperationManager
 
         Entry root = head.getRootDse( getRootDseContext );
 
-        LOG.debug( "<< getRootDseOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< getRootDseOperation successful" );
+        }
 
         return root;
     }
@@ -604,7 +637,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
-        LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+        }
 
         ensureStarted();
 
@@ -623,7 +659,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< HasEntryOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< HasEntryOperation successful" );
+        }
 
         return result;
     }
@@ -634,7 +673,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        LOG.debug( ">> ListOperation : {}", listContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> ListOperation : {}", listContext );
+        }
 
         ensureStarted();
 
@@ -653,7 +695,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< ListOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< ListOperation successful" );
+        }
 
         return cursor;
     }
@@ -664,7 +709,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        LOG.debug( ">> LookupOperation : {}", lookupContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> LookupOperation : {}", lookupContext );
+        }
 
         ensureStarted();
 
@@ -683,7 +731,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< LookupOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< LookupOperation successful" );
+        }
 
         return entry;
     }
@@ -694,8 +745,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        LOG.debug( ">> ModifyOperation : {}", modifyContext );
-        LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> ModifyOperation : {}", modifyContext );
+            LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
+        }
 
         ensureStarted();
 
@@ -780,8 +834,11 @@ public class DefaultOperationManager implements OperationManager
             unlockWrite();
         }
 
-        LOG.debug( "<< ModifyOperation successful" );
-        LOG_CHANGES.debug( "<< ModifyOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< ModifyOperation successful" );
+            LOG_CHANGES.debug( "<< ModifyOperation successful" );
+        }
     }
 
 
@@ -790,8 +847,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        LOG.debug( ">> MoveOperation : {}", moveContext );
-        LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> MoveOperation : {}", moveContext );
+            LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
+        }
 
         ensureStarted();
 
@@ -888,8 +948,11 @@ public class DefaultOperationManager implements OperationManager
             unlockWrite();
         }
 
-        LOG.debug( "<< MoveOperation successful" );
-        LOG_CHANGES.debug( "<< MoveOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< MoveOperation successful" );
+            LOG_CHANGES.debug( "<< MoveOperation successful" );
+        }
     }
 
 
@@ -898,8 +961,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
-        LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+            LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        }
 
         ensureStarted();
 
@@ -997,8 +1063,11 @@ public class DefaultOperationManager implements OperationManager
             unlockWrite();
         }
 
-        LOG.debug( "<< MoveAndRenameOperation successful" );
-        LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< MoveAndRenameOperation successful" );
+            LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
+        }
     }
 
 
@@ -1007,8 +1076,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        LOG.debug( ">> RenameOperation : {}", renameContext );
-        LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> RenameOperation : {}", renameContext );
+            LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
+        }
 
         ensureStarted();
 
@@ -1099,8 +1171,11 @@ public class DefaultOperationManager implements OperationManager
             unlockWrite();
         }
 
-        LOG.debug( "<< RenameOperation successful" );
-        LOG_CHANGES.debug( "<< RenameOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< RenameOperation successful" );
+            LOG_CHANGES.debug( "<< RenameOperation successful" );
+        }
     }
 
 
@@ -1109,13 +1184,20 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        LOG.debug( ">> SearchOperation : {}", searchContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> SearchOperation : {}", searchContext );
+        }
 
         ensureStarted();
 
         // Normalize the searchContext Dn
         Dn dn = searchContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn.apply( directoryService.getSchemaManager() );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -1187,7 +1269,10 @@ public class DefaultOperationManager implements OperationManager
             unlockRead();
         }
 
-        LOG.debug( "<< SearchOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< SearchOperation successful" );
+        }
 
         return cursor;
     }
@@ -1198,7 +1283,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        LOG.debug( ">> UnbindOperation : {}", unbindContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> UnbindOperation : {}", unbindContext );
+        }
 
         ensureStarted();
 
@@ -1213,7 +1301,10 @@ public class DefaultOperationManager implements OperationManager
         {
         }
 
-        LOG.debug( "<< UnbindOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< UnbindOperation successful" );
+        }
     }
 
 
