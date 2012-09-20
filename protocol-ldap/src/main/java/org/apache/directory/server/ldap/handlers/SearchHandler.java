@@ -1218,6 +1218,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
 
             handleIgnoringReferrals( session, req );
+
             return;
         }
         else
@@ -1248,6 +1249,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             {
                 /* serious and needs handling */
                 handleException( session, req, e );
+
                 return;
             }
 
@@ -1294,6 +1296,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 catch ( Exception e )
                 {
                     handleException( session, req, e );
+
                     return;
                 }
 
@@ -1302,6 +1305,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                     result.setDiagnosticMessage( "Entry not found." );
                     result.setResultCode( ResultCodeEnum.NO_SUCH_OBJECT );
                     session.getIoSession().write( req.getResultResponse() );
+
                     return;
                 }
 

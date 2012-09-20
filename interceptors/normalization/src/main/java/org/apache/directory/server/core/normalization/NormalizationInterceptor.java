@@ -141,10 +141,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        if ( !compareContext.getDn().isSchemaAware() )
-        {
-            compareContext.getDn().apply( schemaManager );
-        }
+        compareContext.getDn().apply( schemaManager );
 
         // Get the attributeType from the OID
         try
@@ -176,10 +173,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         Dn dn = deleteContext.getDn();
 
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( schemaManager );
-        }
+        dn.apply( schemaManager );
 
         next( deleteContext );
     }
@@ -231,10 +225,7 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        if ( !modifyContext.getDn().isSchemaAware() )
-        {
-            modifyContext.getDn().apply( schemaManager );
-        }
+        modifyContext.getDn().apply( schemaManager );
 
         if ( modifyContext.getModItems() != null )
         {
@@ -254,25 +245,10 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        if ( !moveContext.getDn().isSchemaAware() )
-        {
-            moveContext.getDn().apply( schemaManager );
-        }
-
-        if ( !moveContext.getOldSuperior().isSchemaAware() )
-        {
-            moveContext.getOldSuperior().apply( schemaManager );
-        }
-
-        if ( !moveContext.getNewSuperior().isSchemaAware() )
-        {
-            moveContext.getNewSuperior().apply( schemaManager );
-        }
-
-        if ( !moveContext.getNewDn().isSchemaAware() )
-        {
-            moveContext.getNewDn().apply( schemaManager );
-        }
+        moveContext.getDn().apply( schemaManager );
+        moveContext.getOldSuperior().apply( schemaManager );
+        moveContext.getNewSuperior().apply( schemaManager );
+        moveContext.getNewDn().apply( schemaManager );
 
         if ( !moveContext.getRdn().isSchemaAware() )
         {
@@ -293,20 +269,9 @@ public class NormalizationInterceptor extends BaseInterceptor
             moveAndRenameContext.getNewRdn().apply( schemaManager );
         }
 
-        if ( !moveAndRenameContext.getDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getDn().apply( schemaManager );
-        }
-
-        if ( !moveAndRenameContext.getNewDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getNewDn().apply( schemaManager );
-        }
-
-        if ( !moveAndRenameContext.getNewSuperiorDn().isSchemaAware() )
-        {
-            moveAndRenameContext.getNewSuperiorDn().apply( schemaManager );
-        }
+        moveAndRenameContext.getDn().apply( schemaManager );
+        moveAndRenameContext.getNewDn().apply( schemaManager );
+        moveAndRenameContext.getNewSuperiorDn().apply( schemaManager );
 
         next( moveAndRenameContext );
     }
@@ -318,18 +283,9 @@ public class NormalizationInterceptor extends BaseInterceptor
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         // Normalize the new Rdn and the Dn if needed
-
-        if ( !renameContext.getDn().isSchemaAware() )
-        {
-            renameContext.getDn().apply( schemaManager );
-        }
-
+        renameContext.getDn().apply( schemaManager );
         renameContext.getNewRdn().apply( schemaManager );
-
-        if ( !renameContext.getNewDn().isSchemaAware() )
-        {
-            renameContext.getNewDn().apply( schemaManager );
-        }
+        renameContext.getNewDn().apply( schemaManager );
 
         // Push to the next interceptor
         next( renameContext );
@@ -343,10 +299,7 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         Dn dn = searchContext.getDn();
 
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( schemaManager );
-        }
+        dn.apply( schemaManager );
 
         ExprNode filter = searchContext.getFilter();
 

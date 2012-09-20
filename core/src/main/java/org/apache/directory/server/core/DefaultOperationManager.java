@@ -1194,10 +1194,7 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the searchContext Dn
         Dn dn = searchContext.getDn();
 
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( directoryService.getSchemaManager() );
-        }
+        dn.apply( directoryService.getSchemaManager() );
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();

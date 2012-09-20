@@ -116,10 +116,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 throw new LdapInvalidDnException( msg );
             }
 
-            if ( !suffixDn.isSchemaAware() )
-            {
-                suffixDn.apply( schemaManager );
-            }
+            suffixDn.apply( schemaManager );
 
             super.doInit();
 

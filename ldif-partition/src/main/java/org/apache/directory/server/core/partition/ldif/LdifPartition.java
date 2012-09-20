@@ -148,10 +148,7 @@ public class LdifPartition extends AbstractLdifPartition
                 throw new LdapInvalidDnException( msg );
             }
 
-            if ( !suffixDn.isSchemaAware() )
-            {
-                suffixDn.apply( schemaManager );
-            }
+            suffixDn.apply( schemaManager );
 
             String suffixDirName = getFileName( suffixDn );
             suffixDirectory = new File( partitionDir, suffixDirName );

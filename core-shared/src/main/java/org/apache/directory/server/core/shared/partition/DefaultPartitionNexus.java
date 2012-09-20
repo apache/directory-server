@@ -727,12 +727,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         // Not sure we need this code...
-        if ( !base.isSchemaAware() )
-        {
-            System.out.println( "~~~~~~~~~~~~~~~~~~~~~~~~~~~> " );
-            new Exception().printStackTrace();
-            base.apply( schemaManager );
-        }
+        base.apply( schemaManager );
 
         // Normal case : do a search on the specific partition
         Partition backend = getPartition( base );

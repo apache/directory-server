@@ -809,10 +809,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
-        if ( !principalDn.isSchemaAware() )
-        {
-            principalDn.apply( schemaManager );
-        }
+        principalDn.apply( schemaManager );
 
         // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
         if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )

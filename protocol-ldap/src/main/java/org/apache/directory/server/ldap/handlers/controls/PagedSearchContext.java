@@ -237,10 +237,7 @@ public class PagedSearchContext
         {
             request.getBase().apply( schemaManager );
 
-            if ( !previousSearchRequest.getBase().isSchemaAware() )
-            {
-                previousSearchRequest.getBase().apply( schemaManager );
-            }
+            previousSearchRequest.getBase().apply( schemaManager );
 
             if ( !request.getBase().equals( previousSearchRequest.getBase() ) )
             {
