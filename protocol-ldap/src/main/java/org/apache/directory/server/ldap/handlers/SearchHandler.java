@@ -178,7 +178,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
      */
     public final void handle( LdapSession session, SearchRequest req ) throws Exception
     {
-        LOG.debug( "Handling single reply request: {}", req );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Handling single reply request: {}", req );
+        }
 
         // check first for the syncrepl search request decorator
         if ( req.getControls().containsKey( SyncRequestValue.OID ) )
@@ -377,20 +380,34 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             if ( session.getIoSession().isClosing() )
             {
                 // The client has closed the connection
-                LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "Request terminated for message {}, the client has closed the session",
+                        req.getMessageId() );
+                }
+
                 break;
             }
 
             if ( req.isAbandoned() )
             {
                 // The cursor has been closed by an abandon request.
-                LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
+                }
+
                 break;
             }
 
             Entry entry = cursor.get();
             session.getIoSession().write( generateResponse( session, req, entry ) );
-            LOG.debug( "Sending {}", entry.getDn() );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Sending {}", entry.getDn() );
+            }
+
             count++;
         }
 
@@ -415,7 +432,12 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
-        LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "using <{},{}> for size limit", sizeLimit, pagedLimit );
+        }
+
         int cookieValue = 0;
 
         int count = pagedContext.getCurrentPosition();
@@ -797,7 +819,12 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
-            LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+            }
+
             long sizeLimit = min( requestLimit, serverLimit );
 
             readResults( session, req, ldapResult, cursor, sizeLimit );
@@ -1185,7 +1212,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         {
             // This is not a referral and it does not have a parent which
             // is a referral : standard case, just deal with the request
-            LOG.debug( "Entry {} is NOT a referral.", reqTargetDn );
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Entry {} is NOT a referral.", reqTargetDn );
+            }
+
             handleIgnoringReferrals( session, req );
             return;
         }
@@ -1202,7 +1233,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             try
             {
                 entry = session.getCoreSession().lookup( reqTargetDn );
-                LOG.debug( "Entry for {} was found: ", reqTargetDn, entry );
+
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "Entry for {} was found: ", reqTargetDn, entry );
+                }
             }
             catch ( LdapException e )
             {
@@ -1224,7 +1259,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             {
                 try
                 {
-                    LOG.debug( "Entry is a referral: {}", entry );
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( "Entry is a referral: {}", entry );
+                    }
 
                     handleReferralEntryForSearch( session, req, entry );
 
@@ -1389,7 +1427,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req,
         Entry referralAncestor ) throws Exception
     {
-        LOG.debug( "Inside getReferralOnAncestor()" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Inside getReferralOnAncestor()" );
+        }
 
         Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
@@ -1398,7 +1439,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         {
             String ref = value.getString();
 
-            LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+            }
 
             // need to add non-ldap URLs as-is
             if ( !ref.startsWith( "ldap" ) )
@@ -1462,7 +1506,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
     public Referral getReferralOnAncestor( LdapSession session, Dn reqTargetDn, SearchRequest req,
         Entry referralAncestor ) throws Exception
     {
-        LOG.debug( "Inside getReferralOnAncestor()" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "Inside getReferralOnAncestor()" );
+        }
 
         Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
@@ -1471,7 +1518,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         {
             String ref = value.getString();
 
-            LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Calculating LdapURL for referrence value {}", ref );
+            }
 
             // need to add non-ldap URLs as-is
             if ( !ref.startsWith( "ldap" ) )
@@ -1568,7 +1618,11 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
          * embed the result code name into the message.
          */
         String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
-        LOG.debug( msg, e );
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( msg, e );
+        }
 
         if ( IS_DEBUG )
         {
@@ -1618,7 +1672,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
 
         while ( !dn.isEmpty() )
         {
-            LOG.debug( "Walking ancestors of {} to find referrals.", dn );
+            if ( IS_DEBUG )
+            {
+                LOG.debug( "Walking ancestors of {} to find referrals.", dn );
+            }
 
             try
             {
@@ -1636,7 +1693,10 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
             }
             catch ( LdapException e )
             {
-                LOG.debug( "Entry for {} not found.", dn );
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "Entry for {} not found.", dn );
+                }
 
                 // update the Dn as we strip last component
                 dn = dn.getParent();
