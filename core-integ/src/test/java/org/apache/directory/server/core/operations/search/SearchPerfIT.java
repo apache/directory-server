@@ -71,7 +71,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         assertEquals( 1, i );
 
         int nbIterations = 1500000;
-        
+
         Dn dn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
 
         SearchRequest searchRequest = new SearchRequestImpl();
@@ -85,7 +85,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        
+        int count = 0;
+
         for ( i = 0; i < nbIterations; i++ )
         {
             if ( i % 100000 == 0 )
@@ -106,8 +107,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             while ( cursor.next() )
             {
                 cursor.get();
+                count++;
             }
-            
+
             cursor.close();
         }
 
@@ -115,7 +117,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
-            + " per s ) /" + ( t1 - t0 ) );
+            + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
     }
 
@@ -156,6 +158,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
+        int count = 0;
 
         for ( i = 0; i < nbIterations; i++ )
         {
@@ -177,8 +180,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             while ( cursor.next() )
             {
                 cursor.get();
+                count++;
             }
-            
+
             cursor.close();
         }
 
@@ -186,7 +190,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
-            + " per s ) /" + ( t1 - t0 ) );
+            + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
     }
 
@@ -227,6 +231,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
+        int count = 0;
 
         for ( i = 0; i < nbIterations; i++ )
         {
@@ -248,16 +253,18 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             while ( cursor.next() )
             {
                 cursor.get();
+                count++;
             }
-            
+
             cursor.close();
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 10
-            + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            * 10
+            + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
     }
 }
