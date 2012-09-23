@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import jdbm.helper.Serializer;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * A custom String serializer to [de]serialize Strings.
@@ -67,8 +69,6 @@ public class StringSerializer implements Serializer
         return new String( strchars );
     }
 
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
 
     /* (non-Javadoc)
      * @see jdbm.helper.Serializer#serialize(java.lang.Object)
@@ -77,7 +77,7 @@ public class StringSerializer implements Serializer
     {
         if ( ( ( String ) str ).length() == 0 )
         {
-            return EMPTY_BYTE_ARRAY;
+            return Strings.EMPTY_BYTES;
         }
 
         char[] strchars = ( ( String ) str ).toCharArray();

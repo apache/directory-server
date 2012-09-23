@@ -707,8 +707,8 @@ public class AddIT extends AbstractLdapTestUnit
     {
         LDAPConnection conn = getNsdkWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, Strings.EMPTY_BYTES ) );
+        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, Strings.EMPTY_BYTES ) );
         conn.setConstraints( constraints );
 
         // add success

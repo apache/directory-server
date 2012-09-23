@@ -42,6 +42,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.util.Strings;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -392,9 +393,9 @@ public class KerberosTestUtils
                 context.requestConf( true );
                 context.requestInteg( true );
 
-                context.initSecContext( new byte[0], 0, 0 );
+                context.initSecContext( Strings.EMPTY_BYTES, 0, 0 );
 
-                // byte[] outToken = context.initSecContext( new byte[0], 0, 0 );
+                // byte[] outToken = context.initSecContext( Strings.EMPTY_BYTES, 0, 0 );
                 // System.out.println(new BASE64Encoder().encode(outToken));
                 context.dispose();
 

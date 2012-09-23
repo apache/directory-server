@@ -27,6 +27,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.util.StringConstants;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -73,7 +74,7 @@ public abstract class AbstractSaslServer implements SaslServer
      */
     public byte[] wrap( byte[] outgoing, int offset, int len ) throws SaslException
     {
-        return new byte[0];
+        return Strings.EMPTY_BYTES;
     }
 
 

@@ -36,6 +36,7 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.recman.BaseRecordManager;
 
+import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,6 @@ import org.slf4j.LoggerFactory;
 public class KeyCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
-    private static final byte[] EMPTY_BYTES = new byte[0];
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     File dbFile;
@@ -78,16 +78,16 @@ public class KeyCursorTest
         bt = new BTree<String, byte[]>( recman, comparator );
 
         // add some data to it
-        bt.insert( "0", EMPTY_BYTES, true );
-        bt.insert( "1", EMPTY_BYTES, true );
-        bt.insert( "2", EMPTY_BYTES, true );
-        bt.insert( "3", EMPTY_BYTES, true );
-        bt.insert( "4", EMPTY_BYTES, true );
-        bt.insert( "5", EMPTY_BYTES, true );
-        bt.insert( "6", EMPTY_BYTES, true );
-        bt.insert( "7", EMPTY_BYTES, true );
-        bt.insert( "8", EMPTY_BYTES, true );
-        bt.insert( "9", EMPTY_BYTES, true );
+        bt.insert( "0", Strings.EMPTY_BYTES, true );
+        bt.insert( "1", Strings.EMPTY_BYTES, true );
+        bt.insert( "2", Strings.EMPTY_BYTES, true );
+        bt.insert( "3", Strings.EMPTY_BYTES, true );
+        bt.insert( "4", Strings.EMPTY_BYTES, true );
+        bt.insert( "5", Strings.EMPTY_BYTES, true );
+        bt.insert( "6", Strings.EMPTY_BYTES, true );
+        bt.insert( "7", Strings.EMPTY_BYTES, true );
+        bt.insert( "8", Strings.EMPTY_BYTES, true );
+        bt.insert( "9", Strings.EMPTY_BYTES, true );
 
         cursor = new KeyBTreeCursor<String>( bt, comparator );
         LOG.debug( "Created new KeyBTreeCursor and populated it's btree" );
@@ -106,7 +106,7 @@ public class KeyCursorTest
         new File( fileToDelete + ".lg" ).delete();
 
         dbFile = null;
-        
+
         cursor.close();
     }
 
