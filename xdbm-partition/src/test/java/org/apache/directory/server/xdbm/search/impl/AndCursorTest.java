@@ -26,32 +26,24 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -67,15 +59,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AndCursorTest
+public class AndCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
-    EvaluatorBuilder evaluatorBuilder;
-    CursorBuilder cursorBuilder;
-    private static SchemaManager schemaManager;
 
 
     @BeforeClass
@@ -175,24 +163,27 @@ public class AndCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        Entry entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -205,47 +196,31 @@ public class AndCursorTest
     @Test
     public void testAndCursorWithManualFilter() throws Exception
     {
-        AndNode andNode = new AndNode();
+        ExprNode exprNode = FilterParser.parse( schemaManager, "(&(cn=J*)(sn=*))" );
 
-        List<Evaluator<? extends ExprNode, Entry, Long>> evaluators = new ArrayList<Evaluator<? extends ExprNode, Entry, Long>>();
-        Evaluator<? extends ExprNode, Entry, Long> eval;
-
-        ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        IndexCursor<?, Entry, Long> wrapped = new SubstringCursor( store, ( SubstringEvaluator ) eval );
-
-        /* adding this results in NPE  adding Presence evaluator not 
-         Substring evaluator but adding Substring cursor as wrapped cursor */
-        // evaluators.add( eval ); 
-
-        andNode.addNode( exprNode );
-
-        exprNode = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-        eval = new PresenceEvaluator( ( PresenceNode ) exprNode, store, schemaManager );
-        evaluators.add( eval );
-
-        andNode.addNode( exprNode );
-
-        IndexCursor<?, Entry, Long> cursor = new AndCursor( wrapped, evaluators ); //cursorBuilder.build( andNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        Entry entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -254,20 +229,23 @@ public class AndCursorTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 6, ( long ) cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8, ( long ) cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -281,26 +259,7 @@ public class AndCursorTest
         {
         }
 
-        try
-        {
-            cursor.after( new ForwardIndexEntry() );
-            fail( "should fail with UnsupportedOperationException " );
-        }
-        catch ( UnsupportedOperationException uoe )
-        {
-        }
-
-        try
-        {
-            cursor.before( new ForwardIndexEntry() );
-            fail( "should fail with UnsupportedOperationException " );
-        }
-        catch ( UnsupportedOperationException uoe )
-        {
-        }
-
         cursor.close();
-        wrapped.close();
+        assertTrue( cursor.isClosed() );
     }
-
 }

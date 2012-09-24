@@ -29,8 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import jdbm.RecordManager;
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
-import jdbm.recman.SnapshotRecordManager;
+import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmPartition extends AbstractBTreePartition<Long>
+public class JdbmPartition extends AbstractBTreePartition
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmPartition.class );
@@ -112,13 +113,13 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry, Long>( this );
+                optimizer = new DefaultOptimizer<Entry>( this );
             }
 
-            EvaluatorBuilder<Long> evaluatorBuilder = new EvaluatorBuilder<Long>( this, schemaManager );
-            CursorBuilder<Long> cursorBuilder = new CursorBuilder<Long>( this, evaluatorBuilder );
+            EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
+            CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
 
-            searchEngine = new DefaultSearchEngine<Long>( this, cursorBuilder, evaluatorBuilder, optimizer );
+            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
@@ -132,8 +133,9 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
 
             // First, check if the file storing the data exists
             String path = partitionDir.getPath() + File.separator + "master";
-            BaseRecordManager baseRecordManager = new BaseRecordManager( path );
-            baseRecordManager.disableTransactions();
+
+            BaseRecordManager base = new BaseRecordManager( path );
+            base.disableTransactions();
 
             if ( cacheSize < 0 )
             {
@@ -145,11 +147,10 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
 
-            // Now, create the entry cache for this partition
-            recMan = new SnapshotRecordManager( baseRecordManager, cacheSize );
+            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
             // Create the master table (the table containing all the entries)
-            master = new JdbmMasterTable<Entry>( recMan, schemaManager );
+            master = new JdbmMasterTable( recMan, schemaManager );
 
             // get all index db files first
             File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
@@ -160,22 +161,22 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             // then add all index objects to a list
             List<String> allIndices = new ArrayList<String>();
 
-            for ( Index<?, Entry, Long> index : systemIndices.values() )
+            for ( Index<?, Entry, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
-            
-            List<Index<?, Entry, Long>> indexToBuild = new ArrayList<Index<?, Entry, Long>>();
+
+            List<Index<?, Entry, String>> indexToBuild = new ArrayList<Index<?, Entry, String>>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
             // two for finding a new index to be built
             // just to avoid another iteration for determining which is the new index
-            for ( Index<?, Entry, Long> index : userIndices.values() )
+            for ( Index<?, Entry, String> index : userIndices.values() )
             {
                 String indexOid = index.getAttribute().getOid();
                 allIndices.add( indexOid );
-                
+
                 // take the part after removing .db from the
                 String name = indexOid + JDBM_DB_FILE_EXTN;
 
@@ -185,11 +186,6 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
                 {
                     indexToBuild.add( index );
                 }
-            }
-            
-            if ( indexToBuild.size() > 0 )
-            {
-                buildUserIndex( indexToBuild );
             }
 
             if ( indexToBuild.size() > 0 )
@@ -208,18 +204,18 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}}
      */
-    public Long getDefaultId()
+    public String getDefaultId()
     {
-        return 1L;
+        return Partition.DEFAULT_ID;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public Long getRootId()
+    public String getRootId()
     {
-        return 0L;
+        return Partition.ROOT_ID;
     }
 
 
@@ -237,18 +233,18 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
         }
 
         // Sync all system indices
-        for ( Index<?, Entry, Long> idx : systemIndices.values() )
+        for ( Index<?, Entry, String> idx : systemIndices.values() )
         {
             idx.sync();
         }
 
         // Sync all user defined userIndices
-        for ( Index<?, Entry, Long> idx : userIndices.values() )
+        for ( Index<?, Entry, String> idx : userIndices.values() )
         {
             idx.sync();
         }
 
-        ( ( JdbmMasterTable<Entry> ) master ).sync();
+        ( ( JdbmMasterTable ) master ).sync();
         recMan.commit();
     }
 
@@ -259,9 +255,9 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, Entry, Long>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, Entry, String>> userIndexes ) throws Exception
     {
-        Cursor<Tuple<Long, Entry>> cursor = master.cursor();
+        Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
 
         while ( cursor.next() )
@@ -269,25 +265,25 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
             for ( Index index : userIndexes )
             {
                 AttributeType atType = index.getAttribute();
-  
-                String attributeOid = index.getAttribute().getOid();
-  
-                LOG.info( "building the index for attribute type {}", atType );
-          
-                Tuple<Long, Entry> tuple = cursor.get();
 
-                Long id = tuple.getKey();
+                String attributeOid = index.getAttribute().getOid();
+
+                LOG.info( "building the index for attribute type {}", atType );
+
+                Tuple<String, Entry> tuple = cursor.get();
+
+                String id = tuple.getKey();
                 Entry entry = tuple.getValue();
-    
+
                 Attribute entryAttr = entry.get( atType );
-    
+
                 if ( entryAttr != null )
                 {
                     for ( Value<?> value : entryAttr )
                     {
                         index.add( value.getValue(), id );
                     }
-    
+
                     // Adds only those attributes that are indexed
                     presenceIdx.add( attributeOid, id );
                 }
@@ -349,17 +345,13 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    protected Index<?, Entry, Long> convertAndInit( Index<?, Entry, Long> index ) throws Exception
+    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
     {
         JdbmIndex<?, Entry> jdbmIndex;
 
-        if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( index instanceof JdbmRdnIndex )
         {
-            jdbmIndex = new JdbmRdnIndex();
-            jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-            jdbmIndex.setCacheSize( index.getCacheSize() );
-            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
-            jdbmIndex.setWkDirPath( index.getWkDirPath() );
+            jdbmIndex = ( JdbmRdnIndex ) index;
         }
         else if ( index instanceof JdbmIndex<?, ?> )
         {
@@ -429,10 +421,10 @@ public class JdbmPartition extends AbstractBTreePartition<Long>
     /**
      * {@inheritDoc}
      */
-    protected final Index createSystemIndex( String oid, URI path, boolean withReverse )  throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
-         "Will create new JdbmIndex using copied configuration parameters." );
+            "Will create new JdbmIndex using copied configuration parameters." );
         JdbmIndex<?, Entry> jdbmIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )

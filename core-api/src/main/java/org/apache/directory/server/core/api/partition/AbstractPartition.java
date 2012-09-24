@@ -188,10 +188,7 @@ public abstract class AbstractPartition implements Partition
 
         this.suffixDn = suffixDn;
 
-        if ( schemaManager != null )
-        {
-            this.suffixDn.apply( schemaManager );
-        }
+        this.suffixDn.apply( schemaManager );
     }
 
 

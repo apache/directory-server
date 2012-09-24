@@ -35,11 +35,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
@@ -117,10 +116,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 throw new LdapInvalidDnException( msg );
             }
 
-            if ( !suffixDn.isSchemaAware() )
-            {
-                suffixDn.apply( schemaManager );
-            }
+            suffixDn.apply( schemaManager );
 
             super.doInit();
 
@@ -262,7 +258,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( Long id ) throws LdapException
+    public void delete( String id ) throws LdapException
     {
         synchronized ( lock )
         {
@@ -292,22 +288,22 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                Long suffixId = getEntryId( suffixDn );
+                String suffixId = getEntryId( suffixDn );
 
                 if ( suffixId == null )
                 {
                     return;
                 }
 
-                ParentIdAndRdn<Long> suffixEntry = rdnIdx.reverseLookup( suffixId );
-                
+                ParentIdAndRdn suffixEntry = rdnIdx.reverseLookup( suffixId );
+
                 if ( suffixEntry != null )
                 {
                     Entry entry = master.get( suffixId );
                     entry.setDn( suffixDn );
 
                     appendLdif( entry );
-                    
+
                     appendRecursive( suffixId, suffixEntry.getNbChildren() );
                 }
 
@@ -324,36 +320,36 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
     }
 
-    
-    private void appendRecursive( Long id, int nbSibbling ) throws Exception
+
+    private void appendRecursive( String id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        IndexCursor<ParentIdAndRdn<Long>,Entry,Long> cursor = rdnIdx.forwardCursor();
-        
-        IndexEntry<ParentIdAndRdn<Long>, Long> startingPos = new ForwardIndexEntry<ParentIdAndRdn<Long>, Long>();
-        startingPos.setKey( new ParentIdAndRdn<Long>( id, (Rdn[]) null ) );
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
+
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
+        startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
-        
+
         while ( cursor.next() && ( countChildren < nbSibbling ) )
         {
-            IndexEntry<ParentIdAndRdn<Long>, Long> element = cursor.get();
-            Long childId = element.getId();
+            IndexEntry<ParentIdAndRdn, String> element = cursor.get();
+            String childId = element.getId();
             Entry entry = lookup( childId );
 
             appendLdif( entry );
 
             countChildren++;
-            
+
             // And now, the children
             int nbChildren = element.getKey().getNbChildren();
-            
+
             if ( nbChildren > 0 )
             {
                 appendRecursive( childId, nbChildren );
             }
         }
-        
+
         cursor.close();
     }
 

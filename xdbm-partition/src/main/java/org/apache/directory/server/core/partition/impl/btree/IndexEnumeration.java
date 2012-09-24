@@ -20,16 +20,15 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.shared.util.exception.NotImplementedException;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexEntry;
-
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.util.exception.NotImplementedException;
 
 
 /**
@@ -42,11 +41,11 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
     /** */
     private final Pattern re;
     /** */
-    private final ForwardIndexEntry tmp = new ForwardIndexEntry();
+    private final IndexEntry tmp = new IndexEntry();
     /** */
-    private final ForwardIndexEntry returned = new ForwardIndexEntry();
+    private final IndexEntry returned = new IndexEntry();
     /** */
-    private final ForwardIndexEntry prefetched = new ForwardIndexEntry();
+    private final IndexEntry prefetched = new IndexEntry();
     /** */
     private final boolean swapKeyVal;
     /** */
@@ -164,7 +163,7 @@ public class IndexEnumeration<T> implements NamingEnumeration<IndexEntry>
             }
             else
             {
-                tmp.setTuple( tuple, null );
+                tmp.setTuple( tuple );
             }
 
             // If regex is null just transfer into prefetched from tmp record

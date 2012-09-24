@@ -30,21 +30,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
+public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+
 
     public EmptyIndexCursor()
     {
         LOG_CURSOR.debug( "Creating EmptyIndexCursor {}", this );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, ID> element ) throws Exception
+    public void before( IndexEntry<K, String> element ) throws Exception
     {
         checkNotClosed( "before()" );
     }
@@ -62,7 +63,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, ID> element ) throws Exception
+    public void after( IndexEntry<K, String> element ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -108,7 +109,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     }
 
 
-    public IndexEntry<K, ID> get() throws Exception
+    public IndexEntry<K, String> get() throws Exception
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -118,7 +119,7 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( ID id, K indexValue ) throws Exception
+    public void afterValue( String id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
@@ -127,16 +128,16 @@ public class EmptyIndexCursor<K, E, ID> extends AbstractIndexCursor<K, E, ID>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( ID id, K indexValue ) throws Exception
+    public void beforeValue( String id, K indexValue ) throws Exception
     {
         checkNotClosed( "after()" );
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
-    public void close( ) throws Exception
+    public void close() throws Exception
     {
         LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
         super.close();

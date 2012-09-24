@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import jdbm.helper.Serializer;
 
+import org.apache.directory.shared.util.Strings;
+
 
 /**
  * A custom String serializer to [de]serialize Strings.
@@ -34,28 +36,38 @@ public class StringSerializer implements Serializer
 {
     private static final long serialVersionUID = -173163945773783649L;
 
+    /** A static instance of a StringSerializer */
+    public static StringSerializer INSTANCE = new StringSerializer();
+
+
+    /**
+     * Default private constructor
+     */
+    private StringSerializer()
+    {
+    }
+
 
     /* (non-Javadoc)
      * @see jdbm.helper.Serializer#deserialize(byte[])
      */
-    public Object deserialize( byte[] bites ) throws IOException
+    public Object deserialize( byte[] bytes ) throws IOException
     {
-        if ( bites.length == 0 )
+        if ( bytes.length == 0 )
         {
             return "";
         }
 
-        char[] strchars = new char[bites.length >> 1];
-        for ( int ii = 0, jj = 0; ii < strchars.length; ii++, jj = ii << 1 )
+        char[] strchars = new char[bytes.length >> 1];
+        int pos = 0;
+
+        for ( int i = 0; i < bytes.length; i += 2 )
         {
-            int ch = bites[jj] << 8 & 0x0000FF00;
-            ch |= bites[jj + 1] & 0x000000FF;
-            strchars[ii] = ( char ) ch;
+            strchars[pos++] = ( char ) ( ( ( bytes[i] << 8 ) & 0x0000FF00 ) | ( bytes[i + 1] & 0x000000FF ) );
         }
+
         return new String( strchars );
     }
-
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
 
     /* (non-Javadoc)
@@ -65,15 +77,17 @@ public class StringSerializer implements Serializer
     {
         if ( ( ( String ) str ).length() == 0 )
         {
-            return EMPTY_BYTE_ARRAY;
+            return Strings.EMPTY_BYTES;
         }
 
         char[] strchars = ( ( String ) str ).toCharArray();
         byte[] bites = new byte[strchars.length << 1];
-        for ( int ii = 0, jj = 0; ii < strchars.length; ii++, jj = ii << 1 )
+        int pos = 0;
+
+        for ( char c : strchars )
         {
-            bites[jj] = ( byte ) ( strchars[ii] >> 8 & 0x00FF );
-            bites[jj + 1] = ( byte ) ( strchars[ii] & 0x00FF );
+            bites[pos++] = ( byte ) ( c >> 8 & 0x00FF );
+            bites[pos++] = ( byte ) ( c & 0x00FF );
         }
 
         return bites;

@@ -37,10 +37,10 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable, Comparable<ParentIdAndRdn<ID>>
+public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn>
 {
     /** The entry ID */
-    protected ID parentId;
+    protected String parentId;
 
     /** The list of Rdn for this instance */
     protected Rdn[] rdns;
@@ -50,6 +50,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
     /** Number of global descendant */
     protected int nbDescendants;
+
 
     /**
      * Serializable constructor.
@@ -65,7 +66,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, Rdn... rdns )
+    public ParentIdAndRdn( String parentId, Rdn... rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns;
@@ -78,7 +79,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * @param parentId the parent ID
      * @param rdns the RDNs
      */
-    public ParentIdAndRdn( ID parentId, List<Rdn> rdns )
+    public ParentIdAndRdn( String parentId, List<Rdn> rdns )
     {
         this.parentId = parentId;
         this.rdns = rdns.toArray( new Rdn[rdns.size()] );
@@ -92,7 +93,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @return the parent ID
      */
-    public ID getParentId()
+    public String getParentId()
     {
         return parentId;
     }
@@ -103,7 +104,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
      * 
      * @param parentId the new parent ID
      */
-    public void setParentId( ID parentId )
+    public void setParentId( String parentId )
     {
         this.parentId = parentId;
     }
@@ -152,12 +153,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             return true;
         }
 
-        if ( !( obj instanceof ParentIdAndRdn<?> ) )
+        if ( !( obj instanceof ParentIdAndRdn ) )
         {
             return false;
         }
 
-        ParentIdAndRdn<ID> that = ( ParentIdAndRdn<ID> ) obj;
+        ParentIdAndRdn that = ( ParentIdAndRdn ) obj;
 
         if ( rdns == null )
         {
@@ -183,18 +184,18 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
         return true;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
-    public int compareTo( ParentIdAndRdn<ID> that )
+    public int compareTo( ParentIdAndRdn that )
     {
         // Special case when that.rdns = null : we are searching for oneLevel or subLevel scope
         if ( that.rdns == null )
         {
             int val = parentId.compareTo( that.parentId );
-            
+
             if ( val != 0 )
             {
                 return val;
@@ -209,7 +210,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         if ( rdns == null )
         {
             int res = parentId.compareTo( that.parentId );
-            
+
             if ( res == 0 )
             {
                 return -1;
@@ -219,14 +220,14 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
                 return res;
             }
         }
-        
+
         int val = parentId.compareTo( that.getParentId() );
 
         if ( val != 0 )
         {
             return val;
         }
-        
+
         // The ID is the same, check the RDNs now
 
         val = rdns.length - that.rdns.length;
@@ -235,12 +236,12 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         {
             return val;
         }
-        
+
         if ( rdns.length == 1 )
         {
             // Special case : we only have one rdn.
             val = rdns[0].getNormName().compareTo( that.rdns[0].getNormName() );
-            
+
             return val;
         }
         else
@@ -248,13 +249,13 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
             for ( int i = 0; i < rdns.length; i++ )
             {
                 val = rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
-            
+
                 if ( val != 0 )
                 {
                     return val;
                 }
             }
-            
+
             return 0;
         }
     }
@@ -262,7 +263,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
 
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        out.writeObject( parentId );
+        out.writeUTF( parentId );
         out.writeInt( nbChildren );
         out.writeInt( nbDescendants );
         out.writeInt( rdns.length );
@@ -277,7 +278,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     @SuppressWarnings("unchecked")
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        parentId = ( ID ) in.readObject();
+        parentId = in.readUTF();
         nbChildren = in.readInt();
         nbDescendants = in.readInt();
         int size = in.readInt();
@@ -330,8 +331,6 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
     }
 
 
-
-
     /**
      * {@inheritDoc}
      */
@@ -349,7 +348,7 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
         else
         {
             boolean isFirst = true;
-    
+
             for ( Rdn rdn : rdns )
             {
                 if ( isFirst )
@@ -360,15 +359,14 @@ public class ParentIdAndRdn<ID extends Comparable<ID>> implements Externalizable
                 {
                     sb.append( "," );
                 }
-    
+
                 sb.append( rdn );
             }
 
             sb.append( "'>" );
-            
+
             sb.append( "[nbC:" ).append( nbChildren ).append( ", nbD:" ).append( nbDescendants ).append( "]" );
         }
-
 
         return sb.toString();
     }

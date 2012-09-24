@@ -115,6 +115,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             data = byteStream.toByteArray();
 
             // Try to deserialize, just to see
+            /*
             try
             {
                 deserialize( data );
@@ -124,6 +125,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
                 System.out.println( I18n.err( I18n.ERR_438, Strings.dumpBytes( data ) ) );
                 throw npe;
             }
+            */
 
             out.close();
         }

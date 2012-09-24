@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.naming.NoPermissionException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -46,6 +45,8 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
+import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -98,6 +99,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
     }
 
+
     /**
      * Creates a new instance of DefaultAuthorizationInterceptor.
      */
@@ -130,7 +132,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
+        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
             directoryService );
 
         Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, ADMIN_GROUP_DN ) );
@@ -191,7 +194,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && !isAnAdministrator(principalDn) )
+        if ( dn.size() > 2 && !isAnAdministrator( principalDn ) )
         {
             if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) )
             {
@@ -456,14 +459,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
-    
+
             if ( dn.isDescendantOf( GROUPS_BASE_DN ) )
             {
                 String msg = I18n.err( I18n.ERR_24, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
-            
+
             if ( dn.isDescendantOf( USERS_BASE_DN ) )
             {
                 String msg = I18n.err( I18n.ERR_24, principalDn.getName(), dn.getName() );
@@ -493,7 +496,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                     throw new LdapNoPermissionException( msg );
                 }
 
-                if ( normalizedDn.isDescendantOf( GROUPS_BASE_DN ) || normalizedDn.isDescendantOf( USERS_BASE_DN ))
+                if ( normalizedDn.isDescendantOf( GROUPS_BASE_DN ) || normalizedDn.isDescendantOf( USERS_BASE_DN ) )
                 {
                     // allow for self reads
                     if ( normalizedDn.equals( principalDn ) )
@@ -530,10 +533,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = entry.getDn();
 
-        if ( !dn.isSchemaAware() )
-        {
-            dn.apply( opContext.getSession().getDirectoryService().getSchemaManager() );
-        }
+        dn.apply( opContext.getSession().getDirectoryService().getSchemaManager() );
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )
@@ -555,7 +555,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             // stuff this if in here instead of up in outer if to prevent
             // constant needless reexecution for all entries in other depths
 
-            if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) || dn.isDescendantOf( GROUPS_BASE_DN ) || dn.isDescendantOf( USERS_BASE_DN ))
+            if ( dn.isDescendantOf( ADMIN_SYSTEM_DN ) || dn.isDescendantOf( GROUPS_BASE_DN )
+                || dn.isDescendantOf( USERS_BASE_DN ) )
             {
                 return false;
             }

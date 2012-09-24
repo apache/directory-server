@@ -59,11 +59,13 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -111,9 +113,9 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private AbstractBTreePartition<Long> partition;
+    private AbstractBTreePartition partition;
     private boolean doCleanUp;
-    private Map<Long, EntryNode> nodes;
+    private Map<String, EntryNode> nodes;
     private EntryNode root;
 
     /** A handle on the global schemaManager */
@@ -126,7 +128,7 @@ public class PartitionFrame extends JFrame
      * @param db the partition to view
      * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame( AbstractBTreePartition<Long> db, SchemaManager schemaManager ) throws Exception
+    public PartitionFrame( AbstractBTreePartition db, SchemaManager schemaManager ) throws Exception
     {
         partition = db;
         this.schemaManager = schemaManager;
@@ -649,13 +651,22 @@ public class PartitionFrame extends JFrame
         }
 
         int limitMax = Integer.MAX_VALUE;
+
         if ( !limit.equals( FilterDialog.UNLIMITED ) )
         {
             limitMax = Integer.parseInt( limit );
         }
 
-        IndexCursor<Long, Entry, Long> cursor = partition.getSearchEngine().cursor( new Dn( base ),
-            AliasDerefMode.DEREF_ALWAYS, root, searchScope );
+        SearchOperationContext searchContext = new SearchOperationContext( null );
+        searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+        searchContext.setDn( new Dn( base ) );
+        searchContext.setFilter( root );
+        searchContext.setScope( searchScope );
+
+        PartitionSearchResult searchResult = partition.getSearchEngine().computeResult( schemaManager, searchContext );
+
+        Cursor cursor = searchResult.getResultSet();
+
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
@@ -664,9 +675,9 @@ public class PartitionFrame extends JFrame
         int count = 0;
         while ( cursor.next() && count < limitMax )
         {
-            IndexEntry rec = cursor.get();
+            IndexEntry rec = ( IndexEntry ) cursor.get();
             row[0] = rec.getId();
-            row[1] = partition.getEntryDn( ( Long ) row[0] ).getNormName();
+            row[1] = partition.getEntryDn( ( String ) row[0] ).getNormName();
             tableModel.addRow( row );
             count++;
         }
@@ -860,7 +871,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( Long id, Entry entry ) throws Exception
+    void displayEntry( String id, Entry entry ) throws Exception
     {
         String dn = partition.getEntryDn( id ).getName();
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -877,10 +888,10 @@ public class PartitionFrame extends JFrame
     private void load() throws Exception
     {
         // boolean doFiltered = false;
-        nodes = new HashMap<Long, EntryNode>();
+        nodes = new HashMap<String, EntryNode>();
 
         Entry suffix = partition.lookup( partition.getEntryId( partition.getSuffixDn() ) );
-        Long id = partition.getEntryId( partition.getSuffixDn() );
+        String id = partition.getEntryId( partition.getSuffixDn() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

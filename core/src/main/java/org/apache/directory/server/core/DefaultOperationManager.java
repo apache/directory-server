@@ -22,6 +22,8 @@ package org.apache.directory.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -75,16 +77,58 @@ public class DefaultOperationManager implements OperationManager
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( DefaultOperationManager.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
     /** A logger specifically for change operations */
     private static final Logger LOG_CHANGES = LoggerFactory.getLogger( "LOG_CHANGES" );
 
     /** The directory service instance */
     private final DirectoryService directoryService;
 
+    /** A lock used to protect against concurrent operations */
+    private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
+
 
     public DefaultOperationManager( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
+    }
+
+
+    /**
+     * Acquires a ReadLock
+     */
+    private void lockRead()
+    {
+        rwLock.readLock().lock();
+    }
+
+
+    /**
+     * Acquires a WriteLock
+     */
+    private void lockWrite()
+    {
+        rwLock.writeLock().lock();
+    }
+
+
+    /**
+     * Releases a ReadLock
+     */
+    private void unlockRead()
+    {
+        rwLock.readLock().unlock();
+    }
+
+
+    /**
+     * Releases a WriteLock
+     */
+    private void unlockWrite()
+    {
+        rwLock.writeLock().unlock();
     }
 
 
@@ -278,8 +322,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
-        LOG.debug( ">> AddOperation : {}", addContext );
-        LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> AddOperation : {}", addContext );
+            LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
+        }
 
         ensureStarted();
 
@@ -321,11 +368,23 @@ public class DefaultOperationManager implements OperationManager
             // Call the Add method
             Interceptor head = directoryService.getInterceptor( addContext.getNextInterceptor() );
 
-            head.add( addContext );
+            try
+            {
+                lockWrite();
+
+                head.add( addContext );
+            }
+            finally
+            {
+                unlockWrite();
+            }
         }
 
-        LOG.debug( "<< AddOperation successful" );
-        LOG_CHANGES.debug( "<< AddOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< AddOperation successful" );
+            LOG_CHANGES.debug( "<< AddOperation successful" );
+        }
     }
 
 
@@ -334,16 +393,31 @@ public class DefaultOperationManager implements OperationManager
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
-        LOG.debug( ">> BindOperation : {}", bindContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> BindOperation : {}", bindContext );
+        }
 
         ensureStarted();
 
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
 
-        head.bind( bindContext );
+        try
+        {
+            lockRead();
 
-        LOG.debug( "<< BindOperation successful" );
+            head.bind( bindContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< BindOperation successful" );
+        }
     }
 
 
@@ -352,7 +426,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
-        LOG.debug( ">> CompareOperation : {}", compareContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> CompareOperation : {}", compareContext );
+        }
 
         ensureStarted();
         // Normalize the compareContext Dn
@@ -415,9 +492,23 @@ public class DefaultOperationManager implements OperationManager
         // Call the Compare method
         Interceptor head = directoryService.getInterceptor( compareContext.getNextInterceptor() );
 
-        boolean result = head.compare( compareContext );
+        boolean result = false;
 
-        LOG.debug( "<< CompareOperation successful" );
+        try
+        {
+            lockRead();
+
+            result = head.compare( compareContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< CompareOperation successful" );
+        }
 
         return result;
     }
@@ -428,8 +519,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
-        LOG.debug( ">> DeleteOperation : {}", deleteContext );
-        LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> DeleteOperation : {}", deleteContext );
+            LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
+        }
 
         ensureStarted();
 
@@ -489,15 +583,27 @@ public class DefaultOperationManager implements OperationManager
         directoryService.getReferralManager().unlock();
 
         // populate the context with the old entry
-        eagerlyPopulateFields( deleteContext );
+        try
+        {
+            lockWrite();
 
-        // Call the Delete method
-        Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
+            eagerlyPopulateFields( deleteContext );
 
-        head.delete( deleteContext );
+            // Call the Delete method
+            Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
-        LOG.debug( "<< DeleteOperation successful" );
-        LOG_CHANGES.debug( "<< DeleteOperation successful" );
+            head.delete( deleteContext );
+        }
+        finally
+        {
+            unlockWrite();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< DeleteOperation successful" );
+            LOG_CHANGES.debug( "<< DeleteOperation successful" );
+        }
     }
 
 
@@ -506,7 +612,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
-        LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+        }
 
         ensureStarted();
 
@@ -514,7 +623,10 @@ public class DefaultOperationManager implements OperationManager
 
         Entry root = head.getRootDse( getRootDseContext );
 
-        LOG.debug( "<< getRootDseOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< getRootDseOperation successful" );
+        }
 
         return root;
     }
@@ -525,15 +637,32 @@ public class DefaultOperationManager implements OperationManager
      */
     public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
-        LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+        }
 
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( hasEntryContext.getNextInterceptor() );
 
-        boolean result = head.hasEntry( hasEntryContext );
+        boolean result = false;
 
-        LOG.debug( "<< HasEntryOperation successful" );
+        try
+        {
+            lockRead();
+
+            result = head.hasEntry( hasEntryContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< HasEntryOperation successful" );
+        }
 
         return result;
     }
@@ -544,15 +673,32 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
-        LOG.debug( ">> ListOperation : {}", listContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> ListOperation : {}", listContext );
+        }
 
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
 
-        EntryFilteringCursor cursor = head.list( listContext );
+        EntryFilteringCursor cursor = null;
 
-        LOG.debug( "<< ListOperation successful" );
+        try
+        {
+            lockRead();
+
+            cursor = head.list( listContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< ListOperation successful" );
+        }
 
         return cursor;
     }
@@ -563,15 +709,32 @@ public class DefaultOperationManager implements OperationManager
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        LOG.debug( ">> LookupOperation : {}", lookupContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> LookupOperation : {}", lookupContext );
+        }
 
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
 
-        Entry entry = head.lookup( lookupContext );
+        Entry entry = null;
 
-        LOG.debug( "<< LookupOperation successful" );
+        try
+        {
+            lockRead();
+
+            entry = head.lookup( lookupContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< LookupOperation successful" );
+        }
 
         return entry;
     }
@@ -582,8 +745,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
-        LOG.debug( ">> ModifyOperation : {}", modifyContext );
-        LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> ModifyOperation : {}", modifyContext );
+            LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
+        }
 
         ensureStarted();
 
@@ -651,16 +817,28 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         referralManager.unlock();
 
-        // populate the context with the old entry
-        eagerlyPopulateFields( modifyContext );
+        try
+        {
+            lockWrite();
 
-        // Call the Modify method
-        Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
+            // populate the context with the old entry
+            eagerlyPopulateFields( modifyContext );
 
-        head.modify( modifyContext );
+            // Call the Modify method
+            Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
-        LOG.debug( "<< ModifyOperation successful" );
-        LOG_CHANGES.debug( "<< ModifyOperation successful" );
+            head.modify( modifyContext );
+        }
+        finally
+        {
+            unlockWrite();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< ModifyOperation successful" );
+            LOG_CHANGES.debug( "<< ModifyOperation successful" );
+        }
     }
 
 
@@ -669,8 +847,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        LOG.debug( ">> MoveOperation : {}", moveContext );
-        LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> MoveOperation : {}", moveContext );
+            LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
+        }
 
         ensureStarted();
 
@@ -749,17 +930,29 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
 
-        Entry originalEntry = getOriginalEntry( moveContext );
+        try
+        {
+            lockWrite();
 
-        moveContext.setOriginalEntry( originalEntry );
+            Entry originalEntry = getOriginalEntry( moveContext );
 
-        // Call the Move method
-        Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
+            moveContext.setOriginalEntry( originalEntry );
 
-        head.move( moveContext );
+            // Call the Move method
+            Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
-        LOG.debug( "<< MoveOperation successful" );
-        LOG_CHANGES.debug( "<< MoveOperation successful" );
+            head.move( moveContext );
+        }
+        finally
+        {
+            unlockWrite();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< MoveOperation successful" );
+            LOG_CHANGES.debug( "<< MoveOperation successful" );
+        }
     }
 
 
@@ -768,8 +961,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
-        LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+            LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        }
 
         ensureStarted();
 
@@ -850,16 +1046,28 @@ public class DefaultOperationManager implements OperationManager
         // Unlock the ReferralManager
         directoryService.getReferralManager().unlock();
 
-        moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
-        moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
+        try
+        {
+            lockWrite();
 
-        // Call the MoveAndRename method
-        Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
+            moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
+            moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
 
-        head.moveAndRename( moveAndRenameContext );
+            // Call the MoveAndRename method
+            Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
 
-        LOG.debug( "<< MoveAndRenameOperation successful" );
-        LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
+            head.moveAndRename( moveAndRenameContext );
+        }
+        finally
+        {
+            unlockWrite();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< MoveAndRenameOperation successful" );
+            LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
+        }
     }
 
 
@@ -868,8 +1076,11 @@ public class DefaultOperationManager implements OperationManager
      */
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
-        LOG.debug( ">> RenameOperation : {}", renameContext );
-        LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> RenameOperation : {}", renameContext );
+            LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
+        }
 
         ensureStarted();
 
@@ -940,18 +1151,31 @@ public class DefaultOperationManager implements OperationManager
 
         // Call the rename method
         // populate the context with the old entry
-        eagerlyPopulateFields( renameContext );
-        Entry originalEntry = getOriginalEntry( renameContext );
-        renameContext.setOriginalEntry( originalEntry );
-        renameContext.setModifiedEntry( originalEntry.clone() );
 
-        // Call the Rename method
-        Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
+        try
+        {
+            lockWrite();
 
-        head.rename( renameContext );
+            eagerlyPopulateFields( renameContext );
+            Entry originalEntry = getOriginalEntry( renameContext );
+            renameContext.setOriginalEntry( originalEntry );
+            renameContext.setModifiedEntry( originalEntry.clone() );
 
-        LOG.debug( "<< RenameOperation successful" );
-        LOG_CHANGES.debug( "<< RenameOperation successful" );
+            // Call the Rename method
+            Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
+
+            head.rename( renameContext );
+        }
+        finally
+        {
+            unlockWrite();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< RenameOperation successful" );
+            LOG_CHANGES.debug( "<< RenameOperation successful" );
+        }
     }
 
 
@@ -960,12 +1184,16 @@ public class DefaultOperationManager implements OperationManager
      */
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        LOG.debug( ">> SearchOperation : {}", searchContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> SearchOperation : {}", searchContext );
+        }
 
         ensureStarted();
 
         // Normalize the searchContext Dn
         Dn dn = searchContext.getDn();
+
         dn.apply( directoryService.getSchemaManager() );
 
         // We have to deal with the referral first
@@ -1025,9 +1253,23 @@ public class DefaultOperationManager implements OperationManager
         // Call the Search method
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
 
-        EntryFilteringCursor cursor = head.search( searchContext );
+        EntryFilteringCursor cursor = null;
 
-        LOG.debug( "<< SearchOperation successful" );
+        try
+        {
+            lockRead();
+
+            cursor = head.search( searchContext );
+        }
+        finally
+        {
+            unlockRead();
+        }
+
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< SearchOperation successful" );
+        }
 
         return cursor;
     }
@@ -1038,7 +1280,10 @@ public class DefaultOperationManager implements OperationManager
      */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        LOG.debug( ">> UnbindOperation : {}", unbindContext );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( ">> UnbindOperation : {}", unbindContext );
+        }
 
         ensureStarted();
 
@@ -1053,7 +1298,10 @@ public class DefaultOperationManager implements OperationManager
         {
         }
 
-        LOG.debug( "<< UnbindOperation successful" );
+        if ( IS_DEBUG )
+        {
+            LOG.debug( "<< UnbindOperation successful" );
+        }
     }
 
 

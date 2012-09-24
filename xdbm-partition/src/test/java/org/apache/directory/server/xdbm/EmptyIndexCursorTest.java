@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm;
 
 import static junit.framework.Assert.assertFalse;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,16 +37,16 @@ import org.junit.Test;
 public class EmptyIndexCursorTest
 {
 
-    private EmptyIndexCursor<String, Entry, Long> indexCursor;
+    private EmptyIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String, Entry, Long>();
+        indexCursor = new EmptyIndexCursor<String>();
     }
-    
-    
+
+
     @After
     public void cleanup() throws Exception
     {
@@ -60,8 +60,8 @@ public class EmptyIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        EmptyIndexCursor<String, Entry, Long> cursor = new EmptyIndexCursor<String, Entry, Long>();
-        
+        EmptyIndexCursor<String> cursor = new EmptyIndexCursor<String>();
+
         cursor.close();
     }
 
@@ -182,7 +182,7 @@ public class EmptyIndexCursorTest
     @Test
     public void testBeforeValue() throws Exception
     {
-        indexCursor.beforeValue( 1L, "test" );
+        indexCursor.beforeValue( Partition.DEFAULT_ID, "test" );
     }
 
 
@@ -196,7 +196,7 @@ public class EmptyIndexCursorTest
     @Test
     public void testAfterValue() throws Exception
     {
-        indexCursor.afterValue( 1L, "test" );
+        indexCursor.afterValue( Partition.DEFAULT_ID, "test" );
     }
 
 

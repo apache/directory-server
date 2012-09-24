@@ -23,9 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.ReverseIndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -41,15 +39,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
+public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
-    final ForwardIndexEntry<K, ID> forwardEntry;
-    final ReverseIndexEntry<K, ID> reverseEntry;
+    final IndexEntry<K, String> forwardEntry;
 
 
     /**
@@ -63,19 +60,11 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
     @SuppressWarnings("unchecked")
     public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
-        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
         this.wrappedCursor = wrappedCursor;
 
-        if ( forwardIndex )
-        {
-            forwardEntry = new ForwardIndexEntry<K, ID>();
-            reverseEntry = null;
-        }
-        else
-        {
-            forwardEntry = null;
-            reverseEntry = new ReverseIndexEntry<K, ID>();
-        }
+        forwardEntry = new IndexEntry<K, String>();
+
+        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
     }
 
 
@@ -85,13 +74,13 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
     }
 
 
-    public void before( IndexEntry<K, ID> element ) throws Exception
+    public void before( IndexEntry<K, String> element ) throws Exception
     {
         wrappedCursor.before( element.getTuple() );
     }
 
 
-    public void after( IndexEntry<K, ID> element ) throws Exception
+    public void after( IndexEntry<K, String> element ) throws Exception
     {
         wrappedCursor.after( element.getTuple() );
     }
@@ -140,20 +129,12 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
 
 
     @SuppressWarnings("unchecked")
-    public IndexEntry<K, ID> get() throws Exception
+    public IndexEntry<K, String> get() throws Exception
     {
-        if ( forwardEntry != null )
-        {
-            Tuple<K, ID> tuple = wrappedCursor.get();
-            forwardEntry.setTuple( tuple, null );
-            return forwardEntry;
-        }
-        else
-        {
-            Tuple<ID, K> tuple = wrappedCursor.get();
-            reverseEntry.setTuple( tuple, null );
-            return reverseEntry;
-        }
+        Tuple<K, String> tuple = wrappedCursor.get();
+        forwardEntry.setTuple( tuple );
+
+        return forwardEntry;
     }
 
 
@@ -177,9 +158,9 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
     }
 
 
-    public Iterator<IndexEntry<K, ID>> iterator()
+    public Iterator<IndexEntry<K, String>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, ID>>( this );
+        return new CursorIterator<IndexEntry<K, String>>( this );
     }
 
 
@@ -222,11 +203,47 @@ public class IndexCursorAdaptor<K, O, ID> extends AbstractIndexCursor<K, O, ID>
             .concat( "." ).concat( "isLast()" ) ) );
     }
 
+
     /**
      * {@inheritDoc}
      */
     protected String getUnsupportedMessage()
     {
         return UNSUPPORTED_MSG;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "IndexCursorAdaptor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        sb.append( " :\n" );
+
+        sb.append( wrappedCursor.toString( tabs + "    " ) );
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

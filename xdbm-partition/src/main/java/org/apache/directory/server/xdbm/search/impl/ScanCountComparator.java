@@ -23,7 +23,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.Comparator;
 
 import org.apache.directory.server.xdbm.search.Evaluator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**
@@ -33,15 +32,27 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
  *
  * @param <ID> The type of element
  */
-public class ScanCountComparator<ID> implements Comparator<Evaluator<?, Entry, ID>>
+public class ScanCountComparator implements Comparator<Evaluator<?>>
 {
     /**
      * Compare two scan counts frpm two evaluators 
      */
-    public int compare( Evaluator<?, Entry, ID> e1, Evaluator<?, Entry, ID> e2 )
+    public int compare( Evaluator<?> e1, Evaluator<?> e2 )
     {
-        long scanCount1 = ( Long ) e1.getExpression().get( "count" );
-        long scanCount2 = ( Long ) e2.getExpression().get( "count" );
+        Object count1 = e1.getExpression().get( "count" );;
+        Object count2 = e2.getExpression().get( "count" );;
+        long scanCount1 = Long.MAX_VALUE;
+        long scanCount2 = Long.MAX_VALUE;
+
+        if ( count1 != null )
+        {
+            scanCount1 = ( Long ) e1.getExpression().get( "count" );
+        }
+
+        if ( count2 != null )
+        {
+            scanCount2 = ( Long ) e2.getExpression().get( "count" );
+        }
 
         if ( scanCount1 == scanCount2 )
         {
@@ -61,5 +72,4 @@ public class ScanCountComparator<ID> implements Comparator<Evaluator<?, Entry, I
 
         return 1;
     }
-
 }

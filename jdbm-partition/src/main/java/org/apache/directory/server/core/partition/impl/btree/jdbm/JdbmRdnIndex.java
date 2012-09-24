@@ -27,16 +27,19 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
-import jdbm.recman.SnapshotRecordManager;
+import jdbm.recman.CacheRecordManager;
 
-import org.apache.directory.server.core.partition.impl.btree.LongComparator;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
+public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
 {
 
     /** A logger for this class */
@@ -55,15 +58,8 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
     public JdbmRdnIndex()
     {
-        super();
+        super( ApacheSchemaConstants.APACHE_RDN_AT_OID, true );
         initialized = false;
-    }
-
-
-    public JdbmRdnIndex( String attributeId )
-    {
-        initialized = false;
-        setAttributeId( attributeId );
     }
 
 
@@ -88,10 +84,10 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
-        //System.out.println( "IDX Created index " + path );
+        //System.out.println( "IDX Created index " + path )
         BaseRecordManager base = new BaseRecordManager( path );
         base.disableTransactions();
-        this.recMan = new SnapshotRecordManager( base, cacheSize );
+        recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         try
         {
@@ -132,13 +128,15 @@ public class JdbmRdnIndex<E> extends JdbmIndex<ParentIdAndRdn<Long>, E>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        ParentIdAndRdnComparator<Long> comp = new ParentIdAndRdnComparator<Long>( mr.getOid() );
+        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<String>( mr.getOid() );
 
-        LongComparator.INSTANCE.setSchemaManager( schemaManager );
+        UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 
-        forward = new JdbmTable<ParentIdAndRdn<Long>, Long>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
-            recMan, comp, null, LongSerializer.INSTANCE );
-        reverse = new JdbmTable<Long, ParentIdAndRdn<Long>>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
-            recMan, LongComparator.INSTANCE, LongSerializer.INSTANCE, null );
+        ParentIdAndRdnSerializer parentIdAndSerializer = new ParentIdAndRdnSerializer( schemaManager );
+
+        forward = new JdbmTable<ParentIdAndRdn, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE,
+            recMan, comp, parentIdAndSerializer, UuidSerializer.INSTANCE );
+        reverse = new JdbmTable<String, ParentIdAndRdn>( schemaManager, attributeType.getOid() + REVERSE_BTREE,
+            recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE, parentIdAndSerializer );
     }
 }

@@ -24,12 +24,11 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 
 
 /**
- * An abstract TupleCursor.
+ * An abstract Cursor used by the index cursors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<IndexEntry<V, ID>> implements
-    IndexCursor<V, Entry, ID>
+public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V, String>>
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
@@ -58,7 +57,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, ID> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -67,25 +66,7 @@ public abstract class AbstractIndexCursor<V, Entry, ID> extends AbstractCursor<I
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, ID> element ) throws Exception
-    {
-        throw new UnsupportedOperationException( getUnsupportedMessage() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void afterValue( ID id, V value ) throws Exception
-    {
-        throw new UnsupportedOperationException( getUnsupportedMessage() );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void beforeValue( ID id, V value ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws Exception
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }

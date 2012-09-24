@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -382,7 +383,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         DeleteResponse deleteResponse = delete( deleteRequest );
 
-        processResponse( deleteResponse );
+        try
+        {
+            processResponse( deleteResponse );
+        }
+        catch ( LdapException e )
+        {
+            throw e;
+        }
     }
 
 

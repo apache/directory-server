@@ -32,13 +32,14 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.Store;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.cursor.NotCursor;
+import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -52,6 +53,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -67,17 +69,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NotCursorTest
+public class NotCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
 
     UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
 
     File wkdir;
-    Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
-    EvaluatorBuilder evaluatorBuilder;
-    CursorBuilder cursorBuilder;
 
 
     @BeforeClass
@@ -173,27 +172,29 @@ public class NotCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         assertFalse( cursor.available() );
 
         cursor.beforeFirst();
 
-        Set<Long> set = new HashSet<Long>();
-        
+        Set<String> set = new HashSet<String>();
+
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
+            Entry entry = cursor.get();
+            String uuid = entry.get( "entryUUID" ).getString();
+            set.add( uuid );
+            assertTrue( uuidSynChecker.isValidSyntax( uuid ) );
         }
-        
+
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( Strings.getUUID( 1L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 2L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 3L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 4L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 7L ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -209,28 +210,28 @@ public class NotCursorTest
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        Evaluator<? extends ExprNode, Entry, Long> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
+        Evaluator<? extends ExprNode> eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store,
             schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor<String, Long> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
-        Set<Long> set = new HashSet<Long>();
-        
+        Set<String> set = new HashSet<String>();
+
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
-        
+
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( Strings.getUUID( 1L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 2L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 3L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 4L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 7L ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -238,20 +239,20 @@ public class NotCursorTest
         cursor.afterLast();
 
         set.clear();
-        
+
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
             set.add( cursor.get().getId() );
             assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
         }
-        
+
         assertEquals( 5, set.size() );
-        assertTrue( set.contains( 1L ) );
-        assertTrue( set.contains( 2L ) );
-        assertTrue( set.contains( 3L ) );
-        assertTrue( set.contains( 4L ) );
-        assertTrue( set.contains( 7L ) );
+        assertTrue( set.contains( Strings.getUUID( 1L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 2L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 3L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 4L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 7L ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -267,7 +268,7 @@ public class NotCursorTest
 
         try
         {
-            cursor.after( new ForwardIndexEntry<String, Long>() );
+            cursor.after( new IndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -276,13 +277,13 @@ public class NotCursorTest
 
         try
         {
-            cursor.before( new ForwardIndexEntry<String, Long>() );
+            cursor.before( new IndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
         {
         }
-        
+
         cursor.close();
     }
 }

@@ -195,16 +195,16 @@ public interface Index<K, O, ID>
     void drop( K attrVal, ID id ) throws Exception;
 
 
-    IndexCursor<K, O, ID> reverseCursor() throws Exception;
+    Cursor<IndexEntry<K, ID>> reverseCursor() throws Exception;
 
 
-    IndexCursor<K, O, ID> forwardCursor() throws Exception;
+    Cursor<IndexEntry<K, ID>> forwardCursor() throws Exception;
 
 
-    IndexCursor<K, O, ID> reverseCursor( ID id ) throws Exception;
+    Cursor<IndexEntry<K, ID>> reverseCursor( ID id ) throws Exception;
 
 
-    IndexCursor<K, O, ID> forwardCursor( K key ) throws Exception;
+    Cursor<IndexEntry<K, ID>> forwardCursor( K key ) throws Exception;
 
 
     Cursor<K> reverseValueCursor( ID id ) throws Exception;
@@ -261,8 +261,8 @@ public interface Index<K, O, ID>
      * @return true if duplicate keys are allowed false otherwise
      */
     boolean isDupsEnabled();
-    
-    
+
+
     /**
      * Tells if the index has a reverse table or not
      * @return true if the index has a reverse table

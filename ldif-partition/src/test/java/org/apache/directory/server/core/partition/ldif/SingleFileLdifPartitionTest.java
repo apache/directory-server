@@ -51,7 +51,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
-import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
@@ -277,7 +276,7 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Long id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 
@@ -676,16 +675,16 @@ public class SingleFileLdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
-        
+
         cursor.close();
     }
-    
-    
+
+
     @Test
     public void testLdifMoveEntry() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();
-        
+
         Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
             "dc=child1,ou=test,ou=system" ) ) );
         Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
@@ -844,7 +843,7 @@ public class SingleFileLdifPartitionTest
         partition.add( addCtx );
 
         // search works fine
-        Long id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
         assertEquals( contextEntry, partition.lookup( id ) );
 

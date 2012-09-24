@@ -29,9 +29,10 @@ import java.io.File;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -39,6 +40,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -93,7 +95,7 @@ public class IndexTest
 
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
-        jdbmIndex = new JdbmIndex<String, Entry>();
+        jdbmIndex = new JdbmIndex<String, Entry>( attributeType.getName(), false );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, attributeType );
 
@@ -110,47 +112,47 @@ public class IndexTest
 
 
     @Test
-    @Ignore( "Does not work with JDBM2" )
+    @Ignore("Does not work with JDBM2")
     public void testJdbmIndex() throws Exception
     {
         doTest( jdbmIndex );
     }
 
 
-    private void doTest( Index<String, Entry, Long> idx ) throws Exception
+    private void doTest( Index<String, Entry, String> idx ) throws Exception
     {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
-        for ( long i = 0L; i < 26L; i++ )
+        for ( int i = 0; i < 26; i++ )
         {
-            String val = alphabet.substring( ( int ) i, ( int ) ( i + 1 ) );
-            idx.add( val, i + 1 );
+            String val = alphabet.substring( i, i + 1 );
+            idx.add( val, Strings.getUUID( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
 
-        IndexCursor<String, Entry, Long> cursor1 = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor1 = idx.forwardCursor();
         cursor1.beforeFirst();
 
-        assertHasNext( cursor1, 1L );
-        assertHasNext( cursor1, 2L );
+        assertHasNext( cursor1, Strings.getUUID( 1L ) );
+        assertHasNext( cursor1, Strings.getUUID( 2L ) );
 
-        idx.drop( "c", 3L );
+        idx.drop( "c", Strings.getUUID( 3L ) );
 
         for ( long i = 4L; i < 27L; i++ )
         {
-            assertHasNext( cursor1, i );
+            assertHasNext( cursor1, Strings.getUUID( i ) );
         }
 
         assertFalse( cursor1.next() );
-        
+
         cursor1.close();
     }
 
 
-    private void assertHasNext( IndexCursor<String, Entry, Long> cursor1, long expectedId ) throws Exception
+    private void assertHasNext( Cursor<IndexEntry<String, String>> cursor1, String expectedId ) throws Exception
     {
         assertTrue( cursor1.next() );
-        assertEquals( expectedId, cursor1.get().getId().longValue() );
+        assertEquals( expectedId, cursor1.get().getId() );
     }
 }

@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
+
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -68,6 +69,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
+import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -301,7 +303,8 @@ public class AuthenticationService
                 if ( timestamp == null )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
-                        preparePreAuthenticationError( authContext.getRequest().getKdcReqBody().getEType(), config.getEncryptionTypes() ) );
+                        preparePreAuthenticationError( authContext.getRequest().getKdcReqBody().getEType(),
+                            config.getEncryptionTypes() ) );
                 }
 
                 if ( !timestamp.getPaTimestamp().isInClockSkew( config.getAllowableClockSkew() ) )
@@ -788,13 +791,14 @@ public class AuthenticationService
      * @param encryptionTypes
      * @return The error message as bytes.
      */
-    private static byte[] preparePreAuthenticationError( List<EncryptionType> clientEncryptionTypes, List<EncryptionType> serverEncryptionTypes )
+    private static byte[] preparePreAuthenticationError( List<EncryptionType> clientEncryptionTypes,
+        List<EncryptionType> serverEncryptionTypes )
     {
         PaData[] paDataSequence = new PaData[2];
 
         PaData paData = new PaData();
         paData.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
-        paData.setPaDataValue( new byte[0] );
+        paData.setPaDataValue( Strings.EMPTY_BYTES );
 
         paDataSequence[0] = paData;
 

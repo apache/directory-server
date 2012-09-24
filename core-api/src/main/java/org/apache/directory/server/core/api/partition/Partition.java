@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.partition;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import org.apache.directory.server.core.api.entry.ServerSearchResult;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -52,6 +53,13 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
  */
 public interface Partition
 {
+    /** root ID common to all partitions */
+    String ROOT_ID = new UUID( 0L, 0L ).toString();
+
+    /** Default id used for context entry if context entry doesn't exists */
+    String DEFAULT_ID = new UUID( 0L, 1L ).toString();
+
+
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------

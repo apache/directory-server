@@ -46,7 +46,6 @@ import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -306,7 +305,7 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( GREATER_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
+                IndexEntry<K, ID> entry = new IndexEntry<K, ID>();
                 entry.setKey( key );
                 list.before( entry );
                 while ( list.next() )
@@ -322,7 +321,7 @@ public class IndexDialog<K, O, ID> extends JDialog
             else if ( scanType.equals( LESS_CURSOR ) )
             {
                 list = index.forwardCursor();
-                ForwardIndexEntry<K, ID> entry = new ForwardIndexEntry<K, ID>();
+                IndexEntry<K, ID> entry = new IndexEntry<K, ID>();
                 entry.setKey( key );
                 list.after( entry );
                 while ( list.previous() )

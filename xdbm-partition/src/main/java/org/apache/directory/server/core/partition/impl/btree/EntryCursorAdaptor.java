@@ -20,15 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.Iterator;
-
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.server.xdbm.search.Evaluator;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,20 +37,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Entry>
+public class EntryCursorAdaptor extends AbstractCursor<Entry>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
-    private final AbstractBTreePartition<ID> db;
-    private final IndexCursor<ID, Entry, ID> indexCursor;
+    private final AbstractBTreePartition db;
+    private final Cursor<IndexEntry<String, String>> indexCursor;
+    private final Evaluator<? extends ExprNode> evaluator;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition<ID> db, IndexCursor<ID, Entry, ID> indexCursor )
+    public EntryCursorAdaptor( AbstractBTreePartition db, PartitionSearchResult searchResult )
     {
         LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         this.db = db;
-        this.indexCursor = indexCursor;
+        indexCursor = searchResult.getResultSet();
+        evaluator = searchResult.getEvaluator();
     }
 
 
@@ -140,14 +141,14 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
      */
     public Entry get() throws Exception
     {
-        IndexEntry<ID, ID> indexEntry = indexCursor.get();
+        IndexEntry<String, String> indexEntry = indexCursor.get();
 
-        if ( indexEntry.getEntry() == null )
+        if ( evaluator.evaluate( indexEntry ) )
         {
-            indexEntry.setEntry( db.lookup( indexEntry.getId() ) );
+            return indexEntry.getEntry();
         }
 
-        return indexEntry.getEntry();
+        return null;
     }
 
 
@@ -184,54 +185,5 @@ public class EntryCursorAdaptor<ID extends Comparable<ID>> implements Cursor<Ent
     public boolean previous() throws Exception
     {
         return indexCursor.previous();
-    }
-
-
-    /* 
-     * @see Iterable#iterator()
-     */
-    public Iterator<Entry> iterator()
-    {
-        return new CursorIterator<Entry>( this );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isAfterLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isAfterLast()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isBeforeFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isBeforeFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

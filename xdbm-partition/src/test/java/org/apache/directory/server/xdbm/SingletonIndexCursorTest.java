@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -40,21 +41,21 @@ import org.junit.Test;
 public class SingletonIndexCursorTest
 {
 
-    private ForwardIndexEntry<String, Long> indexEntry;
-    private SingletonIndexCursor<String, Long> indexCursor;
+    private IndexEntry<String, String> indexEntry;
+    private SingletonIndexCursor<String> indexCursor;
 
 
     @Before
     public void setUp()
     {
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 1L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Partition.DEFAULT_ID );
         indexEntry.setEntry( new DefaultEntry() );
         indexEntry.setKey( "test" );
-        indexCursor = new SingletonIndexCursor<String, Long>( indexEntry );
+        indexCursor = new SingletonIndexCursor<String>( indexEntry );
     }
-    
-    
+
+
     @After
     public void cleanup() throws Exception
     {
@@ -65,8 +66,8 @@ public class SingletonIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        Cursor cursor = new SingletonIndexCursor<String, Long>( indexEntry );
-        
+        Cursor cursor = new SingletonIndexCursor<String>( indexEntry );
+
         cursor.close();
     }
 
@@ -241,23 +242,8 @@ public class SingletonIndexCursorTest
 
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testBeforeValue() throws Exception
-    {
-        indexCursor.beforeValue( 1L, "test" );
-    }
-
-
-    @Test(expected = UnsupportedOperationException.class)
     public void testAfter() throws Exception
     {
         indexCursor.after( null );
     }
-
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAfterValue() throws Exception
-    {
-        indexCursor.afterValue( 1L, "test" );
-    }
-
 }

@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 
 
@@ -52,7 +52,7 @@ public class AttributesTableModel extends AbstractTableModel
     private final ArrayList<Object> valList;
 
     /** the unique id of the entry  */
-    private final Long id;
+    private final String id;
 
     /** the distinguished name of the entry */
     private final String dn;
@@ -69,7 +69,7 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel( Entry entry, Long id, String dn, boolean isMutable )
+    public AttributesTableModel( Entry entry, String id, String dn, boolean isMutable )
     {
         this.dn = dn;
         this.id = id;
@@ -224,7 +224,7 @@ public class AttributesTableModel extends AbstractTableModel
      *
      * @return the unique id for the entry
      */
-    public Long getEntryId()
+    public String getEntryId()
     {
         return id;
     }

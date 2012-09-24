@@ -877,7 +877,7 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             SearchResult sr = enm.next();
             assertNotNull( sr );
-            Dn expectedDn = new Dn( nameInNamespace ).getParent().add( mixedRdn );
+            Dn expectedDn = new Dn( nameInNamespace );
     
             assertEquals( "Name in namespace", expectedDn, sr.getNameInNamespace() );
         }

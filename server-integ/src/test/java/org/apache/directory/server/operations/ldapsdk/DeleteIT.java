@@ -49,6 +49,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.util.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -185,8 +186,8 @@ public class DeleteIT extends AbstractLdapTestUnit
     {
         LDAPConnection conn = getNsdkWiredConnection( getLdapServer() );
         LDAPConstraints constraints = new LDAPSearchConstraints();
-        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
-        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, new byte[0] ) );
+        constraints.setClientControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, Strings.EMPTY_BYTES ) );
+        constraints.setServerControls( new LDAPControl( LDAPControl.MANAGEDSAIT, true, Strings.EMPTY_BYTES ) );
         conn.setConstraints( constraints );
 
         // delete success

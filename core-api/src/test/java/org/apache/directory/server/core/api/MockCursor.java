@@ -20,20 +20,17 @@
 package org.apache.directory.server.core.api;
 
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 
 
-public class MockCursor implements Cursor<Entry>
+public class MockCursor extends AbstractCursor<Entry>
 {
     final int count;
     int ii;
@@ -150,12 +147,6 @@ public class MockCursor implements Cursor<Entry>
     }
 
 
-    public Iterator<Entry> iterator()
-    {
-        return new CursorIterator<Entry>( this );
-    }
-
-
     public void close( Exception reason ) throws Exception
     {
     }
@@ -169,45 +160,5 @@ public class MockCursor implements Cursor<Entry>
     public void setSchemaManager( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isAfterLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isAfterLast()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isBeforeFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isBeforeFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isFirst() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isFirst()" ) ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLast() throws Exception
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
-            .concat( "." ).concat( "isLast()" ) ) );
     }
 }

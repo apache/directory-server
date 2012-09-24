@@ -31,12 +31,13 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -172,7 +173,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
         int kBytes = 24;
         byte[] result = new byte[kBytes];
 
-        byte[] fillingKey = new byte[0];
+        byte[] fillingKey = Strings.EMPTY_BYTES;
 
         int pos = 0;
 

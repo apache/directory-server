@@ -27,6 +27,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.filter.AssertionNode;
@@ -50,11 +52,11 @@ import org.apache.directory.shared.ldap.model.filter.SubstringNode;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
+public class DefaultOptimizer<E> implements Optimizer
 {
     /** the database this optimizer operates on */
-    private final Store<E, ID> db;
-    private ID contextEntryId;
+    private final Store db;
+    private String contextEntryId;
 
 
     /**
@@ -62,7 +64,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store<E, ID> db ) throws Exception
+    public DefaultOptimizer( Store db ) throws Exception
     {
         this.db = db;
     }
@@ -70,7 +72,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private ID getContextEntryId() throws Exception
+    private String getContextEntryId() throws Exception
     {
         if ( contextEntryId == null )
         {
@@ -86,7 +88,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( contextEntryId == null )
         {
-            return db.getDefaultId();
+            return Partition.DEFAULT_ID;
         }
 
         return contextEntryId;
@@ -122,7 +124,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode<ID> ) node );
+            count = getScopeScan( ( ScopeNode ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -210,7 +212,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
         }
 
         node.set( "count", count );
-        
+
         return count;
     }
 
@@ -278,7 +280,8 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+
             return idx.count( node.getValue().getValue() );
         }
 
@@ -301,7 +304,7 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, ID> idx = ( Index<V, E, ID> ) db.getIndex( node.getAttributeType() );
+            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -350,12 +353,13 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, ID> idx = db.getPresenceIndex();
+            Index<String, Entry, String> idx = db.getPresenceIndex();
             return idx.count( node.getAttributeType().getOid() );
         }
-        else if ( db.hasSystemIndexOn( node.getAttributeType() ) )
+        else if ( db.hasSystemIndexOn( node.getAttributeType() )
+            || ( node.getAttributeType().getOid() == SchemaConstants.ENTRY_UUID_AT_OID ) )
         {
-            // the system indices (objectClass, entryUUID, entryCSN) are maintained for
+            // the system indices (objectClass, entryUUID and entryCSN) are maintained for
             // each entry, so we could just return the database count
             return db.count();
         }
@@ -371,10 +375,10 @@ public class DefaultOptimizer<E, ID extends Comparable<ID>> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode<ID> node ) throws Exception
+    private long getScopeScan( ScopeNode node ) throws Exception
     {
-        ID id = node.getBaseId();
-        
+        String id = node.getBaseId();
+
         switch ( node.getScope() )
         {
             case OBJECT:

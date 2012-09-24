@@ -318,4 +318,36 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
         LOG_CURSOR.debug( "Closing ArrayTreeCursor {}", this );
         super.close( reason );
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "ArrayTreeCursor (" );
+
+        if ( available() )
+        {
+            sb.append( "available)" );
+            sb.append( "#<" ).append( current ).append( ":" ).append( array.get( current ) ).append( ">" );
+        }
+        else
+        {
+            sb.append( "absent)" );
+        }
+
+        return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

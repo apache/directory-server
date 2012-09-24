@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;
@@ -99,7 +100,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
-        res.setResponseValue( new byte[0] );
+        res.setResponseValue( Strings.EMPTY_BYTES );
 
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );

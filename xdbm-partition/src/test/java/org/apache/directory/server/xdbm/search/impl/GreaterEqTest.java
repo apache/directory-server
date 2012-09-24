@@ -31,16 +31,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
+import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
+import org.apache.directory.server.xdbm.search.cursor.GreaterEqCursor;
+import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
@@ -61,6 +62,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +82,7 @@ public class GreaterEqTest
     public static final Logger LOG = LoggerFactory.getLogger( GreaterEqTest.class );
 
     File wkdir;
-    Store<Entry, Long> store;
+    Store store;
     static SchemaManager schemaManager = null;
 
 
@@ -170,7 +172,7 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
+        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -193,22 +195,22 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
         assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -223,22 +225,22 @@ public class GreaterEqTest
         cursor.first();
 
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
         assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -255,22 +257,22 @@ public class GreaterEqTest
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
         assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
@@ -285,22 +287,22 @@ public class GreaterEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 6L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
         assertEquals( "4", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
@@ -311,7 +313,7 @@ public class GreaterEqTest
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "5" );
 
         assertFalse( cursor.available() );
@@ -320,12 +322,12 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -334,29 +336,29 @@ public class GreaterEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.before( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "4" );
 
         assertFalse( cursor.available() );
@@ -365,12 +367,12 @@ public class GreaterEqTest
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 7L ), cursor.get().getId() );
         assertEquals( "5", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
@@ -379,22 +381,22 @@ public class GreaterEqTest
         assertTrue( cursor.isClosed() );
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( 8L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 8L ), cursor.get().getId() );
         assertEquals( "6", cursor.get().getKey() );
         cursor.close();
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.after( indexEntry );
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
-        assertEquals( 5L, ( long ) cursor.get().getId() );
+        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
         assertEquals( "3", cursor.get().getKey() );
         cursor.close();
     }
@@ -406,7 +408,7 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        GreaterEqCursor<String, Long> cursor = new GreaterEqCursor<String, Long>( store, evaluator );
+        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -424,20 +426,20 @@ public class GreaterEqTest
 
         // ---------- test beforeFirst() ----------
 
-        Set<Tuple<String, Long>> set = new HashSet<Tuple<String, Long>>();
+        Set<Tuple<String, String>> set = new HashSet<Tuple<String, String>>();
         cursor.beforeFirst();
         assertFalse( cursor.available() );
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+            set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
-        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "3", Strings.getUUID( 5L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "4", Strings.getUUID( 6L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "5", Strings.getUUID( 7L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "6", Strings.getUUID( 8L ) ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -452,18 +454,18 @@ public class GreaterEqTest
         cursor.first();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+        set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+            set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
-        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "3", Strings.getUUID( 5L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "4", Strings.getUUID( 6L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "5", Strings.getUUID( 7L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "6", Strings.getUUID( 8L ) ) ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -481,13 +483,13 @@ public class GreaterEqTest
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+            set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
-        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "3", Strings.getUUID( 5L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "4", Strings.getUUID( 6L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "5", Strings.getUUID( 7L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "6", Strings.getUUID( 8L ) ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -501,18 +503,18 @@ public class GreaterEqTest
         cursor.last();
 
         assertTrue( cursor.available() );
-        set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+        set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
 
         while ( cursor.previous() )
         {
             assertTrue( cursor.available() );
-            set.add( new Tuple<String, Long>( cursor.get().getKey(), cursor.get().getId() ) );
+            set.add( new Tuple<String, String>( cursor.get().getKey(), cursor.get().getId() ) );
         }
         assertEquals( 4, set.size() );
-        assertTrue( set.contains( new Tuple<String, Long>( "3", 5L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "4", 6L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "5", 7L ) ) );
-        assertTrue( set.contains( new Tuple<String, Long>( "6", 8L ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "3", Strings.getUUID( 5L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "4", Strings.getUUID( 6L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "5", Strings.getUUID( 7L ) ) ) );
+        assertTrue( set.contains( new Tuple<String, String>( "6", Strings.getUUID( 8L ) ) ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -522,9 +524,9 @@ public class GreaterEqTest
         // ---------- test before() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
-        
+
         try
         {
             cursor.before( indexEntry );
@@ -539,7 +541,7 @@ public class GreaterEqTest
         // ---------- test after() ----------
 
         cursor = new GreaterEqCursor( store, evaluator );
-        indexEntry = new ForwardIndexEntry<String, Long>();
+        indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
         try
         {
@@ -564,41 +566,41 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( 1L );
+        indexEntry.setId( Partition.DEFAULT_ID );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 4L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 4L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 5L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 6L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 7L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 7L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 8L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 8L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 9L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 9L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 10L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 10L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
@@ -609,7 +611,7 @@ public class GreaterEqTest
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
@@ -622,12 +624,12 @@ public class GreaterEqTest
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
-        attrs.add( "entryUUID", UUID.randomUUID().toString() );
+        attrs.add( "entryUUID", Strings.getUUID( 12L ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, attrs );
         ( ( Partition ) store ).add( addContext );
 
-        indexEntry.setId( 12L );
+        indexEntry.setId( Strings.getUUID( 12L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -639,13 +641,13 @@ public class GreaterEqTest
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "2" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( 1L );
+        indexEntry.setId( Partition.DEFAULT_ID );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 
@@ -657,41 +659,41 @@ public class GreaterEqTest
         GreaterEqNode node = new GreaterEqNode( at, new StringValue( at, "3" ) );
 
         GreaterEqEvaluator evaluator = new GreaterEqEvaluator( node, store, schemaManager );
-        ForwardIndexEntry<String, Long> indexEntry = new ForwardIndexEntry<String, Long>();
+        IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
-        indexEntry.setId( 1L );
+        indexEntry.setId( Strings.getUUID( 1L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 4L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 4L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 5L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 6L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 6L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 7L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 7L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 8L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 8L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 9L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 9L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
-        indexEntry = new ForwardIndexEntry<String, Long>();
-        indexEntry.setId( 10L );
+        indexEntry = new IndexEntry<String, String>();
+        indexEntry.setId( Strings.getUUID( 10L ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 

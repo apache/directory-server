@@ -32,12 +32,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.xdbm.IndexCursor;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
@@ -50,6 +49,7 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -65,15 +65,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NestedFilterTest
+public class NestedFilterTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
 
     File wkdir;
-    Store<Entry, Long> store;
     static SchemaManager schemaManager = null;
-    EvaluatorBuilder evaluatorBuilder;
-    CursorBuilder cursorBuilder;
     Optimizer optimizer;
     static FilterNormalizingVisitor visitor;
 
@@ -156,7 +153,7 @@ public class NestedFilterTest
         }
 
         store = null;
-        
+
         if ( wkdir != null )
         {
             FileUtils.deleteDirectory( wkdir );
@@ -175,22 +172,25 @@ public class NestedFilterTest
         exprNode.accept( visitor );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
-        
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 7, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getKey() );
+        Entry entry = cursor.get();
+        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 9, ( long ) cursor.get().getId() );
-        assertEquals( "apache", cursor.get().getKey() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 7 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Apache", entry.get( "ou" ).getString() );
+
+        assertTrue( cursor.next() );
+        assertTrue( cursor.available() );
+        entry = cursor.get();
+        assertEquals( Strings.getUUID( 9 ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -205,12 +205,13 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( 5, ( long ) cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        Entry entry = cursor.get();
+        assertEquals( Strings.getUUID( 5L ), entry.get( "entryUUID" ).getString() );
+        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -227,20 +228,24 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
 
-        Set<Long> set = new HashSet<Long>();
-        
+        Set<String> set = new HashSet<String>();
+
         while ( cursor.next() )
         {
             assertTrue( cursor.available() );
-            set.add( cursor.get().getId() );
-            assertTrue( uuidSynChecker.isValidSyntax( cursor.get().getKey() ) );
+
+            Entry entry = cursor.get();
+
+            String uuid = entry.get( "entryUUID" ).getString();
+            set.add( uuid );
+            assertTrue( uuidSynChecker.isValidSyntax( uuid ) );
         }
-        
+
         assertEquals( 2, set.size() );
-        assertTrue( set.contains( 7L ) );
-        assertTrue( set.contains( 8L ) );
+        assertTrue( set.contains( Strings.getUUID( 7L ) ) );
+        assertTrue( set.contains( Strings.getUUID( 8L ) ) );
 
         assertFalse( cursor.next() );
         cursor.close();
@@ -255,7 +260,7 @@ public class NestedFilterTest
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );
 
-        IndexCursor<?, Entry, Long> cursor = cursorBuilder.build( exprNode );
+        Cursor<Entry> cursor = buildCursor( exprNode );
         cursor.close();
     }
 }

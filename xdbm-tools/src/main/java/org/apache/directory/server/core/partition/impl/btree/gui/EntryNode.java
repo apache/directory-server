@@ -30,11 +30,10 @@ import java.util.Map;
 import javax.swing.tree.TreeNode;
 
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -51,16 +50,17 @@ public class EntryNode implements TreeNode
     private final EntryNode parent;
     private final Entry entry;
     private final ArrayList<TreeNode> children;
-    private final Long id;
+    private final String id;
 
 
-    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition partition, Entry entry, Map<Long, EntryNode> map )
+    public EntryNode( String id, EntryNode parent, AbstractBTreePartition partition, Entry entry,
+        Map<String, EntryNode> map )
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode( Long id, EntryNode parent, AbstractBTreePartition db, Entry entry, Map<Long, EntryNode> map,
+    public EntryNode( String id, EntryNode parent, AbstractBTreePartition db, Entry entry, Map<String, EntryNode> map,
         ExprNode exprNode, SearchEngine engine )
     {
         this.partition = db;
@@ -79,13 +79,13 @@ public class EntryNode implements TreeNode
 
         try
         {
-            List<ForwardIndexEntry> recordForwards = new ArrayList<ForwardIndexEntry>();
-            IndexCursor<Long, Entry, Long> childList = db.list( id );
+            List<IndexEntry> recordForwards = new ArrayList<IndexEntry>();
+            Cursor<IndexEntry<String, String>> childList = null; //db.list( id );
 
             while ( childList.next() )
             {
                 IndexEntry old = childList.get();
-                ForwardIndexEntry newRec = new ForwardIndexEntry();
+                IndexEntry newRec = new IndexEntry();
                 newRec.copy( old );
                 recordForwards.add( newRec );
             }
@@ -100,14 +100,14 @@ public class EntryNode implements TreeNode
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( ( Long ) rec.getId() ) == 0 )
+                    if ( db.getChildCount( ( String ) rec.getId() ) == 0 )
                     {
                         Evaluator evaluator = engine.evaluator( exprNode );
 
                         if ( evaluator.evaluate( rec ) )
                         {
-                            Entry newEntry = db.lookup( ( Long ) rec.getId() );
-                            EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                            Entry newEntry = db.lookup( ( String ) rec.getId() );
+                            EntryNode child = new EntryNode( ( String ) rec.getId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
                         }
@@ -118,16 +118,16 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Entry newEntry = db.lookup( ( Long ) rec.getId() );
-                        EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map, exprNode,
+                        Entry newEntry = db.lookup( ( String ) rec.getId() );
+                        EntryNode child = new EntryNode( ( String ) rec.getId(), this, db, newEntry, map, exprNode,
                             engine );
                         children.add( child );
                     }
                 }
                 else
                 {
-                    Entry newEntry = db.lookup( ( Long ) rec.getId() );
-                    EntryNode child = new EntryNode( ( Long ) rec.getId(), this, db, newEntry, map );
+                    Entry newEntry = db.lookup( ( String ) rec.getId() );
+                    EntryNode child = new EntryNode( ( String ) rec.getId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }
@@ -155,7 +155,7 @@ public class EntryNode implements TreeNode
 
     public TreeNode getChildAt( int childIndex )
     {
-        return ( TreeNode ) children.get( childIndex );
+        return children.get( childIndex );
     }
 
 
@@ -219,7 +219,7 @@ public class EntryNode implements TreeNode
     }
 
 
-    public Long getEntryId()
+    public String getEntryId()
     {
         return id;
     }
