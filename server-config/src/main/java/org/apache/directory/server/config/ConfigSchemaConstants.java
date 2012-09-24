@@ -81,16 +81,16 @@ public enum ConfigSchemaConstants
 
     ADS_HTTP_SERVER_OC("ads-httpServer", "1.3.6.1.4.1.18060.0.4.1.3.804"),
 
-    ADS_REPL_EVENT_LOG_OC( "ads-replEventLog", "1.3.6.1.4.1.18060.0.4.1.3.805" ),
+    ADS_REPL_EVENT_LOG_OC("ads-replEventLog", "1.3.6.1.4.1.18060.0.4.1.3.805"),
 
     ADS_REPL_CONSUMER_OC("ads-replConsumer", "1.3.6.1.4.1.18060.0.4.1.3.806"),
 
     ADS_PASSWORD_POLICY_OC("ads-passwordPolicy", "1.3.6.1.4.1.18060.0.4.1.3.900"),
-    
+
     ADS_AUTHENTICATOR_OC("ads-authenticator", "1.3.6.1.4.1.18060.0.4.1.3.901"),
-    
+
     ADS_AUTHENTICATOR_IMPL_OC("ads-authenticatorImpl", "1.3.6.1.4.1.18060.0.4.1.3.902"),
-    
+
     ADS_DELEGATING_AUTHENTICATOR_OC("ads-delegatingAuthenticator", "1.3.6.1.4.1.18060.0.4.1.3.904"),
 
     ADS_CONFIG_ID("ads-configId", ""),
@@ -178,6 +178,8 @@ public enum ConfigSchemaConstants
     ADS_PARTITION_INDEXED_ATTRIBUTES("ads-partitionIndexedAttributes", ""),
 
     ADS_INDEX_ATTRIBUTE_ID("ads-indexAttributeId", ""),
+
+    ADS_INDEX_HAS_REVERSE("ads-indexHasReverse", ""),
 
     ADS_JDBMINDEX("ads-jdbmIndex", ""),
 

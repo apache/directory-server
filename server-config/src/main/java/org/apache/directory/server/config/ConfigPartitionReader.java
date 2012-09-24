@@ -36,12 +36,14 @@ import java.util.Set;
 
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ForwardIndexEntry;
-import org.apache.directory.server.xdbm.IndexCursor;
+import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
@@ -72,10 +74,10 @@ public class ConfigPartitionReader
     private static final Logger LOG = LoggerFactory.getLogger( ConfigPartitionReader.class );
 
     /** the partition which holds the configuration data */
-    private AbstractBTreePartition<Long> configPartition;
+    private AbstractBTreePartition configPartition;
 
     /** the search engine of the partition */
-    private SearchEngine<Entry, Long> se;
+    private SearchEngine se;
 
     /** the schema manager set in the config partition */
     private SchemaManager schemaManager;
@@ -97,7 +99,7 @@ public class ConfigPartitionReader
      *
      * @param configPartition the non null config partition
      */
-    public ConfigPartitionReader( AbstractBTreePartition<Long> configPartition )
+    public ConfigPartitionReader( AbstractBTreePartition configPartition )
     {
         if ( configPartition == null )
         {
@@ -726,7 +728,7 @@ public class ConfigPartitionReader
         // Prepare the search request
         AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
-        IndexCursor<Long, Entry, Long> cursor = null;
+        Cursor<IndexEntry<String, String>> cursor = null;
 
         // Create a container for all the read beans
         List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
@@ -734,7 +736,14 @@ public class ConfigPartitionReader
         try
         {
             // Do the search
-            cursor = se.cursor( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, scope );
+            SearchOperationContext searchContext = new SearchOperationContext( null );
+            searchContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchContext.setDn( baseDn );
+            searchContext.setFilter( filter );
+            searchContext.setScope( scope );
+            PartitionSearchResult searchResult = se.computeResult( schemaManager, searchContext );
+
+            cursor = searchResult.getResultSet();
 
             // First, check if we have some entries to process.
             if ( !cursor.next() )
@@ -758,7 +767,7 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                ForwardIndexEntry<Long, Long> forwardEntry = ( ForwardIndexEntry<Long, Long> ) cursor
+                IndexEntry<String, String> forwardEntry = cursor
                     .get();
 
                 // Now, get the entry
