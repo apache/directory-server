@@ -43,13 +43,19 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.JndiUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,6 +72,16 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
+    public static SchemaManager schemaManager;
+    private static LdapConnection connection;
+
+
+    @Before
+    public void setup() throws Exception
+    {
+        connection = IntegrationUtils.getAdminConnection( getService() );
+        schemaManager = getService().getSchemaManager();
+    }
 
 
     /**
@@ -123,6 +139,58 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
             checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
             checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+        }
+        catch ( Exception e )
+        {
+            throw e;
+        }
+    }
+
+
+    /**
+     * Tests to see if we can create a schema with a mixed case name (see DIRSERVER-1718)
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testAddSchemaMixedCase() throws Exception
+    {
+        try
+        {
+            Dn dn = new Dn( "cn=DuMMy,ou=schema" );
+
+            Entry dummySchema = new DefaultEntry(
+                dn,
+                "objectClass: top",
+                "objectClass: metaSchema",
+                "cn: DuMMy" );
+
+            connection.add( dummySchema );
+
+            assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
+
+            // sync operation happens anyway on shutdowns but just to make sure we can do it again
+            getService().sync();
+
+            getService().shutdown();
+            getService().startup();
+
+            // Check that the schema still exists
+            assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
+
+            // Now, delete the schema
+            connection.delete( "cn=dummy,ou=schema" );
+
+            assertNull( connection.lookup( "cn=dummy,ou=schema" ) );
+
+            // sync operation happens anyway on shutdowns but just to make sure we can do it again
+            getService().sync();
+
+            getService().shutdown();
+            getService().startup();
+
+            // Check that the schema does not exists
+            assertNull( connection.lookup( "cn=dummy,ou=schema" ) );
         }
         catch ( Exception e )
         {
