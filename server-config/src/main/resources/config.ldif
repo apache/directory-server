@@ -273,6 +273,7 @@ ads-indexes: objectClass
 ads-indexes: entryCSN
 ads-indexes: ou
 ads-indexes: uid
+ads-indexes: administrativeRole
 ads-partitionSuffix: ou=system
 ads-jdbmpartitionoptimizerenabled: TRUE
 ads-partitioncachesize: 100
@@ -380,6 +381,16 @@ objectclass: ads-base
 objectclass: top
 ads-enabled: TRUE
 
+dn: ads-indexAttributeId=administrativeRole,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
+ads-indexattributeid: administrativeRole
+ads-indexHasReverse: FALSE
+ads-indexcachesize: 100
+objectclass: ads-index
+objectclass: ads-jdbmIndex
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
 dn: ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectClass: ads-base
@@ -398,6 +409,7 @@ ads-indexes: krb5PrincipalName
 ads-indexes: objectClass
 ads-indexes: ou
 ads-indexes: uid
+ads-indexes: administrativeRole
 ads-partitionSuffix: dc=example,dc=com
 ads-jdbmpartitionoptimizerenabled: TRUE
 ads-partitioncachesize: 100
@@ -512,6 +524,16 @@ ads-enabled: TRUE
 
 dn: ads-indexAttributeId=uid,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: uid
+ads-indexHasReverse: FALSE
+ads-indexcachesize: 100
+objectclass: ads-index
+objectclass: ads-jdbmIndex
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
+dn: ads-indexAttributeId=administrativeRole,ou=indexes,ads-partitionId=example,ou=partitions,ads-directoryServiceId=default,ou=config
+ads-indexattributeid: administrativeRole
 ads-indexHasReverse: FALSE
 ads-indexcachesize: 100
 objectclass: ads-index
