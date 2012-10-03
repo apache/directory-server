@@ -72,13 +72,18 @@ public class DefaultPasswordValidator implements PasswordValidator
 
         String[] tokens = username.split( "[^a-zA-Z]" );
 
-        for ( int ii = 0; ii < tokens.length; ii++ )
+        for ( String token : tokens )
         {
-            if ( password.matches( "(?i).*" + tokens[ii] + ".*" ) )
+            if ( ( token == null ) || ( token.length() < 4 ) )
+            {
+                // Two short : continue with the next token
+                continue;
+            }
+
+            if ( password.matches( "(?i).*" + token + ".*" ) )
             {
                 throw new PasswordPolicyException( "Password shouldn't contain parts of the username", 5 );// 5 == PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY
             }
         }
     }
-
 }
