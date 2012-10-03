@@ -73,6 +73,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapAliasException;
 import org.apache.directory.shared.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
@@ -2281,11 +2282,18 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         checkInitialized( "addIndex" );
 
         // Check that the index String is valid
-        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
+        AttributeType attributeType = null;
 
-        if ( attributeType == null )
+        try
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_309, index.getAttributeId() ) );
+            attributeType = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
+        }
+        catch ( LdapNoSuchAttributeException lnsae )
+        {
+            LOG.error( "Cannot initialize the index for AttributeType {}, this value does not exist",
+                index.getAttributeId() );
+
+            return;
         }
 
         String oid = attributeType.getOid();
