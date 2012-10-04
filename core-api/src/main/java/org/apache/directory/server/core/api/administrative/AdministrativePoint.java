@@ -25,7 +25,7 @@ import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
 
 
 /**
- * An interface used to describe an AdministrativePoint. An AdministratuvePoint 
+ * An interface used to describe an AdministrativePoint. An AdministrativePoint 
  * holds some elements useful to navigate through the administrative model :
  * <li>
  * <ul>The Dn : the AP position in the DIT</ul>
