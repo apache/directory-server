@@ -49,7 +49,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.api.subtree.Subentry;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
@@ -83,6 +82,7 @@ import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.subtree.AdministrativeRole;
+import org.apache.directory.shared.ldap.model.subtree.Subentry;
 import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecificationParser;
 import org.slf4j.Logger;
@@ -386,7 +386,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
                 }
             }
-            
+
             subentries.close();
         }
         catch ( Exception e )
