@@ -51,18 +51,18 @@
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.3</ant.version>
+    <ant.version>1.8.4</ant.version>
     <antlr.version>2.7.7</antlr.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
     <commons.daemon.version>1.0.10</commons.daemon.version>
     <commons.dbcp.version>1.4</commons.dbcp.version>
-    <commons.io.version>2.3</commons.io.version>
+    <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.1</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
-    <derby.version>10.8.2.2</derby.version>
+    <derby.version>10.9.1.0</derby.version>
     <dnsjava.version>2.1.1</dnsjava.version>
     <ehcache.version>2.4.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -70,18 +70,17 @@
     <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.10</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
-    <log4j.version>1.2.16</log4j.version>
+    <log4j.version>1.2.17</log4j.version>
     <maven.archiver.version>2.5</maven.archiver.version>
     <maven.artifact.version>3.0.4</maven.artifact.version>
     <maven.plugin.api.version>3.0.4</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.4</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
-    <mina.core.version>2.0.4</mina.core.version>
-    <plexus.utils.version>3.0</plexus.utils.version>
+    <plexus.utils.version>3.0.8</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
-    <slf4j.api.version>1.6.4</slf4j.api.version>
-    <slf4j.log4j12.version>1.6.4</slf4j.log4j12.version>
+    <slf4j.api.version>1.7.1</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.1</slf4j.log4j12.version>
     <velocity.version>1.7-beta1</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
     <xercesImpl.version>2.10.0</xercesImpl.version>
