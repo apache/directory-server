@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>27</version>
+    <version>28</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -75,7 +75,7 @@
     <maven.artifact.version>3.0.4</maven.artifact.version>
     <maven.plugin.api.version>3.0.4</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.4</mina.core.version>
+    <mina.core.version>2.0.7-SNAPSHOT</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
     <plexus.utils.version>3.0.8</plexus.utils.version>
     <quartz.version>1.6.3</quartz.version>
