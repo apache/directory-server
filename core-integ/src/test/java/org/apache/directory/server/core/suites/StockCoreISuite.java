@@ -21,9 +21,9 @@ package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
+import org.apache.directory.server.core.jndi.AddJndiIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
 import org.apache.directory.server.core.jndi.DIRSERVER169IT;
-import org.apache.directory.server.core.jndi.DIRSERVER783IT;
 import org.apache.directory.server.core.jndi.DIRSERVER791IT;
 import org.apache.directory.server.core.jndi.DestroyContextIT;
 import org.apache.directory.server.core.jndi.ExtensibleObjectIT;
@@ -99,11 +99,11 @@ import org.junit.runners.Suite;
         // configuration
         PartitionConfigurationIT.class,
 
-        // jndi
+        // jndi Operations
+        AddJndiIT.class,
         CreateContextIT.class,
         DestroyContextIT.class,
         DIRSERVER169IT.class,
-        DIRSERVER783IT.class,
         DIRSERVER791IT.class,
         ExtensibleObjectIT.class,
         ListIT.class,

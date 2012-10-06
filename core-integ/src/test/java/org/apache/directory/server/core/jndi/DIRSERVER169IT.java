@@ -43,6 +43,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,26 +67,25 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( getService() );
 
-        Attributes people = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        people.put( attribute );
-        people.put( "ou", "people" );
+        Attributes people = LdifUtils.getJndiAttributesFromLdif(
+            "objectClass: top\n" +
+            "objectClass: organizationalUnit\n" +
+            "ou: people" );
+        
         sysRoot.createSubcontext( "ou=people", people );
 
-        Attributes user = new BasicAttributes( "uid", "bob", true );
-        user.put( "cn", "Bob Hamilton" );
-        user.put( "userPassword", "bobspassword" );
-
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        user.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        objectClass.add( "organizationalPerson" );
-        objectClass.add( "inetOrgPerson" );
-        user.put( "sn", "Hamilton" );
-
+        Attributes user = LdifUtils.getJndiAttributesFromLdif(
+            "objectClass: top\n" +
+            "objectClass: person\n" +
+            "objectClass: organizationalPerson\n" +
+            "objectClass: inetOrgPerson\n" +
+            "ou: people\n" +
+            "uid: bob\n" +
+            "cn: Bob Hamilton\n" +
+            "userPassword: bobspassword\n" +
+            "sn: Hamilton"
+            );
+        
         sysRoot.createSubcontext( "uid=bob,ou=people", user );
     }
 
@@ -93,7 +93,6 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
     @Test
     public void testSearchResultNameIsRelativeToSearchContext() throws Exception
     {
-        // @todo replace with ldif tags
         createData();
 
         LdapContext sysRoot = getSystemContext( getService() );
@@ -140,7 +139,6 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
     @Test
     public void testPasswordComparisonSucceeds() throws Exception
     {
-        // @todo replace with ldif tags
         createData();
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
