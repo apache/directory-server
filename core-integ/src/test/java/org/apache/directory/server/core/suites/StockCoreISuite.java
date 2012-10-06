@@ -109,9 +109,6 @@ import org.junit.runners.Suite;
         // configuration
         PartitionConfigurationIT.class,
 
-        // event
-        EventServiceIT.class,
-
         // jndi
         AddIT.class,
         CreateContextIT.class,

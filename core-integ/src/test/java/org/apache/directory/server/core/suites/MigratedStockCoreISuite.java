@@ -34,6 +34,7 @@ import org.apache.directory.server.core.authz.LookupAuthorizationIT;
 import org.apache.directory.server.core.authz.ModifyAuthorizationIT;
 import org.apache.directory.server.core.authz.MoveRenameAuthorizationIT;
 import org.apache.directory.server.core.authz.SearchAuthorizationIT;
+import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
@@ -70,6 +71,9 @@ import org.junit.runners.Suite;
         ModifyAuthorizationIT.class,
         MoveRenameAuthorizationIT.class,
         SearchAuthorizationIT.class,
+
+        // event
+        EventServiceIT.class,
 
         // exception
         ExceptionServiceIT.class,
