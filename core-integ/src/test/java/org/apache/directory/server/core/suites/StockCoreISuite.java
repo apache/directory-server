@@ -22,7 +22,6 @@ package org.apache.directory.server.core.suites;
 import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
-import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.jndi.AddIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
