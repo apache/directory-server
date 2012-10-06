@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.core.jndi;
+package org.apache.directory.server.core.operations.add;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;

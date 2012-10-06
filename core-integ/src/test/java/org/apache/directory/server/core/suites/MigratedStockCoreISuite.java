@@ -39,7 +39,7 @@ import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
-import org.apache.directory.server.core.jndi.AddIT;
+import org.apache.directory.server.core.operations.add.AddIT;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
 import org.apache.directory.server.core.operations.move.MoveIT;
 import org.junit.runner.RunWith;
