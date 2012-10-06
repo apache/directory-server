@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.event;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
 
@@ -36,9 +37,12 @@ import javax.naming.event.NamingEvent;
 import javax.naming.event.NamingExceptionEvent;
 import javax.naming.event.ObjectChangeListener;
 
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,16 +66,18 @@ public class EventServiceIT extends AbstractLdapTestUnit
     @Test
     public void testRemoveNamingListener() throws Exception
     {
+        String userDn = "uid=admin,ou=system";
+        LdapConnection connection = getConnectionAs( getService(), userDn, "secret" );
         TestListener listener = new TestListener();
         EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createJndiAttributes(
+        Entry testEntry = new DefaultEntry( "ou=testentry,ou=system",
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou", "testentry" );
 
-        ctx.createSubcontext( "ou=testentry", testEntry );
+        connection.add(testEntry);
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -82,7 +88,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( ctx, rec.event.getSource() );
 
         ctx.removeNamingListener( listener );
-        ctx.destroySubcontext( "ou=testentry" );
+        connection.delete(testEntry.getDn());
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -93,7 +99,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( ctx, rec.event.getSource() );
 
         // read the entry once again just to make sure
-        ctx.createSubcontext( "ou=testentry", testEntry );
+        connection.add(testEntry);
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -114,16 +120,18 @@ public class EventServiceIT extends AbstractLdapTestUnit
     @Test
     public void testContextClose() throws Exception
     {
+        String userDn = "uid=admin,ou=system";
         TestListener listener = new TestListener();
+        LdapConnection connection = getConnectionAs( getService(), userDn, "secret" );
         EventDirContext ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
 
-        Attributes testEntry = LdifUtils.createJndiAttributes(
+        Entry testEntry = new DefaultEntry( "ou=testEntry,ou=system",
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou", "testentry" );
 
-        ctx.createSubcontext( "ou=testentry", testEntry );
+        connection.add( testEntry );
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -134,8 +142,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( ctx, rec.event.getSource() );
 
         ctx.close();
-        ctx = ( EventDirContext ) getSystemContext( getService() ).lookup( "" );
-        ctx.destroySubcontext( "ou=testentry" );
+        connection.delete( "ou=testentry,ou=system" );
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -145,7 +152,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         assertEquals( "objectAdded", rec.method );
 
         // readd the entry once again just to make sure
-        ctx.createSubcontext( "ou=testentry", testEntry );
+        connection.add( testEntry );
 
         //  Wait 1 second, as the process is asynchronous
         Thread.sleep( 1000 );
@@ -154,6 +161,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
         rec = ( EventRecord ) listener.getEventRecords().get( 0 );
         assertEquals( "objectAdded", rec.method );
     }
+    
 
     public class TestListener implements ObjectChangeListener, NamespaceChangeListener
     {
@@ -195,6 +203,7 @@ public class EventServiceIT extends AbstractLdapTestUnit
             events.add( new EventRecord( "objectRenamed", event ) );
         }
     }
+    
 
     public class EventRecord
     {
