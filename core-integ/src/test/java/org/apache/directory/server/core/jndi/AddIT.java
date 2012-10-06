@@ -20,22 +20,21 @@
 package org.apache.directory.server.core.jndi;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,51 +48,30 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "AddIT")
 public class AddIT extends AbstractLdapTestUnit
 {
-    //    /**
-    //     * Test that attribute name case is preserved after adding an entry
-    //     * in the case the user added them.  This is to test DIRSERVER-832.
-    //     */
-    //    public void testAddCasePreservedOnAttributeNames() throws Exception
-    //    {
-    //        Attributes attrs = new AttributesImpl( true );
-    //        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
-    //        oc.add( "PERSON" );
-    //        oc.add( "organizationalPerson" );
-    //        oc.add( "inetORGperson" );
-    //        Attribute cn = new AttributeImpl( "Cn", "Kevin Spacey" );
-    //        Attribute dc = new AttributeImpl( "sN", "Spacey" );
-    //        attrs.put( oc );
-    //        attrs.put( cn );
-    //        attrs.put( dc);
-    //        sysRoot.createSubcontext( "uID=kevin", attrs );
-    //        Attributes returned = sysRoot.getObject( "UID=kevin" );
-    //        
-    //        NamingEnumeration attrList = returned.getAll();
-    //        while( attrList.hasMore() )
-    //        {
-    //            Attribute attr = ( Attribute ) attrList.next();
-    //            
-    //            if ( attr.getID().equalsIgnoreCase( "uid" ) )
-    //            {
-    //                assertEquals( "uID", attr.getID() );
-    //            }
-    //            
-    //            if ( attr.getID().equalsIgnoreCase( "objectClass" ) )
-    //            {
-    //                assertEquals( "ObjectClass", attr.getID() );
-    //            }
-    //            
-    //            if ( attr.getID().equalsIgnoreCase( "sn" ) )
-    //            {
-    //                assertEquals( "sN", attr.getID() );
-    //            }
-    //            
-    //            if ( attr.getID().equalsIgnoreCase( "cn" ) )
-    //            {
-    //                assertEquals( "Cn", attr.getID() );
-    //            }
-    //        }
-    //    }
+    /**
+     * Test that attribute name case is preserved after adding an entry
+     * in the case the user added them.  This is to test DIRSERVER-832.
+     */
+    @Test
+    public void testAddCasePreservedOnAttributeNames() throws Exception
+    {
+        LdapConnection sysRoot = getAdminConnection( getService() );
+
+        Entry entry = new DefaultEntry( "uID=kevin,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: PERSON",
+            "ObjectClass: organizationalPerson",
+            "ObjectClass: inetORGperson",
+            "Cn: Kevin Spacey",
+            "sN: Spacey",
+            "uID: kevin" );
+            
+        sysRoot.add( entry );
+        
+        Entry returned = sysRoot.lookup( "uID=kevin,ou=system" );
+        
+        assertTrue( returned.containsAttribute( "uID", "ObjectClass", "sN", "Cn" ) );
+    }
 
     /**
      * Test that we can't add an entry with an attribute type not within
@@ -101,28 +79,21 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception on error
      */
-    @Test
+    @Test( expected=LdapSchemaViolationException.class )
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
+        LdapConnection sysRoot = getAdminConnection( getService() );
 
-        Attributes attrs = LdifUtils.createJndiAttributes(
+        String base = "uid=kevin, ou=system";
+
+        Entry entry = new DefaultEntry( base,
             "ObjectClass: top",
             "cn: kevin Spacey",
             "dc: ke" );
 
-        String base = "uid=kevin";
-
         //create subcontext
-        try
-        {
-            sysRoot.createSubcontext( base, attrs );
-            fail( "Should not reach this state" );
-        }
-        catch ( NamingException e )
-        {
-            assertTrue( true );
-        }
+        sysRoot.add( entry );
+        fail( "Should not reach this state" );
     }
 
 
@@ -131,30 +102,22 @@ public class AddIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test
+    @Test( expected=LdapInvalidAttributeValueException.class )
     public void testAddAttributesBadSyntax() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
+        LdapConnection sysRoot = getAdminConnection( getService() );
 
-        Attributes attrs = LdifUtils.createJndiAttributes(
+        String base = "sn=kevin, ou=system";
+
+        Entry entry = new DefaultEntry( base,
             "ObjectClass: top",
             "ObjectClass: person",
             "cn: kevin Spacey",
             "sn: ke",
             "telephoneNumber: 0123456abc" );
 
-        String base = "sn=kevin";
-
         // create subcontext
-        try
-        {
-            sysRoot.createSubcontext( base, attrs );
-            fail( "Should not reach this state" );
-        }
-        catch ( NamingException e )
-        {
-            assertTrue( true );
-        }
+        sysRoot.add( entry );
     }
 
 
@@ -164,22 +127,21 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeWithEscapedPlusCharacter() throws Exception
     {
-        Attributes entry = LdifUtils.createJndiAttributes(
+        LdapConnection sysRoot = getAdminConnection( getService() );
+
+        String base = "cn=John\\+Doe, ou=system";
+
+        Entry entry = new DefaultEntry( base,
             "ObjectClass: top",
             "ObjectClass: inetorgperson",
             "cn: John+Doe",
             "sn: +Name+" );
 
-        LdapContext sysRoot = getSystemContext( getService() );
-        DirContext dc = sysRoot.createSubcontext( "cn=John\\+Doe", entry );
-
-        ServerLdapContext sc = ( ServerLdapContext ) dc;
-
-        assertTrue( sc.getDn().toString().contains( "+" ) );
+        sysRoot.add( entry );
 
         try
         {
-            Object obj = sysRoot.lookup( "cn=John\\+Doe" );
+            Entry obj = sysRoot.lookup( "cn=John\\+Doe,ou=system" );
             assertNotNull( obj );
         }
         catch ( Exception e )
@@ -187,18 +149,11 @@ public class AddIT extends AbstractLdapTestUnit
             fail( e.getMessage() );
         }
 
-        try
-        {
-            Attributes result = sysRoot.getAttributes( "cn=John\\+Doe" );
-            assertNotNull( result );
+        Entry result = sysRoot.lookup( "cn=John\\+Doe,ou=system" );
+        assertNotNull( result );
 
-            Attribute cn = result.get( "cn" );
-            assertNotNull( cn );
-            assertEquals( 1, cn.size() );
-        }
-        catch ( Exception e )
-        {
-            fail( e.getMessage() );
-        }
+        assertTrue( result.containsAttribute( "cn" ) );
+        Attribute cn = result.get( "cn" );
+        assertEquals( 1, cn.size() );
     }
 }
