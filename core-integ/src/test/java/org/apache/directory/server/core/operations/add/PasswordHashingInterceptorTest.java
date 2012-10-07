@@ -45,6 +45,8 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,6 +66,11 @@ import org.junit.runner.RunWith;
 })
 public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 {
+    @AfterClass
+    public static void after()
+    {
+        System.out.println( "PasswordHashingInterceptorTestIT tests done");
+    }
 
     @Test
     public void testAddWithPlainPassword() throws Exception

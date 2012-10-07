@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,10 +60,11 @@ public class AddAuthorizationIT extends AbstractLdapTestUnit
     }
 
 
-    @After
-    public void closeConnections()
+    @AfterClass
+    public static void closeConnections()
     {
         //IntegrationUtils.closeConnections();
+        System.out.println( "AddAuthorizationIT tests done") ;
     }
 
 

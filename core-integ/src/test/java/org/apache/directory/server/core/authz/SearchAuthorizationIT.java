@@ -51,6 +51,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -70,7 +71,6 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     // to avoid creating too many connections during recursive operations
     private LdapConnection reusableAdminCon;
 
-
     @Before
     public void setService() throws Exception
     {
@@ -83,6 +83,13 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
+    }
+
+    
+    @AfterClass
+    public static void after()
+    {
+        System.out.println( "SearchAuthorizationIT tests done") ;
     }
 
     /**

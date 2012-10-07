@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -77,6 +78,12 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         IntegrationUtils.closeConnections();
     }
 
+    
+    @AfterClass
+    public static void after()
+    {
+        System.out.println( "SimpleAuthenticationIT tests done") ;
+    }
 
     /**
      * Check the creation of the admin account and persistence across restarts.

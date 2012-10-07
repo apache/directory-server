@@ -33,7 +33,7 @@ import org.apache.directory.server.core.jndi.ModifyContextIT;
 import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
 import org.apache.directory.server.core.jndi.RFC2713IT;
 import org.apache.directory.server.core.jndi.ReferralIT;
-import org.apache.directory.server.core.jndi.RootDSEIT;
+import org.apache.directory.server.core.jndi.RootDSEJndiIT;
 import org.apache.directory.server.core.jndi.SimpleBindJndiIT;
 import org.apache.directory.server.core.jndi.UniqueMemberIT;
 import org.apache.directory.server.core.jndi.referral.AddReferralIT;
@@ -112,7 +112,8 @@ import org.junit.runners.Suite;
         ObjStateFactoryIT.class,
         ReferralIT.class,
         RFC2713IT.class,
-        RootDSEIT.class,
+        RootDSEJndiIT.class,
+        SimpleBindJndiIT.class,
         UniqueMemberIT.class,
 
         // jndi.referral
@@ -125,7 +126,6 @@ import org.junit.runners.Suite;
         RenameReferralIgnoreIT.class,
         RenameReferralIT.class,
         SearchReferralIT.class,
-        SimpleBindJndiIT.class,
 
         // normalization
         NormalizationServiceIT.class,
@@ -139,8 +139,7 @@ import org.junit.runners.Suite;
         // operations.lookup
         LookupIT.class,
         ExistsIT.class,
-        // LookupPerfIT.class,
-
+        
         // operations.modify
         ModifyAddIT.class,
         ModifyDelIT.class,
@@ -151,6 +150,7 @@ import org.junit.runners.Suite;
         AliasSearchIT.class,
         DIRSERVER759IT.class,
         SearchIT.class,
+        
         // SearchPerfIT.class,
         SearchWithIndicesIT.class,
         SearchBinaryIT.class,

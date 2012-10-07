@@ -57,7 +57,6 @@ import org.junit.runners.Suite;
 @CreateDS(enableAccessControl = true, name = "MigratedStockCoreISuite-DS")
 @Suite.SuiteClasses(
     {
-
         // authn
         SimpleAuthenticationIT.class,
         PasswordPolicyTest.class,

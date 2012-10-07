@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +59,6 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "MoveRenameAuthorizationIT")
 public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
 {
-
     @Before
     public void setService()
     {
@@ -71,6 +71,13 @@ public class MoveRenameAuthorizationIT extends AbstractLdapTestUnit
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
+    }
+
+    
+    @AfterClass
+    public static void after()
+    {
+        System.out.println( "MoveRenameAuthorizationIT tests done") ;
     }
 
 
