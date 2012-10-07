@@ -39,6 +39,23 @@ import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
+import org.apache.directory.server.core.jndi.AddJndiIT;
+import org.apache.directory.server.core.jndi.CreateContextIT;
+import org.apache.directory.server.core.jndi.DIRSERVER169IT;
+import org.apache.directory.server.core.jndi.DestroyContextIT;
+import org.apache.directory.server.core.jndi.RootDSEJndiIT;
+import org.apache.directory.server.core.jndi.SimpleBindJndiIT;
+import org.apache.directory.server.core.jndi.referral.AddReferralIT;
+import org.apache.directory.server.core.jndi.referral.CompareReferralIT;
+import org.apache.directory.server.core.jndi.referral.DeleteReferralIT;
+import org.apache.directory.server.core.jndi.referral.ModifyReferralIT;
+import org.apache.directory.server.core.jndi.referral.MoveAndRenameReferralIT;
+import org.apache.directory.server.core.jndi.referral.MoveReferralIT;
+import org.apache.directory.server.core.jndi.referral.RenameReferralIT;
+import org.apache.directory.server.core.jndi.referral.RenameReferralIgnoreIT;
+import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
+import org.apache.directory.server.core.normalization.NormalizationServiceIT;
+import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
 import org.apache.directory.server.core.operations.add.AddIT;
 import org.apache.directory.server.core.operations.add.DIRSERVER783IT;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
@@ -88,6 +105,33 @@ import org.junit.runners.Suite;
         // exception
         ExceptionServiceIT.class,
         
+        // jndi Operations (we keep those tests using JNDI here, just to be sure
+        // that the server works well with JNDI API)
+        AddJndiIT.class,
+        CreateContextIT.class,
+        DestroyContextIT.class,
+        DIRSERVER169IT.class,
+        RootDSEJndiIT.class,
+        SimpleBindJndiIT.class,
+
+
+        // jndi.referral (We don't yet support Referral with the API, so we use JNDI instead)
+        AddReferralIT.class,
+        CompareReferralIT.class,
+        DeleteReferralIT.class,
+        ModifyReferralIT.class,
+        MoveAndRenameReferralIT.class,
+        MoveReferralIT.class,
+        RenameReferralIgnoreIT.class,
+        RenameReferralIT.class,
+        SearchReferralIT.class,
+        
+        // normalization
+        NormalizationServiceIT.class,
+
+        // operational
+        OperationalAttributeServiceIT.class,
+
         // Operations add
         AddIT.class,
         DIRSERVER783IT.class,

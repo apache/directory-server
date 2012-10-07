@@ -20,13 +20,10 @@
 package org.apache.directory.server.core.operational;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import javax.naming.NamingException;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -43,8 +40,6 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -124,19 +119,23 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         byte[] keyValue = new byte[]
             { ( byte ) 0xFF, ( byte ) 0xD8, ( byte ) 0xFF, ( byte ) 0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45,
                 0x23, 0x7d, 0x7f };
-        entry.put( "jpegPhoto", keyValue );
-        entry.setDn( new Dn( "ou=anothertest,ou=system" ) );
-        entry.put( "ou", "anothertest" );
+        
+        entry = new DefaultEntry( "ou=anothertest,ou=system",
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "ou: anotherTest",
+            "cn", "test",
+            "sn", "test",
+            "jpegPhoto", keyValue );
+
         connection.add( entry );
+        
         Entry loadedEntry = connection.lookup( "ou=anothertest,ou=system" );
-        ou = loadedEntry.get( "ou" );
-        value = ou.getString();
-        assertEquals( "anothertest", value );
-        Attribute jpegPhoto = loadedEntry.get( "jpegPhoto" );
-        value = jpegPhoto.getBytes();
-        assertTrue( value instanceof byte[] );
-        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", Strings
-            .dumpBytes( ( byte[] ) value ) );
+
+        assertTrue( loadedEntry.contains( "ou", "anothertest" ) );
+        assertTrue( loadedEntry.contains( "jpegPhoto", keyValue ) );
     }
 
 
@@ -158,11 +157,9 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
         entry = connection.lookup( "ou=testing00,ou=system", "*" );
 
         assertNotNull( entry );
-        assertEquals( "testing00", entry.get( "ou" ).getString() );
-        Attribute attribute = entry.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
+        assertTrue( entry.contains( "ou", "testing00" ) );
+        assertTrue( entry.contains( "objectClass", "top", "organizationalUnit" ) );
+
         assertNull( entry.get( "createTimestamp" ) );
         assertNull( entry.get( "creatorsName" ) );
 
@@ -185,7 +182,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-57">DIREVE-57:
      * ou=system does not contain operational attributes</a>
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testSystemContextRoot() throws Exception
@@ -228,7 +225,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue DIREVE-67</a>
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
@@ -263,7 +260,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     /**
      * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test
     public void testModifyShouldLeadToModifiersAttributes() throws Exception
@@ -288,7 +285,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     /**
      * Modify an entry and check whether attribute modifyTimestamp changes.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      * @throws InterruptedException on error
      */
     @Test
@@ -346,7 +343,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     /**
      * Try to remove creatorsName attribute from an entry.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test(expected = LdapNoPermissionException.class)
     public void testModifyOperationalAttributeRemove() throws Exception
@@ -361,7 +358,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     /**
      * Try to replace creatorsName attribute on an entry.
      *
-     * @throws NamingException on error
+     * @throws Exception on error
      */
     @Test(expected = LdapNoPermissionException.class)
     public void testModifyOperationalAttributeReplace() throws Exception
@@ -449,5 +446,4 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
         connection.delete( "cn=KB,ou=users,ou=system" );
     }
-
 }

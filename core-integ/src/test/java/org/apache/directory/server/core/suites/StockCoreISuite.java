@@ -21,11 +21,7 @@ package org.apache.directory.server.core.suites;
 
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.integ.FrameworkSuite;
-import org.apache.directory.server.core.jndi.AddJndiIT;
-import org.apache.directory.server.core.jndi.CreateContextIT;
-import org.apache.directory.server.core.jndi.DIRSERVER169IT;
 import org.apache.directory.server.core.jndi.DIRSERVER791IT;
-import org.apache.directory.server.core.jndi.DestroyContextIT;
 import org.apache.directory.server.core.jndi.ExtensibleObjectIT;
 import org.apache.directory.server.core.jndi.ListIT;
 import org.apache.directory.server.core.jndi.MixedCaseIT;
@@ -33,20 +29,7 @@ import org.apache.directory.server.core.jndi.ModifyContextIT;
 import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
 import org.apache.directory.server.core.jndi.RFC2713IT;
 import org.apache.directory.server.core.jndi.ReferralIT;
-import org.apache.directory.server.core.jndi.RootDSEJndiIT;
-import org.apache.directory.server.core.jndi.SimpleBindJndiIT;
 import org.apache.directory.server.core.jndi.UniqueMemberIT;
-import org.apache.directory.server.core.jndi.referral.AddReferralIT;
-import org.apache.directory.server.core.jndi.referral.CompareReferralIT;
-import org.apache.directory.server.core.jndi.referral.DeleteReferralIT;
-import org.apache.directory.server.core.jndi.referral.ModifyReferralIT;
-import org.apache.directory.server.core.jndi.referral.MoveAndRenameReferralIT;
-import org.apache.directory.server.core.jndi.referral.MoveReferralIT;
-import org.apache.directory.server.core.jndi.referral.RenameReferralIT;
-import org.apache.directory.server.core.jndi.referral.RenameReferralIgnoreIT;
-import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
-import org.apache.directory.server.core.normalization.NormalizationServiceIT;
-import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
 import org.apache.directory.server.core.operations.compare.CompareDirserver1139IT;
 import org.apache.directory.server.core.operations.exists.ExistsIT;
 import org.apache.directory.server.core.operations.lookup.LookupIT;
@@ -100,10 +83,6 @@ import org.junit.runners.Suite;
         PartitionConfigurationIT.class,
 
         // jndi Operations
-        AddJndiIT.class,
-        CreateContextIT.class,
-        DestroyContextIT.class,
-        DIRSERVER169IT.class,
         DIRSERVER791IT.class,
         ExtensibleObjectIT.class,
         ListIT.class,
@@ -112,26 +91,7 @@ import org.junit.runners.Suite;
         ObjStateFactoryIT.class,
         ReferralIT.class,
         RFC2713IT.class,
-        RootDSEJndiIT.class,
-        SimpleBindJndiIT.class,
         UniqueMemberIT.class,
-
-        // jndi.referral
-        AddReferralIT.class,
-        CompareReferralIT.class,
-        DeleteReferralIT.class,
-        ModifyReferralIT.class,
-        MoveAndRenameReferralIT.class,
-        MoveReferralIT.class,
-        RenameReferralIgnoreIT.class,
-        RenameReferralIT.class,
-        SearchReferralIT.class,
-
-        // normalization
-        NormalizationServiceIT.class,
-
-        // operational
-        OperationalAttributeServiceIT.class,
 
         // operations.compare
         CompareDirserver1139IT.class,
@@ -187,7 +147,6 @@ import org.junit.runners.Suite;
         // trigger
         SubentryServiceForTriggersIT.class,
         TriggerInterceptorIT.class
-
 })
 public class StockCoreISuite
 {

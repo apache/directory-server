@@ -20,19 +20,16 @@
 package org.apache.directory.server.core.normalization;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,36 +47,28 @@ public final class NormalizationServiceIT extends AbstractLdapTestUnit
     @Test
     public void testDireve308Example() throws Exception
     {
-        /*
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+        String dn = "ou=corporate category\\, operations,ou=direct report view, ou=system";
 
-        Use @Ldif to load this data but for now we can do it with code.
+        Entry entry1 = new DefaultEntry( "ou=direct report view,ou=system",
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: direct report view"
+            );
+        
+        connection.add( entry1 );
 
-        dn: ou=direct report view,ou=system
-        objectClass: organizationalUnit
-        ou: direct report view
-
-        dn: ou=corporate category\, operations,ou=direct report view,ou=system
-        objectClass: organizationalUnit
-        ou: corporate category\, operations
-
-         */
-
-        LdapContext sysRoot = getSystemContext( getService() );
-
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "direct report view" );
-        sysRoot.createSubcontext( "ou=direct report view", attrs );
-
-        attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "corporate category, operations" );
-        sysRoot.createSubcontext( "ou=corporate category\\, operations,ou=direct report view", attrs );
-
-        attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );
-        assertNotNull( attrs );
-        Attribute ou = attrs.get( "ou" );
-        assertEquals( "corporate category, operations", ou.get() );
-        Attribute oc = attrs.get( "objectClass" );
-        assertTrue( oc.contains( "top" ) );
-        assertTrue( oc.contains( "organizationalUnit" ) );
+        Entry entry2 = new DefaultEntry( dn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: corporate category, operations"
+            );
+        
+        connection.add( entry2 );
+        
+        Entry result = connection.lookup( dn );
+        assertNotNull( result );
+        assertTrue( result.contains(  "ou", "corporate category, operations" ) );
+        assertTrue( result.contains( "objectClass", "top", "organizationalUnit" ) );
     }
 }
