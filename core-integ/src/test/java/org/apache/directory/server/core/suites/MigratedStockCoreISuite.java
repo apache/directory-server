@@ -42,6 +42,7 @@ import org.apache.directory.server.core.integ.FrameworkSuite;
 import org.apache.directory.server.core.operations.add.AddIT;
 import org.apache.directory.server.core.operations.add.DIRSERVER783IT;
 import org.apache.directory.server.core.operations.add.PasswordHashingInterceptorTest;
+import org.apache.directory.server.core.operations.bind.SimpleBindIT;
 import org.apache.directory.server.core.operations.move.MoveIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -88,11 +89,14 @@ import org.junit.runners.Suite;
         // exception
         ExceptionServiceIT.class,
         
-        // Operations
+        // Operations add
         AddIT.class,
         DIRSERVER783IT.class,
 
-        // Operations
+        // Operations.bind
+        SimpleBindIT.class,
+
+        // Operations move
         MoveIT.class
 })
 public class MigratedStockCoreISuite

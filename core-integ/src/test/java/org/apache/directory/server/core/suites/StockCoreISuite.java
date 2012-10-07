@@ -34,6 +34,7 @@ import org.apache.directory.server.core.jndi.ObjStateFactoryIT;
 import org.apache.directory.server.core.jndi.RFC2713IT;
 import org.apache.directory.server.core.jndi.ReferralIT;
 import org.apache.directory.server.core.jndi.RootDSEIT;
+import org.apache.directory.server.core.jndi.SimpleBindJndiIT;
 import org.apache.directory.server.core.jndi.UniqueMemberIT;
 import org.apache.directory.server.core.jndi.referral.AddReferralIT;
 import org.apache.directory.server.core.jndi.referral.CompareReferralIT;
@@ -46,7 +47,6 @@ import org.apache.directory.server.core.jndi.referral.RenameReferralIgnoreIT;
 import org.apache.directory.server.core.jndi.referral.SearchReferralIT;
 import org.apache.directory.server.core.normalization.NormalizationServiceIT;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
-import org.apache.directory.server.core.operations.bind.SimpleBindIT;
 import org.apache.directory.server.core.operations.compare.CompareDirserver1139IT;
 import org.apache.directory.server.core.operations.exists.ExistsIT;
 import org.apache.directory.server.core.operations.lookup.LookupIT;
@@ -125,18 +125,13 @@ import org.junit.runners.Suite;
         RenameReferralIgnoreIT.class,
         RenameReferralIT.class,
         SearchReferralIT.class,
+        SimpleBindJndiIT.class,
 
         // normalization
         NormalizationServiceIT.class,
 
         // operational
         OperationalAttributeServiceIT.class,
-
-        // operations.add
-        // AddPerfIT.class
-
-        // operations.bind
-        SimpleBindIT.class,
 
         // operations.compare
         CompareDirserver1139IT.class,
