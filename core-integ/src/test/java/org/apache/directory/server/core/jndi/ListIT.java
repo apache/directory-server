@@ -25,6 +25,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashSet;
 
@@ -107,19 +108,25 @@ public class ListIT extends AbstractLdapTestUnit
         HashSet<String> set = new HashSet<String>();
         NamingEnumeration<NameClassPair> list = sysRoot.list( "" );
 
+        int nbRead = 0;
+        
         while ( list.hasMore() )
         {
             NameClassPair ncp = list.next();
             set.add( ncp.getName() );
-            
-            System.out.println( ncp.getName() );
+            nbRead++;
         }
 
         assertTrue( set.contains( "uid=admin,ou=system" ) );
         assertTrue( set.contains( "ou=users,ou=system" ) );
         assertTrue( set.contains( "ou=groups,ou=system" ) );
+        assertTrue( set.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
+        assertTrue( set.contains( "ou=configuration,ou=system" ) );
         
-        System.out.println( "--------------------" );
+        assertEquals( 5, nbRead );
+        
+        // Again with a SUBTREE scope
+        nbRead = 0;
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -127,10 +134,11 @@ public class ListIT extends AbstractLdapTestUnit
         
         while ( ne.hasMoreElements() )
         {
-            SearchResult sr = ne.nextElement();
-            
-            System.out.println( sr.getName() );
+            ne.nextElement();
+            nbRead++;
         }
+        
+        assertEquals( 10, nbRead );
     }
 
 
