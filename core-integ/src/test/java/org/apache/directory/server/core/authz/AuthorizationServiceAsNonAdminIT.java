@@ -49,7 +49,6 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,13 +63,6 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "AuthorizationServiceAsNonAdminIT")
 public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
 {
-    @AfterClass
-    public static void after()
-    {
-        System.out.println( "AuthorizationServiceAsNonAdminIT tests done") ;
-    }
-    
-
     /**
      * Makes sure a non-admin user cannot delete the admin account.
      *

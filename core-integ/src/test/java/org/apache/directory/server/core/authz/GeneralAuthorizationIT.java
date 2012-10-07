@@ -29,7 +29,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,13 +54,6 @@ public class GeneralAuthorizationIT extends AbstractLdapTestUnit
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
-    }
-
-    
-    @AfterClass
-    public static void after()
-    {
-        System.out.println( "GeneralAuthorizationIT tests done") ;
     }
 
 

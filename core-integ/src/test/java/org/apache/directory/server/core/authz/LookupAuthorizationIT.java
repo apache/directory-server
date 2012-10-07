@@ -33,7 +33,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,13 +62,6 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
     }
 
     
-    @AfterClass
-    public static void after()
-    {
-        System.out.println( "LookupAuthorizationIT tests done") ;
-    }
-
-    
     /**
      * Test a lookup( Dn ) operation with the ACI subsystem enabled
      */
@@ -81,7 +73,7 @@ public class LookupAuthorizationIT extends AbstractLdapTestUnit
     
         try
         {
-            Entry entry = getService().getSession().lookup( dn );
+            getService().getSession().lookup( dn );
             fail();
         }
         catch ( LdapNoPermissionException lnpe )
