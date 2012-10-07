@@ -29,12 +29,14 @@ import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySch
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
+import java.util.Collections;
 import java.util.Date;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -181,23 +183,26 @@ public abstract class AbstractAuthenticator implements Authenticator
                 else
                 {
                     Date lockedDate = DateUtils.getDate( lockedTime );
-                    long time = pPolicyConfig.getPwdLockoutDuration() * 1000;
-                    time += lockedDate.getTime();
-
-                    Date unlockedDate = new Date( time );
-                    if ( lockedDate.before( unlockedDate ) )
+                    long unlockTime = pPolicyConfig.getPwdLockoutDuration() * 1000L;
+                    unlockTime += lockedDate.getTime();
+                    
+                    Date unlockDate = new Date( unlockTime );
+                    Date now = DateUtils.getDate( DateUtils.getGeneralizedTime() );
+                    
+                    if( unlockDate.after( now ) )
                     {
-                        throw new PasswordPolicyException( "account will remain locked till " + unlockedDate,
-                            ACCOUNT_LOCKED.getValue() );
+                        throw new PasswordPolicyException( "account will remain locked till " + unlockDate, ACCOUNT_LOCKED.getValue() );
                     }
                     else
                     {
                         // remove pwdAccountLockedTime attribute
-                        Modification pwdAccountLockMod = new DefaultModification(
-                            ModificationOperation.REMOVE_ATTRIBUTE, accountLockAttr );
-
-                        // DO NOT bypass the interceptor chain, otherwise the changes can't be replicated
-                        directoryService.getAdminSession().modify( userEntry.getDn(), pwdAccountLockMod );
+                        Modification pwdAccountLockMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,  accountLockAttr );
+                        ModifyOperationContext modContext = new ModifyOperationContext( directoryService.getAdminSession() );
+                        modContext.setDn( userEntry.getDn() );
+                        
+                        modContext.setModItems( Collections.singletonList( pwdAccountLockMod ) );
+                        
+                        directoryService.getPartitionNexus().modify( modContext );
                     }
                 }
             }
@@ -231,7 +236,7 @@ public abstract class AbstractAuthenticator implements Authenticator
         if ( pPolicyConfig.getPwdMaxIdle() > 0 )
         {
             Attribute pwdLastSuccessTimeAttr = userEntry.get( PWD_LAST_SUCCESS_AT );
-            long time = pPolicyConfig.getPwdMaxIdle() * 1000;
+            long time = pPolicyConfig.getPwdMaxIdle() * 1000L;
             time += DateUtils.getDate( pwdLastSuccessTimeAttr.getString() ).getTime();
 
             if ( System.currentTimeMillis() >= time )

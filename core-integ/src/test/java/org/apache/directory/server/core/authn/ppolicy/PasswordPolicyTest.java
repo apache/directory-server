@@ -77,6 +77,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.*;
 
 /**
  * Test cases for testing PasswordPolicy implementation.
@@ -222,14 +223,13 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
 
 
     @Test
-    public void testPwdLockout() throws Exception
+    public void testPwdLockoutForever() throws Exception
     {
         policyConfig.setPwdMaxFailure( 2 );
         policyConfig.setPwdLockout( true );
         policyConfig.setPwdLockoutDuration( 0 );
         policyConfig.setPwdGraceAuthNLimit( 2 );
-        policyConfig.setPwdFailureCountInterval( 60 );
-        policyConfig.setPwdLockoutDuration( 0 );
+        policyConfig.setPwdFailureCountInterval( 30 );
         
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
         
@@ -258,14 +258,13 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        for( int i=0; i< 4; i++ )
+        for( int i=0; i< 3; i++ )
         {
-            Thread.sleep( 1000 );
             userConnection.bind( bindReq );
             assertFalse( userConnection.isAuthenticated() );
         }
         
-        userEntry = adminConnection.lookup( userDn, "+" );
+        userEntry = adminConnection.lookup( userDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNotNull( pwdAccountLockedTime );
         assertEquals( "000001010000Z", pwdAccountLockedTime.getString() );
@@ -278,6 +277,23 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         assertFalse( userConnection.isAuthenticated() ); // but still fails cause account is locked
         
         userConnection.close();
+        
+        // test deleting the password, it should clear all the ppolicy related attributes except the ppolicy subentry
+        
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
+        modReq.remove( userEntry.get( SchemaConstants.USER_PASSWORD_AT ) );
+        
+        ModifyResponse modResp = adminConnection.modify( modReq );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        
+        userEntry = adminConnection.lookup( userDn, "+" );
+        assertNull( userEntry.get( PWD_FAILURE_TIME_AT ) );
+        assertNull( userEntry.get( PWD_GRACE_USE_TIME_AT ) );
+        assertNull( userEntry.get( PWD_HISTORY_AT ) );
+        assertNull( userEntry.get( PWD_CHANGED_TIME_AT ) );
+        assertNull( userEntry.get( PWD_ACCOUNT_LOCKED_TIME_AT ) );
     }
 
     
@@ -619,6 +635,65 @@ public class PasswordPolicyTest extends AbstractLdapTestUnit
         
         Attribute latestPwdChangedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT );
         assertNotSame( pwdChangedTime.getString(), latestPwdChangedTime.getString() );
+        
+        userConnection.close();
+    }
+
+    
+    @Test
+    public void testPwdLockoutWithDuration() throws Exception
+    {
+        policyConfig.setPwdMaxFailure( 2 );
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdLockoutDuration( 5 ); //5 sec
+        policyConfig.setPwdGraceAuthNLimit( 2 );
+        policyConfig.setPwdFailureCountInterval( 0 );
+        
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+        
+        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: userLockout",
+            "sn: userLockout_sn",
+            "userPassword: 12345" );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        AddResponse addResp = adminConnection.add( addRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        assertNull( respCtrl );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( "1234" ); // wrong password
+        bindReq.addControl( PP_REQ_CTRL );
+        
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+
+        for( int i=0; i< 4; i++ )
+        {
+            userConnection.bind( bindReq );
+            assertFalse( userConnection.isAuthenticated() );
+        }
+        
+        userEntry = adminConnection.lookup( userDn, "+" );
+        Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
+        assertNotNull( pwdAccountLockedTime );
+        
+        Thread.sleep( 10000 );
+        bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( "12345" ); // correct password
+        bindReq.addControl( PP_REQ_CTRL );
+        userConnection.setTimeOut( Long.MAX_VALUE );
+        userConnection.bind( bindReq );
+        assertTrue( userConnection.isAuthenticated() );
         
         userConnection.close();
     }

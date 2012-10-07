@@ -36,16 +36,15 @@ import javax.crypto.spec.DESKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.util.DateUtils;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 
 /**
  * Tests 'keytab' formatted files.
@@ -165,9 +164,9 @@ public class KeytabTest
         String zuluTime = "20070217235745Z";
         Date date = null;
 
-        synchronized ( DateUtils.DATE_FORMAT )
+        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
         {
-            date = DateUtils.DATE_FORMAT.parse( zuluTime );
+            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date.getTime() );

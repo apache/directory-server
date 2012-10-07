@@ -21,8 +21,11 @@ package org.apache.directory.shared.kerberos;
 
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
@@ -44,7 +47,16 @@ public class KerberosUtils
     /** An empty list of principal names */
     public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
 
+    public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
 
+    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
+    public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
+    
+    static
+    {
+        UTC_DATE_FORMAT.setTimeZone( UTC_TIME_ZONE );
+    }
+    
     /**
      * Parse a KerberosPrincipal instance and return the names. The Principal name
      * is described in RFC 1964 : <br/>

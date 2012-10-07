@@ -36,13 +36,12 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.util.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.apache.directory.shared.kerberos.KerberosUtils;
 
 /**
  * Test case for sealing and unsealing Kerberos CipherText.
@@ -439,9 +438,9 @@ public class CipherTextHandlerTest
     {
         Date date = null;
 
-        synchronized ( DateUtils.DATE_FORMAT )
+        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
         {
-            date = DateUtils.DATE_FORMAT.parse( zuluTime );
+            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date );

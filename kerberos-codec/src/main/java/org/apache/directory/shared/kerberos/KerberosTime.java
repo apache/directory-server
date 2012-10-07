@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -126,9 +125,9 @@ public class KerberosTime implements Comparable<KerberosTime>, Serializable
         Calendar calendar = Calendar.getInstance( UTC );
         calendar.setTimeInMillis( date );
 
-        synchronized ( DateUtils.DATE_FORMAT )
+        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
         {
-            this.date = DateUtils.DATE_FORMAT.format( calendar.getTime() );
+            this.date = KerberosUtils.UTC_DATE_FORMAT.format( calendar.getTime() );
         }
 
         kerberosTime = ( calendar.getTimeInMillis() / 1000L ) * 1000L; // drop the ms
@@ -168,9 +167,9 @@ public class KerberosTime implements Comparable<KerberosTime>, Serializable
     {
         Date date = null;
 
-        synchronized ( DateUtils.DATE_FORMAT )
+        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
         {
-            date = DateUtils.DATE_FORMAT.parse( zuluTime );
+            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         return new KerberosTime( date );
@@ -183,9 +182,9 @@ public class KerberosTime implements Comparable<KerberosTime>, Serializable
      */
     public void setDate( String date ) throws ParseException
     {
-        synchronized ( DateUtils.DATE_FORMAT )
+        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
         {
-            kerberosTime = DateUtils.DATE_FORMAT.parse( date ).getTime();
+            kerberosTime = KerberosUtils.UTC_DATE_FORMAT.parse( date ).getTime();
         }
 
         convertInternal( kerberosTime );

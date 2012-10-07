@@ -25,10 +25,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+import java.util.Iterator;
 
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
@@ -496,7 +495,7 @@ public class PasswordUtil
     {
         Date pwdChangeDate = DateUtils.getDate( pwdChangedZtime );
 
-        long time = pwdMaxAgeSec * 1000;
+        long time = pwdMaxAgeSec * 1000L;//DIRSERVER-1735
         time += pwdChangeDate.getTime();
 
         Date expiryDate = DateUtils.getDate( DateUtils.getGeneralizedTime( time ) );
@@ -529,23 +528,20 @@ public class PasswordUtil
         interval *= 1000;
 
         long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
-        List<Value<?>> valList = new ArrayList<Value<?>>();
 
-        for ( Value<?> value : pwdFailTimeAt )
+        Iterator<Value<?>> itr = pwdFailTimeAt.iterator();
+        
+        while ( itr.hasNext() )
         {
+            Value<?> value = itr.next();
             String failureTime = value.getString();
             long time = DateUtils.getDate( failureTime ).getTime();
             time += interval;
 
-            if ( currentTime > time )
+            if ( currentTime >= time )
             {
-                valList.add( value );
+                itr.remove();
             }
-        }
-
-        for ( Value<?> val : valList )
-        {
-            pwdFailTimeAt.remove( val );
         }
     }
 }
