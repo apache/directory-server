@@ -78,12 +78,6 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         IntegrationUtils.closeConnections();
     }
 
-    
-    @AfterClass
-    public static void after()
-    {
-        System.out.println( "SimpleAuthenticationIT tests done") ;
-    }
 
     /**
      * Check the creation of the admin account and persistence across restarts.
