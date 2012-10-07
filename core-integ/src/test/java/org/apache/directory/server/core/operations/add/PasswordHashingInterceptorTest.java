@@ -29,7 +29,7 @@ import java.util.Arrays;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.authn.PasswordUtil;
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.hash.Md5PasswordHashingInterceptor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;

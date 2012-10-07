@@ -42,7 +42,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
-import org.apache.directory.server.core.authn.PasswordUtil;
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;

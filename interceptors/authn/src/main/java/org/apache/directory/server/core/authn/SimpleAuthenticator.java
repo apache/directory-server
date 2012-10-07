@@ -30,6 +30,7 @@ import javax.naming.Context;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;

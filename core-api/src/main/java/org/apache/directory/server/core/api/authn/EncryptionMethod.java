@@ -51,8 +51,7 @@ public class EncryptionMethod
     private LdapSecurityConstants algorithm;
 
 
-    /** package protected */
-    EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
+    public EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
     {
         this.algorithm = algorithm;
         this.salt = salt;
@@ -71,8 +70,7 @@ public class EncryptionMethod
     }
 
 
-    /** package protected */
-    void setSalt( byte[] salt )
+    public void setSalt( byte[] salt )
     {
         // just to make this class immutable, though we have a setter
         if ( this.salt != null )

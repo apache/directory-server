@@ -34,6 +34,7 @@ import java.util.Date;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;

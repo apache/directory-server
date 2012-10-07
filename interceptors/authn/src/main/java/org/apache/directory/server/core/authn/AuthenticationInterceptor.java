@@ -28,8 +28,8 @@ import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySch
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_HISTORY_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_RESET_AT;
 import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_POLICY_SUBENTRY_AT;
+import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_RESET_AT;
 import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.ADD_ATTRIBUTE;
 import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
 import static org.apache.directory.shared.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
@@ -48,6 +48,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -57,8 +58,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
