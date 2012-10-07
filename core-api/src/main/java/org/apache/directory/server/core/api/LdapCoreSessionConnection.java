@@ -1070,7 +1070,12 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         if ( session != null )
         {
-            session.unbind();
+        	// No need to unbind if the session is anonymous
+        	if ( !session.isAnonymous() )
+        	{
+        		session.unbind();
+        	}
+        	
             session = null;
         }
     }
