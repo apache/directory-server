@@ -20,140 +20,110 @@
 package org.apache.directory.server.core.operations.add;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.model.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Contributed by Luke Taylor to fix DIRSERVER-169.
+ * Test the add operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "AddIT")
+@CreateDS(
+    name = "AddPerfDS",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+
+    },
+    enableChangeLog = false)
 public class AddIT extends AbstractLdapTestUnit
 {
     /**
-     * Test that attribute name case is preserved after adding an entry
-     * in the case the user added them.  This is to test DIRSERVER-832.
+     * Test an add operation with a value that needs to be normalized
      */
     @Test
-    public void testAddCasePreservedOnAttributeNames() throws Exception
+    public void testAddNotNormalized() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( getService() );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( "uID=kevin,ou=system",
-            "ObjectClass: top",
-            "ObjectClass: PERSON",
-            "ObjectClass: organizationalPerson",
-            "ObjectClass: inetORGperson",
-            "Cn: Kevin Spacey",
-            "sN: Spacey",
-            "uID: kevin" );
-            
-        sysRoot.add( entry );
-        
-        Entry returned = sysRoot.lookup( "uID=kevin,ou=system" );
-        
-        assertTrue( returned.containsAttribute( "uID", "ObjectClass", "sN", "Cn" ) );
-    }
-
-    /**
-     * Test that we can't add an entry with an attribute type not within
-     * any of the MUST or MAY of any of its objectClasses
-     * 
-     * @throws Exception on error
-     */
-    @Test( expected=LdapSchemaViolationException.class )
-    public void testAddAttributesNotInObjectClasses() throws Exception
-    {
-        LdapConnection sysRoot = getAdminConnection( getService() );
-
-        String base = "uid=kevin, ou=system";
-
-        Entry entry = new DefaultEntry( base,
-            "ObjectClass: top",
-            "cn: kevin Spacey",
-            "dc: ke" );
-
-        //create subcontext
-        sysRoot.add( entry );
-        fail( "Should not reach this state" );
-    }
-
-
-    /**
-     * Test that we can't add an entry with an attribute with a bad syntax
-     *
-     * @throws Exception on error
-     */
-    @Test( expected=LdapInvalidAttributeValueException.class )
-    public void testAddAttributesBadSyntax() throws Exception
-    {
-        LdapConnection sysRoot = getAdminConnection( getService() );
-
-        String base = "sn=kevin, ou=system";
-
-        Entry entry = new DefaultEntry( base,
+        Dn dn = new Dn( "cn=test,ou=system" );
+        Entry entry = new DefaultEntry( dn,
             "ObjectClass: top",
             "ObjectClass: person",
-            "cn: kevin Spacey",
-            "sn: ke",
-            "telephoneNumber: 0123456abc" );
+            "sn:  TEST    ",
+            "cn: test" );
 
-        // create subcontext
-        sysRoot.add( entry );
+        connection.add( entry );
     }
 
 
     /**
-     * test case for DIRSERVER-1442
+     * Test an add operation where an attribute with an Integer syntax has an value
+     * above MAX_INTEGER.
      */
     @Test
-    public void testAddAttributeWithEscapedPlusCharacter() throws Exception
+    public void testAddIntegerTooBig() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( getService() );
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        String base = "cn=John\\+Doe, ou=system";
-
-        Entry entry = new DefaultEntry( base,
+        Dn dn = new Dn( "ads-directoryServiceId=test,ou=system" );
+        Entry entry = new DefaultEntry( dn,
             "ObjectClass: top",
-            "ObjectClass: inetorgperson",
-            "cn: John+Doe",
-            "sn: +Name+" );
+            "ObjectClass: ads-base",
+            "ObjectClass: ads-directoryService",
+            "ads-directoryServiceId: test",
+            "ads-dsReplicaId: test",
+            "ads-interceptors: test",
+            "ads-partitions: test",
+            "ads-dsMaxPDUSize: 2147483648"
+            );
 
-        sysRoot.add( entry );
+        connection.add( entry );
 
-        try
-        {
-            Entry obj = sysRoot.lookup( "cn=John\\+Doe,ou=system" );
-            assertNotNull( obj );
-        }
-        catch ( Exception e )
-        {
-            fail( e.getMessage() );
-        }
+        entry = connection.lookup( dn );
 
-        Entry result = sysRoot.lookup( "cn=John\\+Doe,ou=system" );
-        assertNotNull( result );
+        assertEquals( "2147483648", entry.get( "ads-dsMaxPDUSize" ).getString() );
 
-        assertTrue( result.containsAttribute( "cn" ) );
-        Attribute cn = result.get( "cn" );
-        assertEquals( 1, cn.size() );
+        getService().shutdown();
+
+        entry = connection.lookup( dn );
+
+        assertNull( entry );
+
+        getService().startup();
+
+        entry = connection.lookup( dn );
+
+        assertEquals( "2147483648", entry.get( "ads-dsMaxPDUSize" ).getString() );
     }
 }

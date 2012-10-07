@@ -47,11 +47,9 @@ import org.junit.Test;
 /**
  * Tests the partition schema loader.
  *
- * TODO move this to core-integ does not belong here and get rid of all the static
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PartitionSchemaLoaderTest
+public class PartitionSchemaLoaderIT
 {
     private static SchemaManager schemaManager;
     private static DirectoryService directoryService;
@@ -65,7 +63,7 @@ public class PartitionSchemaLoaderTest
         directoryService = new DefaultDirectoryService();
         String tmpDirPath = System.getProperty( "workingDirectory", System.getProperty( "java.io.tmpdir" ) );
         File workingDirectory = new File( tmpDirPath + "/server-work-"
-            + PartitionSchemaLoaderTest.class.getSimpleName() );
+            + PartitionSchemaLoaderIT.class.getSimpleName() );
         instanceLayout = new InstanceLayout( workingDirectory );
         directoryService.setInstanceLayout( instanceLayout );
 

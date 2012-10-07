@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "MaxImmSubFilter-DS")
-public class MaxImmSubFilterTest extends AbstractLdapTestUnit
+public class MaxImmSubFilterIT extends AbstractLdapTestUnit
 {
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
         .unmodifiableCollection( new ArrayList<ACITuple>() );
