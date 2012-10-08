@@ -44,6 +44,9 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** Error message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
 
@@ -109,7 +112,11 @@ public class DescendantCursor extends AbstractIndexCursor<String>
         parentIdStack = new ArrayStack();
         this.baseId = baseId;
         this.topLevel = topLevel;
-        LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
+
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
+    	}
     }
 
 
@@ -272,7 +279,10 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     @Override
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+    	}
 
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )
@@ -290,7 +300,10 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     @Override
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+    	}
 
         // Close the cursors stored in the stack, if we have some
         for ( Object cursor : cursorStack )

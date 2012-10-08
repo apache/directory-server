@@ -42,6 +42,9 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private final Tuple tuple = new Tuple();
 
     private final BTree btree;
@@ -59,7 +62,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public KeyBTreeCursor( BTree btree, Comparator<E> comparator ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating KeyBTreeCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating KeyBTreeCursor {}", this );
+        }
+        
         this.btree = btree;
         this.comparator = comparator;
     }
@@ -224,7 +231,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @Override
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
+        }
+        
         super.close();
         this.closeBrowser( browser );
     }
@@ -236,7 +247,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @Override
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
+        }
+        
         super.close( cause );
         this.closeBrowser( browser );
     }

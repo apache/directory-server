@@ -46,6 +46,9 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
     private final List<Cursor<IndexEntry<V, String>>> cursors;
     private final List<Evaluator<? extends ExprNode>> evaluators;
@@ -60,7 +63,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     public OrCursor( List<Cursor<IndexEntry<V, String>>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
-        LOG_CURSOR.debug( "Creating OrCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating OrCursor {}", this );
+    	}
 
         if ( cursors.size() <= 1 )
         {
@@ -258,7 +264,11 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing OrCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing OrCursor {}", this );
+    	}
+    	
         super.close();
 
         for ( Cursor<?> cursor : cursors )
@@ -270,7 +280,11 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing OrCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing OrCursor {}", this );
+    	}
+    	
         super.close( cause );
 
         for ( Cursor<?> cursor : cursors )

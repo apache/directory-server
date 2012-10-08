@@ -35,6 +35,9 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private boolean beforeFirst = true;
     private boolean afterLast;
     private boolean onSingleton;
@@ -43,7 +46,11 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 
     public SingletonIndexCursor( IndexEntry<V, String> singleton )
     {
-        LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
+    	}
+    	
         this.singleton = singleton;
     }
 
@@ -199,14 +206,22 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+    	}
+    	
         super.close();
     }
 
 
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+    	}
+    	
         super.close( cause );
     }
 }

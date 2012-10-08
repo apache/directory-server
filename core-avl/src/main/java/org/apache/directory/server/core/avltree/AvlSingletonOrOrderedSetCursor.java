@@ -39,6 +39,9 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** The underlying AVL tree map */
     private AvlTreeMap<K, V> tree;
 
@@ -53,7 +56,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
 
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
-        LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
+    	}
+    	
         this.tree = tree;
     }
 
@@ -300,7 +307,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+    	}
+    	
         super.close();
     }
 
@@ -310,7 +321,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+    	}
+    	
         super.close( reason );
     }
 }

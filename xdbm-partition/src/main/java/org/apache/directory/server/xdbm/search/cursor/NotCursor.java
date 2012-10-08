@@ -41,6 +41,9 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
     private final AllEntriesCursor uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
@@ -50,7 +53,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
-        LOG_CURSOR.debug( "Creating NotCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating NotCursor {}", this );
+    	}
+    	
         this.childEvaluator = childEvaluator;
         this.uuidCursor = new AllEntriesCursor( store );
 
@@ -147,7 +154,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing NotCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing NotCursor {}", this );
+    	}
+    	
         super.close();
         uuidCursor.close();
     }
@@ -155,7 +166,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing NotCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing NotCursor {}", this );
+    	}
+    	
         super.close( cause );
         uuidCursor.close( cause );
     }

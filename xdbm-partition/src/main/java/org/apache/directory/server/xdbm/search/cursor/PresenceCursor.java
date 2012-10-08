@@ -42,6 +42,9 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
     private final Cursor<IndexEntry<String, String>> uuidCursor;
     private final Cursor<IndexEntry<String, String>> presenceCursor;
@@ -53,7 +56,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
+    	}
+    	
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
@@ -275,7 +282,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+    	}
+    	
         super.close();
 
         if ( presenceCursor != null )
@@ -291,7 +302,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+    	}
+    	
         super.close( cause );
 
         if ( presenceCursor != null )

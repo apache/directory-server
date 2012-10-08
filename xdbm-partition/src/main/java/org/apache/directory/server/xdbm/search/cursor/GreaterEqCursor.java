@@ -48,6 +48,9 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = "GreaterEqCursors only support positioning by element when a user index exists on the asserted attribute.";
 
     /** An greater eq evaluator for candidates */
@@ -76,7 +79,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public GreaterEqCursor( Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
+    	}
+    	
         this.greaterEqEvaluator = greaterEqEvaluator;
 
         AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();
@@ -356,7 +363,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+    	}
+    	
         super.close();
 
         if ( userIdxCursor != null )
@@ -376,7 +387,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+    	}
+    	
         super.close( cause );
 
         if ( userIdxCursor != null )

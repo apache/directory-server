@@ -44,6 +44,9 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /**
      * The JDBM backed table this Cursor traverses over.
      */
@@ -86,7 +89,11 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public DupsCursor( JdbmTable<K, V> table ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating DupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating DupsCursor {}", this );
+        }
+        
         this.table = table;
         this.containerCursor = new DupsContainerCursor<K, V>( table );
         LOG.debug( "Created on table {}", table );
@@ -481,7 +488,11 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @Override
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing DupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing DupsCursor {}", this );
+        }
+        
         super.close();
         containerCursor.close();
         
@@ -498,7 +509,11 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @Override
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing DupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing DupsCursor {}", this );
+        }
+        
         super.close( cause );
         containerCursor.close( cause );
         

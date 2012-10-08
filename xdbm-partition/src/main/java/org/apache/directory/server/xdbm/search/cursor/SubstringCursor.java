@@ -43,6 +43,9 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
     private final boolean hasIndex;
     private final Cursor<IndexEntry<String, String>> wrapped;
@@ -54,7 +57,11 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     public SubstringCursor( Store store, final SubstringEvaluator substringEvaluator )
         throws Exception
     {
-        LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
+    	}
+    	
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
@@ -220,7 +227,11 @@ public class SubstringCursor extends AbstractIndexCursor<String>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+    	}
+    	
         super.close();
         wrapped.close();
         clear();
@@ -232,7 +243,11 @@ public class SubstringCursor extends AbstractIndexCursor<String>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
+    	}
+    	
         super.close( cause );
         wrapped.close( cause );
         clear();

@@ -49,6 +49,9 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** The message for unsupported operations */
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
 
@@ -71,7 +74,11 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public EqualityCursor( Store store, EqualityEvaluator<V> equalityEvaluator ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating EqualityCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating EqualityCursor {}", this );
+    	}
+    	
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
@@ -289,7 +296,11 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
+    	}
+    	
         super.close();
 
         if ( userIdxCursor != null )
@@ -308,7 +319,11 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EqualityCursor {}", this );
+    	}
+    	
         super.close( cause );
 
         if ( userIdxCursor != null )

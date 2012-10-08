@@ -39,6 +39,9 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private final AvlTreeCursor<V> wrapped;
     private final K key;
 
@@ -54,7 +57,11 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public KeyTupleAvlCursor( AvlTree<V> avlTree, K key )
     {
-        LOG_CURSOR.debug( "Creating KeyTupleAvlCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating KeyTupleAvlCursor {}", this );
+    	}
+    	
         this.key = key;
         this.wrapped = new AvlTreeCursor<V>( avlTree );
     }
@@ -217,7 +224,11 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
+    	}
+    	
         super.close();
 
         if ( wrapped != null )
@@ -232,7 +243,11 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing KeyTupleAvlCursor {}", this );
+    	}
+    	
         super.close( cause );
 
         if ( wrapped != null )

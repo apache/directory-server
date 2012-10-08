@@ -44,6 +44,9 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     @SuppressWarnings("unchecked")
     final Cursor<Tuple> wrappedCursor;
     final IndexEntry<K, String> forwardEntry;
@@ -64,7 +67,10 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
         forwardEntry = new IndexEntry<K, String>();
 
-        LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
+    	}
     }
 
 
@@ -146,14 +152,22 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+    	}
+    	
         wrappedCursor.close();
     }
 
 
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+    	}
+    	
         wrappedCursor.close( reason );
     }
 

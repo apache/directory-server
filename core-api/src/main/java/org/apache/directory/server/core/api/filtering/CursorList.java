@@ -50,6 +50,9 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** The inner List */
     private final List<EntryFilteringCursor> list;
 
@@ -92,7 +95,10 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
     {
-        LOG_CURSOR.debug( "Creating CursorList {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating CursorList {}", this );
+    	}
 
         if ( list != null )
         {
@@ -452,14 +458,22 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing CursorList {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing CursorList {}", this );
+    	}
+    	
         close( null );
     }
 
 
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing CursorList {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing CursorList {}", this );
+    	}
+    	
         closed = true;
 
         for ( EntryFilteringCursor cursor : list )

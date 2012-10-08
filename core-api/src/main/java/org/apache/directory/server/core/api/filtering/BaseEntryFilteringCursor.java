@@ -57,6 +57,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** the underlying wrapped search results Cursor */
     private final Cursor<Entry> wrapped;
 
@@ -101,7 +104,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
     {
-        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+    	}
+    	
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -120,7 +127,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
-        LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+    	}
+    	
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -252,7 +263,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+    	}
+    	
         wrapped.close();
         prefetched = null;
     }
@@ -263,7 +278,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public void close( Exception reason ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+    	}
+    	
         wrapped.close( reason );
         prefetched = null;
     }

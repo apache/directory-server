@@ -52,6 +52,9 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** the underlying cursor */
     private Cursor<Entry> wrapped;
 
@@ -65,7 +68,11 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
 
     public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
     {
-        LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
+    	}
+    	
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -109,14 +116,22 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+    	}
+    	
         wrapped.close();
     }
 
 
     public void close( Exception e ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+    	}
+    	
         wrapped.close( e );
     }
 

@@ -44,6 +44,9 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private final JdbmTable<K, V> table;
 
     private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
@@ -60,7 +63,11 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public NoDupsCursor( JdbmTable<K, V> table ) throws IOException
     {
-        LOG_CURSOR.debug( "Creating NoDupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating NoDupsCursor {}", this );
+        }
+        
         this.table = table;
     }
 
@@ -261,7 +268,11 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @Override
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
+        }
+        
         super.close();
         closeBrowser( browser );
     }
@@ -273,7 +284,11 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @Override
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
+        }
+        
         super.close( cause );
         closeBrowser( browser );
     }

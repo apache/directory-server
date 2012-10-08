@@ -39,6 +39,9 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     /** The index entry we use to return entries one by one.  */
     private IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
 
@@ -62,7 +65,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public AllEntriesCursor( Store store ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
+    	}
+    	
         // Uses the MasterTable 
         wrapped = new IndexCursorAdaptor( store.getMasterTable().cursor(), true );
     }
@@ -186,7 +193,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     @Override
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+    	}
+    	
         wrapped.close();
     }
 
@@ -197,7 +208,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     @Override
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+    	}
+    	
         wrapped.close( cause );
     }
 

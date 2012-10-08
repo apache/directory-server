@@ -42,6 +42,9 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private final AbstractBTreePartition db;
     private final Cursor<IndexEntry<String, String>> indexCursor;
     private final Evaluator<? extends ExprNode> evaluator;
@@ -49,7 +52,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
     public EntryCursorAdaptor( AbstractBTreePartition db, PartitionSearchResult searchResult )
     {
-        LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
+    	}
+    	
         this.db = db;
         indexCursor = searchResult.getResultSet();
         evaluator = searchResult.getEvaluator();
@@ -112,7 +119,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
      */
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+    	}
+    	
         indexCursor.close();
     }
 
@@ -122,7 +133,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
      */
     public void close( Exception cause ) throws Exception
     {
-        LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+    	}
+    	
         indexCursor.close( cause );
     }
 

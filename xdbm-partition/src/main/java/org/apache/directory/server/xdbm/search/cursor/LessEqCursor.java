@@ -48,6 +48,9 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
     private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_716 );
 
     /** An less eq evaluator for candidates */
@@ -70,7 +73,11 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public LessEqCursor( Store store, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
     {
-        LOG_CURSOR.debug( "Creating LessEqCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Creating LessEqCursor {}", this );
+    	}
+    	
         this.lessEqEvaluator = lessEqEvaluator;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
@@ -340,7 +347,11 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-        LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
+    	if ( IS_DEBUG )
+    	{
+    		LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
+    	}
+    	
         super.close();
 
         if ( userIdxCursor != null )
