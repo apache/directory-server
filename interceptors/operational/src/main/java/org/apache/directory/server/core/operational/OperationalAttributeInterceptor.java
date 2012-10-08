@@ -87,6 +87,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     /** The admin Dn */
     private Dn adminDn;
+    
+    /** Some attributeTypes we use locally */
+    private static AttributeType entryUuidAT;
+    private static AttributeType entryCsnAT;
+    private static AttributeType creatorsNameAT;
+    private static AttributeType createTimeStampAT;
+    private static AttributeType accessControlSubentriesAT;
+    private static AttributeType collectiveAttributeSubentriesAT;
+    private static AttributeType triggerExecutionSubentriesAT;
+    private static AttributeType subschemaSubentryAT;
 
     /**
      * the search result filter to use for collective attribute injection
@@ -137,6 +147,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // Create the Admin Dn
         adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        
+        // Initialize the AttributeType we use locally
+        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT_OID );
+        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT_OID );
+        creatorsNameAT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
+        createTimeStampAT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT_OID );
+        accessControlSubentriesAT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT_OID );
+        collectiveAttributeSubentriesAT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID );
+        triggerExecutionSubentriesAT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        subschemaSubentryAT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
     }
 
 
@@ -148,7 +168,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Check if we have to add an operational attribute, or if the admin has injected one
      */
-    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, String attribute ) throws LdapException
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute ) throws LdapException
     {
         if ( entry.containsAttribute( attribute ) )
         {
@@ -195,41 +215,41 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         // The EntryUUID attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_UUID_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, entryUuidAT ) )
         {
-            entry.put( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+            entry.put( entryUuidAT, UUID.randomUUID().toString() );
         }
 
         // The EntryCSN attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ENTRY_CSN_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, entryCsnAT ) )
         {
-            entry.put( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
+            entry.put( entryCsnAT, directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATORS_NAME_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, creatorsNameAT ) )
         {
-            entry.put( SchemaConstants.CREATORS_NAME_AT, principal );
+            entry.put( creatorsNameAT, principal );
         }
 
         // The CreateTimeStamp attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.CREATE_TIMESTAMP_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, createTimeStampAT ) )
         {
-            entry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            entry.put( createTimeStampAT, DateUtils.getGeneralizedTime() );
         }
 
         // Now, check that the user does not add operational attributes
         // The accessControlSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, accessControlSubentriesAT );
 
         // The CollectiveAttributeSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, collectiveAttributeSubentriesAT );
 
         // The TriggerExecutionSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, triggerExecutionSubentriesAT );
 
         // The SubSchemaSybentry attribute
-        checkAddOperationalAttribute( isAdmin, entry, SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        checkAddOperationalAttribute( isAdmin, entry, subschemaSubentryAT );
 
         next( addContext );
     }
