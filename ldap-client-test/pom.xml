@@ -137,13 +137,12 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/*ISuite.java</include>
+                <include>**/*Test.java</include>
               </includes>
               <excludes>
                 <exclude>**/Abstract*</exclude>
                 <exclude>**/*RegressionTest*</exclude>
                 <exclude>**/TestClientApiPerf.java</exclude>
-                <exclude>**/*Test.java</exclude>
               </excludes>
 	          <systemPropertyVariables>
 	            <felix.cache.rootdir>
