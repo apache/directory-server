@@ -103,10 +103,11 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
             String name = "test" + i;
             dn = new Dn( "cn=" + name + ",ou=system" );
-            entry = new DefaultEntry( getService().getSchemaManager(), dn );
-            entry.add( "ObjectClass", "top", "person" );
-            entry.add( "sn", name.toUpperCase() );
-            entry.add( "cn", name );
+            entry = new DefaultEntry( getService().getSchemaManager(), dn,
+                "ObjectClass: top", 
+                "ObjectClass: person",
+                "sn", name.toUpperCase(),
+                "cn", name );
 
             long ttt0 = System.nanoTime();
             connection.add( entry );
