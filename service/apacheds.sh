@@ -18,7 +18,7 @@
 # under the License.
 
 # The final jar
-JAR=`find . -name "apacheds-server-*[!s].jar"`
+JAR=`find . -name "apacheds-service-*[!s].jar"`
 
 # Checking if the final jar exists
 if [ -e $JAR ] ; then
