@@ -98,10 +98,12 @@ public class ClientServerReplicationIT
 
 
     @AfterClass
-    public static void tearDown()
+    public static void tearDown() throws Exception
     {
         consumerServer.stop();
+        consumerServer.getDirectoryService().shutdown();
         providerServer.stop();
+        providerServer.getDirectoryService().shutdown();
     }
 
 
@@ -229,7 +231,6 @@ public class ClientServerReplicationIT
 
 
     @Test
-    @Ignore("This test is curently failing")
     public void testModify() throws Exception
     {
         Entry provUser = createEntry();
@@ -252,7 +253,6 @@ public class ClientServerReplicationIT
 
 
     @Test
-    @Ignore("This test is curently failing")
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();

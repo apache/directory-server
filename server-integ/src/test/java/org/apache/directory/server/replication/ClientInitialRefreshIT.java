@@ -91,9 +91,10 @@ public class ClientInitialRefreshIT
 
 
     @AfterClass
-    public static void tearDown()
+    public static void tearDown() throws Exception
     {
         providerServer.stop();
+        providerServer.getDirectoryService().shutdown();
     }
 
 
@@ -384,7 +385,7 @@ public class ClientInitialRefreshIT
         // We should have 1000 entries plus the base entry = 1001
         assertTrue( waitForSyncReplClient( consumer, 1001 ) );
 
-        // Inject a new intry in the producer
+        // Inject a new entry in the producer
         Entry addedEntry = createEntry();
         providerSession.add( addedEntry );
 
