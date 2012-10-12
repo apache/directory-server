@@ -98,39 +98,6 @@ public class ClientInitialRefreshIT
     }
 
 
-    /**
-     * Check that the entry exists in the target server. We wait up to 10 seconds, by
-     * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
-     */
-    private boolean checkEntryExistence( CoreSession session, Dn entryDn ) throws Exception
-    {
-        boolean replicated = false;
-
-        for ( int i = 0; i < 100; i++ )
-        {
-            Thread.sleep( 100 );
-
-            if ( session.exists( entryDn ) )
-            {
-                replicated = true;
-                break;
-            }
-        }
-
-        return replicated;
-    }
-
-
-    private void waitAndCompareEntries( Dn dn ) throws Exception
-    {
-        // sleep for 2 sec (twice the refresh interval), just to let the first refresh request succeed
-        Entry providerEntry = providerSession.lookup( dn, "*", "+" );
-
-        //Entry consumerEntry = consumerSession.lookup( dn, "*", "+" );
-        //assertEquals( providerEntry, consumerEntry );
-    }
-
-
     private static Entry createEntry() throws Exception
     {
         String user = "user" + entryCount.incrementAndGet();
@@ -237,7 +204,6 @@ public class ClientInitialRefreshIT
     private boolean waitUntilLimitSyncReplClient( int limit, ReplicationConsumer... consumers ) throws Exception
     {
         System.out.println( "\nCompleted so far : " );
-        boolean isFirst = true;
         int nbConsumers = consumers.length;
         int[] nbAddeds = new int[nbConsumers];
         int nbCompleted = 0;
