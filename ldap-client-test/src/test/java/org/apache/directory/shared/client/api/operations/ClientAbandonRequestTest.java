@@ -181,7 +181,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
         cursor.close();
 
-        // System.out.println( "Responses received / expected : " + count + "/" + numEntries );
+        System.out.println( "Responses received / expected : " + count + "/" + numEntries );
         assertTrue( numEntries > count );
     }
 }
