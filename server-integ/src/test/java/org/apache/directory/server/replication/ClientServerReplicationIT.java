@@ -48,6 +48,7 @@ import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.csn.Csn;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
@@ -152,20 +153,22 @@ public class ClientServerReplicationIT
 
 
     /**
-     * Check that the entry exists in the target server. We wait up to 10 seconds, by
-     * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
+     * Check that the entry was replicated to the target server. That is the case when the entry exists on the target
+     * server and its entryCSN is greater than or equal compared to the source entry. We wait up to 10 seconds, 
+     * by 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
      */
-    private boolean checkEntryExistence( CoreSession session, Dn entryDn ) throws Exception
+    private boolean checkEntryReplicated( Dn entryDn ) throws Exception
     {
-        return checkEntryExistence( session, entryDn, false );
+        return checkEntryReplicated( entryDn, false );
     }
 
 
     /**
-     * Check that the entry exists in the target server. We wait up to 10 seconds, by
-     * 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
+     * Check that the entry was replicated to the target server. That is the case when the entry exists on the target
+     * server and its entryCSN is greater than or equal compared to the source entry. We wait up to 10 seconds, 
+     * by 100ms steps, until either the entry s found, or we have exhausted the 10 seconds delay.
      */
-    private boolean checkEntryExistence( CoreSession session, Dn entryDn, boolean print ) throws Exception
+    private boolean checkEntryReplicated( Dn entryDn, boolean print ) throws Exception
     {
         boolean replicated = false;
 
@@ -173,15 +176,27 @@ public class ClientServerReplicationIT
         {
             Thread.sleep( 50 );
 
-            if ( session.exists( entryDn ) )
+            if ( consumerSession.exists( entryDn ) )
             {
                 if ( print )
                 {
                     System.out.println( entryDn.getName() + " exists " );
                 }
 
-                replicated = true;
-                break;
+                Entry providerEntry = providerSession.lookup( entryDn, SchemaConstants.ENTRY_CSN_AT );
+                Entry consumerEntry = consumerSession.lookup( entryDn, SchemaConstants.ENTRY_CSN_AT );
+                Csn providerCSN = new Csn( providerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+                Csn consumerCSN = new Csn( consumerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+                if ( consumerCSN.compareTo( providerCSN ) >= 0 )
+                {
+                    if ( print )
+                    {
+                        System.out.println( entryDn.getName() + " replicated " );
+                    }
+
+                    replicated = true;
+                    break;
+                }
             }
 
             Thread.sleep( 50 );
@@ -189,7 +204,7 @@ public class ClientServerReplicationIT
 
         if ( replicated == false )
         {
-            dump( session, entryDn );
+            dump( consumerSession, entryDn );
         }
 
         return replicated;
@@ -247,7 +262,7 @@ public class ClientServerReplicationIT
 
         providerSession.modify( modReq );
 
-        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
+        assertTrue( checkEntryReplicated( provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
     }
 
@@ -271,7 +286,7 @@ public class ClientServerReplicationIT
         // Add entry "ou=users,dc=example,dc=com"
         providerSession.add( entry ); // 2
 
-        assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
+        assertTrue( checkEntryReplicated( usersContainer ) );
         waitAndCompareEntries( entry.getDn() );
 
         // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
@@ -281,7 +296,7 @@ public class ClientServerReplicationIT
         // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
         Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
 
-        assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
+        assertTrue( checkEntryReplicated( movedEntryDn ) );
         waitAndCompareEntries( movedEntryDn );
 
         Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
@@ -291,7 +306,7 @@ public class ClientServerReplicationIT
 
         Dn renamedEntryDn = usersContainer.add( newName );
 
-        assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
+        assertTrue( checkEntryReplicated( renamedEntryDn ) );
         waitAndCompareEntries( renamedEntryDn );
 
         // now move and rename
@@ -305,8 +320,11 @@ public class ClientServerReplicationIT
 
         Dn movedAndRenamedEntry = newParent.add( newName );
 
-        assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
+        assertTrue( checkEntryReplicated( movedAndRenamedEntry ) );
         waitAndCompareEntries( movedAndRenamedEntry );
+        
+        // cleanup
+        providerSession.delete( usersContainer );
     }
 
 
@@ -333,7 +351,7 @@ public class ClientServerReplicationIT
             // Add entry "ou=users,dc=example,dc=com"
             providerSession.add( usersEntry ); // 2
 
-            assertTrue( checkEntryExistence( consumerSession, usersContainer ) );
+            assertTrue( checkEntryReplicated( usersContainer ) );
             waitAndCompareEntries( usersEntry.getDn() );
 
             // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
@@ -343,7 +361,7 @@ public class ClientServerReplicationIT
             // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
             Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
 
-            assertTrue( checkEntryExistence( consumerSession, movedEntryDn ) );
+            assertTrue( checkEntryReplicated( movedEntryDn ) );
             waitAndCompareEntries( movedEntryDn );
 
             Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
@@ -353,7 +371,7 @@ public class ClientServerReplicationIT
 
             Dn renamedEntryDn = usersContainer.add( newName );
 
-            assertTrue( checkEntryExistence( consumerSession, renamedEntryDn ) );
+            assertTrue( checkEntryReplicated( renamedEntryDn ) );
             waitAndCompareEntries( renamedEntryDn );
 
             // now move and rename
@@ -367,7 +385,7 @@ public class ClientServerReplicationIT
 
             Dn movedAndRenamedEntry = newParent.add( newName );
 
-            assertTrue( checkEntryExistence( consumerSession, movedAndRenamedEntry ) );
+            assertTrue( checkEntryReplicated( movedAndRenamedEntry ) );
             waitAndCompareEntries( movedAndRenamedEntry );
 
             // Ok, no failure, revert everything
@@ -387,7 +405,7 @@ public class ClientServerReplicationIT
 
         providerSession.add( provUser );
 
-        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
+        assertTrue( checkEntryReplicated( provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
@@ -426,7 +444,7 @@ public class ClientServerReplicationIT
 
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
 
-        assertTrue( checkEntryExistence( consumerSession, addedUserDn ) );
+        assertTrue( checkEntryReplicated( addedUserDn ) );
         waitAndCompareEntries( addedUserDn );
 
         return provUser;
@@ -443,7 +461,7 @@ public class ClientServerReplicationIT
 
         providerSession.add( provUser );
 
-        assertTrue( checkEntryExistence( consumerSession, provUser.getDn() ) );
+        assertTrue( checkEntryReplicated( provUser.getDn() ) );
         waitAndCompareEntries( provUser.getDn() );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
@@ -459,7 +477,7 @@ public class ClientServerReplicationIT
     private void waitAndCompareEntries( Dn dn ) throws Exception
     {
         String[] searchAttributes = new String[]
-            {
+        {
                 SchemaConstants.ALL_USER_ATTRIBUTES,
                 SchemaConstants.ENTRY_UUID_AT
         };
