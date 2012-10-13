@@ -39,17 +39,10 @@ import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
-import org.apache.directory.server.core.api.filtering.EntryFilter;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.DelayInducingInterceptor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -126,54 +119,6 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     
-    /**
-     * An {@link Interceptor} that fakes a specified amount of delay to each
-     * search iteration so we can make sure search time limits are adhered to.
-     *
-     * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
-     */
-    class DelayInducingInterceptor extends BaseInterceptor
-    {
-        private Long delayMillis;
-    
-    
-        public DelayInducingInterceptor()
-        {
-            super( "DelayInterceptor" );
-        }
-    
-    
-        public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
-        {
-            EntryFilteringCursor cursor = next( searchContext );
-            cursor.addEntryFilter( new EntryFilter()
-            {
-                public boolean accept( SearchingOperationContext operation, Entry result ) throws Exception
-                {
-                    if ( delayMillis != null )
-                    {
-                        Thread.sleep( delayMillis );
-                    }
-    
-                    return true;
-                }
-            } );
-    
-            return cursor;
-        }
-    
-    
-        public void setDelayMillis( long delayMillis )
-        {
-            if ( delayMillis <= 0 )
-            {
-                this.delayMillis = null;
-            }
-    
-            this.delayMillis = delayMillis;
-        }
-    }
-    
     private int oldMaxTimeLimit;
     private long oldMaxSizeLimit;
     private DelayInducingInterceptor delayInterceptor;
@@ -194,7 +139,7 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
     {
         getLdapServer().setMaxTimeLimit( oldMaxTimeLimit );
         getLdapServer().setMaxSizeLimit( oldMaxSizeLimit );
-        getLdapServer().getDirectoryService().remove( "DelayInterceptor" );
+        getLdapServer().getDirectoryService().remove( delayInterceptor.getName() );
     }
     
     

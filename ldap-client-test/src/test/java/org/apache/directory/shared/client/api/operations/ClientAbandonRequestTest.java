@@ -30,6 +30,7 @@ import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.DelayInducingInterceptor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -66,12 +67,15 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final int numEntries = 100;
+    private DelayInducingInterceptor delayInterceptor;
     private LdapNetworkConnection connection;
 
 
     @Before
     public void setup() throws Exception
     {
+        delayInterceptor = new DelayInducingInterceptor();
+        getLdapServer().getDirectoryService().addFirst( delayInterceptor );
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
         // injecting some values to keep the
@@ -99,6 +103,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     public void shutdown() throws Exception
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
+        getLdapServer().getDirectoryService().remove( delayInterceptor.getName() );
     }
 
 
@@ -152,6 +157,10 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAbandonSearch() throws Exception
     {
+        // Slow down sending of results, otherwise it is possible that the server already sent all results 
+        // before the abandon request arrives. See DIRAPI-94.
+        delayInterceptor.setDelayMillis( 1 );
+
         // Launch the search now
         EntryCursor cursor = connection.search( new Dn( "ou=system" ), "(cn=*)", SearchScope.ONELEVEL, "*" );
 
@@ -172,7 +181,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 
         cursor.close();
 
-        System.out.println( "Responses received / expected : " + count + "/" + numEntries );
+        //System.out.println( "Responses received / expected : " + count + "/" + numEntries );
         assertTrue( numEntries > count );
     }
 }
