@@ -24,6 +24,7 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -47,6 +48,7 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,14 +63,35 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 {
-
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+    private static final int numEntries = 100;
     private LdapNetworkConnection connection;
 
 
     @Before
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+
+        // injecting some values to keep the
+        // followed search operation to run for a while
+        for ( int i = 0; i < numEntries; i++ )
+        {
+            String s = String.valueOf( i );
+            Dn dn = new Dn( "cn=" + s + ",ou=system" );
+            if ( connection.exists( dn ) )
+            {
+                break;
+            }
+
+            Entry entry = new DefaultEntry( dn );
+            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
+            entry.add( SchemaConstants.CN_AT, s );
+            entry.add( SchemaConstants.SN_AT, s );
+
+            connection.add( entry );
+        }
     }
 
 
@@ -82,22 +105,6 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     @Test
     public void testCancelSearch() throws Exception
     {
-        // injecting some values to keep the
-        // followed search operation to run for a while
-        final int numEntries = 100;
-
-        for ( int i = 0; i < numEntries; i++ )
-        {
-            String s = String.valueOf( i );
-            Dn dn = new Dn( "cn=" + s + ",ou=system" );
-            Entry entry = new DefaultEntry( dn );
-            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
-            entry.add( SchemaConstants.CN_AT, s );
-            entry.add( SchemaConstants.SN_AT, s );
-
-            connection.add( entry );
-        }
-
         SearchRequest sr = new SearchRequestImpl();
         sr.setFilter( "(cn=*)" );
         sr.setBase( new Dn( "ou=system" ) );
@@ -145,22 +152,6 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAbandonSearch() throws Exception
     {
-        // injecting some values to keep the
-        // followed search operation to run for a while
-        final int numEntries = 100;
-
-        for ( int i = 0; i < numEntries; i++ )
-        {
-            String s = String.valueOf( i );
-            Dn dn = new Dn( "cn=" + s + ",ou=system" );
-            Entry entry = new DefaultEntry( dn );
-            entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );
-            entry.add( SchemaConstants.CN_AT, s );
-            entry.add( SchemaConstants.SN_AT, s );
-
-            connection.add( entry );
-        }
-
         // Launch the search now
         EntryCursor cursor = connection.search( new Dn( "ou=system" ), "(cn=*)", SearchScope.ONELEVEL, "*" );
 

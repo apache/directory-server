@@ -86,6 +86,12 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap-client-api</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.junit</groupId>
+      <artifactId>junit-addons</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
