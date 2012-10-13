@@ -250,20 +250,24 @@ public class ClientServerReplicationIT
     {
         Entry provUser = createEntry();
 
+        // precondition: entry does not exist
+        assertFalse( providerSession.exists( provUser.getDn() ) );
         assertFalse( consumerSession.exists( provUser.getDn() ) );
 
+        // add the entry and check it is replicated
         providerSession.add( provUser );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
+        assertTrue( checkEntryReplicated( provUser.getDn() ) );
 
+        // modify the entry and check it is replicated
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
-
         providerSession.modify( modReq );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
-        waitAndCompareEntries( provUser.getDn() );
+        compareEntries( provUser.getDn() );
     }
 
 
@@ -271,60 +275,61 @@ public class ClientServerReplicationIT
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
+        Dn userDn = provUser.getDn();
 
-        assertFalse( consumerSession.exists( provUser.getDn() ) );
+        assertFalse( consumerSession.exists( userDn ) );
 
-        // Add entry : "cn=entryN,dc=example,dc=com"
-        providerSession.add( provUser ); // 1
+        // Add entry "cn=entryN,dc=example,dc=com" and check it is replicated
+        providerSession.add( provUser );
+        
+        assertTrue( checkEntryReplicated( userDn ) );
 
-        Dn usersContainer = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
+        // Add container for users "ou=users,dc=example,dc=com" and check it is replicated
+        Dn usersContainerDn = new Dn( schemaManager, "ou=users,dc=example,dc=com" );
 
-        DefaultEntry entry = new DefaultEntry( schemaManager, usersContainer,
+        Entry userContainer = new DefaultEntry( schemaManager, usersContainerDn,
             "objectClass: organizationalUnit",
             "ou: users" );
 
-        // Add entry "ou=users,dc=example,dc=com"
-        providerSession.add( entry ); // 2
+        providerSession.add( userContainer );
 
-        assertTrue( checkEntryReplicated( usersContainer ) );
-        waitAndCompareEntries( entry.getDn() );
+        assertTrue( checkEntryReplicated( usersContainerDn ) );
+        compareEntries( userContainer.getDn() );
 
-        // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
-        Dn userDn = provUser.getDn();
-        providerSession.move( userDn, usersContainer );
+        // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com" and check it is replicated
+        providerSession.move( userDn, usersContainerDn );
 
         // The moved entry : "cn=entryN,ou=users,dc=example,dc=com"
-        Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
+        Dn movedEntryDn = usersContainerDn.add( userDn.getRdn() );
 
         assertTrue( checkEntryReplicated( movedEntryDn ) );
-        waitAndCompareEntries( movedEntryDn );
+        compareEntries( movedEntryDn );
 
+        // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com" and check it is replicated
         Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
-
-        // Rename "cn=entryN,ou=users,dc=example,dc=com" to "cn=entryNrenamed,ou=users,dc=example,dc=com"
         providerSession.rename( movedEntryDn, newName, true );
 
-        Dn renamedEntryDn = usersContainer.add( newName );
+        Dn renamedEntryDn = usersContainerDn.add( newName );
 
         assertTrue( checkEntryReplicated( renamedEntryDn ) );
-        waitAndCompareEntries( renamedEntryDn );
+        compareEntries( renamedEntryDn );
 
         // now move and rename
-        Dn newParent = usersContainer.getParent();
+        Dn newParent = usersContainerDn.getParent();
 
         newName = new Rdn( schemaManager, renamedEntryDn.getRdn().getName() + "MovedAndRenamed" );
 
         // Move and rename "cn=entryNrenamed,ou=users,dc=example,dc=com" to
-        // "cn=entryNMovedAndRenamed,dc=example,dc=com"
-        providerSession.moveAndRename( renamedEntryDn, newParent, newName, false ); //4
+        // "cn=entryNMovedAndRenamed,dc=example,dc=com"  and check it is replicated
+        providerSession.moveAndRename( renamedEntryDn, newParent, newName, false );
 
-        Dn movedAndRenamedEntry = newParent.add( newName );
+        Dn movedAndRenamedEntryDn = newParent.add( newName );
 
-        assertTrue( checkEntryReplicated( movedAndRenamedEntry ) );
-        waitAndCompareEntries( movedAndRenamedEntry );
+        assertTrue( checkEntryReplicated( movedAndRenamedEntryDn ) );
+        compareEntries( movedAndRenamedEntryDn );
         
         // cleanup
-        providerSession.delete( usersContainer );
+        providerSession.delete( usersContainerDn );
     }
 
 
@@ -352,7 +357,7 @@ public class ClientServerReplicationIT
             providerSession.add( usersEntry ); // 2
 
             assertTrue( checkEntryReplicated( usersContainer ) );
-            waitAndCompareEntries( usersEntry.getDn() );
+            compareEntries( usersEntry.getDn() );
 
             // Move entry "cn=entryN,dc=example,dc=com" to "ou=users,dc=example,dc=com"
             Dn userDn = newuser.getDn();
@@ -362,7 +367,7 @@ public class ClientServerReplicationIT
             Dn movedEntryDn = usersContainer.add( userDn.getRdn() );
 
             assertTrue( checkEntryReplicated( movedEntryDn ) );
-            waitAndCompareEntries( movedEntryDn );
+            compareEntries( movedEntryDn );
 
             Rdn newName = new Rdn( schemaManager, movedEntryDn.getRdn().getName() + "renamed" );
 
@@ -372,7 +377,7 @@ public class ClientServerReplicationIT
             Dn renamedEntryDn = usersContainer.add( newName );
 
             assertTrue( checkEntryReplicated( renamedEntryDn ) );
-            waitAndCompareEntries( renamedEntryDn );
+            compareEntries( renamedEntryDn );
 
             // now move and rename
             Dn newParent = usersContainer.getParent();
@@ -386,7 +391,7 @@ public class ClientServerReplicationIT
             Dn movedAndRenamedEntry = newParent.add( newName );
 
             assertTrue( checkEntryReplicated( movedAndRenamedEntry ) );
-            waitAndCompareEntries( movedAndRenamedEntry );
+            compareEntries( movedAndRenamedEntry );
 
             // Ok, no failure, revert everything
             providerSession.delete( movedAndRenamedEntry );
@@ -406,7 +411,7 @@ public class ClientServerReplicationIT
         providerSession.add( provUser );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
-        waitAndCompareEntries( provUser.getDn() );
+        compareEntries( provUser.getDn() );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( consumerSession.exists( provUser.getDn() ) );
@@ -445,7 +450,7 @@ public class ClientServerReplicationIT
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
 
         assertTrue( checkEntryReplicated( addedUserDn ) );
-        waitAndCompareEntries( addedUserDn );
+        compareEntries( addedUserDn );
 
         return provUser;
     }
@@ -462,7 +467,7 @@ public class ClientServerReplicationIT
         providerSession.add( provUser );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
-        waitAndCompareEntries( provUser.getDn() );
+        compareEntries( provUser.getDn() );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( consumerSession.exists( provUser.getDn() ) );
@@ -474,7 +479,7 @@ public class ClientServerReplicationIT
     }
 
 
-    private void waitAndCompareEntries( Dn dn ) throws Exception
+    private void compareEntries( Dn dn ) throws Exception
     {
         String[] searchAttributes = new String[]
         {
