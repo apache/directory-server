@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.registries.OidRegistry;
-import org.bouncycastle.util.Strings;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
