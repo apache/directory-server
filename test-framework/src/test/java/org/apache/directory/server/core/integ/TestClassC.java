@@ -34,11 +34,6 @@ public class TestClassC extends AbstractLdapTestUnit
     @Test
     public void testWithoutMethodOrClassLevelFactory() throws Exception
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-
         assertFalse( getService().getAdminSession().exists( new Dn( "cn=testClassC,ou=system" ) ) );
 
         // the below Dn will be injected in TestClassB when ran as suite, but that Dn

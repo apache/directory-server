@@ -36,11 +36,6 @@ public class TestClassServer extends AbstractLdapTestUnit
     {
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
 
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "dc=example,dc=com" ) ) );
-        }
-
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
     }
 }

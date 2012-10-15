@@ -41,10 +41,6 @@ public abstract class AbstractLdapTestUnit
     /** The used KdcServer instance */
     public static KdcServer kdcServer;
 
-    /** A flag set if the test is run in a suite */
-    public static boolean isRunInSuite;
-
-
     public static DirectoryService getService()
     {
         return service;
@@ -78,17 +74,5 @@ public abstract class AbstractLdapTestUnit
     public static void setKdcServer( KdcServer kdcServer )
     {
         AbstractLdapTestUnit.kdcServer = kdcServer;
-    }
-
-
-    public static boolean isRunInSuite()
-    {
-        return isRunInSuite;
-    }
-
-
-    public static void setRunInSuite( boolean isRunInSuite )
-    {
-        AbstractLdapTestUnit.isRunInSuite = isRunInSuite;
     }
 }

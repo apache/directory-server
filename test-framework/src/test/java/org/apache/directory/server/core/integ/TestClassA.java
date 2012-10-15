@@ -56,11 +56,6 @@ public class TestClassA extends AbstractLdapTestUnit
         })
     public void testWithFactoryAnnotation() throws Exception
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
     }
@@ -76,11 +71,6 @@ public class TestClassA extends AbstractLdapTestUnit
         })
     public void testWithoutFactoryAnnotation() throws Exception
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
         assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );

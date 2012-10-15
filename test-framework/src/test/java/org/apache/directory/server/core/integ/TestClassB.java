@@ -42,11 +42,6 @@ public class TestClassB extends AbstractLdapTestUnit
     @CreateDS(name = "testDS")
     public void testWithFactoryAnnotation() throws Exception
     {
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
     
@@ -54,15 +49,6 @@ public class TestClassB extends AbstractLdapTestUnit
     @Test
     public void testWithoutFactoryAnnotation() throws Exception
     {
-        // this assertion will only work if ran as part of TestSuite
-        // commenting this to make maven report test success, uncomment in an IDE
-        // while running the TestSuite
-        // assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        if ( isRunInSuite )
-        {
-            assertTrue( getService().getAdminSession().exists( new Dn( "cn=testSuite,ou=system" ) ) );
-        }
-    
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 }

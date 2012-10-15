@@ -39,15 +39,9 @@ import org.junit.runner.RunWith;
 @CreateDS(name = "TestMultiLevelDS-class")
 public class TestMultiLevelDS extends AbstractLdapTestUnit
 {
-
     @Test
     public void testMethodWithClassLevelDs()
     {
-        // to make this test pass standalone
-        if ( isRunInSuite )
-        {
-            assertTrue( getLdapServer().getDirectoryService() == getService() );
-        }
         assertFalse( getService().isAccessControlEnabled() );
         assertEquals( "TestMultiLevelDS-class", getService().getInstanceId() );
     }
@@ -57,11 +51,6 @@ public class TestMultiLevelDS extends AbstractLdapTestUnit
     @CreateDS(enableAccessControl = true, name = "testMethodWithClassLevelDs-method")
     public void testMethodWithMethodLevelDs()
     {
-        // to make this test pass standalone
-        if ( isRunInSuite )
-        {
-            assertTrue( getLdapServer().getDirectoryService() == getService() );
-        }
         assertTrue( getService().isAccessControlEnabled() );
         assertEquals( "testMethodWithClassLevelDs-method", getService().getInstanceId() );
     }
