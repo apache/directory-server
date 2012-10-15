@@ -141,8 +141,8 @@
     </dependency>
 
     <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>bcprov-jdk15</artifactId>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
     </dependency>
   </dependencies>
 

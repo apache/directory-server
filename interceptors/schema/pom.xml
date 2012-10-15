@@ -76,11 +76,6 @@
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-util</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcprov-jdk15</artifactId>
-    </dependency>
   </dependencies>
 
   <build>

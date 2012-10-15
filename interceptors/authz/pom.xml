@@ -73,11 +73,6 @@
     </dependency>
     
     <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcprov-jdk15</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
     </dependency>
