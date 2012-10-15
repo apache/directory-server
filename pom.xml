@@ -81,7 +81,6 @@
     <slf4j.log4j12.version>1.7.1</slf4j.log4j12.version>
     <velocity.version>1.7-beta1</velocity.version>
     <wrapper.version>3.2.3</wrapper.version>
-    <xercesImpl.version>2.10.0</xercesImpl.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -1170,12 +1169,6 @@
         <groupId>bouncycastle</groupId>
         <artifactId>bcprov-jdk15</artifactId>
         <version>${bcprov.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>${xercesImpl.version}</version>
       </dependency>
 
       <dependency>
