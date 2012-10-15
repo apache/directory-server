@@ -57,12 +57,10 @@
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
     <commons.daemon.version>1.0.10</commons.daemon.version>
-    <commons.dbcp.version>1.4</commons.dbcp.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.1</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
-    <derby.version>10.9.1.0</derby.version>
     <dnsjava.version>2.1.1</dnsjava.version>
     <ehcache.version>2.4.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -1043,12 +1041,6 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>${commons.dbcp.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
         <version>${commons.net.version}</version>
@@ -1124,12 +1116,6 @@
         <groupId>jug</groupId>
         <artifactId>jug-asl</artifactId>
         <version>${jug.asl.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>${derby.version}</version>
       </dependency>
 
       <dependency>
