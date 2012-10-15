@@ -65,7 +65,6 @@
     <ehcache.version>2.4.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>6.1.14</jetty.version>
-    <jug.asl.version>2.0.0.RC1</jug.asl.version>
     <junit.version>4.10</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
@@ -76,7 +75,6 @@
     <mina.core.version>2.0.7</mina.core.version>
     <plexus.utils.version>3.0</plexus.utils.version>
     <plexus.utils.version>3.0.8</plexus.utils.version>
-    <quartz.version>1.6.3</quartz.version>
     <slf4j.api.version>1.7.1</slf4j.api.version>
     <slf4j.log4j12.version>1.7.1</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
@@ -1096,18 +1094,6 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>opensymphony</groupId>
-        <artifactId>quartz</artifactId>
-        <version>${quartz.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>jug</groupId>
-        <artifactId>jug-asl</artifactId>
-        <version>${jug.asl.version}</version>
       </dependency>
 
       <dependency>
