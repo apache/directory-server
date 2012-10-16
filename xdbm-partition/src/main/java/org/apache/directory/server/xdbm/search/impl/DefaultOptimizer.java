@@ -45,6 +45,7 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
+import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -157,7 +158,7 @@ public class DefaultOptimizer<E> implements Optimizer
             else if ( node instanceof SubstringNode )
             {
                 /** Cannot really say so we presume the total index count */
-                count = getFullScan( leaf );
+                count = getSubstringScan( ( SubstringNode ) leaf );
             }
             else if ( node instanceof ExtensibleNode )
             {
@@ -305,6 +306,7 @@ public class DefaultOptimizer<E> implements Optimizer
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+            
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -317,6 +319,42 @@ public class DefaultOptimizer<E> implements Optimizer
 
         // count for non-indexed attribute is unknown so we presume da worst
         return Long.MAX_VALUE;
+    }
+    
+    
+    /**
+     * Get a scan count based on a Substring node : we will count the entries that are greater
+     * than ABC where the filter is (attr=ABC*). Any other filter won't be evaluated (for instance,
+     * a filter like (attr=*ABC) will resolve to a full scan atm - we could have created a reverted
+     * index for such a case -, and filters like (attr=*ABC*) also esolve to a full scan).
+     * 
+     * @param node The substring node
+     * @return The number of candidates
+     * @throws Exception If there is an error accessing an index
+     */
+    private long getSubstringScan( SubstringNode node ) throws Exception
+    {
+        if ( db.hasIndexOn( node.getAttributeType() ) )
+        {
+            Index<String, E, String> idx = ( Index<String, E, String> ) db.getIndex( node.getAttributeType() );
+            
+            String initial = node.getInitial();
+            
+            if ( Strings.isEmpty( initial ) )
+            {
+            	// Not a (attr=ABC*) filter : full scan
+                return Long.MAX_VALUE;
+            }
+            else
+            {
+            	return idx.greaterThanCount( initial );
+            }
+        }
+        else
+        {
+            // count for non-indexed attribute is unknown so we presume da worst
+        	return Long.MAX_VALUE;
+        }
     }
 
 
