@@ -1321,27 +1321,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         // --------------------------------------------------------------------
-        // Shutdown the changelog
-        // --------------------------------------------------------------------
-        changeLog.sync();
-        changeLog.destroy();
-
-        // --------------------------------------------------------------------
-        // Shutdown the journal if enabled
-        // --------------------------------------------------------------------
-        if ( journal.isEnabled() )
-        {
-            journal.destroy();
-        }
-
-        // --------------------------------------------------------------------
-        // Shutdown the partition
-        // --------------------------------------------------------------------
-
-        partitionNexus.sync();
-        partitionNexus.destroy();
-
-        // --------------------------------------------------------------------
         // Shutdown the sync thread
         // --------------------------------------------------------------------
         if ( workerThread != null )
@@ -1359,6 +1338,30 @@ public class DefaultDirectoryService implements DirectoryService
                 workerThread.join( 500 );
             }
         }
+        else
+        {
+            partitionNexus.sync();
+        }
+
+        // --------------------------------------------------------------------
+        // Shutdown the changelog
+        // --------------------------------------------------------------------
+        changeLog.sync();
+        changeLog.destroy();
+
+        // --------------------------------------------------------------------
+        // Shutdown the journal if enabled
+        // --------------------------------------------------------------------
+        if ( journal.isEnabled() )
+        {
+            journal.destroy();
+        }
+
+        // --------------------------------------------------------------------
+        // Shutdown the partition
+        // --------------------------------------------------------------------
+
+        partitionNexus.destroy();
 
         // --------------------------------------------------------------------
         // And shutdown the server
