@@ -70,4 +70,12 @@ public final class ServerDNConstants
     /** The ldifDile base which stores the name of the loaded ldif files */
     public static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
+    /** the config partition's dn */
+    public static final String CONFIG_DN = "ou=config";
+
+    /** The replication consumer container DN */
+    public static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
+    
+    /** the replication consumer configuration DN */
+    public static final String REPL_CONSUMER_CONFIG_DN = "ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config";
 }
