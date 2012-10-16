@@ -52,7 +52,6 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.8.4</ant.version>
-    <antlr.version>2.7.7</antlr.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
@@ -1082,12 +1081,6 @@
         <groupId>org.apache.ant</groupId>
         <artifactId>ant</artifactId>
         <version>${ant.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>antlr</groupId>
-        <artifactId>antlr</artifactId>
-        <version>${antlr.version}</version>
       </dependency>
 
       <dependency>
