@@ -160,7 +160,10 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
         if ( evaluator.evaluate( indexEntry ) )
         {
-            return indexEntry.getEntry();
+            Entry entry = indexEntry.getEntry();
+            indexEntry.setEntry( null );
+            
+            return entry;
         }
         else
         {
