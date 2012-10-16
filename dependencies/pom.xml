@@ -39,12 +39,6 @@
     </dependency>
 
     <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-      <version>${antlr.version}</version>
-    </dependency>
-    
-    <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
       <version>${bcprov.version}</version>
@@ -77,7 +71,6 @@
             </Import-Package>
             <_exportcontents>
               net.sf.ehcache*,
-              antlr*,
               org.bouncycastle*,
               org.junit*
             </_exportcontents>
