@@ -81,7 +81,8 @@ public class InstanceLayout extends AbstractLayout
     private static final String RUN_NAME = "run";
     private static final String CONF_NAME = "conf";
     private static final String PARTITIONS_NAME = "partitions";
-
+    private static final String REPL_NAME = "syncrepl-data";
+    
     /** Static file names */
     private static final String LOG4J_PROPERTIES = "log4j.properties";
     private static final String WRAPPER_CONF = "wrapper.conf";
@@ -99,6 +100,8 @@ public class InstanceLayout extends AbstractLayout
     /** The Conf directory */
     private File confDir;
 
+    /** The replication data directory */
+    private File replDir;
 
     /**
      * Creates a new instance of InstanceLayout.
@@ -313,6 +316,31 @@ public class InstanceLayout extends AbstractLayout
     }
 
 
+    /**
+     * Gets the 'replication' directory where replication journals are stored.
+     *
+     * @return the 'replication' directory
+     */
+    public File getReplDirectory()
+    {
+        if ( replDir == null )
+        {
+            replDir = new File( getInstanceDirectory(), REPL_NAME );
+        }
+
+        return replDir;
+    }
+
+
+    /**
+     * @param replDir the replication journal data directory
+     */
+    public void setReplDirectory( File replDir )
+    {
+        this.replDir = replDir;
+    }
+
+
     public String toString()
     {
         return "Instance Layout: \n" +
@@ -320,6 +348,7 @@ public class InstanceLayout extends AbstractLayout
             "  Instance conf dir       : " + getConfDirectory() + "\n" +
             "  Instance log dir        : " + getLogDirectory() + "\n" +
             "  Instance run dir        : " + getRunDirectory() + "\n" +
-            "  Instance partitions dir : " + getPartitionsDirectory() + "\n";
+            "  Instance partitions dir : " + getPartitionsDirectory() + "\n" +
+            "  Instance replication data dir        : " + getLogDirectory() + "\n";
     }
 }
