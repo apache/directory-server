@@ -80,6 +80,13 @@ public class EventListenerAdapter implements DirectoryListener
         this.source = source;
         this.listener = listener;
     }
+    
+    
+    @Override
+	public boolean isSynchronous()
+    {
+		return false; // always asynchronous
+	}
 
 
     private void deliverNamingExceptionEvent( Exception e )

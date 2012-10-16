@@ -21,10 +21,12 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
@@ -60,6 +62,9 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
 
     private ReplicaEventMessage qualifiedEvtMsg;
 
+    /** used while cleaning up the log */
+    private boolean skipQualifying;
+
 
     /**
      * Creates a cursor on top of the given journal
@@ -71,9 +76,9 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     {
         if ( IS_DEBUG )
         {
-        	LOG_CURSOR.debug( "Creating ReplicaJournalCursor {}", this );
+            LOG_CURSOR.debug( "Creating ReplicaJournalCursor {}", this );
         }
-        
+
         this.journal = journal;
         this.tupleCursor = journal.cursor();
         this.consumerCsn = consumerCsn;
@@ -147,34 +152,30 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * 
      * @throws Exception
      */
-    private void selectQualified() throws Exception
+    private boolean isQualified( String csn, ReplicaEventMessage evtMsg ) throws Exception
     {
-        Tuple<String, ReplicaEventMessage> t = tupleCursor.get();
+        LOG.debug( "ReplicaEventMessage: {}", evtMsg );
 
-        qualifiedEvtMsg = t.getValue();
-
-        LOG.debug( "ReplicaEventMessage: {}", qualifiedEvtMsg );
-
-        if ( qualifiedEvtMsg.isEventOlderThan( consumerCsn ) )
+        if ( evtMsg.isEventOlderThan( consumerCsn ) )
         {
             if ( LOG.isDebugEnabled() )
             {
                 String evt = "MODDN"; // take this as default cause the event type for MODDN is null
 
-                ChangeType changeType = qualifiedEvtMsg.getChangeType();
+                ChangeType changeType = evtMsg.getChangeType();
 
                 if ( changeType != null )
                 {
                     evt = changeType.name();
                 }
 
-                LOG.debug( "event {} for dn {} is not qualified for sending", evt, qualifiedEvtMsg.getEntry().getDn() );
+                LOG.debug( "event {} for dn {} is not qualified for sending", evt, evtMsg.getEntry().getDn() );
             }
 
-            // TODO need to be checked if this causes issues in JDBM
-            journal.remove( t.getKey() );
-            qualifiedEvtMsg = null;
+            return false;
         }
+
+        return true;
     }
 
 
@@ -194,11 +195,27 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     {
         while ( tupleCursor.next() )
         {
-            selectQualified();
+            Tuple<String, ReplicaEventMessage> tuple = tupleCursor.get();
 
-            if ( qualifiedEvtMsg != null )
+            String csn = tuple.getKey();
+            ReplicaEventMessage message = tuple.getValue();
+
+            if ( skipQualifying )
             {
+                qualifiedEvtMsg = message;
                 return true;
+            }
+
+            boolean qualified = isQualified( csn, message );
+
+            if ( qualified )
+            {
+                qualifiedEvtMsg = message;
+                return true;
+            }
+            else
+            {
+                journal.remove( csn );
             }
         }
 
@@ -225,9 +242,9 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     {
         if ( IS_DEBUG )
         {
-        	LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
+            LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         }
-        
+
         tupleCursor.close();
         super.close();
     }
@@ -241,11 +258,41 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     {
         if ( IS_DEBUG )
         {
-        	LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
+            LOG_CURSOR.debug( "Closing ReplicaJournalCursor {}", this );
         }
-        
+
         tupleCursor.close();
         super.close( cause );
+    }
+
+
+    /**
+     * sets the flag to skip CSN based checking while traversing
+     * used for internal log cleanup ONLY 
+     */
+    protected void skipQualifyingWhileFetching()
+    {
+        skipQualifying = true;
+    }
+
+
+    /**
+     * delete the current message
+     * used for internal log cleanup ONLY
+     */
+    protected void delete()
+    {
+        try
+        {
+            if ( qualifiedEvtMsg != null )
+            {
+                journal.remove( qualifiedEvtMsg.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+            }
+        }
+        catch ( Exception e )
+        {
+
+        }
     }
 
 

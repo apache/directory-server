@@ -26,18 +26,24 @@ import static org.apache.directory.server.ldap.LdapServer.NO_SIZE_LIMIT;
 import static org.apache.directory.server.ldap.LdapServer.NO_TIME_LIMIT;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.event.DirectoryListenerAdapter;
+import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -84,12 +90,12 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.url.LdapUrl;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Class used to process the incoming synchronization request from the consumers.
@@ -126,6 +132,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private ReplConsumerManager replicaUtil;
 
 
+    private ConsumerLogEntryDeleteListener cledListener;
+    
+    private ReplicaEventLogJanitor logJanitor;
+    
+    private AttributeType CSN_AT;
+    
     /**
      * Create a SyncReplRequestHandler empty instance 
      */
@@ -153,12 +165,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             this.ldapServer = server;
             this.dirService = server.getDirectoryService();
-
+            
+            CSN_AT = dirService.getSchemaManager()
+                .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+            
             OBJECT_CLASS_AT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
-            File workDir = dirService.getInstanceLayout().getLogDirectory();
-            syncReplData = new File( workDir, "syncrepl-data" );
+            syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
             if ( !syncReplData.exists() )
             {
@@ -172,8 +186,18 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             loadReplicaInfo();
 
+            logJanitor = new ReplicaEventLogJanitor( replicaLogMap );
+            logJanitor.start();
+            
             registerPersistentSearches();
 
+            cledListener = new ConsumerLogEntryDeleteListener();
+            NotificationCriteria criteria = new NotificationCriteria();
+            criteria.setBase( new Dn( dirService.getSchemaManager(), ServerDNConstants.REPL_CONSUMER_DN_STR ) );
+            criteria.setEventMask( EventType.DELETE );
+            
+            dirService.getEventService().addListener( cledListener, criteria );
+            
             Thread consumerInfoUpdateThread = new Thread( createConsumerInfoUpdateTask() );
             consumerInfoUpdateThread.setDaemon( true );
             consumerInfoUpdateThread.start();
@@ -196,21 +220,27 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     public void stop()
     {
+        logJanitor.stopCleaning();
+        
+        EventService evtSrv = dirService.getEventService();
+        
         for ( ReplicaEventLog log : replicaLogMap.values() )
         {
             try
             {
                 PROVIDER_LOG.debug( "Stopping the logging for replica ", log.getId() );
+                evtSrv.removeListener( log.getPersistentListener() );
                 log.stop();
             }
             catch ( Exception e )
             {
-                LOG.warn( "Failed to close the event log {}", log.getId() );
-                LOG.warn( "", e );
+                LOG.warn( "Failed to close the event log {}", log.getId(), e );
                 PROVIDER_LOG.error( "Failed to close the event log {}", log.getId(), e );
             }
         }
-
+        
+        evtSrv.removeListener( cledListener );
+        
         initialized = false;
     }
 
@@ -290,57 +320,62 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Send all the stored modifications to the consumer
      */
-    private String sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog,
-        String consumerCsn )
+    private void sendContentFromLog( LdapSession session, SearchRequest req, ReplicaEventLog clientMsgLog, String fromCsn )
         throws Exception
     {
         // do the search from the log
-        String lastSentCsn = clientMsgLog.getLastSentCsn();
+        String lastSentCsn = fromCsn;
 
-        ReplicaJournalCursor cursor = clientMsgLog.getCursor( consumerCsn );
-
+        ReplicaJournalCursor cursor = clientMsgLog.getCursor( fromCsn );
+        
         PROVIDER_LOG.debug( "Processing the log for replica {}", clientMsgLog.getId() );
 
-        while ( cursor.next() )
+        try
         {
-            ReplicaEventMessage replicaEventMessage = cursor.get();
-            Entry entry = replicaEventMessage.getEntry();
-            LOG.debug( "Read message from the queue {}", entry );
-            PROVIDER_LOG.debug( "Read message from the queue {}", entry );
-
-            lastSentCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
-
-            ChangeType event = replicaEventMessage.getChangeType();
-
-            // if event type is null, then it is a MODDN operation
-            if ( event == ChangeType.MODDN )
+            while ( cursor.next() )
             {
-                sendSearchResultEntry( session, req, entry, SyncStateTypeEnum.MODIFY );
-            }
-            else
-            {
+                ReplicaEventMessage replicaEventMessage = cursor.get();
+                Entry entry = replicaEventMessage.getEntry();
+                LOG.debug( "Read message from the queue {}", entry );
+                PROVIDER_LOG.debug( "Read message from the queue {}", entry );
+                
+                lastSentCsn = entry.get( CSN_AT ).getString();
+                
+                ChangeType event = replicaEventMessage.getChangeType();
+                
                 SyncStateTypeEnum syncStateType = null;
-
+                
                 switch ( event )
                 {
-                    case ADD:
-                    case MODIFY:
+                    case ADD :
                         syncStateType = SyncStateTypeEnum.ADD;
                         break;
-
-                    case DELETE:
+                        
+                    case MODIFY :
+                        syncStateType = SyncStateTypeEnum.MODIFY;
+                        break;
+                        
+                    case MODDN :
+                        syncStateType = SyncStateTypeEnum.MODDN;
+                        
+                    case DELETE :
                         syncStateType = SyncStateTypeEnum.DELETE;
                         break;
                 }
-
+                
                 sendSearchResultEntry( session, req, entry, syncStateType );
+                
+                clientMsgLog.setLastSentCsn( lastSentCsn );
+                
+                PROVIDER_LOG.debug( "The latest entry sent to the consumer {} has this CSN : {}", clientMsgLog.getId(), lastSentCsn );
             }
+            
+            PROVIDER_LOG.debug( "All pending modifciations for replica {} processed", clientMsgLog.getId() );
         }
-
-        PROVIDER_LOG.debug( "All pending modifciations for replica {} processed", clientMsgLog.getId() );
-        cursor.close();
-
-        return lastSentCsn;
+        finally
+        {
+            cursor.close();
+        }
     }
 
 
@@ -351,57 +386,56 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog, String consumerCsn )
         throws Exception
     {
-        boolean refreshNPersist = isRefreshNPersist( req );
-
-        // if this method is called with refreshAndPersist  
-        // means the client was offline after it initiated a persistent synch session
-        // we need to update the handler's session 
-        if ( refreshNPersist )
+        synchronized ( replicaLog )
         {
-            SyncReplSearchListener handler = replicaLog.getPersistentListener();
-            handler.setSearchRequest( req );
-            handler.setSession( session );
+            boolean refreshNPersist = isRefreshNPersist( req );
+            
+            // if this method is called with refreshAndPersist  
+            // means the client was offline after it initiated a persistent synch session
+            // we need to update the handler's session 
+            if ( refreshNPersist )
+            {
+                SyncReplSearchListener handler = replicaLog.getPersistentListener();
+                handler.setSearchRequest( req );
+                handler.setSession( session );
+            }
+            
+            sendContentFromLog( session, req, replicaLog, consumerCsn );
+            
+            String lastSentCsn = replicaLog.getLastSentCsn();
+            
+            byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), lastSentCsn );
+            
+            if ( refreshNPersist )
+            {
+                IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
+                intermResp.setResponseName( SyncInfoValue.OID );
+                
+                SyncInfoValue syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
+                    .getLdapCodecService(),
+                    SynchronizationInfoEnum.NEW_COOKIE );
+                syncInfo.setCookie( cookie );
+                intermResp.setResponseValue( ((SyncInfoValueDecorator)syncInfo).getValue() );
+                
+                PROVIDER_LOG.debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(), intermResp );
+                session.getIoSession().write( intermResp );
+                
+                replicaLog.getPersistentListener().setPushInRealTime( refreshNPersist );
+            }
+            else
+            {
+                SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
+                searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+                SyncDoneValue syncDone = new SyncDoneValueDecorator( 
+                    ldapServer.getDirectoryService().getLdapCodecService() );
+                syncDone.setCookie( cookie );
+                searchDoneResp.addControl( syncDone );
+                
+                PROVIDER_LOG.debug( "Send a SearchResultDone response to the {} consumer", replicaLog.getId(), searchDoneResp );
+                
+                session.getIoSession().write( searchDoneResp );
+            }
         }
-
-        String lastSentCsn = sendContentFromLog( session, req, replicaLog, consumerCsn );
-
-        PROVIDER_LOG.debug( "The latest entry sent to the consumer {} has this CSN : {}", replicaLog.getId(),
-            lastSentCsn );
-        byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), lastSentCsn );
-
-        if ( refreshNPersist )
-        {
-            IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-            intermResp.setResponseName( SyncInfoValue.OID );
-
-            SyncInfoValue syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
-                .getLdapCodecService(),
-                SynchronizationInfoEnum.NEW_COOKIE );
-            syncInfo.setCookie( cookie );
-            intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
-
-            PROVIDER_LOG
-                .debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(), intermResp );
-            session.getIoSession().write( intermResp );
-
-            replicaLog.getPersistentListener().setPushInRealTime( refreshNPersist );
-        }
-        else
-        {
-            SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
-            searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            SyncDoneValue syncDone = new SyncDoneValueDecorator(
-                ldapServer.getDirectoryService().getLdapCodecService() );
-            syncDone.setCookie( cookie );
-            searchDoneResp.addControl( syncDone );
-
-            PROVIDER_LOG.debug( "Send a SearchResultDone response to the {} consumer", replicaLog.getId(),
-                searchDoneResp );
-
-            session.getIoSession().write( searchDoneResp );
-        }
-
-        replicaLog.setLastSentCsn( lastSentCsn );
     }
 
 
@@ -428,7 +462,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         StringValue contexCsnValue = new StringValue( contextCsn );
 
         // modify the filter to include the context Csn
-        GreaterEqNode csnGeNode = new GreaterEqNode( SchemaConstants.ENTRY_CSN_AT, contexCsnValue );
+        GreaterEqNode csnGeNode = new GreaterEqNode( CSN_AT, contexCsnValue );
         ExprNode postInitContentFilter = new AndNode( modifiedFilter, csnGeNode );
         request.setFilter( postInitContentFilter );
 
@@ -457,32 +491,36 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         dirService.getEventService().addListener( handler, criteria );
 
         // then start pushing initial content
-        LessEqNode csnNode = new LessEqNode( SchemaConstants.ENTRY_CSN_AT, contexCsnValue );
+        LessEqNode csnNode = new LessEqNode( CSN_AT, contexCsnValue );
 
         // modify the filter to include the context Csn
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
         request.setFilter( initialContentFilter );
 
         // Now, do a search to get all the entries
-        SearchResultDone searchDoneResp = doSimpleSearch( session, request );
+        SearchResultDone searchDoneResp = doSimpleSearch( session, request, replicaLog );
 
         if ( searchDoneResp.getLdapResult().getResultCode() == ResultCodeEnum.SUCCESS )
         {
-            replicaLog.setLastSentCsn( contextCsn );
+            if( replicaLog.getLastSentCsn() == null )
+            {
+                replicaLog.setLastSentCsn( contextCsn );
+            }
+            
             byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
 
             if ( refreshNPersist ) // refreshAndPersist mode
             {
-                contextCsn = sendContentFromLog( session, request, replicaLog, contextCsn );
-                cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
+                sendContentFromLog( session, request, replicaLog, contextCsn );
+                cookie = LdapProtocolUtils.createCookie(replicaLog.getId(), replicaLog.getLastSentCsn());
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
                 intermResp.setResponseName( SyncInfoValue.OID );
 
-                SyncInfoValue syncInfo = new SyncInfoValueDecorator(
+                SyncInfoValue syncInfo = new SyncInfoValueDecorator( 
                     ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
+                intermResp.setResponseValue( ((SyncInfoValueDecorator)syncInfo).getValue() );
 
                 PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", replicaLog, syncInfo );
 
@@ -498,8 +536,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     ldapServer.getDirectoryService().getLdapCodecService() );
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
-                PROVIDER_LOG.info( "Sending the searchResultDone response to consumer {}, {}", replicaLog,
-                    searchDoneResp );
+                PROVIDER_LOG.info( "Sending the searchResultDone response to consumer {}, {}", replicaLog, searchDoneResp );
 
                 session.getIoSession().write( searchDoneResp );
             }
@@ -511,7 +548,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 .getResultCode() );
             PROVIDER_LOG.warn( "initial content refresh didn't succeed due to {}", searchDoneResp.getLdapResult()
                 .getResultCode() );
-            replicaLog.truncate();
+            replicaLog.stop();
             replicaLog = null;
 
             // remove the listener
@@ -521,7 +558,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         // if all is well then store the consumer information
-        replicaUtil.addConsumerEntry( replicaLog );
+        replicaUtil.addConsumerEntry(replicaLog );
 
         // add to the map only after storing in the DIT, else the Replica update thread barfs
         replicaLogMap.put( replicaLog.getId(), replicaLog );
@@ -532,7 +569,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      * Process a search on the provider to get all the modified entries. We then send all
      * of them to the consumer
      */
-    private SearchResultDone doSimpleSearch( LdapSession session, SearchRequest req ) throws Exception
+    private SearchResultDone doSimpleSearch( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog ) throws Exception
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         LdapResult ldapResult = searchDoneResp.getLdapResult();
@@ -562,7 +599,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
             long sizeLimit = min( requestLimit, serverLimit );
 
-            readResults( session, req, ldapResult, cursor, sizeLimit );
+            readResults( session, req, ldapResult, cursor, sizeLimit, replicaLog );
         }
         finally
         {
@@ -587,10 +624,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      * Process the results get from a search request. We will send them to the client.
      */
     private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit ) throws Exception
+        EntryFilteringCursor cursor, long sizeLimit, ReplicaEventLog replicaLog ) throws Exception
     {
         long count = 0;
 
+        
         while ( ( count < sizeLimit ) && cursor.next() )
         {
             // Handle closed session
@@ -598,8 +636,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 // The client has closed the connection
                 LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
-                PROVIDER_LOG.debug( "Request terminated for message {}, the client has closed the session",
-                    req.getMessageId() );
+                PROVIDER_LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
                 break;
             }
 
@@ -615,6 +652,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             sendSearchResultEntry( session, req, entry, SyncStateTypeEnum.ADD );
 
+            String lastSentCsn = entry.get( CSN_AT ).getString();
+            replicaLog.setLastSentCsn( lastSentCsn );
+            
             count++;
         }
 
@@ -894,7 +934,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         try
         {
             List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
-
+            List<String> eventLogNames = new ArrayList<String>();
+            
             if ( !eventLogs.isEmpty() )
             {
                 for ( ReplicaEventLog replica : eventLogs )
@@ -902,6 +943,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     LOG.debug( "initializing the replica log from {}", replica.getId() );
                     PROVIDER_LOG.debug( "initializing the replica log from {}", replica.getId() );
                     replicaLogMap.put( replica.getId(), replica );
+                    eventLogNames.add( replica.getName() );
 
                     // update the replicaCount's value to assign a correct value to the new replica(s) 
                     if ( replicaCount.get() < replica.getId() )
@@ -914,6 +956,17 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 LOG.debug( "no replica logs found to initialize" );
                 PROVIDER_LOG.debug( "no replica logs found to initialize" );
+            }
+            
+            // remove unused logs
+            File[] replicaLogNames = getAllReplJournalNames();
+            for( File f : replicaLogNames )
+            {
+                if( !eventLogNames.contains( f.getName() ) )
+                {
+                    f.delete();
+                    LOG.info( "removed unused replication event log {}", f );
+                }
             }
         }
         catch ( Exception e )
@@ -946,9 +999,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
                     .getId() );
-                PROVIDER_LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(),
-                    log
-                        .getId() );
+                PROVIDER_LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
+                    .getId() );
             }
         }
     }
@@ -1041,5 +1093,67 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         SyncRequestValue control = ( SyncRequestValue ) req.getControls().get( SyncRequestValue.OID );
 
         return control.getMode() == SynchronizationModeEnum.REFRESH_AND_PERSIST;
+    }
+    
+    
+    private File[] getAllReplJournalNames()
+    {
+        File replDir = dirService.getInstanceLayout().getReplDirectory();
+        FilenameFilter filter = new FilenameFilter()
+        {
+            @Override
+            public boolean accept( File dir, String name )
+            {
+                return name.startsWith( ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX );
+            }
+        };
+        
+        return replDir.listFiles( filter );
+    }
+    
+    
+    /**
+     * an event listener for handling deletions of replication event log entries present under ou=consumers,ou=system
+     */
+    private class ConsumerLogEntryDeleteListener extends DirectoryListenerAdapter
+    {
+        @Override
+        public void entryDeleted( DeleteOperationContext deleteContext )
+        {
+            Dn consumerLogDn = deleteContext.getDn();
+            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getValue().getString();
+            // lock this listener instance
+            synchronized ( this )
+            {
+                for( ReplicaEventLog log : replicaLogMap.values() )
+                {
+                    if( name.equalsIgnoreCase( log.getName() ) )
+                    {
+                        synchronized ( log )
+                        {
+                            dirService.getEventService().removeListener( log.getPersistentListener() );
+                            LOG.debug( "removed the persistent listener for replication event log {}", consumerLogDn );
+                            
+                            replicaLogMap.remove( log.getId() );
+                            try
+                            {
+                                // get the correct name, just incase cause we used equalsIgnoreCase
+                                name = log.getName();
+                                log.stop();
+                                
+                                new File( dirService.getInstanceLayout().getReplDirectory(), name ).delete();
+                                LOG.info( "successfully removed replication event log {}", consumerLogDn );
+                            }
+                            catch( Exception e )
+                            {
+                                LOG.warn( "Closing the replication event log of the entry {} was not successful, will be removed anyway", consumerLogDn, e );
+                            }
+                        }
+                        
+                        break;
+                    }
+                } // end of for
+            } // end of synchronized block
+        } // end of delete method
     }
 }

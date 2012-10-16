@@ -107,58 +107,93 @@ public class EventInterceptor extends BaseInterceptor
         switch ( type )
         {
             case ADD:
-                executor.execute( new Runnable()
+                if ( listener.isSynchronous() )
                 {
-                    public void run()
+                    listener.entryAdded( ( AddOperationContext ) opContext );
+                }
+                else
+                {
+                    executor.execute( new Runnable()
                     {
-                        listener.entryAdded( ( AddOperationContext ) opContext );
-                    }
-                } );
-
+                        public void run()
+                        {
+                            listener.entryAdded( ( AddOperationContext ) opContext );
+                        }
+                    } );
+                }
+                
                 break;
-
+                
             case DELETE:
-                executor.execute( new Runnable()
+                if ( listener.isSynchronous() )
                 {
-                    public void run()
+                    listener.entryDeleted( ( DeleteOperationContext ) opContext );
+                }
+                else
+                {
+                    executor.execute( new Runnable()
                     {
-                        listener.entryDeleted( ( DeleteOperationContext ) opContext );
-                    }
-                } );
-
+                        public void run()
+                        {
+                            listener.entryDeleted( ( DeleteOperationContext ) opContext );
+                        }
+                    } );
+                }
+                
                 break;
-
+                
             case MODIFY:
-                executor.execute( new Runnable()
+                if ( listener.isSynchronous() )
                 {
-                    public void run()
+                    listener.entryModified( ( ModifyOperationContext ) opContext );
+                }
+                else
+                {
+                    executor.execute( new Runnable()
                     {
-                        listener.entryModified( ( ModifyOperationContext ) opContext );
-                    }
-                } );
-
+                        public void run()
+                        {
+                            listener.entryModified( ( ModifyOperationContext ) opContext );
+                        }
+                    } );
+                }
+                
                 break;
-
+                
             case MOVE:
-                executor.execute( new Runnable()
+                if ( listener.isSynchronous() )
                 {
-                    public void run()
+                    listener.entryMoved( ( MoveOperationContext ) opContext );                    
+                }
+                else
+                {
+                    executor.execute( new Runnable()
                     {
-                        listener.entryMoved( ( MoveOperationContext ) opContext );
-                    }
-                } );
-
+                        public void run()
+                        {
+                            listener.entryMoved( ( MoveOperationContext ) opContext );
+                        }
+                    } );
+                }
+                
                 break;
 
             case RENAME:
-                executor.execute( new Runnable()
+                if ( listener.isSynchronous() )
                 {
-                    public void run()
+                    listener.entryRenamed( ( RenameOperationContext ) opContext );
+                }
+                else
+                {
+                    executor.execute( new Runnable()
                     {
-                        listener.entryRenamed( ( RenameOperationContext ) opContext );
-                    }
-                } );
-
+                        public void run()
+                        {
+                            listener.entryRenamed( ( RenameOperationContext ) opContext );
+                        }
+                    } );
+                }
+                
                 break;
         }
     }
@@ -220,7 +255,11 @@ public class EventInterceptor extends BaseInterceptor
 
         List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
 
-        next( modifyContext );
+        // modification was already done when this flag is turned on, move to sending the events
+        if( !modifyContext.isPushToEvtIntrcptor() )
+        {
+            next( modifyContext );
+        }
 
         if ( selecting.isEmpty() )
         {

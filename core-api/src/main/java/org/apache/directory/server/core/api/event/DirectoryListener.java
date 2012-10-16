@@ -81,4 +81,12 @@ public interface DirectoryListener
      * @param moveAndRenameContext the move/rename operation context responsible for the change
      */
     void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext );
+    
+    
+    /**
+     * indicates if this listener needs to be invoked synchronously
+     *  
+     * @return true if should be invoked synchronously, false otherwise
+     */
+    boolean isSynchronous();
 }

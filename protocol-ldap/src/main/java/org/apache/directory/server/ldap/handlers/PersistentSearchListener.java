@@ -72,6 +72,13 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.psearchControl = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
     }
 
+    
+    @Override
+	public boolean isSynchronous()
+    {
+		return false; // always asynchronous
+	}
+
 
     public void abandon() throws LdapException
     {

@@ -36,6 +36,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -440,6 +441,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
+        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        modifiedEntry.put( csnAt );
+
         modifiedEntry.setDn( moveContext.getNewDn() );
         moveContext.setModifiedEntry( modifiedEntry );
 
@@ -456,6 +461,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
+        
+        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        modifiedEntry.put( csnAt );
+
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         next( moveAndRenameContext );
@@ -474,6 +483,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        
+        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        modifiedEntry.put( csnAt );
+
         renameContext.setModifiedEntry( modifiedEntry );
 
         next( renameContext );
@@ -498,9 +511,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return cursor;
         }
 
-        cursor.addEntryFilter( SEARCH_FILTER );
-
         return cursor;
+    }
+
+
+    @Override
+    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    {
+        // insert a new CSN into the entry, this is for replication
+        Entry entry = deleteContext.getEntry();        
+        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        entry.put( csnAt );
+
+        next( deleteContext );
     }
 
 

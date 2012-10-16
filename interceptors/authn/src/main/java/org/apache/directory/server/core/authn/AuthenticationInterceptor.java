@@ -313,7 +313,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        if ( !directoryService.isPwdPolicyEnabled() )
+
+        if ( !directoryService.isPwdPolicyEnabled() || addContext.isReplEvent() )
         {
             next( addContext );
             return;
@@ -594,7 +595,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     bindModCtx.setDn( dn );
                     bindModCtx.setEntry( userEntry );
                     bindModCtx.setModItems( mods );
-                    
+                    bindModCtx.setPushToEvtIntrcptor( true );
+
                     directoryService.getPartitionNexus().modify( bindModCtx );
                 }
             }
@@ -674,7 +676,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 bindModCtx.setDn( dn );
                 bindModCtx.setEntry( userEntry );
                 bindModCtx.setModItems( mods );
-                
+                bindModCtx.setPushToEvtIntrcptor( true );
+
                 directoryService.getPartitionNexus().modify( bindModCtx );
             }
 
@@ -830,7 +833,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( modifyContext );
 
-        if ( !directoryService.isPwdPolicyEnabled() )
+
+        if ( ! directoryService.isPwdPolicyEnabled() || modifyContext.isReplEvent() )
         {
             next( modifyContext );
             invalidateAuthenticatorCaches( modifyContext.getDn() );

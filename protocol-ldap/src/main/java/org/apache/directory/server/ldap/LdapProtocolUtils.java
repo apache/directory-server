@@ -43,8 +43,8 @@ public class LdapProtocolUtils
     /** the prefix for replicaId value */
     public static final String REPLICA_ID_PREFIX = "rid=";
 
-    private static final int REPLICA_ID_PREFIX_LEN = REPLICA_ID_PREFIX.length();
-
+    public static final int REPLICA_ID_PREFIX_LEN = REPLICA_ID_PREFIX.length();
+    
     /** the prefix for Csn value */
     public static final String CSN_PREFIX = "csn=";
 

@@ -92,6 +92,12 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
+        if ( addContext.isReplEvent() )
+        {
+            next( addContext );
+            return;
+        }
+        
         Dn normName = addContext.getDn();
 
         Entry entry = addContext.getEntry();
@@ -147,6 +153,12 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     public void modify( ModifyOperationContext modContext ) throws LdapException
     {
+        if( modContext.isReplEvent() )
+        {
+            next( modContext );
+            return;
+        }
+        
         ModifySubContext subContext = new ModifySubContext();
 
         detectPasswordModification( modContext, subContext );

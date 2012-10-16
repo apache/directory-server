@@ -126,6 +126,8 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /** the X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager} */
     private X509TrustManager trustManager = new NoVerificationTrustManager();
 
+    /** flag to indicate if this node is part of a MMR setup, default value is true */
+    private boolean mmrMode = true;
 
     /**
      * Creates a new instance of SyncreplConfiguration
@@ -134,9 +136,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     {
         attributes = new HashSet<String>();
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-        attributes.add( Strings.toLowerCase( SchemaConstants.ENTRY_UUID_AT ) );
-        attributes.add( Strings.toLowerCase( SchemaConstants.ENTRY_CSN_AT ) );
-        attributes.add( Strings.toLowerCase( SchemaConstants.REF_AT ) );
+        attributes.add( Strings.toLowerCase( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) );
     }
 
 
@@ -452,17 +452,6 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     }
 
 
-    /** a flag to indicate to store the cookie in a file, default is false
-     *  NOTE: a value of true indicates that the cookie will be stored
-     *  on file system, which is useful while testing the consumer
-     *  without loading config partition
-     */
-    public boolean isStoreCookieInFile()
-    {
-        return ( configEntryDn == null );
-    }
-
-
     /**
      * Tells if we chase referrals
      * @return true if we chase referals
@@ -560,5 +549,24 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     public void setConfigEntryDn( Dn configEntryDn )
     {
         this.configEntryDn = configEntryDn;
+    }
+
+    /**
+     * @return true if this node is part of MMR setup
+     */
+    public boolean isMmrMode()
+    {
+        return mmrMode;
+    }
+
+
+    /**
+     * enable/disable MMR option
+     *
+     * @param mmrMode
+     */
+    public void setMmrMode( boolean mmrMode )
+    {
+        this.mmrMode = mmrMode;
     }
 }

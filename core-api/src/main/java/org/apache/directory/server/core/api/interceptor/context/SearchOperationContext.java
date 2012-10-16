@@ -52,6 +52,9 @@ public class SearchOperationContext extends SearchingOperationContext
     private ExprNode filter;
 
 
+    /** flag to indicate if this search is done for replication */
+    private boolean syncreplSearch;
+    
     /**
      * Creates a new instance of SearchOperationContext.
      */
@@ -212,5 +215,25 @@ public class SearchOperationContext extends SearchingOperationContext
     public String getName()
     {
         return MessageTypeEnum.SEARCH_REQUEST.name();
+    }
+
+
+    /**
+     * @return true if this is a syncrepl specific search
+     */
+    public boolean isSyncreplSearch()
+    {
+        return syncreplSearch;
+    }
+
+
+    /**
+     * sets the flag to indicate if this is a synrepl specific search or not
+     * 
+     * @param syncreplSearch
+     */
+    public void setSyncreplSearch( boolean syncreplSearch )
+    {
+        this.syncreplSearch = syncreplSearch;
     }
 }

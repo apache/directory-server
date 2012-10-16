@@ -1567,6 +1567,12 @@ public class SubentryInterceptor extends BaseInterceptor
             return cursor;
         }
 
+        // DO NOT hide subentries for replication operations
+        if( searchContext.isSyncreplSearch() )
+        {
+            return cursor;
+        }
+        
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( searchContext ) )
         {

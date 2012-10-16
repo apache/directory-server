@@ -20,10 +20,12 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.interceptor.context.AbstractChangeOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -67,7 +69,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
     /** The ldap session */
     private LdapSession session;
-
+    
     /** The search request we are processing */
     private SearchRequest searchRequest;
 
@@ -76,8 +78,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
     /** The consumer configuration */
     private final ReplicaEventLog consumerMsgLog;
-
-
+    
+    private static String replConsumerConfigDn = ServerDNConstants.REPL_CONSUMER_CONFIG_DN.toLowerCase();
+    private static String schemaDn = SchemaConstants.OU_SCHEMA.toLowerCase();
+    private static String replConsumerDn = ServerDNConstants.REPL_CONSUMER_DN_STR.toLowerCase();
+    
     /**
      * Create a new instance of a consumer listener
      * 
@@ -114,7 +119,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void setSearchRequest( SearchRequest searchRequest )
     {
         this.searchRequest = searchRequest;
-
+        
         if ( searchRequest != null )
         {
             searchRequest.addAbandonListener( this );
@@ -122,7 +127,14 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     }
 
 
-    /**
+    @Override
+	public boolean isSynchronous()
+    {
+		return true; // always synchronous
+	}
+
+
+	/**
      * Abandon a SearchRequest
      * 
      * @param searchRequest The SearchRequest to abandon
@@ -156,11 +168,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         }
     }
 
-
+    
     /**
      * Create the SyncStateValue control
      */
-    private SyncStateValue createControl( DirectoryService directoryService, SyncStateTypeEnum operation, Entry entry )
+    private SyncStateValue createControl( DirectoryService directoryService, SyncStateTypeEnum operation, Entry entry ) 
         throws LdapInvalidAttributeValueException
     {
         SyncStateValue syncStateValue = new SyncStateValueDecorator( directoryService.getLdapCodecService() );
@@ -169,15 +181,15 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         String uuidStr = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
         syncStateValue.setEntryUUID( Strings.uuidToBytes( uuidStr ) );
         syncStateValue.setCookie( getCookie( entry ) );
-
+        
         return syncStateValue;
     }
-
-
+    
+    
     /**
      * Send the result to the consumer. If the consumer has disconnected, we fail back to the queue.
      */
-    private void sendResult( SearchResultEntry searchResultEntry, Entry entry, EventType eventType,
+    private void sendResult( SearchResultEntry searchResultEntry, Entry entry, EventType eventType, 
         SyncStateValue syncStateValue )
     {
         searchResultEntry.addControl( syncStateValue );
@@ -188,7 +200,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // Now, send the entry to the consumer
         handleWriteFuture( future, entry, eventType );
     }
-
+    
 
     /**
      * Process a ADD operation. The added entry is pushed to the consumer if it's connected,
@@ -199,13 +211,17 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void entryAdded( AddOperationContext addContext )
     {
         Entry entry = addContext.getEntry();
+        
+        if ( isConfigEntry( entry ) || isNotValidForReplication( addContext ) )
+        {
+            return;
+        }
 
         try
         {
             //System.out.println( "ADD Listener : log " + entry.getDn() );
             // we log it first
-            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.ADD, ( ( ClonedServerEntry ) entry )
-                .getClonedEntry() ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.ADD, ((ClonedServerEntry)entry).getClonedEntry() ) );
 
             // We send the added entry directly to the consumer if it's connected
             if ( pushInRealTime )
@@ -216,12 +232,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setEntry( entry );
 
                 // Create the control which will be added to the response.
-                SyncStateValue syncAdd = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.ADD, entry );
-
+                SyncStateValue syncAdd = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.ADD, entry );
+                
                 sendResult( resultEntry, entry, EventType.ADD, syncAdd );
             }
-
+            
         }
         catch ( LdapInvalidAttributeValueException e )
         {
@@ -240,9 +255,15 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     public void entryDeleted( DeleteOperationContext deleteContext )
     {
         Entry entry = deleteContext.getEntry();
+        
+        if ( isConfigEntry( entry ) || isNotValidForReplication( deleteContext ) )
+        {
+            return;
+        }
+        
         sendDeletedEntry( entry );
     }
-
+    
 
     /**
      * A helper method, as the delete opertaionis used by the ModDN operations.
@@ -253,15 +274,14 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             //System.out.println( "DELETE Listener : log " + entry.getDn() );
             consumerMsgLog.log( new ReplicaEventMessage( ChangeType.DELETE, entry ) );
-
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncDelete = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.DELETE, entry );
+                SyncStateValue syncDelete = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.DELETE, entry );
 
                 sendResult( resultEntry, entry, EventType.DELETE, syncDelete );
             }
@@ -284,11 +304,16 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     {
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
+        if ( isConfigEntry( alteredEntry ) || isNotValidForReplication( modifyContext ) )
+        {
+            return;
+        }
+
         try
         {
             //System.out.println( "MODIFY Listener : log " + alteredEntry.getDn() );
             consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODIFY, alteredEntry ) );
-
+            
             if ( pushInRealTime )
             {
 
@@ -296,8 +321,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 resultEntry.setObjectName( modifyContext.getDn() );
                 resultEntry.setEntry( alteredEntry );
 
-                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.MODIFY, alteredEntry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODIFY, alteredEntry );
 
                 sendResult( resultEntry, alteredEntry, EventType.MODIFY, syncModify );
             }
@@ -320,6 +344,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // should always send the modified entry cause the consumer perform the modDn operation locally
         Entry entry = moveContext.getModifiedEntry();
 
+        if ( isConfigEntry( entry ) || isNotValidForReplication( moveContext ) )
+        {
+            return;
+        }
+
         try
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
@@ -330,17 +359,16 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
             //System.out.println( "MOVE Listener : log " + moveContext.getDn() + " moved to " + moveContext.getNewSuperior() );
             consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
-
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( moveContext.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.MODDN, entry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
 
-                sendResult( resultEntry, entry, null, syncModify );
+                sendResult( resultEntry, entry, EventType.MOVE, syncModify );
             }
         }
         catch ( Exception e )
@@ -358,31 +386,36 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     public void entryMovedAndRenamed( MoveAndRenameOperationContext moveAndRenameContext )
     {
+        // should always send the modified entry cause the consumer perform the modDn operation locally
+        Entry entry = moveAndRenameContext.getModifiedEntry();
+
+        if ( isConfigEntry( entry ) || isNotValidForReplication( moveAndRenameContext ) )
+        {
+            return;
+        }
+
         try
         {
             if ( !moveAndRenameContext.getNewSuperiorDn().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( moveAndRenameContext.getEntry() );
+                sendDeletedEntry( entry );
                 return;
             }
 
-            // should always send the modified entry cause the consumer perform the modDn operation locally
-            Entry entry = moveAndRenameContext.getModifiedEntry();
 
             //System.out.println( "MOVE AND RENAME Listener : log " + moveAndRenameContext.getDn() + 
             //    " moved to " + moveAndRenameContext.getNewSuperiorDn() + " renamed to " + moveAndRenameContext.getNewRdn() );
             consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
-
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.MODDN, entry );
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
 
-                sendResult( resultEntry, entry, null, syncModify );
+                sendResult( resultEntry, entry, EventType.MOVE_AND_RENAME, syncModify );
             }
         }
         catch ( Exception e )
@@ -403,25 +436,29 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // should always send the modified entry cause the consumer perform the modDn operation locally
         Entry entry = renameContext.getModifiedEntry();
 
+        if ( isConfigEntry( entry ) || isNotValidForReplication( renameContext ) )
+        {
+            return;
+        }
+
         try
         {
             // should always send the original entry cause the consumer perform the modDn operation there
             //System.out.println( "RENAME Listener : log " + renameContext.getDn() + " renamed to " + renameContext.getNewRdn() );
             consumerMsgLog.log( new ReplicaEventMessage( ChangeType.MODDN, entry ) );
-
+            
             if ( pushInRealTime )
             {
                 SearchResultEntry resultEntry = new SearchResultEntryImpl( searchRequest.getMessageId() );
                 resultEntry.setObjectName( entry.getDn() );
                 resultEntry.setEntry( entry );
 
-                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(),
-                    SyncStateTypeEnum.MODDN, entry );
-
+                SyncStateValue syncModify = createControl( session.getCoreSession().getDirectoryService(), SyncStateTypeEnum.MODDN, entry );
+                
                 // In this case, the cookie is different
                 syncModify.setCookie( getCookie( entry ) );
 
-                sendResult( resultEntry, entry, null, syncModify );
+                sendResult( resultEntry, entry, EventType.RENAME, syncModify );
             }
         }
         catch ( Exception e )
@@ -469,34 +506,113 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // Let the operation be executed.
         // Note : we wait 10 seconds max
         future.awaitUninterruptibly( 10000L );
-
+        
         if ( !future.isWritten() )
         {
-            LOG.error( "Failed to write to the consumer {} during the event {} on entry {}", new Object[]
-                {
-                    consumerMsgLog.getId(), event, entry.getDn() } );
+            LOG.error( "Failed to write to the consumer {} during the event {} on entry {}", new Object[] { 
+                           consumerMsgLog.getId(), event, entry.getDn() } );
             LOG.error( "", future.getException() );
 
             // set realtime push to false, will be set back to true when the client
             // comes back and sends another request this flag will be set to true
             pushInRealTime = false;
         }
+        else
+        {
+            try
+            {
+                // if successful update the last sent CSN
+                consumerMsgLog.setLastSentCsn( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+            }
+            catch( Exception e )
+            {
+                //should never happen
+                LOG.error( "No entry CSN attribute found", e );
+            }
+        }
+    }
+    
+    
+    /**
+     * checks if the given entry belongs to the ou=config or ou=schema partition
+     * We don't replicate those two partitions
+     * @param entry the entry
+     * @return true if the entry belongs to ou=config partition, false otherwise
+     */
+    private boolean isConfigEntry( Entry entry )
+    {
+        // we can do Dn.isDescendantOf but in this part of the
+        // server the DNs are all normalized and a simple string compare should
+        // do the trick
+        
+        String name = entry.getDn().getName().toLowerCase();
+        
+        if ( name.endsWith( replConsumerConfigDn ) ||
+             name.endsWith( schemaDn ) ||
+             name.endsWith( replConsumerDn ) )
+        {
+            return true;
+        }
+        
+        // do not replicate the changes made to transport config entries
+        if( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
+    private boolean isNotValidForReplication( AbstractChangeOperationContext ctx )
+    {
+        if( ctx.isGenerateNoReplEvt() )
+        {
+            return true;
+        }
+        
+        return isMmrConfiguredToReceiver( ctx );
     }
 
-
+    /**
+     * checks if the sender of this replication event is setup with MMR
+     * (Note: this method is used to prevent sending a repicated event back to the sender after 
+     *  performing local update)
+     * @param ctx the operation's context
+     * @return true if the rid present in operation context is same as the event log's ID, false otherwise
+     */
+    private boolean isMmrConfiguredToReceiver( AbstractChangeOperationContext ctx )
+    {
+        
+        if( ctx.isReplEvent() )
+        {
+            boolean skip = ( ctx.getRid() == consumerMsgLog.getId() );
+            
+            if( skip )
+            {
+                LOG.debug( "RID in operation context matches with the ID of replication event log {} for host {}", consumerMsgLog.getName(), consumerMsgLog.getHostName() );
+            }
+            
+            return skip;
+        }
+        
+        return false;
+    }
+    
+    
     /**
      * {@inheritDoc}
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-
+        
         sb.append( "SyncReplSearchListener : \n" );
         sb.append( '\'' ).append( searchRequest ).append( "', " );
         sb.append( '\'' ).append( pushInRealTime ).append( "', \n" );
         sb.append( consumerMsgLog );
         sb.append( '\n' );
-
+        
         return sb.toString();
     }
 }

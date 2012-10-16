@@ -35,12 +35,13 @@ import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.P
  */
 public enum EventType
 {
-    ADD(1),
-    DELETE(2),
-    MODIFY(4),
-    RENAME(8),
-    MOVE(16);
-
+    ADD(1), 
+    DELETE(2), 
+    MODIFY(4), 
+    RENAME(8), 
+    MOVE(16),
+    MOVE_AND_RENAME(24);    
+    
     public static final int ALL_EVENT_TYPES_MASK = getAllEventTypesMask();
     public static final int MOVE_AND_RENAME_MASK = MOVE.mask | RENAME.mask;
     private static final EventType[] EMPTY_EVENT_ARRAY = new EventType[0];

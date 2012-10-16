@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * <li>hostname : the consumer's host</li>
  * <li>searchFilter : the filter</li>
  * <li>lastSentCsn : the last CSN sent by the consumer</li>
- * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and presist mode</li>
+ * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and persist mode</li>
  * <li></li>
  * </ul>
  * A separate log is maintained for each syncrepl consumer.<br/>
@@ -65,7 +65,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /** A logger for the replication provider */
     private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
 
-    /** IP address of the syncrepl consumer */
+    /** hostname of the syncrepl consumer */
     private String hostName;
 
     /** the unmodified search filter as it was when received from the client */
@@ -99,7 +99,8 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /** A flag used to indicate that the consumer is not up to date */
     private volatile boolean dirty;
 
-
+    public static final String REPLICA_EVENT_LOG_NAME_PREFIX = "REPL_EVENT_LOG.";
+    
     /**
      * Creates a new instance of EventLog for a replica
      * @param replicaId The replica ID
@@ -112,16 +113,16 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         this.searchCriteria = new NotificationCriteria();
         this.searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
 
-        // Create the journal file, or open it of it exists
-        File logDir = directoryService.getInstanceLayout().getLogDirectory();
-        journalFile = new File( logDir, "journalRepl." + replicaId );
+        // Create the journal file, or open if already exists
+        File replDir = directoryService.getInstanceLayout().getReplDirectory();
+        journalFile = new File( replDir, REPLICA_EVENT_LOG_NAME_PREFIX + replicaId );
         recman = new BaseRecordManager( journalFile.getAbsolutePath() );
 
         SerializableComparator<String> comparator = new SerializableComparator<String>(
             SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "replication", recman, comparator,
+        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, journalFile.getName(), recman, comparator,
             StringSerializer.INSTANCE, new ReplicaEventMessageSerializer( schemaManager ) );
     }
 
@@ -131,7 +132,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      *
      * @param message The message to store
      */
-    public void log( ReplicaEventMessage message )
+    public synchronized void log( ReplicaEventMessage message )
     {
         try
         {
@@ -325,7 +326,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     /**
      * Update the last Sent CSN. If it's different from the present one, we
-     * will set the dirty flag to true, and a replication will follow.
+     * will set the dirty flag to true, and it will be stored in DIT.
      *  
      * @param lastSentCsn The new Sent CSN
      */
@@ -418,7 +419,32 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         return new ReplicaJournalCursor( journal, consumerCsn );
     }
 
+    
+    /**
+     * @return the name of this replica log
+     */
+    public String getName()
+    {
+        return journal.getName();
+    }
 
+    
+    /**
+     * @return the number of entries present in the replica log
+     */
+    public synchronized int count()
+    {
+        try
+        {
+            return journal.count();
+        }
+        catch( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    
     /**
      * {@inheritDoc}
      */

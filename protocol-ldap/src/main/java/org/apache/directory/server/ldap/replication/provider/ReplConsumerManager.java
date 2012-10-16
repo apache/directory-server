@@ -41,6 +41,7 @@ import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.entry.StringValue;
 import org.apache.directory.shared.ldap.model.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
@@ -176,9 +177,7 @@ public class ReplConsumerManager
             SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter() );
 
         adminSession.add( entry );
-
-        // Last, create a 
-
+        
         LOG.debug( "stored replication consumer entry {}", consumerDn );
     }
 
@@ -189,7 +188,7 @@ public class ReplConsumerManager
      * @param replica The added consumer replica
      * @throws Exception If the addition failed
      */
-    public void deleteConsumerEntry( ReplicaEventLog replica ) throws Exception
+    public void deleteConsumerEntry( ReplicaEventLog replica ) throws LdapException
     {
         if ( replica == null )
         {
@@ -201,7 +200,7 @@ public class ReplConsumerManager
         Dn consumerDn = directoryService.getDnFactory().create(
             SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
 
-        PROVIDER_LOG.debug( "Deleting the {} consumer", consumerDn );
+        PROVIDER_LOG.debug( "Trying to delete the consumer entry {}", consumerDn );
 
         if ( !adminSession.exists( consumerDn ) )
         {
@@ -209,7 +208,7 @@ public class ReplConsumerManager
             String message = "The replica " + consumerDn.getName() + " does not exist";
             LOG.error( message );
             PROVIDER_LOG.debug( message );
-            throw new LdapEntryAlreadyExistsException( message );
+            return;
         }
 
         // Delete the consumer entry

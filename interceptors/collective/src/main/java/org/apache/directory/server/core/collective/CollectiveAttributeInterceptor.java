@@ -146,6 +146,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         Entry result = next( lookupContext );
 
+        // do not add collective attributes
+        if( lookupContext.isSyncreplLookup() )
+        {
+            return result;
+        }
+        
         // Adding the collective attributes if any
         if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
         {
@@ -178,7 +184,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = next( searchContext );
 
-        cursor.addEntryFilter( SEARCH_FILTER );
+        // only add collective attributes for non-syncrepl search
+        if( !searchContext.isSyncreplSearch() )
+        {
+            cursor.addEntryFilter( SEARCH_FILTER );
+        }
 
         return cursor;
     }

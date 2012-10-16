@@ -79,7 +79,7 @@ public class SearchAbandonListener implements AbandonListener
 
         try
         {
-            if ( cursor != null )
+            if ( ( cursor != null  ) && !cursor.isClosed() )
             {
                 /*
                  * When this method is called due to an abandon request it 

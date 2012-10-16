@@ -54,6 +54,8 @@ public class LookupOperationContext extends AbstractOperationContext
     /** A flag set to true if the user has requested no attribute to be returned */
     private Boolean noAttribute;
 
+    /** flag to indicate if this search is done for replication */
+    private boolean syncreplLookup;
 
     /**
      * 
@@ -284,7 +286,27 @@ public class LookupOperationContext extends AbstractOperationContext
         return "Lookup";
     }
 
+    
+    /**
+     * @return true if this is a syncrepl specific search
+     */
+    public boolean isSyncreplLookup()
+    {
+        return syncreplLookup;
+    }
 
+
+    /**
+     * sets the flag to indicate if this is a synrepl specific search or not
+     * 
+     * @param syncreplLookup
+     */
+    public void setSyncreplLookup( boolean syncreplLookup )
+    {
+        this.syncreplLookup = syncreplLookup;
+    }
+    
+    
     /**
      * @see Object#toString()
      */

@@ -43,7 +43,22 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /** The modified Entry as it will be stored into the backend */
     protected Entry modifiedEntry;
 
-
+    /** flag to indicate if this context is carrying a replicated entry */
+    private boolean replEvent;
+    
+    /** the rid present in the cookie received from a replication consumer */
+    private int rid = -1; // default value, an invalid rid
+    
+    /** a flag to indicate when we don't want a replication event to be generated after this operation */
+    private boolean generateNoReplEvt;
+    
+    /** 
+     * flag to tell if this context needs to be sent to the event interceptor manually
+     * This is used only internally where certain modifications do not go through event
+     * interceptor.  
+     */
+    private boolean pushToEvtIntrcptor;
+    
     /**
      * 
      * Creates a new instance of AbstractChangeOperationContext.
@@ -116,5 +131,84 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     public boolean isLogChange()
     {
         return logChange != LogChange.FALSE;
+    }
+
+
+    /**
+     * @return true if this context is containing a replication event
+     */
+    public boolean isReplEvent()
+    {
+        return replEvent;
+    }
+
+
+    /**
+     * @param replEvent mark the context as containing a replication event
+     */
+    public void setReplEvent( boolean replEvent )
+    {
+        this.replEvent = replEvent;
+    }
+
+
+    /**
+     * @return the replica ID received from a consumer
+     */
+    public int getRid()
+    {
+        return rid;
+    }
+
+
+    /**
+     * sets the replica ID received from a consumer
+     * @param rid 
+     */
+    public void setRid( int rid )
+    {
+        this.rid = rid;
+    }
+
+
+    /**
+     * @return true if a replication event shouldn't be generated for the changes
+     *         done using this operation context, false otherwise
+     */
+    public boolean isGenerateNoReplEvt()
+    {
+        return generateNoReplEvt;
+    }
+
+
+    /**
+     * sets whether or not to generate replication event messages by after an operation
+     * using this operation context completes
+     * 
+     * @param generateNoReplEvt
+     */
+    public void setGenerateNoReplEvt( boolean generateNoReplEvt )
+    {
+        this.generateNoReplEvt = generateNoReplEvt;
+    }
+
+
+    /**
+     * @return true if this context needs to be pushed to the event interceptor from nexus
+     */
+    public boolean isPushToEvtIntrcptor()
+    {
+        return pushToEvtIntrcptor;
+    }
+
+
+    /**
+     * sets if this context needs to be pushed to the event interceptor from nexus
+     * 
+     * @param pushToEvtIntrcptor
+     */
+    public void setPushToEvtIntrcptor( boolean pushToEvtIntrcptor )
+    {
+        this.pushToEvtIntrcptor = pushToEvtIntrcptor;
     }
 }
