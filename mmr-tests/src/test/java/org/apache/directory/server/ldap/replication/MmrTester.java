@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package com.keydap.directory.mmr;
+package org.apache.directory.server.ldap.replication;
 
 import static org.junit.Assert.assertTrue;
 
