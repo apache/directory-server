@@ -831,7 +831,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
         }
         finally
         {
-            if ( cursor != null )
+            if ( ( cursor != null  ) && !cursor.isClosed() )
             {
                 try
                 {
