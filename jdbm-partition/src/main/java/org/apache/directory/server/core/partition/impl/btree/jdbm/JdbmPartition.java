@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
@@ -34,6 +35,7 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
@@ -43,9 +45,12 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -194,6 +199,34 @@ public class JdbmPartition extends AbstractBTreePartition
             }
 
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
+
+            // Initialization of the context entry
+            if ( contextEntry != null )
+            {
+                // Checking of the context entry is schema aware
+                if ( !contextEntry.isSchemaAware() )
+                {
+                    // Making the context entry schema aware
+                    contextEntry = new DefaultEntry( schemaManager, contextEntry );
+                }
+                
+                // Adding the 'entryCsn' attribute
+                if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                {
+                    contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+                }
+
+                // Adding the 'entryUuid' attribute
+                if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                {
+                    String uuid = UUID.randomUUID().toString();
+                    contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+                }
+
+                // And add this entry to the underlying partition
+                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                add( addContext );
+            }
 
             // We are done !
             initialized = true;

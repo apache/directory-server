@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
@@ -45,6 +46,9 @@ public abstract class AbstractPartition implements Partition
 {
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
+
+    /** The partition ContextEntry */
+    protected Entry contextEntry;
 
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
@@ -211,5 +215,23 @@ public abstract class AbstractPartition implements Partition
         {
             throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
         }
+    }
+
+
+    /**
+     * @return the contextEntry
+     */
+    public Entry getContextEntry()
+    {
+        return contextEntry;
+    }
+
+
+    /**
+     * @param contextEntry the contextEntry to set
+     */
+    public void setContextEntry( Entry contextEntry )
+    {
+        this.contextEntry = contextEntry;
     }
 }

@@ -39,6 +39,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.search.cursor.DescendantCursor;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.csn.CsnFactory;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -180,17 +181,39 @@ public class LdifPartition extends AbstractLdifPartition
 
                 LOG.info( "ldif file doesn't exist {}, creating it.", contextEntryFile.getAbsolutePath() );
 
-                if ( contextEntryFile.exists() )
+                if ( contextEntry == null )
                 {
-                    LdifReader reader = new LdifReader( contextEntryFile );
-                    Entry contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
-                    reader.close();
-
-                    if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                    if ( contextEntryFile.exists() )
                     {
-                        contextEntry.add( SchemaConstants.ENTRY_CSN_AT, defaultCSNFactory.newInstance().toString() );
+                        LdifReader reader = new LdifReader( contextEntryFile );
+                        contextEntry = new DefaultEntry( schemaManager, reader.next().getEntry() );
+                        reader.close();
+                    }
+                    else
+                    {
+                        // No context entry and no LDIF file exists.
+                        // Skip initialization of context entry here, it will be added later.
+                        return;
+                    }
+                }
+
+                // Initialization of the context entry
+                if ( contextEntry == null )
+                {
+                    // Checking of the context entry is schema aware
+                    if ( !contextEntry.isSchemaAware() )
+                    {
+                        // Making the context entry schema aware
+                        contextEntry = new DefaultEntry( schemaManager, contextEntry );
                     }
 
+                    // Adding the 'entryCsn' attribute
+                    if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                    {
+                        contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+                    }
+
+                    // Adding the 'entryUuid' attribute
                     if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
                     {
                         String uuid = UUID.randomUUID().toString();
