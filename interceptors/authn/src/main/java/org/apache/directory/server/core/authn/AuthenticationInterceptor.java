@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.authn.PasswordUtil;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -93,6 +93,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.apache.directory.shared.ldap.model.password.PasswordUtil;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.util.DateUtils;
 import org.apache.directory.shared.util.StringConstants;
@@ -533,7 +534,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    PasswordUtil.purgeFailureTimes( policyConfig, pwdFailTimeAt );
+                    purgeFailureTimes( policyConfig, pwdFailTimeAt );
                 }
 
                 String failureTime = DateUtils.getGeneralizedTime();
@@ -1623,5 +1624,39 @@ public class AuthenticationInterceptor extends BaseInterceptor
     public void setPwdPolicyContainer( PpolicyConfigContainer pwdPolicyContainer )
     {
         this.pwdPolicyContainer = pwdPolicyContainer;
+    }
+
+
+    /**
+     * purges failure timestamps which are older than the configured interval
+     * (section 7.6 in the draft)
+     */
+    private void purgeFailureTimes( PasswordPolicyConfiguration config, Attribute pwdFailTimeAt )
+    {
+        long interval = config.getPwdFailureCountInterval();
+
+        if ( interval == 0 )
+        {
+            return;
+        }
+
+        interval *= 1000;
+
+        long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+
+        Iterator<Value<?>> itr = pwdFailTimeAt.iterator();
+        
+        while ( itr.hasNext() )
+        {
+            Value<?> value = itr.next();
+            String failureTime = value.getString();
+            long time = DateUtils.getDate( failureTime ).getTime();
+            time += interval;
+
+            if ( currentTime >= time )
+            {
+                itr.remove();
+            }
+        }
     }
 }
