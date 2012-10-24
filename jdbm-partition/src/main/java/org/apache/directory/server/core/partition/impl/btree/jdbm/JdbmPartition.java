@@ -36,6 +36,7 @@ import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
@@ -53,6 +54,7 @@ import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.MultiException;
@@ -201,31 +203,50 @@ public class JdbmPartition extends AbstractBTreePartition
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
 
             // Initialization of the context entry
-            if ( contextEntry != null )
+            if ( ( suffixDn != null ) && ( contextEntry != null ) )
             {
-                // Checking of the context entry is schema aware
-                if ( !contextEntry.isSchemaAware() )
+                Dn contextEntryDn = contextEntry.getDn();
+
+                // Checking if the context entry DN is schema aware
+                if ( !contextEntryDn.isSchemaAware() )
                 {
-                    // Making the context entry schema aware
-                    contextEntry = new DefaultEntry( schemaManager, contextEntry );
-                }
-                
-                // Adding the 'entryCsn' attribute
-                if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
-                {
-                    contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+                    contextEntryDn.apply( schemaManager );
                 }
 
-                // Adding the 'entryUuid' attribute
-                if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                // We're only adding the entry if the two DNs are equal
+                if ( suffixDn.equals( contextEntryDn ) )
                 {
-                    String uuid = UUID.randomUUID().toString();
-                    contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
-                }
+                    // Looking for the current context entry
+                    Entry suffixEntry = lookup( new LookupOperationContext( null, suffixDn ) );
 
-                // And add this entry to the underlying partition
-                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-                add( addContext );
+                    // We're only adding the context entry if it doesn't already exist
+                    if ( suffixEntry == null )
+                    {
+                        // Checking of the context entry is schema aware
+                        if ( !contextEntry.isSchemaAware() )
+                        {
+                            // Making the context entry schema aware
+                            contextEntry = new DefaultEntry( schemaManager, contextEntry );
+                        }
+
+                        // Adding the 'entryCsn' attribute
+                        if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                        {
+                            contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance()
+                                .toString() );
+                        }
+
+                        // Adding the 'entryUuid' attribute
+                        if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                        {
+                            String uuid = UUID.randomUUID().toString();
+                            contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+                        }
+
+                        // And add this entry to the underlying partition
+                        add( new AddOperationContext( null, contextEntry ) );
+                    }
+                }
             }
 
             // We are done !

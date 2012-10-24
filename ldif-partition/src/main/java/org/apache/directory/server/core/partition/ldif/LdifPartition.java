@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
@@ -198,31 +199,50 @@ public class LdifPartition extends AbstractLdifPartition
                 }
 
                 // Initialization of the context entry
-                if ( contextEntry == null )
+                if ( ( suffixDn != null ) && ( contextEntry != null ) )
                 {
-                    // Checking of the context entry is schema aware
-                    if ( !contextEntry.isSchemaAware() )
+                    Dn contextEntryDn = contextEntry.getDn();
+
+                    // Checking if the context entry DN is schema aware
+                    if ( !contextEntryDn.isSchemaAware() )
                     {
-                        // Making the context entry schema aware
-                        contextEntry = new DefaultEntry( schemaManager, contextEntry );
+                        contextEntryDn.apply( schemaManager );
                     }
 
-                    // Adding the 'entryCsn' attribute
-                    if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                    // We're only adding the entry if the two DNs are equal
+                    if ( suffixDn.equals( contextEntryDn ) )
                     {
-                        contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
-                    }
+                        // Looking for the current context entry
+                        Entry suffixEntry = lookup( new LookupOperationContext( null, suffixDn ) );
 
-                    // Adding the 'entryUuid' attribute
-                    if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
-                    {
-                        String uuid = UUID.randomUUID().toString();
-                        contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
-                    }
+                        // We're only adding the context entry if it doesn't already exist
+                        if ( suffixEntry == null )
+                        {
+                            // Checking of the context entry is schema aware
+                            if ( !contextEntry.isSchemaAware() )
+                            {
+                                // Making the context entry schema aware
+                                contextEntry = new DefaultEntry( schemaManager, contextEntry );
+                            }
 
-                    // And add this entry to the underlying partition
-                    AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-                    add( addContext );
+                            // Adding the 'entryCsn' attribute
+                            if ( contextEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                            {
+                                contextEntry.add( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance()
+                                    .toString() );
+                            }
+
+                            // Adding the 'entryUuid' attribute
+                            if ( contextEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                            {
+                                String uuid = UUID.randomUUID().toString();
+                                contextEntry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+                            }
+
+                            // And add this entry to the underlying partition
+                            add( new AddOperationContext( null, contextEntry ) );
+                        }
+                    }
                 }
             }
         }
