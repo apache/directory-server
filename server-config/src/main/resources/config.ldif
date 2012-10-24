@@ -411,6 +411,8 @@ ads-indexes: ou
 ads-indexes: uid
 ads-indexes: administrativeRole
 ads-partitionSuffix: dc=example,dc=com
+ads-contextentry:: ZG46IGRjPWV4YW1wbGUsZGM9Y29tCmRjOiBleGFtcGxlCm9iamVjdGNsY
+ XNzOiBkb21haW4Kb2JqZWN0Y2xhc3M6IHRvcAoK
 ads-jdbmpartitionoptimizerenabled: TRUE
 ads-partitioncachesize: 100
 ads-partitionsynconwrite: TRUE
