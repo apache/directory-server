@@ -317,7 +317,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            LOG.warn( "Failed to get the children of entry {}", deleteContext.getDn() );
             return 0;
         }
     }
@@ -335,7 +335,7 @@ public final class SchemaPartition extends AbstractPartition
 
         if ( nbChild > 1 )
         {
-            throw new LdapUnwillingToPerformException();
+            throw new LdapUnwillingToPerformException( "There are children under the entry " + deleteContext.getDn() );
         }
 
         // The SchemaObject always exist when we reach this method.
