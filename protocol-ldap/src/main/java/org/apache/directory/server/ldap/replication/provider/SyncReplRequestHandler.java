@@ -279,7 +279,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 if ( !LdapProtocolUtils.isValidCookie( cookieString ) )
                 {
                     LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
-                    PROVIDER_LOG.debug( "received a invalid cookie {} from the consumer with session {}", cookieString,
+                    PROVIDER_LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString,
                         session );
                     sendESyncRefreshRequired( session, request );
                 }
