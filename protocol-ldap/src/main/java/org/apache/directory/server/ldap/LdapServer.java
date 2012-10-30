@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreSpi;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
@@ -34,6 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
@@ -60,10 +61,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
@@ -77,12 +74,6 @@ import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
-import org.apache.directory.shared.ldap.model.message.controls.Cascade;
-import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -214,7 +205,8 @@ public class LdapServer extends DirectoryBackedService
 
     private List<ReplicationConsumer> replConsumers;
 
-
+    private KeyManagerFactory keyManagerFactory;
+    
     /**
      * Creates an LDAP protocol provider.
      */
@@ -235,17 +227,6 @@ public class LdapServer extends DirectoryBackedService
         saslRealms.add( "example.com" );
 
         this.supportedControls = new HashSet<String>();
-        this.supportedControls.add( PersistentSearch.OID );
-        this.supportedControls.add( EntryChange.OID );
-        this.supportedControls.add( Subentries.OID );
-        this.supportedControls.add( ManageDsaIT.OID );
-        this.supportedControls.add( Cascade.OID );
-        this.supportedControls.add( PagedResults.OID );
-        // Replication controls
-        this.supportedControls.add( SyncDoneValue.OID );
-        this.supportedControls.add( SyncInfoValue.OID );
-        this.supportedControls.add( SyncRequestValue.OID );
-        this.supportedControls.add( SyncStateValue.OID );
     }
 
 
@@ -307,21 +288,13 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
-    private static class AdsKeyStore extends KeyStore
-    {
-        public AdsKeyStore( KeyStoreSpi keyStoreSpi, Provider provider, String type )
-        {
-            super( keyStoreSpi, provider, type );
-        }
-    }
-
 
     /**
      * loads the digital certificate either from a keystore file or from the admin entry in DIT
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void loadKeyStore() throws Exception
+    public void loadKeyStore() throws Exception
     {
         if ( Strings.isEmpty( keystoreFile ) )
         {
@@ -358,6 +331,25 @@ public class LdapServer extends DirectoryBackedService
                 }
             }
         }
+        
+        // Set up key manager factory to use our key store
+        String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
+
+        if ( algorithm == null )
+        {
+            algorithm = KeyManagerFactory.getDefaultAlgorithm();
+        }
+        
+        keyManagerFactory = KeyManagerFactory.getInstance( algorithm );
+        
+        if ( Strings.isEmpty( certificatePassword ) )
+        {
+            keyManagerFactory.init( keyStore, null );
+        }
+        else
+        {
+            keyManagerFactory.init( keyStore, certificatePassword.toCharArray() );
+        }
     }
 
 
@@ -384,8 +376,7 @@ public class LdapServer extends DirectoryBackedService
             DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
             if ( dfcb.contains( sslFilterName ) )
             {
-                DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyStore,
-                    certificatePassword );
+                DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyManagerFactory );
                 dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
                 newChain = null;
             }
@@ -394,9 +385,6 @@ public class LdapServer extends DirectoryBackedService
         StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
         if ( handler != null )
         {
-            //FIXME dirty hack. IMO StartTlsHandler's code requires a cleanup
-            // cause the keystore loading and sslcontext creation code is duplicated
-            // both in the LdapService as well as StatTlsHandler
             handler.setLdapServer( this );
         }
 
@@ -415,6 +403,8 @@ public class LdapServer extends DirectoryBackedService
             return;
         }
 
+        loadKeyStore();
+        
         for ( Transport transport : transports )
         {
             if ( !( transport instanceof TcpTransport ) )
@@ -424,11 +414,10 @@ public class LdapServer extends DirectoryBackedService
             }
 
             IoFilterChainBuilder chain;
-
+            
             if ( transport.isSSLEnabled() )
             {
-                loadKeyStore();
-                chain = LdapsInitializer.init( keyStore, certificatePassword );
+                chain = LdapsInitializer.init( keyManagerFactory );
             }
             else
             {
@@ -1022,20 +1011,17 @@ public class LdapServer extends DirectoryBackedService
     public void setDirectoryService( DirectoryService directoryService )
     {
         super.setDirectoryService( directoryService );
+        Iterator<String> itr = directoryService.getLdapCodecService().registeredControls();
+        while( itr.hasNext() )
+        {
+            supportedControls.add( itr.next() );
+        }
     }
 
 
     public Set<String> getSupportedControls()
     {
         return supportedControls;
-    }
-
-
-    /**
-     */
-    public void setSupportedControls( Set<String> supportedControls )
-    {
-        this.supportedControls = supportedControls;
     }
 
 
@@ -1339,6 +1325,15 @@ public class LdapServer extends DirectoryBackedService
     public void setReplConsumers( List<ReplicationConsumer> replConsumers )
     {
         this.replConsumers = replConsumers;
+    }
+
+
+    /**
+     * @return the key manager factory of the server keystore
+     */
+    public KeyManagerFactory getKeyManagerFactory()
+    {
+        return keyManagerFactory;
     }
 
 

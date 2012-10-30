@@ -20,17 +20,16 @@
 package org.apache.directory.server.ldap.handlers.ssl;
 
 
-import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.Security;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -45,34 +44,15 @@ import org.apache.mina.filter.ssl.SslFilter;
  */
 public class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( KeyStore ks, String certificatePassord ) throws LdapException
+    public static IoFilterChainBuilder init( KeyManagerFactory kmf ) throws LdapException
     {
         SSLContext sslCtx;
         try
         {
-            // Set up key manager factory to use our key store
-            String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
-
-            if ( algorithm == null )
-            {
-                algorithm = KeyManagerFactory.getDefaultAlgorithm();
-            }
-
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance( algorithm );
-
-            if ( Strings.isEmpty( certificatePassord ) )
-            {
-                kmf.init( ks, null );
-            }
-            else
-            {
-                kmf.init( ks, certificatePassord.toCharArray() );
-            }
-
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
             sslCtx.init( kmf.getKeyManagers(), new TrustManager[]
-                { new ServerX509TrustManager() }, new SecureRandom() );
+                { new NoVerificationTrustManager() }, new SecureRandom() );
         }
         catch ( Exception e )
         {
@@ -80,7 +60,9 @@ public class LdapsInitializer
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        chain.addLast( "sslFilter", new SslFilter( sslCtx ) );
+        SslFilter sslFilter = new SslFilter( sslCtx );
+        sslFilter.setWantClientAuth( true );
+        chain.addLast( "sslFilter", sslFilter );
         return chain;
     }
 }

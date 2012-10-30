@@ -20,24 +20,17 @@
 package org.apache.directory.server.ldap.handlers.extended;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyStore;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
-import org.apache.directory.server.core.security.CoreKeyStoreSpi;
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
@@ -95,7 +88,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
+        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>( 
             LdapApiServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
@@ -105,27 +98,6 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );
         session.getIoSession().write( res );
-    }
-
-    static class ServerX509TrustManager implements X509TrustManager
-    {
-        public void checkClientTrusted( X509Certificate[] chain, String authType ) throws CertificateException
-        {
-            LOG.debug( "checkClientTrusted() called" );
-        }
-
-
-        public void checkServerTrusted( X509Certificate[] chain, String authType ) throws CertificateException
-        {
-            LOG.debug( "checkServerTrusted() called" );
-        }
-
-
-        public X509Certificate[] getAcceptedIssuers()
-        {
-            LOG.debug( "getAcceptedIssuers() called" );
-            return new X509Certificate[0];
-        }
     }
 
 
@@ -147,56 +119,6 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         Provider provider = Security.getProvider( "SUN" );
         LOG.debug( "provider = {}", provider );
 
-        KeyStore keyStore = null;
-
-        try
-        {
-            if ( ldapServer.getKeystoreFile() == null )
-            {
-                CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( ldapServer.getDirectoryService() );
-                keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
-                {
-                };
-
-                keyStore.load( null, null );
-            }
-            else
-            {
-                keyStore = KeyStore.getInstance( "JKS" );
-                keyStore.load( new FileInputStream( new File( ldapServer.getKeystoreFile() ) ), null );
-            }
-        }
-        catch ( Exception e1 )
-        {
-            throw new RuntimeException( I18n.err( I18n.ERR_678 ) );
-        }
-
-        KeyManagerFactory keyManagerFactory = null;
-        try
-        {
-            keyManagerFactory = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( I18n.err( I18n.ERR_679 ), e );
-        }
-
-        try
-        {
-            char[] password = null;
-
-            if ( ldapServer.getKeystoreFile() != null )
-            {
-                password = ldapServer.getCertificatePassword().toCharArray();
-            }
-
-            keyManagerFactory.init( keyStore, password );
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( I18n.err( I18n.ERR_680 ), e );
-        }
-
         try
         {
             sslContext = SSLContext.getInstance( "TLS" );
@@ -208,8 +130,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         try
         {
-            sslContext.init( keyManagerFactory.getKeyManagers(), new TrustManager[]
-                { new ServerX509TrustManager() }, new SecureRandom() );
+            sslContext.init( ldapServer.getKeyManagerFactory().getKeyManagers(), new TrustManager[]
+                { new NoVerificationTrustManager() }, new SecureRandom() );
         }
         catch ( Exception e )
         {
