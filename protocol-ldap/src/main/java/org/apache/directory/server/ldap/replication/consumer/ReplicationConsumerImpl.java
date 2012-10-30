@@ -708,18 +708,19 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
 
             connection = null;
-
-            // persist the cookie
-            storeCookie();
-
-            // reset the cookie
-            syncCookie = null;
         }
         catch ( Exception e )
         {
             LOG.error( "Failed to close the connection", e );
         }
-
+        finally
+        {
+            // persist the cookie
+            storeCookie();
+            
+            // reset the cookie
+            syncCookie = null;
+        }
     }
 
 
