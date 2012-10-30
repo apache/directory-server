@@ -177,15 +177,16 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
 
     public boolean next() throws Exception
     {
-        done = wrapped.next();
+        boolean next = wrapped.next();
 
-        if ( !done )
+        if ( !next )
         {
             searchDoneResp = new SearchResultDoneImpl( messageId );
             searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+            done = true;
         }
 
-        return done;
+        return next;
     }
 
 
