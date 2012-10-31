@@ -49,6 +49,7 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
@@ -1064,6 +1065,8 @@ public class DefaultCoreSession implements CoreSession
     public EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
+        searchContext.setSyncreplSearch( searchRequest.getControls().containsKey( SyncRequestValue.OID ) );
+        
         OperationManager operationManager = directoryService.getOperationManager();
 
         EntryFilteringCursor cursor = null;
