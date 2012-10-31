@@ -37,6 +37,7 @@ import javax.naming.ConfigurationException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.CursorList;
@@ -504,6 +505,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( deleteContext.getDn() );
         partition.delete( deleteContext );
+        
+        Entry entry = deleteContext.getEntry();
+        Attribute csn = entry.get( ENTRY_CSN_AT );
+        // can be null while doing subentry deletion
+        //TODO verify if this gets in the way of replication
+        if ( csn != null )
+        {
+            directoryService.setContextCsn( csn.getString() );
+        }
     }
 
 
@@ -590,7 +600,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition partition = getPartition( modifyContext.getDn() );
 
         partition.modify( modifyContext );
-
+        
+        if( modifyContext.isPushToEvtIntrcptor() )
+        {
+            directoryService.getInterceptor( InterceptorEnum.EVENT_INTERCEPTOR.getName() ).modify( modifyContext );
+        }
+        
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
         if ( alteredEntry != null )
@@ -608,10 +623,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // Get the current partition
         Partition partition = getPartition( moveContext.getDn() );
 
-        // We also have to get the new partition as it can be different
-        //Partition newBackend = getPartition( opContext.getNewDn() );
-
         partition.move( moveContext );
+        
+        Entry entry = moveContext.getModifiedEntry();
+        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -622,6 +637,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( moveAndRenameContext.getDn() );
         partition.moveAndRename( moveAndRenameContext );
+        
+        Entry entry = moveAndRenameContext.getModifiedEntry();
+        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -632,6 +650,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( renameContext.getDn() );
         partition.rename( renameContext );
+        
+        Entry entry = renameContext.getModifiedEntry();
+        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -869,6 +890,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( !partition.isInitialized() )
         {
+            partition.setCacheService( directoryService.getCacheService() );
             partition.initialize();
         }
 

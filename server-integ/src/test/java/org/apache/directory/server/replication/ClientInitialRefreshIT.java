@@ -23,8 +23,13 @@ package org.apache.directory.server.replication;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -48,7 +53,9 @@ import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +79,12 @@ public class ClientInitialRefreshIT
 
     private static AtomicInteger entryCount = new AtomicInteger();
 
+    private static final int INSERT_COUNT = 10;
+    
+    private static final int TOTAL_COUNT = INSERT_COUNT + 1;
 
+    private static File cookiesDir;
+    
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -81,20 +93,36 @@ public class ClientInitialRefreshIT
         startProvider();
 
         // Load 1000 entries
-        for ( int i = 0; i < 1000; i++ )
+        for ( int i = 0; i < INSERT_COUNT; i++ )
         {
             Entry entry = createEntry();
 
             providerSession.add( entry );
         }
+        
+        cookiesDir = new File( FileUtils.getTempDirectory(), MockSyncReplConsumer.COOKIES_DIR_NAME );
     }
 
+    
+    @Before
+    @After
+    public void deleteCookies() throws IOException
+    {
+        if( cookiesDir.exists() )
+        {
+            FileUtils.cleanDirectory( cookiesDir );
+        }
+    }
 
+    
     @AfterClass
     public static void tearDown() throws Exception
     {
         providerServer.stop();
         providerServer.getDirectoryService().shutdown();
+
+        FileUtils.deleteDirectory( providerServer.getDirectoryService().getInstanceLayout().getInstanceDirectory() );
+        FileUtils.deleteDirectory( cookiesDir );
     }
 
 
@@ -329,8 +357,8 @@ public class ClientInitialRefreshIT
 
         ReplicationConsumer consumer = createConsumer();
 
-        // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( consumer, 1001 ) );
+        // We should have 1000 entries plus the base entry = TOTAL_COUNT
+        assertTrue( waitForSyncReplClient( consumer, TOTAL_COUNT ) );
         consumer.stop();
 
         System.out.println( "\n<-- Done" );
@@ -348,15 +376,15 @@ public class ClientInitialRefreshIT
 
         ReplicationConsumer consumer = createConsumer();
 
-        // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( consumer, 1001 ) );
+        // We should have INSERT_COUNT entries plus the base entry = TOTAL_COUNT
+        assertTrue( waitForSyncReplClient( consumer, TOTAL_COUNT ) );
+
+        // Reset the added counter
+        ( ( MockSyncReplConsumer ) consumer ).resetNbAdded();
 
         // Inject a new entry in the producer
         Entry addedEntry = createEntry();
         providerSession.add( addedEntry );
-
-        // Reset the added counter
-        ( ( MockSyncReplConsumer ) consumer ).resetNbAdded();
 
         // Now check that the entry has been copied in the consumer
         assertTrue( waitForSyncReplClient( consumer, 1 ) );
@@ -370,8 +398,8 @@ public class ClientInitialRefreshIT
 
 
     /**
-     * Test that we can load entries, kill the consumer in the middle of the load,
-     * restart the consumer and still get all the entries.
+     * Test that we can load entries, kill the consumer <b>after</b> the load (cause we cannot tell the producer when to stop),
+     * add some more entries and restart the consumer and get the remaining entries added when the consumer was down.
      */
     @Test
     public void testInitialRefreshStopAndGo() throws Exception
@@ -380,19 +408,34 @@ public class ClientInitialRefreshIT
 
         ReplicationConsumer consumer = createConsumer();
 
-        // Load but stop after 200 entries have been loaded
-        waitUntilLimitSyncReplClient( 200, consumer );
+        // Load all the entries
+        waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer );
 
         // Stop the consumer
         consumer.stop();
 
+        int additionalCount = 10;
+        List<Dn> newEntries = new ArrayList<Dn>();
+        for( int i = 0; i < additionalCount; i++ )
+        {
+            // Inject a new entry in the producer
+            Entry addedEntry = createEntry();
+            providerSession.add( addedEntry );
+            newEntries.add( addedEntry.getDn() );
+        }
+
         // Start it again
         runConsumer( consumer );
 
-        // We should have 1000 entries plus the base entry = 1001
-        assertTrue( waitForSyncReplClient( consumer, 1001 ) );
+        // We should get only the additional values cause consumer sends a cookie now
+        assertTrue( waitForSyncReplClient( consumer, additionalCount ) );
         consumer.stop();
 
+        for( Dn dn : newEntries )
+        {
+            providerSession.delete( dn );
+        }
+        
         System.out.println( "\n<-- Done" );
     }
 
@@ -410,8 +453,7 @@ public class ClientInitialRefreshIT
         ReplicationConsumer consumer3 = createConsumer();
         ReplicationConsumer consumer4 = createConsumer();
 
-        // Load but stop after 200 entries have been loaded
-        assertTrue( waitUntilLimitSyncReplClient( 1001, consumer1, consumer2, consumer3, consumer4 ) );
+        assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer1, consumer2, consumer3, consumer4 ) );
 
         consumer1.stop();
         consumer2.stop();

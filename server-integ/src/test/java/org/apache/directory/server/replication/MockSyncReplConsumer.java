@@ -37,6 +37,7 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
@@ -123,6 +124,10 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /** The number of added entries */
     private AtomicInteger nbAdded = new AtomicInteger( 0 );
 
+    private File cookieDir;
+    
+    public static String COOKIES_DIR_NAME = "cookies";
+    
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
         {
@@ -181,9 +186,8 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         cookieModLst = new ArrayList<Modification>( 1 );
         cookieModLst.add( cookieMod );
 
-        File cookieDir = File.createTempFile( "cookies", "" );
-        cookieDir.deleteOnExit();
-        cookieFile = new File( cookieDir, String.valueOf( config.getReplicaId() ) );
+        cookieDir = new File( System.getProperty( "java.io.tmpdir" ) + "/" + COOKIES_DIR_NAME );
+        cookieDir.mkdirs();
 
         prepareSyncSearchRequest();
     }
@@ -371,22 +375,33 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            SyncInfoValue decorator = new SyncInfoValueDecorator( ldapCodecService );
-            byte[] syncinfo = syncInfoResp.getResponseValue();
-            ( ( SyncInfoValueDecorator ) decorator ).setValue( syncinfo );
-            SyncInfoValue syncInfoValue = ( ( SyncInfoValueDecorator ) decorator ).getDecorated();
+            byte[] syncInfoBytes = syncInfoResp.getResponseValue();
+
+            if ( syncInfoBytes == null )
+            {
+                return;
+            }
+
+            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( ldapCodecService );
+            SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
 
             byte[] cookie = syncInfoValue.getCookie();
 
+            int replicaId = -1;
+            
             if ( cookie != null )
             {
                 LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
                 syncCookie = cookie;
+
+                String cookieString = Strings.utf8ToString( syncCookie );
+                replicaId = LdapProtocolUtils.getReplicaId( cookieString );
             }
 
             LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
+
             // if refreshDeletes set to true then delete all the entries with entryUUID
             // present in the syncIdSet
             if ( syncInfoValue.isRefreshDeletes() )
@@ -404,8 +419,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         }
         catch ( Exception de )
         {
-            LOG.error( "Failed to handle syncinfo message" );
-            de.printStackTrace();
+            LOG.error( "Failed to handle syncinfo message", de );
         }
 
         LOG.debug( ".................... END handleSyncInfo ..............." );
@@ -606,18 +620,19 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
 
             connection = null;
-
-            // persist the cookie
-            storeCookie();
-
-            // reset the cookie
-            syncCookie = null;
         }
         catch ( Exception e )
         {
             LOG.error( "Failed to close the connection", e );
         }
-
+        finally
+        {
+            // persist the cookie
+            storeCookie();
+            
+            // reset the cookie
+            syncCookie = null;
+        }
     }
 
 
@@ -638,6 +653,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
         try
         {
+            if( cookieFile == null )
+            {
+                cookieFile = new File( cookieDir, String.valueOf( LdapProtocolUtils.getReplicaId( new String( syncCookie ) ) ) );
+            }
+            
             FileOutputStream fout = new FileOutputStream( cookieFile );
             fout.write( syncCookie.length );
             fout.write( syncCookie );
@@ -662,7 +682,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         try
         {
-            if ( cookieFile.exists() && ( cookieFile.length() > 0 ) )
+            if ( ( cookieFile != null ) && cookieFile.exists() && ( cookieFile.length() > 0 ) )
             {
                 FileInputStream fin = new FileInputStream( cookieFile );
                 syncCookie = new byte[fin.read()];
