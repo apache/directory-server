@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.entry.ServerSearchResult;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -294,4 +295,12 @@ public interface Partition
      * @throws IOException if we can't write the data
      */
     void dumpIndex( OutputStream stream, String name ) throws IOException;
+    
+    
+    /**
+     * set the Cache service 
+     *
+     * @param cacheService
+     */
+    void setCacheService( CacheService cacheService );
 }

@@ -45,6 +45,7 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
@@ -802,6 +803,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             // We now defer the deletion to the implementing class
             delete( id );
+            
+            updateCache( deleteContext );
         }
         catch ( LdapException le )
         {
@@ -1180,7 +1183,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             lockRead();
-            Entry entry = master.get( id );
+            Entry entry = lookupCache( id );
+            
+            if( entry != null )
+            {
+                return new ClonedServerEntry( entry );
+            }
+            
+            entry = master.get( id );
 
             if ( entry != null )
             {
@@ -1195,6 +1205,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 entry.setDn( dn );
 
+                addToCache( id, entry );
+                
                 return new ClonedServerEntry( entry );
             }
 
@@ -1229,8 +1241,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
-            Entry entry = null;
-
+            Entry entry = lookupCache( id );
+            
+            if( entry != null )
+            {
+                return new ClonedServerEntry( entry );    
+            }
+            
             try
             {
                 lockRead();
@@ -1249,6 +1266,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     entry.setDn( dn );
                 }
 
+                addToCache( id, entry );
                 return new ClonedServerEntry( entry );
             }
 
@@ -1275,6 +1293,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
             modifyContext.setAlteredEntry( modifiedEntry );
+            
+            updateCache( modifyContext );
         }
         catch ( Exception e )
         {
@@ -1618,6 +1638,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Entry modifiedEntry = moveContext.getModifiedEntry();
 
             move( oldDn, newSuperior, newDn, modifiedEntry );
+            updateCache( moveContext );
         }
         catch ( Exception e )
         {
@@ -1741,6 +1762,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
 
             moveAndRename( oldDn, newSuperiorDn, newRdn, modifiedEntry, deleteOldRdn );
+            updateCache( moveAndRenameContext );
         }
         catch ( LdapException le )
         {
@@ -1908,6 +1930,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 rename( oldDn, newRdn, deleteOldRdn, null );
             }
+            
+            updateCache( renameContext );
         }
         catch ( Exception e )
         {
@@ -2880,5 +2904,42 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private void unlockWrite() throws Exception
     {
         masterTableLock.writeLock().unlock();
+    }
+    
+    
+    /**
+     * updates the cache based on the type of OperationContext
+     * 
+     * @param opCtx the operation's context
+     */
+    public void updateCache( OperationContext opCtx )
+    {
+        // partition implementations should override this if they want to use cache
+    }
+
+    
+    /**
+     * looks up for the entry with the given ID in the cache
+     *
+     * @param id the ID of the entry
+     * @return the Entry if exists, null otherwise
+     */
+    public Entry lookupCache( String id )
+    {
+        return null;
+    }
+    
+    
+    /**
+     * adds the given entry to cache
+     *  
+     * Note: this method is not called during add operation to avoid filling the cache
+     *       with all the added entries
+     *       
+     * @param id ID of the entry
+     * @param entry the Entry
+     */
+    public void addToCache( String id, Entry entry )
+    {
     }
 }

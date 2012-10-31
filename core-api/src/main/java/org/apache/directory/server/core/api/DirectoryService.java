@@ -47,7 +47,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
-
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
@@ -614,4 +613,12 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the Dn factory
      */
     DnFactory getDnFactory();
+
+    
+    /**
+     * Sets the CacheService
+     * 
+     * @param cacheService the cache service
+     */
+    void setCacheService( CacheService cacheService );
 }

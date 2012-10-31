@@ -38,6 +38,7 @@ import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -161,9 +162,12 @@ public class ApacheDsService
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
 
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( instanceLayout );
+
         initSchemaManager( instanceLayout );
         initSchemaLdifPartition( instanceLayout );
-        initConfigPartition( instanceLayout );
+        initConfigPartition( instanceLayout, cacheService );
 
         // Read the configuration
         cpReader = new ConfigPartitionReader( configPartition );
@@ -173,7 +177,7 @@ public class ApacheDsService
         DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
 
         // Initialize the DirectoryService now
-        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean );
+        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean, cacheService );
 
         // start the LDAP server
         startLdap( directoryServiceBean.getLdapServerBean(), directoryService );
@@ -258,9 +262,10 @@ public class ApacheDsService
      * initializes a LDIF partition for configuration
      * 
      * @param instanceLayout the instance layout
+     * @param cacheService the Cache service
      * @throws Exception in case of any issues while extracting the schema
      */
-    private void initConfigPartition( InstanceLayout instanceLayout ) throws Exception
+    private void initConfigPartition( InstanceLayout instanceLayout, CacheService cacheService ) throws Exception
     {
         File confFile = new File( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE );
 
@@ -280,13 +285,14 @@ public class ApacheDsService
         configPartition.setPartitionPath( confFile.toURI() );
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-
+        configPartition.setCacheService( cacheService );
+        
         configPartition.initialize();
     }
 
 
     private DirectoryService initDirectoryService( InstanceLayout instanceLayout,
-        DirectoryServiceBean directoryServiceBean ) throws Exception
+        DirectoryServiceBean directoryServiceBean, CacheService cacheService ) throws Exception
     {
         LOG.info( "Initializing the DirectoryService..." );
 
@@ -304,7 +310,9 @@ public class ApacheDsService
 
         // Store the default directories
         directoryService.setInstanceLayout( instanceLayout );
-
+        
+        directoryService.setCacheService( cacheService );
+        
         directoryService.startup();
 
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -374,14 +382,7 @@ public class ApacheDsService
         ldapServer.setDirectoryService( directoryService );
 
         // And start the server now
-        try
-        {
-            ldapServer.start();
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Cannot start the server : " + e.getMessage() );
-        }
+        ldapServer.start();
 
         LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
     }

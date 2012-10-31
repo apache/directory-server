@@ -160,4 +160,29 @@
 		   timeToIdleSeconds="300"
 		   diskPersistent="false" />
 		   
+		   <!-- partition caches
+		     the name format:
+		     name="{partition-suffix}" for partition
+		     name="{partition-suffix}:{index name/OID}" for each partition's index (currently only RDN index supports cache)
+		    -->
+	<cache name="ou=system" 
+	       maxElementsInMemory="1000"
+		   eternal="false" 
+		   overflowToDisk="true"
+		   diskSpoolBufferSizeMB="20"
+		   timeToIdleSeconds="300"
+		   timeToLiveSeconds="600"
+		   memoryStoreEvictionPolicy="LFU"
+		   diskPersistent="false"/>
+		   
+	<cache name="ou=system:apacheRdn" 
+	       maxElementsInMemory="10000"
+		   eternal="false" 
+		   overflowToDisk="false"
+		   timeToIdleSeconds="300"
+		   timeToLiveSeconds="600"
+		   memoryStoreEvictionPolicy="LFU"
+		   diskPersistent="false"/>
+		   
+		   
 </ehcache>

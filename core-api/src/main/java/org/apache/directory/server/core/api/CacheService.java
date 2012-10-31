@@ -26,6 +26,8 @@ import java.io.File;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,50 +53,111 @@ public class CacheService
     /** the ehcache cache manager */
     private CacheManager cacheManager;
 
+    private boolean initialized;
 
     public CacheService()
     {
     }
 
-
-    public void initialize( DirectoryService dirService )
+    
+    /**
+     * Creates a new instance of CacheService with the given cache manager.
+     *
+     * @param cachemanager
+     */
+    public CacheService( CacheManager cachemanager )
     {
+        this.cacheManager = cachemanager;
+        if ( cachemanager != null )
+        {
+           initialized = true; 
+        }
+    }
+    
+    
+    public void initialize( InstanceLayout layout )
+    {
+        if ( initialized )
+        {
+            LOG.debug( "CacheService was already initialized, returning" );
+            return;
+        }
+        
         if ( ( cacheManager != null ) && ( cacheManager.getStatus() == Status.STATUS_ALIVE ) )
         {
             LOG.warn( "cache service was already initialized and is alive" );
+            initialized = true;
             return;
         }
 
-        File configFile = new File( dirService.getInstanceLayout().getConfDirectory(), DIRECTORY_CACHESERVICE_XML );
+        File configFile = new File( layout.getConfDirectory(), DIRECTORY_CACHESERVICE_XML );
 
+        Configuration cc;
+        
         if ( !configFile.exists() )
         {
             LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-
-            cacheManager = new CacheManager( getClass().getClassLoader().getResource( DIRECTORY_CACHESERVICE_XML ) );
+            cc = ConfigurationFactory.parseConfiguration( getClass().getClassLoader().getResource( DIRECTORY_CACHESERVICE_XML ) );
         }
         else
         {
             LOG.info( "loading cache configuration from the file {}", configFile );
 
-            cacheManager = new CacheManager( configFile.getAbsolutePath() );
+            cc = ConfigurationFactory.parseConfiguration( configFile );
         }
+        
+        cc.getDiskStoreConfiguration().setPath( layout.getCacheDirectory().getAbsolutePath() );
+        cacheManager = new CacheManager( cc );
+
+        initialized = true;
     }
 
 
     public void destroy()
     {
+        if ( !initialized )
+        {
+            return;
+        }
+
         LOG.info( "clearing all the caches" );
 
+        initialized = false;
+
         cacheManager.clearAll();
-        cacheManager.shutdown();
     }
 
 
     public Cache getCache( String name )
     {
+        if ( !initialized )
+        {
+            throw new IllegalStateException( "CacheService was not initialized" );
+        }
+
         LOG.info( "fetching the cache named {}", name );
 
-        return cacheManager.getCache( name );
+        Cache cache = cacheManager.getCache( name );
+        
+        if( cache == null )
+        {
+            cacheManager.addCache( name );
+            cache = cacheManager.getCache( name );
+        }
+        
+        return cache;
     }
+
+
+    public void remove( String name )
+    {
+        cacheManager.removeCache( name );
+    }
+
+
+    public void attach( Cache cache )
+    {
+        cacheManager.addCache( cache );
+    }
+
 }

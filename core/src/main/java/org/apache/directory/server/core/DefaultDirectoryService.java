@@ -1813,15 +1813,19 @@ public class DefaultDirectoryService implements DirectoryService
         {
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
-
+        
+        csnFactory.setReplicaId( replicaId );
+        
         // If no interceptor list is defined, setup a default list
         if ( interceptors == null )
         {
             setDefaultInterceptorConfigurations();
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( this );
+        if ( cacheService != null )
+        {
+            cacheService.initialize( instanceLayout );
+        }
 
         // Initialize the AP caches
         accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
@@ -1832,8 +1836,10 @@ public class DefaultDirectoryService implements DirectoryService
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         // triggers partition to load schema fully from schema partition
+        schemaPartition.setCacheService( cacheService );
         schemaPartition.initialize();
         partitions.add( schemaPartition );
+        systemPartition.setCacheService( cacheService );
         systemPartition.getSuffixDn().apply( schemaManager );
 
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -2327,4 +2333,14 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return evaluator;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCacheService( CacheService cacheService )
+    {
+        this.cacheService = cacheService;
+    }
+
 }

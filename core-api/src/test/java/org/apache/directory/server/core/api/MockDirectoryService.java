@@ -612,4 +612,12 @@ public class MockDirectoryService implements DirectoryService
     {
         // TODO Auto-generated method stub
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCacheService( CacheService cacheService )
+    {
+      // nothing
+    }
 }

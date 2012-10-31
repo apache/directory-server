@@ -25,6 +25,7 @@ import java.io.OutputStream;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -59,7 +60,9 @@ public abstract class AbstractPartition implements Partition
     /** The root Dn for this partition */
     protected Dn suffixDn;
 
-
+    /** the cache service */
+    protected CacheService cacheService;
+    
     /**
      * {@inheritDoc}
      */
@@ -233,5 +236,15 @@ public abstract class AbstractPartition implements Partition
     public void setContextEntry( Entry contextEntry )
     {
         this.contextEntry = contextEntry;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCacheService( CacheService cacheService )
+    {
+        this.cacheService = cacheService;
     }
 }
