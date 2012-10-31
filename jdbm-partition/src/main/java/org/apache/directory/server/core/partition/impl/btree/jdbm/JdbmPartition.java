@@ -33,10 +33,19 @@ import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
@@ -54,6 +63,7 @@ import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -88,6 +98,8 @@ public class JdbmPartition extends AbstractBTreePartition
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
 
+    /** the entry cache */
+    private Cache entryCache;
 
     /**
      * Creates a store based on JDBM B+Trees.
@@ -249,6 +261,11 @@ public class JdbmPartition extends AbstractBTreePartition
                 }
             }
 
+            if( cacheService != null )
+            {
+                entryCache = cacheService.getCache( getId() );
+            }
+            
             // We are done !
             initialized = true;
         }
@@ -464,7 +481,14 @@ public class JdbmPartition extends AbstractBTreePartition
             LOG.error( I18n.err( I18n.ERR_127 ), t );
             errors.addThrowable( t );
         }
-
+        finally
+        {
+            if( entryCache != null )
+            {
+                entryCache.removeAll();
+            }
+        }
+        
         if ( errors.size() > 0 )
         {
             throw errors;
@@ -497,4 +521,86 @@ public class JdbmPartition extends AbstractBTreePartition
 
         return jdbmIndex;
     }
+
+
+    @Override
+    public void updateCache( OperationContext opCtx )
+    {
+        if( entryCache == null )
+        {
+            return;
+        }
+        
+        try
+        {
+            if( opCtx instanceof ModifyOperationContext )
+            {
+                // replace the entry
+                ModifyOperationContext modCtx = ( ModifyOperationContext ) opCtx;
+                Entry entry = modCtx.getAlteredEntry();
+                String id = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+                
+                if( entry instanceof ClonedServerEntry )
+                {
+                    entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+                }
+                
+                entryCache.replace( new Element( id, entry ) );
+            }
+            else if( ( opCtx instanceof MoveOperationContext ) ||
+                ( opCtx instanceof MoveAndRenameOperationContext ) ||
+                ( opCtx instanceof RenameOperationContext ) )
+            {
+                // clear the cache it is not worth updating all the children
+                entryCache.removeAll();
+            }
+            else if( opCtx instanceof DeleteOperationContext )
+            {
+                // delete the entry
+                DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
+                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+            }
+        }
+        catch( LdapException e )
+        {
+            LOG.warn( "Failed to update entry cache", e );
+        }
+    }
+
+
+    @Override
+    public Entry lookupCache( String id )
+    {
+        if( entryCache == null )
+        {
+            return null;
+        }
+
+        Element el = entryCache.get( id );
+        
+        if( el != null )
+        {
+            return ( Entry ) el.getValue();
+        }
+        
+        return null;
+    }
+
+
+    @Override
+    public void addToCache( String id, Entry entry )
+    {
+        if( entryCache == null )
+        {
+            return;
+        }
+
+        if( entry instanceof ClonedServerEntry )
+        {
+            entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+        }
+        
+        entryCache.put( new Element( id, entry ) );
+    }
+    
 }
