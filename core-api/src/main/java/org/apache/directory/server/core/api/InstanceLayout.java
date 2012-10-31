@@ -67,6 +67,8 @@ import java.io.File;
  *    |    +-- &lt;log file&gt;
  *    |
  *    +-- run
+ *    |
+ *    +-- cache
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -82,6 +84,7 @@ public class InstanceLayout extends AbstractLayout
     private static final String CONF_NAME = "conf";
     private static final String PARTITIONS_NAME = "partitions";
     private static final String REPL_NAME = "syncrepl-data";
+    private static final String CACHE_NAME = "cache";
     
     /** Static file names */
     private static final String LOG4J_PROPERTIES = "log4j.properties";
@@ -102,6 +105,9 @@ public class InstanceLayout extends AbstractLayout
 
     /** The replication data directory */
     private File replDir;
+
+    /** The cache directory */
+    private File cacheDir;
 
     /**
      * Creates a new instance of InstanceLayout.
@@ -139,8 +145,9 @@ public class InstanceLayout extends AbstractLayout
                 getConfDirectory(),
                 getLogDirectory(),
                 getPartitionsDirectory(),
-                getRunDirectory()
-        };
+                getRunDirectory(),
+                getCacheDirectory()
+            };
         setRequiredDirectories( requiredDirectories );
 
         // The required files
@@ -178,6 +185,31 @@ public class InstanceLayout extends AbstractLayout
         this.confDir = confDir;
     }
 
+    
+    
+    /**
+     * Gets the 'cache' directory.
+     *
+     * @return the 'cache' directory
+     */
+    public File getCacheDirectory()
+    {
+        if ( cacheDir == null )
+        {
+            cacheDir = new File( getInstanceDirectory(), CACHE_NAME );
+        }
+        
+        return cacheDir;
+    }
+    
+    
+    /**
+     * @param cacheDir the confDir to set
+     */
+    public void setCacheDir( File cacheDir )
+    {
+        this.cacheDir = cacheDir;
+    }
 
     /**
      * Gets the 'log' directory.
@@ -344,11 +376,12 @@ public class InstanceLayout extends AbstractLayout
     public String toString()
     {
         return "Instance Layout: \n" +
-            "  Instance dir            : " + getInstanceDirectory() + "\n" +
-            "  Instance conf dir       : " + getConfDirectory() + "\n" +
-            "  Instance log dir        : " + getLogDirectory() + "\n" +
-            "  Instance run dir        : " + getRunDirectory() + "\n" +
-            "  Instance partitions dir : " + getPartitionsDirectory() + "\n" +
-            "  Instance replication data dir        : " + getLogDirectory() + "\n";
+            "  Instance dir                  : " + getInstanceDirectory() + "\n" +
+            "  Instance conf dir             : " + getConfDirectory() + "\n" +
+            "  Instance log dir              : " + getLogDirectory() + "\n" +
+            "  Instance run dir              : " + getRunDirectory() + "\n" +
+            "  Instance partitions dir       : " + getPartitionsDirectory() + "\n" +
+            "  Instance replication data dir : " + getLogDirectory() + "\n" +
+            "  Instance cache dir            : " + getCacheDirectory() + "\n";
     }
 }
