@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Calendar;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -32,6 +33,8 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -44,6 +47,32 @@ public class UberJarMainTest
 {
     /** Flag used by connection verification thread */
     private boolean verified = true;
+
+    private File instanceDirectory;
+    
+    @Before
+    public void create()
+    {
+        // Getting tmp directory
+        File tmpDirectory = new File( System.getProperty( "java.io.tmpdir" ) );
+
+        // Creating an instance directory
+        Calendar calendar = Calendar.getInstance();
+        instanceDirectory = new File( tmpDirectory, "ApacheDS-" + calendar.get( Calendar.YEAR )
+            + calendar.get( Calendar.MONTH ) + calendar.get( Calendar.DATE ) + calendar.get( Calendar.HOUR )
+            + calendar.get( Calendar.MINUTE ) + calendar.get( Calendar.SECOND ) );
+        instanceDirectory.mkdir();
+    }
+
+    
+    @After
+    public void delete() throws Exception
+    {
+        if( instanceDirectory != null )
+        {
+            FileUtils.deleteDirectory( instanceDirectory );
+        }
+    }
 
 
     /**
