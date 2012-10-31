@@ -383,14 +383,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         DeleteResponse deleteResponse = delete( deleteRequest );
 
-        try
-        {
-            processResponse( deleteResponse );
-        }
-        catch ( LdapException e )
-        {
-            throw e;
-        }
+        processResponse( deleteResponse );
     }
 
 
