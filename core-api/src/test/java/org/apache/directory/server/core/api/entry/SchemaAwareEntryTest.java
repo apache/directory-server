@@ -63,6 +63,7 @@ import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.Exceptions;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,24 +81,24 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 @Concurrency()
 public class SchemaAwareEntryTest
 {
-    private static final byte[] BYTES1 = new byte[]
+    private final byte[] BYTES1 = new byte[]
         { 'a', 'b' };
-    private static final byte[] BYTES2 = new byte[]
+    private final byte[] BYTES2 = new byte[]
         { 'b' };
-    private static final byte[] BYTES3 = new byte[]
+    private final byte[] BYTES3 = new byte[]
         { 'c' };
 
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
 
-    private static AttributeType atObjectClass;
-    private static AttributeType atCN;
-    private static AttributeType atDC;
-    private static AttributeType atSN;
-    private static AttributeType atC;
-    private static AttributeType atEMail;
-    private static AttributeType atL;
-    private static AttributeType atOC;
+    private AttributeType atObjectClass;
+    private AttributeType atCN;
+    private AttributeType atDC;
+    private AttributeType atSN;
+    private AttributeType atC;
+    private AttributeType atEMail;
+    private AttributeType atL;
+    private AttributeType atOC;
 
     // A Binary attribute
     private static AttributeType atPwd;
@@ -134,7 +135,12 @@ public class SchemaAwareEntryTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
+    }
+    
 
+    @Before
+    public void init() throws Exception
+    {
         atObjectClass = schemaManager.lookupAttributeTypeRegistry( "objectClass" );
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
         atDC = schemaManager.lookupAttributeTypeRegistry( "dc" );
@@ -759,6 +765,10 @@ public class SchemaAwareEntryTest
         Value<String> test2 = new StringValue( atDC, "test2" );
         Value<String> test3 = new StringValue( atDC, "test3" );
 
+        Value<String> testEMail1 = new StringValue( atEMail, "test1" );
+        Value<String> testEMail2 = new StringValue( atEMail, "test2" );
+        Value<String> testEMail3 = new StringValue( atEMail, "test3" );
+
         Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
         Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
         Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
@@ -775,13 +785,13 @@ public class SchemaAwareEntryTest
         }
 
         // Test a simple addition in atEMail
-        entry.add( atEMail, test1 );
+        entry.add( atEMail, testEMail1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
         assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
-        entry.add( atEMail, test2, test3 );
+        entry.add( atEMail, testEMail2, testEMail3 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 3, entry.get( atEMail ).size() );
         assertTrue( entry.contains( atEMail, "test1" ) );
@@ -789,7 +799,7 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( atEMail, "test3" ) );
 
         // Test some addition of existing values
-        entry.add( atEMail, test2 );
+        entry.add( atEMail, testEMail2 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 3, entry.get( atEMail ).size() );
         assertTrue( entry.contains( atEMail, "test1" ) );
