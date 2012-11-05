@@ -381,7 +381,7 @@ public class InstanceLayout extends AbstractLayout
             "  Instance log dir              : " + getLogDirectory() + "\n" +
             "  Instance run dir              : " + getRunDirectory() + "\n" +
             "  Instance partitions dir       : " + getPartitionsDirectory() + "\n" +
-            "  Instance replication data dir : " + getLogDirectory() + "\n" +
+            "  Instance replication data dir : " + getReplDirectory() + "\n" +
             "  Instance cache dir            : " + getCacheDirectory() + "\n";
     }
 }
