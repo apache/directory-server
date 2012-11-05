@@ -35,7 +35,7 @@ public abstract class IndexBean extends AdsBaseBean
     private String indexAttributeId;
 
     @ConfigurationElement(attributeType = "ads-indexHasReverse", isRdn = true)
-    private String indexHasReverse;
+    private boolean indexHasReverse;
 
 
     /**
@@ -67,7 +67,7 @@ public abstract class IndexBean extends AdsBaseBean
     /**
      * @param indexHasReverse the indexHasReverse to set
      */
-    public void setIndexHasReverse( String indexHasReverse )
+    public void setIndexHasReverse( boolean indexHasReverse )
     {
         this.indexHasReverse = indexHasReverse;
     }
@@ -76,7 +76,7 @@ public abstract class IndexBean extends AdsBaseBean
     /**
      * @return the indexHasReverse
      */
-    public String getIndexHasReverse()
+    public boolean getIndexHasReverse()
     {
         return indexHasReverse;
     }
