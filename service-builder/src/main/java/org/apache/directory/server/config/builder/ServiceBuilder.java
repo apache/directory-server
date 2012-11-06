@@ -1101,7 +1101,7 @@ public class ServiceBuilder
 
         JdbmIndex<?, ?> index = null;
 
-        boolean hasReverse = Boolean.parseBoolean( jdbmIndexBean.getIndexHasReverse() );
+        boolean hasReverse = jdbmIndexBean.getIndexHasReverse();
 
         if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
             jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
