@@ -328,14 +328,43 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
             // At this point, we know which service to use.
             // Inject it into the class
-            Method setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME,
-                DirectoryService.class );
-            setService.invoke( getTestClass().getJavaClass(), directoryService );
+            Method setService = null;
+            
+            try
+            {
+                setService = getTestClass().getJavaClass().getMethod( SET_SERVICE_METHOD_NAME,
+                    DirectoryService.class );
+                
+                setService.invoke( getTestClass().getJavaClass(), directoryService );
+            }
+            catch ( NoSuchMethodException nsme ) 
+            {
+                // Do nothing
+            }
 
             // if we run this class in a suite, tell it to the test
-            Method setLdapServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME,
-                LdapServer.class );
-            Method setKdcServer = getTestClass().getJavaClass().getMethod( SET_KDC_SERVER_METHOD_NAME, KdcServer.class );
+            Method setLdapServer = null;
+            
+            try
+            {
+                setLdapServer = getTestClass().getJavaClass().getMethod( SET_LDAP_SERVER_METHOD_NAME,
+                    LdapServer.class );
+            }
+            catch ( NoSuchMethodException nsme ) 
+            {
+                // Do nothing
+            }
+            
+            Method setKdcServer = null;
+            
+            try
+            {
+                setKdcServer = getTestClass().getJavaClass().getMethod( SET_KDC_SERVER_METHOD_NAME, KdcServer.class );
+            }
+            catch ( NoSuchMethodException nsme ) 
+            {
+                // Do nothing
+            }
 
             DirectoryService oldLdapServerDirService = null;
             DirectoryService oldKdcServerDirService = null;
