@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.server.config.ConfigurationElement;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**
@@ -65,6 +66,10 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(attributeType = "ads-certificatePassword")
     private String certificatePassword;
 
+    /** A flag telling if the replication is enabled */
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ENABLED )
+    private boolean replicationEnabled = false;
+    
     /** the replication request handler, server will be in replication provider/master mode if a valid FQCN is given */
     @ConfigurationElement(attributeType = "ads-replReqHandler")
     private String replReqHandler;
@@ -418,7 +423,25 @@ public class LdapServerBean extends DSBasedServerBean
 
         return sb.toString();
     }
+    
+    
+    /**
+     * @return True if the replication service should be enabled
+     */
+    public boolean isReplicationEnabled()
+    {
+        return replicationEnabled;
+    }
 
+    
+    /**
+     * Enable or disable the replication
+     * @param replicationEnabled The new value
+     */
+    public void setReplicationEnabled( boolean replicationEnabled )
+    {
+        this.replicationEnabled = replicationEnabled;
+    }
 
     /**
      * {@inheritDoc}

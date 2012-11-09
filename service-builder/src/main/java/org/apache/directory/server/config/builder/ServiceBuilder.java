@@ -90,6 +90,7 @@ import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
+import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
@@ -970,25 +971,35 @@ public class ServiceBuilder
         }
 
         // ReplReqHandler
-        String fqcn = ldapServerBean.getReplReqHandler();
-
-        if ( fqcn != null )
+        boolean replicationEnabled = ldapServerBean.isReplicationEnabled();
+        
+        if ( replicationEnabled )
         {
-            try
+            String fqcn = ldapServerBean.getReplReqHandler();
+    
+            if ( fqcn != null )
             {
-                Class<?> replProvImplClz = Class.forName( fqcn );
-                ReplicationRequestHandler rp = ( ReplicationRequestHandler ) replProvImplClz.newInstance();
+                try
+                {
+                    Class<?> replProvImplClz = Class.forName( fqcn );
+                    ReplicationRequestHandler rp = ( ReplicationRequestHandler ) replProvImplClz.newInstance();
+                    ldapServer.setReplicationReqHandler( rp );
+                }
+                catch ( Exception e )
+                {
+                    String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + fqcn;
+                    LOG.error( message );
+                    throw new ConfigurationException( message );
+                }
+            }
+            else if ( true )
+            {
+                // Try with the default handler
+                ReplicationRequestHandler rp = new SyncReplRequestHandler();
                 ldapServer.setReplicationReqHandler( rp );
             }
-            catch ( Exception e )
-            {
-                String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + fqcn;
-                LOG.error( message );
-                throw new ConfigurationException( message );
-            }
-
         }
-
+        
         ldapServer.setReplConsumers( createReplConsumers( ldapServerBean.getReplConsumers() ) );
 
         return ldapServer;
