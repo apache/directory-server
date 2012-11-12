@@ -39,7 +39,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
+import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
@@ -101,7 +101,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
 
     /** the syncrepl configuration */
-    private SyncreplConfiguration config;
+    private SyncReplConfiguration config;
 
     /** the sync cookie sent by the server */
     private byte[] syncCookie;
@@ -162,7 +162,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * @return the config
      */
-    public SyncreplConfiguration getConfig()
+    public SyncReplConfiguration getConfig()
     {
         return config;
     }
@@ -490,7 +490,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     public void setConfig( ReplicationConsumerConfig config )
     {
-        this.config = ( SyncreplConfiguration ) config;
+        this.config = ( SyncReplConfiguration ) config;
     }
 
 

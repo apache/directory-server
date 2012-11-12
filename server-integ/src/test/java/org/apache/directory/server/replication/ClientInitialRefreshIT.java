@@ -44,7 +44,7 @@ import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
+import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
@@ -267,7 +267,7 @@ public class ClientInitialRefreshIT
     private ReplicationConsumer createConsumer() throws Exception
     {
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
-        final SyncreplConfiguration config = new SyncreplConfiguration();
+        final SyncReplConfiguration config = new SyncReplConfiguration();
         config.setRemoteHost( "localhost" );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );

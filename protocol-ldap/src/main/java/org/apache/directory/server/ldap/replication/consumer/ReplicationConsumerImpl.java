@@ -45,7 +45,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
+import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
@@ -105,7 +105,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
     /** the syncrepl configuration */
-    private SyncreplConfiguration config;
+    private SyncReplConfiguration config;
 
     /** the sync cookie sent by the server */
     private byte[] syncCookie;
@@ -164,7 +164,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * @return the config
      */
-    public SyncreplConfiguration getConfig()
+    public SyncReplConfiguration getConfig()
     {
         return config;
     }
@@ -544,7 +544,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     public void setConfig( ReplicationConsumerConfig config )
     {
-        this.config = ( SyncreplConfiguration ) config;
+        this.config = ( SyncReplConfiguration ) config;
     }
 
 

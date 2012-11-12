@@ -35,7 +35,7 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 public class DirectoryServiceBean extends AdsBaseBean
 {
     /** The DS instance Id */
-    @ConfigurationElement(attributeType = "ads-directoryServiceId", isRdn = true)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_DIRECTORY_SERVICE_ID, isRdn = true)
     private String directoryServiceId;
 
     /** The directory instance replication ID */

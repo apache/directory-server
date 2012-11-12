@@ -62,7 +62,7 @@ import org.apache.directory.shared.util.Strings;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SyncreplConfiguration implements ReplicationConsumerConfig
+public class SyncReplConfiguration implements ReplicationConsumerConfig
 {
     /** host name of the syncrepl remote server, default value is localhost */
     private String remoteHost = "localhost";
@@ -132,7 +132,7 @@ public class SyncreplConfiguration implements ReplicationConsumerConfig
     /**
      * Creates a new instance of SyncreplConfiguration
      */
-    public SyncreplConfiguration()
+    public SyncReplConfiguration()
     {
         attributes = new HashSet<String>();
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );

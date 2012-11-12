@@ -86,7 +86,7 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
-import org.apache.directory.server.ldap.replication.SyncreplConfiguration;
+import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
@@ -1029,7 +1029,7 @@ public class ServiceBuilder
 
             ReplicationConsumer consumer = null;
             Class<?> consumerClass = null;
-            SyncreplConfiguration config = null;
+            SyncReplConfiguration config = null;
 
             try
             {
@@ -1045,7 +1045,7 @@ public class ServiceBuilder
                 consumer = ( ReplicationConsumer ) consumerClass.newInstance();
 
                 // we don't support any other configuration impls atm, but this configuration should suffice for many needs
-                config = new SyncreplConfiguration();
+                config = new SyncReplConfiguration();
 
                 config.setBaseDn( replBean.getSearchBaseDn() );
                 config.setRemoteHost( replBean.getReplProvHostName() );
