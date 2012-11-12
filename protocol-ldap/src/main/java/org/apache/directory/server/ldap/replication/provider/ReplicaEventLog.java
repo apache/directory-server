@@ -77,7 +77,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /** the persistent listener */
     private SyncReplSearchListener persistentListener;
 
-    /** notification criteria used by the persistent sea*/
+    /** notification criteria used by the persistent search */
     private NotificationCriteria searchCriteria;
 
     /** the replica id */
