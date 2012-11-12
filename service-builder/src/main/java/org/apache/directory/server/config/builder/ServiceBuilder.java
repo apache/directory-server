@@ -1050,7 +1050,16 @@ public class ServiceBuilder
                 config.setBaseDn( replBean.getSearchBaseDn() );
                 config.setRemoteHost( replBean.getReplProvHostName() );
                 config.setRemotePort( replBean.getReplProvPort() );
-                config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
+                
+                try
+                { 
+                    config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
+                }
+                catch ( IllegalArgumentException iae )
+                {
+                    LOG.error( iae.getMessage() + ", defaulted to 'never'" );
+                }
+                
                 config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
                 config.setRefreshInterval( replBean.getReplRefreshInterval() );
                 config.setRefreshNPersist( replBean.isReplRefreshNPersist() );

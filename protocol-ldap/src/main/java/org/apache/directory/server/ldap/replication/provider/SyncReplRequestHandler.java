@@ -122,7 +122,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     /** An ObjectClass AT instance */
     private static AttributeType OBJECT_CLASS_AT;
-
+    
+    /** The CSN AttributeType instance */
+    private AttributeType CSN_AT;
+    
     private Map<Integer, ReplicaEventLog> replicaLogMap = new HashMap<Integer, ReplicaEventLog>();
 
     private File syncReplData;
@@ -131,12 +134,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private ReplConsumerManager replicaUtil;
 
-
     private ConsumerLogEntryDeleteListener cledListener;
     
     private ReplicaEventLogJanitor logJanitor;
-    
-    private AttributeType CSN_AT;
     
     /**
      * Create a SyncReplRequestHandler empty instance 
@@ -155,6 +155,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             LOG.warn( "syncrepl provider was already initialized" );
             PROVIDER_LOG.warn( "syncrepl provider was already initialized" );
+            
             return;
         }
 
@@ -172,6 +173,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             OBJECT_CLASS_AT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
+            // Get and create the replication directory if it does not exist
             syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
             if ( !syncReplData.exists() )
