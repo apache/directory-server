@@ -196,7 +196,7 @@ public class SearchHandler extends LdapRequestHandler<SearchRequest>
                 // Replication is not allowed on this server. generate a error message
                 LdapResult result = req.getResultResponse().getLdapResult();
 
-                result.setDiagnosticMessage( "Replicztion is not allowed on this server" );
+                result.setDiagnosticMessage( "Replication is not allowed on this server" );
                 result.setResultCode( ResultCodeEnum.OTHER );
                 session.getIoSession().write( req.getResultResponse() );
 
