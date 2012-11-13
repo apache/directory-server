@@ -992,7 +992,7 @@ public class ServiceBuilder
                     throw new ConfigurationException( message );
                 }
             }
-            else if ( true )
+            else
             {
                 // Try with the default handler
                 ReplicationRequestHandler rp = new SyncReplRequestHandler();
