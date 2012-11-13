@@ -1068,7 +1068,7 @@ public class ServiceBuilder
                 config.setSearchScope( SearchScope.getSearchScope( scope ) );
 
                 config.setFilter( replBean.getReplSearchFilter() );
-                config.setSearchTimeout( replBean.getReplSearchTimeOut() );
+                config.setSearchTimeout( replBean.getReplSearchTimeout() );
                 config.setReplUserDn( replBean.getReplUserDn() );
                 config.setReplUserPassword( replBean.getReplUserPassword() );
 
