@@ -318,7 +318,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @return the replSearchSizeLimit
      */
-    public int isReplSearchSizeLimit()
+    public int getReplSearchSizeLimit()
     {
         return replSearchSizeLimit;
     }
@@ -336,18 +336,18 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * @return the replSearchTimeOut
      */
-    public int getReplSearchTimeOut()
+    public int getReplSearchTimeout()
     {
         return replSearchTimeout;
     }
 
 
     /**
-     * @param replSearchTimeOut the replSearchTimeOut to set
+     * @param replSearchTimeout the replSearchTimeout to set
      */
-    public void setReplSearchTimeLimit( int replSearchTimeOut )
+    public void setReplSearchTimeout( int replSearchTimeout )
     {
-        this.replSearchTimeout = replSearchTimeOut;
+        this.replSearchTimeout = replSearchTimeout;
     }
 
 
