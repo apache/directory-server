@@ -60,15 +60,17 @@ import java.io.File;
  *    |    |    |
  *    |    :    :
  *    |
- *    +-- log
+ *    +-- log/
  *    |    |
  *    |   [+-- journal.ldif]
  *    |    |
  *    |    +-- &lt;log file&gt;
  *    |
- *    +-- run
+ *    +-- run/
  *    |
- *    +-- cache
+ *    +-- cache/
+ *    |
+ *    +-- syncrepl-data/
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -148,6 +150,7 @@ public class InstanceLayout extends AbstractLayout
                 getRunDirectory(),
                 getCacheDirectory()
             };
+        
         setRequiredDirectories( requiredDirectories );
 
         // The required files
@@ -156,7 +159,8 @@ public class InstanceLayout extends AbstractLayout
                 getWrapperConfigurationFile(),
                 getLogConfigurationFile() /*,
                                           getApacheDsConfigurationLdifFile() */// TODO re-activate this when possible.
-        };
+            };
+        
         setRequiredFiles( requiredFiles );
     }
 
