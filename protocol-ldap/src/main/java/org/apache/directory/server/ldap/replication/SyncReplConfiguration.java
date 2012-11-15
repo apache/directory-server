@@ -129,6 +129,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /** flag to indicate if this node is part of a MMR setup, default value is true */
     private boolean mmrMode = true;
 
+
     /**
      * Creates a new instance of SyncreplConfiguration
      */
@@ -136,7 +137,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     {
         attributes = new HashSet<String>();
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-        attributes.add( Strings.toLowerCase( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) );
+        attributes.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
     }
 
 
@@ -299,30 +300,15 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
 
     /**
-     * @param attr the attributes to set
+     * @param attrs the attributes to set
      */
-    public void setAttributes( String[] attr )
+    public void setAttributes( String[] attrs )
     {
-        if ( attr == null )
+        attributes.clear();
+        
+        for ( String attr : attrs )
         {
-            throw new IllegalArgumentException( "attributes to be replicated cannot be null or empty" );
-        }
-
-        // if user specified some attributes then remove the * from attributes
-        // NOTE: if the user specifies * in the given array that eventually gets added later
-        if ( attr.length > 0 )
-        {
-            attributes.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
-        }
-
-        for ( String at : attr )
-        {
-            at = at.trim();
-
-            if ( !attributes.contains( Strings.toLowerCase( at ) ) )
-            {
-                attributes.add( at );
-            }
+            attributes.add( attr );
         }
     }
 
@@ -550,6 +536,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     {
         this.configEntryDn = configEntryDn;
     }
+
 
     /**
      * @return true if this node is part of MMR setup
