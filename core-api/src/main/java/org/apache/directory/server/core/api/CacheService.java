@@ -125,6 +125,7 @@ public class CacheService
         initialized = false;
 
         cacheManager.clearAll();
+        cacheManager.shutdown();
     }
 
 
