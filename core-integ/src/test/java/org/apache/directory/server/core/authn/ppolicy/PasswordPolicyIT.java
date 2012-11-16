@@ -257,6 +257,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertFalse( userConnection.isAuthenticated() );
         }
         
+        // Added an extra wait (for Windows)
+        Thread.sleep( 2000 );
+        
         userEntry = adminConnection.lookup( userDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNotNull( pwdAccountLockedTime );
