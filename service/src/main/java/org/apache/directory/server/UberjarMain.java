@@ -35,6 +35,9 @@ public class UberjarMain
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( UberjarMain.class );
 
+    /** The ApacheDS service */
+    ApacheDsService service;
+
 
     /**
      * Takes a single argument, the path to the installation home, which contains 
@@ -46,16 +49,48 @@ public class UberjarMain
     {
         if ( ( args != null ) && ( args.length == 1 ) )
         {
-            // Creating ApacheDS service
-            ApacheDsService service = new ApacheDsService();
+            UberjarMain uberjarMain = new UberjarMain();
+            
+            uberjarMain.start( args );
+        }
+        else
+        {
+            // TODO default to the current directory.
+            throw new IllegalArgumentException(
+                "Program must be launched with 1 arguement, the path to the instance directory." );
+        }
+    }
+    
+    
+    public void start( String[] args )
+    {
+        // Creating ApacheDS service
+        service = new ApacheDsService();
 
-            // Creating instance layouts from the argument
-            InstanceLayout instanceLayout = new InstanceLayout( args[0] );
+        // Creating instance layouts from the argument
+        InstanceLayout instanceLayout = new InstanceLayout( args[0] );
 
-            // Initializing the service
+        // Initializing the service
+        try
+        {
+            service.start( instanceLayout );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            LOG.error( "Failed to start the service.", e );
+            System.exit( 1 );
+        }
+    }
+    
+    
+    public void stop()
+    {
+        if ( service != null )
+        {
             try
             {
-                service.start( instanceLayout );
+                service.stop();
             }
             catch ( Exception e )
             {
@@ -63,12 +98,6 @@ public class UberjarMain
                 LOG.error( "Failed to start the service.", e );
                 System.exit( 1 );
             }
-        }
-        else
-        {
-            // TODO default to the current directory.
-            throw new IllegalArgumentException(
-                "Program must be launched with 1 arguement, the path to the instance directory." );
         }
     }
 }

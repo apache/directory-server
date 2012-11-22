@@ -94,7 +94,9 @@ public class UberJarMainTest
         instanceDirectory.mkdir();
 
         // Launching the server
-        UberjarMain.main( new String[]
+        UberjarMain uberjarMain = new UberjarMain();
+        
+        uberjarMain.start( new String[]
             { instanceDirectory.toString() } );
 
         // Creating a separate thread for the connection verification
@@ -119,6 +121,7 @@ public class UberJarMainTest
 
                     // Looking for the Root DSE entry
                     Entry rootDseEntry = connection.lookup( Dn.ROOT_DSE );
+                    
                     if ( rootDseEntry == null )
                     {
                         // This isn't good
@@ -132,7 +135,7 @@ public class UberJarMainTest
                 }
             };
         };
-
+        
         // Starting the connection verification thread
         // and waiting for the termination of it
         connectionVerificationThread.start();
