@@ -48,8 +48,12 @@ public class UberJarMainTest
     /** Flag used by connection verification thread */
     private boolean verified = true;
 
+    /** The instance directory */
     private File instanceDirectory;
     
+    /** The UberjarMain */
+    private UberjarMain uberjarMain;
+
     @Before
     public void create()
     {
@@ -62,13 +66,21 @@ public class UberJarMainTest
             + calendar.get( Calendar.MONTH ) + calendar.get( Calendar.DATE ) + calendar.get( Calendar.HOUR )
             + calendar.get( Calendar.MINUTE ) + calendar.get( Calendar.SECOND ) );
         instanceDirectory.mkdir();
+
+        // Creating the UberjarMain
+        uberjarMain = new UberjarMain();
     }
 
     
     @After
     public void delete() throws Exception
     {
-        if( instanceDirectory != null )
+        if ( uberjarMain != null )
+        {
+            uberjarMain.stop();
+        }
+
+        if ( instanceDirectory != null )
         {
             FileUtils.deleteDirectory( instanceDirectory );
         }
@@ -82,20 +94,7 @@ public class UberJarMainTest
      */
     @Test
     public void serviceInstanceTest() throws Exception
-    {
-        // Getting tmp directory
-        File tmpDirectory = new File( System.getProperty( "java.io.tmpdir" ) );
-
-        // Creating an instance directory
-        Calendar calendar = Calendar.getInstance();
-        File instanceDirectory = new File( tmpDirectory, "ApacheDS-" + calendar.get( Calendar.YEAR )
-            + calendar.get( Calendar.MONTH ) + calendar.get( Calendar.DATE ) + calendar.get( Calendar.HOUR )
-            + calendar.get( Calendar.MINUTE ) + calendar.get( Calendar.SECOND ) );
-        instanceDirectory.mkdir();
-
-        // Launching the server
-        UberjarMain uberjarMain = new UberjarMain();
-        
+    {   
         uberjarMain.start( new String[]
             { instanceDirectory.toString() } );
 
