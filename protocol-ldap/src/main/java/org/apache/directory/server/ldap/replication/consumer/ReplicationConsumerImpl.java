@@ -155,7 +155,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private Modification ridMod;
 
     /** AttributeTypes used for replication */
-    private static AttributeType COOKIE_AT_TYPE;
+    private static AttributeType REPL_COOKIE_AT;
     private static AttributeType ENTRY_UUID_AT;
     private static AttributeType RID_AT_TYPE;
 
@@ -183,12 +183,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         schemaManager = directoryservice.getSchemaManager();
 
         ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
-        COOKIE_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
+        REPL_COOKIE_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
         RID_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_DS_REPLICA_ID );
         
         ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
 
-        Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
+        Attribute cookieAttr = new DefaultAttribute( REPL_COOKIE_AT );
         cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
 
         Attribute ridAttr = new DefaultAttribute( RID_AT_TYPE );
@@ -779,13 +779,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         try
         {
-            Entry entry = session.lookup( config.getConfigEntryDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            Entry entry = session.lookup( config.getConfigEntryDn(), SchemaConstants.ADS_REPL_COOKIE );
             
             CONSUMER_LOG.debug( "The cookie is stored in the DIT : {}", entry );
             
             if ( entry != null )
             {
-                Attribute attr = entry.get( COOKIE_AT_TYPE );
+                Attribute attr = entry.get( REPL_COOKIE_AT );
                 
                 if ( attr != null )
                 {
@@ -812,7 +812,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         try
         {
-            Attribute cookieAttr = new DefaultAttribute( COOKIE_AT_TYPE );
+            Attribute cookieAttr = new DefaultAttribute( REPL_COOKIE_AT );
             Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                 cookieAttr );
             session.modify( config.getConfigEntryDn(), deleteCookieMod );
