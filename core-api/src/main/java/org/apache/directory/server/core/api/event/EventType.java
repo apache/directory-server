@@ -40,9 +40,9 @@ public enum EventType
     MODIFY(4), 
     RENAME(8), 
     MOVE(16),
-    MOVE_AND_RENAME(24);    
+    MOVE_AND_RENAME(24); // MOVE | RENAME
     
-    public static final int ALL_EVENT_TYPES_MASK = getAllEventTypesMask();
+    public static final int ALL_EVENT_TYPES_MASK = ADD.mask | DELETE.mask | MODIFY.mask | RENAME.mask | MOVE.mask;
     public static final int MOVE_AND_RENAME_MASK = MOVE.mask | RENAME.mask;
     private static final EventType[] EMPTY_EVENT_ARRAY = new EventType[0];
 
@@ -106,19 +106,6 @@ public enum EventType
         }
 
         return types.toArray( EMPTY_EVENT_ARRAY );
-    }
-
-
-    private static int getAllEventTypesMask()
-    {
-        int allTypes = 0;
-
-        for ( EventType type : values() )
-        {
-            allTypes |= type.getMask();
-        }
-
-        return allTypes;
     }
 
 
