@@ -117,7 +117,7 @@ public class ReplConsumerManager
 
 
     /**
-     * Initialize the replication Store, creating the ou=consumers,ou=system entry
+     * Initialize the replication Store, creating the ou=consumers,ou=system entry (only if it does not exist yet)
      */
     private void createConsumersBranch() throws Exception
     {
@@ -231,9 +231,7 @@ public class ReplConsumerManager
 
         if ( mod == null )
         {
-            lastSentCsnAt = new DefaultAttribute( ADS_REPL_LAST_SENT_CSN_AT, replica.getLastSentCsn() );
-
-            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, lastSentCsnAt );
+            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ADS_REPL_LAST_SENT_CSN_AT, replica.getLastSentCsn() );
 
             modMap.put( replica.getId(), mod );
         }
@@ -270,7 +268,7 @@ public class ReplConsumerManager
         searchRequest.setBase( REPL_CONSUMER_DN );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.setFilter( filter );
-        searchRequest.addAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES );
+        searchRequest.addAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         EntryFilteringCursor cursor = adminSession.search( searchRequest );
 

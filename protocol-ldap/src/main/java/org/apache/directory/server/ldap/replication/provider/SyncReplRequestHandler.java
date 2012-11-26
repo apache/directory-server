@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -151,6 +153,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     public void start( LdapServer server )
     {
+        // Check that the handler is not already started : we don't want to start it twice... 
         if ( initialized )
         {
             LOG.warn( "syncrepl provider was already initialized" );
@@ -184,6 +187,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
             }
 
+            // Create the replication manager 
             replicaUtil = new ReplConsumerManager( dirService );
 
             loadReplicaInfo();
@@ -936,7 +940,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         try
         {
             List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
-            List<String> eventLogNames = new ArrayList<String>();
+            Set<String> eventLogNames = new HashSet<String>();
             
             if ( !eventLogs.isEmpty() )
             {
@@ -961,8 +965,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             
             // remove unused logs
-            File[] replicaLogNames = getAllReplJournalNames();
-            for( File f : replicaLogNames )
+            for( File f : getAllReplJournalNames() )
             {
                 if( !eventLogNames.contains( f.getName() ) )
                 {
@@ -990,8 +993,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( log.getSearchCriteria() != null )
             {
-                LOG.debug( "registering peristent search for the replica {}", log.getId() );
-                PROVIDER_LOG.debug( "registering peristent search for the replica {}", log.getId() );
+                LOG.debug( "registering persistent search for the replica {}", log.getId() );
+                PROVIDER_LOG.debug( "registering persistent search for the replica {}", log.getId() );
                 SyncReplSearchListener handler = new SyncReplSearchListener( null, null, log, false );
                 log.setPersistentListener( handler );
 
@@ -999,9 +1002,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             else
             {
-                LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
+                LOG.warn( "invalid persistent search criteria {} for the replica {}", log.getSearchCriteria(), log
                     .getId() );
-                PROVIDER_LOG.warn( "invalid peristent search criteria {} for the replica {}", log.getSearchCriteria(), log
+                PROVIDER_LOG.warn( "invalid persistent search criteria {} for the replica {}", log.getSearchCriteria(), log
                     .getId() );
             }
         }

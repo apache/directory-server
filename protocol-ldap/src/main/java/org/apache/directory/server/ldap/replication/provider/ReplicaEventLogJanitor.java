@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Deletes old entries from the replication event logs that are
+ * Deletes old entries from the replication event logs that
  * are configured in refreshNPersist mode
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -98,10 +98,12 @@ public class ReplicaEventLogJanitor extends Thread
                         
                         ReplicaJournalCursor cursor = log.getCursor( null ); // pass no CSN
                         cursor.skipQualifyingWhileFetching();
+                        
                         while( cursor.next() )
                         {
                             ReplicaEventMessage message = cursor.get();
                             String csnVal = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
+                            
                             // skip if we reach the lastSentCsn or got past it
                             if( csnVal.compareTo( lastSentCsn ) >= 0 )
                             {
@@ -109,6 +111,7 @@ public class ReplicaEventLogJanitor extends Thread
                             }
                                 
                             Csn csn = new Csn( csnVal );
+                            
                             if( ( now - csn.getTimestamp() ) >= thresholdTime )
                             {
                                 cursor.delete();

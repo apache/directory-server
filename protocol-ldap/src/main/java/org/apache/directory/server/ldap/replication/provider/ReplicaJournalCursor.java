@@ -21,7 +21,6 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
