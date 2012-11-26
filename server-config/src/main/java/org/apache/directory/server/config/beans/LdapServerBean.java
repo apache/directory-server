@@ -68,7 +68,7 @@ public class LdapServerBean extends DSBasedServerBean
 
     /** A flag telling if the replication is enabled */
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ENABLED )
-    private boolean replicationEnabled = false;
+    private boolean replEnabled = false;
     
     /** the replication request handler, server will be in replication provider/master mode if a valid FQCN is given */
     @ConfigurationElement(attributeType = "ads-replReqHandler")
@@ -428,19 +428,19 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * @return True if the replication service should be enabled
      */
-    public boolean isReplicationEnabled()
+    public boolean isReplEnabled()
     {
-        return replicationEnabled;
+        return replEnabled;
     }
 
     
     /**
      * Enable or disable the replication
-     * @param replicationEnabled The new value
+     * @param replEnabled The new value
      */
-    public void setReplicationEnabled( boolean replicationEnabled )
+    public void setReplEnabled( boolean replEnabled )
     {
-        this.replicationEnabled = replicationEnabled;
+        this.replEnabled = replEnabled;
     }
 
     /**

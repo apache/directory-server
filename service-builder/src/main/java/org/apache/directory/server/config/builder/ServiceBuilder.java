@@ -971,7 +971,7 @@ public class ServiceBuilder
         }
 
         // ReplReqHandler
-        boolean replicationEnabled = ldapServerBean.isReplicationEnabled();
+        boolean replicationEnabled = ldapServerBean.isReplEnabled();
         
         if ( replicationEnabled )
         {

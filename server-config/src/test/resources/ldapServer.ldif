@@ -61,7 +61,7 @@ ads-keystoreFile: keystore.file
 ads-certificatePassword: secret
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
-ads-enableReplProvider: false
+ads-replEnabled: true
 
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
