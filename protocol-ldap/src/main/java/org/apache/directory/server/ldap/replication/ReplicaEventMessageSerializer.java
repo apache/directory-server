@@ -29,9 +29,7 @@ import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
 
-import org.apache.directory.server.core.partition.impl.btree.jdbm.EntrySerializer;
-import org.apache.directory.shared.ldap.codec.api.LdapApiService;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -39,11 +37,12 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
- * A Modification serializer/deserializer.
+ * A ReplicaEventMessage serializer/deserializer.
+ * 
  * A modification is serialized following this format : <br/>
  * <ul>
  * <li>byte : EventType</li>
- * <li>int : entry's length in bytes</li>
+ * <li>byte[] : the serialized DN</li>
  * <li>byte[] : the serialized entry</li>
  * </ul>
  * 
@@ -54,12 +53,7 @@ public class ReplicaEventMessageSerializer implements Serializer
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
 
-    /** The internal entry serializer */
-    private transient EntrySerializer entrySerializer;
-
-    /** The LDAP codec used to serialize the entries */
-    private transient LdapApiService codec = LdapApiServiceFactory.getSingleton();
-
+    /** The schemaManager */
     private transient SchemaManager schemaManager;
 
 
@@ -71,7 +65,6 @@ public class ReplicaEventMessageSerializer implements Serializer
     public ReplicaEventMessageSerializer( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        entrySerializer = new EntrySerializer( schemaManager );
     }
 
 
@@ -88,20 +81,14 @@ public class ReplicaEventMessageSerializer implements Serializer
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutput out = new ObjectOutputStream( baos );
 
+        // The change type first
+        out.writeByte( changeType.getValue() );
+
         // The entry DN
         entry.getDn().writeExternal( out );
 
         // The entry
-        byte[] data = entrySerializer.serialize( entry );
-
-        // Entry's length
-        out.writeInt( data.length );
-
-        // Entry's data
-        out.write( data );
-
-        // The change type
-        out.writeByte( changeType.getValue() );
+        entry.writeExternal( out );
 
         out.flush();
 
@@ -124,24 +111,18 @@ public class ReplicaEventMessageSerializer implements Serializer
 
         try
         {
+            // The changeType
+            byte type = in.readByte();
+            ChangeType changeType = ChangeType.getChangeType( type );
+
             // The Entry's DN
             Dn entryDn = new Dn( schemaManager );
             entryDn.readExternal( in );
 
-            // The Entry's length
-            int length = in.readInt();
-
-            byte[] data = new byte[length];
-
-            // The entry itself
-            in.readFully( data );
-
-            Entry entry = ( Entry ) entrySerializer.deserialize( data );
+            // The Entry
+            Entry entry = new DefaultEntry( schemaManager );
+            entry.readExternal( in );
             entry.setDn( entryDn );
-
-            // Read the changeType
-            byte type = in.readByte();
-            ChangeType changeType = ChangeType.getChangeType( type );
 
             // And create a ReplicaEventMessage
             replicaEventMessage = new ReplicaEventMessage( changeType, entry );

@@ -78,11 +78,11 @@ public class ReplicaEventMessage
      */
     public boolean isEventOlderThan( String csn ) throws Exception
     {
-    	if( csn == null )
-    	{
-    		return false;
-    	}
-    	
+        if ( csn == null )
+        {
+            return false;
+        }
+        
         String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
         
         int i = entryCsn.compareTo( csn );
