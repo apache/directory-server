@@ -128,13 +128,13 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
 
 
     @Override
-	public boolean isSynchronous()
+    public boolean isSynchronous()
     {
-		return true; // always synchronous
-	}
+            return true; // always synchronous
+            }
 
 
-	/**
+    /**
      * Abandon a SearchRequest
      * 
      * @param searchRequest The SearchRequest to abandon
@@ -236,7 +236,6 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 
                 sendResult( resultEntry, entry, EventType.ADD, syncAdd );
             }
-            
         }
         catch ( LdapInvalidAttributeValueException e )
         {
@@ -261,7 +260,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             return;
         }
         
-        sendDeletedEntry( entry );
+        sendDeletedEntry( ((ClonedServerEntry)entry).getClonedEntry() );
     }
     
 
@@ -566,24 +565,24 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     
     private boolean isNotValidForReplication( AbstractChangeOperationContext ctx )
     {
-        if( ctx.isGenerateNoReplEvt() )
+        if ( ctx.isGenerateNoReplEvt() )
         {
             return true;
         }
         
         return isMmrConfiguredToReceiver( ctx );
     }
+    
 
     /**
      * checks if the sender of this replication event is setup with MMR
-     * (Note: this method is used to prevent sending a repicated event back to the sender after 
+     * (Note: this method is used to prevent sending a replicated event back to the sender after 
      *  performing local update)
      * @param ctx the operation's context
      * @return true if the rid present in operation context is same as the event log's ID, false otherwise
      */
     private boolean isMmrConfiguredToReceiver( AbstractChangeOperationContext ctx )
     {
-        
         if( ctx.isReplEvent() )
         {
             boolean skip = ( ctx.getRid() == consumerMsgLog.getId() );
