@@ -57,7 +57,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      * This is used only internally where certain modifications do not go through event
      * interceptor.  
      */
-    private boolean pushToEvtIntrcptor;
+    private boolean pushToEvtInterceptor;
     
     /**
      * 
@@ -196,19 +196,19 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * @return true if this context needs to be pushed to the event interceptor from nexus
      */
-    public boolean isPushToEvtIntrcptor()
+    public boolean isPushToEvtInterceptor()
     {
-        return pushToEvtIntrcptor;
+        return pushToEvtInterceptor;
     }
 
 
     /**
      * sets if this context needs to be pushed to the event interceptor from nexus
      * 
-     * @param pushToEvtIntrcptor
+     * @param pushToEvtInterceptor
      */
-    public void setPushToEvtIntrcptor( boolean pushToEvtIntrcptor )
+    public void setPushToEvtInterceptor( boolean pushToEvtIntrcptor )
     {
-        this.pushToEvtIntrcptor = pushToEvtIntrcptor;
+        this.pushToEvtInterceptor = pushToEvtIntrcptor;
     }
 }
