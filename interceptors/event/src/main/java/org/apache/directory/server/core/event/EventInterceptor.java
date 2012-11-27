@@ -51,8 +51,6 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +88,6 @@ public class EventInterceptor extends BaseInterceptor
         LOG.info( "Initializing ..." );
         super.init( directoryService );
 
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         evaluator = new ExpressionEvaluator( schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
 
@@ -163,7 +160,7 @@ public class EventInterceptor extends BaseInterceptor
             case MOVE:
                 if ( listener.isSynchronous() )
                 {
-                    listener.entryMoved( ( MoveOperationContext ) opContext );                    
+                    listener.entryMoved( ( MoveOperationContext ) opContext );
                 }
                 else
                 {
@@ -193,6 +190,22 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
+                
+                break;
+                
+            case MOVE_AND_RENAME:
+                if ( listener.isSynchronous() )
+                {
+                    listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
+                }
+                else
+                    executor.execute( new Runnable()
+                    {
+                        public void run()
+                        {
+                            listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
+                        }
+                    } );
                 
                 break;
         }
@@ -228,8 +241,9 @@ public class EventInterceptor extends BaseInterceptor
      */
     public void delete( final DeleteOperationContext deleteContext ) throws LdapException
     {
-        List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
         next( deleteContext );
+
+        List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
 
         if ( selecting.isEmpty() )
         {
@@ -253,13 +267,13 @@ public class EventInterceptor extends BaseInterceptor
     {
         Entry oriEntry = modifyContext.getEntry();
 
-        List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
-
         // modification was already done when this flag is turned on, move to sending the events
-        if( !modifyContext.isPushToEvtIntrcptor() )
+        if( !modifyContext.isPushToEvtInterceptor() )
         {
             next( modifyContext );
         }
+
+        List<RegistrationEntry> selecting = getSelectingRegistrations( modifyContext.getDn(), oriEntry );
 
         if ( selecting.isEmpty() )
         {
@@ -290,9 +304,10 @@ public class EventInterceptor extends BaseInterceptor
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Entry oriEntry = moveContext.getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
         next( moveContext );
+
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveContext.getDn(), oriEntry );
 
         if ( selecting.isEmpty() )
         {
@@ -315,8 +330,9 @@ public class EventInterceptor extends BaseInterceptor
     public void moveAndRename( final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry oriEntry = moveAndRenameContext.getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( moveAndRenameContext.getDn(), oriEntry );
         next( moveAndRenameContext );
+
+        List<RegistrationEntry> selecting = getSelectingRegistrations( moveAndRenameContext.getDn(), oriEntry );
 
         if ( selecting.isEmpty() )
         {
@@ -327,13 +343,7 @@ public class EventInterceptor extends BaseInterceptor
         {
             if ( EventType.isMoveAndRename( registration.getCriteria().getEventMask() ) )
             {
-                executor.execute( new Runnable()
-                {
-                    public void run()
-                    {
-                        registration.getListener().entryMovedAndRenamed( moveAndRenameContext );
-                    }
-                } );
+                fire( moveAndRenameContext, EventType.MOVE_AND_RENAME, registration.getListener() );
             }
         }
     }
@@ -345,16 +355,17 @@ public class EventInterceptor extends BaseInterceptor
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry oriEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
-        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
         next( renameContext );
+
+        List<RegistrationEntry> selecting = getSelectingRegistrations( renameContext.getDn(), oriEntry );
 
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        // Get the modifed entry
+        // Get the modified entry
         CoreSession session = renameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
         lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
@@ -378,14 +389,16 @@ public class EventInterceptor extends BaseInterceptor
      */
     private List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
     {
-        if ( directoryService.getEventService().getRegistrationEntries().isEmpty() )
+        List<RegistrationEntry> registrations = directoryService.getEventService().getRegistrationEntries();
+        
+        if ( registrations.isEmpty() )
         {
             return Collections.emptyList();
         }
 
         List<RegistrationEntry> selecting = new ArrayList<RegistrationEntry>();
 
-        for ( RegistrationEntry registration : directoryService.getEventService().getRegistrationEntries() )
+        for ( RegistrationEntry registration : registrations )
         {
             NotificationCriteria criteria = registration.getCriteria();
 
