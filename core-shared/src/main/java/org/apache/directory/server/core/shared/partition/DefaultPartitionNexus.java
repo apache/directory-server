@@ -601,7 +601,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         partition.modify( modifyContext );
         
-        if( modifyContext.isPushToEvtIntrcptor() )
+        if( modifyContext.isPushToEvtInterceptor() )
         {
             directoryService.getInterceptor( InterceptorEnum.EVENT_INTERCEPTOR.getName() ).modify( modifyContext );
         }
