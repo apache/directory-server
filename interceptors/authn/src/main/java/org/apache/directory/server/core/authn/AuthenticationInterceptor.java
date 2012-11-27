@@ -596,7 +596,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     bindModCtx.setDn( dn );
                     bindModCtx.setEntry( userEntry );
                     bindModCtx.setModItems( mods );
-                    bindModCtx.setPushToEvtIntrcptor( true );
+                    bindModCtx.setPushToEvtInterceptor( true );
 
                     directoryService.getPartitionNexus().modify( bindModCtx );
                 }
@@ -677,7 +677,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 bindModCtx.setDn( dn );
                 bindModCtx.setEntry( userEntry );
                 bindModCtx.setModItems( mods );
-                bindModCtx.setPushToEvtIntrcptor( true );
+                bindModCtx.setPushToEvtInterceptor( true );
 
                 directoryService.getPartitionNexus().modify( bindModCtx );
             }
