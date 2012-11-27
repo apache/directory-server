@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 public abstract class LdapRequestHandler<T extends Request> implements MessageHandler<T>
 {
     /** The logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
+    protected static final Logger LOG = LoggerFactory.getLogger( LdapRequestHandler.class );
 
     /** The reference on the Ldap server instance */
     protected LdapServer ldapServer;
@@ -120,8 +120,6 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     /**
      *{@inheritDoc} 
      */
-    // False positive, we want to keep the comment
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
