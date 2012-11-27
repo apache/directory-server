@@ -21,6 +21,7 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
@@ -47,7 +48,15 @@ public class ReplicaEventMessage
     public ReplicaEventMessage( ChangeType changeType, Entry entry )
     {
         this.changeType = changeType;
-        this.entry = entry;
+        
+        if ( entry instanceof ClonedServerEntry )
+        {
+            this.entry = ( ( ClonedServerEntry ) entry ).getClonedEntry();
+        }
+        else
+        {
+            this.entry = entry;
+        }
     }
 
 

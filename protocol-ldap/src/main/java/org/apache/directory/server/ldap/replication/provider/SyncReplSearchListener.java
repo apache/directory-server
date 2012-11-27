@@ -221,7 +221,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             //System.out.println( "ADD Listener : log " + entry.getDn() );
             // we log it first
-            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.ADD, ((ClonedServerEntry)entry).getClonedEntry() ) );
+            consumerMsgLog.log( new ReplicaEventMessage( ChangeType.ADD, entry ) );
 
             // We send the added entry directly to the consumer if it's connected
             if ( pushInRealTime )
