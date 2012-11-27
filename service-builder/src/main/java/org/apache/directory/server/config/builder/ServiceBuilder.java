@@ -1035,14 +1035,13 @@ public class ServiceBuilder
             {
                 if ( className == null )
                 {
-                    consumerClass = ReplicationConsumerImpl.class;
+                    consumer = new ReplicationConsumerImpl();
                 }
                 else
                 {
                     consumerClass = Class.forName( className );
+                    consumer = ( ReplicationConsumer ) consumerClass.newInstance();
                 }
-
-                consumer = ( ReplicationConsumer ) consumerClass.newInstance();
 
                 // we don't support any other configuration impls atm, but this configuration should suffice for many needs
                 config = new SyncReplConfiguration();
