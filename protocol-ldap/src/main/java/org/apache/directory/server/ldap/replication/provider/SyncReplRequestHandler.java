@@ -261,6 +261,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         try
         {
+            if( !request.getAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            {
+                // this is needed for accessing entryUUID and entryCSN attributes for internal purpose
+                request.addAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+            }
+            
             // First extract the Sync control from the request
             SyncRequestValue syncControl = ( SyncRequestValue ) request.getControls().get(
                 SyncRequestValue.OID );

@@ -136,8 +136,8 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     public SyncReplConfiguration()
     {
         attributes = new HashSet<String>();
+        // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-        attributes.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
     }
 
 
@@ -304,26 +304,11 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public void setAttributes( String[] attrs )
     {
-        if ( attrs == null )
+        attributes.clear();
+        
+        for ( String attr : attrs )
         {
-            throw new IllegalArgumentException( "attributes to be replicated cannot be null or empty" );
-        }
-
-        // if user specified some attributes then remove the * from attributes
-        // NOTE: if the user specifies * in the given array that eventually gets added later
-        if ( attrs.length > 0 )
-        {
-            attributes.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
-        }
-
-        for ( String at : attrs )
-        {
-            at = at.trim();
-
-            if ( !attributes.contains( Strings.toLowerCase( at ) ) )
-            {
-                attributes.add( at );
-            }
+            attributes.add( attr );
         }
     }
 

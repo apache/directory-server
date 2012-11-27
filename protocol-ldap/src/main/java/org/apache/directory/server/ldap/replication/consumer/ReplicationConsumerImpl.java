@@ -958,6 +958,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         LookupOperationContext lookupCtx = new LookupOperationContext( session, remoteEntry.getDn() );
         lookupCtx.setAttrsId( config.getAttributes() );
+        
+        // this is needed to compare some of the operational attributes received from the server
+        lookupCtx.addAttrsId( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+        
         lookupCtx.setSyncreplLookup( true );
         
         Entry localEntry = session.getDirectoryService().getOperationManager().lookup( lookupCtx );
