@@ -304,11 +304,26 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public void setAttributes( String[] attrs )
     {
-        attributes.clear();
-        
-        for ( String attr : attrs )
+        if ( attrs == null )
         {
-            attributes.add( attr );
+            throw new IllegalArgumentException( "attributes to be replicated cannot be null or empty" );
+        }
+
+        // if user specified some attributes then remove the * from attributes
+        // NOTE: if the user specifies * in the given array that eventually gets added later
+        if ( attrs.length > 0 )
+        {
+            attributes.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
+        }
+
+        for ( String at : attrs )
+        {
+            at = at.trim();
+
+            if ( !attributes.contains( Strings.toLowerCase( at ) ) )
+            {
+                attributes.add( at );
+            }
         }
     }
 
