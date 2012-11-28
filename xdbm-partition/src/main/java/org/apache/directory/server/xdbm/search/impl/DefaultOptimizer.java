@@ -342,18 +342,18 @@ public class DefaultOptimizer<E> implements Optimizer
             
             if ( Strings.isEmpty( initial ) )
             {
-            	// Not a (attr=ABC*) filter : full scan
+                // Not a (attr=ABC*) filter : full scan
                 return Long.MAX_VALUE;
             }
             else
             {
-            	return idx.greaterThanCount( initial );
+                return idx.greaterThanCount( initial );
             }
         }
         else
         {
             // count for non-indexed attribute is unknown so we presume da worst
-        	return Long.MAX_VALUE;
+            return Long.MAX_VALUE;
         }
     }
 

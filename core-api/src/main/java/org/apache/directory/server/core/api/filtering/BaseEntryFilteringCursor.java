@@ -104,11 +104,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+        }
+        
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -127,11 +127,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
         SearchingOperationContext operationContext, List<EntryFilter> filters )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
+        }
+        
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -263,11 +263,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+        }
+        
         wrapped.close();
         prefetched = null;
     }
@@ -278,11 +278,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
+        }
+        
         wrapped.close( reason );
         prefetched = null;
     }

@@ -89,11 +89,11 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public AvlTableDupsCursor( AvlTable<K, V> table )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating AvlTableDupsCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating AvlTableDupsCursor {}", this );
+        }
+        
         this.table = table;
         this.wrappedCursor = new AvlSingletonOrOrderedSetCursor<K, V>( table.getAvlTreeMap() );
         LOG.debug( "Created on table {}", table.getName() );
@@ -555,10 +555,10 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
+        }
         
         if ( dupsCursor != null )
         {
@@ -571,10 +571,10 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlTableDupsCursor {}", this );
+        }
 
         if ( dupsCursor != null )
         {

@@ -74,10 +74,10 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     
     @Override
-	public boolean isSynchronous()
+    public boolean isSynchronous()
     {
-		return false; // always asynchronous
-	}
+        return false; // always asynchronous
+    }
 
 
     public void abandon() throws LdapException

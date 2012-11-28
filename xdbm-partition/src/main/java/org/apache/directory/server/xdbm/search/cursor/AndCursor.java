@@ -69,11 +69,11 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     public AndCursor( Cursor<IndexEntry<V, String>> wrapped,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating AndCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating AndCursor {}", this );
+        }
+        
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
     }
@@ -194,11 +194,11 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AndCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AndCursor {}", this );
+        }
+        
         super.close();
         wrapped.close();
     }
@@ -209,11 +209,11 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      */
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AndCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AndCursor {}", this );
+        }
+        
         super.close( cause );
         wrapped.close( cause );
     }

@@ -76,8 +76,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // add new test entry
         Entry entry = new DefaultEntry( "ou=test0,ou=system",
-        		"objectClass: organizationalUnit",
-        		"ou: test0" );
+                "objectClass: organizationalUnit",
+                "ou: test0" );
 
         sysRoot.add( entry );
 
@@ -90,9 +90,9 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // add another test entry
         entry = new DefaultEntry( "ou=test1,ou=system",
-			"objectClass: organizationalUnit",
-			"ou: test1" );
-			
+            "objectClass: organizationalUnit",
+            "ou: test1" );
+            
         sysRoot.add( entry );
         assertEquals( revision + 2, getService().getChangeLog().getCurrentRevision() );
 
@@ -111,8 +111,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // add third test entry
         entry = new DefaultEntry( "ou=test2,ou=system",
-			"objectClass: organizationalUnit",
-			"ou: test2" );
+            "objectClass: organizationalUnit",
+            "ou: test2" );
 
         sysRoot.add( entry );
         assertEquals( revision + 3, getService().getChangeLog().getCurrentRevision() );
@@ -163,8 +163,8 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
 
         // add new test entry
         Entry entry = new DefaultEntry( "ou=test,ou=system",
-			"objectClass: organizationalUnit",
-			"ou: test" );
+            "objectClass: organizationalUnit",
+            "ou: test" );
 
         sysRoot.add( entry );
         assertEquals( revision + 1, getService().getChangeLog().getCurrentRevision() );

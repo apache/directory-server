@@ -53,11 +53,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
         throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating NotCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating NotCursor {}", this );
+        }
+        
         this.childEvaluator = childEvaluator;
         this.uuidCursor = new AllEntriesCursor( store );
 
@@ -154,11 +154,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing NotCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing NotCursor {}", this );
+        }
+        
         super.close();
         uuidCursor.close();
     }
@@ -166,11 +166,11 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
 
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing NotCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing NotCursor {}", this );
+        }
+        
         super.close( cause );
         uuidCursor.close( cause );
     }

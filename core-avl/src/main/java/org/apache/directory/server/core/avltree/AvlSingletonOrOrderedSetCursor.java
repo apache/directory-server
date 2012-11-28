@@ -56,11 +56,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
 
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
+        }
+        
         this.tree = tree;
     }
 
@@ -307,11 +307,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        }
+        
         super.close();
     }
 
@@ -321,11 +321,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
+        }
+        
         super.close( reason );
     }
 }

@@ -51,11 +51,11 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
 
     public AvlTreeCursor( AvlTree<E> tree )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating AvlTreeCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating AvlTreeCursor {}", this );
+        }
+        
         this.tree = tree;
     }
 
@@ -262,11 +262,11 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
+        }
+        
         super.close();
     }
 
@@ -276,11 +276,11 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
+        }
+        
         super.close( reason );
     }
 }

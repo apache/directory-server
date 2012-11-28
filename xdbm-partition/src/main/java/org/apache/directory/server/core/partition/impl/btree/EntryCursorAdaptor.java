@@ -119,11 +119,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+        }
+        
         indexCursor.close();
     }
 
@@ -133,11 +133,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
      */
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
+        }
+        
         indexCursor.close( cause );
     }
 

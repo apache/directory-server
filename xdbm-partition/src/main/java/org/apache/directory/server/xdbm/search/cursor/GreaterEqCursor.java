@@ -79,11 +79,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public GreaterEqCursor( Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating GreaterEqCursor {}", this );
+        }
+        
         this.greaterEqEvaluator = greaterEqEvaluator;
 
         AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();
@@ -363,11 +363,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+        }
+        
         super.close();
 
         if ( userIdxCursor != null )
@@ -387,11 +387,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing GreaterEqCursor {}", this );
+        }
+        
         super.close( cause );
 
         if ( userIdxCursor != null )

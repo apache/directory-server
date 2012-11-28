@@ -67,10 +67,10 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
         forwardEntry = new IndexEntry<K, String>();
 
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating IndexCursorAdaptor {}", this );
+        }
     }
 
 
@@ -152,22 +152,22 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+        }
+        
         wrappedCursor.close();
     }
 
 
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
+        }
+        
         wrappedCursor.close( reason );
     }
 

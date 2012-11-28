@@ -70,10 +70,10 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
         this.parentId = parentId;
         this.cursor = cursor;
         
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
+        }
     }
 
 
@@ -172,11 +172,11 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     @Override
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+        }
+        
         cursor.close();
 
         super.close();
@@ -186,11 +186,11 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     @Override
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
+        }
+        
         cursor.close( cause );
 
         super.close( cause );

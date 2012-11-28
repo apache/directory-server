@@ -83,10 +83,10 @@ public class EventListenerAdapter implements DirectoryListener
     
     
     @Override
-	public boolean isSynchronous()
+    public boolean isSynchronous()
     {
-		return false; // always asynchronous
-	}
+        return false; // always asynchronous
+    }
 
 
     private void deliverNamingExceptionEvent( Exception e )

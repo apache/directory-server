@@ -386,10 +386,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     }
                     else
                     {
-		                // incase of a MODDN operation resulting in a branch to be moved out of scope
-		                // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
-		                // so the branch needs to be recursively deleted here
-		                deleteRecursive( remoteEntry.getDn(), null );
+                        // incase of a MODDN operation resulting in a branch to be moved out of scope
+                        // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
+                        // so the branch needs to be recursively deleted here
+                        deleteRecursive( remoteEntry.getDn(), null );
                     }
 
                     break;

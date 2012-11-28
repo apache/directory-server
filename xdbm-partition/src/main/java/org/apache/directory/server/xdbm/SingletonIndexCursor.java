@@ -46,11 +46,11 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 
     public SingletonIndexCursor( IndexEntry<V, String> singleton )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
+        }
+        
         this.singleton = singleton;
     }
 
@@ -206,22 +206,22 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+        }
+        
         super.close();
     }
 
 
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
+        }
+        
         super.close( cause );
     }
 }

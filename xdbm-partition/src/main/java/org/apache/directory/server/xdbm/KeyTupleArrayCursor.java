@@ -62,10 +62,10 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         this.key = key;
         this.wrapped = new ArrayTreeCursor<V>( arrayTree );
 
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
+        }
     }
 
 
@@ -226,10 +226,10 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
+        }
 
         if ( wrapped != null )
         {
@@ -245,10 +245,10 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void close( Exception reason ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing KeyTupleArrayCursor {}", this );
+        }
 
         if ( wrapped != null )
         {

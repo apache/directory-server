@@ -56,11 +56,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating PresenceCursor {}", this );
+        }
+        
         this.presenceEvaluator = presenceEvaluator;
         AttributeType type = presenceEvaluator.getAttributeType();
 
@@ -282,11 +282,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+        }
+        
         super.close();
 
         if ( presenceCursor != null )
@@ -302,11 +302,11 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing PresenceCursor {}", this );
+        }
+        
         super.close( cause );
 
         if ( presenceCursor != null )

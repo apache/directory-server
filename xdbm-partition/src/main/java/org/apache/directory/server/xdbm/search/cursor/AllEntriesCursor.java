@@ -65,11 +65,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public AllEntriesCursor( Store store ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
+        }
+        
         // Uses the MasterTable 
         wrapped = new IndexCursorAdaptor( store.getMasterTable().cursor(), true );
     }
@@ -193,11 +193,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     @Override
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+        }
+        
         wrapped.close();
     }
 
@@ -208,11 +208,11 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     @Override
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing AllEntriesCursor {}", this );
+        }
+        
         wrapped.close( cause );
     }
 

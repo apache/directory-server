@@ -63,10 +63,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     public OrCursor( List<Cursor<IndexEntry<V, String>>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating OrCursor {}", this );
-    	}
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating OrCursor {}", this );
+        }
 
         if ( cursors.size() <= 1 )
         {
@@ -264,11 +264,11 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing OrCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing OrCursor {}", this );
+        }
+        
         super.close();
 
         for ( Cursor<?> cursor : cursors )
@@ -280,11 +280,11 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
     public void close( Exception cause ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing OrCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing OrCursor {}", this );
+        }
+        
         super.close( cause );
 
         for ( Cursor<?> cursor : cursors )
