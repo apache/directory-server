@@ -22,6 +22,7 @@ package org.apache.directory.server.operations.lookup;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
@@ -31,7 +32,9 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,12 +54,13 @@ public class LookupIT extends AbstractLdapTestUnit
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
     /**
-     * Evaluate the lookup operation when using a inherited Attribute
+     * Fetch an existing entry
      */
     @Test
-    public void testLookupPerfAPI() throws Exception
+    public void testLookupExistingEntryAPI() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+        connection.setTimeOut( 0L );
 
         Entry entry = connection.lookup( "uid=admin,ou=system", "name" );
         assertNotNull( entry );
@@ -65,6 +69,20 @@ public class LookupIT extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "cn", "sn" ) );
         assertTrue( entry.contains( "cn", "system administrator" ) );
         assertTrue( entry.contains( "sn", "administrator" ) );
+
+        connection.close();
+    }
+
+    /**
+     * Fetch a non existing entry
+     */
+    @Test
+    public void testLookupNonExistingEntryAPI() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+
+        Entry entry = connection.lookup( "uid=absent,ou=system", "name" );
+        assertNull( entry );
 
         connection.close();
     }
