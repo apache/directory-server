@@ -52,11 +52,11 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
     public EntryCursorAdaptor( AbstractBTreePartition db, PartitionSearchResult searchResult )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
+        }
+        
         this.db = db;
         indexCursor = searchResult.getResultSet();
         evaluator = searchResult.getEvaluator();
