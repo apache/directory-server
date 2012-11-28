@@ -68,11 +68,11 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
 
     public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
+        }
+        
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -116,22 +116,22 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
 
     public void close() throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+        }
+        
         wrapped.close();
     }
 
 
     public void close( Exception e ) throws Exception
     {
-    	if ( IS_DEBUG )
-    	{
-    		LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
-    	}
-    	
+        if ( IS_DEBUG )
+        {
+            LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
+        }
+        
         wrapped.close( e );
     }
 
