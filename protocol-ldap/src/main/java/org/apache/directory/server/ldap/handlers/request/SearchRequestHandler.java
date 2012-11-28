@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
 import static java.lang.Math.min;
@@ -38,6 +38,10 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
+import org.apache.directory.server.ldap.handlers.PersistentSearchListener;
+import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
+import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
@@ -80,14 +84,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A handler for processing search requests.
+ * A MessageReceived handler for processing search requests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SearchHandler extends LdapRequestHandler<SearchRequest>
+public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 {
     /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SearchRequestHandler.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();

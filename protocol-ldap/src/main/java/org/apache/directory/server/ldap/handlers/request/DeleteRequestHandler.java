@@ -17,11 +17,13 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.CompareRequest;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
+import org.apache.directory.shared.ldap.model.message.DeleteRequest;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 
@@ -30,36 +32,32 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link org.apache.directory.shared.ldap.model.message.CompareRequest}s.
+ * A single reply MessageReceived handler for {@link DeleteRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CompareHandler extends LdapRequestHandler<CompareRequest>
+public class DeleteRequestHandler extends LdapRequestHandler<DeleteRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( CompareHandler.class );
-
+    private static final Logger LOG = LoggerFactory.getLogger( DeleteRequestHandler.class );
 
     /**
-     * @see LdapRequestHandler#handle(LdapSession, org.apache.directory.shared.ldap.model.message.Request)
+     * {@inheritDoc}
      */
-    @Override
-    public void handle( LdapSession session, CompareRequest req )
+    public void handle( LdapSession session, DeleteRequest req )
     {
-        LOG.debug( "Handling compare request while ignoring referrals: {}", req );
+        LOG.debug( "Handling request: {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
-            if ( session.getCoreSession().compare( req ) )
-            {
-                result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
-            }
-            else
-            {
-                result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
-            }
+            // Call the underlying layer to delete the entry 
+            CoreSession coreSession = session.getCoreSession();
+            coreSession.delete( req );
 
-            result.setMatchedDn( req.getName() );
+            // If success, here now, otherwise, we would have an exception.
+            result.setResultCode( ResultCodeEnum.SUCCESS );
+
+            // Write the DeleteResponse message
             session.getIoSession().write( req.getResultResponse() );
         }
         catch ( Exception e )

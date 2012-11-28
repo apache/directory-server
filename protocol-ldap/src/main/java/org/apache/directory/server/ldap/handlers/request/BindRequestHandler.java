@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
 import java.util.Map;
@@ -35,6 +35,7 @@ import org.apache.directory.server.core.api.interceptor.context.BindOperationCon
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -55,15 +56,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link BindRequest}s.
+ * A single reply MessageReceived handler for {@link BindRequest}s.
  *
  * Implements server-side of RFC 2222, sections 4.2 and 4.3.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BindHandler extends LdapRequestHandler<BindRequest>
+public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( BindHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( BindRequestHandler.class );
 
     /** A Hashed Adapter mapping SASL mechanisms to their handlers. */
     private Map<String, MechanismHandler> handlers;
@@ -587,7 +588,6 @@ public class BindHandler extends LdapRequestHandler<BindRequest>
      * @param bindRequest The received BindRequest
      * @throws Exception If the authentication cannot be handled
      */
-    @Override
     public void handle( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         LOG.debug( "Received: {}", bindRequest );

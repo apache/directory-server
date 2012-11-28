@@ -17,12 +17,13 @@
 *  under the License. 
 *  
 */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
@@ -30,12 +31,15 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 
 
 /**
-* A single reply handler for {@link ExtendedRequest}s.
+* A single reply MessageReceived handler for {@link ExtendedRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedHandler extends LdapRequestHandler<ExtendedRequest<ExtendedResponse>>
+public class ExtendedRequestHandler extends LdapRequestHandler<ExtendedRequest<ExtendedResponse>>
 {
+    /**
+     * {@inheritDoc}
+     */
     public void handle( LdapSession session, ExtendedRequest<ExtendedResponse> req ) throws Exception
     {
         ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> handler = getLdapServer()

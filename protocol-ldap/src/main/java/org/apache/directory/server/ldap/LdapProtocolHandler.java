@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.ResultResponse;
 import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -153,6 +154,13 @@ class LdapProtocolHandler extends DemuxingIoHandler
     {
         // Do nothing : we have to ignore this message, otherwise we get an exception,
         // thanks to the way MINA 2 works ...
+        if ( message instanceof IoBuffer )
+        {
+            // Nothing to do in this case
+            return;
+        }
+
+        super.messageSent( session, message );
     }
 
 

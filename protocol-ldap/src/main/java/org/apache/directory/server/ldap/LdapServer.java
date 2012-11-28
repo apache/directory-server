@@ -40,19 +40,31 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.ldap.handlers.AbandonHandler;
-import org.apache.directory.server.ldap.handlers.AddHandler;
-import org.apache.directory.server.ldap.handlers.BindHandler;
-import org.apache.directory.server.ldap.handlers.CompareHandler;
-import org.apache.directory.server.ldap.handlers.DeleteHandler;
-import org.apache.directory.server.ldap.handlers.ExtendedHandler;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
-import org.apache.directory.server.ldap.handlers.ModifyDnHandler;
-import org.apache.directory.server.ldap.handlers.ModifyHandler;
-import org.apache.directory.server.ldap.handlers.SearchHandler;
-import org.apache.directory.server.ldap.handlers.UnbindHandler;
+import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.request.AbandonRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.AddRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.BindRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.CompareRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.DeleteRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.ExtendedRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.ModifyDnRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.ModifyRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.SearchRequestHandler;
+import org.apache.directory.server.ldap.handlers.request.UnbindRequestHandler;
+import org.apache.directory.server.ldap.handlers.response.AddResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.BindResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.CompareResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.DeleteResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.ExtendedResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.IntermediateResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.ModifyDnResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.ModifyResponseHandler;
+import org.apache.directory.server.ldap.handlers.response.SearchResultDoneHandler;
+import org.apache.directory.server.ldap.handlers.response.SearchResultEntryHandler;
+import org.apache.directory.server.ldap.handlers.response.SearchResultReferenceHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
@@ -65,14 +77,24 @@ import org.apache.directory.shared.ldap.model.constants.SaslQoP;
 import org.apache.directory.shared.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.model.message.AbandonRequest;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
+import org.apache.directory.shared.ldap.model.message.BindResponse;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
+import org.apache.directory.shared.ldap.model.message.CompareResponse;
 import org.apache.directory.shared.ldap.model.message.DeleteRequest;
+import org.apache.directory.shared.ldap.model.message.DeleteResponse;
 import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
+import org.apache.directory.shared.ldap.model.message.IntermediateResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.shared.ldap.model.message.ModifyRequest;
+import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.shared.ldap.model.message.SearchResultDone;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
+import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.util.Strings;
@@ -171,16 +193,30 @@ public class LdapServer extends DirectoryBackedService
     private List<String> saslRealms;
 
     /** The protocol handlers */
-    private LdapRequestHandler<AbandonRequest> abandonHandler;
-    private LdapRequestHandler<AddRequest> addHandler;
-    private LdapRequestHandler<BindRequest> bindHandler;
-    private LdapRequestHandler<CompareRequest> compareHandler;
-    private LdapRequestHandler<DeleteRequest> deleteHandler;
-    private ExtendedHandler extendedHandler;
-    private LdapRequestHandler<ModifyRequest> modifyHandler;
-    private LdapRequestHandler<ModifyDnRequest> modifyDnHandler;
-    private LdapRequestHandler<SearchRequest> searchHandler;
-    private LdapRequestHandler<UnbindRequest> unbindHandler;
+    // MessageReceived handlers
+    private LdapRequestHandler<AbandonRequest> abandonRequestHandler;
+    private LdapRequestHandler<AddRequest> addRequestHandler;
+    private LdapRequestHandler<BindRequest> bindRequestHandler;
+    private LdapRequestHandler<CompareRequest> compareRequestHandler;
+    private LdapRequestHandler<DeleteRequest> deleteRequestHandler;
+    private ExtendedRequestHandler extendedRequestHandler;
+    private LdapRequestHandler<ModifyRequest> modifyRequestHandler;
+    private LdapRequestHandler<ModifyDnRequest> modifyDnRequestHandler;
+    private LdapRequestHandler<SearchRequest> searchRequestHandler;
+    private LdapRequestHandler<UnbindRequest> unbindRequestHandler;
+    
+    // MessageSent handlers
+    private LdapResponseHandler<AddResponse> addResponseHandler;
+    private LdapResponseHandler<BindResponse> bindResponseHandler;
+    private LdapResponseHandler<CompareResponse> compareResponseHandler;
+    private LdapResponseHandler<DeleteResponse> deleteResponseHandler;
+    private ExtendedResponseHandler extendedResponseHandler;
+    private LdapResponseHandler<ModifyResponse> modifyResponseHandler;
+    private LdapResponseHandler<IntermediateResponse> intermediateResponseHandler;
+    private LdapResponseHandler<ModifyDnResponse> modifyDnResponseHandler;
+    private LdapResponseHandler<SearchResultEntry> searchResultEntryHandler;
+    private LdapResponseHandler<SearchResultReference> searchResultReferenceHandler;
+    private LdapResponseHandler<SearchResultDone> searchResultDoneHandler;
 
     /** the underlying provider codec factory */
     private ProtocolCodecFactory codecFactory = LdapApiServiceFactory.getSingleton().getProtocolCodecFactory();
@@ -235,56 +271,66 @@ public class LdapServer extends DirectoryBackedService
      */
     private void installDefaultHandlers()
     {
-        if ( getAbandonHandler() == null )
+        if ( getAbandonRequestHandler() == null )
         {
-            setAbandonHandler( new AbandonHandler() );
+            setAbandonHandler( new AbandonRequestHandler() );
         }
 
-        if ( getAddHandler() == null )
+        if ( getAddRequestHandler() == null )
         {
-            setAddHandler( new AddHandler() );
+            setAddHandlers( new AddRequestHandler(), new AddResponseHandler() );
         }
 
-        if ( getBindHandler() == null )
+        if ( getBindRequestHandler() == null )
         {
-            BindHandler handler = new BindHandler();
-            handler.setSaslMechanismHandlers( saslMechanismHandlers );
-            setBindHandler( handler );
+            BindRequestHandler bindRequestHandler = new BindRequestHandler();
+            bindRequestHandler.setSaslMechanismHandlers( saslMechanismHandlers );
+            
+            setBindHandlers( bindRequestHandler, new BindResponseHandler() );
         }
 
-        if ( getCompareHandler() == null )
+        if ( getCompareRequestHandler() == null )
         {
-            setCompareHandler( new CompareHandler() );
+            setCompareHandlers( new CompareRequestHandler(), new CompareResponseHandler() );
         }
 
-        if ( getDeleteHandler() == null )
+        if ( getDeleteRequestHandler() == null )
         {
-            setDeleteHandler( new DeleteHandler() );
+            setDeleteHandlers( new DeleteRequestHandler(), new DeleteResponseHandler() );
         }
 
-        if ( getExtendedHandler() == null )
+        if ( getExtendedRequestHandler() == null )
         {
-            setExtendedHandler( new ExtendedHandler() );
+            setExtendedHandlers( new ExtendedRequestHandler(), new ExtendedResponseHandler() );
         }
 
-        if ( getModifyHandler() == null )
+        if ( getIntermediateResponseHandler() == null )
         {
-            setModifyHandler( new ModifyHandler() );
+            setIntermediateHandler( new IntermediateResponseHandler() );
         }
 
-        if ( getModifyDnHandler() == null )
+        if ( getModifyRequestHandler() == null )
         {
-            setModifyDnHandler( new ModifyDnHandler() );
+            setModifyHandlers( new ModifyRequestHandler(), new ModifyResponseHandler() );
         }
 
-        if ( getSearchHandler() == null )
+        if ( getModifyDnRequestHandler() == null )
         {
-            setSearchHandler( new SearchHandler() );
+            setModifyDnHandlers( new ModifyDnRequestHandler(), new ModifyDnResponseHandler() );
         }
 
-        if ( getUnbindHandler() == null )
+        if ( getSearchRequestHandler() == null )
         {
-            setUnbindHandler( new UnbindHandler() );
+            setSearchHandlers( new SearchRequestHandler(), 
+                new SearchResultEntryHandler(),
+                new SearchResultReferenceHandler(),
+                new SearchResultDoneHandler()
+                );
+        }
+
+        if ( getUnbindRequestHandler() == null )
+        {
+            setUnbindHandler( new UnbindRequestHandler() );
         }
     }
 
@@ -494,7 +540,7 @@ public class LdapServer extends DirectoryBackedService
         if ( replicationReqHandler != null )
         {
             replicationReqHandler.start( this );
-            ( ( SearchHandler ) getSearchHandler() ).setReplicationReqHandler( replicationReqHandler );
+            ( ( SearchRequestHandler ) getSearchRequestHandler() ).setReplicationReqHandler( replicationReqHandler );
         }
     }
 
@@ -1025,174 +1071,419 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public MessageHandler<AbandonRequest> getAbandonHandler()
+    /**
+     * @return The MessageReceived handler for the AbandonRequest
+     */
+    public MessageHandler<AbandonRequest> getAbandonRequestHandler()
     {
-        return abandonHandler;
+        return abandonRequestHandler;
     }
 
 
     /**
-     * @param abandonHandler The AbandonRequest handler
+     * Inject the MessageReceived handler into the IoHandler
+     * 
+     * @param abandonRequestdHandler The AbandonRequest message received handler
      */
-    public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonHandler )
+    public void setAbandonHandler( LdapRequestHandler<AbandonRequest> abandonRequestdHandler )
     {
         this.handler.removeReceivedMessageHandler( AbandonRequest.class );
-        this.abandonHandler = abandonHandler;
-        this.abandonHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( AbandonRequest.class, this.abandonHandler );
-    }
-
-
-    public LdapRequestHandler<AddRequest> getAddHandler()
-    {
-        return addHandler;
+        this.abandonRequestHandler = abandonRequestdHandler;
+        this.abandonRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( AbandonRequest.class, this.abandonRequestHandler );
     }
 
 
     /**
-     * @param addHandler The AddRequest handler
+     * @return The MessageReceived handler for the AddRequest
      */
-    public void setAddHandler( LdapRequestHandler<AddRequest> addHandler )
+    public LdapRequestHandler<AddRequest> getAddRequestHandler()
+    {
+        return addRequestHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the AddResponse
+     */
+    public LdapResponseHandler<AddResponse> getAddResponseHandler()
+    {
+        return addResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param addRequestHandler The AddRequest message received handler
+     * @param addResponseHandler The AddResponse message sent handler
+     */
+    public void setAddHandlers( LdapRequestHandler<AddRequest> addRequestHandler, 
+        LdapResponseHandler<AddResponse> addResponseHandler )
     {
         this.handler.removeReceivedMessageHandler( AddRequest.class );
-        this.addHandler = addHandler;
-        this.addHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( AddRequest.class, this.addHandler );
-    }
-
-
-    public LdapRequestHandler<BindRequest> getBindHandler()
-    {
-        return bindHandler;
+        this.addRequestHandler = addRequestHandler;
+        this.addRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( AddRequest.class, this.addRequestHandler );
+        
+        this.handler.removeSentMessageHandler( AddResponse.class );
+        this.addResponseHandler = addResponseHandler;
+        this.addResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( AddResponse.class, this.addResponseHandler );
     }
 
 
     /**
-     * @param bindHandler The BindRequest handler
+     * @return The MessageReceived handler for the BindRequest
      */
-    public void setBindHandler( LdapRequestHandler<BindRequest> bindHandler )
+    public LdapRequestHandler<BindRequest> getBindRequestHandler()
     {
-        this.bindHandler = bindHandler;
-        this.bindHandler.setLdapServer( this );
+        return bindRequestHandler;
+    }
 
+
+    /**
+     * @return The MessageSent handler for the BindResponse
+     */
+    public LdapResponseHandler<BindResponse> getBindResponseHandler()
+    {
+        return bindResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param bindRequestHandler The BindRequest message received handler
+     * @param bindResponseHandler The BindResponse message sent handler
+     */
+    public void setBindHandlers( LdapRequestHandler<BindRequest> bindRequestHandler,
+        LdapResponseHandler<BindResponse> bindResponseHandler)
+    {
         handler.removeReceivedMessageHandler( BindRequest.class );
-        handler.addReceivedMessageHandler( BindRequest.class, this.bindHandler );
-    }
-
-
-    public LdapRequestHandler<CompareRequest> getCompareHandler()
-    {
-        return compareHandler;
+        this.bindRequestHandler = bindRequestHandler;
+        this.bindRequestHandler.setLdapServer( this );
+        handler.addReceivedMessageHandler( BindRequest.class, this.bindRequestHandler );
+        
+        handler.removeSentMessageHandler( BindResponse.class );
+        this.bindResponseHandler = bindResponseHandler;
+        this.bindResponseHandler.setLdapServer( this );
+        handler.addSentMessageHandler( BindResponse.class, this.bindResponseHandler );
     }
 
 
     /**
-     * @param compareHandler The CompareRequest handler
+     * @return The MessageReceived handler for the CompareRequest
      */
-    public void setCompareHandler( LdapRequestHandler<CompareRequest> compareHandler )
+    public LdapRequestHandler<CompareRequest> getCompareRequestHandler()
     {
-        this.handler.removeReceivedMessageHandler( CompareRequest.class );
-        this.compareHandler = compareHandler;
-        this.compareHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( CompareRequest.class, this.compareHandler );
-    }
-
-
-    public LdapRequestHandler<DeleteRequest> getDeleteHandler()
-    {
-        return deleteHandler;
+        return compareRequestHandler;
     }
 
 
     /**
-     * @param deleteHandler The DeleteRequest handler
+     * @return The MessageSent handler for the CompareResponse
      */
-    public void setDeleteHandler( LdapRequestHandler<DeleteRequest> deleteHandler )
+    public LdapResponseHandler<CompareResponse> getCompareResponseHandler()
     {
-        this.handler.removeReceivedMessageHandler( DeleteRequest.class );
-        this.deleteHandler = deleteHandler;
-        this.deleteHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( DeleteRequest.class, this.deleteHandler );
-    }
-
-
-    public LdapRequestHandler<ExtendedRequest<ExtendedResponse>> getExtendedHandler()
-    {
-        return extendedHandler;
+        return compareResponseHandler;
     }
 
 
     /**
-     * @param extendedHandler The ExtendedRequest handler
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param compareRequestHandler The CompareRequest message received handler
+     * @param compareResponseHandler The CompareResponse message sent handler
+     */
+    public void setCompareHandlers( LdapRequestHandler<CompareRequest> compareRequestHandler,
+        LdapResponseHandler<CompareResponse> compareResponseHandler)
+    {
+        handler.removeReceivedMessageHandler( CompareRequest.class );
+        this.compareRequestHandler = compareRequestHandler;
+        this.compareRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( CompareRequest.class, this.compareRequestHandler );
+
+        handler.removeReceivedMessageHandler( CompareResponse.class );
+        this.compareResponseHandler = compareResponseHandler;
+        this.compareResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( CompareResponse.class, this.compareResponseHandler );
+    }
+
+
+    /**
+     * @return The MessageReceived handler for the DeleteRequest
+     */
+    public LdapRequestHandler<DeleteRequest> getDeleteRequestHandler()
+    {
+        return deleteRequestHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the DeleteResponse
+     */
+    public LdapResponseHandler<DeleteResponse> getDeleteResponseHandler()
+    {
+        return deleteResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param deleteRequestHandler The DeleteRequest message received handler
+     * @param deleteResponseHandler The DeleteResponse message sent handler
+     */
+    public void setDeleteHandlers( LdapRequestHandler<DeleteRequest> deleteRequestHandler,
+        LdapResponseHandler<DeleteResponse> deleteResponseHandler)
+    {
+        handler.removeReceivedMessageHandler( DeleteRequest.class );
+        this.deleteRequestHandler = deleteRequestHandler;
+        this.deleteRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( DeleteRequest.class, this.deleteRequestHandler );
+
+        handler.removeSentMessageHandler( DeleteResponse.class );
+        this.deleteResponseHandler = deleteResponseHandler;
+        this.deleteResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( DeleteResponse.class, this.deleteResponseHandler );
+    }
+
+
+    /**
+     * @return The MessageReceived handler for the ExtendedRequest
+     */
+    public LdapRequestHandler<ExtendedRequest<ExtendedResponse>> getExtendedRequestHandler()
+    {
+        return extendedRequestHandler;
+    }
+    
+    
+    /**
+     * @return The MessageSent handler for the ExtendedResponse
+     */
+    public LdapResponseHandler<ExtendedResponse> getExtendedResponseHandler()
+    {
+        return extendedResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param extendedRequestHandler The ExtendedRequest message received handler
+     * @param extendedResponseHandler The ExtendedResponse message sent handler
      */
     @SuppressWarnings(
         { "unchecked", "rawtypes" })
-    public void setExtendedHandler( ExtendedHandler extendedHandler )
+    public void setExtendedHandlers( ExtendedRequestHandler extendedRequestHandler,
+        ExtendedResponseHandler extendedResponseHandler )
     {
-        this.handler.removeReceivedMessageHandler( ExtendedRequest.class );
-        this.extendedHandler = extendedHandler;
-        this.extendedHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ExtendedRequest.class, ( LdapRequestHandler ) this.extendedHandler );
-    }
+        handler.removeReceivedMessageHandler( ExtendedRequest.class );
+        this.extendedRequestHandler = extendedRequestHandler;
+        this.extendedRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( ExtendedRequest.class, ( LdapRequestHandler ) this.extendedRequestHandler );
 
-
-    public LdapRequestHandler<ModifyRequest> getModifyHandler()
-    {
-        return modifyHandler;
-    }
-
-
-    /**
-     * @param modifyHandler The ModifyRequest handler
-     */
-    public void setModifyHandler( LdapRequestHandler<ModifyRequest> modifyHandler )
-    {
-        this.handler.removeReceivedMessageHandler( ModifyRequest.class );
-        this.modifyHandler = modifyHandler;
-        this.modifyHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ModifyRequest.class, this.modifyHandler );
-    }
-
-
-    public LdapRequestHandler<ModifyDnRequest> getModifyDnHandler()
-    {
-        return modifyDnHandler;
+        handler.removeSentMessageHandler( ExtendedResponse.class );
+        this.extendedResponseHandler = extendedResponseHandler;
+        this.extendedResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( ExtendedResponse.class, ( LdapResponseHandler ) this.extendedResponseHandler );
     }
 
 
     /**
-     * @param modifyDnHandler The ModifyDNRequest handler
+     * @return The MessageSent handler for the IntermediateResponse
      */
-    public void setModifyDnHandler( LdapRequestHandler<ModifyDnRequest> modifyDnHandler )
+    public LdapResponseHandler<IntermediateResponse> getIntermediateResponseHandler()
     {
-        this.handler.removeReceivedMessageHandler( ModifyDnRequest.class );
-        this.modifyDnHandler = modifyDnHandler;
-        this.modifyDnHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
-    }
-
-
-    public LdapRequestHandler<SearchRequest> getSearchHandler()
-    {
-        return searchHandler;
+        return intermediateResponseHandler;
     }
 
 
     /**
-     * @param searchHandler The SearchRequest handler
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param intermediateResponseHandler The IntermediateResponse message sent handler
      */
-    public void setSearchHandler( LdapRequestHandler<SearchRequest> searchHandler )
+    public void setIntermediateHandler( LdapResponseHandler<IntermediateResponse> intermediateResponseHandler)
+    {
+        handler.removeSentMessageHandler( IntermediateResponse.class );
+        this.intermediateResponseHandler = intermediateResponseHandler;
+        this.intermediateResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( IntermediateResponse.class, this.intermediateResponseHandler );
+    }
+
+
+    /**
+     * @return The MessageReceived handler for the ModifyRequest
+     */
+    public LdapRequestHandler<ModifyRequest> getModifyRequestHandler()
+    {
+        return modifyRequestHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the ModifyResponse
+     */
+    public LdapResponseHandler<ModifyResponse> getModifyResponseHandler()
+    {
+        return modifyResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param modifyRequestHandler The ModifyRequest message received handler
+     * @param modifyResponseHandler The ModifyResponse message sent handler
+     */
+    public void setModifyHandlers( LdapRequestHandler<ModifyRequest> modifyRequestHandler,
+        LdapResponseHandler<ModifyResponse> modifyResponseHandler)
+    {
+        handler.removeReceivedMessageHandler( ModifyRequest.class );
+        this.modifyRequestHandler = modifyRequestHandler;
+        this.modifyRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( ModifyRequest.class, this.modifyRequestHandler );
+
+        handler.removeSentMessageHandler( ModifyResponse.class );
+        this.modifyResponseHandler = modifyResponseHandler;
+        this.modifyResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( ModifyResponse.class, this.modifyResponseHandler );
+    }
+
+
+    /**
+     * @return The MessageSent handler for the ModifyDnRequest
+     */
+    public LdapRequestHandler<ModifyDnRequest> getModifyDnRequestHandler()
+    {
+        return modifyDnRequestHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the ModifyDnResponse
+     */
+    public LdapResponseHandler<ModifyDnResponse> getModifyDnResponseHandler()
+    {
+        return modifyDnResponseHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param modifyDnRequestHandler The ModifyDnRequest message received handler
+     * @param modifyDnResponseHandler The ModifyDnResponse message sent handler
+     */
+    public void setModifyDnHandlers( LdapRequestHandler<ModifyDnRequest> modifyDnRequestHandler,
+        LdapResponseHandler<ModifyDnResponse> modifyDnResponseHandler)
+    {
+        handler.removeReceivedMessageHandler( ModifyDnRequest.class );
+        this.modifyDnRequestHandler = modifyDnRequestHandler;
+        this.modifyDnRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnRequestHandler );
+        
+        handler.removeSentMessageHandler( ModifyDnResponse.class );
+        this.modifyDnResponseHandler = modifyDnResponseHandler;
+        this.modifyDnResponseHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( ModifyDnResponse.class, this.modifyDnResponseHandler );
+    }
+
+
+    /**
+     * @return The MessageReceived handler for the SearchRequest
+     */
+    public LdapRequestHandler<SearchRequest> getSearchRequestHandler()
+    {
+        return searchRequestHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the SearchResultEntry
+     */
+    public LdapResponseHandler<SearchResultEntry> getSearchResultEntryHandler()
+    {
+        return searchResultEntryHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the SearchResultReference
+     */
+    public LdapResponseHandler<SearchResultReference> getSearchResultReferenceHandler()
+    {
+        return searchResultReferenceHandler;
+    }
+
+
+    /**
+     * @return The MessageSent handler for the SearchResultDone
+     */
+    public LdapResponseHandler<SearchResultDone> getSearchResultDoneHandler()
+    {
+        return searchResultDoneHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived and MessageSent handler into the IoHandler
+     * 
+     * @param searchRequestHandler The SearchRequest message received handler
+     * @param searchResultEntryHandler The SearchResultEntry message sent handler
+     * @param searchResultReferenceHandler The SearchResultReference message sent handler
+     * @param searchResultDoneHandler The SearchResultDone message sent handler
+     */
+    public void setSearchHandlers( LdapRequestHandler<SearchRequest> searchRequestHandler,
+        LdapResponseHandler<SearchResultEntry> searchResultEntryHandler,
+        LdapResponseHandler<SearchResultReference> searchResultReferenceHandler,
+        LdapResponseHandler<SearchResultDone> searchResultDoneHandler
+        )
     {
         this.handler.removeReceivedMessageHandler( SearchRequest.class );
-        this.searchHandler = searchHandler;
-        this.searchHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( SearchRequest.class, this.searchHandler );
+        this.searchRequestHandler = searchRequestHandler;
+        this.searchRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( SearchRequest.class, this.searchRequestHandler );
+
+        this.handler.removeSentMessageHandler( SearchResultEntry.class );
+        this.searchResultEntryHandler = searchResultEntryHandler;
+        this.searchResultEntryHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( SearchResultEntry.class, this.searchResultEntryHandler );
+
+        this.handler.removeSentMessageHandler( SearchResultReference.class );
+        this.searchResultReferenceHandler = searchResultReferenceHandler;
+        this.searchResultReferenceHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( SearchResultReference.class, this.searchResultReferenceHandler );
+
+        this.handler.removeSentMessageHandler( SearchResultDone.class );
+        this.searchResultDoneHandler = searchResultDoneHandler;
+        this.searchResultDoneHandler.setLdapServer( this );
+        this.handler.addSentMessageHandler( SearchResultDone.class, this.searchResultDoneHandler );
     }
 
 
-    public LdapRequestHandler<UnbindRequest> getUnbindHandler()
+    /**
+     * @return The MessageReceived handler for the UnbindRequest
+     */
+    public LdapRequestHandler<UnbindRequest> getUnbindRequestHandler()
     {
-        return unbindHandler;
+        return unbindRequestHandler;
+    }
+
+
+    /**
+     * Inject the MessageReceived handler into the IoHandler
+     * 
+     * @param unbindRequestHandler The UnbindRequest message received handler
+     */
+    public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindRequestHandler )
+    {
+        this.handler.removeReceivedMessageHandler( UnbindRequest.class );
+        this.unbindRequestHandler = unbindRequestHandler;
+        this.unbindRequestHandler.setLdapServer( this );
+        this.handler.addReceivedMessageHandler( UnbindRequest.class, this.unbindRequestHandler );
     }
 
 
@@ -1249,18 +1540,6 @@ public class LdapServer extends DirectoryBackedService
         }
 
         return -1;
-    }
-
-
-    /**
-     * @param unbindHandler The UnbindRequest handler
-     */
-    public void setUnbindHandler( LdapRequestHandler<UnbindRequest> unbindHandler )
-    {
-        this.handler.removeReceivedMessageHandler( UnbindRequest.class );
-        this.unbindHandler = unbindHandler;
-        this.unbindHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( UnbindRequest.class, this.unbindHandler );
     }
 
 

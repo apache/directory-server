@@ -17,11 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
 import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
@@ -32,13 +33,13 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link org.apache.directory.shared.ldap.model.message.ModifyDnRequest}s.
+ * A single reply MessageReceived handler for {@link org.apache.directory.shared.ldap.model.message.ModifyDnRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ModifyDnHandler extends LdapRequestHandler<ModifyDnRequest>
+public class ModifyDnRequestHandler extends LdapRequestHandler<ModifyDnRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ModifyDnHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ModifyDnRequestHandler.class );
 
 
     /**

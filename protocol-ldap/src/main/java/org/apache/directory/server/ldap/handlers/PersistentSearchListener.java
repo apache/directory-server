@@ -64,7 +64,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     final PersistentSearch psearchControl;
 
 
-    PersistentSearchListener( LdapSession session, SearchRequest req )
+    public PersistentSearchListener( LdapSession session, SearchRequest req )
     {
         this.session = session;
         this.req = req;

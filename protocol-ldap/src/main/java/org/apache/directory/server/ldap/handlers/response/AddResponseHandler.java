@@ -17,33 +17,25 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.response;
 
 
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.AbandonRequest;
-
+import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
+import org.apache.directory.shared.ldap.model.message.AddResponse;
 
 /**
- * AbandonRequest handler implementation.
+ * An LDAP add response operation {@link AddResponse} handler.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AbandonHandler extends LdapRequestHandler<AbandonRequest>
+public class AddResponseHandler extends LdapResponseHandler<AddResponse>
 {
     /**
-     * @see org.apache.directory.server.ldap.handlers.LdapRequestHandler#handle
-     * (LdapSession, org.apache.directory.shared.ldap.model.message.Request)
+     * {@inheritDoc}
      */
-    public void handle( LdapSession session, AbandonRequest request ) throws Exception
+    public void handle( LdapSession session, AddResponse addResponse )
     {
-        int abandonedId = request.getAbandoned();
-
-        if ( abandonedId < 0 )
-        {
-            return;
-        }
-
-        session.abandonOutstandingRequest( abandonedId );
-    }
+        LOG.debug( "Message sent : {}", addResponse );
+   }
 }

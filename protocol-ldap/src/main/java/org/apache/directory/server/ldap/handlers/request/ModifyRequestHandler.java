@@ -17,13 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers;
+package org.apache.directory.server.ldap.handlers.request;
 
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.DeleteRequest;
+import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.shared.ldap.model.message.LdapResult;
+import org.apache.directory.shared.ldap.model.message.ModifyRequest;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 
 import org.slf4j.Logger;
@@ -31,28 +32,28 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A single reply handler for {@link DeleteRequest}s.
+ * A single reply MessageReceived handler for {@link ModifyRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DeleteHandler extends LdapRequestHandler<DeleteRequest>
+public class ModifyRequestHandler extends LdapRequestHandler<ModifyRequest>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DeleteHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ModifyRequestHandler.class );
 
 
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, DeleteRequest req )
+    public void handle( LdapSession session, ModifyRequest req )
     {
-        LOG.debug( "Handling request: {}", req );
+        LOG.debug( "Handling request : {}", req );
         LdapResult result = req.getResultResponse().getLdapResult();
 
         try
         {
-            // Call the underlying layer to delete the entry 
+            // Call the underlying layer to delete the entry
             CoreSession coreSession = session.getCoreSession();
-            coreSession.delete( req );
+            coreSession.modify( req );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
