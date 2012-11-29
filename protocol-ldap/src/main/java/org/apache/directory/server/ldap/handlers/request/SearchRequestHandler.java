@@ -162,7 +162,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         }
 
         // now we process entries forever as they change
-        PersistentSearchListener handler = new PersistentSearchListener( session, req );
+        PersistentSearchListener persistentSearchListener = new PersistentSearchListener( session, req );
 
         // compose notification criteria and add the listener to the event
         // service using that notification criteria to determine which events
@@ -173,8 +173,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         criteria.setFilter( req.getFilter() );
         criteria.setScope( req.getScope() );
         criteria.setEventMask( EventType.getEventTypes( psearch.getChangeTypes() ) );
-        getLdapServer().getDirectoryService().getEventService().addListener( handler, criteria );
-        req.addAbandonListener( new SearchAbandonListener( ldapServer, handler ) );
+        getLdapServer().getDirectoryService().getEventService().addListener( persistentSearchListener, criteria );
+        req.addAbandonListener( new SearchAbandonListener( ldapServer, persistentSearchListener ) );
     }
 
 
@@ -191,22 +191,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // check first for the syncrepl search request decorator
         if ( req.getControls().containsKey( SyncRequestValue.OID ) )
         {
-            if ( replicationReqHandler != null )
-            {
-                replicationReqHandler.handleSyncRequest( session, req );
-            }
-            else
-            {
-                LOG.warn( "This server does not allow replication" );
-                // Replication is not allowed on this server. generate a error message
-                LdapResult result = req.getResultResponse().getLdapResult();
-
-                result.setDiagnosticMessage( "Replication is not allowed on this server" );
-                result.setResultCode( ResultCodeEnum.OTHER );
-                session.getIoSession().write( req.getResultResponse() );
-
-                return;
-            }
+            handleReplication( session, req );
         }
         // if we have the ManageDSAIt decorator, go directly
         // to the handling without pre-processing the request
@@ -235,6 +220,30 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 default:
                     throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
             }
+        }
+    }
+    
+    
+    /**
+     * Handle the replication request.
+     */
+    private void handleReplication( LdapSession session, SearchRequest searchRequest ) throws LdapException
+    {
+        if ( replicationReqHandler != null )
+        {
+            replicationReqHandler.handleSyncRequest( session, searchRequest );
+        }
+        else
+        {
+            // Replication is not allowed on this server. generate a error message
+            LOG.warn( "This server does not allow replication" );
+            LdapResult result = searchRequest.getResultResponse().getLdapResult();
+
+            result.setDiagnosticMessage( "Replication is not allowed on this server" );
+            result.setResultCode( ResultCodeEnum.OTHER );
+            session.getIoSession().write( searchRequest.getResultResponse() );
+
+            return;
         }
     }
 
@@ -374,7 +383,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     }
 
 
-    private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
+    private void writeResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         EntryFilteringCursor cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
@@ -636,6 +645,12 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         if ( Strings.isEmpty( cookie ) )
         {
+            // No cursor : do a search.
+            cursor = session.getCoreSession().search( req );
+
+            // Position the cursor at the beginning
+            cursor.beforeFirst();
+
             // This is a new search. We have a special case when the paged size
             // is above the server size limit : in this case, we default to a
             // standard search
@@ -644,14 +659,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 // Normal search : create the cursor, and set pagedControl to false
                 try
                 {
-                    // No cursor : do a search.
-                    cursor = session.getCoreSession().search( req );
-
-                    // Position the cursor at the beginning
-                    cursor.beforeFirst();
-
-                    // And read the entries
-                    readResults( session, req, ldapResult, cursor, sizeLimit );
+                    // And write the entries
+                    writeResults( session, req, ldapResult, cursor, sizeLimit );
                 }
                 finally
                 {
@@ -667,6 +676,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
+                
                 return req.getResultResponse();
             }
             else
@@ -681,12 +691,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
-
-                // No cursor : do a search.
-                cursor = session.getCoreSession().search( req );
-
-                // Position the cursor at the beginning
-                cursor.beforeFirst();
 
                 // And stores the cursor into the session
                 pagedContext.setCursor( cursor );
@@ -745,7 +749,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
-
             }
         }
 
@@ -835,7 +838,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             long sizeLimit = min( requestLimit, serverLimit );
 
-            readResults( session, req, ldapResult, cursor, sizeLimit );
+            writeResults( session, req, ldapResult, cursor, sizeLimit );
         }
         finally
         {
