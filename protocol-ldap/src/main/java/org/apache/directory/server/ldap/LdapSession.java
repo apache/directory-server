@@ -28,11 +28,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
+import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.model.message.BindStatus;
+import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +77,9 @@ public class LdapSession
     /** A map of all the running requests */
     private Map<Integer, AbandonableRequest> outstandingRequests;
 
+    /** A map of all the pending search requests */
+    private Map<Integer, SearchRequestContainer> searchRequests;
+
     /** The current Bind status */
     private BindStatus bindStatus;
 
@@ -99,6 +106,7 @@ public class LdapSession
         this.ioSession = ioSession;
         outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
         outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
+        searchRequests = new ConcurrentHashMap<Integer, SearchRequestContainer>();
         bindStatus = BindStatus.ANONYMOUS;
         saslProperties = new HashMap<String, Object>();
         pagedSearchContexts = new ConcurrentHashMap<Integer, PagedSearchContext>();
@@ -292,8 +300,8 @@ public class LdapSession
             outstandingRequests.remove( request.getMessageId() );
         }
     }
-
-
+    
+    
     /**
      * @return A list of all the abandonable requests for this session.
      */
@@ -303,6 +311,43 @@ public class LdapSession
         {
             return Collections.unmodifiableMap( outstandingRequests );
         }
+    }
+
+    
+    /**
+     * Registers a new searchRequest
+     *
+     * @param searchRequest a new searchRequest
+     */
+    public void registerSearchRequest( SearchRequest searchRequest, Cursor<Entry> cursor )
+    {
+        synchronized ( outstandingLock )
+        {
+            SearchRequestContainer searchRequestContainer = new SearchRequestContainer( searchRequest, cursor );
+            searchRequests.put( searchRequest.getMessageId(), searchRequestContainer );
+        }
+    }
+
+
+    /**
+     * Unregisters a completed search request.
+     *
+     * @param searchRequest the searchRequest to unregister
+     */
+    public void unregisterSearchRequest( SearchRequest searchRequest )
+    {
+        searchRequests.remove( searchRequest.getMessageId() );
+    }
+
+
+    /**
+     * Find the searchRequestContainer associated with a MessageID
+     *
+     * @param messageId the SearchRequestContainer MessageID we are looking for
+     */
+    public SearchRequestContainer getSearchRequest( int messageId )
+    {
+        return searchRequests.get( messageId );
     }
 
 

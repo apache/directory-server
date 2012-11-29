@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.ReferralManager;
+import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
@@ -805,6 +806,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // Check that we have a cursor or not.
         // No cursor : do a search.
         EntryFilteringCursor cursor = session.getCoreSession().search( req );
+
+        // register the request in the session
+        session.registerSearchRequest( req, cursor );
 
         // Position the cursor at the beginning
         cursor.beforeFirst();

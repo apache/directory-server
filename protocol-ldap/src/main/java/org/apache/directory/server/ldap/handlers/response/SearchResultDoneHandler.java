@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers.response;
 
 
+import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
@@ -38,5 +39,18 @@ public class SearchResultDoneHandler extends LdapResponseHandler<SearchResultDon
     public void handle( LdapSession session, SearchResultDone searchResultDone ) throws Exception
     {
         LOG.debug( "Message Sent : {}", searchResultDone );
+        SearchRequestContainer searchRequestContainer = session.getSearchRequest( searchResultDone.getMessageId() );
+        
+        if ( searchRequestContainer == null )
+        {
+            // We have had an exception
+            //System.out.println( "SearchResultDone : " + searchResultDone );
+        }
+        else
+        {
+            //System.out.println( "SearchResultDone : " + searchRequestContainer );
+            // Unregister the request from the session
+            session.unregisterSearchRequest( searchRequestContainer.getSearchRequest() );
+        }
     }
 }
