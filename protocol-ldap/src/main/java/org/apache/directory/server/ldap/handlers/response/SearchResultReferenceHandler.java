@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers.response;
 
 
+import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
@@ -38,5 +39,13 @@ public class SearchResultReferenceHandler extends LdapResponseHandler<SearchResu
     public void handle( LdapSession session, SearchResultReference searchResultReference ) throws Exception
     {
         LOG.debug( "Message Sent : {}", searchResultReference );
+        SearchRequestContainer searchRequestContainer = session.getSearchRequest( searchResultReference.getMessageId() );
+        
+        if ( searchRequestContainer != null )
+        {
+            searchRequestContainer.increment();
+        }
+        
+        //System.out.println( "SearchResultReference : " + searchRequestContainer );
     }
 }
