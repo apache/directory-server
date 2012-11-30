@@ -74,6 +74,21 @@ public class LookupIT extends AbstractLdapTestUnit
     }
 
     /**
+     * Fetch the RootDSE entry
+     */
+    @Test
+    public void testLookupRootDSE() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+        connection.setTimeOut( 0L );
+
+        Entry entry = connection.lookup( "" );
+        assertNotNull( entry );
+
+        connection.close();
+    }
+
+    /**
      * Fetch a non existing entry
      */
     @Test
