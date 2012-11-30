@@ -30,12 +30,11 @@ import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.Strings;
 
 
 /**
  * A class for holding the syncrepl consumer's configuration. the following parameters
- * are part of the Syncrepl Consuer configuration :<br>
+ * are part of the Syncrepl Consumer configuration :<br>
  * <ul>
  *   <li>remoteHost : the remote server's name, defaults to 'localhost'</li>
  *   <li>remotePort : the remote server's LDAP port, defaults to 389</li>
@@ -555,5 +554,73 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     public void setMmrMode( boolean mmrMode )
     {
         this.mmrMode = mmrMode;
+    }
+
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "[" );
+        sb.append( "rid:" ).append( replicaId ).append( ", " ); 
+        sb.append( "base:'" ).append( baseDn ).append( "', " ); 
+        sb.append( "filter:" ).append( filter ).append( ", " );
+        sb.append( "scope:" ).append( searchScope ).append( ", " ); 
+        sb.append( "alias:" ).append( aliasDerefMode ).append( ", " ); 
+        sb.append( "chase referrals:" ).append( chaseReferrals ).append( ", " ); 
+
+        boolean isFirst = true;
+        
+        if ( attributes != null )
+        {
+            sb.append( "attributes:{" );
+            
+            for ( String attribute : attributes )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    sb.append( "/" );
+                }
+                
+                sb.append( attribute );
+            }
+            
+            sb.append( "}, " );
+        }
+        
+        if ( refreshNPersist )
+        {
+            sb.append( "refresh:" ).append( refreshInterval ).append( ", " ); 
+        }
+        else
+        {
+            sb.append( "refreshOnly, ");
+        }
+        
+        if ( mmrMode )
+        {
+            sb.append( "MMR, " );
+        }
+        else
+        {
+            sb.append( "MS, " );
+        }
+        
+        sb.append( "provider:" ).append( remoteHost ).append( ":" ).append( remotePort ).append( ", " ); 
+        sb.append( "user:'" ).append( replUserDn ).append( "', " ); 
+        
+        if ( strictCertVerification )
+        {
+            sb.append( "strict" ).append( ", " );
+        }
+
+        sb.append( "TLS:" ).append( useTls ).append( "]" );
+        
+
+        return sb.toString();
     }
 }
