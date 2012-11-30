@@ -66,6 +66,7 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.shared.ldap.model.filter.AndNode;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -102,6 +103,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicationConsumerImpl.class );
+    
+    /** A dedicated logger for the consumer */
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
     /** the syncrepl configuration */
@@ -346,8 +349,18 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             switch ( state )
             {
                 case ADD:
-
-                    if ( !session.exists( remoteDn ) )
+                    boolean remoteDnExist = false;
+                    
+                    try
+                    {
+                        remoteDnExist = session.exists( remoteDn );
+                    }
+                    catch ( LdapNoSuchObjectException lnsoe )
+                    {
+                        CONSUMER_LOG.error( lnsoe.getMessage() );
+                    }
+                    
+                    if ( !remoteDnExist)
                     {
                         LOG.debug( "adding entry with dn {}", remoteDn );
                         LOG.debug( remoteEntry.toString() );
@@ -481,29 +494,15 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     public void connectionClosed()
     {
+        String producer = config.getRemoteHost() + ":" + config.getRemotePort();
+        CONSUMER_LOG.debug( "Consumer {} session with {} has been closed ", config.getReplicaId(), producer );
+        
         if ( disconnected )
         {
             return;
         }
 
-        boolean connected = false;
-
-        while ( !connected )
-        {
-            try
-            {
-                Thread.sleep( config.getRefreshInterval() );
-            }
-            catch ( InterruptedException e )
-            {
-                LOG.error( "Interrupted while sleeping before trying to reconnect", e );
-            }
-
-            LOG.debug( "Trying to reconnect" );
-            connected = connect();
-        }
-
-        startSync();
+        start( false );
     }
 
 
@@ -551,21 +550,37 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
-    public void start()
+    public void start( boolean now )
     {
-        while ( !connect() )
+        String producer = config.getRemoteHost() + ":" + config.getRemotePort();
+        
+        boolean connected = false;
+
+        if ( now )
+        {
+            connected = connect();
+        }
+        
+        while ( !connected )
         {
             try
             {
+                CONSUMER_LOG.debug( "Consumer {} cannot connect to {}, wait 5 seconds.", config.getReplicaId(),
+                    producer );
+                
                 // try to establish a connection for every 5 seconds
                 Thread.sleep( 5000 );
             }
             catch ( InterruptedException e )
             {
-                LOG.warn( "Interrupted while trying to reconnect to the provider {} with user DN",
-                    config.getRemoteHost(), config.getReplUserDn() );
+                LOG.warn( "Consumer {} Interrupted while trying to reconnect to the provider {}",
+                    config.getReplicaId(), producer );
             }
+
+            connected = connect();
         }
+
+        CONSUMER_LOG.debug( "Consumer {} connected to {}", config.getReplicaId(), producer );
 
         startSync();
     }
@@ -1295,4 +1310,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
     }
 
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( "Consumer " ).append( config );
+
+        return sb.toString();
+    }
 }

@@ -497,7 +497,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * {@inheritDoc}
      */
-    public void start()
+    public void start( boolean now )
     {
         connect();
         startSync();

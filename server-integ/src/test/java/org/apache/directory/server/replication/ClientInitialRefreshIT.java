@@ -304,7 +304,7 @@ public class ClientInitialRefreshIT
                     DirectoryService directoryService = new MockDirectoryService();
                     directoryService.setSchemaManager( schemaManager );
                     ( ( MockSyncReplConsumer ) syncreplClient ).init( directoryService );
-                    syncreplClient.start();
+                    syncreplClient.start( true );
                 }
                 catch ( Exception e )
                 {
@@ -332,7 +332,7 @@ public class ClientInitialRefreshIT
             {
                 try
                 {
-                    consumer.start();
+                    consumer.start( true );
                 }
                 catch ( Exception e )
                 {

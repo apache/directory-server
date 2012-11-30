@@ -59,8 +59,10 @@ public interface ReplicationConsumer
 
     /**
      * starts the consumer
+     * 
+     * @param now A param that tells the consumer to connect immediately or not
      */
-    void start();
+    void start( boolean now );
 
 
     /**

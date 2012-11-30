@@ -127,6 +127,9 @@ public class LdapServer extends DirectoryBackedService
 
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class.getName() );
+    
+    /** Logger for the replication consumer */
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
     /** Value (0) for configuration where size limit is unlimited. */
     public static final long NO_SIZE_LIMIT = 0;
@@ -690,13 +693,15 @@ public class LdapServer extends DirectoryBackedService
                     {
                         try
                         {
-                            LOG.info( "starting the replication consumer with config {}", consumer );
+                            LOG.info( "starting the replication consumer with {}", consumer );
+                            CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
                             consumer.init( getDirectoryService() );
-                            consumer.start();
+                            consumer.start( true );
                         }
                         catch ( Exception e )
                         {
-                            LOG.error( "Failed to start the consumer with config {}", consumer );
+                            LOG.error( "Failed to start consumer {}", consumer );
+                            CONSUMER_LOG.error( "Failed to start consumer  {}", consumer );
                             throw new RuntimeException( e );
                         }
                     }
