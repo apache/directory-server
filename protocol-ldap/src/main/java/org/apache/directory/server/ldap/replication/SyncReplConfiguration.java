@@ -156,6 +156,16 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     {
         this.remoteHost = remoteHost;
     }
+    
+    
+    /**
+     * A convenient method that concatenates the host and port of the producer
+     * @return The <host>:<port> the consumer is connected to
+     */
+    public String getProducer()
+    {
+        return remoteHost + ":" + remotePort;
+    }
 
 
     /**
