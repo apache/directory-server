@@ -26,7 +26,7 @@ import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 
 
 /**
- * An interface for providers of a service which receives the ldap entries as and when a 
+ * An interface for consumers of a service which receives the ldap entries as and when a 
  * event happens in the server. The data received might vary based on the internal configuration
  * used by implementation.
  *
@@ -35,7 +35,7 @@ import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 public interface ReplicationConsumer
 {
     /**
-     * sets the configuration of the consumer
+     * Sets the configuration of the consumer
      * 
      * @param config the configuration of the consumer
      */
@@ -49,16 +49,16 @@ public interface ReplicationConsumer
 
 
     /**
-     * initializes the consumer
+     * Initializes the consumer
      * 
      * @param dirService the DirectoryService
-     * @throws Exception
+     * @throws Exception If the initialization failed
      */
     void init( DirectoryService dirService ) throws Exception;
 
 
     /**
-     * starts the consumer
+     * Starts the consumer, connection immediately or wait before reconnection
      * 
      * @param now A param that tells the consumer to connect immediately or not
      */
@@ -66,13 +66,12 @@ public interface ReplicationConsumer
 
 
     /**
-     * stops the consumer
+     * Stops the consumer
      */
     void stop();
 
 
     /**
-     * the identifier of this consumer instance
      * @return the identifier of the consumer instance
      */
     String getId();
