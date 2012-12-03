@@ -68,6 +68,9 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
     /** port number of the syncrepl provider server, default is 389 */
     private int remotePort = 389;
+    
+    /** The producer, as <host>:<port> */
+    private String producer = remoteHost + ":" + remotePort;
 
     /** replication user's Dn */
     private String replUserDn;
@@ -155,6 +158,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     public void setRemoteHost( String remoteHost )
     {
         this.remoteHost = remoteHost;
+        producer = remoteHost + ":" + remotePort;
     }
     
     
@@ -164,7 +168,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public String getProducer()
     {
-        return remoteHost + ":" + remotePort;
+        return producer;
     }
 
 
@@ -183,6 +187,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     public void setRemotePort( int remotePort )
     {
         this.remotePort = remotePort;
+        producer = remoteHost + ":" + remotePort;
     }
 
 
@@ -620,7 +625,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
             sb.append( "MS, " );
         }
         
-        sb.append( "provider:" ).append( remoteHost ).append( ":" ).append( remotePort ).append( ", " ); 
+        sb.append( "provider:" ).append( producer ).append( ", " ); 
         sb.append( "user:'" ).append( replUserDn ).append( "', " ); 
         
         if ( strictCertVerification )

@@ -297,7 +297,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     }
 
 
-    private ResultCodeEnum handleSearchDone( SearchResultDone searchDone )
+    private ResultCodeEnum handleSearchRseultDone( SearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
@@ -323,7 +323,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     }
 
 
-    private void handleSearchResult( SearchResultEntry syncResult )
+    private void handleSearchResultEntry( SearchResultEntry syncResult )
     {
 
         LOG.debug( "------------- starting handleSearchResult ------------" );
@@ -624,11 +624,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      * receiving modifications' notifications on the consumer, and never exit the loop, unless
      * some communication error occurs.
      *
+     * @param syncType The synchornization type, either REFRESH_ONLY or REFRESH_AND_PERSIST
+     * @param reloadHint A flag used to tell the server that we want a reload
      * @throws Exception in case of any problems encountered while searching
      */
     private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        CONSUMER_LOG.debug( "In doSyncSearch, mode {}, reloadHint {}", syncType, reloadHint );
+        CONSUMER_LOG.debug( "Starting synchronization mode {}, reloadHint {}", syncType, reloadHint );
         // Prepare the Syncrepl Request
         SyncRequestValue syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
 
@@ -638,20 +640,22 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         // If we have a persisted cookie, send it.
         if ( syncCookie != null )
         {
-            LOG.debug( "searching with searchRequest, cookie '{}'", Strings.utf8ToString( syncCookie ) );
+            CONSUMER_LOG.debug( "searching on {} with searchRequest, cookie '{}'", config.getProducer(), Strings.utf8ToString( syncCookie ) );
             syncReq.setCookie( syncCookie );
         }
         else
         {
-            CONSUMER_LOG.debug( "searching with searchRequest, no cookie" );
+            CONSUMER_LOG.debug( "searching on {} with searchRequest, no cookie", config.getProducer() );
         }
 
         searchRequest.addControl( syncReq );
 
-        // Do the search
+        // Do the search. We use a searchAsync because we want to get SearchResultDone responses
         SearchFuture sf = connection.searchAsync( searchRequest );
 
         Response resp = sf.get();
+        
+        CONSUMER_LOG.debug( "Response from {} : {}", config.getProducer(), resp );
 
         // Now, process the responses. We loop until we have a connection termination or
         // a SearchResultDone (RefreshOnly mode)
@@ -660,9 +664,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( resp instanceof SearchResultEntry )
             {
                 SearchResultEntry result = ( SearchResultEntry ) resp;
-                //System.out.println( "++++++++++++>  Consumer has received : " + result.getEntry().getDn() );
 
-                handleSearchResult( result );
+                handleSearchResultEntry( result );
             }
             else if ( resp instanceof SearchResultReference )
             {
@@ -675,42 +678,71 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             // Next entry
             resp = sf.get();
+            CONSUMER_LOG.debug( "Response from {} : {}", config.getProducer(), resp );
         }
-
-        ResultCodeEnum resultCode = handleSearchDone( ( SearchResultDone ) resp );
-
-        LOG.debug( "sync operation returned result code {}", resultCode );
-
-        if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
+        
+        if ( sf.isCancelled()  )
         {
-            // log the error and handle it appropriately
-            LOG.warn( "given replication base Dn {} is not found on provider", config.getBaseDn() );
-
-            if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
-            {
-                LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
-                disconnect();
-            }
+            
+            CONSUMER_LOG.debug( "Search sync on {} has been canceled ", config.getProducer(), sf.getCause() );
+            return;
         }
-        else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
+        else if ( disconnected )
         {
-            LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
-
-            try
+            CONSUMER_LOG.debug( "Disconnected from {}", config.getProducer() );
+            return;
+        }
+        else
+        {
+            ResultCodeEnum resultCode = handleSearchRseultDone( ( SearchResultDone ) resp );
+    
+            CONSUMER_LOG.debug( "Response from {} : {}", config.getProducer(), resultCode );
+            LOG.debug( "sync operation returned result code {}", resultCode );
+    
+            if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
             {
-                deleteRecursive( new Dn( config.getBaseDn() ), null );
+                // log the error and handle it appropriately
+                CONSUMER_LOG.warn( "The base Dn {} is not found on provider {}", config.getBaseDn(), config.getProducer() );
+                LOG.warn( "The base Dn {} is not found on provider {}", config.getBaseDn(), config.getProducer() );
+    
+                if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
+                {
+                    CONSUMER_LOG.warn( "Disconnecting the Refresh&Persist consumer from provider {}", config.getProducer() );
+                    LOG.warn( "Disconnecting the Refresh&Persist consumer from provider {}", config.getProducer() );
+                    disconnect();
+                    
+                    return;
+                }
             }
-            catch ( Exception e )
+            else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
             {
-                LOG
-                    .error(
-                        "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
-                        e );
+                CONSUMER_LOG.info( "Full SYNC_REFRESH required from {}", config.getProducer() );
+                LOG.info( "Full SYNC_REFRESH required from {}", config.getProducer() );
+    
+                try
+                {
+                    CONSUMER_LOG.debug( "Deleting baseDN {}", config.getBaseDn() );
+                    deleteRecursive( new Dn( config.getBaseDn() ), null );
+                }
+                catch ( Exception e )
+                {
+                    LOG
+                        .error(
+                            "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
+                            e );
+                }
+    
+                // Do a full update.
+                removeCookie();
+                
+                CONSUMER_LOG.debug( "Re-doing a syncRefresh from producer {}", config.getProducer() );
+                // Remove this recursive call...
+                doSyncSearch( syncType, true );
             }
-
-            // Do a full update.
-            removeCookie();
-            doSyncSearch( syncType, true );
+            else
+            {
+                CONSUMER_LOG.debug( "Got result code {} from producer {}. Replication stopped", resultCode, config.getProducer() );
+            }
         }
     }
 
