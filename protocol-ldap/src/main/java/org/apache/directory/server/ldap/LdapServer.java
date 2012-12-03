@@ -67,6 +67,7 @@ import org.apache.directory.server.ldap.handlers.response.SearchResultEntryHandl
 import org.apache.directory.server.ldap.handlers.response.SearchResultReferenceHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationStatusEnum;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -687,16 +688,46 @@ public class LdapServer extends DirectoryBackedService
         {
             for ( final ReplicationConsumer consumer : replConsumers )
             {
+                consumer.init( getDirectoryService() );
+
                 Runnable consumerTask = new Runnable()
                 {
                     public void run()
                     {
                         try
                         {
-                            LOG.info( "starting the replication consumer with {}", consumer );
-                            CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
-                            consumer.init( getDirectoryService() );
-                            consumer.start( true );
+                            boolean stopped = false;
+                            
+                            while ( !stopped )
+                            {
+                                LOG.info( "starting the replication consumer with {}", consumer );
+                                CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
+                                boolean isConnected = consumer.connect( ReplicationConsumer.NOW );
+                                
+                                if ( isConnected )
+                                {
+                                    // We are now connected, start the replication
+                                    ReplicationStatusEnum status = null;
+                                    
+                                    do {
+                                        status = consumer.startSync();
+                                    } while ( status == ReplicationStatusEnum.REFRESH_REQUIRED );
+                                    
+                                    switch ( status )
+                                    {
+                                        case STOPPED :
+                                            stopped = true;
+                                            break;
+                                            
+                                        case CANCELLED :
+                                        case DISCONNECTED :
+                                        case INTERRUPTED :
+                                        case UNKOWN_ERROR :
+                                            // Loop on connect
+                                            break;
+                                    }
+                                }
+                            }
                         }
                         catch ( Exception e )
                         {

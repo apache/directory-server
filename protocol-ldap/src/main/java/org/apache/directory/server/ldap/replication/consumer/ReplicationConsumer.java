@@ -34,6 +34,12 @@ import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
  */
 public interface ReplicationConsumer
 {
+    /** A flag we used when we want to connect without waiting */
+    boolean NOW = true;
+    
+    /** A flag we used when we want to connect after a waiting delay */
+    boolean DIFFERED = false;
+    
     /**
      * Sets the configuration of the consumer
      * 
@@ -58,11 +64,12 @@ public interface ReplicationConsumer
 
 
     /**
-     * Starts the consumer, connection immediately or wait before reconnection
+     * Connect the consumer, connection immediately or wait before reconnection
      * 
      * @param now A param that tells the consumer to connect immediately or not
+     * @return true if the consumer is connected, false otherwise
      */
-    void start( boolean now );
+    boolean connect( boolean now );
 
 
     /**
@@ -75,4 +82,10 @@ public interface ReplicationConsumer
      * @return the identifier of the consumer instance
      */
     String getId();
+
+    
+    /**
+     * Starts the synchronization operation
+     */
+    ReplicationStatusEnum startSync();
 }

@@ -41,6 +41,7 @@ import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
+import org.apache.directory.server.ldap.replication.consumer.ReplicationStatusEnum;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
@@ -102,6 +103,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
     /** the syncrepl configuration */
     private SyncReplConfiguration config;
+    
+    /** A field used to tell the thread it should stop */
+    private volatile boolean stop = false;
+
+    /** A mutex used to make the thread sleeping for a moment */
+    private final Object mutex = new Object();
 
     /** the sync cookie sent by the server */
     private byte[] syncCookie;
@@ -460,7 +467,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * starts the synchronization operation
      */
-    public void startSync()
+    public ReplicationStatusEnum startSync()
     {
         // read the cookie if persisted
         readCookie();
@@ -470,21 +477,52 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             try
             {
                 LOG.debug( "==================== Refresh And Persist ==========" );
-                doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
+
+                return doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
             }
             catch ( Exception e )
             {
                 LOG.error( "Failed to sync with refreshAndPersist mode", e );
+                return ReplicationStatusEnum.UNKOWN_ERROR;
             }
         }
         else
         {
-            refreshThread = new RefresherThread();
-            refreshThread.start();
+            return doRefreshOnly();
         }
     }
 
+    private ReplicationStatusEnum doRefreshOnly()
+    {
+        while ( !stop )
+        {
+            LOG.debug( "==================== Refresh Only ==========" );
 
+            try
+            {
+                doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, false );
+
+                LOG.info( "--------------------- Sleep for a little while ------------------" );
+                mutex.wait( config.getRefreshInterval() );
+                LOG.debug( "--------------------- syncing again ------------------" );
+
+            }
+            catch ( InterruptedException ie )
+            {
+                LOG.warn( "refresher thread interrupted" );
+                return ReplicationStatusEnum.INTERRUPTED;
+            }
+            catch ( Exception e )
+            {
+                LOG.error( "Failed to sync with refresh only mode", e );
+                return ReplicationStatusEnum.UNKOWN_ERROR;
+            }
+        }
+
+        return ReplicationStatusEnum.STOPPED;
+    }
+
+    
     /**
      * {@inheritDoc}
      */
@@ -497,10 +535,35 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * {@inheritDoc}
      */
-    public void start( boolean now )
+    public boolean connect( boolean now )
     {
-        connect();
-        startSync();
+        boolean connected = false;
+
+        if ( now )
+        {
+            connected = connect();
+        }
+        
+        while ( !connected )
+        {
+            try
+            {
+                // try to establish a connection for every 5 seconds
+                Thread.sleep( 5000 );
+            }
+            catch ( InterruptedException e )
+            {
+                LOG.warn( "Consumer {} Interrupted while trying to reconnect to the provider {}",
+                    config.getReplicaId(), config.getProducer() );
+            }
+
+            connected = connect();
+        }
+        
+        // TODO : we may have cases were we get here with the connected flag to false. With the above
+        // code, thi sis not possible
+        
+        return connected;
     }
 
 
@@ -528,7 +591,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      *
      * @throws Exception in case of any problems encountered while searching
      */
-    private void doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
+    private ReplicationStatusEnum doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
         SyncRequestValue syncReq = new SyncRequestValueDecorator( ldapCodecService );
 
@@ -574,15 +637,16 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             // log the error and handle it appropriately
             LOG.warn( "given replication base Dn {} is not found on provider", config.getBaseDn() );
-            if ( syncType == SynchronizationModeEnum.REFRESH_AND_PERSIST )
-            {
-                LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
-                disconnect();
-            }
+            
+            LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
+            disconnect();
+            
+            return ReplicationStatusEnum.DISCONNECTED;
         }
         else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
         {
             LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
+            
             try
             {
                 deleteRecursive( new Dn( config.getBaseDn() ), null );
@@ -597,7 +661,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
 
             removeCookie();
-            doSyncSearch( syncType, true );
+            
+            return ReplicationStatusEnum.REFRESH_REQUIRED;
+        } 
+        else
+        {
+            return ReplicationStatusEnum.UNKOWN_ERROR;
         }
     }
 
@@ -968,12 +1037,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     private class RefresherThread extends Thread
     {
-        /** A field used to tell the thread it should stop */
-        private volatile boolean stop = false;
-
-        /** A mutex used to make the thread sleeping for a moment */
-        private final Object mutex = new Object();
-
 
         public RefresherThread()
         {
