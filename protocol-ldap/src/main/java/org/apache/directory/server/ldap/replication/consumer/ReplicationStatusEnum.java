@@ -32,15 +32,6 @@ public enum ReplicationStatusEnum
     /** A full refresh should be done */
     REFRESH_REQUIRED,
     
-    /** The replication loop has been interrupted */
-    INTERRUPTED,
-    
     /** The replication has been stopped */
-    STOPPED,
-    
-    /** The replication has been cancelled */
-    CANCELLED,
-    
-    /** We have got an unknown error */
-    UNKOWN_ERROR;
+    STOPPED
 }

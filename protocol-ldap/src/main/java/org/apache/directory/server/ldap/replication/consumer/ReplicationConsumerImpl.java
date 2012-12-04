@@ -46,7 +46,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
-import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
@@ -129,7 +128,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /** flag to indicate whether the consumer was disconnected */
     private boolean disconnected;
 
-    /** A field used to tell the thread it should stop */
+    /** A field used to tell the RefreshOnly method it should stop */
     private volatile boolean stop = false;
 
     /** the core session */
@@ -298,7 +297,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     }
 
 
-    private ResultCodeEnum handleSearchRseultDone( SearchResultDone searchDone )
+    private ResultCodeEnum handleSearchResultDone( SearchResultDone searchDone )
     {
         LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
@@ -529,6 +528,28 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         CONSUMER_LOG.debug( "Consumer {} session with {} has been closed ", config.getReplicaId(), config.getProducer() );
         
+        // Cleanup
+        disconnected = true;
+
+        try
+        {
+            stopRefreshing();
+
+            connection = null;
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Failed to close the connection", e );
+        }
+        finally
+        {
+            // persist the cookie
+            storeCookie();
+            
+            // reset the cookie
+            syncCookie = null;
+        }
+        
         return;
     }
 
@@ -554,7 +575,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             catch ( Exception e )
             {
                 LOG.error( "Failed to sync with refreshAndPersist mode", e );
-                return ReplicationStatusEnum.UNKOWN_ERROR;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
         }
         else
@@ -582,12 +603,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             catch ( InterruptedException ie )
             {
                 LOG.warn( "refresher thread interrupted" );
-                return ReplicationStatusEnum.INTERRUPTED;
+                
+                return ReplicationStatusEnum.DISCONNECTED;
             }
             catch ( Exception e )
             {
                 LOG.error( "Failed to sync with refresh only mode", e );
-                return ReplicationStatusEnum.UNKOWN_ERROR;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
         }
 
@@ -733,7 +755,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             
             CONSUMER_LOG.debug( "Search sync on {} has been canceled ", config.getProducer(), sf.getCause() );
             
-            return ReplicationStatusEnum.CANCELLED;
+            return ReplicationStatusEnum.DISCONNECTED;
         }
         else if ( disconnected )
         {
@@ -743,7 +765,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
         else
         {
-            ResultCodeEnum resultCode = handleSearchRseultDone( ( SearchResultDone ) resp );
+            ResultCodeEnum resultCode = handleSearchResultDone( ( SearchResultDone ) resp );
     
             CONSUMER_LOG.debug( "Response from {} : {}", config.getProducer(), resultCode );
             LOG.debug( "sync operation returned result code {}", resultCode );
@@ -788,7 +810,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             else
             {
                 CONSUMER_LOG.debug( "Got result code {} from producer {}. Replication stopped", resultCode, config.getProducer() );
-                return ReplicationStatusEnum.UNKOWN_ERROR;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
         }
     }
@@ -1267,7 +1289,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
 
 
-    public void stopRefreshing()
+    /**
+     * Stop the refresh operation
+     */
+    private void stopRefreshing()
     {
         stop = true;
     }

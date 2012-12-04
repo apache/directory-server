@@ -696,9 +696,7 @@ public class LdapServer extends DirectoryBackedService
                     {
                         try
                         {
-                            boolean stopped = false;
-                            
-                            while ( !stopped )
+                            while ( true )
                             {
                                 LOG.info( "starting the replication consumer with {}", consumer );
                                 CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
@@ -713,18 +711,10 @@ public class LdapServer extends DirectoryBackedService
                                         status = consumer.startSync();
                                     } while ( status == ReplicationStatusEnum.REFRESH_REQUIRED );
                                     
-                                    switch ( status )
+                                    if ( status == ReplicationStatusEnum.STOPPED )
                                     {
-                                        case STOPPED :
-                                            stopped = true;
-                                            break;
-                                            
-                                        case CANCELLED :
-                                        case DISCONNECTED :
-                                        case INTERRUPTED :
-                                        case UNKOWN_ERROR :
-                                            // Loop on connect
-                                            break;
+                                        // Exit the loop
+                                        break;
                                     }
                                 }
                             }

@@ -483,7 +483,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             catch ( Exception e )
             {
                 LOG.error( "Failed to sync with refreshAndPersist mode", e );
-                return ReplicationStatusEnum.UNKOWN_ERROR;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
         }
         else
@@ -510,12 +510,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             catch ( InterruptedException ie )
             {
                 LOG.warn( "refresher thread interrupted" );
-                return ReplicationStatusEnum.INTERRUPTED;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
             catch ( Exception e )
             {
                 LOG.error( "Failed to sync with refresh only mode", e );
-                return ReplicationStatusEnum.UNKOWN_ERROR;
+                return ReplicationStatusEnum.DISCONNECTED;
             }
         }
 
@@ -666,7 +666,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         } 
         else
         {
-            return ReplicationStatusEnum.UNKOWN_ERROR;
+            return ReplicationStatusEnum.DISCONNECTED;
         }
     }
 
