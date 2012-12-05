@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.replication.consumer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.log4j.NDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,13 @@ public class PingerThread extends Thread
     {
         try
         {
-            CONSUMER_LOG.debug( "Starting the provider's pinger" );
+            if ( CONSUMER_LOG.isDebugEnabled() )
+            {
+                NDC.pop();
+                NDC.push( "Pinger" );
+                
+                CONSUMER_LOG.debug( "Starting the provider's pinger" );
+            }
 
             while ( !stop )
             {

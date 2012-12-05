@@ -89,6 +89,7 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.Strings;
+import org.apache.log4j.NDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,6 +275,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void prepareSyncSearchRequest() throws LdapException
     {
+        NDC.pop();
         String baseDn = config.getBaseDn();
 
         searchRequest = new SearchRequestImpl();
@@ -295,7 +297,11 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 new ManageDsaITImpl() ) );
         }
         
-        CONSUMER_LOG.debug( "Configuring consumer {}", config );
+        if ( CONSUMER_LOG.isDebugEnabled() )
+        {
+            NDC.push( Integer.toString( config.getReplicaId() ) );
+            CONSUMER_LOG.debug( "Configuring consumer {}", config );
+        }
     }
 
 
@@ -528,7 +534,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     public void connectionClosed()
     {
-        CONSUMER_LOG.debug( "Consumer {} session with {} has been closed ", config.getReplicaId(), config.getProducer() );
+        if ( CONSUMER_LOG.isDebugEnabled() )
+        {
+            NDC.pop();
+            NDC.push( Integer.toString( config.getReplicaId() ) );
+            CONSUMER_LOG.debug( "Consumer {} session with {} has been closed ", config.getReplicaId(), config.getProducer() );
+        }
         
         // Cleanup
         disconnected = true;
@@ -884,7 +895,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     
                 connection.unBind();
                 LOG.info( "Unbound from the server {}", config.getProducer() );
-                CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
+                
+                if ( CONSUMER_LOG.isDebugEnabled() )
+                {
+                    NDC.pop();
+                    NDC.push( Integer.toString( config.getReplicaId() ) );
+                    CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
+                }
     
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getProducer() );

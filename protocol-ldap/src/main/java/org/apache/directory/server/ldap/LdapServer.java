@@ -102,6 +102,7 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.util.Strings;
+import org.apache.log4j.NDC;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
@@ -707,6 +708,12 @@ public class LdapServer extends DirectoryBackedService
                         {
                             while ( true )
                             {
+                                if ( CONSUMER_LOG.isDebugEnabled() )
+                                {
+                                    NDC.pop();
+                                    NDC.push( consumer.getId() );
+                                }
+                                
                                 LOG.info( "starting the replication consumer with {}", consumer );
                                 CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
                                 boolean isConnected = consumer.connect( ReplicationConsumer.NOW );
