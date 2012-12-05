@@ -753,6 +753,7 @@ ads-saslmechhandlers: SIMPLE
 ads-extendedophandlers: gracefulShutdownHandler
 ads-extendedophandlers: starttlshandler
 ads-extendedophandlers: storedprochandler
+ads-replEnabled: true
 
 dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit
