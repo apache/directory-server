@@ -70,6 +70,13 @@ public interface ReplicationConsumer
      * @return true if the consumer is connected, false otherwise
      */
     boolean connect( boolean now );
+    
+    
+    /**
+     * Test the connection with the provider. It does connect to the provider, and
+     * tries to bind on it using the consumer credentials.
+     */
+    void ping();
 
 
     /**

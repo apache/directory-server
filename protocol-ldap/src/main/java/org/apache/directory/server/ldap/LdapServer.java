@@ -32,7 +32,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.ssl.KeyManagerFactory;
 
@@ -66,6 +68,7 @@ import org.apache.directory.server.ldap.handlers.response.SearchResultDoneHandle
 import org.apache.directory.server.ldap.handlers.response.SearchResultEntryHandler;
 import org.apache.directory.server.ldap.handlers.response.SearchResultReferenceHandler;
 import org.apache.directory.server.ldap.handlers.ssl.LdapsInitializer;
+import org.apache.directory.server.ldap.replication.consumer.PingerThread;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationStatusEnum;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
@@ -684,8 +687,11 @@ public class LdapServer extends DirectoryBackedService
      */
     public void startReplicationConsumers() throws Exception
     {
-        if ( replConsumers != null )
+        if ( ( replConsumers != null ) && ( replConsumers.size() > 0 ) )
         {
+            final PingerThread pingerThread = new PingerThread();
+            pingerThread.start();
+            
             for ( final ReplicationConsumer consumer : replConsumers )
             {
                 consumer.init( getDirectoryService() );
@@ -704,6 +710,8 @@ public class LdapServer extends DirectoryBackedService
                                 
                                 if ( isConnected )
                                 {
+                                    pingerThread.addConsumer( consumer );
+
                                     // We are now connected, start the replication
                                     ReplicationStatusEnum status = null;
                                     

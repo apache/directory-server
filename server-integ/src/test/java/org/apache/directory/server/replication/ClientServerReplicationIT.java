@@ -227,7 +227,7 @@ public class ClientServerReplicationIT
 
         for ( int i = 0; i < 100; i++ )
         {
-            Thread.sleep( 50 );
+            Thread.sleep( 100 );
 
             exists = session.exists( entryDn );
 
@@ -236,7 +236,7 @@ public class ClientServerReplicationIT
                 return true;
             }
 
-            Thread.sleep( 50 );
+            Thread.sleep( 100 );
         }
 
         dump( session, entryDn );
@@ -425,6 +425,7 @@ public class ClientServerReplicationIT
 
     private Entry restartConsumer( Entry provUser ) throws Exception
     {
+        System.out.println( "------------------------------------- Stop consumer" );
         // Now stop the consumer
         consumerServer.stop();
 
@@ -445,6 +446,7 @@ public class ClientServerReplicationIT
         Thread.sleep( 1000 );
 
         // Restart the consumer
+        System.out.println( "------------------------------------- Start consumer" );
         consumerServer.start();
 
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );

@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.ldap.replication.consumer;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -199,8 +198,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         
         prepareSyncSearchRequest();
     }
-
-
+    
+    
     /**
      * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
      * one remote server
@@ -247,11 +246,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     CONSUMER_LOG.warn( "Failed to bind to the producer {} with the given bind Dn {}", config.getProducer(), config.getReplUserDn() );
                     LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
                     LOG.warn( "", le );
+                    disconnected = true;
                 }
             }
             else
             {
                 CONSUMER_LOG.warn( "Consumer {} cannot connect to producer {}", config.getReplicaId(), config.getProducer() );
+                disconnected = true;
 
                 return false;
             }
@@ -260,6 +261,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             CONSUMER_LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
             LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
+            disconnected = true;
         }
 
         return false;
@@ -667,9 +669,55 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    public void ping()
+    {
+        boolean connected = !disconnected;
+        
+        if ( disconnected )
+        {
+            connected = connect();
+        }
+        
+        if ( connected )
+        {
+            CONSUMER_LOG.debug( "PING : The consumer {} is alive", config.getReplicaId() );
+
+            try
+            {
+                Entry baseDn = connection.lookup( config.getBaseDn(), "1.1" );
+                
+                if ( baseDn == null )
+                {
+                    // Cannot get the entry : this is bad, but possible
+                    CONSUMER_LOG.debug( "Cannot fetch '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                }
+                else
+                {
+                    CONSUMER_LOG.debug( "Fetched '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                }
+            }
+            catch ( LdapException le )
+            {
+                // Error : we must disconnect
+                disconnect();
+            }
+        }
+        else
+        {
+            CONSUMER_LOG.debug( "PING : The consumer {} cannot be connected", config.getReplicaId() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void stop()
     {
-        disconnect();
+        if ( !disconnected )
+        {
+            disconnect();
+        }
     }
 
 
@@ -822,32 +870,40 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private void disconnect()
     {
         disconnected = true;
-
-        try
+        
+        if ( connection == null )
         {
-            stopRefreshing();
-
-            connection.unBind();
-            LOG.info( "Unbound from the server {}", config.getProducer() );
-            CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
-
-            connection.close();
-            LOG.info( "Connection closed for the server {}", config.getProducer() );
-            CONSUMER_LOG.info( "Connection closed for the server {}", config.getProducer() );
-
-            connection = null;
+            return;
         }
-        catch ( Exception e )
+        
+        if ( connection.isConnected() )
         {
-            LOG.error( "Failed to close the connection", e );
-        }
-        finally
-        {
-            // persist the cookie
-            storeCookie();
-            
-            // reset the cookie
-            syncCookie = null;
+            try
+            {
+                stopRefreshing();
+    
+                connection.unBind();
+                LOG.info( "Unbound from the server {}", config.getProducer() );
+                CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
+    
+                connection.close();
+                LOG.info( "Connection closed for the server {}", config.getProducer() );
+                CONSUMER_LOG.info( "Connection closed for the server {}", config.getProducer() );
+    
+                connection = null;
+            }
+            catch ( Exception e )
+            {
+                LOG.error( "Failed to close the connection", e );
+            }
+            finally
+            {
+                // persist the cookie
+                storeCookie();
+                
+                // reset the cookie
+                syncCookie = null;
+            }
         }
     }
 

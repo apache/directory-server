@@ -97,6 +97,9 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( MockSyncReplConsumer.class );
+    
+    /** A dedicated logger for the consumer */
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
     /** The codec */
     private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
@@ -228,22 +231,40 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 connection.addConnectionClosedEventListener( this );
             }
 
-            // Do a bind
-            try
+            // Try to connect
+            if ( connection.connect() )
             {
-                connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
-                disconnected = false;
-                return true;
+                CONSUMER_LOG.info( "Consumer {} connected to producer {}", config.getReplicaId(), config.getProducer() );
+
+                // Do a bind
+                try
+                {
+                    connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
+                    disconnected = false;
+                    
+                    return true;
+                }
+                catch ( LdapException le )
+                {
+                    CONSUMER_LOG.warn( "Failed to bind to the producer {} with the given bind Dn {}", config.getProducer(), config.getReplUserDn() );
+                    LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
+                    LOG.warn( "", le );
+                    disconnected = true;
+                }
             }
-            catch ( LdapException le )
+            else
             {
-                LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
-                LOG.warn( "", le );
+                CONSUMER_LOG.warn( "Consumer {} cannot connect to producer {}", config.getReplicaId(), config.getProducer() );
+                disconnected = true;
+
+                return false;
             }
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to bind with the given bindDN and credentials", e );
+            CONSUMER_LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
+            LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
+            disconnected = true;
         }
 
         return false;
@@ -535,6 +556,49 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * {@inheritDoc}
      */
+    public void ping()
+    {
+        boolean connected = !disconnected;
+        
+        if ( disconnected )
+        {
+            connected = connect();
+        }
+
+        if ( connected )
+        {
+            CONSUMER_LOG.debug( "PING : The consumer {} is alive", config.getReplicaId() );
+
+            try
+            {
+                Entry baseDn = connection.lookup( config.getBaseDn(), "1.1" );
+                
+                if ( baseDn == null )
+                {
+                    // Cannot get the entry : this is bad, but possible
+                    CONSUMER_LOG.debug( "Cannot fetch '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                }
+                else
+                {
+                    CONSUMER_LOG.debug( "Fetched '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                }
+            }
+            catch ( LdapException le )
+            {
+                // Error : we must disconnect
+                disconnect();
+            }
+        }
+        else
+        {
+            CONSUMER_LOG.debug( "PING : The consumer {} cannot be connected", config.getReplicaId() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean connect( boolean now )
     {
         boolean connected = false;
@@ -572,8 +636,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     public void stop()
     {
-        disconnect();
-        nbAdded.getAndSet( 0 );
+        if ( !disconnected )
+        {
+            disconnect();
+            nbAdded.getAndSet( 0 );
+        }
     }
 
 
@@ -674,33 +741,41 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     public void disconnect()
     {
         disconnected = true;
-
-        try
+        
+        if ( connection == null )
         {
-            if ( refreshThread != null )
+            return;
+        }
+        
+        if ( connection.isConnected() )
+        {
+            try
             {
-                refreshThread.stopRefreshing();
+                if ( refreshThread != null )
+                {
+                    refreshThread.stopRefreshing();
+                }
+    
+                connection.unBind();
+                LOG.info( "Unbound from the server {}", config.getRemoteHost() );
+    
+                connection.close();
+                LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
+    
+                connection = null;
             }
-
-            connection.unBind();
-            LOG.info( "Unbound from the server {}", config.getRemoteHost() );
-
-            connection.close();
-            LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
-
-            connection = null;
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Failed to close the connection", e );
-        }
-        finally
-        {
-            // persist the cookie
-            storeCookie();
-            
-            // reset the cookie
-            syncCookie = null;
+            catch ( Exception e )
+            {
+                LOG.error( "Failed to close the connection", e );
+            }
+            finally
+            {
+                // persist the cookie
+                storeCookie();
+                
+                // reset the cookie
+                syncCookie = null;
+            }
         }
     }
 
