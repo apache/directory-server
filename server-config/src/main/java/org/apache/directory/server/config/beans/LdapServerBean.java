@@ -46,6 +46,10 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(attributeType = "ads-maxTimeLimit")
     private int maxTimeLimit;
 
+    /** The maximum size of an incoming PDU */
+    @ConfigurationElement(attributeType = "ads-maxPDUSize")
+    private int maxPDUSize = 2048;
+    
     /** The SASL host */
     @ConfigurationElement(attributeType = "ads-saslHost")
     private String saslHost;
@@ -361,6 +365,24 @@ public class LdapServerBean extends DSBasedServerBean
             this.replConsumers.add( bean );
         }
     }
+    
+
+    /**
+     * @return the maxPDUSize
+     */
+    public int getMaxPDUSize()
+    {
+        return maxPDUSize;
+    }
+
+
+    /**
+     * @param maxPDUSize the maxPDUSize to set
+     */
+    public void setMaxPDUSize( int maxPDUSize )
+    {
+        this.maxPDUSize = maxPDUSize;
+    }
 
 
     /**
@@ -374,6 +396,7 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( super.toString( tabs + "  " ) );
         sb.append( tabs ).append( "  max size limit : " ).append( maxSizeLimit ).append( '\n' );
         sb.append( tabs ).append( "  max time limit : " ).append( maxTimeLimit ).append( '\n' );
+        sb.append( "  max PDU size : " ).append( maxPDUSize ).append( '\n' );
         sb.append( toString( tabs, "  certificate password", certificatePassword ) );
         sb.append( toString( tabs, "  keystore file", keystoreFile ) );
         sb.append( toString( tabs, "  sasl principal", saslPrincipal ) );

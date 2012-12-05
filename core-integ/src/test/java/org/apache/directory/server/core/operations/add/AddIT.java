@@ -103,16 +103,18 @@ public class AddIT extends AbstractLdapTestUnit
             "ObjectClass: ads-directoryService",
             "ads-directoryServiceId: test",
             "ads-dsReplicaId: test",
-            "ads-interceptors: test",
-            "ads-partitions: test",
-            "ads-dsMaxPDUSize: 2147483648"
+            "ads-dsDenormalizeOpAttrsEnabled: TRUE",
+            "ads-dsAccessControlEnabled: TRUE",
+            "ads-dsAllowAnonymousAccess: TRUE",
+            "ads-dsPasswordHidden: TRUE",
+            "ads-dsSyncPeriodMillis: 2147483648"
             );
 
         connection.add( entry );
 
         entry = connection.lookup( dn );
 
-        assertEquals( "2147483648", entry.get( "ads-dsMaxPDUSize" ).getString() );
+        assertEquals( "2147483648", entry.get( "ads-dsSyncPeriodMillis" ).getString() );
 
         getService().shutdown();
 
@@ -124,6 +126,6 @@ public class AddIT extends AbstractLdapTestUnit
 
         entry = connection.lookup( dn );
 
-        assertEquals( "2147483648", entry.get( "ads-dsMaxPDUSize" ).getString() );
+        assertEquals( "2147483648", entry.get( "ads-dsSyncPeriodMillis" ).getString() );
     }
 }

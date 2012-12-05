@@ -925,6 +925,9 @@ public class ServiceBuilder
 
         // Max time limit
         ldapServer.setMaxTimeLimit( ldapServerBean.getLdapServerMaxTimeLimit() );
+        
+        // MaxPDUSize
+        ldapServer.setMaxPDUSize( ldapServerBean.getMaxPDUSize() );
 
         // Sasl Host
         ldapServer.setSaslHost( ldapServerBean.getLdapServerSaslHost() );
@@ -1379,9 +1382,6 @@ public class ServiceBuilder
         {
             directoryService.setJournal( journal );
         }
-
-        // MaxPDUSize
-        directoryService.setMaxPDUSize( directoryServiceBean.getDsMaxPDUSize() );
 
         // PasswordHidden
         directoryService.setPasswordHidden( directoryServiceBean.isDsPasswordHidden() );

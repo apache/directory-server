@@ -174,6 +174,9 @@ public class LdapServer extends DirectoryBackedService
      */
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT;
 
+    /** The maximum size for an incoming PDU */
+    private int maxPDUSize = Integer.MAX_VALUE;
+
     /** If LDAPS is activated : the external Keystore file, if defined */
     private String keystoreFile;
 
@@ -1648,8 +1651,33 @@ public class LdapServer extends DirectoryBackedService
     {
         return keyManagerFactory;
     }
+    
+    
+    /**
+     * @return The maximum allowed size for an incoming PDU
+     */
+    public int getMaxPDUSize()
+    {
+        return maxPDUSize;
+    }
 
 
+    /**
+     * Set the maximum allowed size for an incoming PDU
+     * @param maxPDUSize A positive number of bytes for the PDU. A negative or
+     * null value will be transformed to {@link Integer#MAX_VALUE}
+     */
+    public void setMaxPDUSize( int maxPDUSize )
+    {
+        if ( maxPDUSize <= 0 )
+        {
+            maxPDUSize = Integer.MAX_VALUE;
+        }
+
+        this.maxPDUSize = maxPDUSize;
+    }
+
+    
     /**
      * @see Object#toString()
      */

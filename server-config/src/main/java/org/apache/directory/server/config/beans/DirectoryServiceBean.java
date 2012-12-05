@@ -54,10 +54,6 @@ public class DirectoryServiceBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-dsDenormalizeOpAttrsEnabled")
     private boolean dsDenormalizeOpAttrsEnabled = true;
 
-    /** The maximum size of an incoming PDU */
-    @ConfigurationElement(attributeType = "ads-dsMaxPDUSize")
-    private int dsMaxPDUSize = 2048;
-
     /** The flag that tells if the password should be returned as a normal attribute or not */
     @ConfigurationElement(attributeType = "ads-dsPasswordHidden", isOptional = true, defaultValue = "false")
     private boolean dsPasswordHidden = false;
@@ -230,24 +226,6 @@ public class DirectoryServiceBean extends AdsBaseBean
     public void setDsDenormalizeOpAttrsEnabled( boolean dsDenormalizeOpAttrsEnabled )
     {
         this.dsDenormalizeOpAttrsEnabled = dsDenormalizeOpAttrsEnabled;
-    }
-
-
-    /**
-     * @return the dsMaxPDUSize
-     */
-    public int getDsMaxPDUSize()
-    {
-        return dsMaxPDUSize;
-    }
-
-
-    /**
-     * @param dsMaxPDUSize the dsMaxPDUSize to set
-     */
-    public void setDsMaxPDUSize( int dsMaxPDUSize )
-    {
-        this.dsMaxPDUSize = dsMaxPDUSize;
     }
 
 
@@ -537,7 +515,6 @@ public class DirectoryServiceBean extends AdsBaseBean
         sb.append( toString( "  ", "allow anonymous access", dsAllowAnonymousAccess ) );
         sb.append( toString( "  ", "denormalized attributes enabled", dsDenormalizeOpAttrsEnabled ) );
         sb.append( toString( "  ", "password hidden", dsPasswordHidden ) );
-        sb.append( "  max PDU size : " ).append( dsMaxPDUSize ).append( '\n' );
         sb.append( "  sync period millisecond : " ).append( dsSyncPeriodMillis ).append( '\n' );
         sb.append( toString( "  ", "test entries", dsTestEntries ) );
 
