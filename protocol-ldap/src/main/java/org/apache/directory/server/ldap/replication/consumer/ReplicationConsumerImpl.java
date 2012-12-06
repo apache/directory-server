@@ -128,9 +128,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /** flag to indicate whether the consumer was disconnected */
     private boolean disconnected;
 
-    /** A field used to tell the RefreshOnly method it should stop */
-    private volatile boolean stop = false;
-
     /** the core session */
     private CoreSession session;
 
@@ -543,25 +540,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         
         // Cleanup
         disconnected = true;
-
-        try
-        {
-            stopRefreshing();
-
-            connection = null;
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Failed to close the connection", e );
-        }
-        finally
-        {
-            // persist the cookie
-            storeCookie();
-            
-            // reset the cookie
-            syncCookie = null;
-        }
+        connection = null;
+        
+        // persist the cookie
+        storeCookie();
+        
+        // reset the cookie
+        syncCookie = null;
         
         return;
     }
@@ -600,7 +585,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     
     private ReplicationStatusEnum doRefreshOnly()
     {
-        while ( !stop )
+        while ( !disconnected )
         {
             LOG.debug( "==================== Refresh Only ==========" );
 
@@ -891,8 +876,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             try
             {
-                stopRefreshing();
-    
                 connection.unBind();
                 LOG.info( "Unbound from the server {}", config.getProducer() );
                 
@@ -1367,7 +1350,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void stopRefreshing()
     {
-        stop = true;
+        disconnect();
     }
     
     
