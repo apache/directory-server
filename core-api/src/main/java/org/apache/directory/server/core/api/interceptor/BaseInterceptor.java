@@ -82,12 +82,21 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** The CollectiveExclusions AttributeType */
     protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
+    
+    /** A storage for the createTimestamp attributeType */
+    protected static AttributeType CREATE_TIMESTAMP_AT;
+    
+    /** A storage for the creatorsName attributeType */
+    protected static AttributeType CREATORS_NAME_AT;
 
     /** A storage for the entryACI attributeType */
     protected static AttributeType ENTRY_ACI_AT;
 
     /** A reference to the EntryCSN AT */
     protected static AttributeType ENTRY_CSN_AT;
+
+    /** A reference to the EntryDN AT */
+    protected static AttributeType ENTRY_DN_AT;
 
     /** A reference to the EntryUUID AT */
     protected static AttributeType ENTRY_UUID_AT;
@@ -338,8 +347,11 @@ public abstract class BaseInterceptor implements Interceptor
         COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
         COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
+        CREATORS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
+        CREATE_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT );
         ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
         MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
