@@ -32,9 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.ssl.KeyManagerFactory;
 
@@ -102,7 +100,6 @@ import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.util.Strings;
-import org.apache.log4j.NDC;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;
@@ -118,6 +115,7 @@ import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 
 /**
@@ -710,8 +708,7 @@ public class LdapServer extends DirectoryBackedService
                             {
                                 if ( CONSUMER_LOG.isDebugEnabled() )
                                 {
-                                    NDC.pop();
-                                    NDC.push( consumer.getId() );
+                                    MDC.put( "Replica", consumer.getId() );
                                 }
                                 
                                 LOG.info( "starting the replication consumer with {}", consumer );
