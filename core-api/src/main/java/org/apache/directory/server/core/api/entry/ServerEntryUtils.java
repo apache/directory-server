@@ -35,6 +35,8 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -49,8 +51,10 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.EmptyEnumeration;
 import org.apache.directory.shared.util.Strings;
 
@@ -724,6 +728,133 @@ public class ServerEntryUtils
         else
         {
             return null;
+        }
+    }
+    
+    
+    /**
+     * Filters an entry accordingly to the requested Attribute list.
+     * 
+     * @param entry The entry to filter
+     * @param operationContext The SearchingOperationContext
+     * @throws Exception If the filtering fails
+     */
+    public static void filterContents( Entry entry, SearchingOperationContext operationContext ) throws Exception
+    {
+        boolean typesOnly = operationContext.isTypesOnly();
+
+        boolean returnAll = ( operationContext.getReturningAttributes() == null ||
+            ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() ) )
+            && ( !typesOnly );
+
+        if ( returnAll )
+        {
+            return;
+        }
+
+        Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+
+        if ( operationContext.isNoAttributes() )
+        {
+            for ( Attribute attribute : originalEntry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                entry.remove( entry.get( attributeType ) );
+            }
+
+            return;
+        }
+
+        if ( operationContext.isAllUserAttributes() )
+        {
+            for ( Attribute attribute : originalEntry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                boolean isNotRequested = true;
+
+                for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+
+                boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
+
+                if ( isNotRequested && isNotUserAttribute )
+                {
+                    entry.removeAttributes( attributeType );
+                }
+                else if ( typesOnly )
+                {
+                    entry.get( attributeType ).clear();
+                }
+            }
+
+            return;
+        }
+
+        if ( operationContext.isAllOperationalAttributes() )
+        {
+            for ( Attribute attribute : originalEntry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                boolean isNotRequested = true;
+
+                for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+
+                boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
+
+                if ( isNotRequested && isUserAttribute )
+                {
+                    entry.removeAttributes( attributeType );
+                }
+                else if ( typesOnly )
+                {
+                    entry.get( attributeType ).clear();
+                }
+            }
+
+            return;
+        }
+
+        if ( operationContext.getReturningAttributes() != null )
+        {
+            for ( Attribute attribute : originalEntry.getAttributes() )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                boolean isNotRequested = true;
+
+                for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
+                {
+                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
+                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    {
+                        isNotRequested = false;
+                        break;
+                    }
+                }
+
+                if ( isNotRequested )
+                {
+                    entry.removeAttributes( attributeType );
+                }
+                else if ( typesOnly )
+                {
+                    entry.get( attributeType ).clear();
+                }
+            }
         }
     }
 }

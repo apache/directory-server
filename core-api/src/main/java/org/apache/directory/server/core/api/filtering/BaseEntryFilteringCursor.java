@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -353,126 +354,6 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     }
 
 
-    private void filterContents( Entry entry ) throws Exception
-    {
-        boolean typesOnly = getOperationContext().isTypesOnly();
-
-        boolean returnAll = ( getOperationContext().getReturningAttributes() == null ||
-            ( getOperationContext().isAllOperationalAttributes() && getOperationContext().isAllUserAttributes() ) )
-            && ( !typesOnly );
-
-        if ( returnAll )
-        {
-            return;
-        }
-
-        Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
-
-        if ( getOperationContext().isNoAttributes() )
-        {
-            for ( Attribute attribute : originalEntry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                entry.remove( entry.get( attributeType ) );
-            }
-
-            return;
-        }
-
-        if ( getOperationContext().isAllUserAttributes() )
-        {
-            for ( Attribute attribute : originalEntry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                boolean isNotRequested = true;
-
-                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
-                {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
-                    {
-                        isNotRequested = false;
-                        break;
-                    }
-                }
-
-                boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
-
-                if ( isNotRequested && isNotUserAttribute )
-                {
-                    entry.removeAttributes( attributeType );
-                }
-                else if ( typesOnly )
-                {
-                    entry.get( attributeType ).clear();
-                }
-            }
-
-            return;
-        }
-
-        if ( getOperationContext().isAllOperationalAttributes() )
-        {
-            for ( Attribute attribute : originalEntry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                boolean isNotRequested = true;
-
-                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
-                {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
-                    {
-                        isNotRequested = false;
-                        break;
-                    }
-                }
-
-                boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
-
-                if ( isNotRequested && isUserAttribute )
-                {
-                    entry.removeAttributes( attributeType );
-                }
-                else if ( typesOnly )
-                {
-                    entry.get( attributeType ).clear();
-                }
-            }
-
-            return;
-        }
-
-        if ( getOperationContext().getReturningAttributes() != null )
-        {
-            for ( Attribute attribute : originalEntry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-                boolean isNotRequested = true;
-
-                for ( AttributeTypeOptions attrOptions : getOperationContext().getReturningAttributes() )
-                {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
-                    {
-                        isNotRequested = false;
-                        break;
-                    }
-                }
-
-                if ( isNotRequested )
-                {
-                    entry.removeAttributes( attributeType );
-                }
-                else if ( typesOnly )
-                {
-                    entry.get( attributeType ).clear();
-                }
-            }
-        }
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -519,14 +400,16 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                filterContents( prefetched );
+                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+                
                 return true;
             }
 
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
-                filterContents( prefetched );
+                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+
                 return true;
             }
 
@@ -544,12 +427,13 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            filterContents( prefetched );
+            ServerEntryUtils.filterContents( prefetched, getOperationContext() );
 
             return true;
         }
 
         prefetched = null;
+        
         return false;
     }
 
@@ -591,14 +475,16 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                filterContents( prefetched );
+                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+
                 return true;
             }
 
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
             {
                 prefetched = tempResult;
-                filterContents( prefetched );
+                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+
                 return true;
             }
 
@@ -617,7 +503,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            filterContents( prefetched );
+            ServerEntryUtils.filterContents( prefetched, getOperationContext() );
 
             return true;
         }
@@ -638,7 +524,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         if ( wrapped != null )
         {
             sb.append( tabs ).append( "BaseEntryFilteringCursor, wrapped : \n" );
-            sb.append( wrapped.toString( tabs + "    " ) ).append( "\n" );
+            sb.append( wrapped.toString( tabs + "    " ) );
         }
         else
         {
