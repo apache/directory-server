@@ -495,7 +495,7 @@ public class ClonedServerEntry implements Entry
      */
     public String toString()
     {
-        return clonedEntry.toString();
+        return toString( "" );
     }
 
 
