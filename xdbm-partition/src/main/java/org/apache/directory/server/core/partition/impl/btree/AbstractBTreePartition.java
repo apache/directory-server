@@ -769,7 +769,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    public Entry delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         try
         {
@@ -802,9 +802,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // We now defer the deletion to the implementing class
-            delete( id );
+            Entry deletedEntry = delete( id );
             
             updateCache( deleteContext );
+            
+            return deletedEntry;
         }
         catch ( LdapException le )
         {
@@ -867,9 +869,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Delete the entry associated with a given Id
      * @param id The id of the entry to delete
+     * @return the deleted entry if found
      * @throws Exception If the deletion failed
      */
-    public void delete( String id ) throws LdapException
+    public Entry delete( String id ) throws LdapException
     {
         try
         {
@@ -951,6 +954,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 sync();
             }
+            
+            return entry;
         }
         catch ( Exception e )
         {
@@ -1183,34 +1188,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             lockRead();
-            Entry entry = lookupCache( id );
-            
-            if( entry != null )
-            {
-                return new ClonedServerEntry( entry );
-            }
-            
-            entry = master.get( id );
-
-            if ( entry != null )
-            {
-                // We have to store the DN in this entry
-                Dn dn = buildEntryDn( id );
-
-                if ( dn == null )
-                {
-                    // No dn : we probably have removed the RDNs for this entry
-                    return null;
-                }
-
-                entry.setDn( dn );
-
-                addToCache( id, entry );
-                
-                return new ClonedServerEntry( entry );
-            }
-
-            return null;
+            Dn dn = buildEntryDn( id );
+    
+            return lookup( id, dn );
         }
         catch ( Exception e )
         {
@@ -1267,6 +1247,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
 
                 addToCache( id, entry );
+                
                 return new ClonedServerEntry( entry );
             }
 

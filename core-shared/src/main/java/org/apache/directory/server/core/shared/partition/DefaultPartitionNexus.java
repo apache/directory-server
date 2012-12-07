@@ -501,10 +501,10 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    public Entry delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Partition partition = getPartition( deleteContext.getDn() );
-        partition.delete( deleteContext );
+        Entry deletedEntry = partition.delete( deleteContext );
         
         Entry entry = deleteContext.getEntry();
         Attribute csn = entry.get( ENTRY_CSN_AT );
@@ -514,6 +514,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             directoryService.setContextCsn( csn.getString() );
         }
+        
+        return deletedEntry;
     }
 
 

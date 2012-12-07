@@ -157,9 +157,10 @@ public interface Partition
      *
      * @param deleteContext the context of the entry to
      * delete from this ContextPartition.
+     * @return The delete Entry, if found
      * @throws Exception if there are any problems
      */
-    void delete( DeleteOperationContext deleteContext ) throws LdapException;
+    Entry delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**

@@ -108,7 +108,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     {
         connection.add(
             new DefaultEntry(
-                "cn=" + name + ",ou=groups, ou=system",
+                "cn=" + name + ",ou=groups,ou=system",
                 "objectClass: top",
                 "objectClass: posixGroup",
                 "cn", name,

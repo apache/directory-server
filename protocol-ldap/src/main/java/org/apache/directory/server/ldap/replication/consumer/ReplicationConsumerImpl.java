@@ -135,6 +135,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private static final String[] MOD_IGNORE_AT = new String[]
         {
             SchemaConstants.ENTRY_UUID_AT, 
+            SchemaConstants.ENTRY_DN_AT, 
             SchemaConstants.CREATE_TIMESTAMP_AT, 
             SchemaConstants.CREATORS_NAME_AT, 
             SchemaConstants.ENTRY_PARENT_ID_AT,

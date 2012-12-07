@@ -318,9 +318,10 @@ public interface Store
      * Delete an entry from the store
      *
      * @param id The Entry UUID we want to delete
+     * @return the deleted entry if found
      * @throws Exception If the deletion failed for any reason
      */
-    void delete( String id ) throws Exception;
+    Entry delete( String id ) throws Exception;
 
 
     /**
