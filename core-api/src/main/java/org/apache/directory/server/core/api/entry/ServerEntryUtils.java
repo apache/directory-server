@@ -35,7 +35,6 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;

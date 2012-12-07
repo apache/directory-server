@@ -29,7 +29,6 @@ import java.util.EventObject;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventDirContext;
 import javax.naming.event.NamespaceChangeListener;
@@ -43,7 +42,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

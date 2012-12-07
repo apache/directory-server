@@ -126,6 +126,7 @@ public class IntegrationUtils
             {
                 String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
                 LOG.error( message );
+                reader.close();
                 throw new NamingException( message );
             }
         }

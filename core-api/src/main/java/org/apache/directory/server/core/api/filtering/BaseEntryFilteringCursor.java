@@ -32,12 +32,8 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
-import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -50,7 +50,6 @@ import org.apache.directory.server.xdbm.Index;
 public @interface CreateIndex
 {
     /** The index implementation class */
-    @SuppressWarnings("unchecked")
     Class<? extends Index> type() default Index.class;
 
 

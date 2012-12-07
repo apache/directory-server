@@ -174,6 +174,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         LdifEntry numberOfGunsAttrEntry = ldifReader.next();
         LdifEntry shipOCEntry = ldifReader.next();
         assertFalse( ldifReader.hasNext() );
+        ldifReader.close();
 
         // should be fine with unique OID
         getService().getAdminSession().add(

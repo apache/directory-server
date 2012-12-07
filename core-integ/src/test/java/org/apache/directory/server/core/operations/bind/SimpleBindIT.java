@@ -20,44 +20,22 @@
 package org.apache.directory.server.core.operations.bind;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Hashtable;
-
-/*
-import javax.naming.AuthenticationException;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-*/
 
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

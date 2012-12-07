@@ -41,7 +41,6 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.util.Strings;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
