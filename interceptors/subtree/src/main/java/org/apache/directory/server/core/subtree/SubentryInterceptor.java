@@ -137,6 +137,9 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private class HideSubentriesFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
@@ -148,6 +151,15 @@ public class SubentryInterceptor extends BaseInterceptor
             // see if we can use objectclass if present
             return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
         }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "HideSubentriesFilter";
+        }
     }
 
     /**
@@ -156,6 +168,9 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private class HideEntriesFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
@@ -166,6 +181,15 @@ public class SubentryInterceptor extends BaseInterceptor
 
             // see if we can use objectclass if present
             return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "HideEntriesFilter";
         }
     }
 

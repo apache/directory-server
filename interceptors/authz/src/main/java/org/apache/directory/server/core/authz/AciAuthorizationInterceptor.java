@@ -1457,11 +1457,23 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private class AuthorizationFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
         {
             Dn normName = entry.getDn().apply( schemaManager );
 
             return filter( searchContext, normName, entry );
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "AuthorizationFilter";
         }
     }
 

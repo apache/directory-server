@@ -52,6 +52,9 @@ public class DelayInducingInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next( searchContext );
         cursor.addEntryFilter( new EntryFilter()
         {
+            /**
+             * {@inheritDoc}
+             */
             public boolean accept( SearchingOperationContext operation, Entry result ) throws Exception
             {
                 if ( delayMillis != null )
@@ -60,6 +63,15 @@ public class DelayInducingInterceptor extends BaseInterceptor
                 }
 
                 return true;
+            }
+            
+            
+            /**
+             * {@inheritDoc}
+             */
+            public String toString( String tabs )
+            {
+                return tabs + "DelayInducingFilter";
             }
         } );
 

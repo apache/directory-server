@@ -104,6 +104,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     private class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             if ( operation.getReturningAttributesString() == null )
@@ -113,6 +116,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             return filterDenormalized( entry );
         }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "OperationalAttributeDenormalizingSearchFilter";
+        }
     }
 
     /**
@@ -120,10 +132,22 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     private class OperationalAttributeSearchFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             return operation.getReturningAttributesString() != null
                 || filterOperationalAttributes( entry );
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "OperationalAttributeSearchFilter";
         }
     }
 

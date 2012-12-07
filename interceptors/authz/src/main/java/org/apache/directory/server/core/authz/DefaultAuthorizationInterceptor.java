@@ -93,9 +93,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
      */
     private class DefaultAuthorizationSearchFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "DefaultAuthorizationSearchFilter";
         }
     }
 

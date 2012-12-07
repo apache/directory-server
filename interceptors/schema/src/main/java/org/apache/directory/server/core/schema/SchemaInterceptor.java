@@ -1067,11 +1067,23 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class BinaryAttributeFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterBinaryAttributes( entry );
 
             return true;
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "BinaryAttributeFilter";
         }
     }
 
@@ -1080,11 +1092,23 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private class TopFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             filterAttributeTypes( operation, entry );
 
             return true;
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "TopFilter";
         }
     }
 

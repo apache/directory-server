@@ -85,12 +85,24 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      */
     private class CollectiveAttributeFilter implements EntryFilter
     {
+        /**
+         * {@inheritDoc}
+         */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
             String[] retAttrs = operation.getReturningAttributesString();
             addCollectiveAttributes( operation, entry, retAttrs );
 
             return true;
+        }
+        
+        
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "CollectiveAttributeFilter";
         }
     }
 
