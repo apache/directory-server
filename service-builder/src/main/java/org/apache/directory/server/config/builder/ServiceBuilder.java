@@ -1244,6 +1244,16 @@ public class ServiceBuilder
                     LdifEntry entry = entries.get( 0 );
                     jdbmPartition.setContextEntry( entry.getEntry() );
                 }
+                
+                try
+                {
+                    ldifReader.close();;
+                }
+                catch (IOException ioe )
+                {
+                    LOG.error( "Cannot close the ldif reader" );
+                }
+                
             }
             catch ( LdapLdifException lle )
             {

@@ -201,11 +201,45 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     }
 
 
-    /* 
-     * @see Cursor#previous()
+    /**
+     * {@inheritDoc}
      */
     public boolean previous() throws Exception
     {
         return indexCursor.previous();
+    }
+    
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append( tabs ).append( "EntryCursorAdaptor\n" );
+        
+        if ( indexCursor != null )
+        {
+            sb.append( tabs ).append( "    " ).append( "IndexCursor : \n" );
+            sb.append( indexCursor.toString( tabs + "        " ) );
+        }
+        
+        if ( evaluator != null )
+        {
+            sb.append( tabs ).append( "    " ).append( "Evaluator : \n" );
+            sb.append( evaluator.toString( tabs + "        " ) );
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

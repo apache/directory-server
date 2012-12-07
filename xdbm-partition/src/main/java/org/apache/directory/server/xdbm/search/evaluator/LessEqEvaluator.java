@@ -105,11 +105,6 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
             indexEntry.setEntry( entry );
         }
 
-        if ( null == entry )
-        {
-            return false;
-        }
-
         // get the attribute
         Attribute attr = entry.get( attributeType );
 
