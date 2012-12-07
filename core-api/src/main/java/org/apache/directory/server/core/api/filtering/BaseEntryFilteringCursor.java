@@ -626,4 +626,59 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
         return false;
     }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        if ( wrapped != null )
+        {
+            sb.append( tabs ).append( "BaseEntryFilteringCursor, wrapped : \n" );
+            sb.append( wrapped.toString( tabs + "    " ) ).append( "\n" );
+        }
+        else
+        {
+            sb.append( tabs ).append( "BaseEntryFilteringCursor, no wrapped\n" );
+        }
+        
+        if ( ( filters != null ) && ( filters.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "Filters : \n" );
+            
+            for ( EntryFilter filter : filters )
+            {
+                sb.append( filter.toString( tabs + "    " ) ).append( "\n" );
+            }
+        }
+        else
+        {
+            sb.append( tabs ).append( "No filter\n" );
+        }
+        
+        
+        if ( prefetched != null )
+        {
+            sb.append( tabs ).append( "Prefetched : \n" );
+            sb.append( prefetched.toString( tabs + "    " ) );
+        }
+        else
+        {
+            sb.append( tabs ).append( "No prefetched" );
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
+    }
 }

@@ -490,8 +490,20 @@ public class ClonedServerEntry implements Entry
     }
 
 
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
         return clonedEntry.toString();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString( String tabs )
+    {
+        return clonedEntry.toString( tabs );
     }
 }

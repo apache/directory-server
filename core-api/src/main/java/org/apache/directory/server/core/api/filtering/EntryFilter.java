@@ -48,4 +48,12 @@ public interface EntryFilter
      * @throws Exception if there are failures during evaluation
      */
     boolean accept( SearchingOperationContext operation, Entry result ) throws Exception;
+    
+    
+    /**
+     * The pretty-printer for this class
+     * @param tabs The tabs to add before each line
+     * @return The pretty-printed instance
+     */
+    String toString( String tabs );
 }
