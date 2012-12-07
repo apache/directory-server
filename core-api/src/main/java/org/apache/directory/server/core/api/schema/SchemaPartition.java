@@ -326,7 +326,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( DeleteOperationContext deleteContext ) throws LdapException
+    public Entry delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         boolean cascade = deleteContext.hasRequestControl( Cascade.OID );
 
@@ -340,10 +340,11 @@ public final class SchemaPartition extends AbstractPartition
 
         // The SchemaObject always exist when we reach this method.
         synchronizer.delete( deleteContext, cascade );
+        Entry deletedEntry = null;
 
         try
         {
-            wrapped.delete( deleteContext );
+            deletedEntry = wrapped.delete( deleteContext );
         }
         catch ( LdapException e )
         {
@@ -352,6 +353,8 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         updateSchemaModificationAttributes( deleteContext );
+        
+        return deletedEntry;
     }
 
 
