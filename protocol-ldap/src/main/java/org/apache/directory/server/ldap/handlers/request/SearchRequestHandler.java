@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.ReferralManager;
-import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;

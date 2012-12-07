@@ -265,15 +265,13 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( String id ) throws LdapException
+    public Entry delete( String id ) throws LdapException
     {
-        Entry entry = lookup( id );
+        Entry deletedEntry = super.delete( id );
 
-        super.delete( id );
-
-        if ( entry != null )
+        if ( deletedEntry != null )
         {
-            File ldifFile = getFile( entry.getDn(), DELETE );
+            File ldifFile = getFile( deletedEntry.getDn(), DELETE );
 
             boolean deleted = deleteFile( ldifFile );
 
@@ -289,6 +287,8 @@ public class LdifPartition extends AbstractLdifPartition
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
         }
+        
+        return deletedEntry;
     }
 
 

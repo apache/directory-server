@@ -162,12 +162,15 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
                 "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system\n\n";
     
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
+        
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
             getLdapServer().getDirectoryService().getAdminSession().add(
                 new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
         }
+
+        reader.close();
     }
     
     

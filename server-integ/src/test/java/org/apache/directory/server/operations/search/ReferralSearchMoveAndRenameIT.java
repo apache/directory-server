@@ -146,6 +146,8 @@ public class ReferralSearchMoveAndRenameIT extends AbstractLdapTestUnit
             getLdapServer().getDirectoryService().getAdminSession().add(
                 new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
         }
+        
+        reader.close();
     }
     
     

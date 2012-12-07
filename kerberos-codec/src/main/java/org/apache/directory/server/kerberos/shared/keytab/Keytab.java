@@ -194,6 +194,7 @@ public class Keytab
         // Check to ensure that file is not larger than Integer.MAX_VALUE.
         if ( length > Integer.MAX_VALUE )
         {
+            is.close();
             throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
         }
 
@@ -211,11 +212,13 @@ public class Keytab
         // Ensure all the bytes have been read in.
         if ( offset < bytes.length )
         {
+            is.close();
             throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
         }
 
         // Close the input stream and return bytes.
         is.close();
+        
         return bytes;
     }
 
@@ -230,11 +233,13 @@ public class Keytab
     protected void writeFile( IoBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        FileChannel wChannel = new FileOutputStream( file, false ).getChannel();
+        FileOutputStream fos = new FileOutputStream( file, false );
+        FileChannel wChannel = fos.getChannel();
 
         // Write the bytes between the position and limit.
         wChannel.write( buffer.buf() );
 
         wChannel.close();
+        fos.close();
     }
 }

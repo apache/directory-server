@@ -26,8 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.directory.shared.util.DateUtils;
-
 
 /**
  * NTP timestamps are represented as a 64-bit unsigned fixed-point number,

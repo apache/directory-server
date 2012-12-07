@@ -25,7 +25,6 @@ import java.security.SecureRandom;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;

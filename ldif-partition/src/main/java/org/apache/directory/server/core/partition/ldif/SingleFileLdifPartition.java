@@ -137,6 +137,8 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
         if ( !itr.hasNext() )
         {
+            parser.close();
+            
             return;
         }
 
@@ -153,6 +155,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
         else
         {
+            parser.close();
             throw new LdapException( "The given LDIF file doesn't contain the context entry" );
         }
 
@@ -268,13 +271,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    public void delete( String id ) throws LdapException
+    public Entry delete( String id ) throws LdapException
     {
         synchronized ( lock )
         {
-            super.delete( id );
+            Entry deletedEntry = super.delete( id );
             dirty = true;
             rewritePartitionData();
+            
+            return deletedEntry;
         }
     }
 

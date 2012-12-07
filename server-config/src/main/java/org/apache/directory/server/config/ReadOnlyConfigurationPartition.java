@@ -111,6 +111,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             // Exiting if there's no entry
             if ( !itr.hasNext() )
             {
+                reader.close();
+                
                 return;
             }
 
@@ -127,6 +129,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             }
             else
             {
+                reader.close();
+
                 throw new LdapException( "The given LDIF file doesn't contain the context entry" );
             }
 

@@ -209,6 +209,8 @@ public class SingleFileLdifPartitionTest
         {
             RandomAccessFile rf = new RandomAccessFile( fileName, "rws" );
             rf.setLength( 0 );
+
+            rf.close();
         }
 
         SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager );
@@ -283,6 +285,8 @@ public class SingleFileLdifPartitionTest
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( getEntryLdifLen( contextEntry ), file.length() );
+        
+        file.close();
 
         partition = reloadPartition();
         assertExists( partition, contextEntry );
@@ -370,6 +374,8 @@ public class SingleFileLdifPartitionTest
         partition.modify( modOpCtx );
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
         assertEquals( getEntryLdifLen( modOpCtx.getAlteredEntry() ), file.length() );
+
+        file.close();
 
         // perform the above operation, this time without causing change to the entry's size
         modOpCtx = new ModifyOperationContext( mockSession );
@@ -555,6 +561,8 @@ public class SingleFileLdifPartitionTest
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( 0L, file.length() );
+
+        file.close();
 
         addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
@@ -861,6 +869,8 @@ public class SingleFileLdifPartitionTest
         // eable writing, this will let the partition write data back to disk
         partition.setEnableRewriting( false );
         assertTrue( getEntryLdifLen( contextEntry ) == file.length() );
+
+        file.close();
     }
 
 
