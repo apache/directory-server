@@ -233,7 +233,7 @@ public class SingleFileLdifPartitionTest
     private void assertExists( SingleFileLdifPartition partition, Entry entry ) throws LdapException
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
-        opCtx.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        opCtx.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         opCtx.setDn( entry.getDn() );
 
         Entry fetched = partition.lookup( opCtx );
@@ -375,8 +375,6 @@ public class SingleFileLdifPartitionTest
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
         assertEquals( getEntryLdifLen( modOpCtx.getAlteredEntry() ), file.length() );
 
-        file.close();
-
         // perform the above operation, this time without causing change to the entry's size
         modOpCtx = new ModifyOperationContext( mockSession );
         modOpCtx.setEntry( new ClonedServerEntry( contextEntry ) );
@@ -483,6 +481,8 @@ public class SingleFileLdifPartitionTest
         assertExists( partition, contextEntry );
         assertExists( partition, entry1 );
         assertExists( partition, entry2 );
+
+        file.close();
     }
 
 
