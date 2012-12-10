@@ -35,7 +35,7 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -736,14 +736,14 @@ public class ServerEntryUtils
      * 
      * @param entry The entry to filter
      * @param operationContext The SearchingOperationContext
-     * @throws Exception If the filtering fails
+     * @throws LdapException If the filtering fails
      */
-    public static void filterContents( Entry entry, SearchingOperationContext operationContext ) throws Exception
+    public static void filterContents( Entry entry, FilteringOperationContext operationContext ) throws LdapException
     {
         boolean typesOnly = operationContext.isTypesOnly();
 
         boolean returnAll = ( operationContext.getReturningAttributes() == null ||
-            ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() ) )
+            ( operationContext.hasAllOperationalAttributes() && operationContext.hasAllUserAttributes() ) )
             && ( !typesOnly );
 
         if ( returnAll )
@@ -764,7 +764,7 @@ public class ServerEntryUtils
             return;
         }
 
-        if ( operationContext.isAllUserAttributes() )
+        if ( operationContext.hasAllUserAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
@@ -796,7 +796,7 @@ public class ServerEntryUtils
             return;
         }
 
-        if ( operationContext.isAllOperationalAttributes() )
+        if ( operationContext.hasAllOperationalAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
