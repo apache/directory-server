@@ -388,7 +388,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             }
 
             // reset the noAttribute flag if it is already set cause that will be ignored if any other AT is requested
-            if ( noAttributes && ( allUserAttributes || allOperationalAttributes || ( !returningAttributes.isEmpty() ) ) )
+            if ( isNoAttributes() && ( isAllUserAttributes() || isAllOperationalAttributes() || ( !returningAttributes.isEmpty() ) ) )
             {
                 noAttributes = false;
             }
