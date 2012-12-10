@@ -678,8 +678,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // -----------------------------------------------------------
 
         Set<String> realIds = new HashSet<String>();
-        boolean allUserAttributes = searchContext.hasAllUserAttributes();
-        boolean allOperationalAttributes = searchContext.hasAllOperationalAttributes();
+        boolean allUserAttributes = searchContext.isAllUserAttributes();
+        boolean allOperationalAttributes = searchContext.isAllOperationalAttributes();
         boolean noAttribute = searchContext.isNoAttributes();
 
         for ( AttributeTypeOptions id : ids )

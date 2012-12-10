@@ -60,16 +60,16 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     protected String[] returningAttributesString;
 
     /** A flag set to true if the user has requested all the operational attributes ( "+" )*/
-    private Boolean allOperationalAttributes;
+    private boolean allOperationalAttributes;
 
     /** A flag set to true if the user has requested all the user attributes ( "*" ) */
-    private Boolean allUserAttributes;
+    private boolean allUserAttributes;
 
     /** A flag set to true if the user has requested no attribute to be returned (1.1) */
-    private Boolean noAttributes;
+    private boolean noAttributes;
 
     /** A flag to tell if only the attribute names to be returned. */
-    protected Boolean typesOnly = false;
+    protected boolean typesOnly = false;
 
 
     /**
@@ -429,18 +429,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @return The flag telling if the "*" attribute has been used
      */
-    public boolean hasAllUserAttributes()
-    {
-        return ( allUserAttributes != null );
-    }
-
-
-    /**
-     * @return The flag telling if the "*" attribute has been used
-     */
     public boolean isAllUserAttributes()
     {
-        return ( allUserAttributes != null ) && allUserAttributes;
+        return allUserAttributes;
     }
 
 
@@ -456,27 +447,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @return The flag telling if the "+" attribute has been used
      */
-    public boolean hasAllOperationalAttributes()
-    {
-        return ( allOperationalAttributes != null );
-    }
-
-
-    /**
-     * @return The flag telling if the "+" attribute has been used
-     */
     public boolean isAllOperationalAttributes()
     {
-        return ( allOperationalAttributes != null ) && allOperationalAttributes;
-    }
-
-
-    /**
-     * @return The flag telling if the "1.1" attribute has been used
-     */
-    public boolean hasNoAttributes()
-    {
-        return ( noAttributes != null );
+        return allOperationalAttributes;
     }
 
 
@@ -485,7 +458,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      */
     public boolean isNoAttributes()
     {
-        return ( noAttributes != null ) && ( noAttributes );
+        return noAttributes;
     }
 
     
@@ -531,17 +504,17 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             sb.append( ", type only" );
         }
         
-        if ( hasAllOperationalAttributes() )
+        if ( allOperationalAttributes )
         {
             sb.append( ", +" );
         }
 
-        if ( hasAllUserAttributes() )
+        if ( allUserAttributes )
         {
             sb.append( ", *" );
         }
 
-        if ( isNoAttributes() )
+        if ( noAttributes )
         {
             sb.append( ", 1.1" );
         }

@@ -524,7 +524,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = next( searchContext );
 
-        if ( searchContext.hasAllOperationalAttributes()
+        if ( searchContext.isAllOperationalAttributes()
             || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
         {
             if ( directoryService.isDenormalizeOpAttrsEnabled() )

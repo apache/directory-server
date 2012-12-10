@@ -743,7 +743,7 @@ public class ServerEntryUtils
         boolean typesOnly = operationContext.isTypesOnly();
 
         boolean returnAll = ( operationContext.getReturningAttributes() == null ||
-            ( operationContext.hasAllOperationalAttributes() && operationContext.hasAllUserAttributes() ) )
+            ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() ) )
             && ( !typesOnly );
 
         if ( returnAll )
@@ -764,7 +764,7 @@ public class ServerEntryUtils
             return;
         }
 
-        if ( operationContext.hasAllUserAttributes() )
+        if ( operationContext.isAllUserAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
@@ -796,7 +796,7 @@ public class ServerEntryUtils
             return;
         }
 
-        if ( operationContext.hasAllOperationalAttributes() )
+        if ( operationContext.isAllOperationalAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
