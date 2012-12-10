@@ -20,15 +20,13 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.Strings;
+import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -37,23 +35,8 @@ import org.apache.directory.shared.util.Strings;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LookupOperationContext extends AbstractOperationContext
+public class LookupOperationContext extends FilteringOperationContext
 {
-    private static final String[] EMPTY = new String[]
-        {};
-
-    /** The list of attributes id to return */
-    private List<String> attrsId = new ArrayList<String>();
-
-    /** A flag set to true if the user has requested all the operational attributes ( "+" )*/
-    private Boolean allOperational;
-
-    /** A flag set to true if the user has requested all the user attributes ( "*" ) */
-    private Boolean allUser;
-
-    /** A flag set to true if the user has requested no attribute to be returned */
-    private Boolean noAttribute;
-
     /** flag to indicate if this search is done for replication */
     private boolean syncreplLookup;
 
@@ -94,10 +77,36 @@ public class LookupOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( CoreSession session, String attrsId[] )
+    public LookupOperationContext( CoreSession session, String... returningAttributes )
     {
         super( session );
-        setAttrsId( attrsId );
+        
+        try
+        {
+            setReturningAttributes( returningAttributes );
+        }
+        catch ( LdapException le )
+        {
+            LOG.error( le.getMessage() );
+        }
+
+        if ( session != null )
+        {
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
+        }
+    }
+
+    
+
+
+    /**
+     * 
+     * Creates a new instance of LookupOperationContext.
+     *
+     */
+    public LookupOperationContext( CoreSession session, Set<AttributeTypeOptions> returningAttributes )
+    {
+        super( session, returningAttributes );
 
         if ( session != null )
         {
@@ -111,10 +120,18 @@ public class LookupOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupOperationContext( CoreSession session, Dn dn, String attrsId[] )
+    public LookupOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn );
-        setAttrsId( attrsId );
+        
+        try
+        {
+            setReturningAttributes( returningAttributes );
+        }
+        catch ( LdapException le )
+        {
+            LOG.error( le.getMessage() );
+        }
 
         if ( session != null )
         {
@@ -124,157 +141,18 @@ public class LookupOperationContext extends AbstractOperationContext
 
 
     /**
-     * @return Get the attribute ids as a String array
-     */
-    public String[] getAttrsIdArray()
-    {
-        if ( ( attrsId == null ) || ( attrsId.size() == 0 ) )
-        {
-            return EMPTY;
-        }
-        else
-        {
-            String[] attrs = new String[attrsId.size()];
-            return attrsId.toArray( attrs );
-        }
-    }
-
-
-    /**
-     * Set the attribute Ids
+     * 
+     * Creates a new instance of LookupOperationContext.
      *
-     * @param attrsId The String array containing all the attribute IDs
      */
-    public void setAttrsId( String[] attrsId )
+    public LookupOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
     {
-        if ( ( attrsId != null ) && ( attrsId.length > 0 ) )
+        super( session, dn, returningAttributes );
+
+        if ( session != null )
         {
-            this.attrsId = new ArrayList<String>( Arrays.asList( attrsId ) );
-            int nbNoAttribute = 0;
-
-            // filter out the '+' and '*' and set boolean parameters
-            for ( String id : this.attrsId )
-            {
-                if ( id.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                {
-                    allOperational = true;
-                }
-                else if ( id.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-                {
-                    allUser = true;
-                }
-                else if ( id.equals( SchemaConstants.NO_ATTRIBUTE ) )
-                {
-                    noAttribute = true;
-                    nbNoAttribute++;
-                }
-            }
-
-            if ( ( allOperational != null ) && allOperational )
-            {
-                this.attrsId.remove( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
-            }
-
-            if ( ( allUser != null ) && allUser )
-            {
-                this.attrsId.remove( SchemaConstants.ALL_USER_ATTRIBUTES );
-            }
-
-            if ( noAttribute != null )
-            {
-                if ( attrsId.length == nbNoAttribute )
-                {
-                    this.attrsId.clear();
-                }
-                else
-                {
-                    // We have to ignore the 1.1
-                    this.attrsId.remove( SchemaConstants.NO_ATTRIBUTE );
-                    noAttribute = false;
-                }
-            }
+            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
         }
-    }
-
-
-    /**
-     * Add an attribute ID to the current list, creating the list if necessary
-     *
-     * @param attrId the Id to add
-     */
-    public void addAttrsId( String attrId )
-    {
-        if ( noAttribute == null )
-        {
-            if ( attrId.equals( SchemaConstants.NO_ATTRIBUTE ) )
-            {
-                noAttribute = true;
-
-                if ( attrsId != null )
-                {
-                    attrsId.clear();
-                }
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-            {
-                allUser = true;
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-            {
-                allOperational = true;
-
-                return;
-            }
-
-            if ( attrsId == null )
-            {
-                attrsId = new ArrayList<String>();
-            }
-
-            attrsId.add( attrId );
-        }
-    }
-
-
-    /**
-     * @return The attribute IDs list
-     */
-    public List<String> getAttrsId()
-    {
-        return attrsId;
-    }
-
-
-    /**
-     * @return The flag telling if the "*" attribute has been used
-     */
-    public boolean hasAllUser()
-    {
-        return ( allUser != null ) && allUser;
-    }
-
-
-    /**
-     * @return The flag telling if the "+" attribute has been used
-     */
-    public boolean hasAllOperational()
-    {
-        return ( allOperational != null ) && allOperational;
-    }
-
-
-    /**
-     * @return The flag telling if the "1.1" attribute has been used
-     */
-    public boolean hasNoAttribute()
-    {
-        return ( noAttribute != null );
     }
 
 
@@ -304,15 +182,5 @@ public class LookupOperationContext extends AbstractOperationContext
     public void setSyncreplLookup( boolean syncreplLookup )
     {
         this.syncreplLookup = syncreplLookup;
-    }
-    
-    
-    /**
-     * @see Object#toString()
-     */
-    public String toString()
-    {
-        return "LookupContext for Dn '" + getDn().getName() + "'"
-            + ( ( attrsId != null ) ? ", attributes : <" + Strings.listToString( attrsId ) + ">" : "" );
     }
 }
