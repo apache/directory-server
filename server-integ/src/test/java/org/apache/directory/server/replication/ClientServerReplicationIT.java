@@ -183,8 +183,8 @@ public class ClientServerReplicationIT
                     System.out.println( entryDn.getName() + " exists " );
                 }
 
-                Entry providerEntry = providerSession.lookup( entryDn, SchemaConstants.ENTRY_CSN_AT );
-                Entry consumerEntry = consumerSession.lookup( entryDn, SchemaConstants.ENTRY_CSN_AT );
+                Entry providerEntry = providerSession.lookup( entryDn, "*", "+" );
+                Entry consumerEntry = consumerSession.lookup( entryDn, "*", "+" );
                 Csn providerCSN = new Csn( providerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
                 Csn consumerCSN = new Csn( consumerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
                 if ( consumerCSN.compareTo( providerCSN ) >= 0 )
@@ -246,7 +246,6 @@ public class ClientServerReplicationIT
 
 
     @Test
-    @Ignore
     public void testModify() throws Exception
     {
         Entry provUser = createEntry();
@@ -256,7 +255,9 @@ public class ClientServerReplicationIT
         assertFalse( consumerSession.exists( provUser.getDn() ) );
 
         // add the entry and check it is replicated
+        System.out.println( ">--------------------------------------- Adding " + provUser );
         providerSession.add( provUser );
+        System.out.println( ">--------------------------------------- Added " );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
@@ -265,7 +266,10 @@ public class ClientServerReplicationIT
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
+
+        System.out.println( ">--------------------------------------- Modifying " + modReq );
         providerSession.modify( modReq );
+        System.out.println( ">--------------------------------------- Modified " );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
         compareEntries( provUser.getDn() );
