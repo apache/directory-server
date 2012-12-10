@@ -322,7 +322,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // into the opContext, but for an unknow reason, this will fail
         // on eferral tests...
         LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
@@ -410,7 +410,7 @@ public class ReferralInterceptor extends BaseInterceptor
             LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
                 renameContext
                     .getNewDn() );
-            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry newEntry = nexus.lookup( lookupContext );
 

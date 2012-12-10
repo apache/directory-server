@@ -172,18 +172,51 @@ public class LookupIT extends AbstractLdapTestUnit
      * Test a lookup( Dn ) operation on the subschema subentry
      */
     @Test
-    public void testLookupSubSchemaSubEntry() throws Exception
+    public void testLookupSubSchemaSubEntryOpAttrs() throws Exception
     {
         Entry entry = connection.lookup( "cn=schema", "+" );
+
+        assertNotNull( entry );
+
+        // We should have 12 attributes
+        assertEquals( 12, entry.size() );
+
+        // Check that all the operational attributes are present
+        assertTrue( entry.containsAttribute( 
+            "attributeTypes",
+            "comparators",
+            "createTimeStamp", 
+            "creatorsName", 
+            "modifiersName", 
+            "modifyTimeStamp", 
+            "ldapSyntaxes",
+            "matchingRules",
+            "normalizers",
+            "objectClasses",
+            "syntaxCheckers",
+            "subtreeSpecification"
+            ) );
+    }
+
+
+    /**
+     * Test a lookup( Dn ) operation on the subschema subentry
+     */
+    @Test
+    public void testLookupSubSchemaSubEntryUserAttrs() throws Exception
+    {
+        Entry entry = connection.lookup( "cn=schema", "*" );
 
         assertNotNull( entry );
 
         // We should have 2 attributes
         assertEquals( 2, entry.size() );
 
-        // Check that all the user attributes are present
-        assertEquals( "schema", entry.get( "cn" ).getString() );
-        assertTrue( entry.contains( "objectClass", "top", "subschema", "subentry", "apacheSubschema" ) );
+        // Check that all the operational attributes are present
+        assertTrue( entry.containsAttribute( 
+            "cn",
+            "objectClass"
+            ) );
     }
 
 

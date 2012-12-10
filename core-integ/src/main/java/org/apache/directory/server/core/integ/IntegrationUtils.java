@@ -292,6 +292,7 @@ public class IntegrationUtils
 
         String givenName = cn.split( " " )[0];
         ldif.putAttribute( "givenName", givenName );
+        
         return ldif;
     }
 

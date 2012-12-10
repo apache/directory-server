@@ -379,7 +379,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             Dn parentDn = dn.getParent();
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
-            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }

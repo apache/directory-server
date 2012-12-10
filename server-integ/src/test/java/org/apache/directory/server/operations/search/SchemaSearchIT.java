@@ -308,8 +308,14 @@ public class SchemaSearchIT extends AbstractLdapTestUnit
     
         SearchControls ctls = new SearchControls();
         String[] attrNames =
-            { "objectClasses", "attributeTypes", "ldapSyntaxes", "matchingRules", "matchingRuleUse", "createTimestamp",
-                "modifyTimestamp" };
+            { 
+                "objectClasses", 
+                "attributeTypes", 
+                "ldapSyntaxes", 
+                "matchingRules", 
+                "createTimestamp",
+                "modifyTimestamp" 
+            };
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( attrNames );
     

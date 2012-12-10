@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -1091,19 +1092,21 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         Entry entry = lookup( id, lookupContext.getDn() );
+        
+        ServerEntryUtils.filterContents( entry, lookupContext );
 
         // Remove all the attributes if the NO_ATTRIBUTE flag is set and there is no requested attribute
-        if ( lookupContext.hasNoAttribute()
-            && ( ( lookupContext.getAttrsId() == null ) || lookupContext.getAttrsId().size() == 0 ) )
+        if ( lookupContext.isNoAttributes()
+            && ( ( lookupContext.getReturningAttributes() == null ) || lookupContext.getReturningAttributes().size() == 0 ) )
         {
             entry.clear();
 
             return entry;
         }
 
-        if ( lookupContext.hasAllUser() )
+        if ( lookupContext.isAllUserAttributes() )
         {
-            if ( lookupContext.hasAllOperational() )
+            if ( lookupContext.isAllOperationalAttributes() )
             {
                 return entry;
             }
@@ -1116,7 +1119,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                     {
-                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        if ( !lookupContext.contains( oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }
@@ -1126,7 +1129,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         else
         {
-            if ( lookupContext.hasAllOperational() )
+            if ( lookupContext.isAllOperationalAttributes() )
             {
                 for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                 {
@@ -1135,7 +1138,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                     {
-                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        if ( !lookupContext.contains( oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }
@@ -1144,7 +1147,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
             else
             {
-                if ( lookupContext.getAttrsId().size() == 0 )
+                if ( ( lookupContext.getReturningAttributes() == null ) || ( lookupContext.getReturningAttributes().size() == 0 ) )
                 {
                     for ( Attribute attribute : ( ( ( ClonedServerEntry ) entry ).getOriginalEntry() ).getAttributes() )
                     {
@@ -1163,7 +1166,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         AttributeType attributeType = attribute.getAttributeType();
                         String oid = attributeType.getOid();
 
-                        if ( !lookupContext.getAttrsId().contains( oid ) )
+                        if ( !lookupContext.contains( oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }

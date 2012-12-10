@@ -246,6 +246,7 @@ public class ClientServerReplicationIT
 
 
     @Test
+    @Ignore
     public void testModify() throws Exception
     {
         Entry provUser = createEntry();
@@ -272,6 +273,7 @@ public class ClientServerReplicationIT
 
 
     @Test
+    @Ignore
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
@@ -404,6 +406,7 @@ public class ClientServerReplicationIT
      * Test the replication of a deleted entry
      */
     @Test
+    @Ignore
     public void testDelete() throws Exception
     {
         Entry provUser = createEntry();
@@ -459,6 +462,7 @@ public class ClientServerReplicationIT
 
 
     @Test
+    @Ignore
     public void testRebootConsumer() throws Exception
     {
         Entry provUser = createEntry();

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.normalization;
 
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -53,6 +54,7 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.slf4j.Logger;
@@ -208,14 +210,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         lookupContext.getDn().apply( schemaManager );
 
-        List<String> attrIds = lookupContext.getAttrsId();
-
-        if ( ( attrIds != null ) && ( attrIds.size() > 0 ) )
-        {
-            // We have to normalize the requested IDs
-            lookupContext.setAttrsId( normalizeAttrsId( lookupContext.getAttrsIdArray() ) );
-        }
-
         return next( lookupContext );
     }
 
@@ -343,6 +337,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         for ( String id : attrIds )
         {
             String oid = schemaManager.lookupAttributeTypeRegistry( id ).getOid();
+            
             normalizedAttrIds[pos++] = oid;
         }
 

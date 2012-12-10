@@ -299,9 +299,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry result = next( lookupContext );
 
-        if ( lookupContext.hasAllUser() )
+        if ( lookupContext.isAllUserAttributes() )
         {
-            if ( lookupContext.hasAllOperational() )
+            if ( lookupContext.isAllOperationalAttributes() )
             {
                 // The user has requested '+' and '*', return everything.
                 return result;
@@ -313,16 +313,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
         else
         {
-            if ( lookupContext.hasAllOperational() )
+            if ( lookupContext.isAllOperationalAttributes() )
             {
                 // Select the user attrinbutes from the result, depending on the returning attributes list
                 filterUserAttributes( lookupContext, result );
             }
-            else if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+            else if ( ( lookupContext.getReturningAttributes() == null ) || ( lookupContext.getReturningAttributes().size() == 0 ) )
             {
                 // No returning attributes, return all the user attributes
                 // unless the user has requested no attributes
-                if ( lookupContext.hasNoAttribute() )
+                if ( lookupContext.isNoAttributes() )
                 {
                     result.clear();
                 }
@@ -524,7 +524,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         EntryFilteringCursor cursor = next( searchContext );
 
-        if ( searchContext.isAllOperationalAttributes()
+        if ( searchContext.hasAllOperationalAttributes()
             || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
         {
             if ( directoryService.isDenormalizeOpAttrsEnabled() )
@@ -608,7 +608,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         // Now remove the attributes which are not in the list to be returned
-        for ( String returningAttribute : lookupContext.getAttrsId() )
+        for ( String returningAttribute : lookupContext.getReturningAttributesString() )
         {
             removedAttributes.remove( returningAttribute );
         }
@@ -626,10 +626,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
-        List<String> ids = lookupContext.getAttrsId();
+        String[] ids = lookupContext.getReturningAttributesString();
 
         // still need to protect against returning op attrs when ids is null
-        if ( ( ids == null ) || ids.isEmpty() )
+        if ( ( ids == null ) || ( ids.length == 0 ) )
         {
             filterOperationalAttributes( entry );
             return;
@@ -646,7 +646,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                 {
                     // If it's not in the list of returning attribute, remove it
-                    if ( !ids.contains( attributeType.getOid() ) )
+                    if ( !lookupContext.contains( attributeType.getOid() ) )
                     {
                         removedAttributes.add( attributeType );
                     }
@@ -670,12 +670,13 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private void filterList( LookupOperationContext lookupContext, Entry entry ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
-        List<String> ids = lookupContext.getAttrsId();
+        String[] ids = lookupContext.getReturningAttributesString();
 
         // still need to protect against returning op attrs when ids is null
-        if ( ( ids == null ) || ids.isEmpty() )
+        if ( ( ids == null ) || ( ids.length == 0 ) )
         {
             filterOperationalAttributes( entry );
+            
             return;
         }
 
@@ -688,7 +689,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 AttributeType attributeType = attribute.getAttributeType();
 
                 // If it's not in the list of returning attribute, remove it
-                if ( !ids.contains( attributeType.getOid() ) )
+                if ( !lookupContext.contains( attributeType.getOid() ) )
                 {
                     removedAttributes.add( attributeType );
                 }

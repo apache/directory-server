@@ -283,7 +283,7 @@ public class EventInterceptor extends BaseInterceptor
         // Get the modified entry
         CoreSession session = modifyContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn() );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
@@ -368,7 +368,7 @@ public class EventInterceptor extends BaseInterceptor
         // Get the modified entry
         CoreSession session = renameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn() );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         renameContext.setModifiedEntry( alteredEntry );

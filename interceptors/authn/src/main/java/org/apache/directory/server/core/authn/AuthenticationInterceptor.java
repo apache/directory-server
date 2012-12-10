@@ -506,7 +506,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if( policyConfig != null )
         {
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindContext.getDn() );
-            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
         
@@ -1011,7 +1011,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 invalidateAuthenticatorCaches( modifyContext.getDn() );
                 
                 LookupOperationContext lookupContext = new LookupOperationContext( adminSession, modifyContext.getDn() );
-                lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
                 entry = directoryService.getPartitionNexus().lookup( lookupContext );
                 
                 if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )

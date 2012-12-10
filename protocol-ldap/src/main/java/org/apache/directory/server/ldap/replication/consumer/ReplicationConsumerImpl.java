@@ -1147,10 +1147,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private void modify( Entry remoteEntry, int rid ) throws Exception
     {
         LookupOperationContext lookupCtx = new LookupOperationContext( session, remoteEntry.getDn() );
-        lookupCtx.setAttrsId( config.getAttributes() );
+        lookupCtx.setReturningAttributes( config.getAttributes() );
         
         // this is needed to compare some of the operational attributes received from the server
-        lookupCtx.addAttrsId( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+        lookupCtx.addReturningAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
         
         lookupCtx.setSyncreplLookup( true );
         

@@ -449,7 +449,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, apDn );
-        lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 

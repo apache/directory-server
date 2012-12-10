@@ -165,13 +165,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
         
         // Adding the collective attributes if any
-        if ( ( lookupContext.getAttrsId() == null ) || ( lookupContext.getAttrsId().size() == 0 ) )
+        if ( ( lookupContext.getReturningAttributes() == null ) || ( lookupContext.getReturningAttributes().size() == 0 ) )
         {
             addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {
-            addCollectiveAttributes( lookupContext, result, lookupContext.getAttrsIdArray() );
+            addCollectiveAttributes( lookupContext, result, lookupContext.getReturningAttributesString() );
         }
 
         return result;

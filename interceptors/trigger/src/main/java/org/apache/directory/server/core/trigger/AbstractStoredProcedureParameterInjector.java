@@ -113,7 +113,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
 
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, ldapCtxName );
-            lookupContext.setAttrsId( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         }

@@ -287,7 +287,7 @@ public class SchemaService
     {
         Attribute attr = schemaSubentry.get( id );
 
-        if ( attr != null )
+        if ( ( attr != null ) && ( attr.size() > 0 ) )
         {
             attrs.put( attr );
         }
@@ -352,7 +352,9 @@ public class SchemaService
         Set<String> setOids = new HashSet<String>();
         Entry attrs = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
         boolean returnAllOperationalAttributes = false;
-
+        boolean returnAllUserAttributes = false;
+        boolean returnNoAttribute = false;
+        
         synchronized ( schemaSubentrLock )
         {
             // ---------------------------------------------------------------
@@ -401,7 +403,6 @@ public class SchemaService
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart
             // ---------------------------------------------------------------
-
             for ( String id : ids )
             {
                 // Check whether the set contains a plus, and use it below to include all
@@ -412,12 +413,21 @@ public class SchemaService
                 }
                 else if ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( id ) )
                 {
-                    setOids.add( id );
+                    returnAllUserAttributes = true;
+                }
+                else if ( SchemaConstants.NO_ATTRIBUTE.equals( id ) )
+                {
+                    returnNoAttribute = true;
                 }
                 else
                 {
                     setOids.add( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
                 }
+            }
+
+            if ( returnNoAttribute && !returnAllOperationalAttributes && !returnAllUserAttributes && setOids.size() == 0 )
+            {
+                return attrs;
             }
 
             if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.COMPARATORS_AT_OID ) )
@@ -480,35 +490,14 @@ public class SchemaService
                 addAttribute( attrs, SchemaConstants.SUBTREE_SPECIFICATION_AT );
             }
 
-            int minSetSize = 0;
-
-            if ( setOids.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-            {
-                minSetSize++;
-            }
-
-            if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-            {
-                minSetSize++;
-            }
-
-            if ( setOids.contains( SchemaConstants.REF_AT_OID ) )
-            {
-                minSetSize++;
-            }
-
-            // add the objectClass attribute
-            if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) ||
-                setOids.size() == minSetSize )
+            // add the objectClass attribute if needed
+            if ( returnAllUserAttributes || setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 addAttribute( attrs, SchemaConstants.OBJECT_CLASS_AT );
             }
 
             // add the cn attribute as required for the Rdn
-            if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                setOids.contains( SchemaConstants.CN_AT_OID ) ||
-                setOids.size() == minSetSize )
+            if ( returnAllUserAttributes || setOids.contains( SchemaConstants.CN_AT_OID ) )
             {
                 addAttribute( attrs, SchemaConstants.CN_AT );
             }
@@ -535,6 +524,16 @@ public class SchemaService
             if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFIERS_NAME_AT_OID ) )
             {
                 addAttribute( attrs, SchemaConstants.MODIFIERS_NAME_AT );
+            }
+
+            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.ENTRY_UUID_AT_OID ) )
+            {
+                addAttribute( attrs, SchemaConstants.ENTRY_UUID_AT );
+            }
+
+            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.ENTRY_DN_AT_OID ) )
+            {
+                addAttribute( attrs, SchemaConstants.ENTRY_DN_AT );
             }
         }
 

@@ -265,7 +265,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
-        lookupContext.setAttrsId( new String[]
+        lookupContext.setReturningAttributes( new String[]
             {
                 SchemaConstants.OBJECT_CLASS_AT,
                 KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,

@@ -411,7 +411,8 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( attrs );
 
-        assertNotNull( attrs.get( "nameForms" ) );
+        // We should not have any NameForms
+        assertNull( attrs.get( "nameForms" ) );
     }
 
 
@@ -421,7 +422,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
-            { "nameForms" } );
+            { "objectClasses" } );
 
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
         NamingEnumeration<SearchResult> results = getRootContext( getService() )
@@ -458,9 +459,9 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         assertNull( attrs.get( "matchingRuleUse" ) );
         assertNull( attrs.get( "modifiersName" ) );
         assertNull( attrs.get( "modifyTimestamp" ) );
-        assertNotNull( attrs.get( "nameForms" ) );
+        assertNotNull( attrs.get( "objectClasses" ) );
         assertNull( attrs.get( "objectClass" ) );
-        assertNull( attrs.get( "objectClasses" ) );
+        assertNull( attrs.get( "nameForms" ) );
     }
 
 
@@ -570,26 +571,22 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( attrs );
 
-        // We should have 18 attribute in the result :
-        // - nameForms
-        // - comparators
-        // - normalizers
-        // - syntaxCheckers
-        assertEquals( 18, attrs.size() );
+        // We should have 14 attributes in the result :
+        assertEquals( 14, attrs.size() );
 
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "comparators" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "dITContentRules" ) );
-        assertNotNull( attrs.get( "dITStructureRules" ) );
+        assertNull( attrs.get( "dITContentRules" ) );
+        assertNull( attrs.get( "dITStructureRules" ) );
         assertNotNull( attrs.get( "ldapSyntaxes" ) );
         assertNotNull( attrs.get( "matchingRules" ) );
-        assertNotNull( attrs.get( "matchingRuleUse" ) );
+        assertNull( attrs.get( "matchingRuleUse" ) );
         assertNotNull( attrs.get( "modifiersName" ) );
         assertNotNull( attrs.get( "modifyTimestamp" ) );
-        assertNotNull( attrs.get( "nameForms" ) );
+        assertNull( attrs.get( "nameForms" ) );
         assertNotNull( attrs.get( "normalizers" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "objectClasses" ) );
@@ -626,26 +623,22 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( attrs );
 
-        // We should have 18 attribute in the result :
-        // - nameForms
-        // - comparators
-        // - normalizers
-        // - syntaxCheckers
-        assertEquals( 18, attrs.size() );
+        // We should have 14 attributes in the result :
+        assertEquals( 14, attrs.size() );
 
         assertNotNull( attrs.get( "attributeTypes" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "subtreeSpecification" ) );
         assertNotNull( attrs.get( "creatorsName" ) );
         assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "dITContentRules" ) );
-        assertNotNull( attrs.get( "dITStructureRules" ) );
+        assertNull( attrs.get( "dITContentRules" ) );
+        assertNull( attrs.get( "dITStructureRules" ) );
         assertNotNull( attrs.get( "ldapSyntaxes" ) );
         assertNotNull( attrs.get( "matchingRules" ) );
-        assertNotNull( attrs.get( "matchingRuleUse" ) );
+        assertNull( attrs.get( "matchingRuleUse" ) );
         assertNotNull( attrs.get( "modifiersName" ) );
         assertNotNull( attrs.get( "modifyTimestamp" ) );
-        assertNotNull( attrs.get( "nameForms" ) );
+        assertNull( attrs.get( "nameForms" ) );
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "objectClasses" ) );
     }
