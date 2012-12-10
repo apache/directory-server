@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeExcep
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.StringConstants;
@@ -187,7 +188,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      * @param attribute The attribute we are looking for
      * @return true if the attribute is present
      */
-    public boolean contains( String attribute )
+    public boolean contains( SchemaManager schemaManager, String attribute )
     {
         if ( isNoAttributes() )
         {
@@ -196,8 +197,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         
         try
         {
-            AttributeType attributeType = getSession().getDirectoryService().
-                getSchemaManager().lookupAttributeTypeRegistry( attribute );
+            AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
             
             if ( ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) && isAllUserAttributes() )
             {

@@ -1119,7 +1119,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                     {
-                        if ( !lookupContext.contains( oid ) )
+                        if ( !lookupContext.contains( schemaManager, oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }
@@ -1138,7 +1138,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                     if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                     {
-                        if ( !lookupContext.contains( oid ) )
+                        if ( !lookupContext.contains( schemaManager, oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }
@@ -1166,7 +1166,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         AttributeType attributeType = attribute.getAttributeType();
                         String oid = attributeType.getOid();
 
-                        if ( !lookupContext.contains( oid ) )
+                        if ( !lookupContext.contains( schemaManager, oid ) )
                         {
                             entry.removeAttributes( attributeType );
                         }

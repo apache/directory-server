@@ -646,7 +646,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
                 {
                     // If it's not in the list of returning attribute, remove it
-                    if ( !lookupContext.contains( attributeType.getOid() ) )
+                    if ( !lookupContext.contains( schemaManager, attributeType.getOid() ) )
                     {
                         removedAttributes.add( attributeType );
                     }
@@ -689,7 +689,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 AttributeType attributeType = attribute.getAttributeType();
 
                 // If it's not in the list of returning attribute, remove it
-                if ( !lookupContext.contains( attributeType.getOid() ) )
+                if ( !lookupContext.contains( schemaManager, attributeType.getOid() ) )
                 {
                     removedAttributes.add( attributeType );
                 }
