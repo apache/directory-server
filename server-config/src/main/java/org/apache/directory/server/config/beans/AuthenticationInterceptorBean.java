@@ -34,11 +34,11 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class AuthenticationInterceptorBean extends InterceptorBean
 {
     /** The list of authenticators */
-    @ConfigurationElement(attributeType = "ads-authenticators", container = "authenticators")
+    @ConfigurationElement(objectClass = "ads-authenticator", container = "authenticators")
     private List<AuthenticatorBean> authenticators = new ArrayList<AuthenticatorBean>();
 
     /** The reference to the Password Policy component */
-    @ConfigurationElement(attributeType = "ads-passwordPolicies", container = "passwordPolicies")
+    @ConfigurationElement(objectClass = "ads-passwordPolicy", container = "passwordPolicies")
     private List<PasswordPolicyBean> passwordPolicies = new ArrayList<PasswordPolicyBean>();
 
 

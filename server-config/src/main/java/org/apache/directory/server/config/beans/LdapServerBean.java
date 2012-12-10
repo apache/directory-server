@@ -49,7 +49,7 @@ public class LdapServerBean extends DSBasedServerBean
     /** The maximum size of an incoming PDU */
     @ConfigurationElement(attributeType = "ads-maxPDUSize")
     private int maxPDUSize = 2048;
-    
+
     /** The SASL host */
     @ConfigurationElement(attributeType = "ads-saslHost")
     private String saslHost;
@@ -63,31 +63,31 @@ public class LdapServerBean extends DSBasedServerBean
     private List<String> saslRealms = new ArrayList<String>();
 
     /** The keystore file */
-    @ConfigurationElement(attributeType = "ads-keystoreFile")
+    @ConfigurationElement(attributeType = "ads-keystoreFile", isOptional = true)
     private String keystoreFile;
 
     /** The certificate password */
-    @ConfigurationElement(attributeType = "ads-certificatePassword")
+    @ConfigurationElement(attributeType = "ads-certificatePassword", isOptional = true)
     private String certificatePassword;
 
     /** A flag telling if the replication is enabled */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ENABLED )
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ENABLED)
     private boolean replEnabled = false;
-    
+
     /** the replication request handler, server will be in replication provider/master mode if a valid FQCN is given */
-    @ConfigurationElement(attributeType = "ads-replReqHandler")
+    @ConfigurationElement(attributeType = "ads-replReqHandler", isOptional = true)
     private String replReqHandler;
 
     /** The replication consumer Bean */
-    @ConfigurationElement(attributeType = "ads-replConsumers", container = "replConsumers")
+    @ConfigurationElement(objectClass = "ads-replConsumer", container = "replConsumers", isOptional = true)
     private List<ReplConsumerBean> replConsumers = new ArrayList<ReplConsumerBean>();
 
     /** The list of supported mechanisms */
-    @ConfigurationElement(attributeType = "ads-saslMechHandlers", container = "saslMechHandlers")
+    @ConfigurationElement(objectClass = "ads-saslMechHandler", container = "saslMechHandlers", isOptional = true)
     private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
 
     /** The list of supported extended operation handlers */
-    @ConfigurationElement(attributeType = "ads-extendedOpHandlers", container = "extendedOpHandlers")
+    @ConfigurationElement(objectClass = "ads-extendedOpHandler", container = "extendedOpHandlers", isOptional = true)
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
 
@@ -365,7 +365,7 @@ public class LdapServerBean extends DSBasedServerBean
             this.replConsumers.add( bean );
         }
     }
-    
+
 
     /**
      * @return the maxPDUSize
@@ -446,8 +446,8 @@ public class LdapServerBean extends DSBasedServerBean
 
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @return True if the replication service should be enabled
      */
@@ -456,7 +456,7 @@ public class LdapServerBean extends DSBasedServerBean
         return replEnabled;
     }
 
-    
+
     /**
      * Enable or disable the replication
      * @param replEnabled The new value
@@ -465,6 +465,7 @@ public class LdapServerBean extends DSBasedServerBean
     {
         this.replEnabled = replEnabled;
     }
+
 
     /**
      * {@inheritDoc}

@@ -511,8 +511,6 @@ ads-krbEmptyAddressesAllowed: TRUE
 ads-krbEncryptionTypes: des-cbc-md5
 ads-krbPrimaryRealm: EXAMPLE.COM
 ads-searchBaseDN: ou=users,dc=example,dc=com
-ads-transports: tcp
-ads-transports: udp
 
 dn: ou=transports,ads-serverId=changePasswordServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -610,8 +608,6 @@ ads-krbPrimaryRealm: EXAMPLE.COM
 ads-krbProxiableAllowed: TRUE
 ads-krbRenewableAllowed: TRUE
 ads-searchBaseDN: ou=users,dc=example,dc=com
-ads-transports: tcp
-ads-transports: udp
 
 dn: ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -657,9 +653,6 @@ ads-saslRealms: example.com
 ads-saslRealms: apache.org
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: TRUE
-ads-extendedophandlers: gracefulShutdownHandler
-ads-extendedophandlers: starttlshandler
-ads-extendedophandlers: storedprochandler
 ads-replEnabled: true
 
 dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config

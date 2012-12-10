@@ -41,11 +41,11 @@ public abstract class AdsBaseBean
      * 
      * Note: the value true/false is case <b>insensitive</b>
      */
-    @ConfigurationElement(attributeType = "ads-enabled")
+    @ConfigurationElement(attributeType = "ads-enabled", isOptional = true)
     private boolean enabled = true;
 
     /** The description */
-    @ConfigurationElement(attributeType = "description")
+    @ConfigurationElement(attributeType = "description", isOptional = true)
     private String description;
 
     /** the DN of the entry with which this bean is associated */

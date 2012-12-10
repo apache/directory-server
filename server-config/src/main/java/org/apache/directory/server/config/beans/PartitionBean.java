@@ -43,15 +43,15 @@ public abstract class PartitionBean extends AdsBaseBean
     private Dn partitionSuffix;
 
     /** Tells if the data should be flushed to disk immediately */
-    @ConfigurationElement(attributeType = "ads-partitionSyncOnWrite")
+    @ConfigurationElement(attributeType = "ads-partitionSyncOnWrite", isOptional = true)
     private boolean partitionSyncOnWrite;
 
     /** The partition's ContextEntry */
-    @ConfigurationElement(attributeType = "ads-contextEntry")
+    @ConfigurationElement(attributeType = "ads-contextEntry", isOptional = true)
     private String contextEntry;
 
     /** The list of declared indexes */
-    @ConfigurationElement(attributeType = "ads-indexes", container = "indexes")
+    @ConfigurationElement(objectClass = "ads-index", container = "indexes")
     private List<IndexBean> indexes = new ArrayList<IndexBean>();
 
 

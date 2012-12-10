@@ -110,6 +110,7 @@ public class ConfigWriter
         }
         catch ( Exception e )
         {
+            e.printStackTrace(); // TODO REMOVE THIS
             throw new ConfigurationException( "Unable to convert the configuration bean to LDIF entries", e );
         }
     }
@@ -351,12 +352,36 @@ public class ConfigWriter
                     ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
                     if ( configurationElement != null )
                     {
-                        // Checking if we have a value for the attribute type
+                        // Getting the annotation's values
                         String attributeType = configurationElement.attributeType();
+                        String objectClass = configurationElement.objectClass();
+                        String container = configurationElement.container();
+                        boolean isOptional = configurationElement.isOptional();
+                        String defaultValue = configurationElement.defaultValue();
+
+                        // Checking if we have a value for the attribute type
                         if ( ( attributeType != null ) && ( !"".equals( attributeType ) ) )
                         {
+                            // Checking if the field is optional and if the default value matches
+                            if ( isOptional )
+                            {
+                                if ( ( defaultValue != null ) && ( fieldValue != null )
+                                    && ( defaultValue.equalsIgnoreCase( fieldValue.toString() ) ) )
+                                {
+                                    // Skipping the addition of the value
+                                    continue;
+                                }
+                            }
+
+                            // Adding values to the entry
+                            addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
+
+                            continue;
+                        }
+                        // Checking if we have a value for the object class
+                        else if ( ( objectClass != null ) && ( !"".equals( objectClass ) ) )
+                        {
                             // Checking if we're dealing with a container
-                            String container = configurationElement.container();
                             if ( ( container != null ) && ( !"".equals( container ) ) )
                             {
                                 // Creating the entry for the container and adding it to the list
@@ -370,21 +395,25 @@ public class ConfigWriter
                                 if ( Collection.class.isAssignableFrom( fieldClass ) )
                                 {
                                     // Looping on the Collection's objects
+                                    @SuppressWarnings("unchecked")
                                     Collection<Object> collection = ( Collection<Object> ) fieldValue;
-                                    for ( Object object : collection )
+                                    if ( collection != null )
                                     {
-                                        if ( object instanceof AdsBaseBean )
+                                        for ( Object object : collection )
                                         {
-                                            // Adding the bean
-                                            addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object,
-                                                entries, entry, attributeType );
+                                            if ( object instanceof AdsBaseBean )
+                                            {
+                                                // Adding the bean
+                                                addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object,
+                                                    entries, entry, attributeType );
 
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            // TODO throw an error, if we have a container, the type must be a subtype of AdsBaseBean
-                                            throw new Exception();
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                // TODO throw an error, if we have a container, the type must be a subtype of AdsBaseBean
+                                                throw new Exception();
+                                            }
                                         }
                                     }
                                 }
@@ -396,36 +425,10 @@ public class ConfigWriter
                             }
                             else
                             {
-                                // Is it the field value used as Rdn and do we need to insert a value in the parent entry?
-                                if ( ( configurationElement.isRdn() ) && ( parentEntry != null )
-                                    && ( attributeTypeForParentEntry != null ) )
-                                {
-                                    // Adding the field value to the parent entry
-                                    addAttributeTypeValues( attributeTypeForParentEntry, fieldValue, parentEntry );
-                                }
-
-                                // Checking if the field is optional and if the default value matches
-                                if ( configurationElement.isOptional() )
-                                {
-                                    if ( configurationElement.defaultValue().equalsIgnoreCase( fieldValue.toString() ) )
-                                    {
-                                        // Skipping the addition of the value
-                                        continue;
-                                    }
-                                }
-
-                                // Adding values to the entry
-                                addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
-
-                                continue;
+                                // Adding the bean
+                                addBean( entry.getDn(), schemaManager, ( AdsBaseBean ) fieldValue, entries, entry,
+                                    attributeType );
                             }
-                        }
-
-                        // Checking if we're dealing with a AdsBaseBean subclass type
-                        if ( AdsBaseBean.class.isAssignableFrom( fieldClass ) )
-                        {
-                            addBean( entry.getDn(), schemaManager, ( AdsBaseBean ) fieldValue, entries );
-                            continue;
                         }
                     }
                 }

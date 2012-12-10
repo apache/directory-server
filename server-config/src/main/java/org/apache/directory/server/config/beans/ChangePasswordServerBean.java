@@ -33,37 +33,37 @@ import org.apache.directory.server.config.ConfigurationElement;
  */
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
-    /** The allowable clock skew. */
-    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")
-    private long krbAllowableClockSkew;
-
-    /** Whether empty addresses are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed")
-    private boolean krbEmptyAddressesAllowed;
-
-    /** The encryption types. */
-    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes")
-    private List<String> krbEncryptionTypes = new ArrayList<String>();
-
-    /** The primary realm. */
-    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm")
-    private String krbPrimaryRealm;
-
     /** The policy for category count. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyCategoryCount")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyCategoryCount", isOptional = true)
     private int chgPwdPolicyCategoryCount;
 
     /** The policy for password length. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyPasswordLength")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyPasswordLength", isOptional = true)
     private int chgPwdPolicyPasswordLength;
 
     /** The policy for token size. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyTokenSize")
+    @ConfigurationElement(attributeType = "ads-chgPwdPolicyTokenSize", isOptional = true)
     private int chgPwdPolicyTokenSize;
 
     /** The service principal name. */
-    @ConfigurationElement(attributeType = "ads-chgPwdServicePrincipal")
+    @ConfigurationElement(attributeType = "ads-chgPwdServicePrincipal", isOptional = true)
     private String chgPwdServicePrincipal;
+    
+    /** The allowable clock skew. */
+    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew", isOptional = true)
+    private long krbAllowableClockSkew;
+
+    /** Whether empty addresses are allowed. */
+    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed", isOptional = true)
+    private boolean krbEmptyAddressesAllowed;
+
+    /** The encryption types. */
+    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes", isOptional = true)
+    private List<String> krbEncryptionTypes = new ArrayList<String>();
+    
+    /** The primary realm. */
+    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm", isOptional = true)
+    private String krbPrimaryRealm;
 
 
     /**

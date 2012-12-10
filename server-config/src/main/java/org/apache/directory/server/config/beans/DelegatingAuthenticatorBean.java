@@ -30,7 +30,6 @@ import org.apache.directory.server.config.ConfigurationElement;
  */
 public class DelegatingAuthenticatorBean extends AuthenticatorBean
 {
-
     /** The delegate host */
     @ConfigurationElement(attributeType = "ads-delegateHost")
     private String delegateHost;

@@ -91,23 +91,23 @@ public class ReplConsumerBean extends AdsBaseBean
     private byte[] replUserPassword;
 
     /** The replication cookie */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_COOKIE)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_COOKIE, isOptional = true)
     private String replCookie;
 
     /** Tells if TLS should be used during replication */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_TLS)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_TLS, isOptional = true)
     private boolean replUseTls;
 
     /** Tells if the certificate validation should be strict or not */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION, isOptional = true)
     private boolean replStrictCertValidation;
 
     /** The peer certificate */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE, isOptional = true)
     private byte[] replPeerCertificate;
 
     /** The FQCN of replication client implementation */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL)
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL, isOptional = true)
     private String replConsumerImpl;
 
 

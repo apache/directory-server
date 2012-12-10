@@ -55,7 +55,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     private boolean dsDenormalizeOpAttrsEnabled = true;
 
     /** The flag that tells if the password should be returned as a normal attribute or not */
-    @ConfigurationElement(attributeType = "ads-dsPasswordHidden", isOptional = true, defaultValue = "false")
+    @ConfigurationElement(attributeType = "ads-dsPasswordHidden")
     private boolean dsPasswordHidden = false;
 
     /** The delay between two flushes on disk */
@@ -63,27 +63,27 @@ public class DirectoryServiceBean extends AdsBaseBean
     private long dsSyncPeriodMillis = 15000L;
 
     /** The ldif entries to inject into the server at startup */
-    @ConfigurationElement(attributeType = "dsTestEntries")
+    @ConfigurationElement(attributeType = "ads-dsTestEntries", isOptional = true)
     private String dsTestEntries;
 
     /** The ChangeLog component */
-    @ConfigurationElement
+    @ConfigurationElement( objectClass= "ads-changelog")
     private ChangeLogBean changeLog;
 
     /** The journal component */
-    @ConfigurationElement
+    @ConfigurationElement( objectClass= "ads-journal")
     private JournalBean journal;
 
     /** The servers */
-    @ConfigurationElement(attributeType = "ads-servers", container = "servers")
+    @ConfigurationElement(objectClass = "ads-server", container = "servers")
     private List<ServerBean> servers = new ArrayList<ServerBean>();
 
     /** The list of declared interceptors */
-    @ConfigurationElement(attributeType = "ads-interceptors", container = "interceptors")
+    @ConfigurationElement(objectClass = "ads-interceptor", container = "interceptors")
     private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
 
     /** The set of associated partitions */
-    @ConfigurationElement(attributeType = "ads-partitions", container = "partitions")
+    @ConfigurationElement(objectClass = "ads-partition", container = "partitions")
     private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
 
 

@@ -39,7 +39,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
     private String saslMechClassName;
 
     /** The NTLM provider */
-    @ConfigurationElement(attributeType = "ads-ntlmMechProvider")
+    @ConfigurationElement(attributeType = "ads-ntlmMechProvider", isOptional = true)
     private String ntlmMechProvider;
 
 

@@ -34,11 +34,11 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class HttpServerBean extends ServerBean
 {
     /** The configuration file */
-    @ConfigurationElement(attributeType = "ads-httpConfFile")
+    @ConfigurationElement(attributeType = "ads-httpConfFile", isOptional = true)
     private String httpConfFile;
 
     /** The list of supported web apps */
-    @ConfigurationElement(attributeType = "ads-httpWebApps", container = "httpWebApps")
+    @ConfigurationElement(objectClass = "ads-httpWebApp", container = "httpWebApps")
     private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
 
 

@@ -38,7 +38,7 @@ public abstract class ServerBean extends AdsBaseBean
     private String serverId;
 
     /** The set of transports to use for this server */
-    @ConfigurationElement(attributeType = "ads-transports", container = "transports")
+    @ConfigurationElement(objectClass = "ads-transport", container = "transports")
     private List<TransportBean> transports = new ArrayList<TransportBean>();
 
 

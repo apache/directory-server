@@ -31,11 +31,11 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class JdbmPartitionBean extends PartitionBean
 {
     /** The Entry cache size for this partition */
-    @ConfigurationElement(attributeType = "ads-partitionCacheSize")
+    @ConfigurationElement(attributeType = "ads-partitionCacheSize", isOptional = true, defaultValue = "-1")
     private int partitionCacheSize = -1;
 
     /** Tells if the optimizer is enabled or not */
-    @ConfigurationElement(attributeType = "ads-jdbmPartitionOptimizerEnabled")
+    @ConfigurationElement(attributeType = "ads-jdbmPartitionOptimizerEnabled", isOptional = true, defaultValue = "true")
     private boolean jdbmPartitionOptimizerEnabled = true;
 
 

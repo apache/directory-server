@@ -55,7 +55,6 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -88,10 +87,6 @@ public class ConfigPartitionReader
     /** The suffix for the bean */
     private static final String ADS_SUFFIX = "Bean";
 
-    /** Those two flags are used to tell the reader if an element of configuration is mandatory or not */
-    private static final boolean MANDATORY = true;
-    private static final boolean OPTIONNAL = false;
-
 
     /**
      * 
@@ -118,7 +113,7 @@ public class ConfigPartitionReader
 
 
     /**
-     * Fnd the upper objectclass in a hierarchy. All the inherited ObjectClasses
+     * Find the upper objectclass in a hierarchy. All the inherited ObjectClasses
      * will be removed.
      */
     private ObjectClass findObjectClass( Attribute objectClass ) throws Exception
@@ -142,7 +137,6 @@ public class ConfigPartitionReader
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             throw e;
         }
 
@@ -186,7 +180,7 @@ public class ConfigPartitionReader
         // The remaining OC in the candidates set is the one we are looking for
         String objectClassName = objectClass.getName();
 
-        // Now, let's instanciate the associated bean. Get rid of the 'ads-' in front of the name,
+        // Now, let's instantiate the associated bean. Get rid of the 'ads-' in front of the name,
         // and uppercase the first letter. Finally add "Bean" at the end and add the package.
         //String beanName = this.getClass().getPackage().getName() + "org.apache.directory.server.config.beans." + Character.toUpperCase( objectClassName.charAt( 4 ) ) + objectClassName.substring( 5 ) + "Bean";
         String beanName = this.getClass().getPackage().getName() + ".beans." +
@@ -235,7 +229,7 @@ public class ConfigPartitionReader
         }
         catch ( InstantiationException ie )
         {
-            String message = "Cannot instanciate the class " + beanName + ", " + ie.getMessage();
+            String message = "Cannot instantiate the class " + beanName + ", " + ie.getMessage();
             LOG.error( message );
             throw new ConfigurationException( message );
         }
@@ -243,41 +237,9 @@ public class ConfigPartitionReader
 
 
     /**
-     * Retrieve the Field associated with an AttributeType name, if any.
-     */
-    private static Field getField( Class<?> clazz, String attributeName, Class<?> originalClazz )
-        throws ConfigurationException
-    {
-        // We will check all the fields, as the AT name is case insentitive
-        // when the field is case sensitive
-        Field[] fields = clazz.getDeclaredFields();
-
-        for ( Field field : fields )
-        {
-            String fieldName = field.getName();
-
-            if ( fieldName.equalsIgnoreCase( attributeName ) )
-            {
-                return field;
-            }
-        }
-
-        // May be in the paren'ts class ?
-        if ( clazz.getSuperclass() != null )
-        {
-            return getField( clazz.getSuperclass(), attributeName, originalClazz );
-        }
-
-        String message = "Cannot find a field named " + attributeName + " in class " + originalClazz.getName();
-        LOG.error( message );
-        throw new ConfigurationException( message );
-    }
-
-
-    /**
      * Read the single entry value for an AttributeType, and feed the Bean field with this value
      */
-    private void readSingleValueField( AdsBaseBean bean, Field beanField, Attribute fieldAttr, boolean mandatory )
+    private void readSingleValueField( AdsBaseBean bean, Field beanField, Attribute fieldAttr )
         throws ConfigurationException
     {
         if ( fieldAttr == null )
@@ -294,7 +256,7 @@ public class ConfigPartitionReader
         {
             if ( type == String.class )
             {
-                beanField.set( bean, value.getString() );
+                beanField.set( bean, valueStr );
             }
             else if ( type == byte[].class )
             {
@@ -346,21 +308,21 @@ public class ConfigPartitionReader
     /**
      * Read the multiple entry value for an AttributeType, and feed the Bean field with this value
      */
-    private void readMultiValuedField( AdsBaseBean bean, Field beanField, Attribute fieldAttr, boolean mandatory )
+    private void readMultiValuedField( AdsBaseBean bean, Field field, Attribute attribute )
         throws ConfigurationException
     {
-        if ( fieldAttr == null )
+        if ( attribute == null )
         {
             return;
         }
 
-        Class<?> type = beanField.getType();
+        Class<?> type = field.getType();
 
-        String fieldName = beanField.getName();
+        String fieldName = field.getName();
         String addMethodName = "add" + Character.toUpperCase( fieldName.charAt( 0 ) ) + fieldName.substring( 1 );
 
         // loop on the values and inject them in the bean
-        for ( Value<?> value : fieldAttr )
+        for ( Value<?> value : attribute )
         {
             String valueStr = value.getString();
 
@@ -368,30 +330,30 @@ public class ConfigPartitionReader
             {
                 if ( type == String.class )
                 {
-                    beanField.set( bean, valueStr );
+                    field.set( bean, valueStr );
                 }
                 else if ( type == int.class )
                 {
-                    beanField.setInt( bean, Integer.parseInt( valueStr ) );
+                    field.setInt( bean, Integer.parseInt( valueStr ) );
                 }
                 else if ( type == long.class )
                 {
-                    beanField.setLong( bean, Long.parseLong( valueStr ) );
+                    field.setLong( bean, Long.parseLong( valueStr ) );
                 }
                 else if ( type == boolean.class )
                 {
-                    beanField.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
+                    field.setBoolean( bean, Boolean.parseBoolean( valueStr ) );
                 }
                 else if ( type == Dn.class )
                 {
                     try
                     {
                         Dn dn = new Dn( valueStr );
-                        beanField.set( bean, dn );
+                        field.set( bean, dn );
                     }
                     catch ( LdapInvalidDnException lide )
                     {
-                        String message = "The Dn '" + valueStr + "' for attribute " + fieldAttr.getId()
+                        String message = "The Dn '" + valueStr + "' for attribute " + attribute.getId()
                             + " is not a valid Dn";
                         LOG.error( message );
                         throw new ConfigurationException( message );
@@ -399,7 +361,7 @@ public class ConfigPartitionReader
                 }
                 else if ( type == Set.class )
                 {
-                    Type genericFieldType = beanField.getGenericType();
+                    Type genericFieldType = field.getGenericType();
                     Class<?> fieldArgClass = null;
 
                     if ( genericFieldType instanceof ParameterizedType )
@@ -422,7 +384,7 @@ public class ConfigPartitionReader
                 }
                 else if ( type == List.class )
                 {
-                    Type genericFieldType = beanField.getGenericType();
+                    Type genericFieldType = field.getGenericType();
                     Class<?> fieldArgClass = null;
 
                     if ( genericFieldType instanceof ParameterizedType )
@@ -446,13 +408,13 @@ public class ConfigPartitionReader
             }
             catch ( IllegalArgumentException iae )
             {
-                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
+                String message = "Cannot store '" + valueStr + "' into attribute " + attribute.getId();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
             catch ( IllegalAccessException e )
             {
-                String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
+                String message = "Cannot store '" + valueStr + "' into attribute " + attribute.getId();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
@@ -482,237 +444,34 @@ public class ConfigPartitionReader
     }
 
 
-    /**
-     * Read all the required fields (AttributeTypes) for a given Entry.
-     */
-    private void readFields( AdsBaseBean bean, Entry entry, Set<AttributeType> attributeTypes, boolean mandatory )
-        throws NoSuchFieldException, IllegalAccessException, Exception
+    private void readFieldValue( AdsBaseBean bean, Field field, Entry entry, String attributeTypeName, boolean mandatory )
+        throws ConfigurationException
     {
-        for ( AttributeType attributeType : attributeTypes )
+        // Get the entry attribute for this attribute type
+        Attribute attribute = entry.get( attributeTypeName );
+
+        if ( ( attribute != null ) && attribute.size() > 0 )
         {
-            String fieldName = attributeType.getName();
-            String beanFieldName = fieldName;
-
-            // Remove the "ads-" from the beginning of the field name
-            if ( fieldName.startsWith( ADS_PREFIX ) )
+            if ( isMultiple( field.getClass() ) )
             {
-                beanFieldName = fieldName.substring( ADS_PREFIX.length() );
+                readSingleValueField( bean, field, attribute );
             }
-
-            // Get the field
-            Field beanField = getField( bean.getClass(), beanFieldName, bean.getClass() );
-
-            // The field is private, we need to modify it to be able to access it.
-            beanField.setAccessible( true );
-
-            // Get the entry attribute for this field
-            Attribute fieldAttr = entry.get( fieldName );
-
-            if ( ( fieldAttr == null ) && ( mandatory ) )
+            else
             {
-                String message = "Attribute " + fieldName + " is mandatory and is not present for the Entry "
-                    + entry.getDn();
+                readMultiValuedField( bean, field, attribute );
+            }
+        }
+        else
+        {
+            if ( mandatory )
+            {
+                // the requested element is mandatory so let's throw an exception
+                String message = "No value was configured for entry with DN '"
+                    + entry.getDn() + "' and attribute type '" + attributeTypeName + "'.";
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
-
-            // Get the associated AttributeType
-            AttributeType beanAT = schemaManager.getAttributeType( fieldName );
-
-            // Check if this AT has the ads-compositeElement as a superior
-            AttributeType superior = beanAT.getSuperior();
-
-            if ( ( superior != null )
-                && superior.getOid().equals( ConfigSchemaConstants.ADS_COMPOSITE_ELEMENT_AT.getOid() ) )
-            {
-                // This is a composite element, we have to go one level down to read it.
-                // First, check if it's a SingleValued element
-                if ( beanAT.isSingleValued() )
-                {
-                    // Yes : get the first element
-                    List<AdsBaseBean> beans = read( entry.getDn(), fieldName, SearchScope.ONELEVEL, mandatory );
-
-                    // We may not have found an element, but if the attribute is mandatory,
-                    // this is an error
-                    if ( ( beans == null ) || ( beans.size() == 0 ) )
-                    {
-                        if ( mandatory )
-                        {
-                            // This is an error !
-                            String message = "The composite " + beanAT.getName()
-                                + " is mandatory, and was not found under the "
-                                + "configuration entry " + entry.getDn();
-                            LOG.error( message );
-                            throw new ConfigurationException( message );
-                        }
-                    }
-                    else
-                    {
-                        // We must take the first element
-                        AdsBaseBean readBean = beans.get( 0 );
-
-                        if ( beans.size() > 1 )
-                        {
-                            // Not allowed as the AT is singled-valued
-                            String message = "We have more than one entry for " + beanAT.getName() + " under "
-                                + entry.getDn();
-                            LOG.error( message );
-                            throw new ConfigurationException( message );
-                        }
-
-                        beanField.set( bean, readBean );
-                    }
-                }
-                else
-                {
-                    // No : we have to loop recursively on all the elements which are
-                    // under the ou=<element-name> branch
-                    Dn newBase = entry.getDn().add( "ou=" + beanFieldName );
-
-                    // We have to remove the 's' at the end of the field name
-                    String attributeName = fieldName.substring( 0, fieldName.length() - 1 );
-
-                    // Sometime, the plural of a noun takes 'es'
-                    if ( !schemaManager.getObjectClassRegistry().contains( attributeName ) )
-                    {
-                        // Try by removing 'es'
-                        attributeName = fieldName.substring( 0, fieldName.length() - 2 );
-
-                        // if not found try by removing 'ies' and adding 'y' , e.x ads-passwordPolicies
-                        if ( fieldName.endsWith( "ies" )
-                            && !schemaManager.getObjectClassRegistry().contains( attributeName ) )
-                        {
-                            attributeName = fieldName.substring( 0, fieldName.length() - 3 ) + "y";
-                        }
-
-                        if ( !schemaManager.getObjectClassRegistry().contains( attributeName ) )
-                        {
-                            String message = "Cannot find the ObjectClass named " + attributeName + " in the schema";
-                            LOG.error( message );
-                            throw new ConfigurationException( message );
-                        }
-                    }
-
-                    // This is a multi-valued element, it can be a Set or a List
-                    Collection<AdsBaseBean> beans = read( newBase, attributeName, SearchScope.ONELEVEL, mandatory );
-
-                    if ( ( beans == null ) || ( beans.size() == 0 ) )
-                    {
-                        // If the element is mandatory, this is an error
-                        if ( mandatory )
-                        {
-                            String message = "The composite " + beanAT.getName()
-                                + " is mandatory, and was not found under the "
-                                + "configuration entry " + entry.getDn();
-                            LOG.error( message );
-                            throw new ConfigurationException( message );
-                        }
-                    }
-                    else
-                    {
-                        // Update the field
-                        beanField.set( bean, beans );
-                    }
-                }
-            }
-            else
-            // A standard AttributeType (ie, boolean, long, int or String)
-            {
-                // Process the field accordingly to its cardinality
-                if ( beanAT.isSingleValued() )
-                {
-                    readSingleValueField( bean, beanField, fieldAttr, mandatory );
-                }
-                else
-                {
-                    readMultiValuedField( bean, beanField, fieldAttr, mandatory );
-                }
-            }
         }
-    }
-
-
-    /**
-     * Get the list of MUST AttributeTypes for an objectClass
-     */
-    private Set<AttributeType> getAllMusts( ObjectClass objectClass )
-    {
-        Set<AttributeType> musts = new HashSet<AttributeType>();
-
-        // First, gets the direct MUST
-        musts.addAll( objectClass.getMustAttributeTypes() );
-
-        // then add all the superiors MUST (recursively)
-        List<ObjectClass> superiors = objectClass.getSuperiors();
-
-        if ( superiors != null )
-        {
-            for ( ObjectClass superior : superiors )
-            {
-                musts.addAll( getAllMusts( superior ) );
-            }
-        }
-
-        return musts;
-    }
-
-
-    /**
-     * Get the list of MAY AttributeTypes for an objectClass
-     */
-    private Set<AttributeType> getAllMays( ObjectClass objectClass )
-    {
-        Set<AttributeType> mays = new HashSet<AttributeType>();
-
-        // First, gets the direct MAY
-        mays.addAll( objectClass.getMayAttributeTypes() );
-
-        // then add all the superiors MAY (recursively)
-        List<ObjectClass> superiors = objectClass.getSuperiors();
-
-        if ( superiors != null )
-        {
-            for ( ObjectClass superior : superiors )
-            {
-                mays.addAll( getAllMays( superior ) );
-            }
-        }
-
-        return mays;
-    }
-
-
-    /**
-     * Helper method to print a list of AT's names.
-     */
-    private String dumpATs( Set<AttributeType> attributeTypes )
-    {
-        if ( ( attributeTypes == null ) || ( attributeTypes.size() == 0 ) )
-        {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        sb.append( '{' );
-
-        for ( AttributeType attributeType : attributeTypes )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                sb.append( ", " );
-            }
-
-            sb.append( attributeType.getName() );
-        }
-
-        sb.append( '}' );
-
-        return sb.toString();
     }
 
 
@@ -722,16 +481,16 @@ public class ConfigPartitionReader
     private List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
     {
-        LOG.debug( "Reading from '{}', entry {}", baseDn, name );
+        LOG.debug( "Reading from '{}', objectClass '{}'", baseDn, name );
 
         // Search for the element starting at some point in the DIT
         // Prepare the search request
-        AttributeType adsdAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        EqualityNode<?> filter = new EqualityNode( adsdAt, new StringValue( name ) );
+        EqualityNode<String> filter = new EqualityNode<String>(
+            schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT ), new StringValue( name ) );
         Cursor<IndexEntry<String, String>> cursor = null;
 
         // Create a container for all the read beans
-        List<AdsBaseBean> beans = new ArrayList<AdsBaseBean>();
+        List<AdsBaseBean> beansList = new ArrayList<AdsBaseBean>();
 
         try
         {
@@ -753,8 +512,8 @@ public class ConfigPartitionReader
                     cursor.close();
 
                     // the requested element is mandatory so let's throw an exception
-                    String message = "No directoryService instance was configured under the Dn "
-                        + configPartition.getSuffixDn();
+                    String message = "No instance was configured under the DN '"
+                        + baseDn + "' for the objectClass '" + name + "'.";
                     LOG.error( message );
                     throw new ConfigurationException( message );
                 }
@@ -767,46 +526,117 @@ public class ConfigPartitionReader
             // Loop on all the found elements
             do
             {
-                IndexEntry<String, String> forwardEntry = cursor
-                    .get();
+                IndexEntry<String, String> forwardEntry = cursor.get();
 
                 // Now, get the entry
                 Entry entry = configPartition.lookup( forwardEntry.getId() );
                 LOG.debug( "Entry read : {}", entry );
 
-                // Let's instanciate the bean we need. The upper ObjectClass's name
+                // Let's instantiate the bean we need. The upper ObjectClass's name
                 // will be used to do that
-                Attribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+                ObjectClass objectClass = findObjectClass( entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
 
-                ObjectClass objectClass = findObjectClass( objectClassAttr );
+                // Instantiating the bean
                 AdsBaseBean bean = createBean( objectClass );
 
-                // Now, read the AttributeTypes and store the values into the bean fields
-                // The MAY
-                Set<AttributeType> mays = getAllMays( objectClass );
-                LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( mays ) );
-                readFields( bean, entry, mays, OPTIONNAL );
-
-                // The MUST
-                Set<AttributeType> musts = getAllMusts( objectClass );
-                LOG.debug( "Fetching the following MAY attributes : {}", dumpATs( musts ) );
-                readFields( bean, entry, musts, MANDATORY );
-
+                // Setting its DN
                 bean.setDn( entry.getDn() );
 
-                // Done, we can add the bean into the list
-                beans.add( bean );
+                // Adding the bean to the list
+                beansList.add( bean );
+
+                // Getting the class of the bean
+                Class<?> beanClass = bean.getClass();
+
+                // A flag to know when we reached the 'AdsBaseBean' class when 
+                // looping on the class hierarchy of the bean
+                boolean adsBaseBeanClassFound = false;
+
+                // Looping until the 'AdsBaseBean' class has been found
+                while ( !adsBaseBeanClassFound )
+                {
+                    // Checking if we reached the 'AdsBaseBean' class
+                    if ( beanClass == AdsBaseBean.class )
+                    {
+                        adsBaseBeanClassFound = true;
+                    }
+
+                    // Looping on all fields of the bean
+                    Field[] fields = beanClass.getDeclaredFields();
+                    for ( Field field : fields )
+                    {
+                        // Making the field accessible (we get an exception if we don't do that)
+                        field.setAccessible( true );
+
+                        // Getting the class of the field
+                        Class<?> fieldClass = field.getType();
+
+                        // Looking for the @ConfigurationElement annotation
+                        ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
+                        if ( configurationElement != null )
+                        {
+                            // Getting the annotation's values
+                            String fieldAttributeType = configurationElement.attributeType();
+                            String fieldObjectClass = configurationElement.objectClass();
+                            String container = configurationElement.container();
+                            boolean isOptional = configurationElement.isOptional();
+
+                            // Checking if we have a value for the attribute type
+                            if ( ( fieldAttributeType != null ) && ( !"".equals( fieldAttributeType ) ) )
+                            {
+                                readFieldValue( bean, field, entry, fieldAttributeType, !isOptional );
+                            }
+                            // Checking if we have a value for the object class
+                            else if ( ( fieldObjectClass != null ) && ( !"".equals( fieldObjectClass ) ) )
+                            {
+                                // Checking if this is a multi-valued field (which values are stored in a container)
+                                if ( isMultiple( fieldClass ) && ( container != null )
+                                    && ( !"".equals( container ) ) )
+                                {
+                                    // Creating the DN of the container
+                                    Dn newBase = entry.getDn().add( "ou=" + container );
+
+                                    // Looking for the field values
+                                    Collection<AdsBaseBean> fieldValues = read( newBase, fieldObjectClass,
+                                        SearchScope.ONELEVEL, !isOptional );
+
+                                    // Setting the values to the field
+                                    if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                                    {
+                                        field.set( bean, fieldValues );
+                                    }
+                                }
+                                // This is a single-value field
+                                else
+                                {
+                                    // Looking for the field values
+                                    List<AdsBaseBean> fieldValues = read( entry.getDn(), fieldObjectClass,
+                                        SearchScope.ONELEVEL, !isOptional );
+
+                                    // Setting the value to the field
+                                    if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                                    {
+                                        field.set( bean, fieldValues.get( 0 ) );
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Moving to the upper class in the class hierarchy
+                    beanClass = beanClass.getSuperclass();
+                }
             }
             while ( cursor.next() );
         }
         catch ( ConfigurationException ce )
         {
-            ce.printStackTrace();
             throw ce;
         }
         catch ( Exception e )
         {
-            String message = "Cannot open a cursor to read the configuration on " + baseDn;
+            String message = "An error occured while reading the configuration DN '"
+                + baseDn + "' for the objectClass '" + name + "':\n" + e.getMessage();
             LOG.error( message );
             throw new ConfigurationException( message );
         }
@@ -827,8 +657,22 @@ public class ConfigPartitionReader
             }
         }
 
-        return beans;
+        return beansList;
+    }
 
+
+    /**
+     * Indicates the given type is multiple.
+     *
+     * @param clazz
+     *      the class
+     * @return
+     *      <code>true</code> if the given is multiple,
+     *      <code>false</code> if not.
+     */
+    private boolean isMultiple( Class<?> clazz )
+    {
+        return Collection.class.isAssignableFrom( clazz );
     }
 
 
@@ -857,7 +701,7 @@ public class ConfigPartitionReader
     public ConfigBean readConfig( String baseDn ) throws LdapException
     {
         // The starting point is the DirectoryService element
-        return readConfig( new Dn( baseDn ), ConfigSchemaConstants.ADS_DIRECTORY_SERVICE_OC.getValue() );
+        return readConfig( new Dn( baseDn ) );
     }
 
 
@@ -907,7 +751,7 @@ public class ConfigPartitionReader
             baseDn = configPartition.getSuffixDn();
         }
 
-        List<AdsBaseBean> beans = read( baseDn, objectClass, SearchScope.ONELEVEL, MANDATORY );
+        List<AdsBaseBean> beans = read( baseDn, objectClass, SearchScope.ONELEVEL, true );
 
         if ( LOG.isDebugEnabled() )
         {
