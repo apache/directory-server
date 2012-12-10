@@ -655,7 +655,7 @@ public abstract class ServerContext implements EventContext
             lookupContext.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
-        if ( ( lookupContext.getAttrsId() != null ) && ( lookupContext.getAttrsId().size() != 0 ) &&
+        if ( ( lookupContext.getReturningAttributes() != null ) && ( lookupContext.getReturningAttributes().size() != 0 ) &&
             ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
             && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
         {
