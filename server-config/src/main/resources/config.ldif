@@ -23,6 +23,7 @@ objectclass: ads-base
 objectclass: ads-changeLog
 ads-changeLogId: defaultChangeLog
 ads-changeLogExposed: FALSE
+ads-enabled: FALSE
 
 dn: ads-journalId=defaultJournal,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -32,6 +33,7 @@ ads-journalId: defaultJournal
 ads-journalFileName: Journal.txt
 ads-journalWorkingDir: /
 ads-journalRotation: 2
+ads-enabled: FALSE
 
 dn: ou=interceptors,ads-directoryServiceId=default,ou=config
 ou: interceptors
@@ -69,6 +71,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.AnonymousAuthenticator
+ads-enabled: TRUE
 
 dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: simpleauthenticator
@@ -77,6 +80,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.SimpleAuthenticator
+ads-enabled: TRUE
 
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 ads-authenticatorid: strongauthenticator
@@ -85,6 +89,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.StrongAuthenticator
+ads-enabled: TRUE
 
 dn: ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit
