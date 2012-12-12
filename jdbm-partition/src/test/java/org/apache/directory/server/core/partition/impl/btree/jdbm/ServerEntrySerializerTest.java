@@ -61,7 +61,7 @@ public class ServerEntrySerializerTest
 {
     private static LdifSchemaLoader loader;
     private static SchemaManager schemaManager;
-    private static Map<String, OidNormalizer> oids;
+    private static Map<String, OidNormalizer> OIDS;
     private static Map<String, OidNormalizer> oidOids;
 
 
@@ -95,23 +95,23 @@ public class ServerEntrySerializerTest
             fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
-        oids = new HashMap<String, OidNormalizer>();
+        OIDS = new HashMap<String, OidNormalizer>();
 
         // DC normalizer
         OidNormalizer dcOidNormalizer = new OidNormalizer( "dc", new DeepTrimToLowerNormalizer(
             SchemaConstants.DOMAIN_COMPONENT_AT_OID ) );
 
-        oids.put( "dc", dcOidNormalizer );
-        oids.put( "domaincomponent", dcOidNormalizer );
-        oids.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
+        OIDS.put( "dc", dcOidNormalizer );
+        OIDS.put( "domaincomponent", dcOidNormalizer );
+        OIDS.put( "0.9.2342.19200300.100.1.25", dcOidNormalizer );
 
         // OU normalizer
         OidNormalizer ouOidNormalizer = new OidNormalizer( "ou", new DeepTrimToLowerNormalizer(
             SchemaConstants.OU_AT_OID ) );
 
-        oids.put( "ou", ouOidNormalizer );
-        oids.put( "organizationalUnitName", ouOidNormalizer );
-        oids.put( "2.5.4.11", ouOidNormalizer );
+        OIDS.put( "ou", ouOidNormalizer );
+        OIDS.put( "organizationalUnitName", ouOidNormalizer );
+        OIDS.put( "2.5.4.11", ouOidNormalizer );
 
         // Another map where we store OIDs instead of names.
         oidOids = new HashMap<String, OidNormalizer>();
@@ -159,8 +159,12 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryOC() throws Exception
     {
-        Entry entry = new DefaultEntry( schemaManager );
-        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
+        Entry entry = new DefaultEntry( schemaManager,
+            "",
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: inetOrgPerson", 
+            "objectClass: organizationalPerson" );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
 
@@ -175,11 +179,16 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntry() throws Exception
     {
-        Entry entry = new DefaultEntry( schemaManager );
-        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
-        entry.add( "cn", "text", "test" );
-        entry.add( "SN", "Test" );
-        entry.add( "userPassword", Strings.getBytesUtf8( "password" ) );
+        Entry entry = new DefaultEntry( schemaManager,
+            "",
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: inetOrgPerson", 
+            "objectClass: organizationalPerson",
+            "cn: text", 
+            "cn: test",
+            "SN: Test",
+            "userPassword", Strings.getBytesUtf8( "password" ) );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
 
@@ -194,11 +203,16 @@ public class ServerEntrySerializerTest
     @Test
     public void testSerializeServerEntryWithEmptyDN() throws Exception
     {
-        Entry entry = new DefaultEntry( schemaManager );
-        entry.add( "objectClass", "top", "person", "inetOrgPerson", "organizationalPerson" );
-        entry.add( "cn", "text", "test" );
-        entry.add( "SN", "Test" );
-        entry.add( "userPassword", Strings.getBytesUtf8( "password" ) );
+        Entry entry = new DefaultEntry( schemaManager,
+            "",
+            "objectClass: top", 
+            "objectClass: person", 
+            "objectClass: inetOrgPerson", 
+            "objectClass: organizationalPerson",
+            "cn: text", 
+            "cn: test",
+            "SN: Test",
+            "userPassword", Strings.getBytesUtf8( "password" ) );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
 
