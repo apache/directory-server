@@ -536,7 +536,7 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-core-api</artifactId>
         <version>${project.version}</version>
-        <classifier>tests</classifier>
+        <type>test-jar</type>
       </dependency>
       
       <dependency>
@@ -834,7 +834,7 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-xdbm-partition</artifactId>
         <version>${project.version}</version>
-        <classifier>tests</classifier>
+        <type>test-jar</type>
       </dependency>
       
       <dependency>
