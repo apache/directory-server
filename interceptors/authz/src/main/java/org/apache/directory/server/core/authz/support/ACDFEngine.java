@@ -21,6 +21,7 @@ package org.apache.directory.server.core.authz.support;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.event.Evaluator;
@@ -156,7 +157,8 @@ public class ACDFEngine
                 return false;
             }
 
-            aciContext.setAciTuples( filter.filter( aciContext, scope, userEntry ) );
+            Collection<ACITuple> aciTuples = filter.filter( aciContext, scope, userEntry );
+            aciContext.setAciTuples( aciTuples );
         }
 
         // Deny access if no tuples left.
