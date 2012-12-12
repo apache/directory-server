@@ -321,8 +321,8 @@ public class ReferralInterceptor extends BaseInterceptor
         // TODO: this can be spare, as we already have the altered entry
         // into the opContext, but for an unknow reason, this will fail
         // on eferral tests...
-        LookupOperationContext lookupContext = new LookupOperationContext( modifyContext.getSession(), dn );
-        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = 
+            new LookupOperationContext( modifyContext.getSession(), dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
@@ -408,9 +408,7 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
-                renameContext
-                    .getNewDn() );
-            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                renameContext.getNewDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             Entry newEntry = nexus.lookup( lookupContext );
 

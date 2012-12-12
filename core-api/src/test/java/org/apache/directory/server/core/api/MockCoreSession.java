@@ -73,7 +73,6 @@ import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.util.Strings;
 
 
@@ -455,28 +454,11 @@ public class MockCoreSession implements CoreSession
      * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set)
      */
     public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes ) throws LdapException
+        String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
         ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
-        listContext.setAliasDerefMode( aliasDerefMode );
-
-        return operationManager.list( listContext );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set, int, int)
-     */
-    public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException
-    {
-        OperationManager operationManager = directoryService.getOperationManager();
-
-        ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
-        listContext.setSizeLimit( sizeLimit );
-        listContext.setTimeLimit( timeLimit );
         listContext.setAliasDerefMode( aliasDerefMode );
 
         return operationManager.list( listContext );
@@ -769,8 +751,7 @@ public class MockCoreSession implements CoreSession
             throw new LdapInvalidSearchFilterException( pe.getMessage() );
         }
 
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, filterNode,
-            null );
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, filterNode, (String)null );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         setReferralHandling( searchContext, ignoreReferrals );
 
@@ -782,29 +763,12 @@ public class MockCoreSession implements CoreSession
      * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.filter.SearchScope, org.apache.directory.shared.ldap.model.filter.ExprNode, org.apache.directory.shared.ldap.model.message.AliasDerefMode, java.util.Set)
      */
     public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes ) throws LdapException
+        String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
         SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, returningAttributes );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-
-        return operationManager.search( searchContext );
-    }
-
-
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.filter.SearchScope, org.apache.directory.shared.ldap.model.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set, int, int)
-     */
-    public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException
-    {
-        OperationManager operationManager = directoryService.getOperationManager();
-
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, scope, filter, returningAttributes );
-        searchContext.setSizeLimit( sizeLimit );
-        searchContext.setTimeLimit( timeLimit );
-        searchContext.setAliasDerefMode( aliasDerefMode );
 
         return operationManager.search( searchContext );
     }

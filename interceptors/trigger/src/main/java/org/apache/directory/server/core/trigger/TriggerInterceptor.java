@@ -139,8 +139,8 @@ public class TriggerInterceptor extends BaseInterceptor
             Dn parentDn = dn.getParent();
 
             CoreSession session = opContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
-            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = 
+                new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             entry = directoryService.getPartitionNexus().lookup( lookupContext );
         }

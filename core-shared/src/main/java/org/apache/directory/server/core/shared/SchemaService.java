@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -47,7 +48,6 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.shared.ldap.model.schema.registries.NormalizerRegistry;
-import org.apache.directory.shared.util.StringConstants;
 
 
 /**
@@ -340,21 +340,28 @@ public class SchemaService
     /**
      * {@inheritDoc}
      */
-    public static Entry getSubschemaEntry( DirectoryService directoryService, String[] ids ) throws LdapException
+    public static Entry getSubschemaEntry( DirectoryService directoryService, FilteringOperationContext operationContext ) throws LdapException
     {
-        if ( ids == null )
-        {
-            ids = StringConstants.EMPTY_STRINGS;
-        }
-
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
         Set<String> setOids = new HashSet<String>();
         Entry attrs = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
-        boolean returnAllOperationalAttributes = false;
-        boolean returnAllUserAttributes = false;
-        boolean returnNoAttribute = false;
+        boolean returnAllOperationalAttributes = operationContext.isAllOperationalAttributes();
+        boolean returnAllUserAttributes = operationContext.isAllUserAttributes();
+        boolean returnNoAttribute = operationContext.isNoAttributes();
         
+        String[] oids = operationContext.getReturningAttributesString();
+        
+        if ( ( ( oids == null ) || ( oids.length == 0 ) ) && !returnAllOperationalAttributes && !returnAllUserAttributes && returnNoAttribute )
+        {
+            return attrs;
+        }
+        
+        for ( String oid : oids )
+        {
+            setOids.add( oid );
+        }
+
         synchronized ( schemaSubentrLock )
         {
             // ---------------------------------------------------------------
@@ -403,33 +410,6 @@ public class SchemaService
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart
             // ---------------------------------------------------------------
-            for ( String id : ids )
-            {
-                // Check whether the set contains a plus, and use it below to include all
-                // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
-                if ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( id ) )
-                {
-                    returnAllOperationalAttributes = true;
-                }
-                else if ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( id ) )
-                {
-                    returnAllUserAttributes = true;
-                }
-                else if ( SchemaConstants.NO_ATTRIBUTE.equals( id ) )
-                {
-                    returnNoAttribute = true;
-                }
-                else
-                {
-                    setOids.add( schemaManager.getAttributeTypeRegistry().getOidByName( id ) );
-                }
-            }
-
-            if ( returnNoAttribute && !returnAllOperationalAttributes && !returnAllUserAttributes && setOids.size() == 0 )
-            {
-                return attrs;
-            }
-
             if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.COMPARATORS_AT_OID ) )
             {
                 addAttribute( attrs, SchemaConstants.COMPARATORS_AT );

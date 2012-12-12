@@ -53,7 +53,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.EmptyEnumeration;
 import org.apache.directory.shared.util.Strings;
 
@@ -742,17 +741,17 @@ public class ServerEntryUtils
     {
         boolean typesOnly = operationContext.isTypesOnly();
 
-        boolean returnAll = ( operationContext.getReturningAttributes() == null ||
-            ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() ) )
+        boolean returnAll = ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() )
             && ( !typesOnly );
-
+        
         if ( returnAll )
         {
             return;
         }
-
+        
         Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
 
+        // First, remove all the attributes if we have the NoAtribute flag set to true
         if ( operationContext.isNoAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
@@ -763,29 +762,27 @@ public class ServerEntryUtils
 
             return;
         }
-
+        
+        SchemaManager schemaManager = operationContext.getSession().getDirectoryService().getSchemaManager();
+        
+        // If the user has requested all the User attributes ('*') only, we filter the entry's attribute to keep only
+        // the USER attributes, plus the Operational attributes in the returning list 
         if ( operationContext.isAllUserAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                boolean isNotRequested = true;
 
-                for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
+                if ( attributeType.isOperational() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    if ( !operationContext.contains( schemaManager, attributeType ) )
                     {
-                        isNotRequested = false;
-                        break;
+                        entry.removeAttributes( attributeType );
                     }
-                }
-
-                boolean isNotUserAttribute = attributeType.getUsage() != UsageEnum.USER_APPLICATIONS;
-
-                if ( isNotRequested && isNotUserAttribute )
-                {
-                    entry.removeAttributes( attributeType );
+                    else if ( typesOnly )
+                    {
+                        entry.get( attributeType ).clear();
+                    }
                 }
                 else if ( typesOnly )
                 {
@@ -796,28 +793,25 @@ public class ServerEntryUtils
             return;
         }
 
+        // If the user has requested all the Operational attributes ('+') only, we filter the entry's attribute to keep only
+        // the OPERATIONAL attributes, plus the User attributes in the returning list 
         if ( operationContext.isAllOperationalAttributes() )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                boolean isNotRequested = true;
 
-                for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
+
+                if ( attributeType.isUser() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    if ( !operationContext.contains( schemaManager, attributeType ) )
                     {
-                        isNotRequested = false;
-                        break;
+                        entry.removeAttributes( attributeType );
                     }
-                }
-
-                boolean isUserAttribute = attributeType.getUsage() == UsageEnum.USER_APPLICATIONS;
-
-                if ( isNotRequested && isUserAttribute )
-                {
-                    entry.removeAttributes( attributeType );
+                    else if ( typesOnly )
+                    {
+                        entry.get( attributeType ).clear();
+                    }
                 }
                 else if ( typesOnly )
                 {
@@ -828,10 +822,15 @@ public class ServerEntryUtils
             return;
         }
 
+        // Last, not least, check if the attributes are in the returning list
         if ( operationContext.getReturningAttributes() != null )
         {
             for ( Attribute attribute : originalEntry.getAttributes() )
             {
+                if ( !operationContext.contains( schemaManager, attribute.getAttributeType() ) )
+                {
+                    entry.removeAttributes( attribute.getAttributeType() );
+                }
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;
 

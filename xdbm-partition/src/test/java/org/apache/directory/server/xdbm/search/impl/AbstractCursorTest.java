@@ -23,6 +23,8 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
@@ -36,6 +38,8 @@ import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
+import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
@@ -50,6 +54,8 @@ public class AbstractCursorTest
     protected CursorBuilder cursorBuilder;
     protected Store store;
     protected static SchemaManager schemaManager;
+    protected DirectoryService directoryService;;
+    protected CoreSession session;
 
 
     /**
@@ -102,8 +108,10 @@ public class AbstractCursorTest
         searchResult.setResultSet( resultSet );
         searchResult.setEvaluator( evaluator );
 
-        SearchingOperationContext operationContext = new SearchOperationContext( null );
-
+        // We want all the user attributes plus the entryUUID
+        SearchingOperationContext operationContext = 
+            new SearchOperationContext( session, Dn.ROOT_DSE, SearchScope.ONELEVEL, null, "*", "EntryUUID" );
+        
         return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
             operationContext );
     }

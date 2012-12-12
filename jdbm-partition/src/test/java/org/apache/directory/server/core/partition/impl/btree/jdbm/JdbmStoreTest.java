@@ -33,6 +33,11 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.MockCoreSession;
+import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.xdbm.Index;
@@ -80,6 +85,8 @@ public class JdbmStoreTest
 
     File wkdir;
     JdbmPartition store;
+    CoreSession session;
+    
     private static SchemaManager schemaManager = null;
     private static LdifSchemaLoader loader;
     private static Dn EXAMPLE_COM;
@@ -160,6 +167,11 @@ public class JdbmStoreTest
         store.initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
+        
+        DirectoryService directoryService = new MockDirectoryService();
+        directoryService.setSchemaManager( schemaManager );
+        session = new MockCoreSession( new LdapPrincipal(), directoryService );
+
         LOG.debug( "Created new store" );
     }
 
@@ -583,7 +595,7 @@ public class JdbmStoreTest
         store.rename( dn, rdn, true, null );
 
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
-        Entry renamed = store.lookup( new LookupOperationContext( null, dn ) );
+        Entry renamed = store.lookup( new LookupOperationContext( session, dn ) );
         assertNotNull( renamed );
         assertEquals( "James", renamed.getDn().getRdn().getValue().getString() );
     }

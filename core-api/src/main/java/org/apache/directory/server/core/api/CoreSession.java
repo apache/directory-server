@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -734,26 +733,7 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
-
-
-    /**
-     * An optimized search operation using one level search scope which 
-     * applies size and time limit constraints and returns all the children 
-     * of an entry specified by distinguished name if thes limits are not
-     * violated.  This is equivalent to a search operation with one level 
-     * scope using the <code>(objectClass=*)</code> filter.
-     *
-     * @param dn the distinguished name of the entry to list the children of
-     * @param aliasDerefMode the alias dereferencing mode used
-     * @param returningAttributes the attributes to return
-     * @param sizeLimit the upper bound to the number of entries to return
-     * @param timeLimit the upper bound to the amount of time before 
-     * terminating the search
-     * @throws Exception if there are failures while listing children
-     */
-    EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
+        String... returningAttributes ) throws LdapException;
 
 
     /**
@@ -792,22 +772,7 @@ public interface CoreSession
      * @throws Exception if there are failures while listing children
      */
     EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes ) throws LdapException;
-
-
-    /**
-     * Searches the directory using a specified search scope and filter.
-     *
-     * @param dn the distinguished name of the entry to list the children of
-     * @param aliasDerefMode the alias dereferencing mode used
-     * @param returningAttributes the attributes to return
-     * @param sizeLimit the upper bound to the number of entries to return
-     * @param timeLimit the upper bound to the amount of time before 
-     * terminating the search
-     * @throws Exception if there are failures while listing children
-     */
-    EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
-        Set<AttributeTypeOptions> returningAttributes, long sizeLimit, int timeLimit ) throws LdapException;
+        String... returningAttributes ) throws LdapException;
 
 
     EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException;

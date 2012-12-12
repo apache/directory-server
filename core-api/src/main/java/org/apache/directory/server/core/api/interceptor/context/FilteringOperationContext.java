@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.model.schema.UsageEnum;
-import org.apache.directory.shared.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +48,6 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 {
     /** The LoggerFactory used by this Interceptor */
     protected static Logger LOG = LoggerFactory.getLogger( FilteringOperationContext.class );
-
-    private static final String[] EMPTY = new String[]
-        {};
 
     /** A set containing the returning attributeTypesOptions */
     protected Set<AttributeTypeOptions> returningAttributes;
@@ -80,7 +75,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      */
     public FilteringOperationContext( CoreSession session )
     {
-        super( session );
+        // Default to All User Attributes if we don't have any attributes
+        this( session, SchemaConstants.ALL_USER_ATTRIBUTES );
     }
 
 
@@ -91,7 +87,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      */
     public FilteringOperationContext( CoreSession session, Dn dn )
     {
-        super( session, dn );
+        // Default to All User Attributes if we don't have any attributes
+        this( session, dn, SchemaConstants.ALL_USER_ATTRIBUTES );
     }
 
 
@@ -100,9 +97,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public FilteringOperationContext( CoreSession session, Set<AttributeTypeOptions> returningAttributes )
+    public FilteringOperationContext( CoreSession session, String... returningAttributes )
     {
         super( session );
+        
         setReturningAttributes( returningAttributes );
     }
 
@@ -112,9 +110,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public FilteringOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
+    public FilteringOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn );
+        
         setReturningAttributes( returningAttributes );
     }
 
@@ -199,221 +198,176 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
             
-            if ( ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) && isAllUserAttributes() )
-            {
-                return true;
-            }
-
-            if ( ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) && isAllOperationalAttributes() )
-            {
-                return true;
-            }
-
-            AttributeTypeOptions attributeTypeOption = new AttributeTypeOptions( attributeType );
-            
-            boolean present = returningAttributes.contains( attributeTypeOption );
-            
-            return present;
+            return contains( schemaManager, attributeType );
         }
         catch ( LdapException le )
         {
             return false;
         }
     }
-
-
+    
+    
     /**
-     * @param returningAttributes the returningAttributes to set
+     * Tells if an attribute is present in the list of attribute to return
+     * 
+     * @param attributeType The attributeType we are looking for
+     * @return true if the attribute is present
      */
-    public void setReturningAttributes( Set<AttributeTypeOptions> returningAttributes )
+    public boolean contains( SchemaManager schemaManager, AttributeType attributeType )
     {
-        this.returningAttributes = returningAttributes;
-    }
-    
-    
-    public void setReturningAttributes( String... attributesIds ) throws LdapException
-    {
-        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
+        if ( isNoAttributes() )
         {
+            return false;
+        }
+        
+        if ( ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) && allUserAttributes )
+        {
+            return true;
+        }
+
+        if ( ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS ) && allOperationalAttributes )
+        {
+            return true;
+        }
+
+        // Loop on the returningAttribute, as we have two conditions to check
+        if ( returningAttributes == null )
+        {
+            return false;
+        }
+        
+        for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
+        {
+            if ( attributeTypeOptions.getAttributeType().equals( attributeType ) ||
+                attributeTypeOptions.getAttributeType().isAncestorOf( attributeType ) )
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+
+    protected void setReturningAttributes( String... attributeIds )
+    {
+        if ( ( attributeIds != null ) && ( attributeIds.length != 0 ) && ( attributeIds[0] != null ) )
+        {
+            // We have something in the list
+            // first, ignore all the unkown AT and convert the strings to 
+            // AttributeTypeOptions
             returningAttributes = new HashSet<AttributeTypeOptions>();
             Set<String> attributesString = new HashSet<String>();
-            int nbInvalid = 0;
             
-            for ( String returnAttribute : attributesIds )
-            {
-                if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
-                {
-                    noAttributes = true;
-                    continue;
-                }
+            Set<AttributeTypeOptions> collectedAttributes = collectAttributeTypes( attributeIds );
 
-                if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                {
-                    allOperationalAttributes = true;
-                    continue;
-                }
-
-                if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-                {
-                    allUserAttributes = true;
-                    continue;
-                }
-
-                try
-                {
-                    String id = SchemaUtils.stripOptions( returnAttribute );
-                    Set<String> options = SchemaUtils.getOptions( returnAttribute );
-
-                    AttributeType attributeType = session.getDirectoryService()
-                        .getSchemaManager().lookupAttributeTypeRegistry( id );
-                    AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-
-                    returningAttributes.add( attrOptions );
-                    attributesString.add( attributeType.getOid() );
-                }
-                catch ( LdapNoSuchAttributeException nsae )
-                {
-                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
-                        returnAttribute );
-                    // Unknown attributes should be silently ignored, as RFC 2251 states
-                    nbInvalid++;
-                }
-            }
-
-            // reset the noAttribute flag if it is already set cause that will be ignored if any other AT is requested
-            if ( isNoAttributes() && 
-                ( isAllUserAttributes() || 
-                  isAllOperationalAttributes() || 
-                  ( ( returningAttributes != null ) && ( returningAttributes.size() > 0 ) ) ) )
+            // If we have valid, '*' or '+' attributes, we can get rid of the NoAttributes flag
+            if ( ( collectedAttributes.size() > 0 ) || allUserAttributes || allOperationalAttributes )
             {
                 noAttributes = false;
             }
-            
-            if ( attributesString.size() > 0 )
+
+            // Now, loop on the list of attributes, and remove all the USER attributes if
+            // we have the '*' attribute, and remove all the OPERATIONAL attributes if we
+            // have the '+' attribute
+            if ( collectedAttributes.size() > 0 )
             {
-                returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
-            }
-            else if ( nbInvalid > 0 )
-            {
-                returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
-            }
-            else
-            {
-                String[] ret = new String[3];
-                
-                int nbElem = 0;
-                
-                if ( isNoAttributes() )
+                for ( AttributeTypeOptions attributeTypeOption : collectedAttributes )
                 {
-                    ret[nbElem++] = SchemaConstants.NO_ATTRIBUTE;
-                }
-                
-                if ( isAllOperationalAttributes() )
-                {
-                    ret[nbElem++] = SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES;
-                }
-                
-                if ( isAllUserAttributes() )
-                {
-                    ret[nbElem++] = SchemaConstants.ALL_USER_ATTRIBUTES;
-                }
-                
-                if ( nbElem == 0 )
-                {
-                    returningAttributesString = new String[]{ SchemaConstants.ALL_USER_ATTRIBUTES };
-                    allUserAttributes = true;
-                }
-                else
-                {
-                    returningAttributesString = new String[nbElem];
-                    System.arraycopy( ret, 0, returningAttributesString, 0, nbElem );
-                }
-            }
-        }
-    }
-
-
-    
-    
-    public void addReturningAttributes( String... attributesIds ) throws LdapException
-    {
-        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
-        {
-            Set<String> attributesString = new HashSet<String>();
-            int nbInvalid = 0;
-            
-            for ( String returnAttribute : attributesIds )
-            {
-                if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
-                {
-                    noAttributes = true;
-                    attributesString.add( SchemaConstants.NO_ATTRIBUTE );
-                    continue;
-                }
-
-                if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                {
-                    allOperationalAttributes = true;
-                    attributesString.add( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
-                    continue;
-                }
-
-                if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-                {
-                    allUserAttributes = true;
-                    attributesString.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-                    continue;
-                }
-
-                try
-                {
-                    String id = SchemaUtils.stripOptions( returnAttribute );
-                    Set<String> options = SchemaUtils.getOptions( returnAttribute );
-
-                    AttributeType attributeType = session.getDirectoryService()
-                        .getSchemaManager().lookupAttributeTypeRegistry( id );
-                    AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-
-                    returningAttributes.add( attrOptions );
+                    if ( attributeTypeOption.getAttributeType().isUser() && !allUserAttributes )
+                    {
+                        // We can add the AttributeType in the list of returningAttributeTypes
+                        returningAttributes.add( attributeTypeOption );
+                        attributesString.add( attributeTypeOption.getAttributeType().getOid() );
+                    }
                     
-                    attributesString.add( attributeType.getOid() );
+                    if ( attributeTypeOption.getAttributeType().isOperational() && !allOperationalAttributes )
+                    {
+                        // We can add the AttributeType in the list of returningAttributeTypes
+                        returningAttributes.add( attributeTypeOption );
+                        attributesString.add( attributeTypeOption.getAttributeType().getOid() );
+                    }
+                }
+            }
+            
+            if ( attributesString.size() > 0 )
+            {
+                // We have some valid attributes, lt's convert it to String
+                returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
+            }
+            else 
+            {
+                // No valid attributes remaining, that means they were all invalid
+                returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
+            } 
+        }
+        else
+        {
+            // Nothing in the list : default to '*'
+            allUserAttributes = true;
+            returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+    }
+    
+    
+    private Set<AttributeTypeOptions> collectAttributeTypes( String... attributesIds )
+    {
+        Set<AttributeTypeOptions> collectedAttributes = new HashSet<AttributeTypeOptions>();
+        
+        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) ) 
+        {
+            for ( String returnAttribute : attributesIds )
+            {
+                if ( returnAttribute == null )
+                {
+                    continue;
+                }
+                
+                if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                {
+                    noAttributes = true;
+                    continue;
+                }
+    
+                if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+                {
+                    allOperationalAttributes = true;
+                    continue;
+                }
+    
+                if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
+                {
+                    allUserAttributes = true;
+                    continue;
+                }
+    
+                try
+                {
+                    String id = SchemaUtils.stripOptions( returnAttribute );
+                    Set<String> options = SchemaUtils.getOptions( returnAttribute );
+    
+                    AttributeType attributeType = session.getDirectoryService()
+                        .getSchemaManager().lookupAttributeTypeRegistry( id );
+                    AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
+    
+                    collectedAttributes.add( attrOptions );
                 }
                 catch ( LdapNoSuchAttributeException nsae )
                 {
                     LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
                         returnAttribute );
                     // Unknown attributes should be silently ignored, as RFC 2251 states
-                    nbInvalid++;
+                }
+                catch ( LdapException le )
+                {
+                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
+                        returnAttribute );
+                    // Unknown attributes should be silently ignored, as RFC 2251 states
                 }
             }
-
-            // reset the noAttribute flag if it is already set cause that will be ignored if any other AT is requested
-            if ( isNoAttributes() && ( isAllUserAttributes() || isAllOperationalAttributes() || ( !returningAttributes.isEmpty() ) ) )
-            {
-                noAttributes = false;
-            }
-            
-            if ( attributesString.size() > 0 )
-            {
-                returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
-            }
-            else if ( nbInvalid > 0 )
-            {
-                returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
-            }
-            else
-            {
-                returningAttributesString = new String[]{ SchemaConstants.ALL_USER_ATTRIBUTES };
-                allUserAttributes = true;
-            }
         }
-    }
-
-
-    protected void setReturningAttributes( Collection<String> attributesIds )
-        throws LdapException
-    {
-        setReturningAttributes( attributesIds.toArray( StringConstants.EMPTY_STRINGS ) );
+        
+        return collectedAttributes;
     }
 
 

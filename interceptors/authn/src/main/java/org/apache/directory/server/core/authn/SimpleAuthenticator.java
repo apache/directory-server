@@ -236,12 +236,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
              * cannot use lookup() yet.  This is a very special
              * case where we cannot rely on the bindContext to perform a new
              * sub operation.
+             * We request all the attributes
              */
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
-                bindContext.getDn() );
-
-            // OP attributes required for ppolicy
-            lookupContext.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+                bindContext.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
 
             userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
 

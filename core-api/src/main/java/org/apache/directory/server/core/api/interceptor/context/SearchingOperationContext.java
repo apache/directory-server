@@ -22,14 +22,11 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 import static org.apache.directory.shared.ldap.model.message.SearchScope.ONELEVEL;
 
-import java.util.Set;
-
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -86,7 +83,7 @@ public abstract class SearchingOperationContext extends FilteringOperationContex
      * @param returningAttributes The list of attributes to return
      * @throws LdapException
      */
-    public SearchingOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
+    public SearchingOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn, returningAttributes );
     }

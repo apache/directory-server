@@ -30,6 +30,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.MockCoreSession;
+import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.StoreUtils;
@@ -139,6 +142,10 @@ public class NestedFilterTest extends AbstractCursorTest
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         optimizer = new DefaultOptimizer( store );
+
+        directoryService = new MockDirectoryService();
+        directoryService.setSchemaManager( schemaManager );
+        session = new MockCoreSession( new LdapPrincipal(), directoryService );
 
         LOG.debug( "Created new store" );
     }

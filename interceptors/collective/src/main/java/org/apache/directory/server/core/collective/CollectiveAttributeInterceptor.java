@@ -32,10 +32,10 @@ import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -90,8 +90,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
         {
-            String[] retAttrs = operation.getReturningAttributesString();
-            addCollectiveAttributes( operation, entry, retAttrs );
+            addCollectiveAttributes( operation, entry );
 
             return true;
         }
@@ -165,14 +164,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
         
         // Adding the collective attributes if any
-        if ( ( lookupContext.getReturningAttributes() == null ) || ( lookupContext.getReturningAttributes().size() == 0 ) )
-        {
-            addCollectiveAttributes( lookupContext, result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-        }
-        else
-        {
-            addCollectiveAttributes( lookupContext, result, lookupContext.getReturningAttributesString() );
-        }
+        addCollectiveAttributes( lookupContext, result );
 
         return result;
     }
@@ -346,12 +338,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
      * @param opContext the context of the operation collective attributes
      * are added to
      * @param entry the entry to have the collective attributes injected
-     * @param retAttrs array or attribute type to be specifically included in the result entry(s)
      * @throws LdapException if there are problems accessing subentries
      */
-    private void addCollectiveAttributes( OperationContext opContext, Entry entry, String[] retAttrs )
+    private void addCollectiveAttributes( FilteringOperationContext opContext, Entry entry )
         throws LdapException
     {
+        CoreSession session = opContext.getSession();
+
         Attribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
@@ -396,34 +389,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
 
         /*
-         * If no attributes are requested specifically
-         * then it means all user attributes are requested.
-         * So populate the array with all user attributes indicator: "*".
-         */
-        if ( retAttrs == null )
-        {
-            retAttrs = SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY;
-        }
-
-        /*
-         * Construct a set of requested attributes for easier tracking.
-         */
-        Set<String> retIdsSet = new HashSet<String>( retAttrs.length );
-
-        for ( String retAttr : retAttrs )
-        {
-            if ( retAttr.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
-                || retAttr.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-            {
-                retIdsSet.add( retAttr );
-            }
-            else
-            {
-                retIdsSet.add( schemaManager.lookupAttributeTypeRegistry( retAttr ).getOid() );
-            }
-        }
-
-        /*
          * For each collective subentry referenced by the entry we lookup the
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
@@ -431,7 +396,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            Dn subentryDn = opContext.getSession().getDirectoryService().getDnFactory().create( subentryDnStr );
+            Dn subentryDn = session.getDirectoryService().getDnFactory().create( subentryDnStr );
 
             /*
              * TODO - Instead of hitting disk here can't we leverage the
@@ -440,7 +405,6 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
              * time looking up this sub-entry.
              */
 
-            CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry subentry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
@@ -450,6 +414,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 AttributeType attributeType = attribute.getAttributeType();
                 String attrId = attributeType.getName();
 
+                // Skip the attributes which are not collectve
                 if ( !attributeType.isCollective() )
                 {
                     continue;
@@ -464,31 +429,11 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                Set<AttributeType> allSuperTypes = getAllSuperTypes( attributeType );
-
-                for ( String retId : retIdsSet )
-                {
-                    if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
-                        || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-                    {
-                        continue;
-                    }
-
-                    AttributeType retType = schemaManager.lookupAttributeTypeRegistry( retId );
-
-                    if ( allSuperTypes.contains( retType ) )
-                    {
-                        retIdsSet.add( schemaManager.lookupAttributeTypeRegistry( attrId ).getOid() );
-                        break;
-                    }
-                }
-
                 /*
                  * If not all attributes or this collective attribute requested specifically
                  * then bypass the inclusion process.
                  */
-                if ( !( retIdsSet.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || retIdsSet.contains( schemaManager
-                    .lookupAttributeTypeRegistry( attrId ).getOid() ) ) )
+                if ( !opContext.isAllUserAttributes() && !opContext.contains( schemaManager, attributeType ) )
                 {
                     continue;
                 }
@@ -515,24 +460,5 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 }
             }
         }
-    }
-
-
-    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws LdapException
-    {
-        Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
-        AttributeType superType = id;
-
-        while ( superType != null )
-        {
-            superType = superType.getSuperior();
-
-            if ( superType != null )
-            {
-                allSuperTypes.add( superType );
-            }
-        }
-
-        return allSuperTypes;
     }
 }

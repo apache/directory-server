@@ -441,13 +441,13 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
 
     public boolean isAbandoned()
     {
-        return getOperationContext().isAbandoned();
+        return searchContext.isAbandoned();
     }
 
 
     public void setAbandoned( boolean abandoned )
     {
-        getOperationContext().setAbandoned( abandoned );
+        searchContext.setAbandoned( abandoned );
 
         if ( abandoned )
         {

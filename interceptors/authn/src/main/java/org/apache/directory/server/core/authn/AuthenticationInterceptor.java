@@ -505,8 +505,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // load the user entry again if ppolicy is enabled, cause the authenticator might have modified the entry
         if( policyConfig != null )
         {
-            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindContext.getDn() );
-            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindContext.getDn(),
+                    SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
         
@@ -1010,8 +1010,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 
                 invalidateAuthenticatorCaches( modifyContext.getDn() );
                 
-                LookupOperationContext lookupContext = new LookupOperationContext( adminSession, modifyContext.getDn() );
-                lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                LookupOperationContext lookupContext = new LookupOperationContext( adminSession, modifyContext.getDn(),
+                    SchemaConstants.ALL_ATTRIBUTES_ARRAY );
                 entry = directoryService.getPartitionNexus().lookup( lookupContext );
                 
                 if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )

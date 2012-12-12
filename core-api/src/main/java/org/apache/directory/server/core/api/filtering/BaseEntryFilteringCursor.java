@@ -145,7 +145,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public boolean isAbandoned()
     {
-        return getOperationContext().isAbandoned();
+        return operationContext.isAbandoned();
     }
 
 
@@ -154,7 +154,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public void setAbandoned( boolean abandoned )
     {
-        getOperationContext().setAbandoned( abandoned );
+        operationContext.setAbandoned( abandoned );
 
         if ( abandoned )
         {
@@ -296,7 +296,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public boolean first() throws Exception
     {
-        if ( getOperationContext().isAbandoned() )
+        if ( operationContext.isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -337,7 +337,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public boolean last() throws Exception
     {
-        if ( getOperationContext().isAbandoned() )
+        if ( operationContext.isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -355,7 +355,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public boolean next() throws Exception
     {
-        if ( getOperationContext().isAbandoned() )
+        if ( operationContext.isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -366,8 +366,6 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
         outer: while ( wrapped.next() )
         {
-            boolean accepted = true;
-
             Entry tempEntry = wrapped.get();
 
             if ( tempEntry == null )
@@ -396,15 +394,15 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+                ServerEntryUtils.filterContents( prefetched, operationContext );
                 
                 return true;
             }
 
-            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+                ServerEntryUtils.filterContents( prefetched, operationContext );
 
                 return true;
             }
@@ -413,7 +411,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( !filter.accept( getOperationContext(), tempResult ) )
+                if ( !filter.accept( operationContext, tempResult ) )
                 {
                     continue outer;
                 }
@@ -423,7 +421,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+            ServerEntryUtils.filterContents( prefetched, operationContext );
 
             return true;
         }
@@ -439,7 +437,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      */
     public boolean previous() throws Exception
     {
-        if ( getOperationContext().isAbandoned() )
+        if ( operationContext.isAbandoned() )
         {
             log.info( "Cursor has been abandoned." );
             close();
@@ -450,7 +448,6 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
         outer: while ( wrapped.previous() )
         {
-            boolean accepted = true;
             Entry entry = wrapped.get();
 
             if ( entry == null )
@@ -471,15 +468,15 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+                ServerEntryUtils.filterContents( prefetched, operationContext );
 
                 return true;
             }
 
-            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( getOperationContext(), tempResult ) )
+            if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+                ServerEntryUtils.filterContents( prefetched, operationContext );
 
                 return true;
             }
@@ -489,7 +486,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             for ( EntryFilter filter : filters )
             {
                 // if a filter rejects then short and continue with outer loop
-                if ( !filter.accept( getOperationContext(), tempResult ) )
+                if ( !filter.accept( operationContext, tempResult ) )
                 {
                     continue outer;
                 }
@@ -499,7 +496,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            ServerEntryUtils.filterContents( prefetched, getOperationContext() );
+            ServerEntryUtils.filterContents( prefetched, operationContext );
 
             return true;
         }

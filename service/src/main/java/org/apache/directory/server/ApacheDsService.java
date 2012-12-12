@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -133,6 +132,7 @@ public class ApacheDsService
     private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();
 
     private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
+    private static String[] MANDATORY_ENTRY_ATOP_AT;
 
     private boolean isConfigPartitionFirstExtraction = false;
 
@@ -329,6 +329,15 @@ public class ApacheDsService
 
         AttributeType createdTimeAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
         MANDATORY_ENTRY_ATOP_MAP.put( createdTimeAt.getName(), new AttributeTypeOptions( createdTimeAt ) );
+        
+        MANDATORY_ENTRY_ATOP_AT = new String[MANDATORY_ENTRY_ATOP_MAP.size()];
+        
+        int pos = 0;
+        
+        for ( AttributeTypeOptions attributeTypeOptions : MANDATORY_ENTRY_ATOP_MAP.values() )
+        {
+            MANDATORY_ENTRY_ATOP_AT[pos++] = attributeTypeOptions.getAttributeType().getName();
+        }
 
         if ( isConfigPartitionFirstExtraction )
         {
@@ -661,7 +670,7 @@ public class ApacheDsService
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
 
         EntryFilteringCursor cursor = session.search( partition.getSuffixDn(), SearchScope.SUBTREE, filter,
-            AliasDerefMode.NEVER_DEREF_ALIASES, new HashSet<AttributeTypeOptions>( MANDATORY_ENTRY_ATOP_MAP.values() ) );
+            AliasDerefMode.NEVER_DEREF_ALIASES, MANDATORY_ENTRY_ATOP_AT );
         cursor.beforeFirst();
 
         List<Modification> mods = new ArrayList<Modification>();

@@ -20,13 +20,9 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import java.util.Set;
-
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -79,35 +75,8 @@ public class LookupOperationContext extends FilteringOperationContext
      */
     public LookupOperationContext( CoreSession session, String... returningAttributes )
     {
-        super( session );
-        
-        try
-        {
-            setReturningAttributes( returningAttributes );
-        }
-        catch ( LdapException le )
-        {
-            LOG.error( le.getMessage() );
-        }
-
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
-        }
-    }
-
-    
-
-
-    /**
-     * 
-     * Creates a new instance of LookupOperationContext.
-     *
-     */
-    public LookupOperationContext( CoreSession session, Set<AttributeTypeOptions> returningAttributes )
-    {
         super( session, returningAttributes );
-
+        
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
@@ -122,33 +91,8 @@ public class LookupOperationContext extends FilteringOperationContext
      */
     public LookupOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
-        super( session, dn );
-        
-        try
-        {
-            setReturningAttributes( returningAttributes );
-        }
-        catch ( LdapException le )
-        {
-            LOG.error( le.getMessage() );
-        }
-
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );
-        }
-    }
-
-
-    /**
-     * 
-     * Creates a new instance of LookupOperationContext.
-     *
-     */
-    public LookupOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
-    {
         super( session, dn, returningAttributes );
-
+        
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.LOOKUP ) );

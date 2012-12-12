@@ -20,9 +20,7 @@
 package org.apache.directory.server.core.api.sp;
 
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
@@ -40,7 +38,6 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -51,8 +48,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
  */
 public class StoredProcExecutionManager
 {
-    private final static Set<AttributeTypeOptions> EMPTY_ATTRIBS = Collections.emptySet();
-
     private final String storedProcContainer;
 
     private final List<StoredProcEngineConfig> storedProcEngineConfigs;
@@ -94,7 +89,8 @@ public class StoredProcExecutionManager
             new StringValue( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );
         EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter,
-            AliasDerefMode.DEREF_ALWAYS, EMPTY_ATTRIBS );
+            AliasDerefMode.DEREF_ALWAYS );
+        
         if ( results.first() )
         {
             Entry entry = results.get();

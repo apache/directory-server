@@ -146,7 +146,7 @@ public class MockOperation implements OperationContext
     }
 
 
-    public LookupOperationContext newLookupContext( Dn dn )
+    public LookupOperationContext newLookupContext( Dn dn, String... attributes )
     {
         return null;
     }

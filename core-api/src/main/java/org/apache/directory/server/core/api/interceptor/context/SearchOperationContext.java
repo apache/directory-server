@@ -20,24 +20,18 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
+import org.apache.directory.shared.util.StringConstants;
 
 
 /**
@@ -75,14 +69,13 @@ public class SearchOperationContext extends SearchingOperationContext
      */
     public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws LdapException
     {
-        super( session );
+        super( session, searchRequest.getBase(), searchRequest.getAttributes().toArray( StringConstants.EMPTY_STRINGS ) );
 
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
         }
 
-        this.dn = searchRequest.getBase();
         this.filter = searchRequest.getFilter();
         this.abandoned = searchRequest.isAbandoned();
         this.aliasDerefMode = searchRequest.getDerefAliases();
@@ -92,19 +85,6 @@ public class SearchOperationContext extends SearchingOperationContext
         this.sizeLimit = searchRequest.getSizeLimit();
         this.timeLimit = searchRequest.getTimeLimit();
         this.typesOnly = searchRequest.getTypesOnly();
-
-        List<String> ats = searchRequest.getAttributes();
-
-        // section 4.5.1.8 of RFC 4511
-        //1. An empty list with no attributes requests the return of all user attributes.
-        if ( ats.isEmpty() )
-        {
-            ats = new ArrayList<String>();
-            ats.add( SchemaConstants.ALL_USER_ATTRIBUTES );
-            ats = Collections.unmodifiableList( ats );
-        }
-
-        setReturningAttributes( ats );
 
         throwReferral = !requestControls.containsKey( ManageDsaIT.OID );
     }
@@ -120,7 +100,7 @@ public class SearchOperationContext extends SearchingOperationContext
     public SearchOperationContext( CoreSession session, Dn dn, ExprNode filter, SearchControls searchControls )
         throws LdapException
     {
-        super( session, dn );
+        super( session, dn, searchControls.getReturningAttributes() );
         this.filter = filter;
         scope = SearchScope.getSearchScope( searchControls.getSearchScope() );
         timeLimit = searchControls.getTimeLimit();
@@ -130,15 +110,6 @@ public class SearchOperationContext extends SearchingOperationContext
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.SEARCH ) );
-        }
-
-        if ( searchControls.getReturningAttributes() != null )
-        {
-            setReturningAttributes( searchControls.getReturningAttributes() );
-        }
-        else
-        {
-            setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
     }
 
@@ -154,7 +125,7 @@ public class SearchOperationContext extends SearchingOperationContext
      * @param returningAttributes the attributes to return
      */
     public SearchOperationContext( CoreSession session, Dn dn, SearchScope scope,
-        ExprNode filter, Set<AttributeTypeOptions> returningAttributes )
+        ExprNode filter, String... returningAttributes )
     {
         super( session, dn, returningAttributes );
         super.setScope( scope );

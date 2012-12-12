@@ -22,13 +22,12 @@ package org.apache.directory.server.ldap.replication.consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
@@ -88,6 +87,7 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
+import org.apache.directory.shared.util.StringConstants;
 import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,9 +148,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /** The (entrtyUuid=*) filter */
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
-    /** The set used for search attributes, containing only the entryUuid AT */
-    private static final Set<AttributeTypeOptions> ENTRY_UUID_ATOP_SET = new HashSet<AttributeTypeOptions>();
-
     private Modification cookieMod;
     
     private Modification ridMod;
@@ -187,8 +184,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         REPL_COOKIE_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
         RID_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_DS_REPLICA_ID );
         
-        ENTRY_UUID_ATOP_SET.add( new AttributeTypeOptions( ENTRY_UUID_AT ) );
-
         Attribute cookieAttr = new DefaultAttribute( REPL_COOKIE_AT );
         cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
 
@@ -1146,11 +1141,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     private void modify( Entry remoteEntry, int rid ) throws Exception
     {
-        LookupOperationContext lookupCtx = new LookupOperationContext( session, remoteEntry.getDn() );
-        lookupCtx.setReturningAttributes( config.getAttributes() );
-        
-        // this is needed to compare some of the operational attributes received from the server
-        lookupCtx.addReturningAttributes( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+        String[] attributes = computeAttributes( config.getAttributes(), SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+
+        LookupOperationContext lookupCtx = 
+            new LookupOperationContext( session, remoteEntry.getDn(), attributes );
         
         lookupCtx.setSyncreplLookup( true );
         
@@ -1220,6 +1214,41 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         operationManager.modify( modifyContext );
     }
 
+    
+    /**
+     * Create a new list combining a list and a newly added attribute
+     */
+    private String[] computeAttributes( String[] attributes, String addedAttribute )
+    {
+        if ( attributes != null )
+        {
+            if ( addedAttribute != null )
+            {
+                String[] combinedAttributes = new String[ attributes.length + 1 ];
+                
+                System.arraycopy( attributes, 0, combinedAttributes, 0, attributes.length );
+                combinedAttributes[attributes.length] = addedAttribute;
+                
+                return combinedAttributes;
+            }
+            else
+            {
+                return attributes;
+            }
+        }
+        else
+        {
+            if ( addedAttribute != null )
+            {
+                return new String[]{ addedAttribute };
+            }
+            else
+            {
+                return StringConstants.EMPTY_STRINGS;
+            }
+        }
+    }
+    
 
     /**
      * deletes the entries having the UUID given in the list
@@ -1329,7 +1358,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
         EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
-            AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
+            AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
         cursor.beforeFirst();
         
         while ( cursor.next() )
@@ -1411,7 +1440,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( cursor == null )
             {
                 cursor = session.search( rootDn, SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER,
-                    AliasDerefMode.NEVER_DEREF_ALIASES, ENTRY_UUID_ATOP_SET );
+                    AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
                 cursor.beforeFirst();
                 LOG.debug( "putting cursor for {}", rootDn.getName() );
                 cursorMap.put( rootDn, cursor );

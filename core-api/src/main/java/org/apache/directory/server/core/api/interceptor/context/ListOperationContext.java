@@ -19,13 +19,9 @@
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
-
-import java.util.Set;
-
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 
 
 /**
@@ -74,7 +70,7 @@ public class ListOperationContext extends SearchingOperationContext
      * @param aliasDerefMode the alias dereferencing mode to use
      * @param returningAttributes the attributes to return
      */
-    public ListOperationContext( CoreSession session, Dn dn, Set<AttributeTypeOptions> returningAttributes )
+    public ListOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn, returningAttributes );
 

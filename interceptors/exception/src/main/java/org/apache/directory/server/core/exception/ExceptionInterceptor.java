@@ -160,8 +160,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             try
             {
                 CoreSession session = addContext.getSession();
-                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn );
-                lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
@@ -250,7 +249,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, lookupContext.getReturningAttributesString() );
+            Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, lookupContext );
             serverEntry.setDn( dn );
 
             return serverEntry;

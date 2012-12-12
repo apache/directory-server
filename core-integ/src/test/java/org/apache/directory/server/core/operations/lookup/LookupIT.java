@@ -32,9 +32,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -226,30 +224,16 @@ public class LookupIT extends AbstractLdapTestUnit
     @Test
     public void testLookupWithAttrs() throws Exception
     {
-        EntryCursor cursor = connection.search( "cn=test,ou=system", "(ObjectClass=*)",SearchScope.SUBTREE, "name" );
-        
-        while ( cursor.next() )
-        {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            assertEquals( 2, entry.size() );
-            assertEquals( "test", entry.get( "cn" ).getString() );
-            assertEquals( "sn_test", entry.get( "sn" ).getString() );
-            assertFalse( entry.containsAttribute( "objectClass" ) );
-        }
-        
-        cursor.close();
-
-        //Entry entry = connection.lookup( "cn=test,ou=system", "name" );
-        //assertNotNull( entry );
+        Entry entry = connection.lookup( "cn=test,ou=system", "name" );
+        assertNotNull( entry );
 
         // We should have 2 attributes
-        //assertEquals( 2, entry.size() );
+        assertEquals( 2, entry.size() );
 
         // Check that all the user attributes are present
-        //assertEquals( "test", entry.get( "cn" ).getString() );
-        //assertEquals( "sn_test", entry.get( "sn" ).getString() );
-        //assertFalse( entry.containsAttribute( "objectClass" ) );
+        assertEquals( "test", entry.get( "cn" ).getString() );
+        assertEquals( "sn_test", entry.get( "sn" ).getString() );
+        assertFalse( entry.containsAttribute( "objectClass" ) );
     }
 
 

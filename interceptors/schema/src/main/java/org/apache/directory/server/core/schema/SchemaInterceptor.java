@@ -22,7 +22,6 @@ package org.apache.directory.server.core.schema;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -375,116 +374,6 @@ public class SchemaInterceptor extends BaseInterceptor
             ObjectClass objectClass = objectClasses.next();
             computeSuperior( objectClass );
         }
-    }
-
-
-    /**
-     * Remove all unknown attributes from the searchControls, to avoid an exception.
-     *
-     * RFC 2251 states that :
-     * " Attributes MUST be named at most once in the list, and are returned "
-     * " at most once in an entry. "
-     * " If there are attribute descriptions in "
-     * " the list which are not recognized, they are ignored by the server."
-     *
-     * @param searchContext The SearchControls we will filter
-     */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void filterAttributesToReturn( SearchOperationContext searchContext ) throws LdapException
-    {
-        String[] attributes = searchContext.getReturningAttributesString();
-
-        if ( ( attributes == null ) || ( attributes.length == 0 ) )
-        {
-            // We have no attributes, that means "*" (all users attributes)
-            //searchContext.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-            return;
-        }
-
-        Map<String, String> filteredAttrs = new HashMap<String, String>();
-        boolean hasNoAttribute = false;
-        boolean hasAttributes = false;
-
-        for ( String attribute : attributes )
-        {
-            // Skip special attributes
-            if ( ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( attribute ) )
-                || ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( attribute ) )
-                || ( SchemaConstants.NO_ATTRIBUTE.equals( attribute ) ) )
-            {
-                if ( !filteredAttrs.containsKey( attribute ) )
-                {
-                    filteredAttrs.put( attribute, attribute );
-                }
-
-                if ( SchemaConstants.NO_ATTRIBUTE.equals( attribute ) )
-                {
-                    hasNoAttribute = true;
-                }
-                else
-                {
-                    hasAttributes = true;
-                }
-
-                continue;
-            }
-
-            try
-            {
-                // Check that the attribute is declared
-                if ( schemaManager.getAttributeTypeRegistry().contains( attribute ) )
-                {
-                    String oid = schemaManager.getAttributeTypeRegistry().getOidByName( attribute );
-
-                    // The attribute must be an AttributeType
-                    if ( schemaManager.getAttributeTypeRegistry().contains( oid ) && !filteredAttrs.containsKey( oid ) )
-                    {
-                        // Ok, we can add the attribute to the list of filtered attributes
-                        filteredAttrs.put( oid, attribute );
-                    }
-                }
-
-                hasAttributes = true;
-            }
-            catch ( Exception ne )
-            {
-                /* Do nothing, the attribute does not exist */
-            }
-        }
-
-        // Treat a special case : if we have an attribute and "1.1", then discard "1.1"
-        if ( hasAttributes && hasNoAttribute )
-        {
-            filteredAttrs.remove( SchemaConstants.NO_ATTRIBUTE );
-        }
-
-        // If we still have the same attribute number, then we can just get out the method
-        if ( filteredAttrs.size() == attributes.length )
-        {
-            return;
-        }
-
-        // Deal with the special case where the attribute list is now empty
-        if ( filteredAttrs.size() == 0 )
-        {
-            // We just have to pass the special 1.1 attribute,
-            // as we don't want to return any attribute
-            searchContext.setReturningAttributes( SchemaConstants.NO_ATTRIBUTE_ARRAY );
-            return;
-        }
-
-        // Some attributes have been removed. let's modify the searchControl
-        String[] newAttributesList = new String[filteredAttrs.size()];
-
-        int pos = 0;
-
-        for ( Map.Entry<String, String> entry : filteredAttrs.entrySet() )
-        {
-            newAttributesList[pos++] = entry.getValue();
-        }
-
-        searchContext.setReturningAttributes( newAttributesList );
     }
 
 
@@ -1483,14 +1372,6 @@ public class SchemaInterceptor extends BaseInterceptor
         Dn base = searchContext.getDn();
         ExprNode filter = searchContext.getFilter();
 
-        // We have to eliminate bad attributes from the request, accordingly
-        // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
-        // from the list
-        if ( searchContext.getReturningAttributesString() != null )
-        {
-            filterAttributesToReturn( searchContext );
-        }
-
         // We also have to check the H/R flag for the filter attributes
         checkFilter( filter );
 
@@ -1550,7 +1431,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
-                        searchContext.getReturningAttributesString() );
+                        searchContext );
                     serverEntry.setDn( base );
                     return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
                 }
@@ -1568,7 +1449,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
-                        searchContext.getReturningAttributesString() );
+                        searchContext );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
                         new SingletonCursor<Entry>( serverEntry ), searchContext );

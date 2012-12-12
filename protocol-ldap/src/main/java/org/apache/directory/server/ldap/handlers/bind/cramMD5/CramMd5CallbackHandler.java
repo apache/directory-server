@@ -20,9 +20,6 @@
 package org.apache.directory.server.ldap.handlers.bind.cramMD5;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.naming.Context;
 import javax.security.sasl.AuthorizeCallback;
 
@@ -42,8 +39,6 @@ import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.BindRequest;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,11 +78,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
         try
         {
             ExprNode filter = FilterParser.parse( schemaManager, "(uid=" + username + ")" );
-            Set<AttributeTypeOptions> returningAttributes = new HashSet<AttributeTypeOptions>();
 
-            AttributeType passwordAT = adminSession.getDirectoryService().getSchemaManager()
-                .lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
-            returningAttributes.add( new AttributeTypeOptions( passwordAT ) );
             bindDn = ( String ) ldapSession.getSaslProperty( SaslConstants.SASL_USER_BASE_DN );
 
             Dn baseDn = new Dn( bindDn );
@@ -97,7 +88,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
                 SearchScope.SUBTREE,
                 filter,
                 AliasDerefMode.DEREF_ALWAYS,
-                returningAttributes );
+                SchemaConstants.USER_PASSWORD_AT );
 
             cursor.beforeFirst();
 
@@ -116,7 +107,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
 
             cursor.close();
 
-            return entry.get( passwordAT );
+            return entry.get( SchemaConstants.USER_PASSWORD_AT );
         }
         catch ( Exception e )
         {

@@ -264,13 +264,10 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     {
         Dn principalDn = modContext.getDn();
 
-        LookupOperationContext lookupContext = modContext.newLookupContext( principalDn );
-        lookupContext.setReturningAttributes( new String[]
-            {
+        LookupOperationContext lookupContext = modContext.newLookupContext( principalDn,
                 SchemaConstants.OBJECT_CLASS_AT,
                 KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
-                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT
-        } );
+                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 

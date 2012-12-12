@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.MockCoreSession;
+import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -136,12 +139,13 @@ public class OrCursorTest extends AbstractCursorTest
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ( ( Partition ) store ).initialize();
 
-        ( ( Partition ) store ).initialize();
-
         StoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
+        directoryService = new MockDirectoryService();
+        directoryService.setSchemaManager( schemaManager );
+        session = new MockCoreSession( new LdapPrincipal(), directoryService );
 
         LOG.debug( "Created new store" );
     }

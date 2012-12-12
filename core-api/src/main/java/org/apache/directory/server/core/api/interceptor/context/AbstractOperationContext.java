@@ -365,9 +365,9 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
-    public LookupOperationContext newLookupContext( Dn dn )
+    public LookupOperationContext newLookupContext( Dn dn, String... attributes )
     {
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn, attributes );
         setup( lookupContext );
 
         return lookupContext;

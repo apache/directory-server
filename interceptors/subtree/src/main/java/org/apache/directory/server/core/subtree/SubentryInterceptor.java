@@ -448,8 +448,8 @@ public class SubentryInterceptor extends BaseInterceptor
     private void checkAdministrativeRole( OperationContext opContext, Dn apDn ) throws LdapException
     {
         CoreSession session = opContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, apDn );
-        lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, apDn,
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY);
 
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 

@@ -389,8 +389,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         else
         {
             CoreSession session = opContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
-            lookupContext.setReturningAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( session, dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             serverEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 

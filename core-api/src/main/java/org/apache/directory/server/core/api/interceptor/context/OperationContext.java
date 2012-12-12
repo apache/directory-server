@@ -242,7 +242,7 @@ public interface OperationContext
     // -----------------------------------------------------------------------
     // Utility Factory Methods to Create New OperationContexts
     // -----------------------------------------------------------------------
-    LookupOperationContext newLookupContext( Dn dn );
+    LookupOperationContext newLookupContext( Dn dn, String... attributes );
 
 
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
