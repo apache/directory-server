@@ -33,6 +33,7 @@ import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -1242,6 +1243,8 @@ public class SchemaInterceptor extends BaseInterceptor
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry result = next( lookupContext );
+        
+        ServerEntryUtils.filterContents( result, lookupContext );
 
         filterBinaryAttributes( result );
 

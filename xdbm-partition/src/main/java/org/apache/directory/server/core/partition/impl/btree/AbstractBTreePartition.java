@@ -1092,8 +1092,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         Entry entry = lookup( id, lookupContext.getDn() );
-        
-        ServerEntryUtils.filterContents( entry, lookupContext );
 
         return entry;
     }

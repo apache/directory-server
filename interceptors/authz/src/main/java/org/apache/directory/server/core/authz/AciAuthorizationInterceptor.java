@@ -805,6 +805,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         CoreSession session = lookupContext.getSession();
 
+        Entry entry = next( lookupContext );
+
         LdapPrincipal principal = session.getEffectivePrincipal();
         Dn principalDn = principal.getDn();
 
@@ -813,10 +815,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // Bypass this interceptor if we disabled the AC subsystem or if the principal is the admin
         if ( isPrincipalAnAdministrator( principalDn ) || !directoryService.isAccessControlEnabled() )
         {
-            return next( lookupContext );
+            return entry;
         }
-
-        Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         checkLookupAccess( lookupContext, entry );
 

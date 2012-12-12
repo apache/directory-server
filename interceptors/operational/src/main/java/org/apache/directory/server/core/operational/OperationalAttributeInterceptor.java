@@ -299,45 +299,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry result = next( lookupContext );
 
-        if ( lookupContext.isAllUserAttributes() )
-        {
-            if ( lookupContext.isAllOperationalAttributes() )
-            {
-                // The user has requested '+' and '*', return everything.
-                return result;
-            }
-            else
-            {
-                filter( lookupContext, result );
-            }
-        }
-        else
-        {
-            if ( lookupContext.isAllOperationalAttributes() )
-            {
-                // Select the user attrinbutes from the result, depending on the returning attributes list
-                filterUserAttributes( lookupContext, result );
-            }
-            else if ( ( lookupContext.getReturningAttributes() == null ) || ( lookupContext.getReturningAttributes().size() == 0 ) )
-            {
-                // No returning attributes, return all the user attributes
-                // unless the user has requested no attributes
-                if ( lookupContext.isNoAttributes() )
-                {
-                    result.clear();
-                }
-                else
-                {
-                    filterOperationalAttributes( result );
-                }
-            }
-            else
-            {
-                // Deal with the returning attributes
-                filterList( lookupContext, result );
-            }
-        }
-
         denormalizeEntryOpAttrs( result );
 
         return result;
