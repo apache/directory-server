@@ -1148,7 +1148,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             if( entry != null )
             {
-                return new ClonedServerEntry( entry );    
+                return new ClonedServerEntry( entry );
             }
             
             try
