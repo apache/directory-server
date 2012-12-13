@@ -754,7 +754,7 @@ public class ServerEntryUtils
         // First, remove all the attributes if we have the NoAtribute flag set to true
         if ( operationContext.isNoAttributes() )
         {
-            for ( Attribute attribute : originalEntry.getAttributes() )
+            for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
                 entry.remove( entry.get( attributeType ) );
@@ -769,7 +769,7 @@ public class ServerEntryUtils
         // the USER attributes, plus the Operational attributes in the returning list 
         if ( operationContext.isAllUserAttributes() )
         {
-            for ( Attribute attribute : originalEntry.getAttributes() )
+            for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
 
@@ -797,7 +797,7 @@ public class ServerEntryUtils
         // the OPERATIONAL attributes, plus the User attributes in the returning list 
         if ( operationContext.isAllOperationalAttributes() )
         {
-            for ( Attribute attribute : originalEntry.getAttributes() )
+            for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
 
@@ -825,7 +825,7 @@ public class ServerEntryUtils
         // Last, not least, check if the attributes are in the returning list
         if ( operationContext.getReturningAttributes() != null )
         {
-            for ( Attribute attribute : originalEntry.getAttributes() )
+            for ( Attribute attribute : originalEntry )
             {
                 if ( !operationContext.contains( schemaManager, attribute.getAttributeType() ) )
                 {
