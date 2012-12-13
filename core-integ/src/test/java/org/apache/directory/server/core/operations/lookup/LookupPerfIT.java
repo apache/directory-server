@@ -52,15 +52,16 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * A lookup performance test
      */
     @Test
-    public void testPerfLookup() throws Exception
+    public void testPerfLookupAllUserAttrs() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        Entry entry = connection.lookup( "cn=test,ou=system", "+" );
+        Dn dn = new Dn( getService().getSchemaManager(), "cn=test,ou=system" );
+        Entry entry = connection.lookup( dn, "*" );
 
         assertNotNull( entry );
 
-        int nbIterations = 150000;
+        int nbIterations = 1500000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -68,7 +69,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < nbIterations; i++ )
         {
-            if ( i % 10000 == 0 )
+            if ( i % 100000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -76,18 +77,18 @@ public class LookupPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
 
-            connection.lookup( "cn=test,ou=system", "+" );
+            connection.lookup( dn, "*" );
         }
 
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta all user attrs: " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -104,7 +105,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
      * Test a lookup( Dn ) operation with the ACI subsystem enabled
      */
     @Test
-    public void testLookupPerfACIEnabled() throws Exception
+    public void testPerfLookupACIEnabled() throws Exception
     {
         getService().setAccessControlEnabled( true );
         Dn dn = new Dn( "cn=test,ou=system" );
@@ -128,7 +129,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
             "  } " +
             "}" );
 
-        Entry entry = connection.lookup( "cn=test,ou=system", "+" );
+        Entry entry = connection.lookup( dn, "*", "+" );
 
         assertNotNull( entry );
 
@@ -140,7 +141,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < nbIterations; i++ )
         {
-            if ( i % 10000 == 0 )
+            if ( i % 100000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -148,12 +149,12 @@ public class LookupPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
 
-            connection.lookup( "cn=test,ou=system", "+" );
+            connection.lookup( dn, "*", "+" );
         }
 
         assertNotNull( entry );
@@ -162,7 +163,145 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta Authz : " + deltaWarmed + "( "
-            + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+            + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+
+
+    /**
+     * A lookup performance test
+     */
+    @Test
+    public void testPerfLookupRootDSE() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+    
+        Dn dn = new Dn( getService().getSchemaManager(), "" );
+        Entry entry = connection.lookup( dn, "*" );
+    
+        assertNotNull( entry );
+    
+        int nbIterations = 1500000;
+    
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+    
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+    
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+    
+            if ( i == 500000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+    
+            connection.lookup( dn, "*" );
+        }
+    
+        long t1 = System.currentTimeMillis();
+    
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta rootDSE all user attrs : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+
+
+    /**
+     * A lookup performance test
+     */
+    @Test
+    public void testPerfLookupRootDSEAllAttrs() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+    
+        Dn dn = new Dn( getService().getSchemaManager(), "" );
+        Entry entry = connection.lookup( dn, "*", "+" );
+    
+        assertNotNull( entry );
+    
+        int nbIterations = 1500000;
+    
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+    
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+    
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+    
+            if ( i == 500000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+    
+            connection.lookup( dn, "*" );
+        }
+    
+        long t1 = System.currentTimeMillis();
+    
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta rootDSE all attrs : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+        connection.close();
+    }
+
+
+    /**
+     * A lookup performance test
+     */
+    @Test
+    public void testPerfLookupAllAtrs() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+    
+        Dn dn = new Dn( getService().getSchemaManager(), "cn=test,ou=system" );
+        Entry entry = connection.lookup( dn, "*", "+" );
+    
+        assertNotNull( entry );
+    
+        int nbIterations = 1500000;
+    
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+    
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+    
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+    
+            if ( i == 500000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+    
+            connection.lookup( dn, "*" );
+        }
+    
+        long t1 = System.currentTimeMillis();
+    
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta all attrs: " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
 }
