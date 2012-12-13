@@ -529,7 +529,7 @@ public class ConfigPartitionReader
                 IndexEntry<String, String> forwardEntry = cursor.get();
 
                 // Now, get the entry
-                Entry entry = configPartition.lookup( forwardEntry.getId() );
+                Entry entry = configPartition.fetch( forwardEntry.getId() );
                 LOG.debug( "Entry read : {}", entry );
 
                 // Let's instantiate the bean we need. The upper ObjectClass's name

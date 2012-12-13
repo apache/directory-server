@@ -35,7 +35,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -87,7 +86,6 @@ import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.Strings;
 import org.apache.directory.shared.util.exception.MultiException;
 import org.slf4j.Logger;
@@ -99,8 +97,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractBTreePartition extends AbstractPartition implements
-    Store
+public abstract class AbstractBTreePartition extends AbstractPartition implements Store
 {
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBTreePartition.class );
@@ -1091,7 +1088,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return null;
         }
 
-        Entry entry = lookup( id, lookupContext.getDn() );
+        Entry entry = fetch( id, lookupContext.getDn() );
 
         return entry;
     }
@@ -1104,14 +1101,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    public Entry lookup( String id ) throws LdapException
+    public Entry fetch( String id ) throws LdapException
     {
         try
         {
             lockRead();
             Dn dn = buildEntryDn( id );
     
-            return lookup( id, dn );
+            return fetch( id, dn );
         }
         catch ( Exception e )
         {
@@ -1138,7 +1135,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    public Entry lookup( String id, Dn dn ) throws LdapException
+    public Entry fetch( String id, Dn dn ) throws LdapException
     {
         try
         {
@@ -1627,7 +1624,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // we need to lookup the entry to update the parent UUID
         if ( modifiedEntry == null )
         {
-            modifiedEntry = lookup( entryId );
+            modifiedEntry = fetch( entryId );
         }
 
         // Update the master table with the modified entry
@@ -2009,7 +2006,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             String id = getEntryId( entryContext.getDn() );
 
-            Entry entry = lookup( id, entryContext.getDn() );
+            Entry entry = fetch( id, entryContext.getDn() );
 
             return entry != null;
         }

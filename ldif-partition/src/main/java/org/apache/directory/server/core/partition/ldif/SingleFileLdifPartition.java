@@ -351,7 +351,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             IndexEntry<ParentIdAndRdn, String> element = cursor.get();
             String childId = element.getId();
-            Entry entry = lookup( childId );
+            Entry entry = fetch( childId );
 
             appendLdif( entry );
 

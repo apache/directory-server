@@ -451,7 +451,7 @@ public class PresenceTest
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        entry.setEntry( store.lookup( Strings.getUUID( 5 ) ) );
+        entry.setEntry( store.fetch( Strings.getUUID( 5 ) ) );
         assertFalse( evaluator.evaluate( entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "st" ) );
@@ -463,7 +463,7 @@ public class PresenceTest
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.ST_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        entry.setEntry( store.lookup( Strings.getUUID( 5 ) ) );
+        entry.setEntry( store.fetch( Strings.getUUID( 5 ) ) );
         assertFalse( evaluator.evaluate( entry ) );
     }
 

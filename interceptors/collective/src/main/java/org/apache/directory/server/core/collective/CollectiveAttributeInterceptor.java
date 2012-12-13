@@ -158,7 +158,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         Entry result = next( lookupContext );
 
         // do not add collective attributes
-        if( lookupContext.isSyncreplLookup() )
+        if ( lookupContext.isSyncreplLookup() )
         {
             return result;
         }

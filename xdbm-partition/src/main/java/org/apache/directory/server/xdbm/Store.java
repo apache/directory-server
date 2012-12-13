@@ -341,7 +341,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( String id ) throws Exception;
+    Entry fetch( String id ) throws Exception;
 
 
     /**
@@ -352,7 +352,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry lookup( String id, Dn dn ) throws Exception;
+    Entry fetch( String id, Dn dn ) throws Exception;
 
 
     /**

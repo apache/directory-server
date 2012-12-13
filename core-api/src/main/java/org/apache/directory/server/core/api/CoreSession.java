@@ -387,16 +387,6 @@ public interface CoreSession
      * operational attributes.
      *
      * @param dn the name of the entry to lookup
-     * @throws Exception if there are failures while looking up the entry
-     */
-    Entry lookup( Dn dn ) throws LdapException;
-
-
-    /**
-     * Looks up an entry in the server returning all attributes: both user and
-     * operational attributes.
-     *
-     * @param dn the name of the entry to lookup
      * @param atIds The list of attributes to return
      * @throws Exception if there are failures while looking up the entry
      */

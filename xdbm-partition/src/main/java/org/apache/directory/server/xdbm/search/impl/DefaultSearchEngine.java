@@ -164,7 +164,7 @@ public class DefaultSearchEngine implements SearchEngine
             Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
 
             // Fetch the entry, as we have only one
-            Entry entry = db.lookup( indexEntry.getId(), effectiveBase );
+            Entry entry = db.fetch( indexEntry.getId(), effectiveBase );
 
             indexEntry.setEntry( entry );
             resultSet.add( indexEntry );

@@ -19,12 +19,10 @@
 package org.apache.directory.server.core.shared;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -344,23 +342,7 @@ public class SchemaService
     {
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        Set<String> setOids = new HashSet<String>();
         Entry attrs = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
-        boolean returnAllOperationalAttributes = operationContext.isAllOperationalAttributes();
-        boolean returnAllUserAttributes = operationContext.isAllUserAttributes();
-        boolean returnNoAttribute = operationContext.isNoAttributes();
-        
-        String[] oids = operationContext.getReturningAttributesString();
-        
-        if ( ( ( oids == null ) || ( oids.length == 0 ) ) && !returnAllOperationalAttributes && !returnAllUserAttributes && returnNoAttribute )
-        {
-            return attrs;
-        }
-        
-        for ( String oid : oids )
-        {
-            setOids.add( oid );
-        }
 
         synchronized ( schemaSubentrLock )
         {
@@ -410,113 +392,38 @@ public class SchemaService
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart
             // ---------------------------------------------------------------
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.COMPARATORS_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.COMPARATORS_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.NORMALIZERS_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.NORMALIZERS_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.SYNTAX_CHECKERS_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.SYNTAX_CHECKERS_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.OBJECT_CLASSES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.OBJECT_CLASSES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.ATTRIBUTE_TYPES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.ATTRIBUTE_TYPES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MATCHING_RULES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.MATCHING_RULES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MATCHING_RULE_USE_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.MATCHING_RULE_USE_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.LDAP_SYNTAXES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.LDAP_SYNTAXES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_CONTENT_RULES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.DIT_CONTENT_RULES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_STRUCTURE_RULES_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.DIT_STRUCTURE_RULES_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.NAME_FORMS_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.NAME_FORMS_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.SUBTREE_SPECIFICATION_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.SUBTREE_SPECIFICATION_AT );
-            }
+            addAttribute( attrs, SchemaConstants.COMPARATORS_AT );
+            addAttribute( attrs, SchemaConstants.NORMALIZERS_AT );
+            addAttribute( attrs, SchemaConstants.SYNTAX_CHECKERS_AT );
+            addAttribute( attrs, SchemaConstants.OBJECT_CLASSES_AT );
+            addAttribute( attrs, SchemaConstants.ATTRIBUTE_TYPES_AT );
+            addAttribute( attrs, SchemaConstants.MATCHING_RULES_AT );
+            addAttribute( attrs, SchemaConstants.MATCHING_RULE_USE_AT );
+            addAttribute( attrs, SchemaConstants.LDAP_SYNTAXES_AT );
+            addAttribute( attrs, SchemaConstants.DIT_CONTENT_RULES_AT );
+            addAttribute( attrs, SchemaConstants.DIT_STRUCTURE_RULES_AT );
+            addAttribute( attrs, SchemaConstants.NAME_FORMS_AT );
+            addAttribute( attrs, SchemaConstants.SUBTREE_SPECIFICATION_AT );
 
             // add the objectClass attribute if needed
-            if ( returnAllUserAttributes || setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.OBJECT_CLASS_AT );
-            }
+            addAttribute( attrs, SchemaConstants.OBJECT_CLASS_AT );
 
             // add the cn attribute as required for the Rdn
-            if ( returnAllUserAttributes || setOids.contains( SchemaConstants.CN_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.CN_AT );
-            }
+            addAttribute( attrs, SchemaConstants.CN_AT );
 
             // -------------------------------------------------------------------
             // set standard operational attributes for the subentry
             // -------------------------------------------------------------------
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATE_TIMESTAMP_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.CREATE_TIMESTAMP_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATORS_NAME_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.CREATORS_NAME_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFY_TIMESTAMP_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.MODIFY_TIMESTAMP_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFIERS_NAME_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.MODIFIERS_NAME_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.ENTRY_UUID_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.ENTRY_UUID_AT );
-            }
-
-            if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.ENTRY_DN_AT_OID ) )
-            {
-                addAttribute( attrs, SchemaConstants.ENTRY_DN_AT );
-            }
+            addAttribute( attrs, SchemaConstants.CREATE_TIMESTAMP_AT );
+            addAttribute( attrs, SchemaConstants.CREATORS_NAME_AT );
+            addAttribute( attrs, SchemaConstants.MODIFY_TIMESTAMP_AT );
+            addAttribute( attrs, SchemaConstants.MODIFIERS_NAME_AT );
+            addAttribute( attrs, SchemaConstants.ENTRY_UUID_AT );
+            addAttribute( attrs, SchemaConstants.ENTRY_DN_AT );
         }
 
-        return attrs;
+        Entry result = new ClonedServerEntry( attrs );
+
+        return result;
     }
 }

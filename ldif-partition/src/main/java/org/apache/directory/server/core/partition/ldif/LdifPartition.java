@@ -310,7 +310,7 @@ public class LdifPartition extends AbstractLdifPartition
         }
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id, modifyContext.getDn() );
+        Entry modifiedEntry = fetch( id, modifyContext.getDn() );
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // just overwrite the existing file
@@ -341,7 +341,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.move( moveContext );
 
         // Get the modified entry
-        Entry modifiedEntry = lookup( id, moveContext.getNewDn() );
+        Entry modifiedEntry = fetch( id, moveContext.getNewDn() );
 
         try
         {
@@ -365,7 +365,7 @@ public class LdifPartition extends AbstractLdifPartition
         super.moveAndRename( moveAndRenameContext );
 
         // Get the modified entry and store it in the context for post usage
-        Entry modifiedEntry = lookup( id, moveAndRenameContext.getNewDn() );
+        Entry modifiedEntry = fetch( id, moveAndRenameContext.getNewDn() );
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
 
         try
@@ -392,7 +392,7 @@ public class LdifPartition extends AbstractLdifPartition
 
         // Get the modified entry and store it in the context for post usage
         Dn newDn = oldDn.getParent().add( renameContext.getNewRdn() );
-        Entry modifiedEntry = lookup( id, newDn );
+        Entry modifiedEntry = fetch( id, newDn );
         renameContext.setModifiedEntry( modifiedEntry );
 
         // Now move the potential children for the old entry
@@ -447,7 +447,7 @@ public class LdifPartition extends AbstractLdifPartition
                 // except the parent entry add the rest of entries
                 if ( entry.getId() != entryIdOld )
                 {
-                    addEntry( lookup( entry.getId() ) );
+                    addEntry( fetch( entry.getId() ) );
                 }
             }
 

@@ -466,16 +466,6 @@ public class MockCoreSession implements CoreSession
 
 
     /**
-     * {@inheritDoc} 
-     */
-    public Entry lookup( Dn dn ) throws LdapException
-    {
-        OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( new LookupOperationContext( this, dn ) );
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public Entry lookup( Dn dn, String... attrIds ) throws LdapException

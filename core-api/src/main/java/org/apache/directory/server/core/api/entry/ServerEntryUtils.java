@@ -830,6 +830,7 @@ public class ServerEntryUtils
                 if ( !operationContext.contains( schemaManager, attribute.getAttributeType() ) )
                 {
                     entry.removeAttributes( attribute.getAttributeType() );
+                    continue;
                 }
                 AttributeType attributeType = attribute.getAttributeType();
                 boolean isNotRequested = true;

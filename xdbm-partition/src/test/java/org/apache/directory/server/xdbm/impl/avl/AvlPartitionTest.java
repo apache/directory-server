@@ -501,7 +501,7 @@ public class AvlPartitionTest
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         String id = partition.getEntryId( dn2 );
         assertNotNull( id );
-        Entry entry2 = partition.lookup( id );
+        Entry entry2 = partition.fetch( id );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
         assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
     }
@@ -556,14 +556,14 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = partition.fetch( partition.getEntryId( dn ) );
 
         partition.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
 
         partition.modify( dn, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
             schemaManager.getAttributeType( "telephoneNumber" ), "+1974045779" ) );
-        lookedup = partition.lookup( partition.getEntryId( dn ) );
+        lookedup = partition.fetch( partition.getEntryId( dn ) );
         assertTrue( lookedup.get( "telephoneNumber" ).contains( "+1974045779" ) );
     }
 
@@ -581,7 +581,7 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = partition.fetch( partition.getEntryId( dn ) );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
@@ -604,7 +604,7 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = partition.fetch( partition.getEntryId( dn ) );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
@@ -641,7 +641,7 @@ public class AvlPartitionTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = partition.lookup( partition.getEntryId( dn ) );
+        Entry lookedup = partition.fetch( partition.getEntryId( dn ) );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 

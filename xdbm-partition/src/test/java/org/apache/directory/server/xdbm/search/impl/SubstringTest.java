@@ -643,35 +643,35 @@ public class SubstringTest
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 5L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 5L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
     }
 
@@ -692,14 +692,14 @@ public class SubstringTest
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
 
         node = new SubstringNode( schemaManager.getAttributeType( "cn" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        indexEntry.setEntry( store.lookup( Strings.getUUID( 6L ) ) );
+        indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
         assertFalse( evaluator.evaluate( indexEntry ) );
     }
 

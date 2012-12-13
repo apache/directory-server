@@ -30,12 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
-
-import javax.naming.ConfigurationException;
 
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -80,7 +76,6 @@ import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.Normalizer;
@@ -218,8 +213,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             Value<?> attr = rootDse.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
             subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
 
-            //initializeSystemPartition( directoryService );
-
             List<Partition> initializedPartitions = new ArrayList<Partition>();
 
             initializedPartitions.add( 0, directoryService.getSystemPartition() );
@@ -264,64 +257,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 }
             }
         }
-    }
-
-
-    private Partition initializeSystemPartition( DirectoryService directoryService ) throws Exception
-    {
-        // initialize system partition first
-        Partition system = directoryService.getSystemPartition();
-
-        // Add root context entry for system partition
-        Dn systemSuffixDn = directoryService.getDnFactory().create( ServerDNConstants.SYSTEM_DN );
-        CoreSession adminSession = directoryService.getAdminSession();
-
-        if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
-        {
-            Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
-
-            // Add the ObjectClasses
-            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-
-            // Add some operational attributes
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
-            systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-            systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
-                .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-
-            AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-            system.add( addOperationContext );
-        }
-
-        String key = system.getSuffixDn().getNormName();
-
-        if ( partitions.containsKey( key ) )
-        {
-            throw new ConfigurationException( I18n.err( I18n.ERR_263, key ) );
-        }
-
-        synchronized ( partitionLookupTree )
-        {
-            partitions.put( key, system );
-            partitionLookupTree.add( system.getSuffixDn(), system );
-            Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
-
-            if ( namingContexts == null )
-            {
-                namingContexts = new DefaultAttribute( schemaManager
-                    .getAttributeType( SchemaConstants.NAMING_CONTEXTS_AT ), system.getSuffixDn().getName() );
-                rootDse.put( namingContexts );
-            }
-            else
-            {
-                namingContexts.add( system.getSuffixDn().getName() );
-            }
-        }
-
-        return system;
     }
 
 
@@ -566,7 +501,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
 
         // This is for the case we do a lookup on the rootDSE
-        if ( dn.size() == 0 )
+        if ( dn.isRootDse() )
         {
             Entry retval = new ClonedServerEntry( rootDse );
 

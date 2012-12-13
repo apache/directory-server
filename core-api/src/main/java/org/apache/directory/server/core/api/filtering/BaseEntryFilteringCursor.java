@@ -421,7 +421,6 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            ServerEntryUtils.filterContents( prefetched, operationContext );
 
             return true;
         }

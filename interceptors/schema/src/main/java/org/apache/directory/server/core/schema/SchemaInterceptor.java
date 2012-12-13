@@ -920,9 +920,9 @@ public class SchemaInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchingOperationContext operationContext, Entry entry ) throws Exception
         {
-            filterAttributeTypes( operation, entry );
+            ServerEntryUtils.filterContents( entry, operationContext );
 
             return true;
         }

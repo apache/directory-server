@@ -139,7 +139,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.lookup( indexEntry.getId() );
+            entry = db.fetch( indexEntry.getId() );
 
             if ( null == entry )
             {

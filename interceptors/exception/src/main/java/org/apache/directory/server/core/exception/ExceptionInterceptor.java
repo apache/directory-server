@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
@@ -237,27 +236,6 @@ public class ExceptionInterceptor extends BaseInterceptor
         //assertHasEntry( listContext, msg, listContext.getDn() );
 
         return next( listContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
-    {
-        Dn dn = lookupContext.getDn();
-
-        if ( dn.equals( subschemSubentryDn ) )
-        {
-            Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, lookupContext );
-            serverEntry.setDn( dn );
-
-            return serverEntry;
-        }
-
-        Entry result = next( lookupContext );
-
-        return result;
     }
 
 

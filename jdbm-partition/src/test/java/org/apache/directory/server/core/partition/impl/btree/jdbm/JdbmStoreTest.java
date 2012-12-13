@@ -233,7 +233,7 @@ public class JdbmStoreTest
 
         // lookup the context entry
         String id = store2.getEntryId( suffixDn );
-        Entry lookup = store2.lookup( id, suffixDn );
+        Entry lookup = store2.fetch( id, suffixDn );
         assertEquals( 2, lookup.getDn().size() );
 
         // make sure all files are closed so that they can be deleted on Windows.
@@ -624,7 +624,7 @@ public class JdbmStoreTest
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
         String id = store.getEntryId( dn2 );
         assertNotNull( id );
-        Entry entry2 = store.lookup( id, dn2 );
+        Entry entry2 = store.fetch( id, dn2 );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
     }
 
@@ -678,7 +678,7 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
         store.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
@@ -697,7 +697,7 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
         assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
@@ -722,7 +722,7 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
@@ -762,7 +762,7 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.lookup( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 

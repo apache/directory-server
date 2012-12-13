@@ -45,6 +45,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -98,7 +99,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private static AttributeType collectiveAttributeSubentriesAT;
     private static AttributeType triggerExecutionSubentriesAT;
     private static AttributeType subschemaSubentryAT;
-
+    
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -297,6 +298,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
+        Dn dn = lookupContext.getDn();
+
+        if ( dn.equals( subschemaSubentryDn ) )
+        {
+            Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, lookupContext );
+            serverEntry.setDn( dn );
+
+            return serverEntry;
+        }
+
         Entry result = next( lookupContext );
 
         denormalizeEntryOpAttrs( result );

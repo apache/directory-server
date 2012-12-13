@@ -188,7 +188,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         // before modification: no "uidObject" tuple in objectClass index
         assertFalse( partition.getObjectClassIndex().forward( "uidObject", entryId ) );
@@ -218,7 +218,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
@@ -247,7 +247,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
@@ -282,7 +282,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "person" tuple in objectClass index
         assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
@@ -310,7 +310,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "person" tuple in objectClass index
         assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
@@ -339,7 +339,7 @@ public class PartitionTest
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
-        Entry lookedup = partition.lookup( entryId );
+        Entry lookedup = partition.fetch( entryId );
 
         assertNotSame( csn, lookedup.get( csnAt ).getString() );
 
@@ -396,7 +396,7 @@ public class PartitionTest
     private Entry verifyParentId( Dn dn ) throws Exception
     {
         String entryId = partition.getEntryId( dn );
-        Entry entry = partition.lookup( entryId );
+        Entry entry = partition.fetch( entryId );
         String parentId = partition.getParentId( entryId );
 
         Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );

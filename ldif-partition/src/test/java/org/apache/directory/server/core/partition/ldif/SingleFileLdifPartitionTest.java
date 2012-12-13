@@ -279,7 +279,7 @@ public class SingleFileLdifPartitionTest
 
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.lookup( id ) );
+        assertEquals( contextEntry, partition.fetch( id ) );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
@@ -692,9 +692,9 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
             "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
             "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
@@ -717,9 +717,9 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Entry childEntry1 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
             "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.lookup( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
             "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
@@ -852,7 +852,7 @@ public class SingleFileLdifPartitionTest
         // search works fine
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.lookup( id ) );
+        assertEquals( contextEntry, partition.fetch( id ) );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
