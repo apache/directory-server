@@ -47,7 +47,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         Entry rootDse = getService().getOperationManager().getRootDse( getRootDseContext );
 
         assertNotNull( rootDse );
-        int nbIterations = 150000;
+        int nbIterations = 1500000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -57,7 +57,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         {
             getRootDseContext.setCurrentInterceptor( 0 );
             
-            if ( i % 1000 == 0 )
+            if ( i % 100000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -65,7 +65,7 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 50000 )
+            if ( i == 500000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -76,6 +76,6 @@ public class GetRootDsePerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta getRootDSE: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta getRootDSE: " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
     }
 }
