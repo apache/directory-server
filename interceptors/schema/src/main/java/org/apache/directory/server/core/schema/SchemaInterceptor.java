@@ -119,11 +119,6 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private PartitionNexus nexus;
 
-    /**
-     * a binary attribute tranforming filter: String -> byte[]
-     */
-    private BinaryAttributeFilter binaryAttributeFilter;
-
     private TopFilter topFilter;
 
     private List<EntryFilter> filters = new ArrayList<EntryFilter>();
@@ -181,9 +176,7 @@ public class SchemaInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         nexus = directoryService.getPartitionNexus();
-        binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
-        filters.add( binaryAttributeFilter );
         filters.add( topFilter );
 
         schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
@@ -918,65 +911,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
 
-
-    private void filterBinaryAttributes( Entry entry ) throws LdapException
-    {
-        /*
-         * start converting values of attributes to byte[]s which are not
-         * human readable and those that are in the binaries set
-         */
-        for ( Attribute attribute : entry )
-        {
-            if ( !attribute.getAttributeType().getSyntax().isHumanReadable() )
-            {
-                List<Value<?>> binaries = new ArrayList<Value<?>>();
-
-                for ( Value<?> value : attribute )
-                {
-                    binaries.add( new BinaryValue( attribute.getAttributeType(), value.getBytes() ) );
-                }
-
-                attribute.clear();
-
-                for ( Value<?> value : binaries )
-                {
-                    attribute.add( value );
-                }
-            }
-        }
-    }
-
     
-    /**
-     * A special filter over entry attributes which replaces Attribute String values with their respective byte[]
-     * representations using schema information and the value held in the JNDI environment property:
-     * <code>java.naming.ldap.attributes.binary</code>.
-     *
-     * @see <a href= "http://java.sun.com/j2se/1.4.2/docs/guide/jndi/jndi-ldap-gl.html#binary">
-     *      java.naming.ldap.attributes.binary</a>
-     */
-    private class BinaryAttributeFilter implements EntryFilter
-    {
-        /**
-         * {@inheritDoc}
-         */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
-        {
-            filterBinaryAttributes( entry );
-
-            return true;
-        }
-        
-        
-        /**
-         * {@inheritDoc}
-         */
-        public String toString( String tabs )
-        {
-            return tabs + "BinaryAttributeFilter";
-        }
-    }
-
     /**
      * Filters objectClass attribute to inject top when not present.
      */
@@ -1231,7 +1166,6 @@ public class SchemaInterceptor extends BaseInterceptor
     public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( listContext );
-        cursor.addEntryFilter( binaryAttributeFilter );
 
         return cursor;
     }
@@ -1245,8 +1179,6 @@ public class SchemaInterceptor extends BaseInterceptor
         Entry result = next( lookupContext );
         
         ServerEntryUtils.filterContents( result, lookupContext );
-
-        filterBinaryAttributes( result );
 
         return result;
     }
