@@ -41,7 +41,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -102,7 +101,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
         {
             if ( operation.getReturningAttributesString() == null )
             {

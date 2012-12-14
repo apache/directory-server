@@ -44,7 +44,6 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.MetaSchemaConstants;
@@ -871,7 +870,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void filterAttributeTypes( SearchingOperationContext operation, Entry result )
+    private void filterAttributeTypes( SearchOperationContext operation, Entry result )
     {
         if ( operation.getReturningAttributes() == null )
         {
@@ -919,7 +918,7 @@ public class SchemaInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext operationContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operationContext, Entry entry ) throws Exception
         {
             ServerEntryUtils.filterContents( 
                 operationContext.getSession().getDirectoryService().getSchemaManager(),

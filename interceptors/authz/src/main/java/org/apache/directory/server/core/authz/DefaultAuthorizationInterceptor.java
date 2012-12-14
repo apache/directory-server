@@ -42,7 +42,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
@@ -95,7 +94,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
         {
             return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
         }

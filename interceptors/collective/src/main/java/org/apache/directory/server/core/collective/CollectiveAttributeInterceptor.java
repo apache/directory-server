@@ -36,7 +36,6 @@ import org.apache.directory.server.core.api.interceptor.context.FilteringOperati
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -87,7 +86,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
         {
             addCollectiveAttributes( operation, entry );
 

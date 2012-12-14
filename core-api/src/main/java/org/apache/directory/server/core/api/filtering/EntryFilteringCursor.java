@@ -22,7 +22,7 @@ package org.apache.directory.server.core.api.filtering;
 
 import java.util.List;
 
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 
@@ -55,5 +55,5 @@ public interface EntryFilteringCursor extends Cursor<Entry>
     /**
      * @return the operationContext
      */
-    SearchingOperationContext getOperationContext();
+    SearchOperationContext getOperationContext();
 }

@@ -51,7 +51,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
@@ -1437,7 +1436,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
         {
             Dn normName = entry.getDn().apply( schemaManager );
 

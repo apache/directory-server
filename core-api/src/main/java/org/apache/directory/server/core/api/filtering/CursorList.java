@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
@@ -72,7 +72,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     private EntryFilteringCursor currentCursor;
 
     /** the operation context */
-    private SearchingOperationContext searchContext;
+    private SearchOperationContext searchContext;
 
     /** flag to detect the closed cursor */
     private boolean closed;
@@ -93,7 +93,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      * @param list the list this ListCursor operates on
      * @param end the upper bound index
      */
-    public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchingOperationContext searchContext )
+    public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchOperationContext searchContext )
     {
         if ( IS_DEBUG )
         {
@@ -142,7 +142,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      *
      * @param list the backing for this ListCursor
      */
-    public CursorList( List<EntryFilteringCursor> list, SearchingOperationContext searchContext )
+    public CursorList( List<EntryFilteringCursor> list, SearchOperationContext searchContext )
     {
         this( 0, list, list.size(), searchContext );
     }
@@ -433,7 +433,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public SearchingOperationContext getOperationContext()
+    public SearchOperationContext getOperationContext()
     {
         return searchContext;
     }

@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
@@ -61,7 +61,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     private final Cursor<Entry> wrapped;
 
     /** the parameters associated with the search operation */
-    private final SearchingOperationContext operationContext;
+    private final SearchOperationContext operationContext;
 
     /** the list of filters to be applied */
     private final List<EntryFilter> filters;
@@ -84,7 +84,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param filter a single filter to be used
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
-        SearchingOperationContext operationContext, EntryFilter filter )
+        SearchOperationContext operationContext, EntryFilter filter )
     {
         this( wrapped, operationContext, Collections.singletonList( filter ) );
     }
@@ -99,7 +99,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchingOperationContext operationContext )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext )
     {
         if ( IS_DEBUG )
         {
@@ -122,7 +122,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param filters a list of filters to be used
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
-        SearchingOperationContext operationContext, List<EntryFilter> filters )
+        SearchOperationContext operationContext, List<EntryFilter> filters )
     {
         if ( IS_DEBUG )
         {
@@ -193,7 +193,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public SearchingOperationContext getOperationContext()
+    public SearchOperationContext getOperationContext()
     {
         return operationContext;
     }

@@ -46,7 +46,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
@@ -139,7 +138,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
             if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )
@@ -170,7 +169,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchingOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
         {
             // See if the requested entry is a subentry
             if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )

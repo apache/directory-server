@@ -27,7 +27,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.SearchingOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
@@ -109,7 +108,7 @@ public class AbstractCursorTest
         searchResult.setEvaluator( evaluator );
 
         // We want all the user attributes plus the entryUUID
-        SearchingOperationContext operationContext = 
+        SearchOperationContext operationContext = 
             new SearchOperationContext( session, Dn.ROOT_DSE, SearchScope.ONELEVEL, null, "*", "EntryUUID" );
         
         return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
