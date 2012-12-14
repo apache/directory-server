@@ -28,7 +28,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -167,12 +166,6 @@ public interface Interceptor
      * Filters {@link Partition#hasEntry( HasEntryOperationContext )} call.
      */
     boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
-
-
-    /**
-     * Filters {@link Partition#list( ListOperationContext )} call.
-     */
-    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**

@@ -60,7 +60,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -770,23 +769,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkPwdReset( hasEntryContext );
 
         return next( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "Operation Context: {}", listContext );
-        }
-
-        checkAuthenticated( listContext );
-        checkPwdReset( listContext );
-
-        return next( listContext );
     }
 
 

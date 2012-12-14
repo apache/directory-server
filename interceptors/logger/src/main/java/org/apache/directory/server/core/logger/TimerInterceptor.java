@@ -32,7 +32,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -93,10 +92,6 @@ public class TimerInterceptor extends BaseInterceptor
     /** Stats for the HasEntry operation */
     private static AtomicLong totalHasEntry = new AtomicLong( 0 );
     private static AtomicInteger nbHasEntryCalls = new AtomicInteger( 0 );
-
-    /** Stats for the list operation */
-    private static AtomicLong totalList = new AtomicLong( 0 );
-    private static AtomicInteger nbListCalls = new AtomicInteger( 0 );
 
     /** Stats for the lookup operation */
     private static AtomicLong totalLookup = new AtomicLong( 0 );
@@ -332,37 +327,6 @@ public class TimerInterceptor extends BaseInterceptor
         }
 
         return hasEntry;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        long t0 = System.nanoTime();
-        EntryFilteringCursor cursor = next( listContext );
-        long delta = System.nanoTime() - t0;
-
-        if ( IS_DEBUG_STATS )
-        {
-            nbListCalls.incrementAndGet();
-            totalList.getAndAdd( delta );
-
-            if ( nbListCalls.get() % 1000 == 0 )
-            {
-                long average = totalList.get() / ( nbListCalls.get() * 1000 );
-                OPERATION_STATS.debug( getName() + " : Average list = {} microseconds, nb lists = {}", average,
-                    nbListCalls.get() );
-            }
-        }
-
-        if ( IS_DEBUG_TIME )
-        {
-            OPERATION_TIME.debug( "{} : Delta list = {}", getName(), delta );
-        }
-
-        return cursor;
     }
 
 

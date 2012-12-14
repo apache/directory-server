@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.operational;
 
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -37,7 +35,6 @@ import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -61,7 +58,6 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.UsageEnum;
 import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +77,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
     private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
-
-    private final EntryFilter SEARCH_FILTER = new OperationalAttributeSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;
@@ -127,30 +121,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public String toString( String tabs )
         {
             return tabs + "OperationalAttributeDenormalizingSearchFilter";
-        }
-    }
-
-    /**
-     * the database search result filter to register with filter service
-     */
-    private class OperationalAttributeSearchFilter implements EntryFilter
-    {
-        /**
-         * {@inheritDoc}
-         */
-        public boolean accept( SearchingOperationContext operation, Entry entry ) throws Exception
-        {
-            return operation.getReturningAttributesString() != null
-                || filterOperationalAttributes( entry );
-        }
-        
-        
-        /**
-         * {@inheritDoc}
-         */
-        public String toString( String tabs )
-        {
-            return tabs + "OperationalAttributeSearchFilter";
         }
     }
 
@@ -280,18 +250,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         checkAddOperationalAttribute( isAdmin, entry, subschemaSubentryAT );
 
         next( addContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = next( listContext );
-        cursor.addEntryFilter( SEARCH_FILTER );
-
-        return cursor;
     }
 
 
@@ -522,39 +480,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         entry.put( csnAt );
 
         next( deleteContext );
-    }
-
-
-    /**
-     * Filters out the operational attributes within a search results attributes.  The attributes are directly
-     * modified.
-     *
-     * @param attributes the resultant attributes to filter
-     * @return true always
-     * @throws Exception if there are failures in evaluation
-     */
-    private boolean filterOperationalAttributes( Entry attributes ) throws LdapException
-    {
-        Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
-
-        // Build a list of attributeType to remove
-        for ( Attribute attribute : attributes.getAttributes() )
-        {
-            AttributeType attributeType = attribute.getAttributeType();
-
-            if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-            {
-                removedAttributes.add( attributeType );
-            }
-        }
-
-        // Now remove the attributes which are not USERs
-        for ( AttributeType attributeType : removedAttributes )
-        {
-            attributes.removeAttributes( attributeType );
-        }
-
-        return true;
     }
 
 

@@ -44,7 +44,6 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -774,27 +773,6 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine.checkPermission( aciContext );
 
         return next( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        LdapPrincipal user = listContext.getSession().getEffectivePrincipal();
-        EntryFilteringCursor cursor = next( listContext );
-
-        if ( isPrincipalAnAdministrator( user.getDn() )
-            || !directoryService.isAccessControlEnabled() )
-        {
-            return cursor;
-        }
-
-        AuthorizationFilter authzFilter = new AuthorizationFilter();
-        cursor.addEntryFilter( authzFilter );
-
-        return cursor;
     }
 
 

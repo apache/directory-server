@@ -62,7 +62,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -587,17 +586,18 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
-        ListOperationContext listContext = new ListOperationContext( session, target );
-        listContext.addRequestControls( convertControls( true, requestControls ) );
+        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        SearchOperationContext searchContext = new SearchOperationContext( session, target, SearchScope.ONELEVEL, filter, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        searchContext.addRequestControls( convertControls( true, requestControls ) );
 
-        // execute list operation
+        // execute search operation
         OperationManager operationManager = service.getOperationManager();
-        EntryFilteringCursor results = operationManager.list( listContext );
+        EntryFilteringCursor results = operationManager.search( searchContext );
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
-            listContext.getResponseControls() );
+            searchContext.getResponseControls() );
 
         return results;
     }

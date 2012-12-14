@@ -39,7 +39,6 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -51,6 +50,7 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
 import org.apache.directory.shared.ldap.model.entry.DefaultModification;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -61,6 +61,7 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.FilterParser;
+import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.message.AddRequest;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.CompareRequest;
@@ -99,6 +100,9 @@ public class DefaultCoreSession implements CoreSession
     /** The authorized principal, which will be used when a user has been authorized */
     private LdapPrincipal authorizedPrincipal;
 
+    /** A reference to the ObjectClass AT */
+    protected AttributeType OBJECT_CLASS_AT;
+
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -110,6 +114,9 @@ public class DefaultCoreSession implements CoreSession
         this.directoryService = directoryService;
         authenticatedPrincipal = principal;
         anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+
+        // setup attribute type value
+        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -480,10 +487,11 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        ListOperationContext listContext = new ListOperationContext( this, dn, returningAttributes );
-        listContext.setAliasDerefMode( aliasDerefMode );
+        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter, returningAttributes );
+        searchContext.setAliasDerefMode( aliasDerefMode );
 
-        return operationManager.list( listContext );
+        return operationManager.search( searchContext );
     }
 
 

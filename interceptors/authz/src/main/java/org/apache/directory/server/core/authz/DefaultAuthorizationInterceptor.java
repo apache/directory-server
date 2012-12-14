@@ -35,7 +35,6 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -231,24 +230,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         }
 
         next( deleteContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        EntryFilteringCursor cursor = next( listContext );
-
-        if ( listContext.getSession().getDirectoryService().isAccessControlEnabled() )
-        {
-            return cursor;
-        }
-
-        cursor.addEntryFilter( new DefaultAuthorizationSearchFilter() );
-
-        return cursor;
     }
 
 

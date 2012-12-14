@@ -378,47 +378,6 @@ public class AvlPartitionTest
     }
 
 
-    @Test
-    public void testEntryOperations() throws Exception
-    {
-        assertEquals( 3, partition.getChildCount( Strings.getUUID( 1L ) ) );
-
-        Cursor<IndexEntry<String, String>> cursor = partition.list( Strings.getUUID( 2L ) );
-        assertNotNull( cursor );
-        cursor.beforeFirst();
-        assertTrue( cursor.next() );
-        assertEquals( Strings.getUUID( 6L ), cursor.get().getId() );
-        assertTrue( cursor.next() );
-        assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
-        assertFalse( cursor.next() );
-
-        assertEquals( 3, partition.getChildCount( Strings.getUUID( 1L ) ) );
-
-        partition.delete( Strings.getUUID( 2L ) );
-
-        assertEquals( 2, partition.getChildCount( Strings.getUUID( 1L ) ) );
-        assertEquals( 10, partition.count() );
-
-        // add an alias and delete to test dropAliasIndices method
-        Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top",
-            "objectClass: alias",
-            "objectClass: extensibleObject",
-            "ou: Apache",
-            "commonName: Jack Daniels",
-            "aliasedObjectName: cn=Jack Daniels,ou=Engineering,o=Good Times Co.",
-            "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
-            "entryUUID", Strings.getUUID( 12 ).toString() );
-
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        partition.add( addContext );
-
-        partition.delete( Strings.getUUID( 12L ) );
-        cursor.close();
-    }
-
-
     @Test(expected = LdapNoSuchObjectException.class)
     public void testAddWithoutParentId() throws Exception
     {

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -47,6 +46,7 @@ public class ListPerfIT extends AbstractLdapTestUnit
     @Test
     public void testPerfList() throws Exception
     {
+        /*
         ListOperationContext listContext = new ListOperationContext( getService().getAdminSession(), new Dn( "ou=system" ) );
         EntryFilteringCursor cursor = getService().getOperationManager().list( listContext );
 
@@ -108,5 +108,6 @@ public class ListPerfIT extends AbstractLdapTestUnit
 
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta list: " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        */
     }
 }

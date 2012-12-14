@@ -27,7 +27,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -82,12 +81,6 @@ public interface OperationManager
      * TODO document after determining if this method should be here.
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
-
-
-    /**
-     * TODO document after determining if this method should be here.
-     */
-    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**

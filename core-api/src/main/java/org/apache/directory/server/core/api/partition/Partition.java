@@ -25,12 +25,10 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.CacheService;
-import org.apache.directory.server.core.api.entry.ServerSearchResult;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -187,19 +185,6 @@ public interface Partition
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
-
-
-    /**
-     * A specialized form of one level search used to return a minimal set of
-     * information regarding child entries under a base.  Convenience method
-     * used to optimize operations rather than conducting a full search with
-     * retrieval.
-     *
-     * @param listContext the context containing the distinguished/absolute name for the search/listing
-     * @return a NamingEnumeration containing objects of type {@link ServerSearchResult}
-     * @throws Exception if there are any problems
-     */
-    EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException;
 
 
     /**

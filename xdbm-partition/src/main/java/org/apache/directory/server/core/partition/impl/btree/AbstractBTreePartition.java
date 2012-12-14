@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -61,8 +60,6 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.server.xdbm.search.cursor.ChildrenCursor;
-import org.apache.directory.server.xdbm.search.evaluator.PassThroughEvaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
@@ -954,88 +951,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
             
             return entry;
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
-    }
-
-
-    //---------------------------------------------------------------------------------------------
-    // The List operation
-    //---------------------------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        return list( getEntryId( listContext.getDn() ), listContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public Cursor<IndexEntry<String, String>> list( String id ) throws LdapException
-    {
-        try
-        {
-            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
-
-            IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
-            startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
-            cursor.before( startingPos );
-
-            dumpRdnIdx();
-
-            PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
-            Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
-
-            Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
-
-            return childrenCursor;
-        }
-        catch ( Exception e )
-        {
-            throw new LdapOperationErrorException( e.getMessage(), e );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public final EntryFilteringCursor list( String id, ListOperationContext listContext ) throws LdapException
-    {
-        try
-        {
-            // We use the OneLevel index to get all the entries from a starting point
-            // and below up to the number of children
-            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
-
-            IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
-            startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
-            cursor.before( startingPos );
-
-            dumpRdnIdx();
-
-            PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
-            Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
-
-            Cursor<IndexEntry<String, String>> childrenCursor = new ChildrenCursor( this, id, cursor );
-
-            while ( childrenCursor.next() )
-            {
-                IndexEntry<String, String> element = childrenCursor.get();
-                resultSet.add( element );
-            }
-
-            searchResult.setResultSet( resultSet );
-            searchResult.setEvaluator( new PassThroughEvaluator( this ) );
-
-            return new BaseEntryFilteringCursor( new EntryCursorAdaptor( this, searchResult ),
-                listContext );
         }
         catch ( Exception e )
         {

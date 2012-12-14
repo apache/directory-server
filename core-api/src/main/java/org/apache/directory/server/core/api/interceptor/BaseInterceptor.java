@@ -33,7 +33,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -202,15 +201,6 @@ public abstract class BaseInterceptor implements Interceptor
         public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
         {
             return nexus.hasEntry( hasEntryContext );
-        }
-
-
-        /**
-         * {@inheritDoc}
-         */
-        public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-        {
-            return nexus.list( listContext );
         }
 
 
@@ -538,30 +528,6 @@ public abstract class BaseInterceptor implements Interceptor
         Interceptor interceptor = getNextInterceptor( hasEntryContext );
 
         return interceptor.hasEntry( hasEntryContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        return null;
-    }
-
-
-    /**
-     * Calls the next interceptor for the list operation.
-     * 
-     * @param listContext The context in which we are executing this operation
-     * @return the cursor containing the listed entries
-     * @throws LdapException If something went wrong
-     */
-    protected final EntryFilteringCursor next( ListOperationContext listContext ) throws LdapException
-    {
-        Interceptor interceptor = getNextInterceptor( listContext );
-
-        return interceptor.list( listContext );
     }
 
 

@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -140,8 +141,11 @@ public class SingleFileLdifPartitionTest
         defaultCSNFactory = new CsnFactory( 0 );
 
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
-        mockSession = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
-            new MockDirectoryService( 1 ) );
+        DirectoryService directoryService = new MockDirectoryService( 1 );
+        directoryService.setSchemaManager( schemaManager );
+        mockSession = new MockCoreSession( new LdapPrincipal( schemaManager, adminDn,
+            AuthenticationLevel.STRONG ),
+            directoryService );
 
         String contextEntryStr =
             "dn: ou=test, ou=system\n" +

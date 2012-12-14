@@ -37,7 +37,6 @@ import org.apache.directory.server.core.api.interceptor.context.CompareOperation
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -665,42 +664,6 @@ public class DefaultOperationManager implements OperationManager
         }
 
         return result;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public EntryFilteringCursor list( ListOperationContext listContext ) throws LdapException
-    {
-        if ( IS_DEBUG )
-        {
-            LOG.debug( ">> ListOperation : {}", listContext );
-        }
-
-        ensureStarted();
-
-        Interceptor head = directoryService.getInterceptor( listContext.getNextInterceptor() );
-
-        EntryFilteringCursor cursor = null;
-
-        try
-        {
-            lockRead();
-
-            cursor = head.list( listContext );
-        }
-        finally
-        {
-            unlockRead();
-        }
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "<< ListOperation successful" );
-        }
-
-        return cursor;
     }
 
 

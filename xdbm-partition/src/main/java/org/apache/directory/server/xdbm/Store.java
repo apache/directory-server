@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -322,16 +321,6 @@ public interface Store
      * @throws Exception If the deletion failed for any reason
      */
     Entry delete( String id ) throws Exception;
-
-
-    /**
-     * Gets an IndexEntry Cursor over the child nodes of an entry.
-     *
-     * @param id the id of the parent entry
-     * @return an IndexEntry Cursor over the child entries
-     * @throws Exception on failures to access the underlying store
-     */
-    Cursor<IndexEntry<String, String>> list( String id ) throws Exception;
 
 
     /**
