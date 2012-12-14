@@ -115,7 +115,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 return true;
             }
 
-            return filterDenormalized( entry );
+            denormalizeEntryOpAttrs( entry );
+            
+            return true;
         }
         
         
@@ -556,131 +558,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * Filters out the user attributes within a search results attributes. The attributes are directly
-     * modified.
-     *
-     * @param attributes the resultant attributes to filter
-     * @return true always
-     * @throws Exception if there are failures in evaluation
-     */
-    private boolean filterUserAttributes( LookupOperationContext lookupContext, Entry attributes ) throws LdapException
-    {
-        Set<String> removedAttributes = new HashSet<String>();
-
-        // Build a list of attributeType to remove
-        for ( Attribute attribute : attributes.getAttributes() )
-        {
-            AttributeType attributeType = attribute.getAttributeType();
-
-            if ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
-            {
-                removedAttributes.add( attributeType.getOid() );
-            }
-        }
-
-        // Now remove the attributes which are not in the list to be returned
-        for ( String returningAttribute : lookupContext.getReturningAttributesString() )
-        {
-            removedAttributes.remove( returningAttribute );
-        }
-
-        // Now, remove the attributes from the result
-        for ( String attribute : removedAttributes )
-        {
-            attributes.removeAttributes( attribute );
-        }
-
-        return true;
-    }
-
-
-    private void filter( LookupOperationContext lookupContext, Entry entry ) throws LdapException
-    {
-        Dn dn = lookupContext.getDn();
-        String[] ids = lookupContext.getReturningAttributesString();
-
-        // still need to protect against returning op attrs when ids is null
-        if ( ( ids == null ) || ( ids.length == 0 ) )
-        {
-            filterOperationalAttributes( entry );
-            return;
-        }
-
-        if ( dn.size() == 0 )
-        {
-            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
-
-            for ( Attribute attribute : entry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-
-                if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-                {
-                    // If it's not in the list of returning attribute, remove it
-                    if ( !lookupContext.contains( schemaManager, attributeType ) )
-                    {
-                        removedAttributes.add( attributeType );
-                    }
-                }
-            }
-
-            for ( AttributeType attributeType : removedAttributes )
-            {
-                entry.removeAttributes( attributeType );
-            }
-        }
-
-        denormalizeEntryOpAttrs( entry );
-
-        // do nothing past here since this explicity specifies which
-        // attributes to include - backends will automatically populate
-        // with right set of attributes using ids array
-    }
-
-
-    private void filterList( LookupOperationContext lookupContext, Entry entry ) throws LdapException
-    {
-        Dn dn = lookupContext.getDn();
-        String[] ids = lookupContext.getReturningAttributesString();
-
-        // still need to protect against returning op attrs when ids is null
-        if ( ( ids == null ) || ( ids.length == 0 ) )
-        {
-            filterOperationalAttributes( entry );
-            
-            return;
-        }
-
-        if ( dn.size() == 0 )
-        {
-            Set<AttributeType> removedAttributes = new HashSet<AttributeType>();
-
-            for ( Attribute attribute : entry.getAttributes() )
-            {
-                AttributeType attributeType = attribute.getAttributeType();
-
-                // If it's not in the list of returning attribute, remove it
-                if ( !lookupContext.contains( schemaManager, attributeType ) )
-                {
-                    removedAttributes.add( attributeType );
-                }
-            }
-
-            for ( AttributeType attributeType : removedAttributes )
-            {
-                entry.removeAttributes( attributeType );
-            }
-        }
-
-        denormalizeEntryOpAttrs( entry );
-
-        // do nothing past here since this explicity specifies which
-        // attributes to include - backends will automatically populate
-        // with right set of attributes using ids array
-    }
-
-
     private void denormalizeEntryOpAttrs( Entry entry ) throws LdapException
     {
         if ( directoryService.isDenormalizeOpAttrsEnabled() )
@@ -767,12 +644,5 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         return newDn;
-    }
-
-
-    private boolean filterDenormalized( Entry entry ) throws Exception
-    {
-        denormalizeEntryOpAttrs( entry );
-        return true;
     }
 }
