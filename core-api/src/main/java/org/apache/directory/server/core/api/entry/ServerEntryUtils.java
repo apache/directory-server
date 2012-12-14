@@ -737,7 +737,7 @@ public class ServerEntryUtils
      * @param operationContext The SearchingOperationContext
      * @throws LdapException If the filtering fails
      */
-    public static void filterContents( Entry entry, FilteringOperationContext operationContext ) throws LdapException
+    public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext, Entry entry ) throws LdapException
     {
         boolean typesOnly = operationContext.isTypesOnly();
 
@@ -762,9 +762,7 @@ public class ServerEntryUtils
 
             return;
         }
-        
-        SchemaManager schemaManager = operationContext.getSession().getDirectoryService().getSchemaManager();
-        
+                
         // If the user has requested all the User attributes ('*') only, we filter the entry's attribute to keep only
         // the USER attributes, plus the Operational attributes in the returning list 
         if ( operationContext.isAllUserAttributes() )

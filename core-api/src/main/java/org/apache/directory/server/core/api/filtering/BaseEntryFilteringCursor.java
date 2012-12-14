@@ -394,7 +394,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, operationContext );
+                ServerEntryUtils.filterContents( 
+                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    operationContext, prefetched );
                 
                 return true;
             }
@@ -402,7 +404,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, operationContext );
+                ServerEntryUtils.filterContents( 
+                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    operationContext, prefetched );
 
                 return true;
             }
@@ -467,7 +471,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, operationContext );
+                ServerEntryUtils.filterContents( 
+                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    operationContext, prefetched );
 
                 return true;
             }
@@ -475,7 +481,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( prefetched, operationContext );
+                ServerEntryUtils.filterContents( 
+                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    operationContext, prefetched );
 
                 return true;
             }
@@ -495,7 +503,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            ServerEntryUtils.filterContents( prefetched, operationContext );
+            ServerEntryUtils.filterContents( 
+                operationContext.getSession().getDirectoryService().getSchemaManager(),
+                operationContext, prefetched );
 
             return true;
         }

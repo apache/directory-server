@@ -921,7 +921,9 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         public boolean accept( SearchingOperationContext operationContext, Entry entry ) throws Exception
         {
-            ServerEntryUtils.filterContents( entry, operationContext );
+            ServerEntryUtils.filterContents( 
+                operationContext.getSession().getDirectoryService().getSchemaManager(),
+                operationContext, entry );
 
             return true;
         }
@@ -1164,11 +1166,13 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
-        Entry result = next( lookupContext );
+        Entry entry = next( lookupContext );
         
-        ServerEntryUtils.filterContents( result, lookupContext );
+        ServerEntryUtils.filterContents( 
+            lookupContext.getSession().getDirectoryService().getSchemaManager(),
+            lookupContext, entry );
 
-        return result;
+        return entry;
     }
 
 

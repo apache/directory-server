@@ -28,8 +28,10 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +59,7 @@ import org.junit.runner.RunWith;
                 indexes =
                 {
                     @CreateIndex( attribute = "objectClass" ),
-                    @CreateIndex( attribute = "sn" ),
+                    //@CreateIndex( attribute = "sn" ),
                     @CreateIndex( attribute = "cn" )
                 } )
                 
@@ -73,14 +75,15 @@ public class AddPerfIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        Dn dn = new Dn( "cn=test,ou=system" );
-        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
-        entry.add( "ObjectClass", "top", "person" );
-        entry.add( "sn", "TEST" );
-        entry.add( "cn", "test" );
+        Dn dn = new Dn( "cn=test,dc=example,dc=com" );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top", 
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
 
         connection.add( entry );
-        int nbIterations = 15000;
+        int nbIterations = 1500;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -102,7 +105,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
             }
 
             String name = "test" + i;
-            dn = new Dn( "cn=" + name + ",ou=system" );
+            dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
             entry = new DefaultEntry( getService().getSchemaManager(), dn,
                 "ObjectClass: top", 
                 "ObjectClass: person",
@@ -119,6 +122,23 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        
+        int nbFound = 0;
+        long t2 = System.currentTimeMillis();
+        EntryCursor result = connection.search( "dc=example,dc=com", "(sn=test123*)", SearchScope.SUBTREE, "*" );
+        
+        while ( result.next() )
+        {
+            Entry res = result.get();
+            
+            System.out.println( res.getDn() );
+            nbFound++;
+        }
+        
+        result.close();
+        long t3 = System.currentTimeMillis();
+        System.out.println( "Delta search : " + ( t3 - t2 ) + " for " + nbFound + " entries");
+        
         connection.close();
     }
 }
