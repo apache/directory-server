@@ -108,7 +108,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 return true;
             }
-
+            
+            // Denormalize the operational Attributes
             denormalizeEntryOpAttrs( entry );
             
             return true;

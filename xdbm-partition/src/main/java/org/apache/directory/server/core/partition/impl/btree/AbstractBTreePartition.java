@@ -159,6 +159,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /** Cached attributes types to avoid lookup all over the code */
     protected AttributeType OBJECT_CLASS_AT;
     protected AttributeType ENTRY_CSN_AT;
+    protected AttributeType ENTRY_DN_AT;
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
 
@@ -189,6 +190,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         ALIASED_OBJECT_NAME_AT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
     }
 
@@ -583,6 +585,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
+            
+            // Remove the EntryDN
+            entry.removeAttributes( ENTRY_DN_AT );
+            
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
@@ -1056,8 +1062,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Entry entry = lookupCache( id );
             
-            if( entry != null )
+            if ( entry != null )
             {
+                entry.add( ENTRY_DN_AT, dn.getName() );
+                
                 return new ClonedServerEntry( entry );
             }
             
@@ -1078,6 +1086,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 {
                     entry.setDn( dn );
                 }
+
+                entry.add( ENTRY_DN_AT, dn.getName() );
 
                 addToCache( id, entry );
                 
@@ -1106,6 +1116,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Entry modifiedEntry = modify( modifyContext.getDn(),
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
+            
+            // Remove the EntryDN
+            modifiedEntry.removeAttributes( ENTRY_DN_AT );
+
             modifyContext.setAlteredEntry( modifiedEntry );
             
             updateCache( modifyContext );

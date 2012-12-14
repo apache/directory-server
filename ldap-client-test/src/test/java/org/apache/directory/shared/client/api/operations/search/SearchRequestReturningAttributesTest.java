@@ -110,7 +110,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 8, entry.size() );
+        assertEquals( 9, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -118,6 +118,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
         assertTrue( entry.containsAttribute( "entryCSN" ) );
+        assertTrue( entry.containsAttribute( "entryDN" ) );
     }
 
 
@@ -176,11 +177,12 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 5, entry.size() );
+        assertEquals( 6, entry.size() );
         assertTrue( entry.containsAttribute( "creatorsName" ) );
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
         assertTrue( entry.containsAttribute( "entryCSN" ) );
+        assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
     }
 
@@ -243,13 +245,14 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 7, entry.size() );
+        assertEquals( 8, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
         assertTrue( entry.containsAttribute( "creatorsName" ) );
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
         assertTrue( entry.containsAttribute( "entryCSN" ) );
+        assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
     }
 
@@ -462,7 +465,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 8, entry.size() );
+        assertEquals( 9, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -470,6 +473,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
         assertTrue( entry.containsAttribute( "entryCSN" ) );
+        assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
     }
 

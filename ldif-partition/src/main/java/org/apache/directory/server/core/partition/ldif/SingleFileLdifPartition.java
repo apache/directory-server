@@ -215,6 +215,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 Entry modifiedEntry = super.modify( modifyContext.getDn(),
                     modifyContext.getModItems().toArray( new Modification[]
                         {} ) );
+                
+                // Remove the EntryDN
+                modifiedEntry.removeAttributes( ENTRY_DN_AT );
+
                 modifyContext.setAlteredEntry( modifiedEntry );
             }
             catch ( Exception e )
@@ -352,6 +356,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             IndexEntry<ParentIdAndRdn, String> element = cursor.get();
             String childId = element.getId();
             Entry entry = fetch( childId );
+            
+            // Remove the EntryDn
+            entry.removeAttributes( SchemaConstants.ENTRY_DN_AT );
 
             appendLdif( entry );
 

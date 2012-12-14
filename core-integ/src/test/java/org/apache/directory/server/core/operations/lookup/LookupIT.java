@@ -103,10 +103,10 @@ public class LookupIT extends AbstractLdapTestUnit
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
         
-        // We should have 4 attributes
-        assertEquals( 5, entry.size() );
+        // We should have 6 attributes
+        assertEquals( 6, entry.size() );
 
-        // Check that all the user attributes are abstent
+        // Check that all the user attributes are absent
         assertNull( entry.get( "cn" ) );
         assertNull( entry.get( "sn" ) );
         assertNull( entry.get( "objectClass" ) );
@@ -118,12 +118,15 @@ public class LookupIT extends AbstractLdapTestUnit
         */
 
         // Check that we have all the operational attributes :
-        // We should have 4 operational attributes : createTime, createUser, entryCSN and entryUUID
+        // We should have 6 operational attributes : createTime, createUser, entryCSN, entryDn, entryParentId and entryUUID
         assertNotNull( entry.get( "createTimestamp" ).getString() );
+        assertNotNull( entry.get( "creatorsName" ) );
         assertEquals( "uid=admin,ou=system", entry.get( "creatorsName" ).getString() );
         assertNotNull( entry.get( "entryCSN" ).getString() );
         assertNotNull( entry.get( "entryUUID" ).getString() );
         assertNotNull( entry.get( "entryParentId" ).getString() );
+        assertNotNull( entry.get( "entryDn" ));
+        assertEquals( "cn=test,ou=system", entry.get( "entryDn" ).getString() );
     }
 
 

@@ -258,6 +258,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void add( AddOperationContext addContext ) throws LdapException
     {
         super.add( addContext );
+        
         addEntry( addContext.getEntry() );
     }
 
@@ -312,6 +313,9 @@ public class LdifPartition extends AbstractLdifPartition
         // Get the modified entry and store it in the context for post usage
         Entry modifiedEntry = fetch( id, modifyContext.getDn() );
         modifyContext.setAlteredEntry( modifiedEntry );
+
+        // Remove the EntryDN
+        modifiedEntry.removeAttributes( ENTRY_DN_AT );
 
         // just overwrite the existing file
         Dn dn = modifyContext.getDn();
@@ -762,6 +766,9 @@ public class LdifPartition extends AbstractLdifPartition
      */
     private void addEntry( Entry entry ) throws LdapException
     {
+        // Remove the EntryDN
+        entry.removeAttributes( ENTRY_DN_AT );
+
         try
         {
             FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );

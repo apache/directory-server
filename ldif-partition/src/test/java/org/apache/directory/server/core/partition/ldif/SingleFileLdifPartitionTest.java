@@ -183,8 +183,13 @@ public class SingleFileLdifPartitionTest
 
     private long getEntryLdifLen( Entry entry ) throws LdapException
     {
+        // Remove the entryDn attribute
+        Entry copy = entry.clone();
+        copy.removeAttributes( "entryDn" );
+        
         // while writing to the file 1 extra newline char will be added
-        String ldif = LdifUtils.convertToLdif( entry ) + 1;
+        
+        String ldif = LdifUtils.convertToLdif( copy ) + "\n";
         byte[] data = Strings.getBytesUtf8( ldif );
 
         return data.length;
@@ -242,6 +247,19 @@ public class SingleFileLdifPartitionTest
         Entry fetched = partition.lookup( opCtx );
 
         assertNotNull( fetched );
+        
+        // Check the EntryDn attribute
+        Attribute entryDn = fetched.get( "entryDn" );
+        
+        assertNotNull( entryDn );
+        assertEquals( entryDn.getString(), entry.getDn().getName() );
+        
+        if ( !entry.contains( entryDn ) )
+        {
+            // Removed the entryDn attribute to be able to compare the entries
+            fetched.removeAttributes( "entryDn" );
+        }
+        
         assertEquals( entry, fetched );
     }
 
@@ -444,6 +462,9 @@ public class SingleFileLdifPartitionTest
         String ldif = Strings.utf8ToString( entry1Data );
 
         LdifEntry ldifEntry = reader.parseLdif( ldif ).get( 0 );
+        
+        // Remove the EntryDN
+        entry1.removeAttributes( "entryDn" );
 
         assertEquals( entry1, new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
 
@@ -477,6 +498,9 @@ public class SingleFileLdifPartitionTest
         ldif = Strings.utf8ToString( entry1Data );
 
         ldifEntry = reader.parseLdif( ldif ).get( 0 );
+
+        // Remove the EntryDN
+        entry1.removeAttributes( "entryDn" );
 
         assertEquals( entry1, new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
 

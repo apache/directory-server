@@ -1193,7 +1193,7 @@ public class SearchIT extends AbstractLdapTestUnit
     
         // ensure that all operational attributes are returned
         // and no user attributes
-        assertEquals( 5, attrs.size() );
+        assertEquals( 6, attrs.size() );
         assertNull( attrs.get( "cn" ) );
         assertNull( attrs.get( "sn" ) );
         assertNull( attrs.get( "objectClass" ) );
@@ -1203,6 +1203,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "creatorsname" ) );
         assertNotNull( attrs.get( "entryuuid" ) );
         assertNotNull( attrs.get( "entrycsn" ) );
+        assertNotNull( attrs.get( "entryDn" ) );
     }
     
     
@@ -1228,7 +1229,7 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes attrs = result.getAttributes();
     
         // ensure that all user attributes are returned
-        assertEquals( 11, attrs.size() );
+        assertEquals( 12, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
@@ -1239,6 +1240,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "creatorsname" ) );
         assertNotNull( attrs.get( "entryuuid" ) );
         assertNotNull( attrs.get( "entrycsn" ) );
+        assertNotNull( attrs.get( "entryDn" ) );
     }
     
     
