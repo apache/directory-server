@@ -586,9 +586,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
             
-            // Remove the EntryDN
-            entry.removeAttributes( ENTRY_DN_AT );
-            
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
@@ -739,6 +736,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     updateRdnIdx( parentId, ADD_CHILD, 0 );
                 }
 
+                // Remove the EntryDN attribute
+                entry.removeAttributes( ENTRY_DN_AT );
+                
                 // And finally add the entry into the master table
                 master.put( id, entry );
             }
@@ -1117,9 +1117,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
             
-            // Remove the EntryDN
-            modifiedEntry.removeAttributes( ENTRY_DN_AT );
-
             modifyContext.setAlteredEntry( modifiedEntry );
             
             updateCache( modifyContext );
@@ -1163,6 +1160,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         updateCsnIndex( entry, id );
+
+        // Remove the EntryDN
+        entry.removeAttributes( ENTRY_DN_AT );
+        
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1558,6 +1559,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Update the master table with the modified entry
         modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId.toString() );
+
+        // Remove the EntryDN
+        modifiedEntry.removeAttributes( ENTRY_DN_AT );
+        
         master.put( entryId, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
@@ -1870,6 +1875,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
         }
 
+        // Remove the EntryDN
+        entry.removeAttributes( ENTRY_DN_AT );
+        
         // And save the modified entry
         master.put( oldId, entry );
     }
