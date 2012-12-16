@@ -1064,7 +1064,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             if ( entry != null )
             {
-                entry.add( ENTRY_DN_AT, dn.getName() );
+                if ( !entry.containsAttribute( ENTRY_DN_AT ) )
+                {
+                    entry.add( ENTRY_DN_AT, dn.getName() );
+                }
                 
                 return new ClonedServerEntry( entry );
             }
@@ -1087,7 +1090,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     entry.setDn( dn );
                 }
 
-                entry.add( ENTRY_DN_AT, dn.getName() );
+                if ( !entry.containsAttribute( ENTRY_DN_AT ) )
+                {
+                    entry.add( ENTRY_DN_AT, dn.getName() );
+                }
 
                 addToCache( id, entry );
                 

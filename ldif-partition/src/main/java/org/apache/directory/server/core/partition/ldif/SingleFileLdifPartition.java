@@ -320,6 +320,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 if ( suffixEntry != null )
                 {
                     Entry entry = master.get( suffixId );
+                    
+                    // Don't write the EntryDN attribute
+                    entry.removeAttributes( ENTRY_DN_AT );
+                    
                     entry.setDn( suffixDn );
 
                     appendLdif( entry );
