@@ -59,7 +59,7 @@ public class CreateKdcServerAnnotationTest
         assertEquals( "CreateKdcServerAnnotationTest-class", directoryService.getInstanceId() );
 
         KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService,
-            AvailablePortFinder.getNextAvailable( 1024 ) );
+            AvailablePortFinder.getNextAvailable() );
 
         assertEquals( 2, server.getTransports().length );
 

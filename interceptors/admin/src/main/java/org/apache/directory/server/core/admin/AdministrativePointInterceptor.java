@@ -1153,8 +1153,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         List<Entry> administrativePoints = getAdministrativePoints();
 
         lockWrite();
-        addAdminPointCache( administrativePoints );
-        unlock();
+        
+        try
+        {
+            addAdminPointCache( administrativePoints );
+        }
+        finally
+        {
+            unlock();
+        }
     }
 
 
@@ -1212,22 +1219,27 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Protect the AP caches against concurrent access
         lockWrite();
 
-        // Loop on all the added roles to check if they are valid
-        for ( Value<?> role : adminPoint )
+        try
         {
-            checkAddRole( role, adminPoint, dn );
+            // Loop on all the added roles to check if they are valid
+            for ( Value<?> role : adminPoint )
+            {
+                checkAddRole( role, adminPoint, dn );
+            }
+    
+            // Ok, we are golden.
+            next( addContext );
+    
+            String apUuid = entry.get( ENTRY_UUID_AT ).getString();
+    
+            // Now, update the AdminPoint cache
+            createAdministrativePoints( adminPoint, dn, apUuid );
         }
-
-        // Ok, we are golden.
-        next( addContext );
-
-        String apUuid = entry.get( ENTRY_UUID_AT ).getString();
-
-        // Now, update the AdminPoint cache
-        createAdministrativePoints( adminPoint, dn, apUuid );
-
-        // Release the APCaches lock
-        unlock();
+        finally
+        {
+            // Release the APCaches lock
+            unlock();
+        }
 
         LOG.debug( "Added an Administrative Point at {}", dn );
 
@@ -1267,26 +1279,31 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Protect the AP caches against concurrent access
         lockWrite();
 
-        // Check that the removed AdministrativeRoles are valid. We don't have to do
-        // any other check, as the deleted entry has no children.
-        for ( Value<?> role : adminPoint )
+        try
         {
-            if ( !isValidRole( role.getString() ) )
+            // Check that the removed AdministrativeRoles are valid. We don't have to do
+            // any other check, as the deleted entry has no children.
+            for ( Value<?> role : adminPoint )
             {
-                String message = "Cannot remove the given role, it's not a valid one :" + role;
-                LOG.error( message );
-                throw new LdapUnwillingToPerformException( message );
+                if ( !isValidRole( role.getString() ) )
+                {
+                    String message = "Cannot remove the given role, it's not a valid one :" + role;
+                    LOG.error( message );
+                    throw new LdapUnwillingToPerformException( message );
+                }
             }
+    
+            // Ok, we can remove the AP
+            next( deleteContext );
+    
+            // Now, update the AdminPoint cache
+            deleteAdminPointCache( adminPoint, deleteContext );
         }
-
-        // Ok, we can remove the AP
-        next( deleteContext );
-
-        // Now, update the AdminPoint cache
-        deleteAdminPointCache( adminPoint, deleteContext );
-
-        // Release the APCaches lock
-        unlock();
+        finally
+        {
+            // Release the APCaches lock
+            unlock();
+        }
 
         LOG.debug( "Deleted an Administrative Point at {}", dn );
 

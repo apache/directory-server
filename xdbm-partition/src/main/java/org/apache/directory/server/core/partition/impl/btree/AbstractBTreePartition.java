@@ -589,10 +589,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
+            lockRead();
+
             try
             {
-                lockRead();
-
                 if ( getEntryId( entryDn ) != null )
                 {
                     LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
@@ -624,10 +624,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 parentDn = entryDn.getParent();
 
+                lockRead();
+
                 try
                 {
-                    lockRead();
-
                     parentId = getEntryId( parentDn );
                 }
                 finally
@@ -723,10 +723,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Add the parentId in the entry
             entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId.toString() );
 
+            lockWrite();
+
             try
             {
-                lockWrite();
-
                 // Update the RDN index
                 rdnIdx.add( key, id );
 
@@ -777,9 +777,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Dn dn = deleteContext.getDn();
             String id = null;
 
+            lockRead();
+
             try
             {
-                lockRead();
                 id = getEntryId( dn );
             }
             finally
@@ -880,9 +881,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // First get the entry
             Entry entry = null;
 
+            lockRead();
+
             try
             {
-                lockRead();
                 entry = master.get( id );
             }
             finally
@@ -937,9 +939,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
             }
 
+            lockWrite();
+
             try
             {
-                lockWrite();
                 rdnIdx.drop( id );
 
                 dumpRdnIdx();
@@ -1024,9 +1027,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public Entry fetch( String id ) throws LdapException
     {
+        lockRead();
+
         try
         {
-            lockRead();
             Dn dn = buildEntryDn( id );
     
             return fetch( id, dn );
@@ -1037,14 +1041,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         finally
         {
-            try
-            {
-                unlockRead();
-            }
-            catch ( Exception e )
-            {
-                throw new LdapOperationErrorException( e.getMessage(), e );
-            }
+            unlockRead();
         }
     }
 
@@ -1072,9 +1069,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 return new ClonedServerEntry( entry );
             }
             
+            lockRead();
+
             try
             {
-                lockRead();
                 entry = master.get( id );
             }
             finally
@@ -2716,7 +2714,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Acquire a Read lock
      */
-    private void lockRead() throws Exception
+    private void lockRead()
     {
         masterTableLock.readLock().lock();
     }
@@ -2725,7 +2723,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Release a Read lock
      */
-    private void unlockRead() throws Exception
+    private void unlockRead()
     {
         masterTableLock.readLock().unlock();
     }
@@ -2734,7 +2732,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Acquire a Write lock
      */
-    private void lockWrite() throws Exception
+    private void lockWrite()
     {
         masterTableLock.writeLock().lock();
     }
@@ -2743,7 +2741,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Release a Write lock
      */
-    private void unlockWrite() throws Exception
+    private void unlockWrite()
     {
         masterTableLock.writeLock().unlock();
     }

@@ -254,9 +254,14 @@ public class ReferralInterceptor extends BaseInterceptor
             // We have to add it to the referralManager
             referralManager.lockWrite();
 
-            referralManager.addReferral( entry );
-
-            referralManager.unlock();
+            try
+            {
+                referralManager.addReferral( entry );
+            }
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 
@@ -291,9 +296,14 @@ public class ReferralInterceptor extends BaseInterceptor
             // We have to remove it from the referralManager
             referralManager.lockWrite();
 
-            referralManager.removeReferral( entry );
-
-            referralManager.unlock();
+            try
+            {
+                referralManager.removeReferral( entry );
+            }
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 
@@ -333,13 +343,18 @@ public class ReferralInterceptor extends BaseInterceptor
         {
             referralManager.lockWrite();
 
-            if ( referralManager.isReferral( newEntry.getDn() ) )
+            try
             {
-                referralManager.removeReferral( modifyContext.getEntry() );
-                referralManager.addReferral( newEntry );
+                if ( referralManager.isReferral( newEntry.getDn() ) )
+                {
+                    referralManager.removeReferral( modifyContext.getEntry() );
+                    referralManager.addReferral( newEntry );
+                }
             }
-
-            referralManager.unlock();
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 
@@ -349,8 +364,6 @@ public class ReferralInterceptor extends BaseInterceptor
      **/
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
-        Dn newDn = moveContext.getNewDn();
-
         // Check if the entry is a referral itself
         boolean isReferral = isReferral( moveContext.getOriginalEntry() );
 
@@ -361,10 +374,15 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             referralManager.lockWrite();
 
-            referralManager.addReferral( moveContext.getModifiedEntry() );
-            referralManager.removeReferral( moveContext.getOriginalEntry() );
-
-            referralManager.unlock();
+            try
+            {
+                referralManager.addReferral( moveContext.getModifiedEntry() );
+                referralManager.removeReferral( moveContext.getOriginalEntry() );
+            }
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 
@@ -386,10 +404,15 @@ public class ReferralInterceptor extends BaseInterceptor
 
             referralManager.lockWrite();
 
-            referralManager.addReferral( newEntry );
-            referralManager.removeReferral( moveAndRenameContext.getOriginalEntry() );
-
-            referralManager.unlock();
+            try
+            {
+                referralManager.addReferral( newEntry );
+                referralManager.removeReferral( moveAndRenameContext.getOriginalEntry() );
+            }
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 
@@ -414,10 +437,15 @@ public class ReferralInterceptor extends BaseInterceptor
 
             referralManager.lockWrite();
 
-            referralManager.addReferral( newEntry );
-            referralManager.removeReferral( ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry() );
-
-            referralManager.unlock();
+            try
+            {
+                referralManager.addReferral( newEntry );
+                referralManager.removeReferral( ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry() );
+            }
+            finally
+            {
+                referralManager.unlock();
+            }
         }
     }
 }

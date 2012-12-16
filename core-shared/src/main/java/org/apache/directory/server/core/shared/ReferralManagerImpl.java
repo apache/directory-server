@@ -75,16 +75,21 @@ public class ReferralManagerImpl implements ReferralManager
     {
         lockWrite();
 
-        referrals = new DnNode<Entry>();
-        PartitionNexus nexus = directoryService.getPartitionNexus();
-
-        Set<String> suffixes = nexus.listSuffixes();
-        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-
-        init( directoryService, suffixes.toArray( new String[]
-            {} ) );
-
-        unlock();
+        try
+        {
+            referrals = new DnNode<Entry>();
+            PartitionNexus nexus = directoryService.getPartitionNexus();
+    
+            Set<String> suffixes = nexus.listSuffixes();
+            OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+    
+            init( directoryService, suffixes.toArray( new String[]
+                {} ) );
+        }
+        finally
+        {
+            unlock();
+        }
     }
 
 
@@ -184,11 +189,16 @@ public class ReferralManagerImpl implements ReferralManager
                     // Lock the referralManager
                     lockWrite();
 
-                    // Add it at the right place
-                    addReferral( entry );
-
-                    // Unlock the referralManager
-                    unlock();
+                    try
+                    {
+                        // Add it at the right place
+                        addReferral( entry );
+                    }
+                    finally
+                    { 
+                        // Unlock the referralManager
+                        unlock();
+                    }
                 }
 
                 cursor.close();

@@ -1208,15 +1208,21 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // Check if the entry itself is a referral
         referralManager.lockRead();
 
-        isReferral = referralManager.isReferral( reqTargetDn );
-
-        if ( !isReferral )
+        try
         {
-            // Check if the entry has a parent which is a referral
-            isparentReferral = referralManager.hasParentReferral( reqTargetDn );
+            isReferral = referralManager.isReferral( reqTargetDn );
+    
+            if ( !isReferral )
+            {
+                // Check if the entry has a parent which is a referral
+                isparentReferral = referralManager.hasParentReferral( reqTargetDn );
+            }
         }
-
-        referralManager.unlock();
+        finally
+        {
+            // Unlock the ReferralManager
+            referralManager.unlock();
+        }
 
         if ( !isReferral && !isparentReferral )
         {

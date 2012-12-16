@@ -472,10 +472,10 @@ public class DefaultDirectoryService implements DirectoryService
     {
         List<Interceptor> cloned = new ArrayList<Interceptor>();
 
+        readLock.lock();
+
         try
         {
-            readLock.lock();
-
             cloned.addAll( interceptors );
 
             return cloned;
@@ -496,9 +496,10 @@ public class DefaultDirectoryService implements DirectoryService
     {
         List<String> cloned = new ArrayList<String>();
 
+        readLock.lock();
+
         try
         {
-            readLock.lock();
             cloned.addAll( operationInterceptors.get( operation ) );
 
             return cloned;
@@ -516,9 +517,10 @@ public class DefaultDirectoryService implements DirectoryService
      */
     private void initOperationsList()
     {
+        writeLock.lock();
+
         try
         {
-            writeLock.lock();
             operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
 
             for ( OperationEnum operation : OperationEnum.getOperations() )
@@ -600,10 +602,10 @@ public class DefaultDirectoryService implements DirectoryService
         // First, init the interceptor
         interceptor.init( this );
 
+        writeLock.lock();
+
         try
         {
-            writeLock.lock();
-
             for ( OperationEnum operation : OperationEnum.getOperations() )
             {
                 List<String> operationList = operationInterceptors.get( operation );
@@ -653,10 +655,10 @@ public class DefaultDirectoryService implements DirectoryService
     {
         Interceptor interceptor = interceptorNames.get( interceptorName );
 
+        writeLock.lock();
+
         try
         {
-            writeLock.lock();
-
             for ( OperationEnum operation : OperationEnum.getOperations() )
             {
                 List<String> operationList = operationInterceptors.get( operation );
@@ -2048,9 +2050,10 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Interceptor getInterceptor( String interceptorName )
     {
+        readLock.lock();
+
         try
         {
-            readLock.lock();
             return interceptorNames.get( interceptorName );
         }
         finally
@@ -2085,10 +2088,11 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void addAfter( String interceptorName, Interceptor interceptor )
     {
+        writeLock.lock();
+
         try
         {
             int position = 0;
-            writeLock.lock();
 
             // Find the position
             for ( Interceptor inter : interceptors )
