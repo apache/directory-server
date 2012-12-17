@@ -98,7 +98,6 @@
     <module>all</module>
     <module>jdbm-partition</module>
     <module>xdbm-partition</module>
-    <module>xdbm-tools</module>
     <module>core-shared</module>
     <module>core-api</module>
     <module>interceptors</module>
@@ -119,8 +118,6 @@
     <module>protocol-dns</module>
     <!-- <module>protocol-changepw</module> -->
     <module>server-integ</module>
-    <!-- Tools are broken and need to be fixed -->
-    <!--<module>server-tools</module>-->
     <module>server-config</module>
     <module>service-builder</module>
     <!--Uncomment to build all in one OSGi bundle-->
@@ -808,12 +805,6 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-server-tools</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-syncrepl</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -835,12 +826,6 @@
         <artifactId>apacheds-xdbm-partition</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-xdbm-tools</artifactId>
-        <version>${project.version}</version>
       </dependency>
       
       <dependency>

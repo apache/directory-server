@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M3-SNAPSHOT</version>
+    <version>2.0.0-M9-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-server-tools</artifactId>
@@ -47,8 +47,9 @@
     </dependency>
     
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-jdbm</artifactId>
+      <groupId>org.apache.directory.jdbm</groupId>
+      <artifactId>apacheds-jdbm2</artifactId>
+      <type>bundle</type>
     </dependency>
     
     <dependency>
@@ -70,11 +71,6 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-xdbm-partition</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-xdbm-tools</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>commons-cli</groupId>
@@ -84,11 +80,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.daemon</groupId>
-      <artifactId>daemon-bootstrappers</artifactId>
     </dependency>
 
     <dependency>
