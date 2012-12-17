@@ -165,7 +165,6 @@ public class AvlTreeMapTest
     }
 
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testDuplicateKeyInsert()
     {
@@ -183,12 +182,12 @@ public class AvlTreeMapTest
         assertTrue( 1 == tree.insert( 3, 1 ) );// should be ignored
         assertTrue( 1 == tree.getSize() );
 
-        LinkedAvlMapNode node = tree.find( 3 );
+        LinkedAvlMapNode<Integer, Integer> node = tree.find( 3 );
         assertNotNull( node );
 
         assertTrue( node.value.getOrderedSet().getClass() == AvlTreeImpl.class );
 
-        AvlTree dupsTree = ( ( SingletonOrOrderedSet ) node.value ).getOrderedSet();
+        AvlTree<Integer> dupsTree = ( ( SingletonOrOrderedSet<Integer> ) node.value ).getOrderedSet();
         assertEquals( 3, dupsTree.getSize() );
     }
 

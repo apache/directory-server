@@ -437,6 +437,8 @@ public class AvlTreeMarshallerTest
 
         byte[] data = new byte[( int ) treeFile.length()];
         fin.read( data );
+        
+        fin.close();
 
         AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
 

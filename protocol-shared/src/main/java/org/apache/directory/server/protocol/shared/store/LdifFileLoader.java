@@ -176,54 +176,71 @@ public class LdifFileLoader
         {
             in = getLdifStream();
 
-            for ( LdifEntry ldifEntry : new LdifReader( in ) )
+            try
             {
-                Dn dn = ldifEntry.getDn();
-
-                if ( ldifEntry.isEntry() )
+                for ( LdifEntry ldifEntry : new LdifReader( in ) )
                 {
-                    Entry entry = ldifEntry.getEntry();
-                    boolean filterAccepted = applyFilters( dn, entry );
-
-                    if ( !filterAccepted )
+                    Dn dn = ldifEntry.getDn();
+    
+                    if ( ldifEntry.isEntry() )
                     {
-                        continue;
-                    }
-
-                    try
-                    {
-                        coreSession.lookup( dn );
-                        log.info( "Found {}, will not create.", dn );
-                    }
-                    catch ( Exception e )
-                    {
+                        Entry entry = ldifEntry.getEntry();
+                        boolean filterAccepted = applyFilters( dn, entry );
+    
+                        if ( !filterAccepted )
+                        {
+                            continue;
+                        }
+    
                         try
                         {
-                            coreSession.add(
-                                new DefaultEntry(
-                                    coreSession.getDirectoryService().getSchemaManager(), entry ) );
-                            count++;
-                            log.info( "Created {}.", dn );
+                            coreSession.lookup( dn );
+                            log.info( "Found {}, will not create.", dn );
                         }
-                        catch ( LdapException e1 )
+                        catch ( Exception e )
                         {
-                            log.info( "Could not create entry " + entry, e1 );
+                            try
+                            {
+                                coreSession.add(
+                                    new DefaultEntry(
+                                        coreSession.getDirectoryService().getSchemaManager(), entry ) );
+                                count++;
+                                log.info( "Created {}.", dn );
+                            }
+                            catch ( LdapException e1 )
+                            {
+                                log.info( "Could not create entry " + entry, e1 );
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //modify
+                        List<Modification> items = ldifEntry.getModifications();
+    
+                        try
+                        {
+                            coreSession.modify( dn, items );
+                            log.info( "Modified: " + dn + " with modificationItems: " + items );
+                        }
+                        catch ( LdapException e )
+                        {
+                            log.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
                         }
                     }
                 }
-                else
+            }
+            finally
+            {
+                if ( in != null )
                 {
-                    //modify
-                    List<Modification> items = ldifEntry.getModifications();
-
                     try
                     {
-                        coreSession.modify( dn, items );
-                        log.info( "Modified: " + dn + " with modificationItems: " + items );
+                        in.close();
                     }
-                    catch ( LdapException e )
+                    catch ( Exception e )
                     {
-                        log.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
+                        log.error( I18n.err( I18n.ERR_175 ), e );
                     }
                 }
             }
@@ -235,20 +252,6 @@ public class LdifFileLoader
         catch ( Exception ioe )
         {
             log.error( I18n.err( I18n.ERR_174 ), ioe );
-        }
-        finally
-        {
-            if ( in != null )
-            {
-                try
-                {
-                    in.close();
-                }
-                catch ( Exception e )
-                {
-                    log.error( I18n.err( I18n.ERR_175 ), e );
-                }
-            }
         }
 
         return count;

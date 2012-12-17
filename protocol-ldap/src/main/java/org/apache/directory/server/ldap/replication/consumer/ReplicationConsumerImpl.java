@@ -1367,16 +1367,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         cursor.close();
     }
-
-
-
-    /**
-     * Stop the refresh operation
-     */
-    private void stopRefreshing()
-    {
-        disconnect();
-    }
     
     
     private synchronized Object getLockFor( String uuid )

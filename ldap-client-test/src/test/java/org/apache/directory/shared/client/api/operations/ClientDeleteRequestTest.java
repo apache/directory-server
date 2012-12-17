@@ -192,8 +192,6 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         Method deleteChildrenMethod = connection.getClass().getDeclaredMethod( "deleteRecursive", Dn.class, Map.class );
         deleteChildrenMethod.setAccessible( true );
 
-        final AtomicInteger count = new AtomicInteger();
-
         try
         {
             connection.deleteTree( "cn=parent,ou=system" );

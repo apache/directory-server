@@ -80,8 +80,6 @@ public class SubtreeEvaluator
         Dn subentryBaseDn = apDn;
         subentryBaseDn = subentryBaseDn.add( subtree.getBase() );
 
-        String s = subentryBaseDn.toString();
-
         if ( !entryDn.isDescendantOf( subentryBaseDn ) )
         {
             // The entry Dn is not part of the subtree specification, get out

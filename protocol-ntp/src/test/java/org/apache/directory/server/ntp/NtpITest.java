@@ -55,7 +55,7 @@ public class NtpITest
     public void setUp() throws Exception
     {
         ntpConfig = new NtpServer();
-        port = AvailablePortFinder.getNextAvailable( 10123 );
+        port = AvailablePortFinder.getNextAvailable();
         TcpTransport tcpTransport = new TcpTransport( port );
         UdpTransport udpTransport = new UdpTransport( port );
         ntpConfig.setTransports( tcpTransport, udpTransport );

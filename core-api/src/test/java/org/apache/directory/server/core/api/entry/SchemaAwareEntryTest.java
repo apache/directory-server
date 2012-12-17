@@ -762,8 +762,6 @@ public class SchemaAwareEntryTest
         byte[] b3 = Strings.getBytesUtf8( "test3" );
 
         Value<String> test1 = new StringValue( atDC, "test1" );
-        Value<String> test2 = new StringValue( atDC, "test2" );
-        Value<String> test3 = new StringValue( atDC, "test3" );
 
         Value<String> testEMail1 = new StringValue( atEMail, "test1" );
         Value<String> testEMail2 = new StringValue( atEMail, "test2" );

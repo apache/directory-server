@@ -106,11 +106,11 @@ public class ServerAnnotationProcessor
         else
         {
             // Create default LDAP and LDAPS transports
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
+            int port = AvailablePortFinder.getNextAvailable();
             Transport ldap = new TcpTransport( port );
             ldapServer.addTransports( ldap );
 
-            port = AvailablePortFinder.getNextAvailable( port );
+            port = AvailablePortFinder.getNextAvailable();
             Transport ldaps = new TcpTransport( port );
             ldaps.setEnableSSL( true );
             ldapServer.addTransports( ldaps );
@@ -382,7 +382,7 @@ public class ServerAnnotationProcessor
         if ( transportBuilders == null )
         {
             // create only UDP transport if none specified
-            UdpTransport defaultTransport = new UdpTransport( AvailablePortFinder.getNextAvailable( startPort ) );
+            UdpTransport defaultTransport = new UdpTransport( AvailablePortFinder.getNextAvailable() );
             kdcServer.addTransports( defaultTransport );
         }
         else if ( transportBuilders.length > 0 )
@@ -397,7 +397,7 @@ public class ServerAnnotationProcessor
 
                 if ( port == -1 )
                 {
-                    port = AvailablePortFinder.getNextAvailable( startPort );
+                    port = AvailablePortFinder.getNextAvailable();
                     startPort = port + 1;
                 }
 

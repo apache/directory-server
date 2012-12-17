@@ -84,7 +84,6 @@ import org.apache.directory.shared.ldap.model.name.Ava;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.ObjectClass;
 import org.apache.directory.shared.ldap.model.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
@@ -754,7 +753,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
                             // This is an error.
-                            String msg = I18n.err( I18n.ERR_54, null );
+                            String msg = I18n.err( I18n.ERR_54, (Object[])null );
                             LOG.error( msg );
                             throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
                         }
@@ -865,51 +864,6 @@ public class SchemaInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * Filter the attributes by removing the ones which are not allowed
-     */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void filterAttributeTypes( SearchOperationContext operation, Entry result )
-    {
-        if ( operation.getReturningAttributes() == null )
-        {
-            return;
-        }
-
-        for ( AttributeTypeOptions attrOptions : operation.getReturningAttributes() )
-        {
-            Attribute attribute = result.get( attrOptions.getAttributeType() );
-
-            if ( attrOptions.hasOption() )
-            {
-                for ( String option : attrOptions.getOptions() )
-                {
-                    if ( "binary".equalsIgnoreCase( option ) )
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            if ( result.contains( attribute ) )
-                            {
-                                result.remove( attribute );
-                            }
-                        }
-                        catch ( LdapException ne )
-                        {
-                            // Do nothings
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    
     /**
      * Filters objectClass attribute to inject top when not present.
      */

@@ -35,8 +35,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -70,8 +68,6 @@ public class AvlTreePerfTest
     };
 
     AvlTreeMarshaller<Integer> treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
-
-    private final static Logger LOG = LoggerFactory.getLogger( AvlTreePerfTest.class );
 
 
     @Before
@@ -258,11 +254,12 @@ public class AvlTreePerfTest
 
         start = System.nanoTime();
 
-        set = ( HashSet ) objIn.readObject();
+        set = ( HashSet<Integer> ) objIn.readObject();
 
         end = System.nanoTime();
 
         System.out.println( "total time taken for reconstructing a serialized HashSet ->" + getTime( start, end ) );
+        objIn.close();
     }
 
 

@@ -314,7 +314,7 @@ public class AvlTreeTest
         assertNotNull( tree.find( 11 ) );
         assertNull( tree.find( 0 ) );
 
-        ( ( AvlTreeImpl ) tree ).setRoot( null );
+        ( ( AvlTreeImpl<Integer> ) tree ).setRoot( null );
         assertNull( tree.find( 3 ) );
     }
 

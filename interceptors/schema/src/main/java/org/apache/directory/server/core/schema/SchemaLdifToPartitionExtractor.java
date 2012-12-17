@@ -208,37 +208,42 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
             boolean first = true;
             LdifEntry ldifEntry = null;
 
-            while ( ldifReader.hasNext() )
+            try
             {
-                if ( first )
+                while ( ldifReader.hasNext() )
                 {
-                    ldifEntry = ldifReader.next();
-
-                    if ( ldifEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                    if ( first )
                     {
-                        // No UUID, let's create one
-                        UUID entryUuid = UUID.randomUUID();
-                        ldifEntry.addAttribute( SchemaConstants.ENTRY_UUID_AT, entryUuid.toString() );
+                        ldifEntry = ldifReader.next();
+    
+                        if ( ldifEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
+                        {
+                            // No UUID, let's create one
+                            UUID entryUuid = UUID.randomUUID();
+                            ldifEntry.addAttribute( SchemaConstants.ENTRY_UUID_AT, entryUuid.toString() );
+                        }
+                        if ( ldifEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                        {
+                            // No CSN, let's create one
+                            Csn csn = csnFactory.newInstance();
+                            ldifEntry.addAttribute( SchemaConstants.ENTRY_CSN_AT, csn.toString() );
+                        }
+    
+                        first = false;
                     }
-                    if ( ldifEntry.get( SchemaConstants.ENTRY_CSN_AT ) == null )
+                    else
                     {
-                        // No CSN, let's create one
-                        Csn csn = csnFactory.newInstance();
-                        ldifEntry.addAttribute( SchemaConstants.ENTRY_CSN_AT, csn.toString() );
+                        // throw an exception : we should not have more than one entry per schema ldif file
+                        String msg = I18n.err( I18n.ERR_08003, source );
+                        LOG.error( msg );
+                        throw new InvalidObjectException( msg );
                     }
-
-                    first = false;
-                }
-                else
-                {
-                    // throw an exception : we should not have more than one entry per schema ldif file
-                    String msg = I18n.err( I18n.ERR_08003, source );
-                    LOG.error( msg );
-                    throw new InvalidObjectException( msg );
                 }
             }
-
-            ldifReader.close();
+            finally
+            {
+                ldifReader.close();
+            }
 
             // inject the entry
             Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );

@@ -305,30 +305,6 @@ public class NormalizationInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    private String[] normalizeAttrsId( String[] attrIds ) throws LdapException
-    {
-        if ( attrIds == null )
-        {
-            return attrIds;
-        }
-
-        String[] normalizedAttrIds = new String[attrIds.length];
-        int pos = 0;
-
-        for ( String id : attrIds )
-        {
-            String oid = schemaManager.lookupAttributeTypeRegistry( id ).getOid();
-            
-            normalizedAttrIds[pos++] = oid;
-        }
-
-        return normalizedAttrIds;
-    }
-
-
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------

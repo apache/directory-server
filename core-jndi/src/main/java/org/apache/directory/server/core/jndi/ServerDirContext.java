@@ -73,7 +73,6 @@ import org.apache.directory.shared.ldap.model.filter.SimpleNode;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.apache.directory.shared.util.Strings;
 
@@ -565,7 +564,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         Dn target = buildTarget( JndiUtils.fromName( name ) );
-        Rdn rdn = target.getRdn();
 
         attrs = AttributeUtils.toCaseInsensitive( attrs );
         Attributes attributes = ( Attributes ) attrs.clone();
