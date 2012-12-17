@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.avltree;
 
 
+import java.io.IOException;
+
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.slf4j.Logger;
@@ -116,7 +119,10 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
-    public Tuple<K, V> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public Tuple<K, V> get() throws CursorException, IOException
     {
         if ( wrapped.available() )
         {
@@ -153,7 +159,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -164,7 +170,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
-    public void close( Exception reason ) throws Exception
+    public void close( Exception reason )
     {
         if ( IS_DEBUG )
         {

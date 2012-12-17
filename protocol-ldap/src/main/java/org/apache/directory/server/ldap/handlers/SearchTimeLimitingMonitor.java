@@ -68,32 +68,26 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.directory.server.core.cursor.ClosureMonitor#checkNotClosed()
+    /**
+     * {@inheritDoc}
      */
-    // False positive, we want to keep the comment
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
-    public void checkNotClosed() throws Exception
+    public void checkNotClosed() throws CursorClosedException
     {
-        if ( System.currentTimeMillis() > startTime + millisToLive )
+        if ( ( System.currentTimeMillis() > startTime + millisToLive ) && !closed )
         {
             // state check needed to "try" not to overwrite exception (lack of 
             // synchronization may still allow overwriting but who cares that 
             // much
-            if ( !closed )
-            {
-                // not going to sync because who cares if it takes a little 
-                // longer to stop but we need to set cause before toggling 
-                // closed state or else check for closure can throw null cause 
-                cause = new LdapTimeLimitExceededException();
-                closed = true;
-            }
+            // not going to sync because who cares if it takes a little 
+            // longer to stop but we need to set cause before toggling 
+            // closed state or else check for closure can throw null cause 
+            cause = new LdapTimeLimitExceededException();
+            closed = true;
         }
 
         if ( closed )
         {
-            throw cause;
+            throw new CursorClosedException( cause.getMessage(), cause );
         }
     }
 

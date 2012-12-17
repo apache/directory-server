@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.IOException;
 import java.util.Comparator;
 
 import jdbm.btree.BTree;
@@ -26,6 +27,7 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,8 +213,10 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    @SuppressWarnings("unchecked")
-    public E get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public E get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -229,7 +233,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -245,7 +249,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

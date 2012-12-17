@@ -29,6 +29,7 @@ import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.slf4j.Logger;
@@ -390,7 +391,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public Entry get() throws Exception
+    public Entry get() throws CursorException, IOException
     {
         if ( ( index < start ) || ( index >= end ) )
         {
@@ -456,7 +457,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     }
 
 
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -467,7 +468,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     }
 
 
-    public void close( Exception reason ) throws Exception
+    public void close( Exception reason )
     {
         if ( IS_DEBUG )
         {
@@ -497,7 +498,10 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     }
 
 
-    public boolean isClosed() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClosed()
     {
         return closed;
     }

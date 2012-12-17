@@ -158,7 +158,14 @@ public class SearchLimitsIT extends AbstractLdapTestUnit
         getLdapServer().setMaxTimeLimit( LdapServer.NO_TIME_LIMIT );
         delayInterceptor.setDelayMillis( 500 );
     
-        getActorsWithLimit( "(objectClass=*)", 499, LdapServer.NO_SIZE_LIMIT );
+        try
+        {
+            getActorsWithLimit( "(objectClass=*)", 499, LdapServer.NO_SIZE_LIMIT );
+        }
+        catch ( Exception e )
+        {
+            throw e;
+        }
     }
     
     

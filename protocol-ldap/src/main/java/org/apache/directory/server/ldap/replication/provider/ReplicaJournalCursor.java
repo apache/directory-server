@@ -28,6 +28,7 @@ import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.slf4j.Logger;
@@ -140,7 +141,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public ReplicaEventMessage get() throws Exception
+    public ReplicaEventMessage get() throws CursorException
     {
         return qualifiedEvtMsg;
     }
@@ -237,7 +238,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -253,7 +254,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

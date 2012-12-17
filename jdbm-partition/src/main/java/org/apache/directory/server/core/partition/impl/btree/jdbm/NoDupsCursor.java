@@ -25,6 +25,7 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.slf4j.Logger;
@@ -250,7 +251,10 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public Tuple<K, V> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public Tuple<K, V> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
         if ( valueAvailable )
@@ -266,7 +270,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -282,7 +286,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

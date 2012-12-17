@@ -20,12 +20,15 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.IOException;
+
 import jdbm.btree.BTree;
 
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.slf4j.Logger;
@@ -469,7 +472,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public Tuple<K, V> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public Tuple<K, V> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -486,7 +492,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -507,7 +513,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

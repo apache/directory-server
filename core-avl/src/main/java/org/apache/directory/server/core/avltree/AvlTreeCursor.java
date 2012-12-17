@@ -20,7 +20,10 @@
 package org.apache.directory.server.core.avltree;
 
 
+import java.io.IOException;
+
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +156,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public E get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public E get() throws CursorException, IOException
     {
         checkNotClosed( "get" );
 
@@ -260,7 +266,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -274,7 +280,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason ) throws Exception
+    public void close( Exception reason )
     {
         if ( IS_DEBUG )
         {

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.api.filtering;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -258,7 +259,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -273,7 +274,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason ) throws Exception
+    public void close( Exception reason )
     {
         if ( IS_DEBUG )
         {
@@ -312,7 +313,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public Entry get() throws Exception
+    public Entry get() throws InvalidCursorPositionException, IOException
     {
         if ( available() )
         {
@@ -326,7 +327,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean isClosed() throws Exception
+    public boolean isClosed()
     {
         return wrapped.isClosed();
     }

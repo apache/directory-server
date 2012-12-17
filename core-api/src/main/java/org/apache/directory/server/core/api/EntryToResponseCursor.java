@@ -21,11 +21,14 @@
 package org.apache.directory.server.core.api;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
+import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -114,7 +117,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public void close() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -125,7 +131,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public void close( Exception e ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception e )
     {
         if ( IS_DEBUG )
         {
@@ -142,7 +151,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public Response get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public Response get() throws CursorException, IOException
     {
         Entry entry = wrapped.get();
         SearchResultEntry se = new SearchResultEntryImpl( messageId );
@@ -163,7 +175,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public boolean isClosed() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClosed()
     {
         return wrapped.isClosed();
     }

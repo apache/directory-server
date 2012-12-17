@@ -47,6 +47,7 @@ import org.apache.directory.server.ldap.replication.provider.ReplicationRequestH
 import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
@@ -1620,6 +1621,11 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
+
+        if ( e instanceof CursorClosedException )
+        {
+            e = (Exception)((CursorClosedException)e).getCause();
+        }
 
         if ( e instanceof LdapOperationException )
         {
