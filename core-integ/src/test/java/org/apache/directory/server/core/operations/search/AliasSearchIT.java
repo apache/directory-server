@@ -442,7 +442,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
             ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
             EntryFilteringCursor cursor = getService().getAdminSession()
-                .search( base, scope, exprNode, aliasDerefMode, null );
+                .search( base, scope, exprNode, aliasDerefMode );
 
             // advancing the cursor forward and backward must give the same result
             for ( int count = 1; count < 20; count++ )
@@ -489,7 +489,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
             ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
             EntryFilteringCursor cursor = getService().getAdminSession()
-                .search( base, scope, exprNode, aliasDerefMode, null );
+                .search( base, scope, exprNode, aliasDerefMode );
 
             // advancing the cursor backward and forward must give the same result
             for ( int count = 1; count < 20; count++ )
@@ -584,7 +584,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
 
         ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), filter );
         EntryFilteringCursor cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
-            aliasDerefMode, null );
+            aliasDerefMode );
         cursor.beforeFirst();
 
         while ( cursor.next() )

@@ -36,6 +36,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
+import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.model.message.Response;
@@ -43,6 +44,7 @@ import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.model.message.SearchResultDone;
+import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.shared.ldap.model.name.Dn;
@@ -132,13 +134,20 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         SearchRequest searchRequest = new SearchRequestImpl().setBase( new Dn( "ou=system" ) )
             .setFilter( "(objectclass=*)" )
             .setScope( SearchScope.ONELEVEL ).addControl( new ManageDsaITImpl() );
-        EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL );
+        SearchCursor cursor = connection.search( searchRequest );
         int count = 0;
     
         while ( cursor.next() )
         {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
+            Response response = cursor.get();
+            assertNotNull( response );
+            
+            if ( response instanceof SearchResultEntry )
+            {
+                Entry entry = ((SearchResultEntry)response).getEntry();
+                assertNotNull( entry );
+            }
+            
             count++;
         }
     

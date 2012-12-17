@@ -131,7 +131,7 @@ public class StoreUtils
         {
             SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
             cursor = session.search( searchBaseDn, SearchScope.SUBTREE,
-                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, null );
+                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS );
 
             cursor.beforeFirst();
             if ( cursor.next() )

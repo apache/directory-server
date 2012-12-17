@@ -54,8 +54,7 @@ public class GetCatalog implements DirectoryServiceOperation
             Dn.ROOT_DSE,
             SearchScope.SUBTREE,
             FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ),
-            AliasDerefMode.DEREF_ALWAYS,
-            null );
+            AliasDerefMode.DEREF_ALWAYS );
 
         Map<String, String> catalog = new HashMap<String, String>();
 

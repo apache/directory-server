@@ -97,7 +97,7 @@ public class LdapClassLoader extends ClassLoader
                 try
                 {
                     cursor = directoryService.getAdminSession()
-                        .search( base, SearchScope.SUBTREE, filter, AliasDerefMode.DEREF_ALWAYS, null );
+                        .search( base, SearchScope.SUBTREE, filter, AliasDerefMode.DEREF_ALWAYS );
 
                     cursor.beforeFirst();
                     if ( cursor.next() ) // there should be only one!

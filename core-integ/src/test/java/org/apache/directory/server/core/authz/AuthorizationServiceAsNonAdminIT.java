@@ -173,7 +173,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
             CoreSession akarasuluSession = getService().getSession( principal );
 
             ExprNode filter = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
-            EntryFilteringCursor cursor = akarasuluSession.search( new Dn( "ou=users,ou=system" ), SearchScope.OBJECT, filter , AliasDerefMode.DEREF_ALWAYS, null );
+            EntryFilteringCursor cursor = akarasuluSession.search( new Dn( "ou=users,ou=system" ), SearchScope.OBJECT, filter , AliasDerefMode.DEREF_ALWAYS );
             
             while ( cursor.next() )
             {
