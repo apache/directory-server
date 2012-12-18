@@ -355,6 +355,7 @@ public class DefaultDirectoryService implements DirectoryService
         syncPeriodMillis = DEFAULT_SYNC_PERIOD;
         csnFactory = new CsnFactory( replicaId );
         evaluator = new SubtreeEvaluator( schemaManager );
+        setDefaultInterceptorConfigurations();
     }
 
 
@@ -1382,7 +1383,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         started = false;
-        setDefaultInterceptorConfigurations();
     }
 
 
