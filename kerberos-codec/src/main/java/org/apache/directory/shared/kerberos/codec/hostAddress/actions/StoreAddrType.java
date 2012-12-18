@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;

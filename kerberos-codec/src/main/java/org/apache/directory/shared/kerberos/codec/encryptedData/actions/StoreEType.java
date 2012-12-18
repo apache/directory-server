@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.encryptedData.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;

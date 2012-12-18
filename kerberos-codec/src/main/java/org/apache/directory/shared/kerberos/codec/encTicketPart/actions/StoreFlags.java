@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadBitString;
+import org.apache.directory.api.asn1.actions.AbstractReadBitString;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 

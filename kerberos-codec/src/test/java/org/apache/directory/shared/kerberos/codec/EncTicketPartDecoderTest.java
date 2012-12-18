@@ -28,7 +28,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;

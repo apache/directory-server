@@ -29,10 +29,11 @@ import java.util.Arrays;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+
+import org.apache.directory.api.asn1.ber.Asn1Container;
+import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Container;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesContainer;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;

@@ -27,9 +27,9 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.lastReq.LastReqContainer;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
 import org.apache.directory.shared.kerberos.components.LastReq;

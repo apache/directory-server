@@ -21,7 +21,7 @@
 package org.apache.directory.shared.kerberos.codec.adAndOr.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
 
 

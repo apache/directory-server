@@ -22,8 +22,8 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;

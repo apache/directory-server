@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;

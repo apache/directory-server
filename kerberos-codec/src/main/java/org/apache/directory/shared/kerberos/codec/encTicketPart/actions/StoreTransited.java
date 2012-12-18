@@ -21,11 +21,11 @@
 package org.apache.directory.shared.kerberos.codec.encTicketPart.actions;
 
 
+import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
+import org.apache.directory.api.asn1.ber.tlv.TLV;
+import org.apache.directory.api.i18n.I18n;
 import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEncodingContainer;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;

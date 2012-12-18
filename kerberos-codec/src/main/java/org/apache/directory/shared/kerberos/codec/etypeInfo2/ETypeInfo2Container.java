@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.etypeInfo2;
 
 
-import org.apache.directory.shared.asn1.ber.AbstractContainer;
+import org.apache.directory.api.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
 
