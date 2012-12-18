@@ -983,7 +983,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             Cursor<Entry> result = new EntryCursorAdaptor( this, searchResult );
 
-            return new BaseEntryFilteringCursor( result, searchContext );
+            return new BaseEntryFilteringCursor( result, searchContext, schemaManager );
         }
         catch ( LdapException le )
         {

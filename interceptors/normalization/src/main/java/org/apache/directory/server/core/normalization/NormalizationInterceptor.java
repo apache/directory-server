@@ -284,7 +284,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
 
         // Normalize the filter
@@ -293,7 +293,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
         else
         {

@@ -112,6 +112,6 @@ public class AbstractCursorTest
             new SearchOperationContext( session, Dn.ROOT_DSE, SearchScope.ONELEVEL, null, "*", "EntryUUID" );
         
         return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
-            operationContext );
+            operationContext, directoryService.getSchemaManager() );
     }
 }

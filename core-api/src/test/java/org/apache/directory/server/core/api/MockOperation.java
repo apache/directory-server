@@ -42,6 +42,7 @@ public class MockOperation implements OperationContext
 {
     final int count;
     final CoreSession session;
+    final SchemaManager schemaManager;
 
 
     public MockOperation( SchemaManager schemaManager, int count ) throws Exception
@@ -50,12 +51,14 @@ public class MockOperation implements OperationContext
         this.session = new MockCoreSession( new LdapPrincipal( schemaManager, new Dn( schemaManager ),
             AuthenticationLevel.STRONG ),
             new MockDirectoryService( count ) );
+        
+        this.schemaManager = schemaManager;
     }
 
 
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext );
+        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext, schemaManager );
     }
 
 

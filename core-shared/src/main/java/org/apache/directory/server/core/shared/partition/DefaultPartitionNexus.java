@@ -593,7 +593,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( ( ids == null ) || ( ids.size() == 0 ) )
         {
             Entry rootDse = getRootDse( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext, directoryService.getSchemaManager() );
         }
 
         // -----------------------------------------------------------
@@ -622,14 +622,14 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( noAttribute )
         {
             Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, directoryService.getSchemaManager() );
         }
 
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
             Entry rootDse = getRootDse( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext, directoryService.getSchemaManager() );
         }
 
         Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
@@ -654,7 +654,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
         }
 
-        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
+        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, directoryService.getSchemaManager() );
     }
 
 
@@ -730,7 +730,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else
             {
                 // Nothing to return in this case
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, directoryService.getSchemaManager() );
             }
         }
         else if ( isOnelevelScope )

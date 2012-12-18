@@ -114,7 +114,7 @@ public class MockOperationManager implements OperationManager
     {
         MockCursor cursor = new MockCursor( count );
         cursor.setSchemaManager( searchContext.getSession().getDirectoryService().getSchemaManager() );
-        return new BaseEntryFilteringCursor( cursor, searchContext );
+        return new BaseEntryFilteringCursor( cursor, searchContext, cursor.schemaManager );
     }
 
 

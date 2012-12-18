@@ -1299,7 +1299,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
 
                 AttributeType nodeAt = node.getAttributeType();
@@ -1313,11 +1313,11 @@ public class SchemaInterceptor extends BaseInterceptor
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                         searchContext );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -1332,14 +1332,14 @@ public class SchemaInterceptor extends BaseInterceptor
                         searchContext );
                     serverEntry.setDn( base );
                     EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
-                        new SingletonCursor<Entry>( serverEntry ), searchContext );
+                        new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
                     return cursor;
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
     }
 
 

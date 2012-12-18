@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionExcept
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
+import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
     /** the parameters associated with the search operation */
     private final SearchOperationContext operationContext;
+    
+    /** The SchemaManager */
+    private final SchemaManager schemaManager;
 
     /** the list of filters to be applied */
     private final List<EntryFilter> filters;
@@ -87,9 +91,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param filter a single filter to be used
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
-        SearchOperationContext operationContext, EntryFilter filter )
+        SearchOperationContext operationContext, SchemaManager schemaManager, EntryFilter filter )
     {
-        this( wrapped, operationContext, Collections.singletonList( filter ) );
+        this( wrapped, operationContext, schemaManager, Collections.singletonList( filter ) );
     }
 
 
@@ -102,7 +106,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext, SchemaManager schemaManager )
     {
         if ( IS_DEBUG )
         {
@@ -112,6 +116,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
+        this.schemaManager = schemaManager;
     }
 
 
@@ -125,7 +130,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param filters a list of filters to be used
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
-        SearchOperationContext operationContext, List<EntryFilter> filters )
+        SearchOperationContext operationContext, 
+        SchemaManager schemaManager, 
+        List<EntryFilter> filters )
     {
         if ( IS_DEBUG )
         {
@@ -136,6 +143,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
         this.filters.addAll( filters );
+        this.schemaManager = schemaManager;
     }
 
 
@@ -395,7 +403,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             {
                 prefetched = tempResult;
                 ServerEntryUtils.filterContents( 
-                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    schemaManager,
                     operationContext, prefetched );
                 
                 return true;
@@ -405,7 +413,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             {
                 prefetched = tempResult;
                 ServerEntryUtils.filterContents( 
-                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    schemaManager,
                     operationContext, prefetched );
 
                 return true;
@@ -472,7 +480,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             {
                 prefetched = tempResult;
                 ServerEntryUtils.filterContents( 
-                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    schemaManager,
                     operationContext, prefetched );
 
                 return true;
@@ -482,7 +490,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             {
                 prefetched = tempResult;
                 ServerEntryUtils.filterContents( 
-                    operationContext.getSession().getDirectoryService().getSchemaManager(),
+                    schemaManager,
                     operationContext, prefetched );
 
                 return true;
@@ -504,7 +512,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              */
             prefetched = tempResult;
             ServerEntryUtils.filterContents( 
-                operationContext.getSession().getDirectoryService().getSchemaManager(),
+                schemaManager,
                 operationContext, prefetched );
 
             return true;

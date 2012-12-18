@@ -547,11 +547,12 @@ public abstract class ServerContext implements EventContext
             if ( result )
             {
                 Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), Dn.EMPTY_DN );
-                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), searchContext );
+                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), 
+                    searchContext, schemaManager );
             }
             else
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
             }
         }
         else
