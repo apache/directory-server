@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**
@@ -104,7 +105,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public V get( K key ) throws Exception
+    public V get( K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -155,7 +156,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean has( K key, V value ) throws Exception
+    public boolean has( K key, V value ) throws LdapException
     {
         if ( key == null )
         {
@@ -183,7 +184,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( K key, V val ) throws Exception
+    public boolean hasGreaterOrEqual( K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -326,7 +327,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Tuple<K, V>> cursor() throws Exception
+    public Cursor<Tuple<K, V>> cursor() throws LdapException
     {
         if ( !allowsDuplicates )
         {

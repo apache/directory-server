@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -27,8 +28,10 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.i18n.I18n;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.CursorIterator;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,68 +77,101 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return wrappedCursor.available();
     }
 
 
-    public void before( IndexEntry<K, String> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( IndexEntry<K, String> element ) throws LdapException, CursorException, IOException
     {
         wrappedCursor.before( element.getTuple() );
     }
 
 
-    public void after( IndexEntry<K, String> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( IndexEntry<K, String> element ) throws LdapException, CursorException, IOException
     {
         wrappedCursor.after( element.getTuple() );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         wrappedCursor.beforeFirst();
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         wrappedCursor.afterLast();
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         return wrappedCursor.first();
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         return wrappedCursor.last();
     }
 
 
-    public boolean isClosed() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isClosed()
     {
         return wrappedCursor.isClosed();
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         return wrappedCursor.previous();
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         return wrappedCursor.next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public IndexEntry<K, String> get() throws Exception
+    public IndexEntry<K, String> get() throws CursorException, IOException
     {
         Tuple<K, String> tuple = wrappedCursor.get();
         forwardEntry.setTuple( tuple );
@@ -150,7 +186,10 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
-    public void close() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -161,7 +200,10 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
-    public void close( Exception reason ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception reason )
     {
         if ( IS_DEBUG )
         {
@@ -181,7 +223,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean isAfterLast() throws Exception
+    public boolean isAfterLast()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isAfterLast()" ) ) );
@@ -191,7 +233,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean isBeforeFirst() throws Exception
+    public boolean isBeforeFirst()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isBeforeFirst()" ) ) );
@@ -201,7 +243,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean isFirst() throws Exception
+    public boolean isFirst()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isFirst()" ) ) );
@@ -211,7 +253,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public boolean isLast() throws Exception
+    public boolean isLast()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );

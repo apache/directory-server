@@ -29,6 +29,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -90,7 +91,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         // get the attribute
         Attribute attr = entry.get( attributeType );
@@ -132,7 +133,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
@@ -156,7 +157,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( Attribute attribute ) throws Exception
+    private boolean evaluate( Attribute attribute ) throws LdapException
     {
         /*
          * Cycle through the attribute values testing normalized version

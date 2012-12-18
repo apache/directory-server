@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void after( E element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after" );
 
@@ -89,7 +93,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast" );
         node = null;
@@ -103,7 +110,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void before( E element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before" );
 
@@ -129,7 +139,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst" );
         node = null;
@@ -137,7 +150,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first" );
 
@@ -172,7 +188,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last" );
 
@@ -191,7 +210,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next" );
 
@@ -227,7 +249,10 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous" );
 

@@ -872,7 +872,7 @@ public class SchemaInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext operationContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operationContext, Entry entry ) throws LdapException
         {
             ServerEntryUtils.filterContents( 
                 operationContext.getSession().getDirectoryService().getSchemaManager(),

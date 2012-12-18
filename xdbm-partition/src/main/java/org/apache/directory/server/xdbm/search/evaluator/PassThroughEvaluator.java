@@ -24,6 +24,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.UndefinedNode;
 
 
@@ -51,7 +52,7 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 

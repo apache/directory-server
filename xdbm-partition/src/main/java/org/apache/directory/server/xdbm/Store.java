@@ -31,6 +31,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
@@ -244,7 +245,7 @@ public interface Store
      * System's index list
      * @throws Exception If something went wrong
      */
-    boolean hasSystemIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException;
 
 
     /**
@@ -320,7 +321,7 @@ public interface Store
      * @return the deleted entry if found
      * @throws Exception If the deletion failed for any reason
      */
-    Entry delete( String id ) throws Exception;
+    Entry delete( String id ) throws LdapException;
 
 
     /**
@@ -330,7 +331,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id ) throws Exception;
+    Entry fetch( String id ) throws LdapException;
 
 
     /**
@@ -341,7 +342,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id, Dn dn ) throws Exception;
+    Entry fetch( String id, Dn dn ) throws LdapException;
 
 
     /**

@@ -25,9 +25,11 @@ import java.util.NoSuchElementException;
 
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.util.exception.NotImplementedException;
 
@@ -76,29 +78,44 @@ public class MockCursor extends AbstractCursor<Entry>
     }
 
 
-    public void after( Entry element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Entry element ) throws LdapException, CursorException, IOException
     {
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
     }
 
 
-    public void before( Entry element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( Entry element ) throws LdapException, CursorException, IOException
     {
         throw new NotImplementedException();
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         ii = -1;
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         ii = 0;
         return ii < count;
@@ -123,7 +140,10 @@ public class MockCursor extends AbstractCursor<Entry>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         ii = count;
         return true;
@@ -143,7 +163,10 @@ public class MockCursor extends AbstractCursor<Entry>
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         if ( ii < 0 )
         {

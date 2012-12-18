@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +31,9 @@ import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +98,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         cursorIndex = 0;
@@ -105,7 +111,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         cursorIndex = cursors.size() - 1;
@@ -115,7 +124,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
 
@@ -123,7 +135,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
 
@@ -144,7 +159,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?, String> indexEntry ) throws Exception
+    private void blackListIfDuplicate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -161,7 +176,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         while ( cursors.get( cursorIndex ).previous() )
         {
@@ -204,7 +222,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         while ( cursors.get( cursorIndex ).next() )
         {
@@ -249,7 +270,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, String> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<V, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -262,7 +286,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void close() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -278,7 +305,10 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void close( Exception cause ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

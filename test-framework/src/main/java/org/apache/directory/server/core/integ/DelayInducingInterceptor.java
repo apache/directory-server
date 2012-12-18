@@ -27,6 +27,7 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapOperationErrorException;
 
 
 /**
@@ -54,11 +55,18 @@ public class DelayInducingInterceptor extends BaseInterceptor
             /**
              * {@inheritDoc}
              */
-            public boolean accept( SearchOperationContext operation, Entry result ) throws Exception
+            public boolean accept( SearchOperationContext operation, Entry result ) throws LdapException
             {
                 if ( delayMillis != null )
                 {
-                    Thread.sleep( delayMillis );
+                    try
+                    {
+                        Thread.sleep( delayMillis );
+                    }
+                    catch ( InterruptedException ie )
+                    {
+                        throw new LdapOperationErrorException( ie.getMessage() );
+                    }
                 }
 
                 return true;

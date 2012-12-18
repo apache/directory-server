@@ -28,6 +28,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.apache.directory.shared.ldap.model.filter.OrNode;
 
@@ -77,7 +78,7 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {

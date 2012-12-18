@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void after( E element ) throws Exception
+    public void after( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after" );
 
@@ -101,7 +102,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast" );
 
@@ -122,7 +123,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void before( E element ) throws Exception
+    public void before( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before" );
 
@@ -152,7 +153,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst" );
 
@@ -164,7 +165,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first" );
 
@@ -202,7 +203,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last" );
 
@@ -224,7 +225,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next" );
 
@@ -269,7 +270,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous" );
 

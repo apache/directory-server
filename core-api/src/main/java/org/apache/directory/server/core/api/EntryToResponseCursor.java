@@ -28,7 +28,6 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
@@ -64,8 +63,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /** a reference to hold the SearchResultDone response */
     private SearchResultDone searchDoneResp;
 
+    /** The done flag */
     private boolean done;
 
+    /** The messsage ID */
     private int messageId;
 
 
@@ -87,31 +88,46 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public void after( Response resp ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Response resp ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         wrapped.afterLast();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return wrapped.available();
     }
 
 
-    public void before( Response resp ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( Response resp ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         wrapped.beforeFirst();
     }
@@ -145,7 +161,10 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         return wrapped.first();
     }
@@ -184,13 +203,19 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         return wrapped.last();
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         boolean next = wrapped.next();
 
@@ -205,12 +230,18 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         return wrapped.previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setClosureMonitor( ClosureMonitor monitor )
     {
         wrapped.setClosureMonitor( monitor );

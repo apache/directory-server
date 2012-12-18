@@ -24,6 +24,7 @@ package org.apache.directory.server.ldap.replication;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 
 
@@ -85,7 +86,7 @@ public class ReplicaEventMessage
      * @return true if the event's CSN is older than the given CSN
      * @throws Exception if there are any extreme conditions like a null entry or missing entryCSN attribute.
      */
-    public boolean isEventOlderThan( String csn ) throws Exception
+    public boolean isEventOlderThan( String csn ) throws LdapException
     {
         if ( csn == null )
         {

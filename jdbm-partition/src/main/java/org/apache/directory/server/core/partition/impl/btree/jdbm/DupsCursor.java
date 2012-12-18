@@ -31,6 +31,7 @@ import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private boolean valueAvailable;
 
 
-    public DupsCursor( JdbmTable<K, V> table ) throws Exception
+    public DupsCursor( JdbmTable<K, V> table )
     {
         if ( IS_DEBUG )
         {
@@ -115,7 +116,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void beforeValue( K key, V value ) throws Exception
+    public void beforeValue( K key, V value ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeValue()" );
         containerCursor.before( new Tuple<K, DupsContainer<V>>( key, null ) );
@@ -162,7 +163,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void afterValue( K key, V value ) throws Exception
+    public void afterValue( K key, V value ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterValue()" );
         /*
@@ -231,19 +232,28 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void before( Tuple<K, V> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         beforeValue( element.getKey(), element.getValue() );
     }
 
 
-    public void after( Tuple<K, V> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         afterValue( element.getKey(), element.getValue() );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         clearValue();
@@ -254,7 +264,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         clearValue();
@@ -265,7 +278,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first()" );
         clearValue();
@@ -303,7 +319,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last()" );
         clearValue();
@@ -350,7 +369,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
         /*
@@ -408,7 +430,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
         /*

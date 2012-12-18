@@ -29,6 +29,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.PresenceNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -91,7 +92,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
@@ -115,7 +116,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         if ( db.hasSystemIndexOn( attributeType )
             || ( attributeType.getOid().equals( SchemaConstants.ENTRY_UUID_AT_OID ) ) )

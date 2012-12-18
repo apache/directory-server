@@ -94,7 +94,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
         }
@@ -520,7 +520,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     // False positive, we want to keep the comment
     @SuppressWarnings("PMD.CollapsibleIfStatements")
-    private boolean isSearchable( OperationContext opContext, Entry entry ) throws Exception
+    private boolean isSearchable( OperationContext opContext, Entry entry ) throws LdapException
     {
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = entry.getDn();

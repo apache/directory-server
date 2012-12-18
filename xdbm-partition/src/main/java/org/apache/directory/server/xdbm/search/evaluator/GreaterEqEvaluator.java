@@ -29,6 +29,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -87,7 +88,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         if ( idx != null && idx.isDupsEnabled() )
         {
@@ -199,7 +200,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value 
     private boolean evaluate( IndexEntry<Object, String> indexEntry, Attribute attribute )
-        throws Exception
+        throws LdapException
     {
         /*
          * Cycle through the attribute values testing normalized version

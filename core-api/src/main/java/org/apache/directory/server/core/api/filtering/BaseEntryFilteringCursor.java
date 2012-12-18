@@ -32,8 +32,10 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.exception.OperationAbandonedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,13 +205,10 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     // ------------------------------------------------------------------------
     // Cursor Interface Methods
     // ------------------------------------------------------------------------
-    /*
-     * @see Cursor#after(Object)
+    /**
+     * {@inheritDoc}
      */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#after(org.apache.directory.server.core.entry.ClonedServerEntry)
-     */
-    public void after( Entry element ) throws Exception
+    public void after( Entry element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
@@ -218,7 +217,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         wrapped.afterLast();
         prefetched = null;
@@ -234,13 +233,10 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     }
 
 
-    /*
-     * @see Cursor#before(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.filtering.EntryFilteringCursor#before(org.apache.directory.server.core.entry.ClonedServerEntry)
-     */
-    public void before( Entry element ) throws Exception
+    public void before( Entry element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
@@ -249,7 +245,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         wrapped.beforeFirst();
         prefetched = null;
@@ -286,6 +282,9 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         wrapped.setClosureMonitor( monitor );
@@ -295,7 +294,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -336,7 +335,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -354,7 +353,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -439,7 +438,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         if ( operationContext.isAbandoned() )
         {

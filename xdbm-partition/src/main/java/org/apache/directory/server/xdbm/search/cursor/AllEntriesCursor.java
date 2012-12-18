@@ -20,11 +20,15 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +82,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<String, String> indexEntry ) throws Exception
+    public void after( IndexEntry<String, String> indexEntry ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after()" );
     }
@@ -87,7 +91,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
 
@@ -107,7 +111,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<String, String> indexEntry ) throws Exception
+    public void before( IndexEntry<String, String> indexEntry ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
     }
@@ -116,7 +120,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
 
@@ -127,7 +131,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first()" );
 
@@ -138,7 +142,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<String, String> get() throws Exception
+    public IndexEntry<String, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -157,7 +161,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last()" );
 
@@ -168,7 +172,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 
@@ -179,7 +183,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
@@ -191,7 +195,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -206,7 +210,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

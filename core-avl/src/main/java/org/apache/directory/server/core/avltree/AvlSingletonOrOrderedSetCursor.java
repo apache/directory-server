@@ -27,6 +27,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,13 +80,19 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public void after( Tuple<K, SingletonOrOrderedSet<V>> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Tuple<K, SingletonOrOrderedSet<V>> element ) throws LdapException, CursorException, IOException
     {
         afterKey( element.getKey() );
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast" );
         node = null;
@@ -99,13 +106,16 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public void before( Tuple<K, SingletonOrOrderedSet<V>> element ) throws Exception
+    public void before( Tuple<K, SingletonOrOrderedSet<V>> element ) throws LdapException, CursorException, IOException
     {
         beforeKey( element.getKey() );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst" );
         node = null;
@@ -113,7 +123,10 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first" );
 
@@ -150,7 +163,10 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last" );
 
@@ -169,7 +185,10 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next" );
 
@@ -207,7 +226,10 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous" );
 
@@ -243,7 +265,10 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public void afterKey( K key ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterKey( K key ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterKey" );
 
@@ -275,7 +300,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     }
 
 
-    public void beforeKey( K key ) throws Exception
+    public void beforeKey( K key ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeKey" );
 

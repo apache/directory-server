@@ -19,8 +19,12 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +74,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         beforeFirst = true;
@@ -79,7 +86,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         beforeFirst = false;
@@ -88,7 +98,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         beforeFirst = false;
@@ -98,7 +111,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         beforeFirst = false;
@@ -108,35 +124,46 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean isFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFirst()
     {
-        checkNotClosed( "()" );
         return onSingleton;
     }
 
 
-    public boolean isLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isLast()
     {
-        checkNotClosed( "()" );
         return onSingleton;
     }
 
 
-    public boolean isAfterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAfterLast()
     {
-        checkNotClosed( "()" );
         return afterLast;
     }
 
 
-    public boolean isBeforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isBeforeFirst() 
     {
-        checkNotClosed( "()" );
         return beforeFirst;
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         if ( beforeFirst )
@@ -160,7 +187,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "()" );
         if ( beforeFirst )
@@ -184,7 +214,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, String> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<V, String> get() throws CursorException, IOException
     {
         checkNotClosed( "()" );
 
@@ -204,7 +237,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void close() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -215,7 +251,10 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void close( Exception cause ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

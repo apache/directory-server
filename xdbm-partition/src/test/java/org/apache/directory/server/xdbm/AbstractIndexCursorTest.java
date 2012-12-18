@@ -90,7 +90,7 @@ public class AbstractIndexCursorTest
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = CursorClosedException.class)
     public void testCheckNotClosedIfClosedWithCustomException() throws Exception
     {
         indexCursor.close( new IllegalArgumentException() );

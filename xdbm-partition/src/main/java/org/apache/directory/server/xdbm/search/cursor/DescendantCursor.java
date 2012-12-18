@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
+
 import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -27,6 +29,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,21 +132,29 @@ public class DescendantCursor extends AbstractIndexCursor<String>
         return UNSUPPORTED_MSG;
     }
 
-
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         setAvailable( false );
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
 
@@ -150,13 +162,19 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 
@@ -180,7 +198,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
         boolean finished = false;
@@ -268,7 +286,10 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     }
 
 
-    public IndexEntry<String, String> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<String, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -276,8 +297,11 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -297,8 +321,11 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

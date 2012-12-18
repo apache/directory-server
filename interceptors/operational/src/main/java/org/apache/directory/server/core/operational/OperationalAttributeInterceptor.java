@@ -101,7 +101,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             if ( operation.getReturningAttributesString() == null )
             {

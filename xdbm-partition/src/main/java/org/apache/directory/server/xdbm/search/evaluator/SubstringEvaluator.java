@@ -30,6 +30,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Attribute;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Value;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -123,7 +124,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
 
     @SuppressWarnings("unchecked")
-    public boolean evaluate( IndexEntry<?, String> indexEntryQM ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> indexEntryQM ) throws LdapException
     {
         IndexEntry<String, String> indexEntry = ( IndexEntry<String, String> ) indexEntryQM;
 

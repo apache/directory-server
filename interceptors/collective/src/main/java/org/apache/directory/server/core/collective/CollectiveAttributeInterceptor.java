@@ -86,7 +86,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext operation, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             addCollectiveAttributes( operation, entry );
 

@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +134,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterValue( K key, V value ) throws Exception
+    public void afterValue( K key, V value ) throws LdapException, CursorException, IOException
     {
         if ( key != null && !key.equals( this.key ) )
         {
@@ -190,7 +191,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws Exception
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
         this.closeBrowser( browser );
@@ -202,7 +203,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws Exception
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         afterValue( key, element.getValue() );
     }
@@ -211,7 +212,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         this.closeBrowser( browser );
@@ -223,7 +224,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         this.closeBrowser( browser );
@@ -234,7 +235,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
 
@@ -245,7 +246,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
 
@@ -257,7 +258,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
@@ -287,7 +288,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 

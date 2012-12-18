@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm;
 import java.net.URI;
 
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
@@ -141,7 +142,7 @@ public interface Index<K, O, ID>
     ID forwardLookup( K attrVal ) throws Exception;
 
 
-    K reverseLookup( ID id ) throws Exception;
+    K reverseLookup( ID id ) throws LdapException;
 
 
     /**
@@ -198,7 +199,7 @@ public interface Index<K, O, ID>
     Cursor<IndexEntry<K, ID>> reverseCursor() throws Exception;
 
 
-    Cursor<IndexEntry<K, ID>> forwardCursor() throws Exception;
+    Cursor<IndexEntry<K, ID>> forwardCursor() throws LdapException;
 
 
     Cursor<IndexEntry<K, ID>> reverseCursor( ID id ) throws Exception;
@@ -216,7 +217,7 @@ public interface Index<K, O, ID>
     boolean forward( K attrVal ) throws Exception;
 
 
-    boolean forward( K attrVal, ID id ) throws Exception;
+    boolean forward( K attrVal, ID id ) throws LdapException;
 
 
     boolean reverse( ID id ) throws Exception;
@@ -234,7 +235,7 @@ public interface Index<K, O, ID>
     boolean reverseGreaterOrEq( ID id ) throws Exception;
 
 
-    boolean reverseGreaterOrEq( ID id, K attrVal ) throws Exception;
+    boolean reverseGreaterOrEq( ID id, K attrVal ) throws LdapException;
 
 
     boolean forwardLessOrEq( K attrVal ) throws Exception;

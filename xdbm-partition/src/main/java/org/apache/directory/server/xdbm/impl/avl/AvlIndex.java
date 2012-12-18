@@ -30,6 +30,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.LdapComparator;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
@@ -223,7 +224,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws Exception
+    public boolean forward( K attrVal, String id ) throws LdapException
     {
         return forward.has( attrVal, id );
     }
@@ -233,7 +234,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
     {
         return new IndexCursorAdaptor( forward.cursor(), true );
     }
@@ -406,7 +407,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( String id, K attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( String id, K attrVal ) throws LdapException
     {
         if ( withReverse )
         {
@@ -454,7 +455,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( String id ) throws Exception
+    public K reverseLookup( String id ) throws LdapException
     {
         if ( withReverse )
         {

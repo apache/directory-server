@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
@@ -27,8 +29,10 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +111,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
 
@@ -155,7 +159,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after()" );
 
@@ -192,7 +196,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
@@ -208,8 +215,11 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         setAvailable( false );
     }
 
-
-    public void afterLast() throws Exception
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
@@ -229,21 +239,31 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
+        
         return previous();
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
@@ -276,7 +296,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 
@@ -322,7 +345,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public IndexEntry<V, String> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<V, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -345,7 +371,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     }
 
 
-    public void close() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -369,7 +398,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
         super.close( cause );

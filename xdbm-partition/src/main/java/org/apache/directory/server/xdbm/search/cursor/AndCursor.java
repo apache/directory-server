@@ -20,6 +20,7 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,9 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +94,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
@@ -102,7 +105,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         wrapped.afterLast();
@@ -113,7 +116,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
 
@@ -124,7 +127,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
 
@@ -135,7 +138,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         while ( wrapped.previous() )
         {
@@ -156,7 +159,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         while ( wrapped.next() )
         {
@@ -176,7 +179,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, String> get() throws Exception
+    public IndexEntry<V, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -192,7 +195,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -207,7 +210,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {
@@ -246,7 +249,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * Checks if the entry is a valid candidate by using the evaluators.
      */
-    private boolean matches( IndexEntry<V, String> indexEntry ) throws Exception
+    private boolean matches( IndexEntry<V, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {

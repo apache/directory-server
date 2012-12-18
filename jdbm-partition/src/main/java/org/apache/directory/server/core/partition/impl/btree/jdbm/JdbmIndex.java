@@ -40,6 +40,8 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.MatchingRule;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
@@ -352,7 +354,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( String id ) throws Exception
+    public K reverseLookup( String id ) throws LdapException
     {
         if ( withReverse )
         {
@@ -454,7 +456,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor() throws Exception
+    public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
     {
         return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor(), true );
     }
@@ -515,7 +517,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws Exception
+    public boolean forward( K attrVal, String id ) throws LdapException
     {
         return forward.has( attrVal, id );
     }
@@ -601,7 +603,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverseGreaterOrEq( String id, K attrVal ) throws Exception
+    public boolean reverseGreaterOrEq( String id, K attrVal ) throws LdapException
     {
         if ( withReverse )
         {

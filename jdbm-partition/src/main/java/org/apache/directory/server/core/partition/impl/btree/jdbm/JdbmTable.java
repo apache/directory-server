@@ -41,6 +41,8 @@ import org.apache.directory.server.xdbm.Table;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
 import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.util.StringConstants;
@@ -265,33 +267,40 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     /**
      * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
      */
-    public int count( K key ) throws IOException
+    public int count( K key ) throws LdapException
     {
         if ( key == null )
         {
             return 0;
         }
 
-        if ( !allowsDuplicates )
-        {
-            if ( null == bt.find( key ) )
+        try
+        {      
+            if ( !allowsDuplicates )
             {
-                return 0;
+                if ( null == bt.find( key ) )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
             }
-            else
+    
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+    
+            if ( values.isArrayTree() )
             {
-                return 1;
+                return values.getArrayTree().size();
             }
+    
+            return getBTree( values.getBTreeRedirect() ).size();
         }
-
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-
-        if ( values.isArrayTree() )
+        catch ( IOException ioe )
         {
-            return values.getArrayTree().size();
+            throw new LdapOtherException( ioe.getMessage() );
         }
-
-        return getBTree( values.getBTreeRedirect() ).size();
     }
 
 
@@ -300,49 +309,57 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     // ------------------------------------------------------------------------
 
     @SuppressWarnings("unchecked")
-    public V get( K key ) throws Exception
+    public V get( K key ) throws LdapException
     {
         if ( key == null )
         {
             return null;
         }
 
-        if ( !allowsDuplicates )
+        try
         {
-            return bt.find( key );
-        }
-
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-
-        if ( values.isArrayTree() )
-        {
-            ArrayTree<V> set = values.getArrayTree();
-
-            if ( set.getFirst() == null )
+            if ( !allowsDuplicates )
             {
-                return null;
+                return bt.find( key );
             }
-
-            return set.getFirst();
+    
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+    
+            if ( values.isArrayTree() )
+            {
+                ArrayTree<V> set = values.getArrayTree();
+    
+                if ( set.getFirst() == null )
+                {
+                    return null;
+                }
+    
+                return set.getFirst();
+            }
+    
+            // Handle values if they are stored in another BTree
+            BTree tree = getBTree( values.getBTreeRedirect() );
+    
+            jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
+            TupleBrowser<K, V> browser = tree.browse();
+            browser.getNext( tuple );
+            this.closeBrowser( browser );
+            //noinspection unchecked
+    
+            return ( V ) tuple.getKey();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
         }
 
-        // Handle values if they are stored in another BTree
-        BTree tree = getBTree( values.getBTreeRedirect() );
-
-        jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
-        TupleBrowser<K, V> browser = tree.browse();
-        browser.getNext( tuple );
-        this.closeBrowser( browser );
-        //noinspection unchecked
-
-        return ( V ) tuple.getKey();
     }
 
 
     /**
      * @see Table#hasGreaterOrEqual(Object,Object)
      */
-    public boolean hasGreaterOrEqual( K key, V val ) throws IOException
+    public boolean hasGreaterOrEqual( K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -354,26 +371,33 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-
-        if ( values.isArrayTree() )
+        try
         {
-            ArrayTree<V> set = values.getArrayTree();
-            V result = set.findGreaterOrEqual( val );
-            return result != null;
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+    
+            if ( values.isArrayTree() )
+            {
+                ArrayTree<V> set = values.getArrayTree();
+                V result = set.findGreaterOrEqual( val );
+                return result != null;
+            }
+    
+            // last option is to try a btree with BTreeRedirects
+            BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
+    
+            return tree.size() != 0 && btreeHas( tree, val, true );
         }
-
-        // last option is to try a btree with BTreeRedirects
-        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
-
-        return tree.size() != 0 && btreeHas( tree, val, true );
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
     }
 
 
     /**
      * @see Table#hasLessOrEqual(Object,Object)
      */
-    public boolean hasLessOrEqual( K key, V val ) throws IOException
+    public boolean hasLessOrEqual( K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -385,19 +409,26 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-
-        if ( values.isArrayTree() )
+        try
         {
-            ArrayTree<V> set = values.getArrayTree();
-            V result = set.findLessOrEqual( val );
-            return result != null;
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+    
+            if ( values.isArrayTree() )
+            {
+                ArrayTree<V> set = values.getArrayTree();
+                V result = set.findLessOrEqual( val );
+                return result != null;
+            }
+    
+            // last option is to try a btree with BTreeRedirects
+            BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
+    
+            return tree.size() != 0 && btreeHas( tree, val, false );
         }
-
-        // last option is to try a btree with BTreeRedirects
-        BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
-
-        return tree.size() != 0 && btreeHas( tree, val, false );
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
     }
 
 
@@ -484,27 +515,34 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      * java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public boolean has( K key, V value ) throws IOException
+    public boolean has( K key, V value ) throws LdapException
     {
         if ( key == null )
         {
             return false;
         }
 
-        if ( !allowsDuplicates )
+        try
         {
-            V stored = bt.find( key );
-            return null != stored && stored.equals( value );
+            if ( !allowsDuplicates )
+            {
+                V stored = bt.find( key );
+                return null != stored && stored.equals( value );
+            }
+
+            DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
+    
+            if ( values.isArrayTree() )
+            {
+                return values.getArrayTree().find( value ) != null;
+            }
+    
+            return getBTree( values.getBTreeRedirect() ).find( value ) != null;
         }
-
-        DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-
-        if ( values.isArrayTree() )
+        catch ( IOException ioe )
         {
-            return values.getArrayTree().find( value ) != null;
+            throw new LdapOtherException( ioe.getMessage() );
         }
-
-        return getBTree( values.getBTreeRedirect() ).find( value ) != null;
     }
 
 
@@ -805,7 +843,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>> cursor() throws Exception
+    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>> cursor() throws LdapException
     {
         if ( allowsDuplicates )
         {
@@ -945,7 +983,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    DupsContainer<V> getDupsContainer( byte[] serialized ) throws IOException
+    DupsContainer<V> getDupsContainer( byte[] serialized ) throws LdapException
     {
         if ( serialized == null )
         {
@@ -954,10 +992,25 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
-            return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            try
+            {
+                return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage() );
+            }
+
         }
 
-        return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+        try
+        {
+            return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
     }
 
 

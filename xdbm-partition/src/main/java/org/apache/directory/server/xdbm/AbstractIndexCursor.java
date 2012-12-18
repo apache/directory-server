@@ -20,7 +20,11 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.io.IOException;
+
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**
@@ -57,7 +61,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -66,7 +70,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }

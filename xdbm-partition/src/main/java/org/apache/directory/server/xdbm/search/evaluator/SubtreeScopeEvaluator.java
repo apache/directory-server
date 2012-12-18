@@ -27,6 +27,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -119,7 +120,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * the parentIdAndRdn up to the baseId. If we terminate on the context entry without 
      * having found the baseId, then the candidate is not a descendant.
      */
-    private boolean isDescendant( String candidateId ) throws Exception
+    private boolean isDescendant( String candidateId ) throws LdapException
     {
         String tmp = candidateId;
 
@@ -157,7 +158,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> candidate ) throws LdapException
     {
         String id = candidate.getId();
 

@@ -26,6 +26,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 
@@ -96,7 +97,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> candidate ) throws Exception
+    public boolean evaluate( IndexEntry<?, String> candidate ) throws LdapException
     {
         ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( candidate.getId() );
         boolean isChild = parent.getParentId().equals( baseId );

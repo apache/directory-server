@@ -20,13 +20,17 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +49,6 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private final AbstractBTreePartition db;
     private final Cursor<IndexEntry<String, String>> indexCursor;
     private final Evaluator<? extends ExprNode> evaluator;
 
@@ -57,32 +60,31 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
             LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         }
         
-        this.db = db;
         indexCursor = searchResult.getResultSet();
         evaluator = searchResult.getEvaluator();
     }
 
 
-    /* 
-     * @see Cursor#after(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
-    public void after( Entry element ) throws Exception
+    public void after( Entry element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
 
 
-    /* 
-     * @see Cursor#afterLast()
+    /**
+     * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         this.indexCursor.afterLast();
     }
 
 
-    /* 
-     * @see Cursor#available()
+    /**
+     * {@inheritDoc}
      */
     public boolean available()
     {
@@ -90,24 +92,27 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     }
 
 
-    /* 
-     * @see Cursor#before(java.lang.Object)
+    /**
+     * {@inheritDoc}
      */
-    public void before( Entry element ) throws Exception
+    public void before( Entry element ) throws LdapException, CursorException, IOException
     {
         throw new UnsupportedOperationException();
     }
 
 
-    /* 
-     * @see Cursor#beforeFirst()
+    /**
+     * {@inheritDoc}
      */
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         indexCursor.beforeFirst();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         indexCursor.setClosureMonitor( monitor );
@@ -117,7 +122,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -131,7 +136,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {
@@ -142,60 +147,67 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     }
 
 
-    /* 
-     * @see Cursor#first()
+    /**
+     * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         return indexCursor.first();
     }
 
 
-    /* 
-     * @see Cursor#get()
+    /**
+     * {@inheritDoc}
      */
-    public Entry get() throws Exception
+    public Entry get() throws CursorException, IOException
     {
         IndexEntry<String, String> indexEntry = indexCursor.get();
 
-        if ( evaluator.evaluate( indexEntry ) )
+        try
         {
-            Entry entry = indexEntry.getEntry();
-            indexEntry.setEntry( null );
-            
-            return entry;
+            if ( evaluator.evaluate( indexEntry ) )
+            {
+                Entry entry = indexEntry.getEntry();
+                indexEntry.setEntry( null );
+                
+                return entry;
+            }
+            else
+            {
+                indexEntry.setEntry( null );
+            }
+    
+            return null;
         }
-        else
+        catch ( Exception e )
         {
-            indexEntry.setEntry( null );
+            throw new CursorException( e.getMessage(), e );
         }
-
-        return null;
     }
 
 
-    /* 
-     * @see Cursor#isClosed()
+    /**
+     * {@inheritDoc}
      */
-    public boolean isClosed() throws Exception
+    public boolean isClosed()
     {
         return indexCursor.isClosed();
     }
 
 
-    /* 
-     * @see Cursor#last()
+    /**
+     * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         return indexCursor.last();
     }
 
-
-    /* 
-     * @see Cursor#next()
+    
+    /**
+     * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         return indexCursor.next();
     }
@@ -204,7 +216,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         return indexCursor.previous();
     }

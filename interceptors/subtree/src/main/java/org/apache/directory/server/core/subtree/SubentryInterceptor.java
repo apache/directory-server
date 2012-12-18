@@ -138,7 +138,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws LdapException
         {
             // See if the requested entry is a subentry
             if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )
@@ -169,7 +169,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws LdapException
         {
             // See if the requested entry is a subentry
             if ( directoryService.getSubentryCache().hasSubentry( entry.getDn() ) )

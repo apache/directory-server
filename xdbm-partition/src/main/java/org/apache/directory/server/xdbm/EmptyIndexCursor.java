@@ -19,8 +19,12 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +54,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<K, String> element ) throws Exception
+    public void before( IndexEntry<K, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
     }
@@ -68,53 +72,74 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<K, String> element ) throws Exception
+    public void after( IndexEntry<K, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after()" );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "first()" );
         return false;
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "last()" );
         return false;
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
         return false;
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
         return false;
     }
 
 
-    public IndexEntry<K, String> get() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public IndexEntry<K, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
@@ -142,7 +167,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -156,7 +181,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

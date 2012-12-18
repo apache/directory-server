@@ -29,6 +29,7 @@ import jdbm.helper.TupleBrowser;
 import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      * @param comparator the Comparator used to determine key ordering
      * @throws Exception of there are problems accessing the BTree
      */
-    public KeyBTreeCursor( BTree btree, Comparator<E> comparator ) throws Exception
+    public KeyBTreeCursor( BTree btree, Comparator<E> comparator )
     {
         if ( IS_DEBUG )
         {
@@ -88,7 +89,10 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void before( E element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
         this.closeBrowser( browser );
@@ -97,8 +101,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public void after( E element ) throws Exception
+    public void after( E element ) throws LdapException, CursorException, IOException
     {
         this.closeBrowser( browser );
         browser = btree.browse( element );
@@ -139,7 +146,10 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         this.closeBrowser( browser );
@@ -148,7 +158,10 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         this.closeBrowser( browser );
@@ -156,21 +169,30 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
         return previous();
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
@@ -191,7 +213,10 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 

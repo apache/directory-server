@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
+
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
@@ -27,8 +29,10 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
 import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +117,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws Exception
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
 
@@ -147,7 +151,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws Exception
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "after()" );
 
@@ -194,7 +198,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeFirst() throws Exception
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
 
@@ -217,7 +221,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws Exception
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
 
@@ -238,7 +242,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws Exception
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
 
@@ -249,7 +253,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws Exception
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
 
@@ -260,7 +264,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
@@ -303,7 +307,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "next()" );
 
@@ -334,8 +338,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public IndexEntry<V, String> get() throws Exception
+    public IndexEntry<V, String> get() throws CursorException, IOException
     {
         checkNotClosed( "get()" );
 
@@ -361,7 +364,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    public void close()
     {
         if ( IS_DEBUG )
         {
@@ -385,7 +388,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause ) throws Exception
+    public void close( Exception cause )
     {
         if ( IS_DEBUG )
         {

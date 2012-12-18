@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,37 +84,55 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
-    public void after( Tuple<K, V> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         wrapped.afterKey( element.getKey() );
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         wrapped.afterLast();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return wrapped.available();
     }
 
 
-    public void before( Tuple<K, V> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         wrapped.beforeKey( element.getKey() );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         wrapped.beforeFirst();
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         return wrapped.first();
     }
@@ -141,19 +160,28 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         return wrapped.last();
     }
 
 
-    public boolean next() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws LdapException, CursorException, IOException
     {
         return wrapped.next();
     }
 
 
-    public boolean previous() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         return wrapped.previous();
     }

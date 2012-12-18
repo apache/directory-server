@@ -1325,7 +1325,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    private boolean filter( OperationContext opContext, Dn normName, Entry clonedEntry ) throws Exception
+    private boolean filter( OperationContext opContext, Dn normName, Entry clonedEntry ) throws LdapException
     {
         /*
          * First call hasPermission() for entry level "Browse" and "ReturnDN" perm
@@ -1436,7 +1436,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
-        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws Exception
+        public boolean accept( SearchOperationContext searchContext, Entry entry ) throws LdapException
         {
             Dn normName = entry.getDn().apply( schemaManager );
 

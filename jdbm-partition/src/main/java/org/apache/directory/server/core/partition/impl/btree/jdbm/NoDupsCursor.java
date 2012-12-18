@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.shared.ldap.model.cursor.CursorException;
 import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param table the JDBM Table to build a Cursor over
      * @throws IOException of there are problems accessing the BTree
      */
-    public NoDupsCursor( JdbmTable<K, V> table ) throws IOException
+    public NoDupsCursor( JdbmTable<K, V> table )
     {
         if ( IS_DEBUG )
         {
@@ -89,7 +90,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void beforeKey( K key ) throws Exception
+    public void beforeKey( K key ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeKey()" );
         this.closeBrowser( browser );
@@ -99,7 +100,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
 
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws Exception
+    public void afterKey( K key ) throws LdapException, CursorException, IOException
     {
         this.closeBrowser( browser );
         browser = table.getBTree().browse( key );
@@ -148,19 +149,25 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws Exception
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         beforeKey( element.getKey() );
     }
 
 
-    public void after( Tuple<K, V> element ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         afterKey( element.getKey() );
     }
 
 
-    public void beforeFirst() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
         this.closeBrowser( browser );
@@ -169,7 +176,10 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void afterLast() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
         this.closeBrowser( browser );
@@ -178,22 +188,31 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public boolean first() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean first() throws LdapException, CursorException, IOException
     {
         beforeFirst();
         return next();
     }
 
 
-    public boolean last() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
         return previous();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public boolean previous() throws Exception
+    public boolean previous() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
         if ( browser == null )
@@ -221,8 +240,11 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public boolean next() throws Exception
+    public boolean next() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "previous()" );
 
