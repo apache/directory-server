@@ -48,6 +48,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPUrl;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.directory.api.asn1.util.Asn1StringUtils;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -64,7 +65,6 @@ import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.model.message.Control;
 import org.apache.directory.shared.ldap.model.message.controls.OpaqueControl;

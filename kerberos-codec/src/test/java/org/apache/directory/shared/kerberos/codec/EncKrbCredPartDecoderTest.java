@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.encKrbCredPart.EncKrbCredPartContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;

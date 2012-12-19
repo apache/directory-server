@@ -20,8 +20,8 @@
 package org.apache.directory.shared.kerberos.codec.padata.actions;
 
 
+import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 import org.apache.directory.shared.kerberos.components.PaData;
 import org.slf4j.Logger;

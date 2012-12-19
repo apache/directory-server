@@ -68,18 +68,18 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-codec-core</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-codec-standalone</artifactId>
       <scope>provided</scope>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
     

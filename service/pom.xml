@@ -50,22 +50,22 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-codec-standalone</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-model</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-ldap-schema-data</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.shared</groupId>
+      <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-util</artifactId>
     </dependency>
     

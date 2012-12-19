@@ -20,10 +20,10 @@
 package org.apache.directory.shared.kerberos.codec.paEncTsEnc.actions;
 
 
+import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.i18n.I18n;
-import org.apache.directory.shared.asn1.DecoderException;
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.slf4j.Logger;

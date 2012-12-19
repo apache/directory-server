@@ -29,7 +29,8 @@ import java.util.Arrays;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.shared.asn1.EncoderException;
+
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.BeforeClass;

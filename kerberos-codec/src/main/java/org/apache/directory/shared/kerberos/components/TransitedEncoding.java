@@ -24,12 +24,12 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.AbstractAsn1Object;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 import org.apache.directory.shared.util.Strings;

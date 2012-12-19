@@ -28,10 +28,10 @@ import java.nio.ByteBuffer;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
+import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.util.Strings;
