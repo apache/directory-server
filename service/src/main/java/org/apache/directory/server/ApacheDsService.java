@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -75,8 +77,6 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

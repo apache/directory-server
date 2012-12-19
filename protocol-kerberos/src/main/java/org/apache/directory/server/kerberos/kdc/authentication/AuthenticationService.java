@@ -29,6 +29,7 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -69,7 +70,6 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

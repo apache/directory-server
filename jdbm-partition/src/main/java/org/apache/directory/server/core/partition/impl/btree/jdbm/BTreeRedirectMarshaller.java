@@ -22,9 +22,9 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.IOException;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

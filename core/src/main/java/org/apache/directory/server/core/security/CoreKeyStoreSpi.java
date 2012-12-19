@@ -37,12 +37,12 @@ import java.util.Enumeration;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.directory.api.util.SingletonEnumeration;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.SingletonEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

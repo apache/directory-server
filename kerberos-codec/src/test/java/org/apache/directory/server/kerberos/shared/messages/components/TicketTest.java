@@ -24,10 +24,10 @@ import static org.junit.Assert.assertEquals;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

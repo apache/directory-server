@@ -39,6 +39,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsResponseControl;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -62,7 +63,6 @@ import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

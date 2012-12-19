@@ -36,6 +36,7 @@ import jdbm.recman.CacheRecordManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -67,7 +68,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.exception.MultiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

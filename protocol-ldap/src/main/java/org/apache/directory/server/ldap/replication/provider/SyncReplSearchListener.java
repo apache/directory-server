@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.future.WriteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

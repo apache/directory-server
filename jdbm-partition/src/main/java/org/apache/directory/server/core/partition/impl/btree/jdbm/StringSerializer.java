@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import jdbm.helper.Serializer;
 
-import org.apache.directory.shared.util.Strings;
+import org.apache.directory.api.util.Strings;
 
 
 /**

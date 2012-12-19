@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CoreKeyStoreSpi;
@@ -99,7 +100,6 @@ import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
 import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 import org.apache.directory.shared.ldap.model.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;

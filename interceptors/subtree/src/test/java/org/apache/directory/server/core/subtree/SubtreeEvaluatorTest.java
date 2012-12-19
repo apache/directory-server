@@ -31,6 +31,7 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
+import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

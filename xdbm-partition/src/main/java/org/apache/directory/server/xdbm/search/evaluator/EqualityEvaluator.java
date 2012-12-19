@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -37,7 +38,6 @@ import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
 import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

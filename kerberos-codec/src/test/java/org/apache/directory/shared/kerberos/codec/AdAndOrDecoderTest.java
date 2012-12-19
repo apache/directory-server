@@ -29,9 +29,9 @@ import java.nio.ByteBuffer;
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
 import org.apache.directory.shared.kerberos.components.AdAndOr;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 

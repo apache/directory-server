@@ -35,6 +35,8 @@ import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.util.EmptyEnumeration;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
@@ -53,8 +55,6 @@ import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
-import org.apache.directory.shared.util.EmptyEnumeration;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

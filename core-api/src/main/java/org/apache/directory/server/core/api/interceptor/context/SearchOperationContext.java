@@ -24,6 +24,7 @@ import static org.apache.directory.shared.ldap.model.message.SearchScope.ONELEVE
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
@@ -34,7 +35,6 @@ import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.StringConstants;
 
 
 /**

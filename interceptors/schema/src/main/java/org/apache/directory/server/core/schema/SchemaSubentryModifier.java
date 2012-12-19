@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.api.util.Base64;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -47,7 +48,6 @@ import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescr
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.shared.ldap.model.schema.registries.Schema;
-import org.apache.directory.shared.util.Base64;
 
 
 /**

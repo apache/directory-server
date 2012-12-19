@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -51,7 +52,6 @@ import org.apache.directory.shared.ldap.model.filter.ScopeNode;
 import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.exception.NotImplementedException;
 
 
 /**

@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 
+import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.shared.ldap.model.filter.EqualityNode;
 import org.apache.directory.shared.ldap.model.filter.ExprNode;
@@ -38,7 +39,6 @@ import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameCom
 import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

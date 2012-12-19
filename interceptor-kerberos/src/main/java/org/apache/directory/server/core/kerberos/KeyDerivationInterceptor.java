@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -53,7 +54,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationExcept
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

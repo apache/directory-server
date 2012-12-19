@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -40,7 +41,6 @@ import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifEx
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

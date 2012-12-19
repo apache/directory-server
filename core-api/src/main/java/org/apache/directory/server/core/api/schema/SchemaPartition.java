@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -60,7 +61,6 @@ import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
-import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

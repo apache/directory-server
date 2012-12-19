@@ -44,6 +44,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.api.CacheService;
@@ -123,9 +126,6 @@ import org.apache.directory.shared.ldap.model.name.DnUtils;
 import org.apache.directory.shared.ldap.model.name.Rdn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
-import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.util.Strings;
-import org.apache.directory.shared.util.exception.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

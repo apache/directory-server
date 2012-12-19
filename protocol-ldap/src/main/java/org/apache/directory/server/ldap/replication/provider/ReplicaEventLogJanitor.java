@@ -21,10 +21,10 @@ package org.apache.directory.server.ldap.replication.provider;
 
 import java.util.Map;
 
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.model.csn.Csn;
-import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

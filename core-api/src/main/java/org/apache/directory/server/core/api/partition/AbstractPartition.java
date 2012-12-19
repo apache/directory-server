@@ -25,6 +25,7 @@ import java.io.OutputStream;
 
 import javax.naming.InvalidNameException;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.model.entry.Entry;
@@ -33,7 +34,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

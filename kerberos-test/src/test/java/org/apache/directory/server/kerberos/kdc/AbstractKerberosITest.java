@@ -31,6 +31,7 @@ import javax.security.auth.kerberos.KerberosTicket;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -43,7 +44,6 @@ import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.apache.directory.shared.ldap.model.entry.Modification;
 import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

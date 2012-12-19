@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -48,7 +49,6 @@ import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.model.message.ModifyResponse;
 import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

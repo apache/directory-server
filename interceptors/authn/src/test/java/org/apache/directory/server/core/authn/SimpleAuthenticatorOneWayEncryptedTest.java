@@ -25,7 +25,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.shared.util.Strings;
+
+import org.apache.directory.api.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

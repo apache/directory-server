@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.shared.ldap.model.entry.BinaryValue;
@@ -29,7 +30,6 @@ import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

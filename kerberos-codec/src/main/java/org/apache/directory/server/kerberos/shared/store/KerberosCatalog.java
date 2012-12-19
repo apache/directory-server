@@ -23,8 +23,8 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import java.util.Map;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.referral;
 
 import javax.naming.Context;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.ReferralManager;
@@ -47,7 +48,6 @@ import org.apache.directory.shared.ldap.model.exception.LdapURLEncodingException
 import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.url.LdapUrl;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

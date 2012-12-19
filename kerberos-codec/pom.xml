@@ -80,7 +80,7 @@
     
     <dependency>
       <groupId>org.apache.directory.api</groupId>
-      <artifactId>shared-util</artifactId>
+      <artifactId>api-util</artifactId>
     </dependency>
     
     <dependency>

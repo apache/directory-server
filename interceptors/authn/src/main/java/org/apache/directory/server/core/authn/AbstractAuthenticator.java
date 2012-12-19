@@ -32,6 +32,7 @@ import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySch
 import java.util.Collections;
 import java.util.Date;
 
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
@@ -46,7 +47,6 @@ import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.model.password.PasswordUtil;
-import org.apache.directory.shared.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

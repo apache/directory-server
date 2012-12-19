@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.KrbCredInfoContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -45,7 +46,6 @@ import org.apache.directory.shared.kerberos.components.KrbCredInfo;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
 

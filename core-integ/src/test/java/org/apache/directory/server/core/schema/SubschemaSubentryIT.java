@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.directory.api.util.Base64;
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -75,8 +77,6 @@ import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescri
 import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
-import org.apache.directory.shared.util.Base64;
-import org.apache.directory.shared.util.DateUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

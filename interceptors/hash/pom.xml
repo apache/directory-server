@@ -120,10 +120,10 @@
       <artifactId>shared-ldap-schema-data</artifactId>
     </dependency>
     
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>shared-util</artifactId>
-    </dependency>
+    </dependency-->
     
     <dependency>
       <groupId>net.sf.ehcache</groupId>
