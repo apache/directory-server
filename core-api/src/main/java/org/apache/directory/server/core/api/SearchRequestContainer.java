@@ -19,9 +19,9 @@
  */
 package org.apache.directory.server.core.api;
 
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
 
 /**
  * A container storing a SearchRequest being processed, and the associated 

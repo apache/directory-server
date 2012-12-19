@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
@@ -31,7 +32,6 @@ import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

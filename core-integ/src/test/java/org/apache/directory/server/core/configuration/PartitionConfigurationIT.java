@@ -25,6 +25,10 @@ import static junit.framework.Assert.assertNull;
 
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.csn.CsnFactory;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -35,10 +39,6 @@ import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.csn.CsnFactory;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

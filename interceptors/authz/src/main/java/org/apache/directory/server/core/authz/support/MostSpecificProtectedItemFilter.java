@@ -23,6 +23,8 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
@@ -30,8 +32,6 @@ import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**

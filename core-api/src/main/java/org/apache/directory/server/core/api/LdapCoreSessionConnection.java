@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.api;
 
 
-import static org.apache.directory.shared.ldap.model.message.ResultCodeEnum.processResponse;
+import static org.apache.directory.api.ldap.model.message.ResultCodeEnum.processResponse;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,64 +28,64 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.api.asn1.util.Oid;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.message.AbandonRequest;
+import org.apache.directory.api.ldap.model.message.AddRequest;
+import org.apache.directory.api.ldap.model.message.AddRequestImpl;
+import org.apache.directory.api.ldap.model.message.AddResponse;
+import org.apache.directory.api.ldap.model.message.AddResponseImpl;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.BindRequest;
+import org.apache.directory.api.ldap.model.message.BindRequestImpl;
+import org.apache.directory.api.ldap.model.message.BindResponse;
+import org.apache.directory.api.ldap.model.message.BindResponseImpl;
+import org.apache.directory.api.ldap.model.message.CompareRequest;
+import org.apache.directory.api.ldap.model.message.CompareRequestImpl;
+import org.apache.directory.api.ldap.model.message.CompareResponse;
+import org.apache.directory.api.ldap.model.message.CompareResponseImpl;
+import org.apache.directory.api.ldap.model.message.Control;
+import org.apache.directory.api.ldap.model.message.DeleteRequest;
+import org.apache.directory.api.ldap.model.message.DeleteRequestImpl;
+import org.apache.directory.api.ldap.model.message.DeleteResponse;
+import org.apache.directory.api.ldap.model.message.DeleteResponseImpl;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
+import org.apache.directory.api.ldap.model.message.LdapResult;
+import org.apache.directory.api.ldap.model.message.Message;
+import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.api.ldap.model.message.ModifyDnRequestImpl;
+import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
+import org.apache.directory.api.ldap.model.message.ModifyDnResponseImpl;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.message.ModifyResponse;
+import org.apache.directory.api.ldap.model.message.ModifyResponseImpl;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.codec.api.LdapApiService;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
-import org.apache.directory.shared.ldap.model.cursor.SearchCursor;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.exception.LdapOperationException;
-import org.apache.directory.shared.ldap.model.message.AbandonRequest;
-import org.apache.directory.shared.ldap.model.message.AddRequest;
-import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.AddResponseImpl;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.BindResponseImpl;
-import org.apache.directory.shared.ldap.model.message.CompareRequest;
-import org.apache.directory.shared.ldap.model.message.CompareRequestImpl;
-import org.apache.directory.shared.ldap.model.message.CompareResponse;
-import org.apache.directory.shared.ldap.model.message.CompareResponseImpl;
-import org.apache.directory.shared.ldap.model.message.Control;
-import org.apache.directory.shared.ldap.model.message.DeleteRequest;
-import org.apache.directory.shared.ldap.model.message.DeleteRequestImpl;
-import org.apache.directory.shared.ldap.model.message.DeleteResponse;
-import org.apache.directory.shared.ldap.model.message.DeleteResponseImpl;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.model.message.LdapResult;
-import org.apache.directory.shared.ldap.model.message.Message;
-import org.apache.directory.shared.ldap.model.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ModifyDnResponse;
-import org.apache.directory.shared.ldap.model.message.ModifyDnResponseImpl;
-import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.ModifyResponseImpl;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -903,7 +903,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.name.Dn, boolean)
+     * @see #moveAndRename(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.name.Dn, boolean)
      */
     public void moveAndRename( Dn entryDn, Dn newDn ) throws LdapException
     {
@@ -914,7 +914,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * Moves and renames the given entryDn.The old Rdn will be deleted
      *
-     * @see #moveAndRename(org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.name.Dn, boolean)
+     * @see #moveAndRename(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.name.Dn, boolean)
      */
     public void moveAndRename( String entryDn, String newDn ) throws LdapException
     {

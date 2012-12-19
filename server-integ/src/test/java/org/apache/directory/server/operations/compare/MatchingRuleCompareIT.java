@@ -87,7 +87,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     /**
      * Compare with caseIgnoreMatch matching rule.
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testCaseIgnoreMatch() throws Exception
@@ -125,7 +125,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     /**
      * Compare with distinguishedNameMatch matching rule.
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testDistinguishedNameMatch() throws Exception

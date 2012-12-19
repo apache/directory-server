@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.normalization;
 
 
-import org.apache.directory.shared.ldap.model.filter.LeafNode;
+import org.apache.directory.api.ldap.model.filter.LeafNode;
 
 
 /**

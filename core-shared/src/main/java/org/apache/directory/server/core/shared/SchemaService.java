@@ -19,33 +19,33 @@
 package org.apache.directory.server.core.shared;
 
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.DitContentRule;
+import org.apache.directory.api.ldap.model.schema.DitStructureRule;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.MatchingRuleUse;
+import org.apache.directory.api.ldap.model.schema.NameForm;
+import org.apache.directory.api.ldap.model.schema.Normalizer;
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.SchemaUtils;
+import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.api.ldap.model.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.model.schema.NameForm;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
-import org.apache.directory.shared.ldap.model.schema.ObjectClass;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.registries.NormalizerRegistry;
 
 
 /**

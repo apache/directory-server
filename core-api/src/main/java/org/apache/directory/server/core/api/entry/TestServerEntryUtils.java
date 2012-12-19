@@ -20,22 +20,22 @@
 package org.apache.directory.server.core.api.entry;
 
 
+import org.apache.directory.api.ldap.model.entry.BinaryValue;
+import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
+import org.apache.directory.api.ldap.model.schema.MutableMatchingRule;
+import org.apache.directory.api.ldap.model.schema.Normalizer;
+import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.api.ldap.model.schema.comparators.ByteArrayComparator;
+import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.entry.StringValue;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.MutableAttributeType;
-import org.apache.directory.shared.ldap.model.schema.MutableMatchingRule;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.comparators.ByteArrayComparator;
-import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 
 
 /**

@@ -39,11 +39,11 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.server.dhcp.DhcpException;
 import org.apache.directory.server.dhcp.messages.HardwareAddress;
 import org.apache.directory.server.dhcp.options.OptionsField;
 import org.apache.directory.server.dhcp.service.Lease;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**

@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
 
 
 /**

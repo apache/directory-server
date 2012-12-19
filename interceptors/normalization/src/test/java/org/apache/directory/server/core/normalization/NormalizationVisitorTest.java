@@ -27,16 +27,16 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.FilterParser;
+import org.apache.directory.api.ldap.model.filter.NotNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
+import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.FilterParser;
-import org.apache.directory.shared.ldap.model.filter.NotNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
-import org.apache.directory.shared.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schemaloader.JarLdifSchemaLoader;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;

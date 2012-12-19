@@ -28,25 +28,25 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimNormalizer;
+import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.model.schema.normalizers.NoOpNormalizer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -178,7 +178,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
-            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer",
+            "m-fqcn", "org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test normalizer" );
@@ -188,7 +188,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
         assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer" );
+        assertEquals( clazz.getName(), "org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -211,7 +211,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaNormalizer",
-            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer",
+            "m-fqcn", "org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test normalizer" );

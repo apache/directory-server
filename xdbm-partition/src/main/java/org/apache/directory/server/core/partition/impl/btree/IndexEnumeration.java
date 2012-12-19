@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
+import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 
 
 /**

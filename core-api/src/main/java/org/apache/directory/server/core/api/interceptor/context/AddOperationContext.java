@@ -20,16 +20,16 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.AddRequest;
+import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.message.AddRequest;
-import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

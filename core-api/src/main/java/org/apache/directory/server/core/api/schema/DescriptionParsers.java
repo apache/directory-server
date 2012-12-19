@@ -21,37 +21,38 @@ package org.apache.directory.server.core.api.schema;
 
 
 import java.text.ParseException;
+
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.DitContentRule;
+import org.apache.directory.api.ldap.model.schema.DitStructureRule;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.MatchingRuleUse;
+import org.apache.directory.api.ldap.model.schema.NameForm;
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.DitContentRuleDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.DitStructureRuleDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.NameFormDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.DitContentRule;
-import org.apache.directory.shared.ldap.model.schema.DitStructureRule;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.model.schema.NameForm;
-import org.apache.directory.shared.ldap.model.schema.ObjectClass;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DitContentRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.DitStructureRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleUseDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.NameFormDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 
 
 /**
@@ -384,7 +385,7 @@ public class DescriptionParsers
      * 
      * @param attr the attribute containing matchingRuleUseDescriptions
      * @return the set of matchingRuleUse objects for the descriptions
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public MatchingRuleUse[] parseMatchingRuleUses( Attribute attr ) throws LdapException
     {
@@ -428,7 +429,7 @@ public class DescriptionParsers
      * 
      * @param attr the attribute containing ldapSyntaxes
      * @return the set of Syntax objects for the descriptions
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems parsing the descriptions
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException if there are problems parsing the descriptions
      */
     public LdapSyntax[] parseLdapSyntaxes( Attribute attr ) throws LdapException
     {

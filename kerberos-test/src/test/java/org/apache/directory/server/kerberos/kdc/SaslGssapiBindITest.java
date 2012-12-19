@@ -50,6 +50,8 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -72,8 +74,6 @@ import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -31,12 +31,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
-import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
 
 
 /**

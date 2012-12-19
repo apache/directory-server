@@ -23,6 +23,17 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ScopeNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
@@ -33,17 +44,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
-import org.apache.directory.shared.ldap.model.filter.BranchNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.ScopeNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

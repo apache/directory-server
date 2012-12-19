@@ -24,6 +24,7 @@ package org.apache.directory.shared.client.api;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.ldap.client.api.DefaultSchemaLoader;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -31,7 +32,6 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.After;
 import org.junit.Before;

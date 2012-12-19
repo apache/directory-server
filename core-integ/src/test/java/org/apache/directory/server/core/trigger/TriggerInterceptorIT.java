@@ -31,9 +31,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.entry.AttributeUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.junit.Ignore;

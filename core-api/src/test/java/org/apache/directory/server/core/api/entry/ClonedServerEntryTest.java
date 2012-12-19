@@ -23,9 +23,9 @@ package org.apache.directory.server.core.api.entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

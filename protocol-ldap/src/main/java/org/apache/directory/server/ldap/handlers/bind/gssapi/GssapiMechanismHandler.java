@@ -31,6 +31,9 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.message.BindRequest;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -42,9 +45,6 @@ import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

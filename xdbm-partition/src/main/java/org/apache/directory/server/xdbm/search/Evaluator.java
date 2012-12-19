@@ -20,10 +20,10 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
 
 
 /**

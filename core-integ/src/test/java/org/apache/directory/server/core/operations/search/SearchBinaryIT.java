@@ -22,6 +22,8 @@ package org.apache.directory.server.core.operations.search;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -31,8 +33,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.cursor.EntryCursor;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

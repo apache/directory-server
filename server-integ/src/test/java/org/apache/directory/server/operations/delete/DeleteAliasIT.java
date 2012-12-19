@@ -24,6 +24,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -31,7 +32,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

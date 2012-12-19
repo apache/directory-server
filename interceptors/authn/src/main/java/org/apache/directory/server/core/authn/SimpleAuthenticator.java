@@ -29,6 +29,16 @@ import javax.naming.Context;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
@@ -38,16 +48,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.password.PasswordUtil;
 import org.apache.mina.core.session.IoSession;
 
 

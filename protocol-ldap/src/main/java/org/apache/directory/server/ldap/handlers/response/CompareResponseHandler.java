@@ -20,13 +20,13 @@
 package org.apache.directory.server.ldap.handlers.response;
 
 
+import org.apache.directory.api.ldap.model.message.CompareResponse;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
-import org.apache.directory.shared.ldap.model.message.CompareResponse;
 
 
 /**
- * A single reply handler for {@link org.apache.directory.shared.ldap.model.message.CompareResponse}s.
+ * A single reply handler for {@link org.apache.directory.api.ldap.model.message.CompareResponse}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

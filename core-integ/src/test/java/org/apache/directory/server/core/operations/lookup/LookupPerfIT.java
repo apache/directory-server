@@ -23,14 +23,14 @@ package org.apache.directory.server.core.operations.lookup;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertNotNull;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.authz.AutzIntegUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

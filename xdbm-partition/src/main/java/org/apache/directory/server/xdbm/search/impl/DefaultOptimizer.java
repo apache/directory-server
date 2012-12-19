@@ -22,30 +22,30 @@ package org.apache.directory.server.xdbm.search.impl;
 
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.ApproximateNode;
+import org.apache.directory.api.ldap.model.filter.AssertionNode;
+import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
+import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
+import org.apache.directory.api.ldap.model.filter.LeafNode;
+import org.apache.directory.api.ldap.model.filter.LessEqNode;
+import org.apache.directory.api.ldap.model.filter.NotNode;
+import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.ScopeNode;
+import org.apache.directory.api.ldap.model.filter.SimpleNode;
+import org.apache.directory.api.ldap.model.filter.SubstringNode;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
-import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.model.filter.AssertionNode;
-import org.apache.directory.shared.ldap.model.filter.BranchNode;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.model.filter.LeafNode;
-import org.apache.directory.shared.ldap.model.filter.LessEqNode;
-import org.apache.directory.shared.ldap.model.filter.NotNode;
-import org.apache.directory.shared.ldap.model.filter.OrNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.filter.ScopeNode;
-import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.model.filter.SubstringNode;
 
 
 /**

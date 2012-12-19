@@ -22,11 +22,11 @@ package org.apache.directory.server.xdbm.search;
 
 import java.util.Set;
 
+import org.apache.directory.api.ldap.model.cursor.SetCursor;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.shared.ldap.model.cursor.SetCursor;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.prefs;
 
 
-import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

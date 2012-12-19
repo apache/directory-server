@@ -20,21 +20,21 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import static org.apache.directory.shared.ldap.model.message.SearchScope.ONELEVEL;
+import static org.apache.directory.api.ldap.model.message.SearchScope.ONELEVEL;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

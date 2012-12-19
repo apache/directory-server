@@ -23,8 +23,8 @@ package org.apache.directory.server.xdbm;
 import java.io.IOException;
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

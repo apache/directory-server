@@ -23,10 +23,10 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.UserClass;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**

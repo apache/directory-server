@@ -21,7 +21,7 @@
 package org.apache.directory.server.core.hash;
 
 
-import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 
 
 /**

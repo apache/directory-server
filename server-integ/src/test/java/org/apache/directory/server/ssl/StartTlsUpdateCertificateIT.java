@@ -42,6 +42,8 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -52,8 +54,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

@@ -27,7 +27,7 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.shared.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.name.Rdn;
 
 
 /**

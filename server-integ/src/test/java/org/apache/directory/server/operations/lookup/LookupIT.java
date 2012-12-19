@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -32,7 +33,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

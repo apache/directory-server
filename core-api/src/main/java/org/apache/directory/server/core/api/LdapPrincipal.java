@@ -23,11 +23,11 @@ package org.apache.directory.server.core.api;
 import java.net.SocketAddress;
 import java.security.Principal;
 
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -126,9 +126,9 @@ public final class LdapPrincipal implements Principal, Cloneable
 
     /**
      * Gets a cloned copy of the normalized distinguished name of this
-     * principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}.
+     * principal as a {@link org.apache.directory.api.ldap.model.name.Dn}.
      *
-     * @return the cloned distinguished name of the principal as a {@link org.apache.directory.shared.ldap.model.name.Dn}
+     * @return the cloned distinguished name of the principal as a {@link org.apache.directory.api.ldap.model.name.Dn}
      */
     public Dn getDn()
     {

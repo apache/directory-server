@@ -32,6 +32,11 @@ import java.util.Set;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -41,10 +46,6 @@ import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

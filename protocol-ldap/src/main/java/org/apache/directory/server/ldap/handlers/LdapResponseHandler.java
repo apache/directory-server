@@ -20,9 +20,9 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.Response;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;

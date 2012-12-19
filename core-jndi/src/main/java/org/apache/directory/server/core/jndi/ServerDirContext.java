@@ -46,6 +46,24 @@ import javax.naming.ldap.LdapName;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.AttributeUtils;
+import org.apache.directory.api.ldap.model.entry.BinaryValue;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.FilterParser;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.SimpleNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -56,24 +74,6 @@ import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
-import org.apache.directory.shared.ldap.model.entry.BinaryValue;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
-import org.apache.directory.shared.ldap.model.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
-import org.apache.directory.shared.ldap.model.filter.BranchNode;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.FilterParser;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 
 
@@ -721,7 +721,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 else
                 {
                     node = new EqualityNode<String>( attributeType,
-                        new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) value ) );
+                        new org.apache.directory.api.ldap.model.entry.StringValue( ( String ) value ) );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -776,7 +776,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 if ( val instanceof String )
                 {
                     node = new EqualityNode<String>( attr.getID(),
-                        new org.apache.directory.shared.ldap.model.entry.StringValue( ( String ) val ) );
+                        new org.apache.directory.api.ldap.model.entry.StringValue( ( String ) val ) );
                     filter.addNode( node );
                 }
             }

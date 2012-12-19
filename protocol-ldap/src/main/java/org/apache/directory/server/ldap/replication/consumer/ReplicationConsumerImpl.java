@@ -27,6 +27,38 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.csn.Csn;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.NotNode;
+import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.IntermediateResponse;
+import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchResultDone;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
+import org.apache.directory.api.ldap.model.message.SearchResultReference;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
@@ -55,38 +87,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.csn.Csn;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapNoSuchObjectException;
-import org.apache.directory.shared.ldap.model.filter.AndNode;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.NotNode;
-import org.apache.directory.shared.ldap.model.filter.OrNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.IntermediateResponse;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
-import org.apache.directory.shared.ldap.model.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.model.message.SearchResultDone;
-import org.apache.directory.shared.ldap.model.message.SearchResultEntry;
-import org.apache.directory.shared.ldap.model.message.SearchResultReference;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -1317,7 +1317,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                new org.apache.directory.shared.ldap.model.entry.StringValue( uuid ) );
+                new org.apache.directory.api.ldap.model.entry.StringValue( uuid ) );
             if ( isRefreshPresent )
             {
                 filter = new NotNode( filter );
@@ -1338,7 +1338,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 String uuid = Strings.uuidToString( limitedUuidList.get( i ) );
                 ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                    new org.apache.directory.shared.ldap.model.entry.StringValue( uuid ) );
+                    new org.apache.directory.api.ldap.model.entry.StringValue( uuid ) );
 
                 if ( isRefreshPresent )
                 {

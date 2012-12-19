@@ -22,10 +22,10 @@ package org.apache.directory.server.core.authn;
 
 import java.net.SocketAddress;
 
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.apache.mina.core.session.IoSession;
 
 

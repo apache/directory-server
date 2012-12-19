@@ -25,6 +25,9 @@ import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -37,9 +40,6 @@ import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

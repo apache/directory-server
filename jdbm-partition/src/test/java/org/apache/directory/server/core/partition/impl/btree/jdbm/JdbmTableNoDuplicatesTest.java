@@ -31,11 +31,11 @@ import java.io.File;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;

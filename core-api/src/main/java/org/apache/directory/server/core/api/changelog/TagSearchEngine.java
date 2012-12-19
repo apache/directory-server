@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.api.changelog;
 
 
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 
 
 /**

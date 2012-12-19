@@ -23,15 +23,15 @@ package org.apache.directory.server.core.api;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.NotImplementedException;
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.model.cursor.CursorException;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 public class MockCursor extends AbstractCursor<Entry>

@@ -20,33 +20,33 @@
 package org.apache.directory.server.core.authn;
 
 
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.ACCOUNT_LOCKED;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
 import java.util.Collections;
 import java.util.Date;
 
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.shared.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.password.PasswordUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

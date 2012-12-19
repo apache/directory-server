@@ -21,14 +21,14 @@
 package org.apache.directory.server.bridge.http;
 
 
+import org.apache.directory.api.ldap.model.message.BindRequest;
+import org.apache.directory.api.ldap.model.message.BindResponse;
+import org.apache.directory.api.ldap.model.message.BindResponseImpl;
+import org.apache.directory.api.ldap.model.message.LdapResult;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapCoreSessionConnection;
-import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.BindResponseImpl;
-import org.apache.directory.shared.ldap.model.message.LdapResult;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

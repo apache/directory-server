@@ -21,8 +21,8 @@
 package org.apache.directory.server.core.api.sp.java;
 
 
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 
 
 /**

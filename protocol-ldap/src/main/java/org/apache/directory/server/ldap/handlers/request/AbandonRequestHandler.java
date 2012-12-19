@@ -20,9 +20,9 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.api.ldap.model.message.AbandonRequest;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
-import org.apache.directory.shared.ldap.model.message.AbandonRequest;
 
 
 /**

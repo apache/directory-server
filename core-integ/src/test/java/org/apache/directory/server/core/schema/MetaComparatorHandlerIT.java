@@ -28,25 +28,25 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.BooleanComparator;
+import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
-import org.apache.directory.shared.ldap.model.schema.comparators.StringComparator;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -205,7 +205,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator",
+            "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test comparator" );
@@ -221,7 +221,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
         assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator" );
+        assertEquals( clazz.getName(), "org.apache.directory.api.ldap.model.schema.comparators.DummyComparator" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -244,7 +244,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator",
+            "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test comparator" );

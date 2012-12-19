@@ -22,8 +22,8 @@ package org.apache.directory.server.xdbm;
 
 import static junit.framework.Assert.assertFalse;
 
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

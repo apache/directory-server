@@ -38,6 +38,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
@@ -46,7 +47,6 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.directory.server.dns.store.jndi.DnsOperation;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
 
 
 /**

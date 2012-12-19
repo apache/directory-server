@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authn.ppolicy;
 
 
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.*;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
 import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
@@ -34,6 +35,27 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.AddRequest;
+import org.apache.directory.api.ldap.model.message.AddRequestImpl;
+import org.apache.directory.api.ldap.model.message.AddResponse;
+import org.apache.directory.api.ldap.model.message.BindRequest;
+import org.apache.directory.api.ldap.model.message.BindRequestImpl;
+import org.apache.directory.api.ldap.model.message.BindResponse;
+import org.apache.directory.api.ldap.model.message.Control;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.message.ModifyResponse;
+import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -50,33 +72,11 @@ import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.model.constants.LdapSecurityConstants;
-import org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.AddRequest;
-import org.apache.directory.shared.ldap.model.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.model.message.AddResponse;
-import org.apache.directory.shared.ldap.model.message.BindRequest;
-import org.apache.directory.shared.ldap.model.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
-import org.apache.directory.shared.ldap.model.message.Control;
-import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.Response;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.password.PasswordUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.directory.shared.ldap.model.constants.PasswordPolicySchemaConstants.*;
 
 /**
  * Test cases for testing PasswordPolicy implementation.

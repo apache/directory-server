@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
+import org.apache.directory.api.ldap.model.message.*;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.handlers.request.AbandonRequestHandler;
@@ -45,10 +46,6 @@ import org.apache.directory.server.ldap.handlers.response.ModifyResponseHandler;
 import org.apache.directory.server.ldap.handlers.response.SearchResultDoneHandler;
 import org.apache.directory.server.ldap.handlers.response.SearchResultEntryHandler;
 import org.apache.directory.server.ldap.handlers.response.SearchResultReferenceHandler;
-import org.apache.directory.shared.ldap.model.message.*;
-import org.apache.directory.shared.ldap.model.message.DeleteRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.model.message.SearchRequest;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;

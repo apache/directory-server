@@ -23,6 +23,11 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.event.ExpressionEvaluator;
@@ -31,11 +36,6 @@ import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -111,11 +111,11 @@ public class ACDFEngine
 
     /**
      * Returns <tt>true</tt> if the user with the specified name can access the specified resource
-     * (entry, attribute type, or attribute value) and throws {@link org.apache.directory.shared.ldap.model.exception.LdapNoPermissionException}
+     * (entry, attribute type, or attribute value) and throws {@link org.apache.directory.api.ldap.model.exception.LdapNoPermissionException}
      * if the user doesn't have any permission to perform the specified grants.
      *
      * @param aciContext the container for ACI items
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if failed to evaluate ACI items
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException if failed to evaluate ACI items
      */
     public boolean hasPermission( AciContext aciContext ) throws LdapException
     {

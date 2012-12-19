@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -41,11 +41,11 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
 import org.bouncycastle.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;

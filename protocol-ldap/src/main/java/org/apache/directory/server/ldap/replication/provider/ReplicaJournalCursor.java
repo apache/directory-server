@@ -24,15 +24,15 @@ package org.apache.directory.server.ldap.replication.provider;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorException;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

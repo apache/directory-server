@@ -38,6 +38,9 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -46,9 +49,6 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.ldif.LdifUtils;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -738,7 +738,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Keep old Rdn
      * - Attributes: cn, sn, description, telephoneNumber must exist
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant5() throws Exception
@@ -784,7 +784,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Delete old Rdn
      * - Must fail with schema violation, cn cannot be deleted
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant6() throws Exception
@@ -844,7 +844,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Keep old Rdn
      * - Attributes: cn, sn, description must exist
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant7() throws Exception
@@ -886,7 +886,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * - Delete old Rdn
      * - Must fail with schema violation, cn cannot be deleted
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyMultiValuedRdnVariant8() throws Exception
@@ -943,7 +943,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * in its Rdn. Must fail because an operational attribute can not be
      * deleted.
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyRdnOperationalAttribute() throws Exception
@@ -988,7 +988,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * person in its Rdn (objectClass=person,ou=system). Must fail because the
      * structural object class can not be deleted.
      * 
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     @Test
     public void testModifyRdnObjectClassAttribute() throws Exception

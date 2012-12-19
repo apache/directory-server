@@ -22,29 +22,29 @@ package org.apache.directory.server.core.api.event;
 
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterException;
+import org.apache.directory.api.ldap.model.filter.ApproximateNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
+import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
+import org.apache.directory.api.ldap.model.filter.LessEqNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.ScopeNode;
+import org.apache.directory.api.ldap.model.filter.SimpleNode;
+import org.apache.directory.api.ldap.model.filter.SubstringNode;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidSearchFilterException;
-import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.model.filter.LessEqNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.filter.ScopeNode;
-import org.apache.directory.shared.ldap.model.filter.SimpleNode;
-import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapComparator;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.Normalizer;
 
 
 /**
@@ -251,7 +251,7 @@ public class LeafEvaluator implements Evaluator
      * @param node the equality node to evaluate
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there is a database access failure
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException if there is a database access failure
      */
     @SuppressWarnings("unchecked")
     private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException
@@ -280,7 +280,7 @@ public class LeafEvaluator implements Evaluator
             }
             else
             {
-                value = new org.apache.directory.shared.ldap.model.entry.StringValue( node.getValue().getString() );
+                value = new org.apache.directory.api.ldap.model.entry.StringValue( node.getValue().getString() );
             }
         }
         else

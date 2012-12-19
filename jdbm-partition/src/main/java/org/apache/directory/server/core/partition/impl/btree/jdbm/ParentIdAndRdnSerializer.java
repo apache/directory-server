@@ -29,10 +29,10 @@ import java.io.ObjectOutputStream;
 
 import jdbm.helper.Serializer;
 
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

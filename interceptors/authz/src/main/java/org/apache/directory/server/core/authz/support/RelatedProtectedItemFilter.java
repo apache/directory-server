@@ -23,6 +23,14 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.i18n.I18n;
@@ -39,14 +47,6 @@ import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
 import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

@@ -21,11 +21,11 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.controls.ChangeType;
 
 
 /**

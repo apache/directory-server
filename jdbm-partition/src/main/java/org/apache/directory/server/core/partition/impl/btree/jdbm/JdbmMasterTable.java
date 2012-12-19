@@ -26,11 +26,11 @@ import jdbm.RecordManager;
 import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
 import org.apache.directory.server.xdbm.MasterTable;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.ldap.model.schema.comparators.UuidComparator;
 
 
 /**

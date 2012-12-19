@@ -28,6 +28,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.ldap.StartTlsRequest;
 
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedRequestImpl;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ExtendedFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -36,10 +40,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.model.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

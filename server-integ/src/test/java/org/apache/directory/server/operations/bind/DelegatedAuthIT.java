@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -38,7 +39,6 @@ import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.exception.LdapAuthenticationException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

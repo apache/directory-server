@@ -23,22 +23,22 @@ package org.apache.directory.server.core.normalization;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.ApproximateNode;
+import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
+import org.apache.directory.api.ldap.model.filter.FilterVisitor;
+import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
+import org.apache.directory.api.ldap.model.filter.LeafNode;
+import org.apache.directory.api.ldap.model.filter.LessEqNode;
+import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.SubstringNode;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.model.filter.BranchNode;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.model.filter.FilterVisitor;
-import org.apache.directory.shared.ldap.model.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.model.filter.LeafNode;
-import org.apache.directory.shared.ldap.model.filter.LessEqNode;
-import org.apache.directory.shared.ldap.model.filter.OrNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.filter.SubstringNode;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

@@ -20,10 +20,10 @@
 package org.apache.directory.server.ldap.handlers.response;
 
 
+import org.apache.directory.api.ldap.model.message.SearchResultReference;
 import org.apache.directory.server.core.api.SearchRequestContainer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
-import org.apache.directory.shared.ldap.model.message.SearchResultReference;
 
 
 /**

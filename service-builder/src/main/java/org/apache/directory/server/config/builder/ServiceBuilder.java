@@ -32,6 +32,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
+import org.apache.directory.api.ldap.model.ldif.LdifEntry;
+import org.apache.directory.api.ldap.model.ldif.LdifReader;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.config.ConfigSchemaConstants;
 import org.apache.directory.server.config.ConfigurationException;
@@ -98,16 +108,6 @@ import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.ldif.LdapLdifException;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.model.ldif.LdifReader;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -593,7 +593,7 @@ public class ServiceBuilder
      *
      * @param ntpServerBean The NtpServerBean containing the NtpServer configuration
      * @return Instance of NtpServer
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService )
         throws LdapException
@@ -650,7 +650,7 @@ public class ServiceBuilder
      *
      * @param kdcServerBean The KdcServerBean containing the KdcServer configuration
      * @return Instance of KdcServer
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
     public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService )
         throws LdapException

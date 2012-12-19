@@ -32,6 +32,9 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
+import org.apache.directory.api.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -44,9 +47,6 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
-import org.apache.directory.shared.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.junit.Before;
 import org.junit.Rule;

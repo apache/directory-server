@@ -22,8 +22,8 @@ package org.apache.directory.server.ldap;
 
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.model.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.model.message.ExtendedResponse;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 
 
 /**
