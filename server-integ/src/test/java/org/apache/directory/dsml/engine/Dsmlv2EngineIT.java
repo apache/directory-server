@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.apache.directory.api.dsmlv2.Dsmlv2ResponseParser;
+import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
 import org.apache.directory.api.dsmlv2.reponse.BatchResponseDsml;
 import org.apache.directory.api.dsmlv2.reponse.SearchResponse;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
@@ -38,7 +39,6 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.dsmlv2.engine.Dsmlv2Engine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
