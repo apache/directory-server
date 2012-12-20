@@ -56,13 +56,13 @@ import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeExceptio
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

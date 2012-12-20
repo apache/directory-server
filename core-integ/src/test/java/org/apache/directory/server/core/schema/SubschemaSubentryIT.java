@@ -69,6 +69,7 @@ import org.apache.directory.api.ldap.model.schema.parsers.ObjectClassDescription
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
 import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -76,7 +77,6 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

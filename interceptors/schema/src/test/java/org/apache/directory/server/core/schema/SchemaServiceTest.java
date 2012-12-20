@@ -30,11 +30,11 @@ import java.util.Set;
 
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

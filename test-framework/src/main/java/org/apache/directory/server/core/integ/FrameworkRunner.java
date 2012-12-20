@@ -91,20 +91,20 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 "org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory" );
 
         System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST,
-            "org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
-                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
-                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
-                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
-                "org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
+            "org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
+                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
+                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
+                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
+                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
 
         System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST,
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
-                "org.apache.directory.shared.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
-                "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
-                "org.apache.directory.shared.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+            "org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
+                "org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
+                "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
+                "org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
 
         System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST,
-            "org.apache.directory.shared.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
+            "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
     }
 
 

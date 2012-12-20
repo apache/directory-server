@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -48,7 +49,6 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.mina.core.future.WriteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

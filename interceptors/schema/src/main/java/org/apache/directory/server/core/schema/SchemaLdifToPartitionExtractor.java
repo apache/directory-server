@@ -43,12 +43,12 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schemaextractor.impl.ResourceMap;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.ResourceMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

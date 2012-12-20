@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -96,7 +97,6 @@ import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

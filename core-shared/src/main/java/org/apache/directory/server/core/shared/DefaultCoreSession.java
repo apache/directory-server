@@ -791,7 +791,7 @@ public class DefaultCoreSession implements CoreSession
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.filter.SearchScope, org.apache.directory.api.ldap.model.filter.ExprNode, org.apache.directory.shared.ldap.message.AliasDerefMode, java.util.Set)
+     * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.filter.SearchScope, org.apache.directory.api.ldap.model.filter.ExprNode, org.apache.directory.api.ldap.message.AliasDerefMode, java.util.Set)
      */
     public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException

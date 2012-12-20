@@ -54,6 +54,11 @@ import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChan
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -116,11 +121,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.shared.ldap.util.JndiUtils;
 
 

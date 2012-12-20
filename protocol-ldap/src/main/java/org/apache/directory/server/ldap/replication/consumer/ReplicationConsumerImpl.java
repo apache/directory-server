@@ -28,6 +28,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -85,8 +87,6 @@ import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
 import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
