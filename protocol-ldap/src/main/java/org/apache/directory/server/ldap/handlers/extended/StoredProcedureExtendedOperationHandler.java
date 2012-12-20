@@ -31,6 +31,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.sp.LdapContextParameter;
 import org.apache.directory.server.core.api.sp.StoredProcEngine;
 import org.apache.directory.server.core.api.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.api.sp.StoredProcExecutionManager;
@@ -40,7 +41,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.extras.extended.StoredProcedureResponse;
-import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 
 
 /**
