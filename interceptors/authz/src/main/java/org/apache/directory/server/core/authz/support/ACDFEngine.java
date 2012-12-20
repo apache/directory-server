@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -35,7 +36,6 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
-import org.apache.directory.shared.ldap.aci.ACITuple;
 
 
 /**

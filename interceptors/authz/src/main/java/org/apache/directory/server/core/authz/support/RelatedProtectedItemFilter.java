@@ -23,6 +23,19 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.directory.api.ldap.aci.ACITuple;
+import org.apache.directory.api.ldap.aci.ProtectedItem;
+import org.apache.directory.api.ldap.aci.protectedItem.AllAttributeValuesItem;
+import org.apache.directory.api.ldap.aci.protectedItem.AttributeTypeItem;
+import org.apache.directory.api.ldap.aci.protectedItem.AttributeValueItem;
+import org.apache.directory.api.ldap.aci.protectedItem.ClassesItem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxImmSubItem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxValueCountItem;
+import org.apache.directory.api.ldap.aci.protectedItem.RangeOfValuesItem;
+import org.apache.directory.api.ldap.aci.protectedItem.RestrictedByElem;
+import org.apache.directory.api.ldap.aci.protectedItem.RestrictedByItem;
+import org.apache.directory.api.ldap.aci.protectedItem.SelfValueItem;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -34,19 +47,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.AllAttributeValuesItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.AttributeTypeItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.AttributeValueItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.ClassesItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.RangeOfValuesItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByElem;
-import org.apache.directory.shared.ldap.aci.protectedItem.RestrictedByItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.SelfValueItem;
 
 
 /**

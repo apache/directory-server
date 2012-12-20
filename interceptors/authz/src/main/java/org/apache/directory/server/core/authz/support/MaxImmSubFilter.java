@@ -25,6 +25,9 @@ import java.util.Iterator;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.aci.ACITuple;
+import org.apache.directory.api.ldap.aci.ProtectedItem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxImmSubItem;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -39,14 +42,11 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem;
 
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link org.apache.directory.shared.ldap.aci.protectedItem.MaxImmSubItem} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.api.ldap.aci.protectedItem.MaxImmSubItem} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

@@ -22,10 +22,10 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.Collection;
 
+import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

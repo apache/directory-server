@@ -30,6 +30,9 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.aci.ACIItem;
+import org.apache.directory.api.ldap.aci.ACIItemParser;
+import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -54,9 +57,6 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.aci.ACIItem;
-import org.apache.directory.shared.ldap.aci.ACIItemParser;
-import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

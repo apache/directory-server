@@ -30,6 +30,10 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.aci.ACIItem;
+import org.apache.directory.api.ldap.aci.ACIItemParser;
+import org.apache.directory.api.ldap.aci.ACITuple;
+import org.apache.directory.api.ldap.aci.MicroOperation;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -77,10 +81,6 @@ import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.aci.ACIItem;
-import org.apache.directory.shared.ldap.aci.ACIItemParser;
-import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
