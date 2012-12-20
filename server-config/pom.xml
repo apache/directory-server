@@ -53,12 +53,12 @@
     
     <dependency>
       <groupId>org.apache.directory.api</groupId>
-      <artifactId>shared-ldap-model</artifactId>
+      <artifactId>api-ldap-model</artifactId>
     </dependency>
     
     <dependency>
       <groupId>org.apache.directory.api</groupId>
-      <artifactId>shared-ldap-schema-data</artifactId>
+      <artifactId>api-ldap-schema-data</artifactId>
     </dependency>
     
     <dependency>

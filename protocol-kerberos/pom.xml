@@ -59,7 +59,7 @@
 
     <dependency>
       <groupId>org.apache.directory.api</groupId>
-      <artifactId>shared-ldap-model</artifactId>
+      <artifactId>api-ldap-model</artifactId>
     </dependency>
 
     <dependency>

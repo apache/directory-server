@@ -54,6 +54,13 @@ import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChan
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
@@ -115,13 +122,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
 
 
 /**

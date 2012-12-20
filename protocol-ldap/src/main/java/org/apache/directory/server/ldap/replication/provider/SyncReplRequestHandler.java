@@ -37,6 +37,13 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.api.ldap.extras.controls.SynchronizationInfoEnum;
+import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
@@ -88,13 +95,6 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
-import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.controls.SynchronizationInfoEnum;
-import org.apache.directory.shared.ldap.extras.controls.SynchronizationModeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

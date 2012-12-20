@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
@@ -75,7 +76,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 
 
 /**

@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
+import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
+import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT;
@@ -31,8 +33,6 @@ import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchema
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.ADD_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
-import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
-import static org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
@@ -95,8 +97,6 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
