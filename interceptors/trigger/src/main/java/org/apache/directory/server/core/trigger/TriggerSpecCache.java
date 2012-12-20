@@ -47,6 +47,8 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.NormalizerMappingResolver;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.OidNormalizer;
+import org.apache.directory.api.ldap.trigger.TriggerSpecification;
+import org.apache.directory.api.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
@@ -58,8 +60,6 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,11 +31,11 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.trigger.StoredProcedureParameter;
+import org.apache.directory.api.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic_LDAP_CONTEXT;
 
 
 public abstract class AbstractStoredProcedureParameterInjector implements StoredProcedureParameterInjector

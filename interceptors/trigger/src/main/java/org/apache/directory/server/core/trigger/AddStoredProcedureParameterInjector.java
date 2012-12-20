@@ -26,8 +26,8 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class AddStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector

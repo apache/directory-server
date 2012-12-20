@@ -25,8 +25,8 @@ import java.util.Map;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
