@@ -30,6 +30,8 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.apache.directory.api.ldap.codec.api.ExtendedResponseDecorator;
+import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.ExtendedResponseImpl;
@@ -41,8 +43,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.codec.api.ExtendedResponseDecorator;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;

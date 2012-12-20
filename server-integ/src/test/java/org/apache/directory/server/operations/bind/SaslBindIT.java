@@ -37,6 +37,10 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.api.ldap.codec.api.LdapDecoder;
+import org.apache.directory.api.ldap.codec.api.LdapEncoder;
+import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
+import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
@@ -76,10 +80,6 @@ import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.ldap.codec.api.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.api.LdapEncoder;
-import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;

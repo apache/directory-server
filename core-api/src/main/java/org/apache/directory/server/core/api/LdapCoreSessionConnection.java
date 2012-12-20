@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.api.asn1.util.Oid;
+import org.apache.directory.api.ldap.codec.api.BinaryAttributeDetector;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -84,8 +86,6 @@ import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.directory.shared.ldap.codec.api.BinaryAttributeDetector;
-import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

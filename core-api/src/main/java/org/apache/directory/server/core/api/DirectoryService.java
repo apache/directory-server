@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -44,7 +45,6 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
-import org.apache.directory.shared.ldap.codec.api.LdapApiService;
 import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 /**

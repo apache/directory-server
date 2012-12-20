@@ -47,6 +47,13 @@ import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.ldap.codec.api.CodecControl;
+import org.apache.directory.api.ldap.codec.controls.cascade.CascadeDecorator;
+import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -102,13 +109,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.api.CodecControl;
-import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;

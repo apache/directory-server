@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -82,7 +83,6 @@ import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

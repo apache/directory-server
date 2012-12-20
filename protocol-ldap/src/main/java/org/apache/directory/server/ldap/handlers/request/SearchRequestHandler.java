@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -78,7 +79,6 @@ import org.apache.directory.server.ldap.handlers.SearchAbandonListener;
 import org.apache.directory.server.ldap.handlers.SearchTimeLimitingMonitor;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
-import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

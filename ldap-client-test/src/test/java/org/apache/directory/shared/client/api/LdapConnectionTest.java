@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.directory.api.ldap.codec.api.ConfigurableBinaryAttributeDetector;
+import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -46,8 +48,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.codec.api.ConfigurableBinaryAttributeDetector;
-import org.apache.directory.shared.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

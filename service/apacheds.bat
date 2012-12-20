@@ -36,7 +36,7 @@ IF NOT exist target/apacheds-service-2.0.0-M8.jar GOTO :MVN
    md target/instance/partitions
    md target/instance/log
   
-set DEF_CTRLS="-Ddefault.controls=org.apache.directory.shared.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesFactory"
+set DEF_CTRLS="-Ddefault.controls=org.apache.directory.api.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory"
 
 set EXT_CTRLS="-Dextra.controls=org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
 

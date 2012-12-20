@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 
+import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.api.ldap.model.message.AbandonRequest;
@@ -99,7 +100,6 @@ import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.future.WriteFuture;

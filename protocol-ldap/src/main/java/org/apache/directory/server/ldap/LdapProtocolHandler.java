@@ -20,6 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.codec.api.LdapDecoder;
+import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
+import org.apache.directory.api.ldap.codec.api.MessageDecorator;
+import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
@@ -29,11 +34,6 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.shared.ldap.codec.api.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.api.MessageDecorator;
-import org.apache.directory.shared.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
