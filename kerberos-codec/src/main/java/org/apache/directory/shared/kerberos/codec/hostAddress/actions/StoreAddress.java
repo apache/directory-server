@@ -20,9 +20,9 @@
 package org.apache.directory.shared.kerberos.codec.hostAddress.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadOctetString;
+import org.apache.directory.api.asn1.actions.AbstractReadOctetString;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

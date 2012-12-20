@@ -21,7 +21,7 @@
 package org.apache.directory.shared.kerberos.codec.encryptionKey.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;

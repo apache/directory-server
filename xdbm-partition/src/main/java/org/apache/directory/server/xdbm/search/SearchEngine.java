@@ -20,10 +20,10 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**

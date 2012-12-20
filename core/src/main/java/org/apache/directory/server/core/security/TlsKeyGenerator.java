@@ -42,11 +42,11 @@ import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
@@ -105,7 +105,7 @@ public class TlsKeyGenerator
      *
      * @param entry the TLS key/cert entry
      * @return the X509 certificate associated with that entry
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException if there are problems accessing or decoding
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException if there are problems accessing or decoding
      */
     public static X509Certificate getCertificate( Entry entry ) throws LdapException
     {
@@ -298,7 +298,7 @@ public class TlsKeyGenerator
 
 
     /**
-     * @see #addKeyPair(org.apache.directory.shared.ldap.model.entry.Entry)
+     * @see #addKeyPair(org.apache.directory.api.ldap.model.entry.Entry)
      * 
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)

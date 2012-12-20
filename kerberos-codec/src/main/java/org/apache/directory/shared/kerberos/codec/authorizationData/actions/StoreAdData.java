@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadOctetString;
+import org.apache.directory.api.asn1.actions.AbstractReadOctetString;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 
 

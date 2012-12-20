@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.api.changelog.LogChange;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 /**

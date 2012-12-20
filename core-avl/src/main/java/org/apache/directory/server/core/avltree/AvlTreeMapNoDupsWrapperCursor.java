@@ -22,11 +22,11 @@ package org.apache.directory.server.core.avltree;
 
 import java.io.IOException;
 
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorException;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

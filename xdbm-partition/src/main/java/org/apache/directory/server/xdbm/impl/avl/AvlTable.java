@@ -22,6 +22,11 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
@@ -32,11 +37,6 @@ import org.apache.directory.server.core.avltree.KeyTupleAvlCursor;
 import org.apache.directory.server.core.avltree.LinkedAvlMapNode;
 import org.apache.directory.server.core.avltree.SingletonOrOrderedSet;
 import org.apache.directory.server.xdbm.AbstractTable;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 
 
 /**

@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.api.subtree;
 
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.subtree.SubtreeSpecification;
 import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.core.api.event.ExpressionEvaluator;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.subtree.SubtreeSpecification;
 
 
 /**

@@ -20,8 +20,8 @@
 package org.apache.directory.shared.kerberos.codec.etypeInfo2Entry;
 
 
-import org.apache.directory.shared.asn1.ber.grammar.Grammar;
-import org.apache.directory.shared.asn1.ber.grammar.States;
+import org.apache.directory.api.asn1.ber.grammar.Grammar;
+import org.apache.directory.api.asn1.ber.grammar.States;
 
 
 /**

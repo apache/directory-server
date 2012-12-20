@@ -29,14 +29,14 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.Asn1Decoder;
-import org.apache.directory.shared.asn1.EncoderException;
+import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.adMandatoryForKdc.AdMandatoryForKdcContainer;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdMandatoryForKdc;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.apache.directory.shared.util.Strings;
 import org.junit.Test;
 
 

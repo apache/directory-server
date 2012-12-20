@@ -23,7 +23,7 @@ package org.apache.directory.server.dns.messages;
 
 import java.util.Map;
 
-import org.apache.directory.shared.util.Strings;
+import org.apache.directory.api.util.Strings;
 
 
 /**

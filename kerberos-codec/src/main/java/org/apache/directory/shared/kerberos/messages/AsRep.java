@@ -22,8 +22,8 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.EncoderException;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
+import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -146,7 +146,7 @@ public class AsRep extends KdcRep
      * 
      * @param buffer The buffer containing the encoded result
      * @return The encoded component
-     * @throws org.apache.directory.shared.asn1.EncoderException If the encoding failed
+     * @throws org.apache.directory.api.asn1.EncoderException If the encoding failed
      */
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {

@@ -28,22 +28,22 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -174,7 +174,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
-            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
+            "m-fqcn", "org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test syntaxChecker" );
@@ -185,7 +185,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(),
-            "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
+            "org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -208,7 +208,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             "objectClass: top",
             "objectClass: metaTop",
             "objectClass: metaSyntaxChecker",
-            "m-fqcn", "org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
+            "m-fqcn", "org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker",
             "m-bytecode", out.toByteArray(),
             "m-oid", OID,
             "m-description: A test syntaxChecker" );

@@ -25,10 +25,10 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.xdbm.KeyTupleArrayCursor;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

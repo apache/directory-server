@@ -21,17 +21,17 @@
 package org.apache.directory.shared.kerberos.codec.checksum.actions;
 
 
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoder;
-import org.apache.directory.shared.asn1.ber.tlv.IntegerDecoderException;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
-import org.apache.directory.shared.asn1.ber.tlv.BerValue;
-import org.apache.directory.shared.i18n.I18n;
+import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
+import org.apache.directory.api.asn1.ber.tlv.BerValue;
+import org.apache.directory.api.asn1.ber.tlv.IntegerDecoder;
+import org.apache.directory.api.asn1.ber.tlv.IntegerDecoderException;
+import org.apache.directory.api.asn1.ber.tlv.TLV;
+import org.apache.directory.api.i18n.I18n;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.apache.directory.shared.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

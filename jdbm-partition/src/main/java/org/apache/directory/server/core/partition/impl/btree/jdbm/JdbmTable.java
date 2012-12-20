@@ -30,6 +30,15 @@ import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.SynchronizedLRUMap;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
@@ -38,15 +47,6 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
 import org.apache.directory.server.xdbm.KeyTupleArrayCursor;
 import org.apache.directory.server.xdbm.Table;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapOtherException;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.shared.util.StringConstants;
-import org.apache.directory.shared.util.SynchronizedLRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -843,7 +843,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>> cursor() throws LdapException
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor() throws LdapException
     {
         if ( allowsDuplicates )
         {
@@ -855,24 +855,24 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>> cursor( K key ) throws Exception
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( K key ) throws Exception
     {
         if ( key == null )
         {
-            return new EmptyCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>>();
+            return new EmptyCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>();
         }
 
         V raw = bt.find( key );
 
         if ( null == raw )
         {
-            return new EmptyCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>>();
+            return new EmptyCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>();
         }
 
         if ( !allowsDuplicates )
         {
-            return new SingletonCursor<org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>>(
-                new org.apache.directory.shared.ldap.model.cursor.Tuple<K, V>( key, raw ) );
+            return new SingletonCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>(
+                new org.apache.directory.api.ldap.model.cursor.Tuple<K, V>( key, raw ) );
         }
 
         byte[] serialized = ( byte[] ) raw;

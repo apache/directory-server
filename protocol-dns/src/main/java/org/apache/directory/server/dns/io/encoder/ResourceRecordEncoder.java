@@ -23,10 +23,10 @@ package org.apache.directory.server.dns.io.encoder;
 
 import java.io.IOException;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 

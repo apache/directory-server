@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.api.schema.registries.synchronizers;
 
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.NameForm;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.NameForm;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -79,7 +79,7 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.model.name.Dn, org.apache.directory.shared.ldap.model.name.Dn,
+     * org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.name.Dn,
      * Rdn, boolean, javax.naming.directory.Attributes)
      */
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn,
@@ -91,8 +91,8 @@ public class NameFormSynchronizer extends AbstractRegistrySynchronizer
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.model.name.Dn,
-     * org.apache.directory.shared.ldap.model.name.Dn, javax.naming.directory.Attributes)
+     * org.apache.directory.api.ldap.model.name.Dn,
+     * org.apache.directory.api.ldap.model.name.Dn, javax.naming.directory.Attributes)
      */
     public void move( Dn oriChildName, Dn newParentName, Entry entry,
         boolean cascade ) throws LdapException

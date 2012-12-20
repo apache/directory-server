@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.codec.encTgsRepPart;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.shared.asn1.ber.AbstractContainer;
+import org.apache.directory.api.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.messages.EncTgsRepPart;
 
 

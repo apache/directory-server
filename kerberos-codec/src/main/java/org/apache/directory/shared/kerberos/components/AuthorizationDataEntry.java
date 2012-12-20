@@ -22,9 +22,9 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.util.Arrays;
 
+import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
-import org.apache.directory.shared.util.StringConstants;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

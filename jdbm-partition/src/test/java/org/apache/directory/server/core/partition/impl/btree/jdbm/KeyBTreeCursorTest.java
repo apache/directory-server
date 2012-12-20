@@ -36,7 +36,7 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.shared.util.Strings;
+import org.apache.directory.api.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

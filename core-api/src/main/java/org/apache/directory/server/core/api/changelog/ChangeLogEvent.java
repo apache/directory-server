@@ -23,9 +23,9 @@ package org.apache.directory.server.core.api.changelog;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
 
 
 /**

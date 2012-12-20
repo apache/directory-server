@@ -28,8 +28,8 @@ import static org.junit.Assert.fail;
 
 import java.util.Comparator;
 
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

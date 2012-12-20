@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.flags;
 
 
-import org.apache.directory.shared.asn1.util.BitString;
+import org.apache.directory.api.asn1.util.BitString;
 
 
 /**

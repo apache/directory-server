@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 
 
 /**

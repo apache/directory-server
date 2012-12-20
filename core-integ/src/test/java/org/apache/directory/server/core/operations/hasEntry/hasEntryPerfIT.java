@@ -21,11 +21,11 @@ package org.apache.directory.server.core.operations.hasEntry;
 
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

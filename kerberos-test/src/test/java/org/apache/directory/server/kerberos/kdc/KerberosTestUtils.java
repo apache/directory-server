@@ -40,9 +40,9 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.util.Strings;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;

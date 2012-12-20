@@ -24,20 +24,20 @@ import java.util.List;
 
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.StringValue;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
 
 
 /**
@@ -109,7 +109,7 @@ public class StoredProcExecutionManager
      * 
      * @param spUnitEntry The entry which a {@link StoredProcEngine} type will be mathched with respect to the language identifier.
      * @return A {@link StoredProcEngine} associated with spUnitEntry.
-     * @throws org.apache.directory.shared.ldap.model.exception.LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
+     * @throws org.apache.directory.api.ldap.model.exception.LdapException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
      */
     public StoredProcEngine getStoredProcEngineInstance( Entry spUnitEntry ) throws LdapException
     {

@@ -20,8 +20,8 @@
 package org.apache.directory.server.xdbm;
 
 
-import org.apache.directory.shared.ldap.model.cursor.Tuple;
-import org.apache.directory.shared.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.entry.Entry;
 
 
 /**

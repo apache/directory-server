@@ -20,10 +20,10 @@
 package org.apache.directory.shared.kerberos.codec.principalName.actions;
 
 
+import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
+import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
-import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.slf4j.Logger;

@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec.authorizationData.actions;
 
 
-import org.apache.directory.shared.asn1.actions.AbstractReadInteger;
+import org.apache.directory.api.asn1.actions.AbstractReadInteger;
 import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.actions.StoreEType;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;

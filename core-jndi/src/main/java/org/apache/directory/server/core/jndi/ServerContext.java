@@ -46,6 +46,57 @@ import javax.naming.ldap.LdapName;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
+import org.apache.directory.api.asn1.DecoderException;
+import org.apache.directory.api.ldap.codec.api.CodecControl;
+import org.apache.directory.api.ldap.codec.controls.cascade.CascadeDecorator;
+import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
+import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
+import org.apache.directory.api.ldap.model.entry.AttributeUtils;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.message.controls.Cascade;
+import org.apache.directory.api.ldap.model.message.controls.CascadeImpl;
+import org.apache.directory.api.ldap.model.message.controls.EntryChange;
+import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.api.ldap.model.message.controls.PagedResults;
+import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.api.ldap.model.message.controls.Subentries;
+import org.apache.directory.api.ldap.model.name.Ava;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -71,57 +122,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.asn1.DecoderException;
-import org.apache.directory.shared.ldap.codec.api.CodecControl;
-import org.apache.directory.shared.ldap.codec.controls.cascade.CascadeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.shared.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.shared.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.shared.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.shared.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.shared.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
-import org.apache.directory.shared.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.cursor.EmptyCursor;
-import org.apache.directory.shared.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.shared.ldap.model.entry.AttributeUtils;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidAttributeTypeException;
-import org.apache.directory.shared.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.shared.ldap.model.filter.EqualityNode;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.message.controls.Cascade;
-import org.apache.directory.shared.ldap.model.message.controls.CascadeImpl;
-import org.apache.directory.shared.ldap.model.message.controls.EntryChange;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.shared.ldap.model.message.controls.ManageDsaITImpl;
-import org.apache.directory.shared.ldap.model.message.controls.PagedResults;
-import org.apache.directory.shared.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.shared.ldap.model.message.controls.Subentries;
-import org.apache.directory.shared.ldap.model.name.Ava;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.name.Rdn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.JndiUtils;
-import org.apache.directory.shared.util.Strings;
 
 
 /**
@@ -377,11 +377,11 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private org.apache.directory.shared.ldap.model.message.Control convertControl( boolean isRequest,
+    private org.apache.directory.api.ldap.model.message.Control convertControl( boolean isRequest,
         Control jndiControl ) throws DecoderException
     {
         String controlIDStr = jndiControl.getID();
-        CodecControl<? extends org.apache.directory.shared.ldap.model.message.Control> control = null;
+        CodecControl<? extends org.apache.directory.api.ldap.model.message.Control> control = null;
 
         ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
 
@@ -470,13 +470,13 @@ public abstract class ServerContext implements EventContext
      * Convert the JNDI controls to ADS controls
      * TODO convertControls.
      */
-    private org.apache.directory.shared.ldap.model.message.Control[] convertControls( boolean isRequest,
+    private org.apache.directory.api.ldap.model.message.Control[] convertControls( boolean isRequest,
         Control[] jndiControls ) throws DecoderException
     {
         if ( jndiControls != null )
         {
-            org.apache.directory.shared.ldap.model.message.Control[] controls =
-                new org.apache.directory.shared.ldap.model.message.Control[jndiControls.length];
+            org.apache.directory.api.ldap.model.message.Control[] controls =
+                new org.apache.directory.api.ldap.model.message.Control[jndiControls.length];
             int i = 0;
 
             for ( javax.naming.ldap.Control jndiControl : jndiControls )

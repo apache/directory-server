@@ -24,6 +24,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
+import org.apache.directory.api.ldap.model.csn.Csn;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.ldif.LdifEntry;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.SubschemaAdministrativePoint;
@@ -38,14 +46,6 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
-import org.apache.directory.shared.ldap.codec.api.LdapApiService;
-import org.apache.directory.shared.ldap.model.csn.Csn;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
@@ -380,7 +380,7 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Returns test directory entries({@link org.apache.directory.shared.ldap.model.ldif.LdifEntry}) to be loaded while
+     * Returns test directory entries({@link org.apache.directory.api.ldap.model.ldif.LdifEntry}) to be loaded while
      * bootstrapping.
      *
      * @return test entries to load during bootstrapping

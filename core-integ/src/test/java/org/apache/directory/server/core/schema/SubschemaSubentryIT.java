@@ -36,47 +36,47 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.message.ModifyResponse;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.LdapSyntax;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
+import org.apache.directory.api.ldap.model.schema.comparators.BooleanComparator;
+import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimNormalizer;
+import org.apache.directory.api.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.MatchingRuleDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
+import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.util.Base64;
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultEntry;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.entry.Value;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.message.ModifyRequest;
-import org.apache.directory.shared.ldap.model.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.model.message.ModifyResponse;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.LdapSyntax;
-import org.apache.directory.shared.ldap.model.schema.MatchingRule;
-import org.apache.directory.shared.ldap.model.schema.ObjectClass;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.SyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.comparators.BooleanComparator;
-import org.apache.directory.shared.ldap.model.schema.normalizers.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.ObjectClassDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.shared.ldap.schemaloader.SchemaEntityFactory;
-import org.apache.directory.shared.util.Base64;
-import org.apache.directory.shared.util.DateUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -347,7 +347,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
                 + getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         // 4th change
@@ -367,7 +367,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
                 + getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
         // 6th change
@@ -502,7 +502,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
                 + getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -521,7 +521,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.comparators.DummyComparator BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
                 + getByteCode( "DummyComparator.bytecode" ) + " )" );
 
         modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
@@ -650,7 +650,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
                 + getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
 
         modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );
@@ -669,7 +669,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         descriptions.clear();
         descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.shared.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
+            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
                 + getByteCode( "DummyNormalizer.bytecode" ) + " )" );
 
         modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );

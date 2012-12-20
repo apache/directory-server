@@ -28,10 +28,10 @@ import java.util.TimeZone;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.apache.directory.shared.util.Strings;
 
 
 /**

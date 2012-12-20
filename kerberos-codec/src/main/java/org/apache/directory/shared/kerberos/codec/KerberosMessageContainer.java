@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.codec;
 
 
-import org.apache.directory.shared.asn1.ber.AbstractContainer;
+import org.apache.directory.api.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.apache.directory.shared.kerberos.messages.Ticket;

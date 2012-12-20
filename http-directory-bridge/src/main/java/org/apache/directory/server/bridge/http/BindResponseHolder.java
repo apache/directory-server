@@ -21,8 +21,8 @@
 package org.apache.directory.server.bridge.http;
 
 
+import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.shared.ldap.model.message.BindResponse;
 
 
 /**

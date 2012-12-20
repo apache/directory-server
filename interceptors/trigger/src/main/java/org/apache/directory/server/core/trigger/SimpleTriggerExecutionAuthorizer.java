@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.trigger;
 
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.name.Dn;
 
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer

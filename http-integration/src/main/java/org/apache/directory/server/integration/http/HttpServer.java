@@ -36,14 +36,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.bridge.http.HttpDirectoryService;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.name.Dn;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;

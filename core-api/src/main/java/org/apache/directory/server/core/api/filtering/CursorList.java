@@ -24,15 +24,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.directory.api.i18n.I18n;
+import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
+import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.shared.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.AbstractCursor;
-import org.apache.directory.shared.ldap.model.cursor.ClosureMonitor;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.CursorException;
-import org.apache.directory.shared.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of a Cursor based on a {@link List} of {@link Cursor}s.  Optionally, the
  * Cursor may be limited to a specific range within the list.
  * 
- * This class is modeled based on the implementation of {@link org.apache.directory.shared.ldap.model.cursor.ListCursor}
+ * This class is modeled based on the implementation of {@link org.apache.directory.api.ldap.model.cursor.ListCursor}
  * 
  * WARN this is only used internally !
  * 

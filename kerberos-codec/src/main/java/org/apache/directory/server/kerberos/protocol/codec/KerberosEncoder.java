@@ -22,8 +22,8 @@ package org.apache.directory.server.kerberos.protocol.codec;
 
 import java.io.IOException;
 
-import org.apache.directory.shared.asn1.AbstractAsn1Object;
-import org.apache.directory.shared.asn1.EncoderException;
+import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;

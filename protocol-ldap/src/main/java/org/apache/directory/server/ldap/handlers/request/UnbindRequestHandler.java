@@ -20,10 +20,10 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
-import org.apache.directory.shared.ldap.model.message.UnbindRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A no reply protocol handler implementation for LDAP {@link
- * org.apache.directory.shared.ldap.model.message.UnbindRequest}s.
+ * org.apache.directory.api.ldap.model.message.UnbindRequest}s.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

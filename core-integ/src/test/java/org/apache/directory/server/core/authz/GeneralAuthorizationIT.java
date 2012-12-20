@@ -23,11 +23,11 @@ package org.apache.directory.server.core.authz;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.shared.ldap.model.message.ResultCodeEnum;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

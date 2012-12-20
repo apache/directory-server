@@ -27,6 +27,9 @@ import java.io.IOException;
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
@@ -34,9 +37,6 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessageSerializer;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.comparators.SerializableComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

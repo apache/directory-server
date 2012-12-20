@@ -23,8 +23,8 @@ package org.apache.directory.server.xdbm.impl.avl;
 import java.util.Comparator;
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.server.xdbm.MasterTable;
-import org.apache.directory.shared.ldap.model.entry.Entry;
 
 
 /**

@@ -23,19 +23,19 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountElem;
-import org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.aci.ACITuple;
+import org.apache.directory.api.ldap.aci.ProtectedItem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxValueCountElem;
+import org.apache.directory.api.ldap.aci.protectedItem.MaxValueCountItem;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 
 
 /**
  * An {@link ACITupleFilter} that discards all tuples that doesn't satisfy
- * {@link org.apache.directory.shared.ldap.aci.protectedItem.MaxValueCountItem} constraint if available. (18.8.3.3, X.501)
+ * {@link org.apache.directory.api.ldap.aci.protectedItem.MaxValueCountItem} constraint if available. (18.8.3.3, X.501)
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

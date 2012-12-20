@@ -20,11 +20,11 @@
 package org.apache.directory.shared.kerberos.codec.authenticator;
 
 
-import org.apache.directory.shared.asn1.actions.CheckNotNullLength;
-import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
-import org.apache.directory.shared.asn1.ber.grammar.Grammar;
-import org.apache.directory.shared.asn1.ber.grammar.GrammarTransition;
-import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
+import org.apache.directory.api.asn1.actions.CheckNotNullLength;
+import org.apache.directory.api.asn1.ber.grammar.AbstractGrammar;
+import org.apache.directory.api.asn1.ber.grammar.Grammar;
+import org.apache.directory.api.asn1.ber.grammar.GrammarTransition;
+import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.AuthenticatorInit;
 import org.apache.directory.shared.kerberos.codec.authenticator.actions.StoreAuthenticatorVno;

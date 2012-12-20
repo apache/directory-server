@@ -44,8 +44,8 @@ package org.apache.directory.server.dns.io.encoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.directory.shared.util.Strings;
 import org.apache.mina.core.buffer.IoBuffer;
 
 

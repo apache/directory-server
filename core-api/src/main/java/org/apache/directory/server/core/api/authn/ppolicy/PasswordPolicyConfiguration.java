@@ -21,8 +21,8 @@
 package org.apache.directory.server.core.api.authn.ppolicy;
 
 
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 
 
 /**

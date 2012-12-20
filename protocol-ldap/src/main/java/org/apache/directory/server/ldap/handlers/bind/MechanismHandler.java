@@ -22,8 +22,8 @@ package org.apache.directory.server.ldap.handlers.bind;
 
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.shared.ldap.model.message.BindRequest;
 
 
 /**

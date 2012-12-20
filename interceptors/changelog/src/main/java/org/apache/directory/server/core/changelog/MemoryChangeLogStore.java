@@ -36,6 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.ListCursor;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.ldif.LdifEntry;
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
@@ -43,11 +48,6 @@ import org.apache.directory.server.core.api.changelog.ChangeLogEventSerializer;
 import org.apache.directory.server.core.api.changelog.Tag;
 import org.apache.directory.server.core.api.changelog.TaggableChangeLogStore;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.model.cursor.Cursor;
-import org.apache.directory.shared.ldap.model.cursor.ListCursor;
-import org.apache.directory.shared.ldap.model.exception.LdapException;
-import org.apache.directory.shared.ldap.model.ldif.LdifEntry;
-import org.apache.directory.shared.util.DateUtils;
 
 
 /**
