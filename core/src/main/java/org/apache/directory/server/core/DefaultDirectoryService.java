@@ -66,6 +66,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.DnUtils;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.NotImplementedException;
@@ -125,7 +126,6 @@ import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

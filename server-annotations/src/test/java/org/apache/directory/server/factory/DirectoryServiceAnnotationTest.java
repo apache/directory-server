@@ -38,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -49,7 +50,6 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
 
 

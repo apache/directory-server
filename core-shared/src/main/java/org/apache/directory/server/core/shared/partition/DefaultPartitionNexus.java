@@ -56,6 +56,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.UsageEnum;
+import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -81,7 +82,6 @@ import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -40,10 +40,10 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

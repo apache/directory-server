@@ -31,6 +31,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.Control;
+import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -40,7 +41,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.shared.ldap.util.JndiUtils;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;

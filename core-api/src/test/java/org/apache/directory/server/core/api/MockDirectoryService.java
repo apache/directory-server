@@ -35,6 +35,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.SubschemaAdministrativePoint;
@@ -48,7 +49,6 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 
 
 /**

@@ -48,6 +48,7 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.subtree.AdministrativeRole;
+import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -82,7 +83,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
-import org.apache.directory.shared.ldap.util.tree.DnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
