@@ -58,13 +58,13 @@
     <commons.daemon.version>1.0.10</commons.daemon.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
-    <commons.net.version>3.1</commons.net.version>
+    <commons.net.version>3.2</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
     <dnsjava.version>2.1.1</dnsjava.version>
     <ehcache.version>2.4.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>6.1.14</jetty.version>
-    <junit.version>4.10</junit.version>
+    <junit.version>4.11</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
     <maven.archiver.version>2.5</maven.archiver.version>
@@ -72,10 +72,9 @@
     <maven.plugin.api.version>3.0.4</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.7</mina.core.version>
-    <plexus.utils.version>3.0</plexus.utils.version>
-    <plexus.utils.version>3.0.8</plexus.utils.version>
-    <slf4j.api.version>1.7.1</slf4j.api.version>
-    <slf4j.log4j12.version>1.7.1</slf4j.log4j12.version>
+    <plexus.utils.version>3.0.10</plexus.utils.version>
+    <slf4j.api.version>1.7.2</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.2</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
