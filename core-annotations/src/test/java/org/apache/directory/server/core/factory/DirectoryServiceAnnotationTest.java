@@ -32,6 +32,7 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
@@ -92,9 +93,16 @@ public class DirectoryServiceAnnotationTest
                             @CreateIndex(attribute = "objectClass"),
                             @CreateIndex(attribute = "dc"),
                             @CreateIndex(attribute = "ou")
-                    })
-        })
-    public void testCreateMethodDSWithPartition() throws Exception
+                    }),
+
+        },
+        loadedSchemas =
+            {
+                @LoadSchema(name = "nis", enabled = true),
+                @LoadSchema(name = "posix", enabled = false)
+        }
+        )
+        public void testCreateMethodDSWithPartition() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
 
@@ -123,6 +131,8 @@ public class DirectoryServiceAnnotationTest
                 assertEquals( "ou=schema", partition.getSuffixDn().getName() );
             }
         }
+
+        assertTrue( service.getSchemaManager().isEnabled( "nis" ) );
 
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );

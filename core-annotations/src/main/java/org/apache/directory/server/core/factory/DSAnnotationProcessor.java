@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -41,6 +42,7 @@ import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -199,6 +201,57 @@ public class DSAnnotationProcessor
             // Inject the partition into the DirectoryService
             service.addPartition( partition );
 
+            SchemaManager schemaManager = service.getSchemaManager();
+
+            // process the schemas
+            for ( LoadSchema loadedSchema : dsBuilder.loadedSchemas() )
+            {
+                String schemaName = loadedSchema.name();
+                Boolean enabled = loadedSchema.enabled();
+
+                // Check if the schema is loaded or not
+                boolean isLoaded = schemaManager.isSchemaLoaded( schemaName );
+
+                if ( !isLoaded )
+                {
+                    // We have to load the schema, if it exists
+                    try
+                    {
+                        isLoaded = schemaManager.load( schemaName );
+                    }
+                    catch ( LdapUnwillingToPerformException lutpe )
+                    {
+                        // Cannot load the schema, it does not exists
+                        LOG.error( lutpe.getMessage() );
+                        continue;
+                    }
+                }
+
+                if ( isLoaded )
+                {
+                    if ( enabled )
+                    {
+                        schemaManager.enable( schemaName );
+
+                        if ( schemaManager.isDisabled( schemaName ) )
+                        {
+                            LOG.error( "Cannot enable " + schemaName );
+                        }
+                    }
+                    else
+                    {
+                        schemaManager.disable( schemaName );
+
+                        if ( schemaManager.isEnabled( schemaName ) )
+                        {
+                            LOG.error( "Cannot disable " + schemaName );
+                        }
+                    }
+                }
+
+                LOG.debug( "Loading schema {}, enabled= {}", schemaName, enabled );
+            }
+
             // Last, process the context entry
             ContextEntry contextEntry = createPartition.contextEntry();
 
@@ -354,6 +407,30 @@ public class DSAnnotationProcessor
 
         // And close the reader
         reader.close();
+    }
+
+
+    /**
+     * Load the schemas, and enable/disable them.
+     */
+    public static void loadSchemas( Description desc, DirectoryService service )
+    {
+        if ( desc == null )
+        {
+            return;
+        }
+
+        /*for ( Class<?> loadSchema : dsBuilder.additionalInterceptors() )
+        {
+            service.addLast( ( Interceptor ) interceptorClass.newInstance() );
+        }*/
+        LoadSchema loadSchema = desc
+            .getAnnotation( LoadSchema.class );
+
+        if ( loadSchema != null )
+        {
+            System.out.println( loadSchema );
+        }
     }
 
 

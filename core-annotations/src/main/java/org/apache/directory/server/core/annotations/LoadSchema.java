@@ -24,55 +24,41 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
-
 
 /**
- * An anntation for the DirectoryService builder
+ * An annotation for the schema loading. One can list the schema to be loaded, 
+ * and if they must be enabled or disabled.<br/>
+ * We can only load new schemas, not unload existing ones.However, we 
+ * can disable a schema that has been previously loaded : loading a 
+ * schema that is already loaded will just apply the enabled flag on 
+ * this schema<br/>
+ * Note that a schema may be loaded and disabled.<br/>
+ * Some schema are automatically loaded, and there is no way they can be disabled :<br/>
+ * <ul>
+ *   <li> core</li>
+ *   <li>system</li>
+ * </ul>
+ * 
+ * Here is an exemple :
+ * <pre>
+ * @Schemas( {
+ *     @LoadSchema( name = "nis", enabled="TRUE" ),
+ *     @LoadSchema( name = "posix", enabled="FALSE" ),
+ * })
+ * )
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(
     { ElementType.METHOD, ElementType.TYPE })
-public @interface CreateDS
+public @interface LoadSchema
 {
-    /** The Factory to use to create a DirectoryService */
-    Class<?> factory() default DefaultDirectoryServiceFactory.class;
+    /** The schema name */
+    String name();
 
 
-    /** The DS name */
-    String name() default "defaultDS";
-
-
-    /** flag to enable/disable access control, default is false */
-    boolean enableAccessControl() default false;
-
-
-    /** flag to enable/disable anonymous access, default is false */
-    boolean allowAnonAccess() default false;
-
-
-    /** flag to enable/disable changelog, default is true */
-    boolean enableChangeLog() default true;
-
-
-    /** The list of partitions to create */
-    CreatePartition[] partitions() default
-        {};
-
-
-    /** additional interceptors */
-    Class<?>[] additionalInterceptors() default
-        {};
-
-
-    /** authenticators, when empty the default authenticators are used, else this must contain the complete list */
-    CreateAuthenticator[] authenticators() default
-        {};
-
-
-    /** The loaded schemas */
-    LoadSchema[] loadedSchemas() default
-        {};
+    /** The flag indicating if the schema should be enabled or disabled */
+    boolean enabled() default true;
 }
