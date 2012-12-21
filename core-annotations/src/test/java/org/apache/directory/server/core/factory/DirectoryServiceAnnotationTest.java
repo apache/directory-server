@@ -100,9 +100,8 @@ public class DirectoryServiceAnnotationTest
             {
                 @LoadSchema(name = "nis", enabled = true),
                 @LoadSchema(name = "posix", enabled = false)
-        }
-        )
-        public void testCreateMethodDSWithPartition() throws Exception
+        })
+    public void testCreateMethodDSWithPartition() throws Exception
     {
         DirectoryService service = DSAnnotationProcessor.getDirectoryService();
 
