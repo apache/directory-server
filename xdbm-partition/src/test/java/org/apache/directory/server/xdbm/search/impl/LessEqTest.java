@@ -730,7 +730,7 @@ public class LessEqTest
     @Test(expected = IllegalStateException.class)
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        LdapSyntax syntax = new BogusSyntax( 1 );
+        LdapSyntax syntax = new BogusSyntax( 10 );
         MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );

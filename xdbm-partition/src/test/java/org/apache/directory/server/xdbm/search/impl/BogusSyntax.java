@@ -37,7 +37,7 @@ public class BogusSyntax extends LdapSyntax
         super( "1.3.6.1.4.1.18060.0.4.1.1.100000." + oidVal );
         setHumanReadable( false );
         setObsolete( false );
-        addName( "bogus" );
+        addName( "bogus" + oidVal );
         setDescription( "bogus" );
         setSchemaName( "other" );
     }
