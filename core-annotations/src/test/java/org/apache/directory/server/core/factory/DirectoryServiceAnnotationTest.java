@@ -93,7 +93,7 @@ public class DirectoryServiceAnnotationTest
                             @CreateIndex(attribute = "objectClass"),
                             @CreateIndex(attribute = "dc"),
                             @CreateIndex(attribute = "ou")
-                    }),
+                    })
         },
         loadedSchemas =
             {
