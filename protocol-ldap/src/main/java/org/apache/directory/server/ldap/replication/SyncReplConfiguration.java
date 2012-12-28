@@ -37,7 +37,7 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
  * are part of the Syncrepl Consumer configuration :<br>
  * <ul>
  *   <li>remoteHost : the remote server's name, defaults to 'localhost'</li>
- *   <li>remotePort : the remote server's LDAP port, defaults to 389</li>
+ *   <li>remotePort : the remote server's LDAP port, defaults to 10389</li>
  *   <li>replUserDn : The replication User's DN</li>
  *   <li>replUserPassword : The replication User's password</li>
  *   <li>refreshNPersist : the replication mode, defaults to 'true'</li>
@@ -66,8 +66,8 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /** host name of the syncrepl remote server, default value is localhost */
     private String remoteHost = "localhost";
 
-    /** port number of the syncrepl provider server, default is 389 */
-    private int remotePort = 389;
+    /** port number of the syncrepl provider server, default is 10389 */
+    private int remotePort = 10389;
     
     /** The producer, as <host>:<port> */
     private String producer = remoteHost + ":" + remotePort;
