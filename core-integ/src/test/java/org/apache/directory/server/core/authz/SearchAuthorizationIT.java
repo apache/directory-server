@@ -34,22 +34,29 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -64,11 +71,16 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(enableAccessControl = true, name = "SearchAuthorizationIT")
+@CreateDS(
+    enableAccessControl = true,
+    name = "SearchAuthorizationIT",
+    loadedSchemas =
+        { @LoadSchema(name = "nis", enabled = true) })
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
     // to avoid creating too many connections during recursive operations
     private LdapConnection reusableAdminCon;
+
 
     @Before
     public void setService() throws Exception
@@ -1213,5 +1225,46 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         {
             assertNotNull( result.get( "cn" ) );
         }
+    }
+
+
+    @Test
+    public void testLdifFileLoader() throws Exception
+    {
+        URL url = getClass().getResource( "LdifFileLoader.ldif" );
+        URL url2 = getClass().getResource( "LdifFileLoader2.ldif" );
+
+        String file = url.getFile();
+        String file2 = url2.getFile();
+
+        LdifFileLoader loader = new LdifFileLoader( service.getAdminSession(), file );
+        int count = loader.execute();
+
+        loader = new LdifFileLoader( service.getAdminSession(), file2 );
+        count = loader.execute();
+
+        // Try to modify the entry with the created user
+        LdapConnection cnx = getConnectionAs( "uid=READER ,ou=users,ou=system", "secret" );
+
+        Entry res = cnx.lookup( "uid=READER ,ou=users,ou=system" );
+
+        assertNotNull( res );
+
+        try
+        {
+            cnx.modify( "uid=READER ,ou=users,ou=system",
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description", "test" ) );
+            fail(); // expected
+        }
+        catch ( LdapNoPermissionException lnpe )
+        {
+            assertTrue( true );
+        }
+
+        res = cnx.lookup( "uid=READER ,ou=users,ou=system" );
+
+        assertNotNull( res );
+
+        cnx.unBind();
     }
 }
