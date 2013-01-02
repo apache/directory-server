@@ -130,7 +130,7 @@ public class LdapServer extends DirectoryBackedService
 
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class.getName() );
-    
+
     /** Logger for the replication consumer */
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
 
@@ -213,7 +213,7 @@ public class LdapServer extends DirectoryBackedService
     private LdapRequestHandler<ModifyDnRequest> modifyDnRequestHandler;
     private LdapRequestHandler<SearchRequest> searchRequestHandler;
     private LdapRequestHandler<UnbindRequest> unbindRequestHandler;
-    
+
     // MessageSent handlers
     private LdapResponseHandler<AddResponse> addResponseHandler;
     private LdapResponseHandler<BindResponse> bindResponseHandler;
@@ -242,6 +242,7 @@ public class LdapServer extends DirectoryBackedService
      */
     private boolean confidentialityRequired;
 
+    /** The used Keystore */
     private KeyStore keyStore = null;
 
     private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
@@ -251,7 +252,8 @@ public class LdapServer extends DirectoryBackedService
     private List<ReplicationConsumer> replConsumers;
 
     private KeyManagerFactory keyManagerFactory;
-    
+
+
     /**
      * Creates an LDAP protocol provider.
      */
@@ -294,7 +296,7 @@ public class LdapServer extends DirectoryBackedService
         {
             BindRequestHandler bindRequestHandler = new BindRequestHandler();
             bindRequestHandler.setSaslMechanismHandlers( saslMechanismHandlers );
-            
+
             setBindHandlers( bindRequestHandler, new BindResponseHandler() );
         }
 
@@ -330,11 +332,10 @@ public class LdapServer extends DirectoryBackedService
 
         if ( getSearchRequestHandler() == null )
         {
-            setSearchHandlers( new SearchRequestHandler(), 
+            setSearchHandlers( new SearchRequestHandler(),
                 new SearchResultEntryHandler(),
                 new SearchResultReferenceHandler(),
-                new SearchResultDoneHandler()
-                );
+                new SearchResultDoneHandler() );
         }
 
         if ( getUnbindRequestHandler() == null )
@@ -386,7 +387,7 @@ public class LdapServer extends DirectoryBackedService
                 }
             }
         }
-        
+
         // Set up key manager factory to use our key store
         String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
 
@@ -394,9 +395,9 @@ public class LdapServer extends DirectoryBackedService
         {
             algorithm = KeyManagerFactory.getDefaultAlgorithm();
         }
-        
+
         keyManagerFactory = KeyManagerFactory.getInstance( algorithm );
-        
+
         if ( Strings.isEmpty( certificatePassword ) )
         {
             keyManagerFactory.init( keyStore, null );
@@ -431,7 +432,8 @@ public class LdapServer extends DirectoryBackedService
             DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
             if ( dfcb.contains( sslFilterName ) )
             {
-                DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer.init( keyManagerFactory );
+                DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer
+                    .init( keyManagerFactory );
                 dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
                 newChain = null;
             }
@@ -459,7 +461,7 @@ public class LdapServer extends DirectoryBackedService
         }
 
         loadKeyStore();
-        
+
         for ( Transport transport : transports )
         {
             if ( !( transport instanceof TcpTransport ) )
@@ -469,7 +471,7 @@ public class LdapServer extends DirectoryBackedService
             }
 
             IoFilterChainBuilder chain;
-            
+
             if ( transport.isSSLEnabled() )
             {
                 chain = LdapsInitializer.init( keyManagerFactory );
@@ -693,7 +695,7 @@ public class LdapServer extends DirectoryBackedService
         {
             final PingerThread pingerThread = new PingerThread();
             pingerThread.start();
-            
+
             for ( final ReplicationConsumer consumer : replConsumers )
             {
                 consumer.init( getDirectoryService() );
@@ -710,22 +712,24 @@ public class LdapServer extends DirectoryBackedService
                                 {
                                     MDC.put( "Replica", consumer.getId() );
                                 }
-                                
+
                                 LOG.info( "starting the replication consumer with {}", consumer );
                                 CONSUMER_LOG.info( "starting the replication consumer with {}", consumer );
                                 boolean isConnected = consumer.connect( ReplicationConsumer.NOW );
-                                
+
                                 if ( isConnected )
                                 {
                                     pingerThread.addConsumer( consumer );
 
                                     // We are now connected, start the replication
                                     ReplicationStatusEnum status = null;
-                                    
-                                    do {
+
+                                    do
+                                    {
                                         status = consumer.startSync();
-                                    } while ( status == ReplicationStatusEnum.REFRESH_REQUIRED );
-                                    
+                                    }
+                                    while ( status == ReplicationStatusEnum.REFRESH_REQUIRED );
+
                                     if ( status == ReplicationStatusEnum.STOPPED )
                                     {
                                         // Exit the loop
@@ -1099,7 +1103,7 @@ public class LdapServer extends DirectoryBackedService
     {
         super.setDirectoryService( directoryService );
         Iterator<String> itr = directoryService.getLdapCodecService().registeredControls();
-        while( itr.hasNext() )
+        while ( itr.hasNext() )
         {
             supportedControls.add( itr.next() );
         }
@@ -1159,14 +1163,14 @@ public class LdapServer extends DirectoryBackedService
      * @param addRequestHandler The AddRequest message received handler
      * @param addResponseHandler The AddResponse message sent handler
      */
-    public void setAddHandlers( LdapRequestHandler<AddRequest> addRequestHandler, 
+    public void setAddHandlers( LdapRequestHandler<AddRequest> addRequestHandler,
         LdapResponseHandler<AddResponse> addResponseHandler )
     {
         this.handler.removeReceivedMessageHandler( AddRequest.class );
         this.addRequestHandler = addRequestHandler;
         this.addRequestHandler.setLdapServer( this );
         this.handler.addReceivedMessageHandler( AddRequest.class, this.addRequestHandler );
-        
+
         this.handler.removeSentMessageHandler( AddResponse.class );
         this.addResponseHandler = addResponseHandler;
         this.addResponseHandler.setLdapServer( this );
@@ -1199,13 +1203,13 @@ public class LdapServer extends DirectoryBackedService
      * @param bindResponseHandler The BindResponse message sent handler
      */
     public void setBindHandlers( LdapRequestHandler<BindRequest> bindRequestHandler,
-        LdapResponseHandler<BindResponse> bindResponseHandler)
+        LdapResponseHandler<BindResponse> bindResponseHandler )
     {
         handler.removeReceivedMessageHandler( BindRequest.class );
         this.bindRequestHandler = bindRequestHandler;
         this.bindRequestHandler.setLdapServer( this );
         handler.addReceivedMessageHandler( BindRequest.class, this.bindRequestHandler );
-        
+
         handler.removeSentMessageHandler( BindResponse.class );
         this.bindResponseHandler = bindResponseHandler;
         this.bindResponseHandler.setLdapServer( this );
@@ -1238,7 +1242,7 @@ public class LdapServer extends DirectoryBackedService
      * @param compareResponseHandler The CompareResponse message sent handler
      */
     public void setCompareHandlers( LdapRequestHandler<CompareRequest> compareRequestHandler,
-        LdapResponseHandler<CompareResponse> compareResponseHandler)
+        LdapResponseHandler<CompareResponse> compareResponseHandler )
     {
         handler.removeReceivedMessageHandler( CompareRequest.class );
         this.compareRequestHandler = compareRequestHandler;
@@ -1277,7 +1281,7 @@ public class LdapServer extends DirectoryBackedService
      * @param deleteResponseHandler The DeleteResponse message sent handler
      */
     public void setDeleteHandlers( LdapRequestHandler<DeleteRequest> deleteRequestHandler,
-        LdapResponseHandler<DeleteResponse> deleteResponseHandler)
+        LdapResponseHandler<DeleteResponse> deleteResponseHandler )
     {
         handler.removeReceivedMessageHandler( DeleteRequest.class );
         this.deleteRequestHandler = deleteRequestHandler;
@@ -1298,8 +1302,8 @@ public class LdapServer extends DirectoryBackedService
     {
         return extendedRequestHandler;
     }
-    
-    
+
+
     /**
      * @return The MessageSent handler for the ExtendedResponse
      */
@@ -1323,12 +1327,13 @@ public class LdapServer extends DirectoryBackedService
         handler.removeReceivedMessageHandler( ExtendedRequest.class );
         this.extendedRequestHandler = extendedRequestHandler;
         this.extendedRequestHandler.setLdapServer( this );
-        this.handler.addReceivedMessageHandler( ExtendedRequest.class, ( LdapRequestHandler ) this.extendedRequestHandler );
+        this.handler.addReceivedMessageHandler( ExtendedRequest.class,
+            ( LdapRequestHandler ) this.extendedRequestHandler );
 
         handler.removeSentMessageHandler( ExtendedResponse.class );
         this.extendedResponseHandler = extendedResponseHandler;
         this.extendedResponseHandler.setLdapServer( this );
-        this.handler.addSentMessageHandler( ExtendedResponse.class, ( LdapResponseHandler ) this.extendedResponseHandler );
+        this.handler.addSentMessageHandler( ExtendedResponse.class, this.extendedResponseHandler );
     }
 
 
@@ -1346,7 +1351,7 @@ public class LdapServer extends DirectoryBackedService
      * 
      * @param intermediateResponseHandler The IntermediateResponse message sent handler
      */
-    public void setIntermediateHandler( LdapResponseHandler<IntermediateResponse> intermediateResponseHandler)
+    public void setIntermediateHandler( LdapResponseHandler<IntermediateResponse> intermediateResponseHandler )
     {
         handler.removeSentMessageHandler( IntermediateResponse.class );
         this.intermediateResponseHandler = intermediateResponseHandler;
@@ -1380,7 +1385,7 @@ public class LdapServer extends DirectoryBackedService
      * @param modifyResponseHandler The ModifyResponse message sent handler
      */
     public void setModifyHandlers( LdapRequestHandler<ModifyRequest> modifyRequestHandler,
-        LdapResponseHandler<ModifyResponse> modifyResponseHandler)
+        LdapResponseHandler<ModifyResponse> modifyResponseHandler )
     {
         handler.removeReceivedMessageHandler( ModifyRequest.class );
         this.modifyRequestHandler = modifyRequestHandler;
@@ -1419,13 +1424,13 @@ public class LdapServer extends DirectoryBackedService
      * @param modifyDnResponseHandler The ModifyDnResponse message sent handler
      */
     public void setModifyDnHandlers( LdapRequestHandler<ModifyDnRequest> modifyDnRequestHandler,
-        LdapResponseHandler<ModifyDnResponse> modifyDnResponseHandler)
+        LdapResponseHandler<ModifyDnResponse> modifyDnResponseHandler )
     {
         handler.removeReceivedMessageHandler( ModifyDnRequest.class );
         this.modifyDnRequestHandler = modifyDnRequestHandler;
         this.modifyDnRequestHandler.setLdapServer( this );
         this.handler.addReceivedMessageHandler( ModifyDnRequest.class, this.modifyDnRequestHandler );
-        
+
         handler.removeSentMessageHandler( ModifyDnResponse.class );
         this.modifyDnResponseHandler = modifyDnResponseHandler;
         this.modifyDnResponseHandler.setLdapServer( this );
@@ -1655,8 +1660,8 @@ public class LdapServer extends DirectoryBackedService
     {
         return keyManagerFactory;
     }
-    
-    
+
+
     /**
      * @return The maximum allowed size for an incoming PDU
      */
@@ -1681,7 +1686,7 @@ public class LdapServer extends DirectoryBackedService
         this.maxPDUSize = maxPDUSize;
     }
 
-    
+
     /**
      * @see Object#toString()
      */

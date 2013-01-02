@@ -160,8 +160,8 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         this.remoteHost = remoteHost;
         producer = remoteHost + ":" + remotePort;
     }
-    
-    
+
+
     /**
      * A convenient method that concatenates the host and port of the producer
      * @return The <host>:<port> the consumer is connected to
@@ -319,7 +319,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     public void setAttributes( String[] attrs )
     {
         attributes.clear();
-        
+
         for ( String attr : attrs )
         {
             attributes.add( attr );
@@ -571,25 +571,25 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         this.mmrMode = mmrMode;
     }
 
-    
+
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "[" );
-        sb.append( "rid:" ).append( replicaId ).append( ", " ); 
-        sb.append( "base:'" ).append( baseDn ).append( "', " ); 
+        sb.append( "rid:" ).append( replicaId ).append( ", " );
+        sb.append( "base:'" ).append( baseDn ).append( "', " );
         sb.append( "filter:" ).append( filter ).append( ", " );
-        sb.append( "scope:" ).append( searchScope ).append( ", " ); 
-        sb.append( "alias:" ).append( aliasDerefMode ).append( ", " ); 
-        sb.append( "chase referrals:" ).append( chaseReferrals ).append( ", " ); 
+        sb.append( "scope:" ).append( searchScope ).append( ", " );
+        sb.append( "alias:" ).append( aliasDerefMode ).append( ", " );
+        sb.append( "chase referrals:" ).append( chaseReferrals ).append( ", " );
 
         boolean isFirst = true;
-        
+
         if ( attributes != null )
         {
             sb.append( "attributes:{" );
-            
+
             for ( String attribute : attributes )
             {
                 if ( isFirst )
@@ -600,22 +600,22 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
                 {
                     sb.append( "/" );
                 }
-                
+
                 sb.append( attribute );
             }
-            
+
             sb.append( "}, " );
         }
-        
+
         if ( refreshNPersist )
         {
-            sb.append( "refresh:" ).append( refreshInterval ).append( ", " ); 
+            sb.append( "refresh:" ).append( refreshInterval ).append( ", " );
         }
         else
         {
-            sb.append( "refreshOnly, ");
+            sb.append( "refreshOnly, " );
         }
-        
+
         if ( mmrMode )
         {
             sb.append( "MMR, " );
@@ -624,17 +624,16 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         {
             sb.append( "MS, " );
         }
-        
-        sb.append( "provider:" ).append( producer ).append( ", " ); 
-        sb.append( "user:'" ).append( replUserDn ).append( "', " ); 
-        
+
+        sb.append( "provider:" ).append( producer ).append( ", " );
+        sb.append( "user:'" ).append( replUserDn ).append( "', " );
+
         if ( strictCertVerification )
         {
             sb.append( "strict" ).append( ", " );
         }
 
         sb.append( "TLS:" ).append( useTls ).append( "]" );
-        
 
         return sb.toString();
     }
