@@ -132,6 +132,57 @@ public class DSAnnotationProcessor
 
         service.setInterceptors( interceptorList );
 
+        SchemaManager schemaManager = service.getSchemaManager();
+
+        // process the schemas
+        for ( LoadSchema loadedSchema : dsBuilder.loadedSchemas() )
+        {
+            String schemaName = loadedSchema.name();
+            Boolean enabled = loadedSchema.enabled();
+
+            // Check if the schema is loaded or not
+            boolean isLoaded = schemaManager.isSchemaLoaded( schemaName );
+
+            if ( !isLoaded )
+            {
+                // We have to load the schema, if it exists
+                try
+                {
+                    isLoaded = schemaManager.load( schemaName );
+                }
+                catch ( LdapUnwillingToPerformException lutpe )
+                {
+                    // Cannot load the schema, it does not exists
+                    LOG.error( lutpe.getMessage() );
+                    continue;
+                }
+            }
+
+            if ( isLoaded )
+            {
+                if ( enabled )
+                {
+                    schemaManager.enable( schemaName );
+
+                    if ( schemaManager.isDisabled( schemaName ) )
+                    {
+                        LOG.error( "Cannot enable " + schemaName );
+                    }
+                }
+                else
+                {
+                    schemaManager.disable( schemaName );
+
+                    if ( schemaManager.isEnabled( schemaName ) )
+                    {
+                        LOG.error( "Cannot disable " + schemaName );
+                    }
+                }
+            }
+
+            LOG.debug( "Loading schema {}, enabled= {}", schemaName, enabled );
+        }
+
         // Process the Partition, if any.
         for ( CreatePartition createPartition : dsBuilder.partitions() )
         {
@@ -145,7 +196,7 @@ public class DSAnnotationProcessor
                 // instances.
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
                 partition = partitionFactory.createPartition(
-                    service.getSchemaManager(),
+                    schemaManager,
                     createPartition.name(),
                     createPartition.suffix(),
                     createPartition.cacheSize(),
@@ -169,9 +220,9 @@ public class DSAnnotationProcessor
                     { SchemaManager.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
                 partition = ( Partition ) constructor.newInstance( new Object[]
-                    { service.getSchemaManager() } );
+                    { schemaManager } );
                 partition.setId( createPartition.name() );
-                partition.setSuffixDn( new Dn( service.getSchemaManager(), createPartition.suffix() ) );
+                partition.setSuffixDn( new Dn( schemaManager, createPartition.suffix() ) );
 
                 if ( partition instanceof AbstractBTreePartition )
                 {
@@ -196,61 +247,10 @@ public class DSAnnotationProcessor
                 }
             }
 
-            partition.setSchemaManager( service.getSchemaManager() );
+            partition.setSchemaManager( schemaManager );
 
             // Inject the partition into the DirectoryService
             service.addPartition( partition );
-
-            SchemaManager schemaManager = service.getSchemaManager();
-
-            // process the schemas
-            for ( LoadSchema loadedSchema : dsBuilder.loadedSchemas() )
-            {
-                String schemaName = loadedSchema.name();
-                Boolean enabled = loadedSchema.enabled();
-
-                // Check if the schema is loaded or not
-                boolean isLoaded = schemaManager.isSchemaLoaded( schemaName );
-
-                if ( !isLoaded )
-                {
-                    // We have to load the schema, if it exists
-                    try
-                    {
-                        isLoaded = schemaManager.load( schemaName );
-                    }
-                    catch ( LdapUnwillingToPerformException lutpe )
-                    {
-                        // Cannot load the schema, it does not exists
-                        LOG.error( lutpe.getMessage() );
-                        continue;
-                    }
-                }
-
-                if ( isLoaded )
-                {
-                    if ( enabled )
-                    {
-                        schemaManager.enable( schemaName );
-
-                        if ( schemaManager.isDisabled( schemaName ) )
-                        {
-                            LOG.error( "Cannot enable " + schemaName );
-                        }
-                    }
-                    else
-                    {
-                        schemaManager.disable( schemaName );
-
-                        if ( schemaManager.isEnabled( schemaName ) )
-                        {
-                            LOG.error( "Cannot disable " + schemaName );
-                        }
-                    }
-                }
-
-                LOG.debug( "Loading schema {}, enabled= {}", schemaName, enabled );
-            }
 
             // Last, process the context entry
             ContextEntry contextEntry = createPartition.contextEntry();
