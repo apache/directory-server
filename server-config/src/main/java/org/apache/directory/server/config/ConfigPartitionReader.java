@@ -450,9 +450,9 @@ public class ConfigPartitionReader
         // Get the entry attribute for this attribute type
         Attribute attribute = entry.get( attributeTypeName );
 
-        if ( ( attribute != null ) && attribute.size() > 0 )
+        if ( ( attribute != null ) && ( attribute.size() > 0 ) )
         {
-            if ( isMultiple( field.getClass() ) )
+            if ( !isMultiple( field.getType() ) )
             {
                 readSingleValueField( bean, field, attribute );
             }
