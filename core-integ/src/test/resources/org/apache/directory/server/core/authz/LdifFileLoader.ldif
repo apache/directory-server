@@ -1,0 +1,5 @@
+dn: ou=system
+changetype: modify
+add: administrativeRole
+administrativeRole: accessControlSpecificArea
+-
