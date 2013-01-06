@@ -467,7 +467,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         // first register a ReplicaEventLog before starting the initial content refresh
         // this is to log all the operations happen on DIT during initial content refresh
-        ReplicaEventLog replicaLog = createRelicaEventLog( hostName, originalFilter );
+        ReplicaEventLog replicaLog = createReplicaEventLog( hostName, originalFilter );
 
         replicaLog.setRefreshNPersist( refreshNPersist );
         StringValue contexCsnValue = new StringValue( contextCsn );
@@ -1066,7 +1066,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Create a new ReplicaEventLog
      */
-    private ReplicaEventLog createRelicaEventLog( String hostName, String filter ) throws Exception
+    private ReplicaEventLog createReplicaEventLog( String hostName, String filter ) throws Exception
     {
         int replicaId = replicaCount.incrementAndGet();
 

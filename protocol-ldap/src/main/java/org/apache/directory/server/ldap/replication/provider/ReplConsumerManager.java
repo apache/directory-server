@@ -160,7 +160,7 @@ public class ReplConsumerManager
             // Error...
             String message = "The replica " + consumerDn.getName() + " already exists";
             LOG.error( message );
-            PROVIDER_LOG.debug( message );
+            PROVIDER_LOG.error( message );
             throw new LdapEntryAlreadyExistsException( message );
         }
 
