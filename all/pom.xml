@@ -139,11 +139,6 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-server-replication</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
     </dependency>
     

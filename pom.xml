@@ -124,7 +124,6 @@
     <module>server-jndi</module>
     <module>interceptor-kerberos</module>
     <module>kerberos-test</module>
-    <module>server-replication</module>
     <module>http-directory-bridge</module>
     <module>http-integration</module>
     <module>test-framework</module>
@@ -787,12 +786,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-server-jndi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-server-replication</artifactId>
         <version>${project.version}</version>
       </dependency>
       
