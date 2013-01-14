@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.ldap.replication.provider;
 
+
 import java.util.Map;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -28,31 +29,33 @@ import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
- * Deletes old entries from the replication event logs that
- * are configured in refreshNPersist mode
+ * Deletes old entries from the replication event logs that are configured in refreshNPersist mode.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ReplicaEventLogJanitor extends Thread
 {
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLogJanitor.class );
-    
+
     private long thresholdCount;
-    
+
     private long thresholdTime;
-    
+
     private Map<Integer, ReplicaEventLog> replicaLogMap;
-    
+
     private volatile boolean stop = false;
-    
+
+
     public ReplicaEventLogJanitor( Map<Integer, ReplicaEventLog> replicaLogMap )
     {
         // if log is in refreshNpersist mode, has more than 10k entries then 
         // all the entries before the last sent CSN and older than 5 hours will be purged
-        this( replicaLogMap, 10000, ( 5 * 60 * 60 * 1000 ) ); 
+        this( replicaLogMap, 10000, ( 5 * 60 * 60 * 1000 ) );
     }
-    
+
+
     public ReplicaEventLogJanitor( Map<Integer, ReplicaEventLog> replicaLogMap, long thresholdCount, long thresholdTime )
     {
         this.replicaLogMap = replicaLogMap;
@@ -60,89 +63,91 @@ public class ReplicaEventLogJanitor extends Thread
         this.thresholdTime = thresholdTime;
         setDaemon( true );
     }
-    
+
+
     @Override
     public void run()
     {
-        while( !stop )
+        while ( !stop )
         {
-            for( ReplicaEventLog log : replicaLogMap.values() )
+            for ( ReplicaEventLog log : replicaLogMap.values() )
             {
-                if( !log.isRefreshNPersist() )
+                if ( !log.isRefreshNPersist() )
                 {
                     continue;
                 }
-                
+
                 synchronized ( log ) // lock the log and clean
                 {
                     try
                     {
                         String lastSentCsn = log.getLastSentCsn();
-                        
-                        if( lastSentCsn == null )
+
+                        if ( lastSentCsn == null )
                         {
                             LOG.debug( "last sent CSN is null for the replica {}, skipping cleanup", log.getName() );
                             return;
                         }
-                        
-                        if( log.count() < thresholdCount )
+
+                        if ( log.count() < thresholdCount )
                         {
                             return;
                         }
-                        
-                        LOG.debug( "starting to purge the log entries that are older than {} milliseconds", thresholdTime );
-                        
+
+                        LOG.debug( "starting to purge the log entries that are older than {} milliseconds",
+                            thresholdTime );
+
                         long now = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
-                        
+
                         long deleteCount = 0;
-                        
+
                         ReplicaJournalCursor cursor = log.getCursor( null ); // pass no CSN
                         cursor.skipQualifyingWhileFetching();
-                        
-                        while( cursor.next() )
+
+                        while ( cursor.next() )
                         {
                             ReplicaEventMessage message = cursor.get();
                             String csnVal = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
-                            
+
                             // skip if we reach the lastSentCsn or got past it
-                            if( csnVal.compareTo( lastSentCsn ) >= 0 )
+                            if ( csnVal.compareTo( lastSentCsn ) >= 0 )
                             {
                                 break;
                             }
-                                
+
                             Csn csn = new Csn( csnVal );
-                            
-                            if( ( now - csn.getTimestamp() ) >= thresholdTime )
+
+                            if ( ( now - csn.getTimestamp() ) >= thresholdTime )
                             {
                                 cursor.delete();
                                 deleteCount++;
                             }
                         }
-                        
+
                         cursor.close();
-                        
+
                         LOG.debug( "purged {} messages from the log {}", deleteCount, log.getName() );
                     }
-                    catch( Exception e )
+                    catch ( Exception e )
                     {
                         LOG.warn( "Failed to purge old entries from the log {}", log.getName(), e );
                     }
                 }
             }
-            
+
             try
             {
                 Thread.sleep( thresholdTime );
             }
-            catch( InterruptedException e )
+            catch ( InterruptedException e )
             {
                 LOG.warn( "ReplicaEventLogJanitor thread was interrupted, stopping the thread", e );
                 stop = true;
             }
         }
     }
-    
-    
+
+
     public void stopCleaning()
     {
         stop = true;
