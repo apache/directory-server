@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * A structure storing the configuration on each consumer registered on a producer. It stores 
  * the following informations :
  * <ul>
- * <li>replicaId : the internal ID associated with the consumer</li>
+ * <li>replicaId : the internal ID associated with the consumer on the provider</li>
  * <li>hostname : the consumer's host</li>
  * <li>searchFilter : the filter</li>
  * <li>lastSentCsn : the last CSN sent by the consumer</li>
@@ -87,7 +87,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     private boolean refreshNPersist;
 
     // fields that won't be serialized
-    /** The Journal */
+    /** The Journal of modifications */
     private JdbmTable<String, ReplicaEventMessage> journal;
 
     /** the underlying file  */
@@ -100,9 +100,12 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     private volatile boolean dirty;
 
     public static final String REPLICA_EVENT_LOG_NAME_PREFIX = "REPL_EVENT_LOG.";
-    
+
+
     /**
      * Creates a new instance of EventLog for a replica
+     * 
+     * @param directoryService The DirectoryService instance
      * @param replicaId The replica ID
      */
     public ReplicaEventLog( DirectoryService directoryService, int replicaId ) throws IOException
@@ -419,7 +422,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         return new ReplicaJournalCursor( journal, consumerCsn );
     }
 
-    
+
     /**
      * @return the name of this replica log
      */
@@ -428,7 +431,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         return journal.getName();
     }
 
-    
+
     /**
      * @return the number of entries present in the replica log
      */
@@ -438,13 +441,13 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         {
             return journal.count();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw new RuntimeException( e );
         }
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
