@@ -96,7 +96,6 @@ import org.apache.directory.server.ldap.replication.consumer.PingerThread;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationStatusEnum;
 import org.apache.directory.server.ldap.replication.provider.ReplicationRequestHandler;
-import org.apache.directory.server.ldap.replication.provider.ReplicationWatcher;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;

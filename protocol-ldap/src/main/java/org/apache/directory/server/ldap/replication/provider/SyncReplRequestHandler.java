@@ -260,6 +260,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     public void handleSyncRequest( LdapSession session, SearchRequest request ) throws LdapException
     {
+        PROVIDER_LOG.debug( "Received a Syncrepl request : {} from {}", request, session );
         try
         {
             if ( !request.getAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
@@ -277,7 +278,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( cookieBytes == null )
             {
-                PROVIDER_LOG.debug( "Received a replication request {} with no cookie", request );
+                PROVIDER_LOG.debug( "Received a replication request with no cookie" );
                 // No cookie ? We have to get all the entries from the provider
                 // This is an initiate Content Poll action (RFC 4533, 3.3.1)
                 doInitialRefresh( session, request );
@@ -461,6 +462,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     private void doInitialRefresh( LdapSession session, SearchRequest request ) throws Exception
     {
+        PROVIDER_LOG.debug( "Starting an initial refresh" );
         String originalFilter = request.getFilter().toString();
         InetSocketAddress address = ( InetSocketAddress ) session.getIoSession().getRemoteAddress();
         String hostName = address.getAddress().getHostName();
@@ -484,11 +486,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         request.setFilter( postInitContentFilter );
 
         // now we process entries forever as they change
-        LOG.info( "starting persistent search for the client {}", replicaLog );
-        PROVIDER_LOG.debug( "Starting persistent search for the client {}", replicaLog );
-
         // irrespective of the sync mode set the 'isRealtimePush' to false initially so that we can
         // store the modifications in the queue and later if it is a persist mode
+        LOG.info( "Starting the replicaLog {}", replicaLog );
+        PROVIDER_LOG.debug( "Starting the replicaLog {}", replicaLog );
+
         // we push this queue's content and switch to realtime mode
         SyncReplSearchListener replicationListener = new SyncReplSearchListener( session, request, replicaLog, false );
         replicaLog.setPersistentListener( replicationListener );
@@ -524,12 +526,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 replicaLog.setLastSentCsn( contextCsn );
             }
 
-            byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
-
             if ( refreshNPersist ) // refreshAndPersist mode
             {
+                PROVIDER_LOG
+                    .debug( "Refresh&Persist requested : send the data being modified since the initial refresh" );
+                // Now, send the modified entries since the search has started 
                 sendContentFromLog( session, request, replicaLog, contextCsn );
-                cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
+
+                byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
 
                 IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
                 intermResp.setResponseName( SyncInfoValue.OID );
@@ -545,9 +549,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 // switch the handler mode to realtime push
                 replicationListener.setPushInRealTime( refreshNPersist );
+                PROVIDER_LOG.debug( "e waiting for any modification for {}", replicaLog );
             }
             else
             {
+                PROVIDER_LOG.debug( "RefreshOnly requested" );
+                byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
+
                 // no need to send from the log, that will be done in the next refreshOnly session
                 SyncDoneValue syncDone = new SyncDoneValueDecorator(
                     ldapServer.getDirectoryService().getLdapCodecService() );
@@ -590,6 +598,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private SearchResultDone doSimpleSearch( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog )
         throws Exception
     {
+        PROVIDER_LOG.debug( "Simple Search {} for {}", req, session );
         SearchResultDone searchDoneResp = req.getResultResponse();
         LdapResult ldapResult = searchDoneResp.getLdapResult();
 
@@ -635,6 +644,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
         }
 
+        PROVIDER_LOG.debug( "Search done" );
+
         return searchDoneResp;
     }
 
@@ -677,6 +688,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             count++;
         }
 
+        PROVIDER_LOG.debug( "Sent {} entries for {}", count, replicaLog );
+
         // DO NOT WRITE THE RESPONSE - JUST RETURN IT
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
 
@@ -718,7 +731,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         resp.addControl( syncStateControl );
 
         LOG.debug( "Sending {}", entry.getDn() );
-        PROVIDER_LOG.debug( "Sending the entry: {}", entry );
+        PROVIDER_LOG.debug( "Sending the entry:\n {}", resp );
         session.getIoSession().write( resp );
     }
 
