@@ -925,7 +925,7 @@ public class ServiceBuilder
 
         // Max time limit
         ldapServer.setMaxTimeLimit( ldapServerBean.getLdapServerMaxTimeLimit() );
-        
+
         // MaxPDUSize
         ldapServer.setMaxPDUSize( ldapServerBean.getMaxPDUSize() );
 
@@ -975,11 +975,11 @@ public class ServiceBuilder
 
         // ReplReqHandler
         boolean replicationEnabled = ldapServerBean.isReplEnabled();
-        
+
         if ( replicationEnabled )
         {
             String fqcn = ldapServerBean.getReplReqHandler();
-    
+
             if ( fqcn != null )
             {
                 try
@@ -990,7 +990,8 @@ public class ServiceBuilder
                 }
                 catch ( Exception e )
                 {
-                    String message = "Failed to load and instantiate ReplicationRequestHandler implementation : " + fqcn;
+                    String message = "Failed to load and instantiate ReplicationRequestHandler implementation : "
+                        + fqcn;
                     LOG.error( message );
                     throw new ConfigurationException( message );
                 }
@@ -1002,7 +1003,7 @@ public class ServiceBuilder
                 ldapServer.setReplicationReqHandler( rp );
             }
         }
-        
+
         ldapServer.setReplConsumers( createReplConsumers( ldapServerBean.getReplConsumers() ) );
 
         return ldapServer;
@@ -1052,16 +1053,16 @@ public class ServiceBuilder
                 config.setBaseDn( replBean.getSearchBaseDn() );
                 config.setRemoteHost( replBean.getReplProvHostName() );
                 config.setRemotePort( replBean.getReplProvPort() );
-                
+
                 try
-                { 
+                {
                     config.setAliasDerefMode( AliasDerefMode.getDerefMode( replBean.getReplAliasDerefMode() ) );
                 }
                 catch ( IllegalArgumentException iae )
                 {
                     LOG.error( iae.getMessage() + ", defaulted to 'never'" );
                 }
-                
+
                 config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
                 config.setRefreshInterval( replBean.getReplRefreshInterval() );
                 config.setRefreshNPersist( replBean.isReplRefreshNPersist() );
@@ -1244,16 +1245,16 @@ public class ServiceBuilder
                     LdifEntry entry = entries.get( 0 );
                     jdbmPartition.setContextEntry( entry.getEntry() );
                 }
-                
+
                 try
                 {
-                    ldifReader.close();;
+                    ldifReader.close();
                 }
-                catch (IOException ioe )
+                catch ( IOException ioe )
                 {
                     LOG.error( "Cannot close the ldif reader" );
                 }
-                
+
             }
             catch ( LdapLdifException lle )
             {
