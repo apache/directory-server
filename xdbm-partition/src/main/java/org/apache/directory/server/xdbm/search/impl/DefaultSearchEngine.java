@@ -44,6 +44,8 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -54,6 +56,9 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
  */
 public class DefaultSearchEngine implements SearchEngine
 {
+    /** The logger */
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultSearchEngine.class );
+
     /** the Optimizer used by this DefaultSearchEngine */
     private final Optimizer optimizer;
 
@@ -192,6 +197,8 @@ public class DefaultSearchEngine implements SearchEngine
         searchResult.setCandidateSet( uuidSet );
 
         long nbResults = cursorBuilder.build( root, searchResult );
+
+        LOG.debug( "Nb results : {} for filter : {}", nbResults, root );
 
         if ( nbResults < Long.MAX_VALUE )
         {
