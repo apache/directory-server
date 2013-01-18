@@ -47,7 +47,7 @@
     <org.apache.directory.api.version>1.0.0-M15-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
-    <org.apache.directory.jdbm.version>2.0.0-M1</org.apache.directory.jdbm.version>
+    <org.apache.directory.jdbm.version>2.0.0-M2</org.apache.directory.jdbm.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
@@ -584,7 +584,7 @@
       
       <dependency>
         <groupId>org.apache.directory.jdbm</groupId>
-        <artifactId>apacheds-jdbm2</artifactId>
+        <artifactId>apacheds-jdbm1</artifactId>
         <type>bundle</type>
         <version>${org.apache.directory.jdbm.version}</version>
       </dependency>
