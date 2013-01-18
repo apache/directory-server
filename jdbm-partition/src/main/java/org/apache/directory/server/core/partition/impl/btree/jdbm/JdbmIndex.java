@@ -30,12 +30,12 @@ import jdbm.helper.ByteArraySerializer;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -161,6 +161,9 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
 
         BaseRecordManager base = new BaseRecordManager( path );
+        TransactionManager transactionManager = base.getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 200 );
+
         recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
 
         try

@@ -74,7 +74,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Creating KeyTupleBTreeCursor {}", this );
         }
-        
+
         this.key = key;
         this.btree = btree;
         this.comparator = comparator;
@@ -124,7 +124,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
-        this.closeBrowser( browser );
+
         browser = btree.browse( value );
         clearValue();
     }
@@ -141,7 +141,6 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
-        this.closeBrowser( browser );
         browser = btree.browse( value );
 
         /*
@@ -169,7 +168,6 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
                  */
                 if ( !browser.getPrevious( valueTuple ) )
                 {
-                    this.closeBrowser( browser );
                     browser = btree.browse( this.key );
                 }
 
@@ -194,7 +192,6 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
-        this.closeBrowser( browser );
         browser = btree.browse( element.getValue() );
         clearValue();
     }
@@ -215,7 +212,6 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
-        this.closeBrowser( browser );
         browser = btree.browse();
         clearValue();
     }
@@ -227,7 +223,6 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
-        this.closeBrowser( browser );
         browser = btree.browse( null );
     }
 
@@ -341,9 +336,8 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing KeyTupleBTreeCursor {}", this );
         }
-        
+
         super.close();
-        closeBrowser( browser );
     }
 
 
@@ -357,17 +351,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing KeyTupleBTreeCursor {}", this );
         }
-        
+
         super.close( cause );
-        closeBrowser( browser );
-    }
-
-
-    private void closeBrowser( TupleBrowser browser )
-    {
-        if ( browser != null )
-        {
-            browser.close();
-        }
     }
 }

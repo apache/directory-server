@@ -27,6 +27,7 @@ import java.io.File;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
@@ -129,7 +130,8 @@ public class JournalTest
 
         dbFile = File.createTempFile( getClass().getSimpleName(), "db", tmpDir );
         recman = new BaseRecordManager( dbFile.getAbsolutePath() );
-        ( ( BaseRecordManager ) recman ).disableTransactions();
+        TransactionManager transactionManager = ( ( BaseRecordManager ) recman ).getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 200 );
 
         SerializableComparator<String> comparator = new SerializableComparator<String>(
             SchemaConstants.CSN_ORDERING_MATCH_MR_OID );

@@ -69,7 +69,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Creating KeyBTreeCursor {}", this );
         }
-        
+
         this.btree = btree;
         this.comparator = comparator;
     }
@@ -95,7 +95,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void before( E element ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "before()" );
-        this.closeBrowser( browser );
         browser = btree.browse( element );
         clearValue();
     }
@@ -107,7 +106,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @SuppressWarnings("unchecked")
     public void after( E element ) throws LdapException, CursorException, IOException
     {
-        this.closeBrowser( browser );
         browser = btree.browse( element );
 
         /*
@@ -152,7 +150,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
-        this.closeBrowser( browser );
         browser = btree.browse();
         clearValue();
     }
@@ -164,7 +161,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
-        this.closeBrowser( browser );
         browser = btree.browse( null );
     }
 
@@ -264,9 +260,8 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         }
-        
+
         super.close();
-        this.closeBrowser( browser );
     }
 
 
@@ -280,17 +275,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Closing KeyBTreeCursor {}", this );
         }
-        
+
         super.close( cause );
-        this.closeBrowser( browser );
-    }
-
-
-    private void closeBrowser( TupleBrowser browser )
-    {
-        if ( browser != null )
-        {
-            browser.close();
-        }
     }
 }

@@ -121,7 +121,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     public void beforeKey( K key ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeKey()" );
-        this.closeBrowser( browser );
         browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
         forwardDirection = null;
         clearValue();
@@ -136,7 +135,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     {
         checkNotClosed( "afterKey()" );
 
-        this.closeBrowser( browser );
         browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
         forwardDirection = null;
 
@@ -219,7 +217,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
-        this.closeBrowser( browser );
         browser = table.getBTree().browse();
         forwardDirection = null;
         clearValue();
@@ -233,7 +230,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
-        this.closeBrowser( browser );
         browser = table.getBTree().browse( null );
         forwardDirection = null;
         clearValue();
@@ -395,9 +391,8 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
         {
             LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         }
-        
+
         super.close();
-        closeBrowser( browser );
     }
 
 
@@ -411,17 +406,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
         {
             LOG_CURSOR.debug( "Closing DupsContainerCursor {}", this );
         }
-        
+
         super.close( cause );
-        closeBrowser( browser );
-    }
-
-
-    private void closeBrowser( TupleBrowser browser )
-    {
-        if ( browser != null )
-        {
-            browser.close();
-        }
     }
 }

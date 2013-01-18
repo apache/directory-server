@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -86,7 +87,9 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
 
         //System.out.println( "IDX Created index " + path )
         BaseRecordManager base = new BaseRecordManager( path );
-        base.disableTransactions();
+        TransactionManager transactionManager = base.getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 200 );
+
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 
         try

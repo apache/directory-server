@@ -275,7 +275,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         }
 
         try
-        {      
+        {
             if ( !allowsDuplicates )
             {
                 if ( null == bt.find( key ) )
@@ -287,14 +287,14 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     return 1;
                 }
             }
-    
+
             DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-    
+
             if ( values.isArrayTree() )
             {
                 return values.getArrayTree().size();
             }
-    
+
             return getBTree( values.getBTreeRedirect() ).size();
         }
         catch ( IOException ioe )
@@ -322,30 +322,28 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             {
                 return bt.find( key );
             }
-    
+
             DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-    
+
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
-    
+
                 if ( set.getFirst() == null )
                 {
                     return null;
                 }
-    
+
                 return set.getFirst();
             }
-    
+
             // Handle values if they are stored in another BTree
             BTree tree = getBTree( values.getBTreeRedirect() );
-    
+
             jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
             TupleBrowser<K, V> browser = tree.browse();
             browser.getNext( tuple );
-            this.closeBrowser( browser );
-            //noinspection unchecked
-    
+
             return ( V ) tuple.getKey();
         }
         catch ( IOException ioe )
@@ -374,17 +372,17 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         try
         {
             DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-    
+
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
                 V result = set.findGreaterOrEqual( val );
                 return result != null;
             }
-    
+
             // last option is to try a btree with BTreeRedirects
             BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
-    
+
             return tree.size() != 0 && btreeHas( tree, val, true );
         }
         catch ( IOException ioe )
@@ -412,17 +410,17 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         try
         {
             DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-    
+
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
                 V result = set.findLessOrEqual( val );
                 return result != null;
             }
-    
+
             // last option is to try a btree with BTreeRedirects
             BTree<K, V> tree = getBTree( values.getBTreeRedirect() );
-    
+
             return tree.size() != 0 && btreeHas( tree, val, false );
         }
         catch ( IOException ioe )
@@ -499,11 +497,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
             if ( browser.getPrevious( tuple ) )
             {
-                this.closeBrowser( browser );
                 return true;
             }
-
-            this.closeBrowser( browser );
         }
 
         return false;
@@ -531,12 +526,12 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             }
 
             DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
-    
+
             if ( values.isArrayTree() )
             {
                 return values.getArrayTree().find( value ) != null;
             }
-    
+
             return getBTree( values.getBTreeRedirect() ).find( value ) != null;
         }
         catch ( IOException ioe )
@@ -590,6 +585,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Add ONE {} = {}", name, key );
                 }
 
+                recMan.commit();
+
                 return;
             }
 
@@ -627,6 +624,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 }
 
                 count++;
+                recMan.commit();
+
                 return;
             }
 
@@ -642,6 +641,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             {
                 LOG.debug( "<--- Add BTREE {} = {}", name, key );
             }
+
+            recMan.commit();
         }
         catch ( Exception e )
         {
@@ -690,6 +691,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                         LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
                     }
 
+                    recMan.commit();
+
                     return;
                 }
 
@@ -721,6 +724,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                         LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
                     }
 
+                    recMan.commit();
+
                     return;
                 }
 
@@ -749,6 +754,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
                 }
+
+                recMan.commit();
 
                 return;
             }
@@ -798,6 +805,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Remove ONE {} = {}", name, key );
                 }
 
+                recMan.commit();
+
                 return;
             }
 
@@ -816,6 +825,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
 
+                recMan.commit();
+
                 return;
             }
             else
@@ -827,6 +838,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Remove AVL {} = {}", name, key );
                 }
+
+                recMan.commit();
 
                 return;
             }
@@ -943,6 +956,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         long recId = recMan.getNamedObject( name + SZSUFFIX );
         recMan.update( recId, count );
+        recMan.commit();
+
     }
 
 
@@ -1047,41 +1062,34 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         TupleBrowser browser = tree.browse( key );
 
-        try
+        if ( isGreaterThan )
         {
-            if ( isGreaterThan )
+            return browser.getNext( tuple );
+        }
+        else
+        {
+            if ( browser.getPrevious( tuple ) )
             {
-                return browser.getNext( tuple );
+                return true;
             }
             else
             {
-                if ( browser.getPrevious( tuple ) )
-                {
-                    return true;
-                }
-                else
-                {
-                    /*
-                     * getPrevious() above fails which means the browser has is
-                     * before the first Tuple of the btree.  A call to getNext()
-                     * should work every time.
-                     */
-                    browser.getNext( tuple );
+                /*
+                 * getPrevious() above fails which means the browser has is
+                 * before the first Tuple of the btree.  A call to getNext()
+                 * should work every time.
+                 */
+                browser.getNext( tuple );
 
-                    /*
-                     * Since the browser is positioned now on the Tuple with the
-                     * smallest key we just need to check if it equals this key
-                     * which is the only chance for returning true.
-                     */
-                    V firstKey = ( V ) tuple.getKey();
+                /*
+                 * Since the browser is positioned now on the Tuple with the
+                 * smallest key we just need to check if it equals this key
+                 * which is the only chance for returning true.
+                 */
+                V firstKey = ( V ) tuple.getKey();
 
-                    return valueComparator.compare( key, firstKey ) == 0;
-                }
+                return valueComparator.compare( key, firstKey ) == 0;
             }
-        }
-        finally
-        {
-            this.closeBrowser( browser );
         }
     }
 
@@ -1097,8 +1105,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         {
             avlTree.insert( ( V ) tuple.getKey() );
         }
-
-        this.closeBrowser( browser );
 
         return avlTree;
     }
@@ -1128,14 +1134,5 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         keys.close();
 
         return bTree;
-    }
-
-
-    private void closeBrowser( TupleBrowser<K, V> browser )
-    {
-        if ( browser != null )
-        {
-            browser.close();
-        }
     }
 }

@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -120,6 +121,8 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         File replDir = directoryService.getInstanceLayout().getReplDirectory();
         journalFile = new File( replDir, REPLICA_EVENT_LOG_NAME_PREFIX + replicaId );
         recman = new BaseRecordManager( journalFile.getAbsolutePath() );
+        TransactionManager transactionManager = ( ( BaseRecordManager ) recman ).getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 200 );
 
         SerializableComparator<String> comparator = new SerializableComparator<String>(
             SchemaConstants.CSN_ORDERING_MATCH_MR_OID );

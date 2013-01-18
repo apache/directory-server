@@ -33,6 +33,7 @@ import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
+import jdbm.recman.TransactionManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
@@ -101,6 +102,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /** the entry cache */
     private Cache entryCache;
 
+
     /**
      * Creates a store based on JDBM B+Trees.
      */
@@ -154,7 +156,8 @@ public class JdbmPartition extends AbstractBTreePartition
             String path = partitionDir.getPath() + File.separator + "master";
 
             BaseRecordManager base = new BaseRecordManager( path );
-            base.disableTransactions();
+            TransactionManager transactionManager = base.getTransactionManager();
+            transactionManager.setMaximumTransactionsInLog( 200 );
 
             if ( cacheSize < 0 )
             {
@@ -261,11 +264,11 @@ public class JdbmPartition extends AbstractBTreePartition
                 }
             }
 
-            if( cacheService != null )
+            if ( cacheService != null )
             {
                 entryCache = cacheService.getCache( getId() );
             }
-            
+
             // We are done !
             initialized = true;
         }
@@ -483,12 +486,12 @@ public class JdbmPartition extends AbstractBTreePartition
         }
         finally
         {
-            if( entryCache != null )
+            if ( entryCache != null )
             {
                 entryCache.removeAll();
             }
         }
-        
+
         if ( errors.size() > 0 )
         {
             throw errors;
@@ -526,42 +529,42 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public void updateCache( OperationContext opCtx )
     {
-        if( entryCache == null )
+        if ( entryCache == null )
         {
             return;
         }
-        
+
         try
         {
-            if( opCtx instanceof ModifyOperationContext )
+            if ( opCtx instanceof ModifyOperationContext )
             {
                 // replace the entry
                 ModifyOperationContext modCtx = ( ModifyOperationContext ) opCtx;
                 Entry entry = modCtx.getAlteredEntry();
                 String id = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
-                
-                if( entry instanceof ClonedServerEntry )
+
+                if ( entry instanceof ClonedServerEntry )
                 {
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
-                
+
                 entryCache.replace( new Element( id, entry ) );
             }
-            else if( ( opCtx instanceof MoveOperationContext ) ||
+            else if ( ( opCtx instanceof MoveOperationContext ) ||
                 ( opCtx instanceof MoveAndRenameOperationContext ) ||
                 ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
                 entryCache.removeAll();
             }
-            else if( opCtx instanceof DeleteOperationContext )
+            else if ( opCtx instanceof DeleteOperationContext )
             {
                 // delete the entry
                 DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
                 entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             LOG.warn( "Failed to update entry cache", e );
         }
@@ -571,18 +574,18 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public Entry lookupCache( String id )
     {
-        if( entryCache == null )
+        if ( entryCache == null )
         {
             return null;
         }
 
         Element el = entryCache.get( id );
-        
-        if( el != null )
+
+        if ( el != null )
         {
             return ( Entry ) el.getValue();
         }
-        
+
         return null;
     }
 
@@ -590,17 +593,17 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public void addToCache( String id, Entry entry )
     {
-        if( entryCache == null )
+        if ( entryCache == null )
         {
             return;
         }
 
-        if( entry instanceof ClonedServerEntry )
+        if ( entry instanceof ClonedServerEntry )
         {
             entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
-        
+
         entryCache.put( new Element( id, entry ) );
     }
-    
+
 }

@@ -69,7 +69,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Creating NoDupsCursor {}", this );
         }
-        
+
         this.table = table;
     }
 
@@ -93,7 +93,6 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void beforeKey( K key ) throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeKey()" );
-        this.closeBrowser( browser );
         browser = table.getBTree().browse( key );
         clearValue();
     }
@@ -102,7 +101,6 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @SuppressWarnings("unchecked")
     public void afterKey( K key ) throws LdapException, CursorException, IOException
     {
-        this.closeBrowser( browser );
         browser = table.getBTree().browse( key );
 
         /*
@@ -170,7 +168,6 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void beforeFirst() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "beforeFirst()" );
-        this.closeBrowser( browser );
         browser = table.getBTree().browse();
         clearValue();
     }
@@ -182,7 +179,6 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void afterLast() throws LdapException, CursorException, IOException
     {
         checkNotClosed( "afterLast()" );
-        this.closeBrowser( browser );
         browser = table.getBTree().browse( null );
         clearValue();
     }
@@ -298,9 +294,8 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
         }
-        
+
         super.close();
-        closeBrowser( browser );
     }
 
 
@@ -314,17 +309,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing NoDupsCursor {}", this );
         }
-        
+
         super.close( cause );
-        closeBrowser( browser );
-    }
-
-
-    private void closeBrowser( TupleBrowser browser )
-    {
-        if ( browser != null )
-        {
-            browser.close();
-        }
     }
 }
