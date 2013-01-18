@@ -73,7 +73,7 @@
     
     <dependency>
       <groupId>org.apache.directory.jdbm</groupId>
-      <artifactId>apacheds-jdbm2</artifactId>
+      <artifactId>apacheds-jdbm1</artifactId>
       <type>bundle</type>
     </dependency>
     
