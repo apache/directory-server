@@ -1649,6 +1649,12 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
+    public ReplicationRequestHandler getReplicationReqHandler()
+    {
+        return replicationReqHandler;
+    }
+
+
     public void setReplConsumers( List<ReplicationConsumer> replConsumers )
     {
         this.replConsumers = replConsumers;

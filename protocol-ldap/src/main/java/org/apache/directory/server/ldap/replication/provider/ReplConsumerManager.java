@@ -173,9 +173,13 @@ public class ReplConsumerManager
             SchemaConstants.ADS_REPL_LAST_SENT_CSN, replica.getLastSentCsn(),
             SchemaConstants.ADS_REPL_SEARCH_SCOPE, replica.getSearchCriteria().getScope().getLdapUrlValue(),
             SchemaConstants.ADS_REPL_REFRESH_N_PERSIST, String.valueOf( replica.isRefreshNPersist() ),
-            SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter() );
+            SchemaConstants.ADS_REPL_SEARCH_FILTER, replica.getSearchFilter(),
+            SchemaConstants.ADS_REPL_LOG_MAX_IDLE, String.valueOf( replica.getMaxIdlePeriod() ),
+            SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT, String.valueOf( replica.getPurgeThresholdCount() ) );
 
         adminSession.add( entry );
+        
+        replica.setConsumerEntryDn( consumerDn );
         
         LOG.debug( "stored replication consumer entry {}", consumerDn );
     }
@@ -323,10 +327,18 @@ public class ReplConsumerManager
         searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         replica.setSearchCriteria( searchCriteria );
 
+        int maxIdlePeriod = Integer.parseInt( entry.get( SchemaConstants.ADS_REPL_LOG_MAX_IDLE ).getString() );
+        replica.setMaxIdlePeriod( maxIdlePeriod );
+        
+        int purgeThreshold = Integer.parseInt( entry.get( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT ).getString() );
+        replica.setPurgeThresholdCount( purgeThreshold );
+        
         // explicitly mark the replica as not-dirty, cause we just loaded it from 
         // the store, this prevents updating the replica info immediately after loading
         replica.setDirty( false );
 
+        replica.setConsumerEntryDn( entry.getDn() );
+        
         return replica;
     }
 }

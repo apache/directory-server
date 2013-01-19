@@ -29,11 +29,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,9 +50,11 @@ import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValu
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapURLEncodingException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
@@ -88,6 +90,8 @@ import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -128,7 +132,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /** The CSN AttributeType instance */
     private AttributeType CSN_AT;
 
-    private Map<Integer, ReplicaEventLog> replicaLogMap = new HashMap<Integer, ReplicaEventLog>();
+    private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<Integer, ReplicaEventLog>();
 
     private File syncReplData;
 
@@ -136,10 +140,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private ReplConsumerManager replicaUtil;
 
-    private ConsumerLogEntryDeleteListener cledListener;
+    private ConsumerLogEntryChangeListener cledListener;
 
     private ReplicaEventLogJanitor logJanitor;
 
+    private AttributeType REPL_LOG_MAX_IDLE_AT;
+    
+    private AttributeType REPL_LOG_PURGE_THRESHOLD_COUNT_AT;
 
     /**
      * Create a SyncReplRequestHandler empty instance 
@@ -177,6 +184,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             OBJECT_CLASS_AT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
+            REPL_LOG_MAX_IDLE_AT = dirService.getSchemaManager()
+                .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_MAX_IDLE );
+            
+            REPL_LOG_PURGE_THRESHOLD_COUNT_AT = dirService.getSchemaManager()
+                .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT );
+            
             // Get and create the replication directory if it does not exist
             syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
@@ -193,12 +206,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             loadReplicaInfo();
 
-            logJanitor = new ReplicaEventLogJanitor( replicaLogMap );
+            logJanitor = new ReplicaEventLogJanitor( dirService, replicaLogMap );
             logJanitor.start();
 
             registerPersistentSearches();
 
-            cledListener = new ConsumerLogEntryDeleteListener();
+            cledListener = new ConsumerLogEntryChangeListener();
             NotificationCriteria criteria = new NotificationCriteria();
             criteria.setBase( new Dn( dirService.getSchemaManager(), ServerDNConstants.REPL_CONSUMER_DN_STR ) );
             criteria.setEventMask( EventType.DELETE );
@@ -227,10 +240,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     public void stop()
     {
-        logJanitor.stopCleaning();
-
         EventService evtSrv = dirService.getEventService();
-
+        
+        evtSrv.removeListener( cledListener );
+        //first set the 'stop' flag
+        logJanitor.stopCleaning();
+        //then interrupt the janitor
+        logJanitor.interrupt();
+        
         for ( ReplicaEventLog log : replicaLogMap.values() )
         {
             try
@@ -245,8 +262,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 PROVIDER_LOG.error( "Failed to close the event log {}", log.getId(), e );
             }
         }
-
-        evtSrv.removeListener( cledListener );
 
         initialized = false;
     }
@@ -323,10 +338,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             LOG.error( "Failed to handle the syncrepl request", e );
             PROVIDER_LOG.error( "Failed to handle the syncrepl request", e );
 
-            LdapException le = new LdapException( e.getMessage(), e );
-            le.initCause( e );
-
-            throw le;
+            throw new LdapException( e.getMessage(), e );
         }
     }
 
@@ -920,6 +932,18 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     }
 
 
+    public ReplicaEventLogJanitor getLogJanitor()
+    {
+        return logJanitor;
+    }
+
+
+    public Map<Integer, ReplicaEventLog> getReplicaLogMap()
+    {
+        return replicaLogMap;
+    }
+
+
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
@@ -1143,50 +1167,83 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         return replDir.listFiles( filter );
     }
 
+    
     /**
-     * an event listener for handling deletions of replication event log entries present under ou=consumers,ou=system
+     * an event listener for handling deletions and updates of replication event log entries present under ou=consumers,ou=system
      */
-    private class ConsumerLogEntryDeleteListener extends DirectoryListenerAdapter
+    private class ConsumerLogEntryChangeListener extends DirectoryListenerAdapter
     {
+        
+        private ReplicaEventLog getEventLog( OperationContext opCtx )
+        {
+            Dn consumerLogDn = opCtx.getDn();
+            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getValue().getString();
+
+            for ( ReplicaEventLog log : replicaLogMap.values() )
+            {
+                if ( name.equalsIgnoreCase( log.getName() ) )
+                {
+                    return log;
+                }
+            } // end of for
+            
+            return null;
+        }
+        
         @Override
         public void entryDeleted( DeleteOperationContext deleteContext )
         {
-            Dn consumerLogDn = deleteContext.getDn();
-            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getValue().getString();
             // lock this listener instance
             synchronized ( this )
             {
-                for ( ReplicaEventLog log : replicaLogMap.values() )
+                ReplicaEventLog log = getEventLog( deleteContext );
+                if( log != null )
                 {
-                    if ( name.equalsIgnoreCase( log.getName() ) )
-                    {
-                        synchronized ( log )
-                        {
-                            dirService.getEventService().removeListener( log.getPersistentListener() );
-                            LOG.debug( "removed the persistent listener for replication event log {}", consumerLogDn );
-
-                            replicaLogMap.remove( log.getId() );
-                            try
-                            {
-                                // get the correct name, just incase cause we used equalsIgnoreCase
-                                name = log.getName();
-                                log.stop();
-
-                                new File( dirService.getInstanceLayout().getReplDirectory(), name ).delete();
-                                LOG.info( "successfully removed replication event log {}", consumerLogDn );
-                            }
-                            catch ( Exception e )
-                            {
-                                LOG.warn(
-                                    "Closing the replication event log of the entry {} was not successful, will be removed anyway",
-                                    consumerLogDn, e );
-                            }
-                        }
-
-                        break;
-                    }
-                } // end of for
+                    logJanitor.removeEventLog( log );
+                }
             } // end of synchronized block
         } // end of delete method
-    }
+
+        
+        @Override
+        public void entryModified( ModifyOperationContext modifyContext )
+        {
+            List<Modification> mods = modifyContext.getModItems();
+            
+            // lock this listener instance
+            synchronized ( this )
+            {
+                for( Modification m : mods )
+                {
+                    try
+                    {
+                        Attribute at = m.getAttribute();
+                        
+                        if( at.isInstanceOf( REPL_LOG_MAX_IDLE_AT ) )
+                        {
+                            ReplicaEventLog log = getEventLog( modifyContext );
+                            if( log != null )
+                            {
+                                int maxIdlePeriod = Integer.parseInt( m.getAttribute().getString() );
+                                log.setMaxIdlePeriod( maxIdlePeriod );
+                            }
+                        }
+                        else if( at.isInstanceOf( REPL_LOG_PURGE_THRESHOLD_COUNT_AT ) )
+                        {
+                            ReplicaEventLog log = getEventLog( modifyContext );
+                            if( log != null )
+                            {
+                                int purgeThreshold = Integer.parseInt( m.getAttribute().getString() );
+                                log.setPurgeThresholdCount( purgeThreshold );
+                            }
+                        }
+                    }
+                    catch( LdapInvalidAttributeValueException e )
+                    {
+                        LOG.warn( "Invalid attribute type", e );
+                    }
+                }
+            }
+        }
+    } // end of listener class
 }
