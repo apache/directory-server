@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -62,7 +64,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
     public void testGetRootDse() throws Exception
     {
         Entry rootDse = connection.getRootDse();
-        
+
         assertNotNull( rootDse );
 
         assertEquals( 1, rootDse.size() );
@@ -98,7 +100,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 9, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
         assertTrue( rootDse.containsAttribute( "namingContexts" ) );
@@ -123,7 +125,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "objectClass", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -143,7 +145,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "*", "vendorName", "vendorVersion" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 3, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "vendorName" ) );
@@ -163,7 +165,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+", "Objectclass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -190,7 +192,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "+", "*" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
         assertTrue( rootDse.containsAttribute( "entryUUID" ) );
@@ -216,7 +218,7 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "1.1" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 0, rootDse.size() );
     }
 
@@ -232,8 +234,44 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         Entry rootDse = connection.getRootDse( "1.1", "objectClass" );
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 1, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
+    }
+
+
+    /**
+     * Check that we cannot access the RootDSE with an anonymous user and default access control
+     * @throws Exception
+     */
+    @Test
+    public void testGetRootDSEAnonymousNoAccessControl() throws Exception
+    {
+        DirectoryService service = getService();
+        service.setAccessControlEnabled( false );
+        LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
+        connection.bind( "", "" );
+
+        Entry rootDse = connection.getRootDse();
+
+        assertNotNull( rootDse );
+    }
+
+
+    /**
+     * Check that we can access the RootDSE with an anonymous user and access control set (but no ACI)
+     * @throws Exception
+     */
+    @Test
+    public void testGetRootDSEAnonymousWithAccessControl() throws Exception
+    {
+        DirectoryService service = getService();
+        service.setAccessControlEnabled( true );
+        LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
+        connection.bind( "", "" );
+
+        Entry rootDse = connection.getRootDse();
+
+        assertNotNull( rootDse );
     }
 }
