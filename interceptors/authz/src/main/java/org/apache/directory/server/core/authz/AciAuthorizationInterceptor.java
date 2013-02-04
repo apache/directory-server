@@ -376,7 +376,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             Dn parentDn = dn.getParent();
             CoreSession session = opContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
+                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
@@ -1442,8 +1443,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
             return filter( searchContext, normName, entry );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
