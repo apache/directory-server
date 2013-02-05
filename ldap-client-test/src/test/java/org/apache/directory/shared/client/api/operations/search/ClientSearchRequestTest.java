@@ -24,6 +24,7 @@ package org.apache.directory.shared.client.api.operations.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -95,7 +96,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
     
     
@@ -141,13 +142,13 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         {
             Response response = cursor.get();
             assertNotNull( response );
-            
+    
             if ( response instanceof SearchResultEntry )
             {
-                Entry entry = ((SearchResultEntry)response).getEntry();
+                Entry entry = ( ( SearchResultEntry ) response ).getEntry();
                 assertNotNull( entry );
             }
-            
+    
             count++;
         }
     
@@ -291,31 +292,68 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchUTF8() throws Exception
     {
-        EntryCursor cursor = connection.search( "ou=users,ou=system", "(sn=Emmanuel L\u00E9charny)", SearchScope.ONELEVEL, "*", "+" );
-
-        assertTrue(cursor.next() );
-        
+        EntryCursor cursor = connection.search( "ou=users,ou=system", "(sn=Emmanuel L\u00E9charny)", SearchScope.ONELEVEL,
+            "*", "+" );
+    
+        assertTrue( cursor.next() );
+    
         Entry entry = cursor.get();
         assertNotNull( entry );
         assertTrue( entry.contains( "cn", "elecharny" ) );
         assertTrue( entry.contains( "sn", "Emmanuel L\u00E9charny" ) );
-        
+    
         cursor.close();
     }
     
-
     
     @Test
     public void testSearchBinary() throws Exception
     {
         connection.loadSchema();
-        EntryCursor cursor = connection.search( "ou=system", "(publicKey=\\30\\5C\\30\\0D\\06\\09\\2A\\86\\48\\86\\F7\\0D\\01\\01\\01\\05\\00\\03\\4B\\00\\30\\48\\02\\41\\00\\A6\\C7\\9C\\B1\\6C\\E4\\DD\\8F\\1E\\4D\\20\\93\\22\\3F\\83\\75\\DE\\21\\D8\\F1\\9D\\63\\80\\5B\\94\\55\\6A\\9E\\33\\59\\9B\\8D\\63\\88\\0D\\18\\7D\\4C\\85\\F1\\CF\\54\\77\\32\\E9\\61\\0C\\A2\\8F\\B3\\6B\\15\\34\\5E\\1F\\88\\BF\\A0\\73\\AC\\86\\BB\\D0\\85\\02\\03\\01\\00\\01)", SearchScope.SUBTREE, "publicKey" );
-        
+        EntryCursor cursor = connection
+            .search(
+                "ou=system",
+                "(publicKey=\\30\\5C\\30\\0D\\06\\09\\2A\\86\\48\\86\\F7\\0D\\01\\01\\01\\05\\00\\03\\4B\\00\\30\\48\\02\\41\\00\\A6\\C7\\9C\\B1\\6C\\E4\\DD\\8F\\1E\\4D\\20\\93\\22\\3F\\83\\75\\DE\\21\\D8\\F1\\9D\\63\\80\\5B\\94\\55\\6A\\9E\\33\\59\\9B\\8D\\63\\88\\0D\\18\\7D\\4C\\85\\F1\\CF\\54\\77\\32\\E9\\61\\0C\\A2\\8F\\B3\\6B\\15\\34\\5E\\1F\\88\\BF\\A0\\73\\AC\\86\\BB\\D0\\85\\02\\03\\01\\00\\01)",
+                SearchScope.SUBTREE, "publicKey" );
+    
         assertTrue( cursor.next() );
-        
+    
         Entry entry = cursor.get();
         assertNotNull( entry.get( "publicKey" ) );
-        
+    
+        cursor.close();
+    }
+    
+    
+    @Test
+    public void testSubDn() throws Exception
+    {
+        connection.loadSchema();
+        EntryCursor cursor = connection.search( "ou=system", "(cn=user1)", SearchScope.SUBTREE, "publicKey" );
+    
+        assertTrue( cursor.next() );
+    
+        Entry entry = cursor.get();
+        assertEquals( "cn=user1,ou=users,ou=system", entry.getDn().getName() );
+    
+        cursor.close();
+    
+        SearchRequest req = new SearchRequestImpl();
+        req.setScope( SearchScope.SUBTREE );
+        req.addAttributes( "*" );
+        req.setTimeLimit( 0 );
+        req.setBase( new Dn( "ou=system" ) );
+        req.setFilter( "(cn=user1)" );
+    
+        SearchCursor searchCursor = connection.search( req );
+    
+        assertTrue( searchCursor.next() );
+    
+        Response response = searchCursor.get();
+    
+        Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
+        assertEquals( "cn=user1,ou=users,ou=system", resultEntry.getDn().getName() );
+    
         cursor.close();
     }
 }
