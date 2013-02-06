@@ -19,9 +19,7 @@
  */
 package org.apache.directory.server.config.beans;
 
-import org.apache.directory.shared.ldap.model.name.Dn;
-
-
+import org.apache.directory.api.ldap.model.name.Dn;
 
 
 /**
