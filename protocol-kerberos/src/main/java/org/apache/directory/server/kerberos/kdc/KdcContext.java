@@ -32,18 +32,30 @@ import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 
 
 /**
+ * The context used to store the collected and computed data while processing a 
+ * kerberos message.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KdcContext
+public abstract class KdcContext
 {
     private static final long serialVersionUID = 6490030984626825108L;
 
+    /** The KDC server configuration */
     private KerberosConfig config;
     private PrincipalStore store;
+
+    /** The request being processed */
     private KdcReq request;
+
+    /** The kerberos response */
     private KerberosMessage reply;
+
+    /** The client IP address */
     private InetAddress clientAddress;
     private CipherTextHandler cipherTextHandler;
+
+    /** The encryption type */
     private EncryptionType encryptionType;
 
     /** the replay cache */
@@ -176,6 +188,26 @@ public class KdcContext
     public void setEncryptionType( EncryptionType encryptionType )
     {
         this.encryptionType = encryptionType;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Req : " ).append( request.toString( "    " ) );
+        sb.append( "Client address : " ).append( clientAddress );
+
+        if ( encryptionType != null )
+        {
+            sb.append( '\n' );
+            sb.append( "EncryptionType : " ).append( encryptionType );
+        }
+
+        return sb.toString();
     }
     
     

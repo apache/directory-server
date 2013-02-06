@@ -35,12 +35,19 @@ public class AuthenticationContext extends KdcContext
 {
     private static final long serialVersionUID = -2249170923251265359L;
 
+    /** The Kerberos Ticket associated to this context */
     private Ticket ticket;
+
+    /** The client key */
     private EncryptionKey clientKey;
 
+    /** The client entry */
     private PrincipalStoreEntry clientEntry;
+
+    /** The server entry */
     private PrincipalStoreEntry serverEntry;
 
+    /** Tell if we have had a pre-authentication */
     private boolean isPreAuthenticated;
 
 
@@ -149,5 +156,21 @@ public class AuthenticationContext extends KdcContext
     public void setPreAuthenticated( boolean isPreAuthenticated )
     {
         this.isPreAuthenticated = isPreAuthenticated;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "AuthenticationContext \n" );
+        sb.append( super.toString() ).append( '\n' );
+        sb.append( "PreAuth : " ).append( isPreAuthenticated ).append( "\n" );
+        sb.append( "Client Entry : " ).append( clientEntry ).append( "\n" );
+
+        return sb.toString();
     }
 }

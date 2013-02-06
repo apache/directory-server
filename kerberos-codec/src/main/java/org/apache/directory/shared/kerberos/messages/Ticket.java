@@ -424,18 +424,27 @@ public class Ticket extends KerberosMessage
 
 
     /**
+     * Pretty print the instance
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append( "Ticket :\n" );
+        sb.append( tabs ).append( "  tkt-vno : " ).append( getProtocolVersionNumber() ).append( "\n" );
+        sb.append( tabs ).append( "  realm : " ).append( realm ).append( "\n" );
+        sb.append( tabs ).append( "  sname : " ).append( sName ).append( "\n" );
+        sb.append( tabs ).append( "  enc-part : " ).append( encPart ).append( "\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append( "Ticket :\n" );
-        sb.append( "  tkt-vno : " ).append( getProtocolVersionNumber() ).append( "\n" );
-        sb.append( "  realm : " ).append( realm ).append( "\n" );
-        sb.append( "  sname : " ).append( sName ).append( "\n" );
-        sb.append( "  enc-part : " ).append( encPart ).append( "\n" );
-
-        return sb.toString();
+        return toString( "" );
     }
 }

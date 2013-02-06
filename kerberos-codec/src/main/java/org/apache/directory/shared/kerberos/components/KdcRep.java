@@ -423,11 +423,15 @@ public class KdcRep extends KerberosMessage
 
 
     /**
-     * @see Object#toString()
+     * Pretty print the instance
      */
-    public String toString()
+    public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append(
+            "\n>-------------------------------------------------------------------------------\n" );
+        sb.append( tabs ).append( "KdcRep : " );
 
         if ( getMessageType() == KerberosMessageType.AS_REP )
         {
@@ -442,20 +446,31 @@ public class KdcRep extends KerberosMessage
             sb.append( "Unknown" ).append( '\n' );
         }
 
-        sb.append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
+        sb.append( tabs ).append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
 
-        sb.append( "msg-type : " );
+        sb.append( tabs ).append( "msg-type : " ).append( getMessageType() ).append( '\n' );
 
         for ( PaData paDataElem : paData )
         {
-            sb.append( "padata : " ).append( paDataElem ).append( '\n' );
+            sb.append( tabs ).append( "padata : " ).append( paDataElem.toString( tabs + "    " ) ).append( '\n' );
         }
 
-        sb.append( "crealm : " ).append( crealm ).append( '\n' );
-        sb.append( "cname : " ).append( cname ).append( '\n' );
-        sb.append( "ticket : " ).append( ticket ).append( '\n' );
-        sb.append( "enc-part : " ).append( encPart ).append( '\n' );
+        sb.append( tabs ).append( "crealm : " ).append( crealm ).append( '\n' );
+        sb.append( tabs ).append( "cname : " ).append( cname ).append( '\n' );
+        sb.append( ticket.toString( tabs ) );
+        sb.append( encPart.toString( tabs ) );
+        sb.append( tabs ).append(
+            "\n-------------------------------------------------------------------------------<\n" );
 
         return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

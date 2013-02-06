@@ -755,42 +755,44 @@ public class KdcReqBody extends AbstractAsn1Object
 
 
     /**
-     * @see Object#toString()
+     * Pretty print the instance
      */
-    @Override
-    public String toString()
+    public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "KDCOptions : " ).append( kdcOptions ).append( '\n' );
+        if ( ( kdcOptions != null ) && ( kdcOptions.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "KDCOptions : " ).append( kdcOptions ).append( '\n' );
+        }
 
         if ( cName != null )
         {
-            sb.append( "cname : " ).append( cName ).append( '\n' );
+            sb.append( tabs ).append( "cname : " ).append( cName ).append( '\n' );
         }
 
-        sb.append( "realm : " ).append( realm ).append( '\n' );
+        sb.append( tabs ).append( "realm : " ).append( realm ).append( '\n' );
 
         if ( sName != null )
         {
-            sb.append( "sname : " ).append( sName ).append( '\n' );
+            sb.append( tabs ).append( "sname : " ).append( sName ).append( '\n' );
         }
 
         if ( from != null )
         {
-            sb.append( "from : " ).append( from ).append( '\n' );
+            sb.append( tabs ).append( "from : " ).append( from ).append( '\n' );
         }
 
-        sb.append( "till : " ).append( till ).append( '\n' );
+        sb.append( tabs ).append( "till : " ).append( till ).append( '\n' );
 
         if ( rtime != null )
         {
-            sb.append( "rtime : " ).append( rtime ).append( '\n' );
+            sb.append( tabs ).append( "rtime : " ).append( rtime ).append( '\n' );
         }
 
-        sb.append( "nonce : " ).append( nonce ).append( '\n' );
+        sb.append( tabs ).append( "nonce : " ).append( nonce ).append( '\n' );
 
-        sb.append( "etype : " );
+        sb.append( tabs ).append( "etype : " );
         boolean isFirst = true;
 
         for ( EncryptionType encryptionType : eType )
@@ -807,11 +809,10 @@ public class KdcReqBody extends AbstractAsn1Object
             sb.append( encryptionType );
         }
 
-        sb.append( '\n' );
-
         if ( addresses != null )
         {
-            sb.append( "addresses : " );
+            sb.append( '\n' );
+            sb.append( tabs ).append( "addresses : " );
             isFirst = true;
 
             for ( HostAddress hostAddress : addresses.getAddresses() )
@@ -827,18 +828,18 @@ public class KdcReqBody extends AbstractAsn1Object
 
                 sb.append( hostAddress );
             }
-
-            sb.append( '\n' );
         }
 
         if ( encAuthorizationData != null )
         {
-            sb.append( "enc-authorization-data" ).append( encAuthorizationData ).append( '\n' );
+            sb.append( '\n' );
+            sb.append( tabs ).append( "enc-authorization-data" ).append( encAuthorizationData );
         }
 
         if ( additionalTickets.size() != 0 )
         {
-            sb.append( "Tickets : " );
+            sb.append( '\n' );
+            sb.append( tabs ).append( "Tickets : " );
             isFirst = true;
 
             for ( Ticket ticket : additionalTickets )
@@ -846,18 +847,22 @@ public class KdcReqBody extends AbstractAsn1Object
                 if ( isFirst )
                 {
                     isFirst = false;
-                }
-                else
-                {
-                    sb.append( " " );
+                    sb.append( '\n' );
                 }
 
-                sb.append( ticket );
+                sb.append( ticket.toString( tabs + "    " ) );
             }
-
-            sb.append( '\n' );
         }
 
         return sb.toString();
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return toString( "" );
     }
 }

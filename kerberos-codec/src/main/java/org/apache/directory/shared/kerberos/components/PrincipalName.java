@@ -457,13 +457,13 @@ public class PrincipalName extends AbstractAsn1Object
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "PrincipalName : {\n" );
+        sb.append( "{ " );
 
-        sb.append( "    name-type: " ).append( nameType.name() ).append( '\n' );
+        sb.append( "name-type: " ).append( nameType.name() );
 
         if ( ( nameString != null ) && ( nameString.size() != 0 ) )
         {
-            sb.append( "    name-string : <" );
+            sb.append( ", name-string : <" );
             boolean isFirst = true;
 
             for ( String name : nameString )
@@ -480,11 +480,11 @@ public class PrincipalName extends AbstractAsn1Object
                 sb.append( '\'' ).append( name ).append( '\'' );
             }
 
-            sb.append( ">\n}" );
+            sb.append( "> }" );
         }
         else
         {
-            sb.append( "    no name-string\n}" );
+            sb.append( " no name-string }" );
         }
 
         return sb.toString();

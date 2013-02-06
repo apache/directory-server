@@ -59,9 +59,10 @@ public class DirectoryPrincipalStore implements PrincipalStore
     /** The directory service backing store for this PrincipalStore. */
     private final DirectoryService directoryService;
     private final Dn searchBaseDn;
-    
+
     private CoreSession adminSession;
-    
+
+
     /**
      * Creates a new instance of DirectoryPrincipalStore.
      *
@@ -78,62 +79,70 @@ public class DirectoryPrincipalStore implements PrincipalStore
     /**
      * {@inheritDoc}
      */
-    public void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword, boolean isInitialTicket ) throws ChangePasswordException
+    public void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword,
+        boolean isInitialTicket ) throws ChangePasswordException
     {
         try
         {
             Entry ebyPrincipalEntry = null;
-            
+
             ebyPrincipalEntry = StoreUtils.findPrincipalEntry( adminSession, searchBaseDn, byPrincipal.getName() );
-            
-            if( ebyPrincipalEntry == null )
+
+            if ( ebyPrincipalEntry == null )
             {
-                throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR, ( "No such principal " + byPrincipal ).getBytes() );
+                throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR,
+                    ( "No such principal " + byPrincipal ).getBytes() );
             }
-            
+
             SchemaManager schemaManager = directoryService.getSchemaManager();
-            
+
             CoreSession bySession = null;
-         
-            boolean isAdmin = ebyPrincipalEntry.getDn().getNormName().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            
+
+            boolean isAdmin = ebyPrincipalEntry.getDn().getNormName()
+                .equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+
             if ( !isInitialTicket && !isAdmin )
             {
                 throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_INITIAL_FLAG_NEEDED );
             }
 
             // if admin assign the admin session
-            if( isAdmin )
+            if ( isAdmin )
             {
                 bySession = adminSession;
             }
             // otherwise create a new session for the user with 'byPrincipal' who is trying to change the password for 'forPrincipal' 
             else
             {
-                LdapPrincipal byLdapPrincipal = new LdapPrincipal( schemaManager, ebyPrincipalEntry.getDn(), AuthenticationLevel.SIMPLE );
-                
+                LdapPrincipal byLdapPrincipal = new LdapPrincipal( schemaManager, ebyPrincipalEntry.getDn(),
+                    AuthenticationLevel.SIMPLE );
+
                 bySession = new DefaultCoreSession( byLdapPrincipal, directoryService );
             }
-            
+
             Attribute newPasswordAttribute = new DefaultAttribute(
-                schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ), Strings.getBytesUtf8(newPassword) );
-            Modification passwordMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, newPasswordAttribute );
-            
-            Attribute principalAttribute = new DefaultAttribute( 
-                schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ), forPrincipal.getName() );
-            Modification principalMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, principalAttribute );
-            
+                schemaManager.lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT ),
+                Strings.getBytesUtf8( newPassword ) );
+            Modification passwordMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                newPasswordAttribute );
+
+            Attribute principalAttribute = new DefaultAttribute(
+                schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
+                forPrincipal.getName() );
+            Modification principalMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                principalAttribute );
+
             Entry forPrincipalEntry = StoreUtils.findPrincipalEntry( bySession, searchBaseDn, forPrincipal.getName() );
-            
+
             adminSession.modify( forPrincipalEntry.getDn(), passwordMod, principalMod );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
-            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_ACCESSDENIED, e );            
+            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_ACCESSDENIED, e );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
-            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR, e );            
+            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR, e );
         }
     }
 

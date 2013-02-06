@@ -55,8 +55,9 @@ import org.slf4j.LoggerFactory;
  */
 public class KerberosProtocolHandler implements IoHandler
 {
-    /** The logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( KerberosProtocolHandler.class );
+    /** The loggers for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( KerberosProtocolHandler.class );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
 
     /** The KDC server */
     private KdcServer kdcServer;
@@ -80,61 +81,106 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionCreated( IoSession session ) throws Exception
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
+            LOG.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionOpened( IoSession session )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} OPENED", session.getRemoteAddress() );
+            LOG.debug( "{} OPENED", session.getRemoteAddress() );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} OPENED", session.getRemoteAddress() );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionClosed( IoSession session )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} CLOSED", session.getRemoteAddress() );
+            LOG.debug( "{} CLOSED", session.getRemoteAddress() );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} CLOSED", session.getRemoteAddress() );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
+            LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
         }
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        log.error( session.getRemoteAddress() + " EXCEPTION", cause );
+        LOG.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
+        LOG_KRB.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
         session.close( true );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void messageReceived( IoSession session, Object message )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
+            LOG.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
 
         if ( !( message instanceof KdcReq ) )
         {
-            log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
+            LOG.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
+            LOG_KRB.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
 
             session.write( getErrorMessage( kdcServer.getConfig().getServicePrincipal(), new KerberosException(
                 ErrorType.KRB_AP_ERR_BADDIRECTION ) ) );
@@ -159,6 +205,8 @@ public class KerberosProtocolHandler implements IoHandler
 
                     AuthenticationService.execute( authContext );
 
+                    LOG_KRB.debug( "AuthenticationContext for AS_REQ : \n{}", authContext );
+
                     session.write( authContext.getReply() );
                     break;
 
@@ -172,6 +220,8 @@ public class KerberosProtocolHandler implements IoHandler
                     session.setAttribute( CONTEXT_KEY, tgsContext );
 
                     TicketGrantingService.execute( tgsContext );
+
+                    LOG_KRB.debug( "TGSContext for TGS_REQ : \n {}", tgsContext );
 
                     session.write( tgsContext.getReply() );
                     break;
@@ -188,27 +238,19 @@ public class KerberosProtocolHandler implements IoHandler
         {
             String messageText = ke.getLocalizedMessage() + " (" + ke.getErrorCode() + ")";
 
-            if ( log.isDebugEnabled() )
-            {
-                log.warn( messageText, ke );
-            }
-            else
-            {
-                log.warn( messageText );
-            }
+            LOG.warn( messageText, ke );
+            LOG_KRB.warn( messageText, ke );
 
             KrbError error = getErrorMessage( kdcServer.getConfig().getServicePrincipal(), ke );
 
-            if ( log.isDebugEnabled() )
-            {
-                logErrorMessage( error );
-            }
+            logErrorMessage( error );
 
             session.write( error );
         }
         catch ( Exception e )
         {
-            log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
+            LOG.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             session.write( getErrorMessage( kdcServer.getConfig().getServicePrincipal(), new KerberosException(
                 ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
@@ -216,15 +258,30 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void messageSent( IoSession session, Object message )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
+            LOG.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
+        }
+
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
     }
 
 
+    /**
+     * Construct an error message given some conditions
+     * 
+     * @param principal The Kerberos Principal
+     * @param exception The Exception we've got
+     * @return The resulting KrbError
+     */
     protected KrbError getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
         KrbError krbError = new KrbError();
@@ -243,11 +300,16 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
+    /**
+     * Creates an explicit error message
+     * The error we've get 
+     * @param error
+     */
     protected void logErrorMessage( KrbError error )
     {
         try
         {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append( "Responding to request with error:" );
             sb.append( "\n\t" + "explanatory text:      " + error.getEText() );
@@ -257,12 +319,16 @@ public class KerberosProtocolHandler implements IoHandler
             sb.append( "\n\t" + "serverPrincipal:       " + error.getSName() ).append( "@" ).append( error.getRealm() );
             sb.append( "\n\t" + "server time:           " + error.getSTime() );
 
-            log.debug( sb.toString() );
+            String message = sb.toString();
+
+            LOG.debug( message );
+            LOG_KRB.debug( message );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            log.error( I18n.err( I18n.ERR_155 ), e );
+            LOG.error( I18n.err( I18n.ERR_155 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
 }

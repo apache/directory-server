@@ -552,7 +552,7 @@ public class KrbError extends KerberosMessage
                 buffer.put( TLV.getBytes( cTimeLength ) );
 
                 // The value
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( cTime.getBytes() );
             }
@@ -571,7 +571,7 @@ public class KrbError extends KerberosMessage
             buffer.put( TLV.getBytes( sTimeLength ) );
 
             // The value
-            buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( sTime.getBytes() );
 
@@ -662,7 +662,7 @@ public class KrbError extends KerberosMessage
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( "KRB-ERROR : {\n" );
+        sb.append( "\nKRB-ERROR : {\n" );
         sb.append( "    pvno: " ).append( getProtocolVersionNumber() ).append( '\n' );
         sb.append( "    msgType: " ).append( getMessageType() ).append( '\n' );
 

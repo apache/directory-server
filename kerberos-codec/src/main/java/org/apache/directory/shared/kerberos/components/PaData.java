@@ -261,15 +261,13 @@ public class PaData extends AbstractAsn1Object
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "PreAuthenticationData : {\n" );
+        sb.append( tabs ).append( "PreAuthenticationData : \n" );
         sb.append( tabs ).append( "    padata-type: " ).append( paDataType ).append( '\n' );
 
         if ( paDataValue != null )
         {
             sb.append( tabs + "    padata-value:" ).append( Strings.dumpBytes( paDataValue ) ).append( '\n' );
         }
-
-        sb.append( tabs + "}\n" );
 
         return sb.toString();
     }

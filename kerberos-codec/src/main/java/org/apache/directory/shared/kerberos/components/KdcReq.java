@@ -264,36 +264,50 @@ public abstract class KdcReq extends KerberosMessage
 
 
     /**
+     * Pretty print the instance
+     */
+    public String toString( String tabs )
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( tabs ).append(
+            "\n>-------------------------------------------------------------------------------\n" );
+        if ( getMessageType() == KerberosMessageType.AS_REQ )
+        {
+            sb.append( tabs ).append( "AS-REQ" ).append( '\n' );
+        }
+        else if ( getMessageType() == KerberosMessageType.TGS_REQ )
+        {
+            sb.append( tabs ).append( "TGS-REQ" ).append( '\n' );
+        }
+        else
+        {
+            sb.append( tabs ).append( "Unknown" ).append( '\n' );
+        }
+
+        sb.append( tabs ).append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
+
+        sb.append( tabs ).append( "msg-type : " ).append( getMessageType() ).append( "\n" );
+
+        for ( PaData paDataElem : paData )
+        {
+            sb.append( tabs ).append( "padata :\n" );
+            sb.append( paDataElem.toString( tabs + "    " ) ).append( '\n' );
+        }
+
+        sb.append( tabs ).append( "kdc-req-body : \n" );
+        sb.append( kdcReqBody.toString( tabs + "    " ) ).append( '\n' );
+        sb.append( tabs ).append( "\n-------------------------------------------------------------------------------<\n" );
+
+        return sb.toString();
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-
-        if ( getMessageType() == KerberosMessageType.AS_REQ )
-        {
-            sb.append( "AS-REQ" ).append( '\n' );
-        }
-        else if ( getMessageType() == KerberosMessageType.TGS_REQ )
-        {
-            sb.append( "TGS-REQ" ).append( '\n' );
-        }
-        else
-        {
-            sb.append( "Unknown" ).append( '\n' );
-        }
-
-        sb.append( "pvno : " ).append( getProtocolVersionNumber() ).append( '\n' );
-
-        sb.append( "msg-type : " );
-
-        for ( PaData paDataElem : paData )
-        {
-            sb.append( "padata : " ).append( paDataElem ).append( '\n' );
-        }
-
-        sb.append( "kdc-req-body : " ).append( kdcReqBody ).append( '\n' );
-
-        return sb.toString();
+        return toString( "" );
     }
 }
