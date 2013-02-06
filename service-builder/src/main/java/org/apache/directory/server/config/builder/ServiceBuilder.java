@@ -49,6 +49,7 @@ import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
 import org.apache.directory.server.config.beans.AuthenticatorImplBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
+import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.DelegatingAuthenticatorBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
@@ -91,6 +92,9 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmRdnIndex;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
+import org.apache.directory.server.kerberos.ChangePasswordConfig;
+import org.apache.directory.server.kerberos.KerberosConfig;
+import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
@@ -652,74 +656,88 @@ public class ServiceBuilder
      * @return Instance of KdcServer
      * @throws org.apache.directory.api.ldap.model.exception.LdapException
      */
-    public static KdcServer createKdcServer( KdcServerBean kdcServerBean, DirectoryService directoryService )
-        throws LdapException
+    public static KdcServer createKdcServer( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService ) throws LdapException
     {
+        KdcServerBean kdcServerBean = directoryServiceBean.getKdcServerBean();
+        
         // Fist, do nothing if the KdcServer is disabled
         if ( ( kdcServerBean == null ) || kdcServerBean.isDisabled() )
         {
             return null;
         }
 
-        KdcServer kdcServer = new KdcServer();
+        KerberosConfig kdcConfig = new KerberosConfig();
+        
+        // AllowableClockSkew
+        kdcConfig.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
+        
+        // BodyChecksumVerified
+        kdcConfig.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
+        
+        // EmptyAddressesAllowed
+        kdcConfig.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
+        
+        // EncryptionType
+        EncryptionType[] encryptionTypes = createEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
+        kdcConfig.setEncryptionTypes( encryptionTypes );
+        
+        // ForwardableAllowed
+        kdcConfig.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
+        
+        // KdcPrincipal
+        kdcConfig.setServicePrincipal( "krbtgt/" + kdcServerBean.getKrbPrimaryRealm() + "@" + kdcServerBean.getKrbPrimaryRealm() );
+        
+        // MaximumRenewableLifetime
+        kdcConfig.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
+        
+        // MaximumTicketLifetime
+        kdcConfig.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
+        
+        // PaEncTimestampRequired
+        kdcConfig.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
+        
+        // PostdatedAllowed
+        kdcConfig.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
+        
+        // PrimaryRealm
+        kdcConfig.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
+        
+        // ProxiableAllowed
+        kdcConfig.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
+
+        // RenewableAllowed
+        kdcConfig.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
+        
+        // searchBaseDn
+        kdcConfig.setSearchBaseDn( kdcServerBean.getSearchBaseDn().getName() );
+        
+        KdcServer kdcServer = new KdcServer( kdcConfig );
 
         kdcServer.setDirectoryService( directoryService );
         kdcServer.setEnabled( true );
 
-        kdcServer.setDirectoryService( directoryService );
-
         // The ID
         kdcServer.setServiceId( kdcServerBean.getServerId() );
-
-        // AllowableClockSkew
-        kdcServer.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
-
-        // BodyChecksumVerified
-        kdcServer.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
-
-        // CatalogBased
-        //kdcServer.setCatelogBased( kdcServerBean.is );
-
-        // EmptyAddressesAllowed
-        kdcServer.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
-
-        // EncryptionType
-        EncryptionType[] encryptionTypes = createEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
-        kdcServer.setEncryptionTypes( encryptionTypes );
-
-        // ForwardableAllowed
-        kdcServer.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
-
-        // KdcPrincipal
-        kdcServer.setKdcPrincipal( kdcServerBean.getKrbKdcPrincipal().toString() );
-
-        // MaximumRenewableLifetime
-        kdcServer.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
-
-        // MaximumTicketLifetime
-        kdcServer.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
-
-        // PaEncTimestampRequired
-        kdcServer.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
-
-        // PostdatedAllowed
-        kdcServer.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
-
-        // PrimaryRealm
-        kdcServer.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
-
-        // ProxiableAllowed
-        kdcServer.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
-
-        // RenewableAllowed
-        kdcServer.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
-
-        // searchBaseDn
-        kdcServer.setSearchBaseDn( kdcServerBean.getSearchBaseDn().getName() );
 
         // The transports
         Transport[] transports = createTransports( kdcServerBean.getTransports() );
         kdcServer.setTransports( transports );
+
+        ChangePasswordServerBean changePasswordServerBean = directoryServiceBean.getChangePasswordServerBean();
+        
+        // Fist, do nothing if the ChangePasswordServer is disabled
+        if ( ( changePasswordServerBean != null ) && !changePasswordServerBean.isDisabled() )
+        {
+            ChangePasswordServer changePasswordServer = new ChangePasswordServer( new ChangePasswordConfig( kdcConfig ) );
+            changePasswordServer.setEnabled( true );
+            changePasswordServer.setDirectoryService( directoryService );
+            
+            // Transports
+            Transport[] chngPwdTransports = createTransports( changePasswordServerBean.getTransports() );
+            changePasswordServer.setTransports( chngPwdTransports );
+            
+            kdcServer.setChangePwdServer( changePasswordServer );
+        }
 
         return kdcServer;
     }

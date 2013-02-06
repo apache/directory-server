@@ -24,14 +24,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
@@ -64,7 +63,8 @@ import org.junit.Test;
  */
 public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServiceTest
 {
-    private KdcServer config;
+    private KerberosConfig config;
+    private KdcServer kdcServer;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private KrbDummySession session;
@@ -76,9 +76,10 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     @Before
     public void setUp()
     {
-        config = new KdcServer();
+        kdcServer = new KdcServer();
+        config = kdcServer.getConfig();
         store = new MapPrincipalStoreImpl();
-        handler = new KerberosProtocolHandler( config, store );
+        handler = new KerberosProtocolHandler( kdcServer, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
@@ -90,7 +91,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     @After
     public void shutDown()
     {
-        config.stop();
+        kdcServer.stop();
     }
 
 
@@ -100,7 +101,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * @throws Exception
      */
     @Test
-    @Ignore("AbstractAuthenticationServiceTest.getEncryptionKey() always uses AES128_CTS_HMAC_SHA1_96")
+    @Ignore( "uses DES but the encryption key is generated in AbstractAuthenticationServiceTest always uses AES" )
     public void testRequestDesCbcMd5() throws Exception
     {
         KdcReqBody kdcReqBody = new KdcReqBody();
@@ -108,7 +109,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
-        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
         kdcReqBody.setEType( encryptionTypes );
@@ -121,7 +122,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -158,7 +159,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
-        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         kdcReqBody.setEType( encryptionTypes );
@@ -218,7 +219,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
-        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
         encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         kdcReqBody.setEType( encryptionTypes );
@@ -278,8 +279,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         kdcReqBody.setSName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         kdcReqBody.setRealm( "EXAMPLE.COM" );
 
-        List<EncryptionType> requestedEncryptionTypes = new ArrayList<EncryptionType>();
-        requestedEncryptionTypes.add( EncryptionType.RC4_MD4 );
+        Set<EncryptionType> requestedEncryptionTypes = new HashSet<EncryptionType>();
+        requestedEncryptionTypes.add( EncryptionType.RC4_HMAC );
 
         kdcReqBody.setEType( requestedEncryptionTypes );
         kdcReqBody.setNonce( random.nextInt() );
@@ -291,7 +292,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -317,8 +318,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
-            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

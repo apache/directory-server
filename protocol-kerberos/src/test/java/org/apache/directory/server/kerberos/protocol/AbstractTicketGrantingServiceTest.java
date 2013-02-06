@@ -123,7 +123,7 @@ public abstract class AbstractTicketGrantingServiceTest
         ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketPart.setFlags( ticketFlags );
 
-        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
+        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         encTicketPart.setKey( sessionKey );
         encTicketPart.setCName( new PrincipalName( clientPrincipal ) );
@@ -161,7 +161,7 @@ public abstract class AbstractTicketGrantingServiceTest
         ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketPart.setFlags( ticketFlags );
 
-        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
+        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         encTicketPart.setKey( sessionKey );
         encTicketPart.setCName( new PrincipalName( clientPrincipal ) );

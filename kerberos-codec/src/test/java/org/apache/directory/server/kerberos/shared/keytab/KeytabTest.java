@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -39,7 +40,6 @@ import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -151,7 +151,7 @@ public class KeytabTest
 
         Keytab writer = Keytab.getInstance();
         writer.setEntries( entries );
-        IoBuffer buffer = writer.write();
+        ByteBuffer buffer = writer.write();
         assertEquals( "Expected file size.", 130, buffer.limit() );
     }
 

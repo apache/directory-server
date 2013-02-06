@@ -27,6 +27,7 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
@@ -55,7 +56,8 @@ import org.junit.Test;
  */
 public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 {
-    private KdcServer config;
+    private KerberosConfig config;
+    private KdcServer kdcServer;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private KrbDummySession session;
@@ -67,7 +69,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     @Before
     public void setUp() throws IOException
     {
-        config = new KdcServer();
+        kdcServer = new KdcServer();
+        config = kdcServer.getConfig();
 
         /*
          * Body checksum verification must be disabled because we are bypassing
@@ -76,7 +79,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         config.setBodyChecksumVerified( false );
 
         store = new MapPrincipalStoreImpl();
-        handler = new KerberosProtocolHandler( config, store );
+        handler = new KerberosProtocolHandler( kdcServer, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
@@ -88,7 +91,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     @After
     public void shutDown()
     {
-        config.stop();
+        kdcServer.stop();
     }
 
 

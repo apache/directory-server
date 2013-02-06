@@ -22,7 +22,9 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.KdcReq;
@@ -36,7 +38,7 @@ public class KdcContext
 {
     private static final long serialVersionUID = 6490030984626825108L;
 
-    private KdcServer config;
+    private KerberosConfig config;
     private PrincipalStore store;
     private KdcReq request;
     private KerberosMessage reply;
@@ -44,11 +46,13 @@ public class KdcContext
     private CipherTextHandler cipherTextHandler;
     private EncryptionType encryptionType;
 
+    /** the replay cache */
+    private ReplayCache replayCache;
 
     /**
      * @return Returns the config.
      */
-    public KdcServer getConfig()
+    public KerberosConfig getConfig()
     {
         return config;
     }
@@ -57,7 +61,7 @@ public class KdcContext
     /**
      * @param config The config to set.
      */
-    public void setConfig( KdcServer config )
+    public void setConfig( KerberosConfig config )
     {
         this.config = config;
     }
@@ -172,5 +176,25 @@ public class KdcContext
     public void setEncryptionType( EncryptionType encryptionType )
     {
         this.encryptionType = encryptionType;
+    }
+    
+    
+    /**
+     * sets the replay cache
+     *
+     * @param replayCache
+     */
+    public void setReplayCache( ReplayCache replayCache )
+    {
+        this.replayCache = replayCache;
+    }
+
+
+    /**
+     * @return the replay cache
+     */
+    public ReplayCache getReplayCache()
+    {
+        return replayCache;
     }
 }

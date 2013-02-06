@@ -72,56 +72,52 @@ public class KdcServerBean extends DSBasedServerBean
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
     /** The allowable clock skew. */
-    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")
     private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
 
     /** Whether empty addresses are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed")
     private boolean krbEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
 
     /** Whether forwardable addresses are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbForwardableAllowed", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbForwardableAllowed")
     private boolean krbForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
 
     /** Whether pre-authentication by encrypted timestamp is required. */
-    @ConfigurationElement(attributeType = "ads-krbPAEncTimestampRequired", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbPAEncTimestampRequired")
     private boolean krbPAEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
 
     /** Whether postdated tickets are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbPostdatedAllowed", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbPostdatedAllowed")
     private boolean krbPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether proxiable addresses are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbProxiableAllowed", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbProxiableAllowed")
     private boolean krbProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbRenewableAllowed", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbRenewableAllowed")
     private boolean krbRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
     /** The maximum renewable lifetime. */
-    @ConfigurationElement(attributeType = "ads-krbMaximumRenewableLifetime", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbMaximumRenewableLifetime")
     private long krbMaximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
 
     /** The maximum ticket lifetime. */
-    @ConfigurationElement(attributeType = "ads-krbMaximumTicketLifetime", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbMaximumTicketLifetime")
     private long krbMaximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
 
     /** The primary realm */
-    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm")
     private String krbPrimaryRealm = DEFAULT_REALM;
 
     /** Whether to verify the body checksum. */
-    @ConfigurationElement(attributeType = "ads-krbBodyChecksumVerified", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbBodyChecksumVerified")
     private boolean krbBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
     /** The encryption types. */
-    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes")
     private List<String> krbEncryptionTypes = new ArrayList<String>();
-
-    /** The service principal name. */
-    @ConfigurationElement(attributeType = "ads-krbKdcPrincipal", isOptional = true)
-    private String krbKdcPrincipal = DEFAULT_PRINCIPAL;
 
 
     /**
@@ -366,26 +362,6 @@ public class KdcServerBean extends DSBasedServerBean
 
 
     /**
-     * Returns the service principal for this KDC service.
-     *
-     * @return The service principal for this KDC service.
-     */
-    public KerberosPrincipal getKrbKdcPrincipal()
-    {
-        return new KerberosPrincipal( krbKdcPrincipal );
-    }
-
-
-    /**
-     * @param krbKdcPrincipal the krbKdcPrincipal to set
-     */
-    public void setKrbKdcPrincipal( String krbKdcPrincipal )
-    {
-        this.krbKdcPrincipal = krbKdcPrincipal;
-    }
-
-
-    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
@@ -402,7 +378,7 @@ public class KdcServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  proxiable allowed", krbProxiableAllowed ) );
         sb.append( toString( tabs, "  renew allowed", krbRenewableAllowed ) );
         sb.append( toString( tabs, "  allowable clock skew", krbAllowableClockSkew ) );
-        sb.append( toString( tabs, "  KDC principal", krbKdcPrincipal ) );
+        sb.append( toString( tabs, "  KDC principal", "krbtgt/" + krbPrimaryRealm + "@" + krbPrimaryRealm ) );
         sb.append( toString( tabs, "  maximum renewable lifetime", krbMaximumRenewableLifetime ) );
         sb.append( toString( tabs, "  maximum ticket lifetime", krbMaximumTicketLifetime ) );
         sb.append( toString( tabs, "  primary realm", krbPrimaryRealm ) );

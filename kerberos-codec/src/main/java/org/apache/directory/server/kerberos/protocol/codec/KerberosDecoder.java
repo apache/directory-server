@@ -20,9 +20,10 @@
 package org.apache.directory.server.kerberos.protocol.codec;
 
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
+import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
@@ -36,6 +37,7 @@ import org.apache.directory.shared.kerberos.codec.authorizationData.Authorizatio
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.encAsRepPart.EncAsRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
+import org.apache.directory.shared.kerberos.codec.encTgsRepPart.EncTgsRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
@@ -58,12 +60,9 @@ import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
+import org.apache.directory.shared.kerberos.messages.EncTgsRepPart;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +70,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosDecoder extends ProtocolDecoderAdapter
+public class KerberosDecoder
 {
 
     /** The logger */
@@ -80,28 +79,11 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
     /** A speedup for logger */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** The ASN 1 decoder instance */
-    private Asn1Decoder asn1Decoder = new Asn1Decoder();
 
-    /** the key used while storing message container in the session */
-    private static final String KERBEROS_MESSAGE_CONTAINER = "kerberosMessageContainer";
-
-
-    public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws IOException
+    public static Object decode( KerberosMessageContainer kerberosMessageContainer, Asn1Decoder asn1Decoder ) throws DecoderException
     {
-        ByteBuffer buf = in.buf();
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session
-            .getAttribute( KERBEROS_MESSAGE_CONTAINER );
-
-        if ( kerberosMessageContainer == null )
-        {
-            kerberosMessageContainer = new KerberosMessageContainer();
-            session.setAttribute( KERBEROS_MESSAGE_CONTAINER, kerberosMessageContainer );
-            kerberosMessageContainer.setStream( buf );
-            kerberosMessageContainer.setGathering( true );
-            kerberosMessageContainer.setTCP( !session.getTransportMetadata().isConnectionless() );
-        }
-
+        ByteBuffer buf = kerberosMessageContainer.getStream();
+        
         if ( kerberosMessageContainer.isTCP() )
         {
             if ( buf.remaining() > 4 )
@@ -111,7 +93,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             }
             else
             {
-                return;
+                return null;
             }
         }
         else
@@ -124,7 +106,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
             try
             {
                 asn1Decoder.decode( buf, kerberosMessageContainer );
-
+                
                 if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
                     if ( IS_DEBUG )
@@ -132,25 +114,23 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
                         LOG.debug( "Decoded KerberosMessage : " + kerberosMessageContainer.getMessage() );
                         buf.mark();
                     }
-
-                    out.write( kerberosMessageContainer.getMessage() );
-
-                    kerberosMessageContainer.clean();
+        
+                    return kerberosMessageContainer.getMessage();
                 }
             }
             catch ( DecoderException de )
             {
+                LOG.warn( "error while decoding", de );
                 buf.clear();
                 kerberosMessageContainer.clean();
-            }
-            catch ( Exception e )
-            {
-                LOG.warn( "error while decoding", e );
+                throw de;
             }
         }
+        
+        return null;
     }
-
-
+    
+    
     /**
      * Decode an EncrytedData structure
      * 
@@ -163,7 +143,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncryptedData Container
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
@@ -184,8 +164,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encryptedData;
     }
-
-
+    
+    
     /**
      * Decode an PaEncTsEnc structure
      * 
@@ -198,7 +178,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a PaEncTsEnc Container
         Asn1Container paEncTsEncContainer = new PaEncTsEncContainer();
 
@@ -219,8 +199,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return paEncTsEnc;
     }
-
-
+    
+    
     /**
      * Decode an EncApRepPart structure
      * 
@@ -233,7 +213,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncApRepPart Container
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
@@ -254,8 +234,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encApRepPart;
     }
-
-
+    
+    
     /**
      * Decode an EncKdcRepPart structure
      * 
@@ -268,7 +248,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncKdcRepPart Container
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
@@ -289,8 +269,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encKdcRepPart;
     }
-
-
+    
+    
     /**
      * Decode an EncKrbPrivPart structure
      * 
@@ -303,7 +283,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncKrbPrivPart Container
         Asn1Container encKrbPrivPartContainer = new EncKrbPrivPartContainer( stream );
 
@@ -324,8 +304,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encKrbPrivPart;
     }
-
-
+    
+    
     /**
      * Decode an EncTicketPart structure
      * 
@@ -338,7 +318,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncTicketPart Container
         Asn1Container encTicketPartContainer = new EncTicketPartContainer( stream );
 
@@ -359,8 +339,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encTicketPart;
     }
-
-
+    
+    
     /**
      * Decode an EncryptionKey structure
      * 
@@ -373,7 +353,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncryptionKey Container
         Asn1Container encryptionKeyContainer = new EncryptionKeyContainer();
 
@@ -394,8 +374,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return encryptionKey;
     }
-
-
+    
+    
     /**
      * Decode an PrincipalName structure
      * 
@@ -408,7 +388,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a PrincipalName Container
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
@@ -429,8 +409,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return principalName;
     }
-
-
+    
+    
     /**
      * Decode a Ticket structure
      * 
@@ -443,7 +423,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a Ticket Container
         Asn1Container ticketContainer = new TicketContainer( stream );
 
@@ -464,8 +444,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return ticket;
     }
-
-
+    
+    
     /**
      * Decode a Authenticator structure
      * 
@@ -478,7 +458,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a Authenticator Container
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
@@ -499,8 +479,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return authenticator;
     }
-
-
+    
+    
     /**
      * Decode a AuthorizationData structure
      * 
@@ -513,7 +493,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a AuthorizationData Container
         Asn1Container authorizationDataContainer = new AuthorizationDataContainer();
 
@@ -530,13 +510,12 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         }
 
         // get the decoded AuthorizationData
-        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer )
-            .getAuthorizationData();
+        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer ).getAuthorizationData();
 
         return authorizationData;
     }
 
-
+    
     /**
      * Decode a AP-REP structure
      * 
@@ -549,7 +528,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a ApRep Container
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
@@ -571,7 +550,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return apRep;
     }
 
-
+    
     /**
      * Decode a AP-REQ structure
      * 
@@ -584,7 +563,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a ApReq Container
         Asn1Container apReqContainer = new ApReqContainer( stream );
 
@@ -606,7 +585,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return apReq;
     }
 
-
+    
     /**
      * Decode a KRB-PRIV structure
      * 
@@ -619,7 +598,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a KrbPriv Container
         Asn1Container krbPrivContainer = new KrbPrivContainer( stream );
 
@@ -640,8 +619,8 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
 
         return krbPriv;
     }
-
-
+    
+    
     /**
      * Decode an EncAsRepPart structure
      * 
@@ -654,7 +633,7 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
         stream.flip();
-
+        
         // Allocate a EncAsRepPart Container
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
@@ -676,4 +655,38 @@ public class KerberosDecoder extends ProtocolDecoderAdapter
         return encAsRepPart;
     }
 
+    
+    /**
+     * Decode an EncTgsRepPart structure
+     * 
+     * @param data The byte array containing the data structure to decode
+     * @return An instance of EncTgsRepPart
+     * @throws KerberosException If the decoding fails
+     */
+    public static EncTgsRepPart decodeEncTgsRepPart( byte[] data ) throws ChangePasswordException
+    {
+        ByteBuffer stream = ByteBuffer.allocate( data.length );
+        stream.put( data );
+        stream.flip();
+        
+        // Allocate a EncTgsRepPart Container
+        Asn1Container encTgsRepPartContainer = new EncTgsRepPartContainer( stream );
+
+        Asn1Decoder kerberosDecoder = new Asn1Decoder();
+
+        // Decode the EncTgsRepPart PDU
+        try
+        {
+            kerberosDecoder.decode( stream, encTgsRepPartContainer );
+        }
+        catch ( DecoderException de )
+        {
+            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED, de );
+        }
+
+        // get the decoded EncTgsRepPart
+        EncTgsRepPart encTgsRepPart = ( ( EncTgsRepPartContainer ) encTgsRepPartContainer ).getEncTgsRepPart();
+
+        return encTgsRepPart;
+    }
 }

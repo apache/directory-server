@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -79,9 +80,8 @@ public class MapPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
+    public void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword, boolean isInitialTicket ) throws ChangePasswordException
     {
-        return null;
     }
 
 

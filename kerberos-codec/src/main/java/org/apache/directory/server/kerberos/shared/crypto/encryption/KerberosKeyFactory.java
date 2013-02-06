@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 
@@ -44,7 +45,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 public class KerberosKeyFactory
 {
     /** A map of default encryption types mapped to cipher names. */
-    private static final Map<EncryptionType, String> DEFAULT_CIPHERS;
+    public static final Map<EncryptionType, String> DEFAULT_CIPHERS;
 
     static
     {
@@ -88,22 +89,15 @@ public class KerberosKeyFactory
     public static Map<EncryptionType, EncryptionKey> getKerberosKeys( String principalName, String passPhrase,
         Set<EncryptionType> ciphers )
     {
-        KerberosPrincipal principal = new KerberosPrincipal( principalName );
         Map<EncryptionType, EncryptionKey> kerberosKeys = new HashMap<EncryptionType, EncryptionKey>();
 
         Iterator<EncryptionType> it = ciphers.iterator();
         while ( it.hasNext() )
         {
             EncryptionType encryptionType = it.next();
-            String algorithm = DEFAULT_CIPHERS.get( encryptionType );
-
             try
             {
-                KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), algorithm );
-                EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
-                    .getVersionNumber() );
-
-                kerberosKeys.put( encryptionType, encryptionKey );
+                kerberosKeys.put( encryptionType, string2Key( principalName, passPhrase, encryptionType ) );
             }
             catch ( IllegalArgumentException iae )
             {
@@ -114,5 +108,16 @@ public class KerberosKeyFactory
         }
 
         return kerberosKeys;
+    }
+    
+    
+    public static EncryptionKey string2Key( String principalName, String passPhrase, EncryptionType encryptionType )
+    {
+        KerberosPrincipal principal = new KerberosPrincipal( principalName );
+        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), KerberosUtils.getAlgoNameFromEncType( encryptionType ) );
+        EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
+            .getVersionNumber() );
+        
+        return encryptionKey;
     }
 }

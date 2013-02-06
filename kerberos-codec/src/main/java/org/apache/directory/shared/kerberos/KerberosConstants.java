@@ -289,4 +289,9 @@ public class KerberosConstants
     /** TypedData tags */
     public static final int TYPED_DATA_TDTYPE_TAG = 0xA0;
     public static final int TYPED_DATA_TDDATA_TAG = 0xA1;
+    
+    /** CHangePasswdData tags */
+    public static final int CHNGPWD_NEWPWD_TAG = 0xA0;
+    public static final int CHNGPWD_TARGNAME_TAG = 0xA1;
+    public static final int CHNGPWD_TARGREALM_TAG = 0xA2;
 }

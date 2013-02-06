@@ -29,6 +29,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
@@ -55,20 +56,20 @@ public class CreateKdcServerAnnotationTest
     public void testCreateKdcServer() throws Exception
     {
         DirectoryService directoryService = DSAnnotationProcessor.getDirectoryService();
-
+        
         assertEquals( "CreateKdcServerAnnotationTest-class", directoryService.getInstanceId() );
-
-        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService,
-            AvailablePortFinder.getNextAvailable() );
+        
+        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService, AvailablePortFinder.getNextAvailable( 1024 ) );
 
         assertEquals( 2, server.getTransports().length );
-
+        
+        KerberosConfig config = server.getConfig();
         assertEquals( directoryService, server.getDirectoryService() );
-        assertEquals( "apache.org", server.getPrimaryRealm() );
-        assertEquals( "krbtgt/apache.org@apache.org", server.getServicePrincipal().getName() );
-        assertEquals( 1000, server.getMaximumTicketLifetime() );
-        assertEquals( 2000, server.getMaximumRenewableLifetime() );
-
+        assertEquals( "apache.org", config.getPrimaryRealm() );
+        assertEquals( "krbtgt/apache.org@apache.org", config.getServicePrincipal().getName() );
+        assertEquals( 1000, config.getMaximumTicketLifetime() );
+        assertEquals( 2000, config.getMaximumRenewableLifetime() );
+        
         server.stop();
         directoryService.shutdown();
 

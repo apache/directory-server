@@ -19,11 +19,9 @@
  */
 package org.apache.directory.server.config.beans;
 
+import org.apache.directory.shared.ldap.model.name.Dn;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.directory.server.config.ConfigurationElement;
 
 
 /**
@@ -33,38 +31,6 @@ import org.apache.directory.server.config.ConfigurationElement;
  */
 public class ChangePasswordServerBean extends DSBasedServerBean
 {
-    /** The policy for category count. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyCategoryCount", isOptional = true)
-    private int chgPwdPolicyCategoryCount;
-
-    /** The policy for password length. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyPasswordLength", isOptional = true)
-    private int chgPwdPolicyPasswordLength;
-
-    /** The policy for token size. */
-    @ConfigurationElement(attributeType = "ads-chgPwdPolicyTokenSize", isOptional = true)
-    private int chgPwdPolicyTokenSize;
-
-    /** The service principal name. */
-    @ConfigurationElement(attributeType = "ads-chgPwdServicePrincipal", isOptional = true)
-    private String chgPwdServicePrincipal;
-    
-    /** The allowable clock skew. */
-    @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew", isOptional = true)
-    private long krbAllowableClockSkew;
-
-    /** Whether empty addresses are allowed. */
-    @ConfigurationElement(attributeType = "ads-krbEmptyAddressesAllowed", isOptional = true)
-    private boolean krbEmptyAddressesAllowed;
-
-    /** The encryption types. */
-    @ConfigurationElement(attributeType = "ads-krbEncryptionTypes", isOptional = true)
-    private List<String> krbEncryptionTypes = new ArrayList<String>();
-    
-    /** The primary realm. */
-    @ConfigurationElement(attributeType = "ads-krbPrimaryRealm", isOptional = true)
-    private String krbPrimaryRealm;
-
 
     /**
      * Create a new ChangePasswordServer instance
@@ -74,194 +40,11 @@ public class ChangePasswordServerBean extends DSBasedServerBean
         super();
     }
 
-
-    /**
-     * @return the krbAllowableClockSkew
-     */
-    public long getKrbAllowableClockSkew()
+    
+    @Override
+    public void setSearchBaseDn( Dn searchBaseDn )
     {
-        return krbAllowableClockSkew;
-    }
-
-
-    /**
-     * @param krbAllowableClockSkew the krbAllowableClockSkew to set
-     */
-    public void setKrbAllowableClockSkew( long krbAllowableClockSkew )
-    {
-        this.krbAllowableClockSkew = krbAllowableClockSkew;
-    }
-
-
-    /**
-     * @return the krbEmptyAddressesAllowed
-     */
-    public boolean isKrbEmptyAddressesAllowed()
-    {
-        return krbEmptyAddressesAllowed;
-    }
-
-
-    /**
-     * @param krbEmptyAddressesAllowed the krbEmptyAddressesAllowed to set
-     */
-    public void setKrbEmptyAddressesAllowed( boolean krbEmptyAddressesAllowed )
-    {
-        this.krbEmptyAddressesAllowed = krbEmptyAddressesAllowed;
-    }
-
-
-    /**
-     * @return the krbEncryptionTypes
-     */
-    public List<String> getKrbEncryptionTypes()
-    {
-        return krbEncryptionTypes;
-    }
-
-
-    /**
-     * @param krbEncryptionTypes the krbEncryptionTypes to set
-     */
-    public void setKrbEncryptionTypes( List<String> krbEncryptionTypes )
-    {
-        this.krbEncryptionTypes = krbEncryptionTypes;
-    }
-
-
-    /**
-     * Initialize the encryptionTypes set
-     * 
-     * @param krbEncryptionTypes the encryptionTypes to set
-     */
-    public void addKrbEncryptionTypes( String... krbEncryptionTypes )
-    {
-        for ( String encryptionType : krbEncryptionTypes )
-        {
-            this.krbEncryptionTypes.add( encryptionType );
-        }
-    }
-
-
-    /**
-     * @return the krbPrimaryRealm
-     */
-    public String getKrbPrimaryRealm()
-    {
-        return krbPrimaryRealm;
-    }
-
-
-    /**
-     * @param krbPrimaryRealm the krbPrimaryRealm to set
-     */
-    public void setKrbPrimaryRealm( String krbPrimaryRealm )
-    {
-        this.krbPrimaryRealm = krbPrimaryRealm;
-    }
-
-
-    /**
-     * @return the chgPwdPolicyCategoryCount
-     */
-    public int getChgPwdPolicyCategoryCount()
-    {
-        return chgPwdPolicyCategoryCount;
-    }
-
-
-    /**
-     * @param chgPwdPolicyCategoryCount the chgPwdPolicyCategoryCount to set
-     */
-    public void setChgPwdPolicyCategoryCount( int chgPwdPolicyCategoryCount )
-    {
-        this.chgPwdPolicyCategoryCount = chgPwdPolicyCategoryCount;
-    }
-
-
-    /**
-     * @return the chgPwdPolicyPasswordLength
-     */
-    public int getChgPwdPolicyPasswordLength()
-    {
-        return chgPwdPolicyPasswordLength;
-    }
-
-
-    /**
-     * @param chgPwdPolicyPasswordLength the chgPwdPolicyPasswordLength to set
-     */
-    public void setChgPwdPolicyPasswordLength( int chgPwdPolicyPasswordLength )
-    {
-        this.chgPwdPolicyPasswordLength = chgPwdPolicyPasswordLength;
-    }
-
-
-    /**
-     * @return the chgPwdPolicyTokenSize
-     */
-    public int getChgPwdPolicyTokenSize()
-    {
-        return chgPwdPolicyTokenSize;
-    }
-
-
-    /**
-     * @param chgPwdPolicyTokenSize the chgPwdPolicyTokenSize to set
-     */
-    public void setChgPwdPolicyTokenSize( int chgPwdPolicyTokenSize )
-    {
-        this.chgPwdPolicyTokenSize = chgPwdPolicyTokenSize;
-    }
-
-
-    /**
-     * @return the chgPwdServicePrincipal
-     */
-    public String getChgPwdServicePrincipal()
-    {
-        return chgPwdServicePrincipal;
-    }
-
-
-    /**
-     * @param chgPwdServicePrincipal the chgPwdServicePrincipal to set
-     */
-    public void setChgPwdServicePrincipal( String chgPwdServicePrincipal )
-    {
-        this.chgPwdServicePrincipal = chgPwdServicePrincipal;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String toString( String tabs )
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append( tabs ).append( "ChangePasswordServer :\n" );
-        sb.append( super.toString( tabs + "  " ) );
-        sb.append( toString( tabs, "  change password service principal", chgPwdServicePrincipal ) );
-        sb.append( toString( tabs, "  KRB primary realm", krbPrimaryRealm ) );
-
-        if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() != 0 ) )
-        {
-            sb.append( tabs ).append( "  encryption types : \n" );
-
-            for ( String encryptionType : krbEncryptionTypes )
-            {
-                sb.append( tabs ).append( "    encryptionType : " ).append( encryptionType ).append( '\n' );
-            }
-        }
-
-        sb.append( toString( tabs, "  change password policy category count", chgPwdPolicyCategoryCount ) );
-        sb.append( toString( tabs, "  change password policy password length", chgPwdPolicyPasswordLength ) );
-        sb.append( toString( tabs, "  change password policy token size", chgPwdPolicyTokenSize ) );
-        sb.append( toString( tabs, "  KRB allowable clock skew", krbAllowableClockSkew ) );
-        sb.append( toString( tabs, "  KRB empty addresses allowed", krbEmptyAddressesAllowed ) );
-
-        return sb.toString();
+        throw new UnsupportedOperationException( "No need to set the search base DN, the kerberos server's search base DN is used internally" );
     }
 
 
@@ -270,6 +53,6 @@ public class ChangePasswordServerBean extends DSBasedServerBean
      */
     public String toString()
     {
-        return toString( "" );
+        return "ChangePasswordServer";
     }
 }

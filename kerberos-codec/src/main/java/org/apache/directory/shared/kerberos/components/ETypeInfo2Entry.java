@@ -81,6 +81,11 @@ public class ETypeInfo2Entry extends AbstractAsn1Object
     {
     }
 
+    
+    public ETypeInfo2Entry( EncryptionType etype )
+    {
+        this.etype = etype;
+    }
 
     /**
      * Returns the salt.

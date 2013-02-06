@@ -293,6 +293,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     @Test
     public void testSaslGssapiBind()
     {
+        kdcServer.getConfig().setPaEncTimestampRequired( false );
         // Use our custom configuration to avoid reliance on external config
         Configuration.setConfiguration( new Krb5LoginConfiguration() );
         // 1. Authenticate to Kerberos.

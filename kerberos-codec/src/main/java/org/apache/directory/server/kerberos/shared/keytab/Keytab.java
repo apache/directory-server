@@ -25,13 +25,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
@@ -66,7 +66,7 @@ public class Keytab
      */
     public static Keytab read( File file ) throws IOException
     {
-        IoBuffer buffer = IoBuffer.wrap( getBytesFromFile( file ) );
+        ByteBuffer buffer = ByteBuffer.wrap( getBytesFromFile( file ) );
         return readKeytab( buffer );
     }
 
@@ -92,7 +92,7 @@ public class Keytab
     public void write( File file ) throws IOException
     {
         KeytabEncoder writer = new KeytabEncoder();
-        IoBuffer buffer = writer.write( keytabVersion, entries );
+        ByteBuffer buffer = writer.write( keytabVersion, entries );
         writeFile( buffer, file );
     }
 
@@ -141,7 +141,7 @@ public class Keytab
      */
     static Keytab read( byte[] bytes )
     {
-        IoBuffer buffer = IoBuffer.wrap( bytes );
+        ByteBuffer buffer = ByteBuffer.wrap( bytes );
         return readKeytab( buffer );
     }
 
@@ -150,7 +150,7 @@ public class Keytab
      * Write the keytab to a {@link ByteBuffer}.
      * @return The buffer.
      */
-    IoBuffer write()
+    ByteBuffer write()
     {
         KeytabEncoder writer = new KeytabEncoder();
         return writer.write( keytabVersion, entries );
@@ -163,7 +163,7 @@ public class Keytab
      * @param buffer
      * @return The keytab.
      */
-    private static Keytab readKeytab( IoBuffer buffer )
+    private static Keytab readKeytab( ByteBuffer buffer )
     {
         KeytabDecoder reader = new KeytabDecoder();
         byte[] keytabVersion = reader.getKeytabVersion( buffer );
@@ -224,22 +224,20 @@ public class Keytab
 
 
     /**
-     * Write the contents of the {@link IoBuffer} to a {@link File}.
+     * Write the contents of the {@link ByteBuffer} to a {@link File}.
      *
      * @param buffer
      * @param file
      * @throws IOException
      */
-    protected void writeFile( IoBuffer buffer, File file ) throws IOException
+    protected void writeFile( ByteBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        FileOutputStream fos = new FileOutputStream( file, false );
-        FileChannel wChannel = fos.getChannel();
+        FileChannel wChannel = new FileOutputStream( file, false ).getChannel();
 
         // Write the bytes between the position and limit.
-        wChannel.write( buffer.buf() );
+        wChannel.write( buffer );
 
         wChannel.close();
-        fos.close();
     }
 }

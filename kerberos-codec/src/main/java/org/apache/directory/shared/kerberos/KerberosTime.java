@@ -19,16 +19,12 @@
  */
 package org.apache.directory.shared.kerberos;
 
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 
 
@@ -39,7 +35,7 @@ import org.apache.directory.api.util.Strings;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosTime implements Comparable<KerberosTime>, Serializable
+public class KerberosTime implements Comparable<KerberosTime>
 {
     private static final long serialVersionUID = 1L;
 
@@ -315,36 +311,8 @@ public class KerberosTime implements Comparable<KerberosTime>, Serializable
     {
         return kerberosTime == 0;
     }
-
-
-    /**
-     * Write a serialized version of this instance.
-     */
-    private void writeObject( ObjectOutputStream out ) throws IOException
-    {
-        out.writeUTF( date );
-    }
-
-
-    /**
-     * Read a KerberosTime from a stream
-     */
-    private void readObject( ObjectInputStream in ) throws IOException, ClassNotFoundException
-    {
-        String date = in.readUTF();
-
-        try
-        {
-            setDate( date );
-        }
-        catch ( ParseException pe )
-        {
-            kerberosTime = ( System.currentTimeMillis() / 1000L ) * 1000L; // drop the ms
-            convertInternal( kerberosTime );
-        }
-    }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */

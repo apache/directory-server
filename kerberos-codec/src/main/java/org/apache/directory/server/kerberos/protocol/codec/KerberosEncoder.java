@@ -21,56 +21,48 @@ package org.apache.directory.server.kerberos.protocol.codec;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.AbstractAsn1Object;
 import org.apache.directory.api.asn1.EncoderException;
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
-import org.apache.mina.filter.codec.ProtocolEncoderOutput;
+import org.apache.directory.api.asn1.util.Asn1StringUtils;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosEncoder extends ProtocolEncoderAdapter
+public class KerberosEncoder
 {
-    public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
+    public static ByteBuffer encode( AbstractAsn1Object asn1Obj, boolean isTcp ) throws IOException
     {
-        AbstractAsn1Object asn1Obj = ( AbstractAsn1Object ) message;
-        boolean isTcp = !session.getTransportMetadata().isConnectionless();
-        IoBuffer response = null;
-        IoBuffer kerberosMessage = null;
-
+        ByteBuffer response = null;
+        ByteBuffer kerberosMessage = null;
+        
         int responseLength = asn1Obj.computeLength();
-        kerberosMessage = IoBuffer.allocate( responseLength );
-
-        if ( isTcp )
-        {
-            response = IoBuffer.allocate( responseLength + 4 );
-        }
-        else
-        {
-            response = kerberosMessage;
-        }
-
+        kerberosMessage = ByteBuffer.allocate( responseLength );
+        
         try
         {
-            asn1Obj.encode( kerberosMessage.buf() );
+            asn1Obj.encode( kerberosMessage );
 
             if ( isTcp )
-            {
+            { 
+                response = ByteBuffer.allocate( responseLength + 4 );
                 response.putInt( responseLength );
-                response.put( kerberosMessage.buf().array() );
+                response.put( kerberosMessage.array() );
+            }
+            else
+            {
+                response = kerberosMessage;
             }
 
             response.flip();
 
-            out.write( response );
+            return response;
         }
-        catch ( EncoderException e )
+        catch( EncoderException e )
         {
-            throw new IOException( e.getMessage() );
+            throw new IOException(e.getMessage());
         }
     }
 }

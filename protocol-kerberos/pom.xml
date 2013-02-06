@@ -53,6 +53,11 @@
     </dependency>
 
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-asn1-api</artifactId>
     </dependency>

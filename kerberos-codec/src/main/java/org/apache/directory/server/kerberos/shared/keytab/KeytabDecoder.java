@@ -21,17 +21,17 @@ package org.apache.directory.server.kerberos.shared.keytab;
 
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.mina.core.buffer.IoBuffer;
 
 
 /**
- * Decode a {@link IoBuffer} into keytab fields.
+ * Decode a {@link ByteBuffer} into keytab fields.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -41,7 +41,7 @@ class KeytabDecoder
      * Read the keytab 16-bit file format version.  This
      * keytab reader currently only supports version 5.2.
      */
-    byte[] getKeytabVersion( IoBuffer buffer )
+    byte[] getKeytabVersion( ByteBuffer buffer )
     {
         byte[] version = new byte[2];
         buffer.get( version );
@@ -57,7 +57,7 @@ class KeytabDecoder
      * @param buffer
      * @return The keytab entries.
      */
-    List<KeytabEntry> getKeytabEntries( IoBuffer buffer )
+    List<KeytabEntry> getKeytabEntries( ByteBuffer buffer )
     {
         List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
 
@@ -67,7 +67,7 @@ class KeytabDecoder
             byte[] entry = new byte[size];
 
             buffer.get( entry );
-            entries.add( getKeytabEntry( IoBuffer.wrap( entry ) ) );
+            entries.add( getKeytabEntry( ByteBuffer.wrap( entry ) ) );
         }
 
         return entries;
@@ -78,13 +78,13 @@ class KeytabDecoder
      * Reads off a "keytab entry," which consists of a principal name,
      * principal type, key version number, and key material.
      */
-    private KeytabEntry getKeytabEntry( IoBuffer buffer )
+    private KeytabEntry getKeytabEntry( ByteBuffer buffer )
     {
         String principalName = getPrincipalName( buffer );
 
-        long principalType = buffer.getUnsignedInt();
+        long principalType = buffer.getInt();
 
-        long time = buffer.getUnsignedInt();
+        long time = buffer.getInt();
         KerberosTime timeStamp = new KerberosTime( time * 1000 );
 
         byte keyVersion = buffer.get();
@@ -101,9 +101,9 @@ class KeytabDecoder
      * @param buffer
      * @return The principal name.
      */
-    private String getPrincipalName( IoBuffer buffer )
+    private String getPrincipalName( ByteBuffer buffer )
     {
-        int count = buffer.getUnsignedShort();
+        int count = buffer.getShort();
 
         // decrement for v1
         String realm = getCountedString( buffer );
@@ -131,9 +131,9 @@ class KeytabDecoder
     /**
      * Read off a 16-bit encryption type and symmetric key material.
      */
-    private EncryptionKey getKeyBlock( IoBuffer buffer )
+    private EncryptionKey getKeyBlock( ByteBuffer buffer )
     {
-        int type = buffer.getUnsignedShort();
+        int type = buffer.getShort();
         byte[] keyblock = getCountedBytes( buffer );
 
         EncryptionType encryptionType = EncryptionType.getTypeByValue( type );
@@ -147,9 +147,9 @@ class KeytabDecoder
      * Use a prefixed 16-bit length to read off a String.  Realm and name
      * components are ASCII encoded text with no zero terminator.
      */
-    private String getCountedString( IoBuffer buffer )
+    private String getCountedString( ByteBuffer buffer )
     {
-        int length = buffer.getUnsignedShort();
+        int length = buffer.getShort();
         byte[] data = new byte[length];
         buffer.get( data );
 
@@ -168,9 +168,9 @@ class KeytabDecoder
     /**
      * Use a prefixed 16-bit length to read off raw bytes.
      */
-    private byte[] getCountedBytes( IoBuffer buffer )
+    private byte[] getCountedBytes( ByteBuffer buffer )
     {
-        int length = buffer.getUnsignedShort();
+        int length = buffer.getShort();
         byte[] data = new byte[length];
         buffer.get( data );
 

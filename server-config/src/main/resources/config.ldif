@@ -509,13 +509,7 @@ objectclass: ads-dsBasedServer
 objectclass: ads-base
 objectclass: top
 ads-serverid: changePasswordServer
-ads-chgPwdServicePrincipal: kadmin/changepw@EXAMPLE.COM
 ads-enabled: FALSE
-ads-krballowableclockskew: 300000
-ads-krbEmptyAddressesAllowed: TRUE
-ads-krbEncryptionTypes: des-cbc-md5
-ads-krbPrimaryRealm: EXAMPLE.COM
-ads-searchBaseDN: ou=users,dc=example,dc=com
 
 dn: ou=transports,ads-serverId=changePasswordServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -602,9 +596,10 @@ ads-enabled: FALSE
 ads-krbAllowableClockSkew: 300000
 ads-krbBodyChecksumVerified: TRUE
 ads-krbEmptyAddressesAllowed: TRUE
+ads-krbEncryptionTypes: aes128-cts-hmac-sha1-96
+ads-krbEncryptionTypes: des3-cbc-sha1-kd
 ads-krbEncryptionTypes: des-cbc-md5
 ads-krbForwardableAllowed: TRUE
-ads-krbKdcPrincipal: krbtgt/EXAMPLE.COM@EXAMPLE.COM
 ads-krbmaximumrenewablelifetime: 604800000
 ads-krbMaximumTicketLifetime: 86400000
 ads-krbPaEncTimestampRequired: TRUE

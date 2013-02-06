@@ -53,6 +53,11 @@
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-model</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-codec</artifactId>
+    </dependency>    
   </dependencies>
 
   <build>

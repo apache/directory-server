@@ -32,7 +32,7 @@ import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.server.protocol.shared.kerberos.GetPrincipal;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
 import org.apache.directory.server.ldap.handlers.bind.SaslConstants;

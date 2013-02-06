@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.protocol;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -57,7 +57,8 @@ import org.junit.Test;
  */
 public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 {
-    private KdcServer config;
+    private KerberosConfig config;
+    private KdcServer kdcServer;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private KrbDummySession session;
@@ -69,15 +70,10 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @Before
     public void setUp()
     {
-        List<EncryptionType> encryptionTypes = new ArrayList<EncryptionType>();
-        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-
-        config = new KdcServer();
-
-        config.setEncryptionTypes( encryptionTypes );
-
-        store = new MapPrincipalStoreImpl();
-        handler = new KerberosProtocolHandler( config, store );
+        kdcServer = new KdcServer();
+        config = kdcServer.getConfig();
+        store  = new MapPrincipalStoreImpl();
+        handler = new KerberosProtocolHandler( kdcServer, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
     }
@@ -89,7 +85,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     @After
     public void shutDown()
     {
-        config.stop();
+        kdcServer.stop();
     }
 
 
@@ -155,7 +151,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, config.getEncryptionTypes() );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -202,7 +198,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         KerberosTime timeStamp = new KerberosTime( 0 );
         String passPhrase = "secret";
-        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp, config.getEncryptionTypes() );
+        PaData[] paDatas = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
 
         KdcReq message = new AsReq();
         message.setKdcReqBody( kdcReqBody );
@@ -224,8 +220,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
 
     /**
-     * Tests when pre-authentication is included that is not supported by the KDC, that
-     * the correct error message is returned.
+     * Tests when pre-authentication is included that is not supported by the KDC.
+     * The server will ignore the unsupported pre-authentication type and returns the
+     * error related pre-auth requirement
      * 
      * @throws Exception
      */
@@ -263,7 +260,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "KDC has no support for padata type", ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP, error.getErrorCode() );
+        assertEquals( "ignores unknown pre-auth type and expects PA_ENC_TMSTMP pre-auth", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
     }
 
 
@@ -306,10 +303,9 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase, config.getEncryptionTypes() );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
-            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

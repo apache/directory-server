@@ -280,8 +280,7 @@ public class PrincipalStoreEntryModifier
      * @throws LdapException
      * @throws IOException
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws KerberosException,
-        LdapException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws KerberosException, LdapException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 

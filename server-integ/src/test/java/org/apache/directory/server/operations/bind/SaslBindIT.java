@@ -73,13 +73,14 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -503,6 +504,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
+        kdcServer.getConfig().setPaEncTimestampRequired( false );
+        
         GssApiRequest request = new GssApiRequest();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );

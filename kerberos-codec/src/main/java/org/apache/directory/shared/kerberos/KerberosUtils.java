@@ -19,19 +19,54 @@
  */
 package org.apache.directory.shared.kerberos;
 
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_MD5;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1_KD;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_CRC;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD4;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD5;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_EDE3_CBC_ENV_OID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DSAWITHSHA1_CMSOID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.MD5WITHRSAENCRYPTION_CMSOID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RC2CBC_ENVOID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RC4_HMAC;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RSAENCRYPTION_ENVOID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RSAES_OAEP_ENV_OID;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.SHA1WITHRSAENCRYPTION_CMSOID;
 
+import java.net.InetAddress;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.components.EncTicketPart;
+import org.apache.directory.shared.kerberos.components.EncryptionKey;
+import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
+import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.messages.ApReq;
+import org.apache.directory.shared.kerberos.messages.Authenticator;
+import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -47,14 +82,43 @@ public class KerberosUtils
     /** An empty list of principal names */
     public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
 
+    /** 
+     * an order preserved map containing cipher names to the corresponding algorithm 
+     * names in the descending order of strength
+     */
+    private static final Map<String, String> cipherAlgoMap = new LinkedHashMap<String, String>();
+    
     public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
 
     /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
     public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
+
+    private static final Set<EncryptionType> oldEncTypes = new HashSet<EncryptionType>();
     
     static
     {
         UTC_DATE_FORMAT.setTimeZone( UTC_TIME_ZONE );
+        
+        cipherAlgoMap.put( "rc4", "ArcFourHmac" );
+        cipherAlgoMap.put( "aes256", "AES256" );
+        cipherAlgoMap.put( "aes128", "AES128" );
+        cipherAlgoMap.put( "des3", "DESede" );
+        cipherAlgoMap.put( "des", "DES" );
+        
+        oldEncTypes.add( DES_CBC_CRC );
+        oldEncTypes.add( DES_CBC_MD4 );
+        oldEncTypes.add( DES_CBC_MD5 );
+        oldEncTypes.add( DES_EDE3_CBC_ENV_OID );
+        oldEncTypes.add( DES3_CBC_MD5 );
+        oldEncTypes.add( DES3_CBC_SHA1 );
+        oldEncTypes.add( DES3_CBC_SHA1_KD );
+        oldEncTypes.add( DSAWITHSHA1_CMSOID );
+        oldEncTypes.add( MD5WITHRSAENCRYPTION_CMSOID );
+        oldEncTypes.add( SHA1WITHRSAENCRYPTION_CMSOID );
+        oldEncTypes.add( RC2CBC_ENVOID );
+        oldEncTypes.add( RSAENCRYPTION_ENVOID );
+        oldEncTypes.add( RSAES_OAEP_ENV_OID );
+        oldEncTypes.add( RC4_HMAC );
     }
     
     /**
@@ -247,8 +311,7 @@ public class KerberosUtils
      * @param configuredTypes The configured encryption types
      * @return The first matching encryption type.
      */
-    public static EncryptionType getBestEncryptionType( List<EncryptionType> requestedTypes,
-        List<EncryptionType> configuredTypes )
+    public static EncryptionType getBestEncryptionType( Set<EncryptionType> requestedTypes, Set<EncryptionType> configuredTypes )
     {
         for ( EncryptionType encryptionType : requestedTypes )
         {
@@ -268,7 +331,7 @@ public class KerberosUtils
      * @param encryptionTypes The encryptionTypes
      * @return A list comma separated of the encryptionTypes
      */
-    public static String getEncryptionTypesString( List<EncryptionType> encryptionTypes )
+    public static String getEncryptionTypesString( Set<EncryptionType> encryptionTypes )
     {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
@@ -309,6 +372,218 @@ public class KerberosUtils
         return true;
     }
 
+
+    public static String getAlgoNameFromEncType( EncryptionType encType )
+    {
+        String cipherName = encType.getName().toLowerCase();
+        
+        for( String c : cipherAlgoMap.keySet() )
+        {
+            if ( cipherName.startsWith( c ) )
+            {
+                return cipherAlgoMap.get( c );
+            }
+        }
+                
+        throw new IllegalArgumentException( "Unknown algorithm name for the encryption type " + encType );
+    }
+
+    
+    public static Set<EncryptionType> orderEtypesByStrength( Set<EncryptionType> etypes )
+    {
+        Set<EncryptionType> ordered = new LinkedHashSet<EncryptionType>( etypes.size() );
+        
+        for( String algo : cipherAlgoMap.values() )
+        {
+            for( EncryptionType encType : etypes )
+            {
+                String foundAlgo = getAlgoNameFromEncType( encType );
+                
+                if ( algo.equals( foundAlgo ) )
+                {
+                    ordered.add( encType );
+                }
+            }
+        }
+        
+        return ordered;
+    }
+
+    /**
+     * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
+     * whether any resulting error pertains to a server or client.
+     */
+    public static PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
+        throws KerberosException
+    {
+        PrincipalStoreEntry entry = null;
+    
+        try
+        {
+            entry = store.getPrincipal( principal );
+        }
+        catch ( Exception e )
+        {
+            throw new KerberosException( errorType, e );
+        }
+    
+        if ( entry == null )
+        {
+            throw new KerberosException( errorType );
+        }
+    
+        if ( entry.getKeyMap() == null || entry.getKeyMap().isEmpty() )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NULL_KEY );
+        }
+    
+        return entry;
+    }
+
+    /**
+         * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."
+         *
+         * @param authHeader
+         * @param ticket
+         * @param serverKey
+         * @param clockSkew
+         * @param replayCache
+         * @param emptyAddressesAllowed
+         * @param clientAddress
+         * @param lockBox
+         * @param authenticatorKeyUsage
+         * @param isValidate
+         * @return The authenticator.
+         * @throws KerberosException
+         */
+        public static Authenticator verifyAuthHeader( ApReq authHeader, Ticket ticket, EncryptionKey serverKey,
+            long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
+            CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage, boolean isValidate ) throws KerberosException
+        {
+            if ( authHeader.getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
+            }
+    
+            if ( authHeader.getMessageType() != KerberosMessageType.AP_REQ )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
+            }
+    
+            if ( authHeader.getTicket().getTktVno() != KerberosConstants.KERBEROS_V5 )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
+            }
+    
+            EncryptionKey ticketKey = null;
+    
+            if ( authHeader.getOption( ApOptions.USE_SESSION_KEY ) )
+            {
+                ticketKey = authHeader.getTicket().getEncTicketPart().getKey();
+            }
+            else
+            {
+                ticketKey = serverKey;
+            }
+    
+            if ( ticketKey == null )
+            {
+                // TODO - check server key version number, skvno; requires store
+    //            if ( false )
+    //            {
+    //                throw new KerberosException( ErrorType.KRB_AP_ERR_BADKEYVER );
+    //            }
+    
+                throw new KerberosException( ErrorType.KRB_AP_ERR_NOKEY );
+            }
+            
+            byte[] encTicketPartData = lockBox.decrypt( ticketKey, ticket.getEncPart(), KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+            EncTicketPart encPart = KerberosDecoder.decodeEncTicketPart( encTicketPartData ); 
+            ticket.setEncTicketPart( encPart );
+    
+            byte[] authenticatorData = lockBox.decrypt( ticket.getEncTicketPart().getKey(),  authHeader.getAuthenticator(), authenticatorKeyUsage );
+            
+            Authenticator authenticator = KerberosDecoder.decodeAuthenticator( authenticatorData ); 
+    
+            if ( !authenticator.getCName().getNameString().equals( ticket.getEncTicketPart().getCName().getNameString() ) )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_BADMATCH );
+            }
+    
+            if ( ticket.getEncTicketPart().getClientAddresses() != null )
+            {
+                if ( !ticket.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) ) )
+                {
+                    throw new KerberosException( ErrorType.KRB_AP_ERR_BADADDR );
+                }
+            }
+            else
+            {
+                if ( !emptyAddressesAllowed )
+                {
+                    throw new KerberosException( ErrorType.KRB_AP_ERR_BADADDR );
+                }
+            }
+    
+            KerberosPrincipal serverPrincipal = getKerberosPrincipal( ticket.getSName(), ticket.getRealm() );
+            KerberosPrincipal clientPrincipal = getKerberosPrincipal( authenticator.getCName(), authenticator.getCRealm() );
+            KerberosTime clientTime = authenticator.getCtime();
+            int clientMicroSeconds = authenticator.getCusec();
+    
+            if ( replayCache != null )
+            {
+                if ( replayCache.isReplay( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) )
+                {
+                    throw new KerberosException( ErrorType.KRB_AP_ERR_REPEAT );
+                }
+        
+                replayCache.save( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
+            }
+    
+            if ( !authenticator.getCtime().isInClockSkew( clockSkew ) )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_SKEW );
+            }
+    
+            /*
+             * "The server computes the age of the ticket: local (server) time minus
+             * the starttime inside the Ticket.  If the starttime is later than the
+             * current time by more than the allowable clock skew, or if the INVALID
+             * flag is set in the ticket, the KRB_AP_ERR_TKT_NYV error is returned."
+             */
+            KerberosTime startTime = ( ticket.getEncTicketPart().getStartTime() != null ) ? ticket.getEncTicketPart().getStartTime() : ticket.getEncTicketPart().getAuthTime();
+    
+            KerberosTime now = new KerberosTime();
+            boolean isValidStartTime = startTime.lessThan( now );
+    
+            if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().isInvalid() && !isValidate ) )
+            {
+                // it hasn't yet become valid
+                throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
+            }
+    
+            // TODO - doesn't take into account skew
+            if ( !ticket.getEncTicketPart().getEndTime().greaterThan( now ) )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
+            }
+    
+            authHeader.getApOptions().set( ApOptions.MUTUAL_REQUIRED );
+    
+            return authenticator;
+        }
+
+    /**
+     * checks if the given encryption type is *new* (ref sec#3.1.3 of rfc4120)
+     *
+     * @param eType the encryption type
+     * @return true if the encryption type is new, false otherwise
+     */
+    public static boolean isNewEncryptionType( EncryptionType eType )
+    {
+        return !oldEncTypes.contains( eType );
+    }
+        
     /**
      * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."
      *

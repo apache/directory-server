@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -43,7 +44,8 @@ import org.junit.Test;
  */
 public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
 {
-    private KdcServer config;
+    private KerberosConfig config;
+    private KdcServer kdcServer;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private KrbDummySession session;
@@ -55,9 +57,10 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     @Before
     public void setUp()
     {
-        config = new KdcServer();
+        kdcServer = new KdcServer();
+        config = kdcServer.getConfig();
         store = new MapPrincipalStoreImpl();
-        handler = new KerberosProtocolHandler( config, store );
+        handler = new KerberosProtocolHandler( kdcServer, store );
         session = new KrbDummySession();
     }
 
@@ -68,7 +71,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     @After
     public void shutDown()
     {
-        config.stop();
+        kdcServer.stop();
     }
 
 

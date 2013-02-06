@@ -22,7 +22,9 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.api.asn1.AbstractAsn1Object;
 import org.apache.directory.api.asn1.EncoderException;
@@ -90,8 +92,8 @@ public class KdcReqBody extends AbstractAsn1Object
     /** Random number to avoid MiM attacks */
     private int nonce;
 
-    /** List of desired encryption types */
-    private List<EncryptionType> eType;
+    /** Set of desired encryption types */
+    private Set<EncryptionType> eType;
 
     /** Addresses valid for the requested ticket */
     private HostAddresses addresses;
@@ -130,7 +132,7 @@ public class KdcReqBody extends AbstractAsn1Object
     public KdcReqBody()
     {
         additionalTickets = new ArrayList<Ticket>();
-        eType = new ArrayList<EncryptionType>();
+        eType = new LinkedHashSet<EncryptionType>();
     }
 
 
@@ -229,7 +231,7 @@ public class KdcReqBody extends AbstractAsn1Object
      *
      * @return The requested {@link EncryptionType}s.
      */
-    public List<EncryptionType> getEType()
+    public Set<EncryptionType> getEType()
     {
         return eType;
     }
@@ -238,7 +240,7 @@ public class KdcReqBody extends AbstractAsn1Object
     /**
      * @param eType the eType to set
      */
-    public void setEType( List<EncryptionType> eType )
+    public void setEType( Set<EncryptionType> eType )
     {
         this.eType = eType;
     }

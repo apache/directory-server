@@ -98,8 +98,10 @@ public @interface CreateLdapServer
 
     /** The name of this host, validated during SASL negotiation. */
     String saslHost() default "ldap.example.com";
-
-
+    
+    /** The name of this host, validated during SASL negotiation. */
+    String[] saslRealms() default {"example.com"};
+    
     /** The service principal, used by GSSAPI. */
     String saslPrincipal() default "ldap/ldap.example.com@EXAMPLE.COM";
 }

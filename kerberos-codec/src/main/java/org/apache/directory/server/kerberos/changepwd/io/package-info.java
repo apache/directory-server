@@ -19,11 +19,10 @@
  */
 
 /**
- * Provides Command pattern objects for working with the JNDI backing store.
+ * Provides encoders and decoders for request, reply, error, and data
+ * payload conversions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 
-package org.apache.directory.server.kerberos.shared.store.operations;
-
-
+package org.apache.directory.server.kerberos.changepwd.io;

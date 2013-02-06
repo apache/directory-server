@@ -69,4 +69,13 @@ public @interface CreateKdcServer
 
     /** The maximum renewable lifetime. */
     long maxRenewableLifetime() default 60000 * 10080;
+    
+    /** the change password server.
+     * NOTE: this annotation is declared as an array cause there is no
+     * way to define the default value as null for a value in annotation
+     * 
+     * Only the one declaration of changepassword server is enough and 
+     * the first element alone is taken into consideration, rest of the
+     * array elements will be ignored*/
+    CreateChngPwdServer[] chngPwdServer() default {};
 }

@@ -151,7 +151,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         System.setProperty( "java.security.krb5.conf", krb5confPath );
         
         // change encryption type in KDC
-        kdcServer.setEncryptionTypes( Collections.singletonList( parameters.encryptionType ) );
+        kdcServer.getConfig().setEncryptionTypes( Collections.singleton( parameters.encryptionType ) );
 
         // create principals
         createPrincipal( "uid=" + USER_UID, "Last", "First Last",

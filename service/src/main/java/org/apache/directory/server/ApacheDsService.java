@@ -58,7 +58,6 @@ import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
-import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
@@ -195,7 +194,7 @@ public class ApacheDsService
         //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
 
         // start the Kerberos server
-        startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
+        startKerberos( directoryServiceBean, directoryService );
 
         // start the jetty http server
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
@@ -462,12 +461,12 @@ public class ApacheDsService
     /**
      * start the KERBEROS server
      */
-    private void startKerberos( KdcServerBean kdcServerBean, DirectoryService directoryService ) throws Exception
+    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService ) throws Exception
     {
         LOG.info( "Starting the Kerberos server" );
         long startTime = System.currentTimeMillis();
 
-        kdcServer = ServiceBuilder.createKdcServer( kdcServerBean, directoryService );
+        kdcServer = ServiceBuilder.createKdcServer( directoryServiceBean, directoryService );
 
         if ( kdcServer == null )
         {
@@ -475,6 +474,8 @@ public class ApacheDsService
             return;
         }
 
+        LOG.info( "Starting the Kerberos server" );
+        
         getDirectoryService().startup();
         kdcServer.setDirectoryService( getDirectoryService() );
 

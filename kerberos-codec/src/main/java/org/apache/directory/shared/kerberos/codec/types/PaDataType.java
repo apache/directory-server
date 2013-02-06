@@ -101,6 +101,11 @@ public enum PaDataType
     PA_PK_AS_REP(15),
 
     /**
+     * Constant for the "encryption info2" pre-authentication data type.
+     */
+    PA_ENCTYPE_INFO2( 19 ),
+    
+    /**
      * Constant for the "use specified key version" pre-authentication data type.
      */
     PA_USE_SPECIFIED_KVNO(20),
@@ -179,6 +184,8 @@ public enum PaDataType
                 return PA_PK_AS_REQ;
             case 15:
                 return PA_PK_AS_REQ;
+            case 19 :   
+                return PA_ENCTYPE_INFO2;
             case 20:
                 return PA_USE_SPECIFIED_KVNO;
             case 21:
@@ -236,6 +243,9 @@ public enum PaDataType
 
             case PA_PK_AS_REQ:
                 return "PK as request" + "(" + value + ")";
+            
+            case PA_ENCTYPE_INFO2 : 
+                return "Encryption info." + "(" + value + ")";
 
             case PA_PK_AS_REP:
                 return "PK as response" + "(" + value + ")";

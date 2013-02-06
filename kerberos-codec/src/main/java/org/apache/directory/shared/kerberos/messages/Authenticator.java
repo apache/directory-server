@@ -114,6 +114,7 @@ public class Authenticator extends KerberosMessage
     public Authenticator()
     {
         super( KerberosMessageType.AUTHENTICATOR );
+        versionNumber = getProtocolVersionNumber();
     }
 
 
@@ -230,7 +231,7 @@ public class Authenticator extends KerberosMessage
     /**
      * @return the seqNumber
      */
-    public int getSeqNumber()
+    public Integer getSeqNumber()
     {
         return seqNumber;
     }
@@ -327,8 +328,8 @@ public class Authenticator extends KerberosMessage
         reset();
 
         // Compute the Authenticator version length.
-        authenticatorVnoLength = 1 + 1 + BerValue.getNbBytes( getProtocolVersionNumber() );
-        authenticatorSeqLength = 1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
+        authenticatorVnoLength = 1 + 1 + BerValue.getNbBytes( getVersionNumber() );
+        authenticatorSeqLength =  1 + TLV.getNbBytes( authenticatorVnoLength ) + authenticatorVnoLength;
 
         // Compute the  crealm length.
         crealmBytes = Strings.getBytesUtf8( crealm );
@@ -434,8 +435,8 @@ public class Authenticator extends KerberosMessage
             buffer.put( TLV.getBytes( authenticatorVnoLength ) );
 
             // The value
-            BerValue.encode( buffer, getProtocolVersionNumber() );
-
+            BerValue.encode( buffer, getVersionNumber() );
+            
             // The crealm -----------------------------------------------------
             // The tag
             buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_CREALM_TAG );
@@ -495,13 +496,16 @@ public class Authenticator extends KerberosMessage
             }
 
             // The seq-number, if any -----------------------------------------
-            // The tag
-            buffer.put( ( byte ) KerberosConstants.AUTHENTICATOR_SEQ_NUMBER_TAG );
-            buffer.put( TLV.getBytes( seqNumberLength ) );
-
-            // The value
-            BerValue.encode( buffer, seqNumber );
-
+            if ( seqNumber != null )
+            {
+                // The tag
+                buffer.put( (byte)KerberosConstants.AUTHENTICATOR_SEQ_NUMBER_TAG );
+                buffer.put( TLV.getBytes( seqNumberLength ) );
+                
+                // The value
+                BerValue.encode( buffer, seqNumber );
+            }
+            
             // The authorization-data, if any ---------------------------------
             if ( authorizationData != null )
             {

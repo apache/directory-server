@@ -17,7 +17,8 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.protocol.codec;
+
+package org.apache.directory.server.kerberos.changepwd.protocol;
 
 
 import org.apache.mina.core.session.IoSession;
@@ -29,23 +30,23 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
+public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
+    private static final ChangePasswordProtocolCodecFactory INSTANCE = new ChangePasswordProtocolCodecFactory();
 
 
     /**
-     * Returns the singleton {@link KerberosProtocolCodecFactory}.
+     * Returns the singleton instance of {@link ChangePasswordProtocolCodecFactory}.
      *
-     * @return The singleton {@link KerberosProtocolCodecFactory}.
+     * @return The singleton instance of {@link ChangePasswordProtocolCodecFactory}.
      */
-    public static KerberosProtocolCodecFactory getInstance()
+    public static ChangePasswordProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
 
-    private KerberosProtocolCodecFactory()
+    private ChangePasswordProtocolCodecFactory()
     {
         // Private constructor prevents instantiation outside this class.
     }
@@ -54,13 +55,13 @@ public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
     public ProtocolEncoder getEncoder( IoSession session )
     {
         // Create a new encoder.
-        return new KerberosEncoder();
+        return new MinaChangePasswordEncoder();
     }
 
 
     public ProtocolDecoder getDecoder( IoSession session )
     {
         // Create a new decoder.
-        return new KerberosDecoder();
+        return new MinaChangePasswordDecoder();
     }
 }

@@ -59,26 +59,25 @@ public abstract class AbstractAuthenticationServiceTest
     protected static final SecureRandom random = new SecureRandom();
 
 
-    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase, List<EncryptionType> encryptionTypes )
+    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
         throws Exception
     {
         KerberosTime timeStamp = new KerberosTime();
 
-        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp, encryptionTypes );
+        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
     }
 
 
     protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal,
-        String passPhrase, KerberosTime timeStamp, List<EncryptionType> encryptionTypes ) throws Exception
+        String passPhrase, KerberosTime timeStamp ) throws Exception
     {
         PaData[] paData = new PaData[1];
 
         PaEncTsEnc encryptedTimeStamp = new PaEncTsEnc( timeStamp, 0 );
 
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase, encryptionTypes );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
-            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();
@@ -110,13 +109,11 @@ public abstract class AbstractAuthenticationServiceTest
      * @param passPhrase
      * @return The server's {@link EncryptionKey}.
      */
-    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase, List<EncryptionType> encryptionTypes )
+    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase )
     {
-        EncryptionType encryptionType = encryptionTypes.get( 0 );
-        
         KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "AES128" );
         byte[] keyBytes = kerberosKey.getEncoded();
-        EncryptionKey key = new EncryptionKey( encryptionType, keyBytes );
+        EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyBytes );
 
         return key;
     }

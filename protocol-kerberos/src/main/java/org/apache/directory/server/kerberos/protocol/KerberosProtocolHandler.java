@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
@@ -57,8 +58,8 @@ public class KerberosProtocolHandler implements IoHandler
     /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( KerberosProtocolHandler.class );
 
-    /** The KDC server instance */
-    private KdcServer config;
+    /** The KDC server */
+    private KdcServer kdcServer;
 
     /** The principal Name store */
     private PrincipalStore store;
@@ -69,12 +70,12 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * Creates a new instance of KerberosProtocolHandler.
      *
-     * @param config
+     * @param kdcServer
      * @param store
      */
-    public KerberosProtocolHandler( KdcServer config, PrincipalStore store )
+    public KerberosProtocolHandler( KdcServer kdcServer, PrincipalStore store )
     {
-        this.config = config;
+        this.kdcServer = kdcServer;
         this.store = store;
     }
 
@@ -135,7 +136,7 @@ public class KerberosProtocolHandler implements IoHandler
         {
             log.error( I18n.err( I18n.ERR_152, ErrorType.KRB_AP_ERR_BADDIRECTION ) );
 
-            session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
+            session.write( getErrorMessage( kdcServer.getConfig().getServicePrincipal(), new KerberosException(
                 ErrorType.KRB_AP_ERR_BADDIRECTION ) ) );
             return;
         }
@@ -150,7 +151,7 @@ public class KerberosProtocolHandler implements IoHandler
             {
                 case AS_REQ:
                     AuthenticationContext authContext = new AuthenticationContext();
-                    authContext.setConfig( config );
+                    authContext.setConfig( kdcServer.getConfig() );
                     authContext.setStore( store );
                     authContext.setClientAddress( clientAddress );
                     authContext.setRequest( request );
@@ -163,7 +164,8 @@ public class KerberosProtocolHandler implements IoHandler
 
                 case TGS_REQ:
                     TicketGrantingContext tgsContext = new TicketGrantingContext();
-                    tgsContext.setConfig( config );
+                    tgsContext.setConfig( kdcServer.getConfig() );
+                    tgsContext.setReplayCache( kdcServer.getReplayCache() );
                     tgsContext.setStore( store );
                     tgsContext.setClientAddress( clientAddress );
                     tgsContext.setRequest( request );
@@ -195,7 +197,7 @@ public class KerberosProtocolHandler implements IoHandler
                 log.warn( messageText );
             }
 
-            KrbError error = getErrorMessage( config.getServicePrincipal(), ke );
+            KrbError error = getErrorMessage( kdcServer.getConfig().getServicePrincipal(), ke );
 
             if ( log.isDebugEnabled() )
             {
@@ -208,7 +210,7 @@ public class KerberosProtocolHandler implements IoHandler
         {
             log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
-            session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
+            session.write( getErrorMessage( kdcServer.getConfig().getServicePrincipal(), new KerberosException(
                 ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
         }
     }

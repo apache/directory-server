@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.store.operations;
+package org.apache.directory.server.protocol.shared.kerberos;
 
 
 import java.text.ParseException;
@@ -25,21 +25,20 @@ import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
-import org.apache.directory.server.protocol.shared.store.DirectoryServiceOperation;
+import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.codec.types.SamType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 
 
 /**
@@ -47,7 +46,7 @@ import org.apache.directory.shared.kerberos.exceptions.KerberosException;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class GetPrincipal implements DirectoryServiceOperation
+public class GetPrincipal
 {
     /** The name of the principal to get. */
     private final KerberosPrincipal principal;
@@ -121,8 +120,7 @@ public class GetPrincipal implements DirectoryServiceOperation
             catch ( ParseException e )
             {
                 throw new Exception( "Account expiration attribute "
-                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT
-                    + " contained an invalid value for generalizedTime: "
+                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT + " contained an invalid value for generalizedTime: "
                     + val );
             }
         }
@@ -136,7 +134,7 @@ public class GetPrincipal implements DirectoryServiceOperation
         if ( entry.get( KerberosAttribute.KRB5_KEY_AT ) != null )
         {
             Attribute krb5key = entry.get( KerberosAttribute.KRB5_KEY_AT );
-
+            
             try
             {
                 Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
