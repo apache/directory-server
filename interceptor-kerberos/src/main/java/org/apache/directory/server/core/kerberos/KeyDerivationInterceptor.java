@@ -35,12 +35,12 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.StringValue;
-import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -69,10 +69,23 @@ import org.slf4j.LoggerFactory;
 public class KeyDerivationInterceptor extends BaseInterceptor
 {
     /** The log for this class. */
-    private static final Logger log = LoggerFactory.getLogger( KeyDerivationInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( KeyDerivationInterceptor.class );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
 
     /** The service name. */
     private static final String NAME = "keyDerivationService";
+
+    /** The KRB5_KEY attributeType */
+    private AttributeType KRB5_KEY_AT;
+
+    /** The KRB5_PRINCIPAL_NAME_AT attributeType */
+    private AttributeType KRB5_PRINCIPAL_NAME_AT;
+
+    /** The KRB5_KEY_VERSION_NUMBER_AT attributeType */
+    private AttributeType KRB5_KEY_VERSION_NUMBER_AT;
+
+    /** The USER_PASSWORD_AT attributeType */
+    private AttributeType USER_PASSWORD_AT;
 
 
     /**
@@ -85,54 +98,76 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
 
     /**
-     * Intercept the addition of the 'userPassword' and 'krb5PrincipalName' attributes.  Use the 'userPassword'
-     * and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.  If the 'userPassword' is
-     * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
-     * to '0'.
+     * {@inheritDoc}
+     */
+    public void init( DirectoryService directoryService ) throws LdapException
+    {
+        super.init( directoryService );
+
+        KRB5_KEY_AT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT );
+        KRB5_PRINCIPAL_NAME_AT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+        KRB5_KEY_VERSION_NUMBER_AT = schemaManager
+            .lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        USER_PASSWORD_AT = schemaManager
+            .lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
+
+        LOG_KRB.info( "KeyDerivation Interceptor initialized" );
+    }
+
+
+    /**
+     * Intercepts the addition of the 'userPassword' and 'krb5PrincipalName' attributes.
+     * Uses the 'userPassword' and 'krb5PrincipalName' attributes to derive Kerberos keys 
+     * for the principal.  If the 'userPassword' is the special keyword 'randomKey', set 
+     * random keys for the principal.  Set the key version number (kvno) to '0'.
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
+        // Bypass the replication events
         if ( addContext.isReplEvent() )
         {
             next( addContext );
+
             return;
         }
-        
+
         Dn normName = addContext.getDn();
 
         Entry entry = addContext.getEntry();
 
-        if ( ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null ) &&
-            ( entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ) != null ) )
+        if ( ( entry.get( USER_PASSWORD_AT ) != null ) &&
+            ( entry.get( KRB5_PRINCIPAL_NAME_AT ) != null ) )
         {
-            log.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
+            LOG.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
-            BinaryValue userPassword = ( BinaryValue ) entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+            BinaryValue userPassword = ( BinaryValue ) entry.get( USER_PASSWORD_AT ).get();
             String strUserPassword = userPassword.getString();
 
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append( "'" + strUserPassword + "' ( " );
                 sb.append( userPassword );
                 sb.append( " )" );
-                log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
+                LOG.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
             }
 
-            Value<?> principalNameValue = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).get();
+            String principalName = entry.get( KRB5_PRINCIPAL_NAME_AT ).getString();
 
-            String principalName = principalNameValue.getString();
-
-            log.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
+            LOG.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
+            LOG_KRB.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, strUserPassword );
 
-            entry.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalName );
-            entry.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
+            entry.put( KRB5_PRINCIPAL_NAME_AT, principalName );
+            entry.put( KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
-            entry.put( getKeyAttribute( addContext.getSession().getDirectoryService().getSchemaManager(), keys ) );
+            Attribute keyAttribute = getKeyAttribute( keys );
+            entry.put( keyAttribute );
 
-            log.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
+            LOG.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
+                .getName() );
+            LOG_KRB.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
                 .getName() );
         }
 
@@ -153,12 +188,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      */
     public void modify( ModifyOperationContext modContext ) throws LdapException
     {
-        if( modContext.isReplEvent() )
+        // bypass replication events
+        if ( modContext.isReplEvent() )
         {
             next( modContext );
             return;
         }
-        
+
         ModifySubContext subContext = new ModifySubContext();
 
         detectPasswordModification( modContext, subContext );
@@ -181,11 +217,11 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * Detect password modification by checking the modify request for the 'userPassword'.  Additionally,
      * check to see if a 'krb5PrincipalName' was provided.
      *
-     * @param modContext
-     * @param subContext
-     * @throws LdapException
+     * @param modContext The original ModifyContext
+     * @param subContext The modification container
+     * @throws LdapException If we get an exception
      */
-    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
+    private void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
         throws LdapException
     {
         List<Modification> mods = modContext.getModItems();
@@ -195,7 +231,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         // Loop over attributes being modified to pick out 'userPassword' and 'krb5PrincipalName'.
         for ( Modification mod : mods )
         {
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
                 switch ( mod.getOperation() )
                 {
@@ -215,7 +251,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             Attribute attr = mod.getAttribute();
 
-            if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( attr.getAttributeType().getOid() ) )
+            if ( USER_PASSWORD_AT.equals( attr.getAttributeType() ) )
             {
                 Object firstValue = attr.get();
                 String password = null;
@@ -223,30 +259,34 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 if ( firstValue instanceof StringValue )
                 {
                     password = ( ( StringValue ) firstValue ).getString();
-                    log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
+                    LOG.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
+                    LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
                 else if ( firstValue instanceof BinaryValue )
                 {
                     password = ( ( BinaryValue ) firstValue ).getString();
 
-                    if ( log.isDebugEnabled() )
+                    if ( LOG.isDebugEnabled() )
                     {
                         StringBuffer sb = new StringBuffer();
                         sb.append( "'" + password + "' ( " );
                         sb.append( Strings.dumpBytes( ( ( BinaryValue ) firstValue ).getBytes() ).trim() );
                         sb.append( " )" );
-                        log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
+                        LOG.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
+                        LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                     }
                 }
 
                 subContext.setUserPassword( password );
-                log.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
+                LOG.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
+                LOG_KRB.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
-            if ( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT_OID.equals( attr.getAttributeType().getOid() ) )
+            if ( KRB5_PRINCIPAL_NAME_AT.equals( attr.getAttributeType() ) )
             {
                 subContext.setPrincipalName( attr.getString() );
-                log.debug( "Got principal '{}'.", subContext.getPrincipalName() );
+                LOG.debug( "Got principal '{}'.", subContext.getPrincipalName() );
+                LOG_KRB.debug( "Got principal '{}'.", subContext.getPrincipalName() );
             }
         }
     }
@@ -255,19 +295,19 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     /**
      * Lookup the principal's attributes that are relevant to executing key derivation.
      *
-     * @param modContext
-     * @param subContext
-     * @throws LdapException
+     * @param modContext The original ModifyContext
+     * @param subContext The modification container
+     * @throws LdapException If we get an exception
      */
-    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
+    private void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
         throws LdapException
     {
         Dn principalDn = modContext.getDn();
 
         LookupOperationContext lookupContext = modContext.newLookupContext( principalDn,
-                SchemaConstants.OBJECT_CLASS_AT,
-                KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
-                KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+            SchemaConstants.OBJECT_CLASS_AT,
+            KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
+            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
 
         Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -276,42 +316,44 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
         }
 
-        Attribute objectClass = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
-            SchemaConstants.OBJECT_CLASS_AT );
-
-        if ( !objectClass.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
+        if ( !( ( ClonedServerEntry ) userEntry ).getOriginalEntry().contains( OBJECT_CLASS_AT,
+            SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
             return;
         }
         else
         {
             subContext.isPrincipal( true );
-            log.debug( "Dn {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
+            LOG.debug( "Dn {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
+            LOG_KRB.debug( "Dn {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getName() );
         }
 
         if ( subContext.getPrincipalName() == null )
         {
             Attribute principalAttribute = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
-                KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+                KRB5_PRINCIPAL_NAME_AT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
-            log.debug( "Found principal '{}' from lookup.", principalName );
+            LOG.debug( "Found principal '{}' from lookup.", principalName );
+            LOG_KRB.debug( "Found principal '{}' from lookup.", principalName );
         }
 
         Attribute keyVersionNumberAttr = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
-            KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+            KRB5_KEY_VERSION_NUMBER_AT );
 
         if ( keyVersionNumberAttr == null )
         {
             subContext.setNewKeyVersionNumber( 0 );
-            log.debug( "Key version number was null, setting to 0." );
+            LOG.debug( "Key version number was null, setting to 0." );
+            LOG_KRB.debug( "Key version number was null, setting to 0." );
         }
         else
         {
             int oldKeyVersionNumber = Integer.valueOf( keyVersionNumberAttr.getString() );
             int newKeyVersionNumber = oldKeyVersionNumber + 1;
             subContext.setNewKeyVersionNumber( newKeyVersionNumber );
-            log.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
+            LOG.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
+            LOG_KRB.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
         }
     }
 
@@ -321,8 +363,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      *
-     * @param modContext
-     * @param subContext
+     * @param modContext The original ModifyContext
+     * @param subContext The modification container
      */
     void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext ) throws LdapException
     {
@@ -332,7 +374,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         String userPassword = subContext.getUserPassword();
         int kvno = subContext.getNewKeyVersionNumber();
 
-        log.debug( "Got principal '{}' with userPassword '{}'.", principalName, userPassword );
+        LOG.debug( "Got principal '{}' with userPassword '{}'.", principalName, userPassword );
+        LOG_KRB.debug( "Got principal '{}' with userPassword '{}'.", principalName, userPassword );
 
         Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
@@ -344,39 +387,47 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             newModsList.add( mod );
         }
 
-        SchemaManager schemaManager = modContext.getSession()
-            .getDirectoryService().getSchemaManager();
-
         // Add our modification items.
-        newModsList.add(
+        Modification krb5PrincipalName =
             new DefaultModification(
                 ModificationOperation.REPLACE_ATTRIBUTE,
                 new DefaultAttribute(
-                    KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
-                    schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ),
-                    principalName ) ) );
-        newModsList.add(
-            new DefaultModification(
-                ModificationOperation.REPLACE_ATTRIBUTE,
-                new DefaultAttribute(
-                    KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT,
-                    schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ),
-                    Integer.toString( kvno ) ) ) );
+                    KRB5_PRINCIPAL_NAME_AT,
+                    principalName ) );
+        newModsList.add( krb5PrincipalName );
 
-        Attribute attribute = getKeyAttribute( modContext.getSession()
-            .getDirectoryService().getSchemaManager(), keys );
+        Modification krb5KeyVersionNumber =
+            new DefaultModification(
+                ModificationOperation.REPLACE_ATTRIBUTE,
+                new DefaultAttribute(
+                    KRB5_KEY_VERSION_NUMBER_AT,
+                    Integer.toString( kvno ) ) );
+
+        newModsList.add( krb5KeyVersionNumber );
+
+        Attribute attribute = getKeyAttribute( keys );
         newModsList.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute ) );
+
+        LOG.debug( "Added two modifications to the current request : {} and {}", krb5PrincipalName,
+            krb5KeyVersionNumber );
+        LOG_KRB.debug( "Added two modifications to the current request : {} and {}", krb5PrincipalName,
+            krb5KeyVersionNumber );
 
         modContext.setModItems( newModsList );
     }
 
 
-    private Attribute getKeyAttribute( SchemaManager schemaManager, Map<EncryptionType, EncryptionKey> keys )
+    /**
+     * Create the KRB5_KEY attribute with all the associated keys.
+     *  
+     * @param keys The keys to inject in the attribute
+     * @return The create attribute
+     * @throws LdapException If we had an error while adding a key in the attribute
+     */
+    private Attribute getKeyAttribute( Map<EncryptionType, EncryptionKey> keys )
         throws LdapException
     {
-        Attribute keyAttribute =
-            new DefaultAttribute( KerberosAttribute.KRB5_KEY_AT,
-                schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT ) );
+        Attribute keyAttribute = new DefaultAttribute( KRB5_KEY_AT );
 
         for ( EncryptionKey encryptionKey : keys.values() )
         {
@@ -388,7 +439,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
             catch ( EncoderException ioe )
             {
-                log.error( I18n.err( I18n.ERR_122 ), ioe );
+                LOG.error( I18n.err( I18n.ERR_122 ), ioe );
+                LOG_KRB.error( I18n.err( I18n.ERR_122 ), ioe );
             }
         }
 
@@ -396,6 +448,13 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Generate the keys.
+     * 
+     * @param principalName The Principal
+     * @param userPassword Its password
+     * @return A Map of keys
+     */
     private Map<EncryptionType, EncryptionKey> generateKeys( String principalName, String userPassword )
     {
         if ( userPassword.equalsIgnoreCase( "randomKey" ) )
@@ -407,7 +466,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
             catch ( KerberosException ke )
             {
-                log.debug( ke.getLocalizedMessage(), ke );
+                LOG.debug( ke.getLocalizedMessage(), ke );
+                LOG_KRB.debug( ke.getLocalizedMessage(), ke );
+
                 return null;
             }
         }
@@ -418,11 +479,23 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
     }
 
+    /**
+     * A ModifyContext used to store the changes made to the original context. This
+     * is used while processing a ModifyOperation and will be injected in the
+     * original ModifyContext.
+     */
     static class ModifySubContext
     {
+        /** Tells if this is a principal */
         private boolean isPrincipal = false;
+
+        /** The Principal name */
         private String principalName;
+
+        /** The User password */
         private String userPassword;
+
+        /** The Key version */
         private int newKeyVersionNumber = -1;
 
 
@@ -476,7 +549,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         boolean hasValues()
         {
-            return userPassword != null && principalName != null && newKeyVersionNumber > -1;
+            return ( userPassword != null ) && ( principalName != null ) && ( newKeyVersionNumber > -1 );
         }
     }
 }
