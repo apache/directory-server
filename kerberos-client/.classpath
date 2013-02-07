@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes" excluding="**/*.java"/>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="target/maven-shared-archive-resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/directory/junit/junit-addons/0.1/junit-addons-0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.11/junit-4.11.jar" sourcepath="M2_REPO/junit/junit/4.11/junit-4.11-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/junit/junit/4.11/junit-4.11-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" sourcepath="M2_REPO/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-kerberos-codec"/>
+  <classpathentry kind="src" path="/apacheds-core-api"/>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-core-constants"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-i18n"/>
+  <classpathentry kind="src" path="/api-i18n"/>
+  <classpathentry kind="src" path="/api-asn1-api"/>
+  <classpathentry kind="src" path="/api-ldap-client-api"/>
+  <classpathentry kind="src" path="/api-ldap-schema-data"/>
+  <classpathentry kind="src" path="/api-ldap-model"/>
+  <classpathentry kind="src" path="/api-util"/>
+  <classpathentry kind="src" path="/api-asn1-ber"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/mina/mina-core/2.0.7/mina-core-2.0.7.jar" sourcepath="M2_REPO/org/apache/mina/mina-core/2.0.7/mina-core-2.0.7-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/org/apache/mina/mina-core/2.0.7/mina-core-2.0.7-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/api-ldap-codec-core"/>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.6/commons-pool-1.6.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.6/commons-pool-1.6-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-pool/commons-pool/1.6/commons-pool-1.6-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/api-ldap-extras-aci"/>
+  <classpathentry kind="src" path="/api-ldap-extras-util"/>
+  <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache-core/2.4.4/ehcache-core-2.4.4.jar" sourcepath="M2_REPO/net/sf/ehcache/ehcache-core/2.4.4/ehcache-core-2.4.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/net/sf/ehcache/ehcache-core/2.4.4/ehcache-core-2.4.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-protocol-shared"/>
+  <classpathentry kind="src" path="/apacheds-core-annotations"/>
+  <classpathentry kind="src" path="/apacheds-core"/>
+  <classpathentry kind="src" path="/apacheds-core-shared"/>
+  <classpathentry kind="src" path="/api-ldap-extras-codec-api"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-admin"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-authn"/>
+  <classpathentry kind="src" path="/api-ldap-extras-codec"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-authz"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-changelog"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-collective"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-event"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-exception"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-journal"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-normalization"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-operational"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-referral"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-schema"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-subtree"/>
+  <classpathentry kind="src" path="/apacheds-interceptors-trigger"/>
+  <classpathentry kind="src" path="/api-ldap-extras-trigger"/>
+  <classpathentry kind="var" path="M2_REPO/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140.jar" sourcepath="M2_REPO/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/bouncycastle/bcprov-jdk15/140/bcprov-jdk15-140-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-ldif-partition"/>
+  <classpathentry kind="src" path="/apacheds-xdbm-partition"/>
+  <classpathentry kind="src" path="/apacheds-core-avl"/>
+  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.4/commons-io-2.4.jar" sourcepath="M2_REPO/commons-io/commons-io/2.4/commons-io-2.4-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-jdbm-partition"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/directory/jdbm/apacheds-jdbm1/2.0.0-M2/apacheds-jdbm1-2.0.0-M2.jar" sourcepath="M2_REPO/org/apache/directory/jdbm/apacheds-jdbm1/2.0.0-M2/apacheds-jdbm1-2.0.0-M2-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/org/apache/directory/jdbm/apacheds-jdbm1/2.0.0-M2/apacheds-jdbm1-2.0.0-M2-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="src" path="/apacheds-server-annotations"/>
+  <classpathentry kind="src" path="/apacheds-protocol-kerberos"/>
+  <classpathentry kind="src" path="/apacheds-protocol-ldap"/>
+  <classpathentry kind="src" path="/api-ldap-extras-sp"/>
+  <classpathentry kind="src" path="/apacheds-test-framework"/>
+  <classpathentry kind="src" path="/api-ldap-codec-standalone"/>
+  <classpathentry kind="src" path="/api-ldap-net-mina"/>
+  <classpathentry kind="src" path="/apacheds-interceptor-kerberos"/>
+  <classpathentry kind="var" path="M2_REPO/findbugs/annotations/1.0.0/annotations-1.0.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.7.2/slf4j-log4j12-1.7.2.jar" sourcepath="M2_REPO/org/slf4j/slf4j-log4j12/1.7.2/slf4j-log4j12-1.7.2-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/org/slf4j/slf4j-log4j12/1.7.2/slf4j-log4j12-1.7.2-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17.jar" sourcepath="M2_REPO/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/elecharny/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+</classpath>
