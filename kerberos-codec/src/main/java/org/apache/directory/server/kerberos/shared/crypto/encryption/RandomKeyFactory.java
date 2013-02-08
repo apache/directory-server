@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,10 +30,10 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 
 
 /**
@@ -87,11 +86,9 @@ public class RandomKeyFactory
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 
-        Iterator<EncryptionType> it = ciphers.iterator();
-        while ( it.hasNext() )
+        for ( EncryptionType encryptionType : ciphers )
         {
-            EncryptionType type = it.next();
-            map.put( type, getRandomKey( type ) );
+            map.put( encryptionType, getRandomKey( encryptionType ) );
         }
 
         return map;

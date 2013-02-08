@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,10 +90,8 @@ public class KerberosKeyFactory
     {
         Map<EncryptionType, EncryptionKey> kerberosKeys = new HashMap<EncryptionType, EncryptionKey>();
 
-        Iterator<EncryptionType> it = ciphers.iterator();
-        while ( it.hasNext() )
+        for ( EncryptionType encryptionType : ciphers )
         {
-            EncryptionType encryptionType = it.next();
             try
             {
                 kerberosKeys.put( encryptionType, string2Key( principalName, passPhrase, encryptionType ) );
@@ -109,15 +106,16 @@ public class KerberosKeyFactory
 
         return kerberosKeys;
     }
-    
-    
+
+
     public static EncryptionKey string2Key( String principalName, String passPhrase, EncryptionType encryptionType )
     {
         KerberosPrincipal principal = new KerberosPrincipal( principalName );
-        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), KerberosUtils.getAlgoNameFromEncType( encryptionType ) );
+        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(),
+            KerberosUtils.getAlgoNameFromEncType( encryptionType ) );
         EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
             .getVersionNumber() );
-        
+
         return encryptionKey;
     }
 }
