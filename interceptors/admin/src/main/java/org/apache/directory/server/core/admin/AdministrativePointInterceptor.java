@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.admin;
 
 
+import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1144,16 +1145,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // administrative point, finally the Inner administrative Point
         Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
 
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { SchemaConstants.ADMINISTRATIVE_ROLE_AT } );
-
         // get the list of all the AAPs
         List<Entry> administrativePoints = getAdministrativePoints();
 
         lockWrite();
-        
+
         try
         {
             addAdminPointCache( administrativePoints );
@@ -1226,12 +1222,12 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             {
                 checkAddRole( role, adminPoint, dn );
             }
-    
+
             // Ok, we are golden.
             next( addContext );
-    
+
             String apUuid = entry.get( ENTRY_UUID_AT ).getString();
-    
+
             // Now, update the AdminPoint cache
             createAdministrativePoints( adminPoint, dn, apUuid );
         }
@@ -1292,10 +1288,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                     throw new LdapUnwillingToPerformException( message );
                 }
             }
-    
+
             // Ok, we can remove the AP
             next( deleteContext );
-    
+
             // Now, update the AdminPoint cache
             deleteAdminPointCache( adminPoint, deleteContext );
         }
