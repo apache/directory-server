@@ -580,15 +580,22 @@ public class ServiceBuilder
             return new EncryptionType[0];
         }
 
-        EncryptionType[] types = new EncryptionType[encryptionTypes.size()];
-        int pos = 0;
+        List<EncryptionType> types = new ArrayList<EncryptionType>();
 
         for ( String encryptionType : encryptionTypes )
         {
-            types[pos++] = EncryptionType.getByName( encryptionType );
+            EncryptionType et = EncryptionType.getByName( encryptionType );
+            if( et == EncryptionType.UNKNOWN )
+            {
+                LOG.warn( "Unknown encryption type {}", encryptionType );
+            }
+            else
+            {
+                types.add( et );
+            }
         }
 
-        return types;
+        return types.toArray(new EncryptionType[0]);
     }
 
 
