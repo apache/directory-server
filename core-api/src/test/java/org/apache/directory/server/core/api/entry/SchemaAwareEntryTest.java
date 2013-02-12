@@ -62,14 +62,9 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -77,8 +72,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class SchemaAwareEntryTest
 {
     private final byte[] BYTES1 = new byte[]
@@ -136,7 +129,7 @@ public class SchemaAwareEntryTest
             fail( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
     }
-    
+
 
     @Before
     public void init() throws Exception
