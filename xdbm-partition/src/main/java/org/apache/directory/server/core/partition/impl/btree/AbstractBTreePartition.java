@@ -156,12 +156,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /** the one level scope alias index */
     protected Index<String, Entry, String> oneAliasIdx;
 
+    /** a system index on administrativeRole attribute */
+    protected Index<String, Entry, String> adminRoleIdx;
+
     /** Cached attributes types to avoid lookup all over the code */
     protected AttributeType OBJECT_CLASS_AT;
     protected AttributeType ENTRY_CSN_AT;
     protected AttributeType ENTRY_DN_AT;
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
+    protected AttributeType ADMINISTRATIVE_ROLE_AT;
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
@@ -192,6 +196,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
     }
 
 
@@ -331,6 +336,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             addIndex( index );
         }
 
+        if ( getAdministrativeRoleIndex() == null )
+        {
+            Index<String, Entry, String> index = createSystemIndex( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID,
+                partitionPath,
+                NO_REVERSE );
+            addIndex( index );
+        }
+
         // convert and initialize system indices
         for ( String oid : systemIndices.keySet() )
         {
@@ -350,6 +363,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             .get( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
         objectClassIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
         entryCsnIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
+        adminRoleIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
     }
 
 
@@ -585,7 +599,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
-            
+
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
@@ -697,6 +711,21 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             entryCsnIdx.add( entryCsn.getString(), id );
 
+            // Update the AdministrativeRole index, if needed
+            if ( entry.containsAttribute( ADMINISTRATIVE_ROLE_AT ) )
+            {
+                // We may have more than one role
+                Attribute adminRoles = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+                for ( Value<?> value : adminRoles )
+                {
+                    adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                }
+
+                // Adds only those attributes that are indexed
+                presenceIdx.add( ADMINISTRATIVE_ROLE_AT.getOid(), id );
+            }
+
             // Now work on the user defined userIndices
             for ( Attribute attribute : entry )
             {
@@ -738,7 +767,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 // Remove the EntryDN attribute
                 entry.removeAttributes( ENTRY_DN_AT );
-                
+
                 // And finally add the entry into the master table
                 master.put( id, entry );
             }
@@ -805,9 +834,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             // We now defer the deletion to the implementing class
             Entry deletedEntry = delete( id );
-            
+
             updateCache( deleteContext );
-            
+
             return deletedEntry;
         }
         catch ( LdapException le )
@@ -918,6 +947,21 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Update the rdn, oneLevel, subLevel, and entryCsn indexes
             entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
 
+            // Update the AdministrativeRole index, if needed
+            if ( entry.containsAttribute( ADMINISTRATIVE_ROLE_AT ) )
+            {
+                // We may have more than one role
+                Attribute adminRoles = entry.get( ADMINISTRATIVE_ROLE_AT );
+
+                for ( Value<?> value : adminRoles )
+                {
+                    adminRoleIdx.drop( ( String ) value.getNormValue(), id );
+                }
+
+                // Deletes only those attributes that are indexed
+                presenceIdx.drop( ADMINISTRATIVE_ROLE_AT.getOid(), id );
+            }
+
             // Update the user indexes
             for ( Attribute attribute : entry )
             {
@@ -958,7 +1002,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 sync();
             }
-            
+
             return entry;
         }
         catch ( Exception e )
@@ -1032,7 +1076,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             Dn dn = buildEntryDn( id );
-    
+
             return fetch( id, dn );
         }
         catch ( Exception e )
@@ -1058,17 +1102,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             Entry entry = lookupCache( id );
-            
+
             if ( entry != null )
             {
                 if ( !entry.containsAttribute( ENTRY_DN_AT ) )
                 {
                     entry.add( ENTRY_DN_AT, dn.getName() );
                 }
-                
+
                 return new ClonedServerEntry( entry );
             }
-            
+
             lockRead();
 
             try
@@ -1094,7 +1138,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
 
                 addToCache( id, entry );
-                
+
                 return new ClonedServerEntry( entry );
             }
 
@@ -1120,9 +1164,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Entry modifiedEntry = modify( modifyContext.getDn(),
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
-            
+
             modifyContext.setAlteredEntry( modifiedEntry );
-            
+
             updateCache( modifyContext );
         }
         catch ( Exception e )
@@ -1167,7 +1211,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Remove the EntryDN
         entry.removeAttributes( ENTRY_DN_AT );
-        
+
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1223,9 +1267,23 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 presenceIdx.add( modsOid, id );
             }
         }
+        // Special case for the AdministrativeRole index
+        else if ( modsOid.equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
+        {
+            // We may have more than one role 
+            for ( Value<?> value : mods )
+            {
+                adminRoleIdx.add( ( String ) value.getNormValue(), id );
+            }
+
+            // If the attr didn't exist for this id add it to presence index
+            if ( !presenceIdx.forward( modsOid, id ) )
+            {
+                presenceIdx.add( modsOid, id );
+            }
+        }
 
         // add all the values in mods to the same attribute in the entry
-
         for ( Value<?> value : mods )
         {
             entry.add( mods.getAttributeType(), value );
@@ -1305,6 +1363,21 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             if ( null == index.reverseLookup( id ) )
             {
                 presenceIdx.drop( modsOid, id );
+            }
+        }
+        // Special case for the AdministrativeRole index
+        else if ( attributeType.equals( ADMINISTRATIVE_ROLE_AT ) )
+        {
+            // Remove the previous values
+            for ( Value<?> value : entry.get( ADMINISTRATIVE_ROLE_AT ) )
+            {
+                objectClassIdx.drop( ( String ) value.getNormValue(), id );
+            }
+
+            // And add the new ones 
+            for ( Value<?> value : mods )
+            {
+                adminRoleIdx.add( ( String ) value.getNormValue(), id );
             }
         }
 
@@ -1408,6 +1481,24 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
              * we remove the presence index entry for the removed attribute.
              */
             if ( null == index.reverseLookup( id ) )
+            {
+                presenceIdx.drop( modsOid, id );
+            }
+        }
+        // Special case for the AdministrativeRole index
+        else if ( modsOid.equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
+        {
+            // We may have more than one role 
+            for ( Value<?> value : mods )
+            {
+                adminRoleIdx.drop( ( String ) value.getNormValue(), id );
+            }
+
+            /*
+             * If no attribute values exist for this entryId in the index then
+             * we remove the presence index entry for the removed attribute.
+             */
+            if ( null == adminRoleIdx.reverseLookup( id ) )
             {
                 presenceIdx.drop( modsOid, id );
             }
@@ -1566,7 +1657,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Remove the EntryDN
         modifiedEntry.removeAttributes( ENTRY_DN_AT );
-        
+
         master.put( entryId, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
@@ -1767,7 +1858,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 rename( oldDn, newRdn, deleteOldRdn, null );
             }
-            
+
             updateCache( renameContext );
         }
         catch ( Exception e )
@@ -1881,7 +1972,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Remove the EntryDN
         entry.removeAttributes( ENTRY_DN_AT );
-        
+
         // And save the modified entry
         master.put( oldId, entry );
     }
@@ -2346,6 +2437,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
+    public Index<String, Entry, String> getAdministrativeRoleIndex()
+    {
+        return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
     public Index<String, Entry, String> getPresenceIndex()
     {
         return ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
@@ -2745,8 +2846,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         masterTableLock.writeLock().unlock();
     }
-    
-    
+
+
     /**
      * updates the cache based on the type of OperationContext
      * 
@@ -2757,7 +2858,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // partition implementations should override this if they want to use cache
     }
 
-    
+
     /**
      * looks up for the entry with the given ID in the cache
      *
@@ -2768,8 +2869,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         return null;
     }
-    
-    
+
+
     /**
      * adds the given entry to cache
      *  

@@ -98,7 +98,8 @@ public interface Store
             ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
             SchemaConstants.ENTRY_CSN_AT_OID,
             SchemaConstants.ENTRY_UUID_AT_OID,
-            SchemaConstants.OBJECT_CLASS_AT_OID
+            SchemaConstants.OBJECT_CLASS_AT_OID,
+            SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID
     };
 
     public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays

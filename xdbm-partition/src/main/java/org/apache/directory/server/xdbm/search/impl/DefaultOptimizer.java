@@ -306,7 +306,7 @@ public class DefaultOptimizer<E> implements Optimizer
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
-            
+
             if ( isGreaterThan )
             {
                 return idx.greaterThanCount( node.getValue().getValue() );
@@ -320,8 +320,8 @@ public class DefaultOptimizer<E> implements Optimizer
         // count for non-indexed attribute is unknown so we presume da worst
         return Long.MAX_VALUE;
     }
-    
-    
+
+
     /**
      * Get a scan count based on a Substring node : we will count the entries that are greater
      * than ABC where the filter is (attr=ABC*). Any other filter won't be evaluated (for instance,
@@ -337,9 +337,9 @@ public class DefaultOptimizer<E> implements Optimizer
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             Index<String, E, String> idx = ( Index<String, E, String> ) db.getIndex( node.getAttributeType() );
-            
+
             String initial = node.getInitial();
-            
+
             if ( Strings.isEmpty( initial ) )
             {
                 // Not a (attr=ABC*) filter : full scan
@@ -391,8 +391,15 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, Entry, String> idx = db.getPresenceIndex();
-            return idx.count( node.getAttributeType().getOid() );
+            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+
+            return presenceIndex.count( node.getAttributeType().getOid() );
+        }
+        else if ( node.getAttributeType().getOid().equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
+        {
+            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+
+            return presenceIndex.count( node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() )
             || ( node.getAttributeType().getOid() == SchemaConstants.ENTRY_UUID_AT_OID ) )
