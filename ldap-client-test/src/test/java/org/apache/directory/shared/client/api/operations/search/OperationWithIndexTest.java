@@ -42,7 +42,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,24 +50,24 @@ import org.junit.runner.RunWith;
 @CreateDS(
     name = "AddPerfDS",
     partitions =
-    {
-        @CreatePartition(
-            name = "example",
-            suffix = "dc=example,dc=com",
-            contextEntry = @ContextEntry(
-                entryLdif =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "dc: example\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n" ),
-            indexes =
-            {
-                @CreateIndex( attribute = "objectClass" ),
-                @CreateIndex( attribute = "sn" ),
-                @CreateIndex( attribute = "cn" ),
-                @CreateIndex( attribute = "displayName" )
-            } )
-            
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn"),
+                        @CreateIndex(attribute = "displayName")
+                })
+
     },
     enableChangeLog = false)
 @CreateLdapServer(transports =
@@ -109,7 +108,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
      * Test an add operation performance
      */
     @Test
-    @Ignore
+    //@Ignore
     public void testAddPerf() throws Exception
     {
         Dn dn = new Dn( "cn=test,ou=system" );
@@ -118,7 +117,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
-    
+
         connection.add( entry );
 
         int nbIterations = 8000;
@@ -139,18 +138,21 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 5000 )
+            if ( i == 500 )
             {
                 t00 = System.currentTimeMillis();
             }
-    
+
             dn = new Dn( "uid=" + i + ",dc=example,dc=com" );
-            entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            entry = new DefaultEntry(
+                getService().getSchemaManager(),
+                dn,
                 "objectClass: top",
                 "objectClass: person",
                 "objectClass: organizationalPerson",
                 "objectClass: inetOrgPerson",
-                "uid", Integer.toString( i ),
+                "uid",
+                Integer.toString( i ),
                 "mail: A-A-R.Awg-Rosli@acme.com",
                 "title: Snr Operations Technician (D)",
                 "sn: Awg-Rosli",
@@ -160,7 +162,8 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
                 "telephoneNumber: 555-1212",
                 "givenName: Awg-Abd-Rahim",
                 "businessCategory: Ops MDS (Malaysia) Sdn Bhd",
-                "displayName", i + "Awg-Rosli, Awg-Abd-Rahim SMDS-UIA/G/MMO52D",
+                "displayName",
+                i + "Awg-Rosli, Awg-Abd-Rahim SMDS-UIA/G/MMO52D",
                 "employeeNumber: A-A-R.Awg-Rosli",
                 "pwdPolicySubEntry: ads-pwdId=cproint,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
 
@@ -174,15 +177,17 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
 
         Entry entry1 = null;
         Entry entry2 = null;
         Entry entry3 = null;
 
         long ns0 = System.currentTimeMillis();
-        EntryCursor results = connection.search("dc=example,dc=com", "(displayName=1234Awg-Rosli, Awg-Abd-Rahim SMDS-UIA/G/MMO52D)", SearchScope.SUBTREE, "*" );
-        
+        EntryCursor results = connection.search( "dc=example,dc=com",
+            "(displayName=1234Awg-Rosli, Awg-Abd-Rahim SMDS-UIA/G/MMO52D)", SearchScope.SUBTREE, "*" );
+
         while ( results.next() )
         {
             if ( entry1 == null )
@@ -199,7 +204,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
 
         long ns2 = System.currentTimeMillis();
         results = connection.search( "dc=example,dc=com", "(displayName=3456*)", SearchScope.SUBTREE, "*" );
-                
+
         while ( results.next() )
         {
             if ( entry2 == null )
@@ -214,8 +219,8 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         System.out.println( "Delta search substring : " + ( ns3 - ns2 ) );
 
         long ns4 = System.currentTimeMillis();
-        results = connection.search("dc=example,dc=com", "(uid=6789)", SearchScope.SUBTREE, "*" );
-                
+        results = connection.search( "dc=example,dc=com", "(uid=6789)", SearchScope.SUBTREE, "*" );
+
         while ( results.next() )
         {
             if ( entry3 == null )
@@ -236,13 +241,20 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
 
         // Now, shutdown and restart the server once more
         System.out.println( "--------------> Shuting Down" );
+        long ns6 = System.currentTimeMillis();
         getService().shutdown();
+        long ns7 = System.currentTimeMillis();
+        System.out.println( "--------------> completed in " + ( ns7 - ns6 ) );
+
+        long ns8 = System.currentTimeMillis();
         getService().startup();
+        long ns9 = System.currentTimeMillis();
+        System.out.println( "--------------> Starting up completed in " + ( ns9 - ns8 ) );
 
         // and do a search again
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
-        long ns6 = System.currentTimeMillis();
+        long ns10 = System.currentTimeMillis();
         results = connection.search( "dc=example,dc=com", "(displayName=345*)", SearchScope.SUBTREE, "*" );
 
         while ( results.next() )
@@ -252,8 +264,40 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         }
 
         results.close();
-        long ns7 = System.currentTimeMillis();
-        System.out.println( "New Delta search substring : " + ( ns7 - ns6 ) );
+        long ns11 = System.currentTimeMillis();
+        System.out.println( "New Delta search substring : " + ( ns11 - ns10 ) );
+
+        connection.close();
+
+        // And again
+
+        // Now, shutdown and restart the server once more
+        System.out.println( "--------------> Shuting Down 2" );
+        long ns12 = System.currentTimeMillis();
+        getService().shutdown();
+        long ns13 = System.currentTimeMillis();
+        System.out.println( "--------------> completed in " + ( ns13 - ns12 ) );
+
+        long ns14 = System.currentTimeMillis();
+        getService().startup();
+        long ns15 = System.currentTimeMillis();
+        System.out.println( "--------------> Starting up completed in " + ( ns15 - ns14 ) );
+
+        // and do a search again
+        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+
+        long ns16 = System.currentTimeMillis();
+        results = connection.search( "dc=example,dc=com", "(displayName=345*)", SearchScope.SUBTREE, "*" );
+
+        while ( results.next() )
+        {
+            entry3 = results.get();
+            break;
+        }
+
+        results.close();
+        long ns17 = System.currentTimeMillis();
+        System.out.println( "New Delta search substring : " + ( ns17 - ns16 ) );
 
         connection.close();
     }
