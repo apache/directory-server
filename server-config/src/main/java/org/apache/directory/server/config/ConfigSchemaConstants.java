@@ -263,8 +263,6 @@ public enum ConfigSchemaConstants
 
     ADS_REPL_ENABLE_PROVIDER("ads-enableReplProvider", ""),
 
-    //ADS_REPL_PEER_CERTIFICATE( "ads-replPeerCertificate", "" ),
-
     //ADS_REPL_USE_TLS( "ads-replUseTls", "" ),
 
     ADS_LDAP_SERVER_SASL_MECH_NAME("ads-ldapServerSaslMechName", ""),
