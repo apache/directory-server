@@ -100,7 +100,6 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.replication.ReplicationTrustManager;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
@@ -1104,12 +1103,6 @@ public class ServiceBuilder
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
 
                 config.setConfigEntryDn( replBean.getDn() );
-
-                if ( replBean.getReplPeerCertificate() != null )
-                {
-                    ReplicationTrustManager.addCertificate( replBean.getReplConsumerId(),
-                        replBean.getReplPeerCertificate() );
-                }
 
                 consumer.setConfig( config );
 

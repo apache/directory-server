@@ -102,10 +102,6 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION, isOptional = true)
     private boolean replStrictCertValidation;
 
-    /** The peer certificate */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_PEER_CERTIFICATE, isOptional = true)
-    private byte[] replPeerCertificate;
-
     /** The FQCN of replication client implementation */
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL, isOptional = true)
     private String replConsumerImpl;
@@ -442,24 +438,6 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the replPeerCertificate
-     */
-    public byte[] getReplPeerCertificate()
-    {
-        return replPeerCertificate;
-    }
-
-
-    /**
-     * @param replPeerCertificate the replPeerCertificate to set
-     */
-    public void setReplPeerCertificate( byte[] replPeerCertificate )
-    {
-        this.replPeerCertificate = replPeerCertificate;
-    }
-
-
-    /**
      * @return the replConsumerImpl
      */
     public String getReplConsumerImpl()
@@ -503,9 +481,6 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( toString( tabs, "  user password", String.valueOf( replUserPassword ) ) ); // do not reveal the password, just null or not
         sb.append( toString( tabs, "  cookie", replCookie ) );
         sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
-
-        // a hex dump would be good but printing the address is better to just know null or not
-        sb.append( toString( tabs, "  peer certificate", String.valueOf( replPeerCertificate ) ) );
 
         sb.append( toString( tabs, "  struct certivicate validation", replStrictCertValidation ) );
         sb.append( toString( tabs, "  use TLS", replUseTls ) );
