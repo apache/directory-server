@@ -118,8 +118,11 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     // wrapper or the raw normalized value
     public boolean evaluate( Entry entry ) throws LdapException
     {
-        if ( db.hasSystemIndexOn( attributeType )
-            || ( attributeType.getOid().equals( SchemaConstants.ENTRY_UUID_AT_OID ) ) )
+        String attrOid = attributeType.getOid();
+
+        if ( attrOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
+            || attrOid.equals( SchemaConstants.ENTRY_CSN_AT_OID )
+            || attrOid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
         {
             // we don't maintain a presence index for objectClass, entryUUID and entryCSN
             // however as every entry has such an attribute this evaluator always evaluates to true

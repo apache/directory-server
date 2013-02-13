@@ -97,7 +97,6 @@ public interface Store
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
             ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
             SchemaConstants.ENTRY_CSN_AT_OID,
-            SchemaConstants.ENTRY_UUID_AT_OID,
             SchemaConstants.OBJECT_CLASS_AT_OID,
             SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID
     };

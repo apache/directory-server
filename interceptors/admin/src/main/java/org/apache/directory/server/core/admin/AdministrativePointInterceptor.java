@@ -1326,124 +1326,137 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = modifyContext.getDn();
         String uuid = modifyContext.getEntry().get( ENTRY_UUID_AT ).getString();
 
-        // Create a clone of the current AdminRole AT
-        Attribute modifiedAdminRole = ( ( ClonedServerEntry ) modifyContext.getEntry() ).getOriginalEntry().get(
-            ADMINISTRATIVE_ROLE_AT );
+        // Check if we are modifying any AdminRole
+        boolean adminRolePresent = false;
 
-        if ( modifiedAdminRole == null )
-        {
-            // Create the attribute
-            modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT );
-        }
-        else
-        {
-            modifiedAdminRole = modifiedAdminRole.clone();
-        }
-
-        // Clone the AP caches before applying modifications to them modify it
-        DnNode<AccessControlAdministrativePoint> acapCacheCopy = directoryService.getAccessControlAPCache().clone();
-        DnNode<CollectiveAttributeAdministrativePoint> caapCacheCopy = directoryService.getCollectiveAttributeAPCache()
-            .clone();
-        DnNode<TriggerExecutionAdministrativePoint> teapCacheCopy = directoryService.getTriggerExecutionAPCache()
-            .clone();
-        DnNode<SubschemaAdministrativePoint> ssapCacheCopy = directoryService.getSubschemaAPCache().clone();
-
-        // Loop on the modification to select the AdministrativeRole and process it :
-        // we will create a new AT containing all the roles after having applied the modifications
-        // on it
         for ( Modification modification : modifications )
         {
-            Attribute attribute = modification.getAttribute();
-
-            // Skip all the attributes but AdministrativeRole
-            if ( attribute.getAttributeType() == ADMINISTRATIVE_ROLE_AT )
+            if ( modification.getAttribute().getAttributeType() == ADMINISTRATIVE_ROLE_AT )
             {
-                // Ok, we have a modification impacting the administrative role
-                // Apply it to a virtual AdministrativeRole attribute
-                switch ( modification.getOperation() )
-                {
-                    case ADD_ATTRIBUTE:
-                        if ( modifiedAdminRole == null )
-                        {
-                            // Create the attribute
-                            modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT, attribute.get() );
-                        }
-
-                        for ( Value<?> role : attribute )
-                        {
-                            addRole( role.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy,
-                                ssapCacheCopy );
-
-                            // Add the role to the modified attribute
-                            modifiedAdminRole.add( role );
-                        }
-
-                        break;
-
-                    case REMOVE_ATTRIBUTE:
-                        if ( modifiedAdminRole == null )
-                        {
-                            // We can't remove a value when the attribute does not exist.
-                            String msg = "Cannot remove the administrative role, it does not exist";
-                            LOG.error( msg );
-                            throw new LdapNoSuchAttributeException( msg );
-                        }
-
-                        // It may be a complete removal
-                        if ( attribute.size() == 0 )
-                        {
-                            // Complete removal. Loop on all the existing roles and remove them
-                            for ( Value<?> role : modifiedAdminRole )
-                            {
-                                //checkDelRole( role, modifiedAdminRole, dn, directoryService.getAdministrativePoints() );
-                                delRole( role.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy,
-                                    ssapCacheCopy );
-                            }
-
-                            modifiedAdminRole.clear();
-                            break;
-                        }
-
-                        // Now deal with the values to remove
-                        for ( Value<?> value : attribute )
-                        {
-                            if ( !isValidRole( value.getString() ) )
-                            {
-                                // Not a valid role : we will throw an exception
-                                String msg = "Invalid role : " + value.getString();
-                                LOG.error( msg );
-                                throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
-                                    msg );
-                            }
-
-                            if ( !modifiedAdminRole.contains( value ) )
-                            {
-                                // We can't remove a value if it does not exist !
-                                String msg = "Cannot remove the administrative role value" + value
-                                    + ", it does not exist";
-                                LOG.error( msg );
-                                throw new LdapNoSuchAttributeException( msg );
-                            }
-
-                            modifiedAdminRole.remove( value );
-                            delRole( value.getString(), dn, uuid, acapCacheCopy, caapCacheCopy, teapCacheCopy,
-                                ssapCacheCopy );
-
-                        }
-
-                        break;
-
-                    case REPLACE_ATTRIBUTE:
-                        // Not supported
-                        String msg = "Cannot replace an administrative role, the opertion is not supported";
-                        LOG.error( msg );
-                        throw new LdapUnwillingToPerformException( msg );
-                }
+                adminRolePresent = true;
+                break;
             }
         }
 
-        // At this point, we have a new AdministrativeRole AT, and we need to get the lists of
-        // added roles and removed roles, in order to process them
+        if ( adminRolePresent )
+        {
+            // We have modified any AdministrativeRole attribute, we can continue
+
+            // Create a clone of the current AdminRole AT
+            Attribute modifiedAdminRole = ( ( ClonedServerEntry ) modifyContext.getEntry() ).getOriginalEntry().get(
+                ADMINISTRATIVE_ROLE_AT );
+
+            if ( modifiedAdminRole == null )
+            {
+                // Create the attribute, as it does not already exist in the entry
+                modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT );
+            }
+            else
+            {
+                // We have already an AdminRole AT clone it
+                modifiedAdminRole = modifiedAdminRole.clone();
+            }
+
+            try
+            {
+                // Acquire the lock
+                lockWrite();
+
+                // Get the AP caches as we will apply modifications to them
+                DnNode<AccessControlAdministrativePoint> acapCache = directoryService.getAccessControlAPCache();
+                DnNode<CollectiveAttributeAdministrativePoint> caapCache = directoryService
+                    .getCollectiveAttributeAPCache();
+                DnNode<TriggerExecutionAdministrativePoint> teapCache = directoryService.getTriggerExecutionAPCache();
+                DnNode<SubschemaAdministrativePoint> ssapCache = directoryService.getSubschemaAPCache();
+
+                // Loop on the modification to select the AdministrativeRole and process it :
+                // we will create a new AT containing all the roles after having applied the modifications
+                // on it
+                for ( Modification modification : modifications )
+                {
+                    Attribute attribute = modification.getAttribute();
+
+                    // Skip all the attributes but AdministrativeRole
+                    if ( attribute.getAttributeType() == ADMINISTRATIVE_ROLE_AT )
+                    {
+                        // Ok, we have a modification impacting the administrative role
+                        // Apply it to a virtual AdministrativeRole attribute
+                        switch ( modification.getOperation() )
+                        {
+                            case ADD_ATTRIBUTE:
+                                for ( Value<?> role : attribute )
+                                {
+                                    addRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache,
+                                        ssapCache );
+
+                                    // Add the role to the modified attribute
+                                    modifiedAdminRole.add( role );
+                                }
+
+                                break;
+
+                            case REMOVE_ATTRIBUTE:
+                                // It may be a complete removal
+                                if ( attribute.size() == 0 )
+                                {
+                                    // Complete removal. Loop on all the existing roles and remove them
+                                    for ( Value<?> role : modifiedAdminRole )
+                                    {
+                                        //checkDelRole( role, modifiedAdminRole, dn, directoryService.getAdministrativePoints() );
+                                        delRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+                                    }
+
+                                    modifiedAdminRole.clear();
+                                    break;
+                                }
+
+                                // Now deal with the values to remove
+                                for ( Value<?> value : attribute )
+                                {
+                                    if ( !isValidRole( value.getString() ) )
+                                    {
+                                        // Not a valid role : we will throw an exception
+                                        String msg = "Invalid role : " + value.getString();
+                                        LOG.error( msg );
+                                        throw new LdapInvalidAttributeValueException(
+                                            ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
+                                            msg );
+                                    }
+
+                                    if ( !modifiedAdminRole.contains( value ) )
+                                    {
+                                        // We can't remove a value if it does not exist !
+                                        String msg = "Cannot remove the administrative role value" + value
+                                            + ", it does not exist";
+                                        LOG.error( msg );
+                                        throw new LdapNoSuchAttributeException( msg );
+                                    }
+
+                                    modifiedAdminRole.remove( value );
+                                    delRole( value.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+
+                                }
+
+                                break;
+
+                            case REPLACE_ATTRIBUTE:
+                                // Not supported
+                                String msg = "Cannot replace an administrative role, the opertion is not supported";
+                                LOG.error( msg );
+                                throw new LdapUnwillingToPerformException( msg );
+                        }
+                    }
+                }
+
+                // At this point, we have a new AdministrativeRole AT, we need to check that the 
+                // roles hierarchy is still correct
+                // TODO !!!
+            }
+            finally
+            {
+                unlock();
+            }
+        }
 
         next( modifyContext );
     }
