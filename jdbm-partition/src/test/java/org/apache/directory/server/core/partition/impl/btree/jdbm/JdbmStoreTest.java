@@ -86,7 +86,7 @@ public class JdbmStoreTest
     File wkdir;
     JdbmPartition store;
     CoreSession session;
-    
+
     private static SchemaManager schemaManager = null;
     private static LdifSchemaLoader loader;
     private static Dn EXAMPLE_COM;
@@ -167,7 +167,7 @@ public class JdbmStoreTest
         store.initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
-        
+
         DirectoryService directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
@@ -387,7 +387,7 @@ public class JdbmStoreTest
 
         Iterator<String> systemIndices = store.getSystemIndices();
 
-        for ( int i = 0; i < 7; i++ )
+        for ( int i = 0; i < 8; i++ )
         {
             assertTrue( systemIndices.hasNext() );
             assertNotNull( systemIndices.next() );
