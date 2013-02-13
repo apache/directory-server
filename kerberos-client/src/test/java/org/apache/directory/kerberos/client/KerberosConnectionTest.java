@@ -23,7 +23,12 @@ package org.apache.directory.kerberos.client;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateKdcServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -52,89 +57,113 @@ import org.junit.runner.RunWith;
                 suffix = "dc=example,dc=com",
                 contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
-                            "dc: example\n" +
-                            "objectClass: top\n" +
-                            "objectClass: domain\n\n"),
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
                 indexes =
-                {
-                    @CreateIndex(attribute = "ou")
+                    {
+                        @CreateIndex(attribute = "ou")
                 })
-        },
-        additionalInterceptors =
+    },
+    additionalInterceptors =
         {
-                KeyDerivationInterceptor.class
-        })
+            KeyDerivationInterceptor.class
+    })
 @CreateKdcServer(
     transports =
-    {
-        @CreateTransport(protocol = "UDP", port = 6088),
-        @CreateTransport(protocol = "TCP", port = 6088)
+        {
+            @CreateTransport(protocol = "UDP", port = 6088),
+            @CreateTransport(protocol = "TCP", port = 6088)
+    })
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP", port = 10389),
+            @CreateTransport(protocol = "LDAPS", port = 10636)
     })
 @ApplyLdifs(
- {
-    "dn: ou=Users,dc=example,dc=com",
-    "objectClass: organizationalUnit",
-    "objectClass: top",
-    "ou: Users",
+    {
+        "dn: ou=Users,dc=example,dc=com",
+        "objectClass: organizationalUnit",
+        "objectClass: top",
+        "ou: Users",
 
-    "dn: uid=hnelson,ou=Users,dc=example,dc=com",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: inetOrgPerson",
-    "objectClass: krb5principal",
-    "objectClass: krb5kdcentry",
-    "cn: Horatio Nelson",
-    "sn: Nelson",
-    "uid: hnelson",
-    "userPassword: secret",
-    "krb5PrincipalName: hnelson@EXAMPLE.COM",
-    "krb5KeyVersionNumber: 0",
-    
-    "dn: uid=krbtgt,ou=Users,dc=example,dc=com",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: inetOrgPerson",
-    "objectClass: krb5principal",
-    "objectClass: krb5kdcentry",
-    "cn: KDC Service",
-    "sn: Service",
-    "uid: krbtgt",
-    "userPassword: secret",
-    "krb5PrincipalName: krbtgt/EXAMPLE.COM@EXAMPLE.COM",
-    "krb5KeyVersionNumber: 0",
-    
-    "dn: uid=ldap,ou=Users,dc=example,dc=com",
-    "objectClass: top",
-    "objectClass: person",
-    "objectClass: inetOrgPerson",
-    "objectClass: krb5principal",
-    "objectClass: krb5kdcentry",
-    "cn: LDAP",
-    "sn: Service",
-    "uid: ldap",
-    "userPassword: randall",
-    "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
-    "krb5KeyVersionNumber: 0"
- })
+        "dn: uid=hnelson,ou=Users,dc=example,dc=com",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: inetOrgPerson",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "cn: Horatio Nelson",
+        "sn: Nelson",
+        "uid: hnelson",
+        "userPassword: secret",
+        "krb5PrincipalName: hnelson@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+
+        "dn: uid=krbtgt,ou=Users,dc=example,dc=com",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: inetOrgPerson",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "cn: KDC Service",
+        "sn: Service",
+        "uid: krbtgt",
+        "userPassword: secret",
+        "krb5PrincipalName: krbtgt/EXAMPLE.COM@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0",
+
+        "dn: uid=ldap,ou=Users,dc=example,dc=com",
+        "objectClass: top",
+        "objectClass: person",
+        "objectClass: inetOrgPerson",
+        "objectClass: krb5principal",
+        "objectClass: krb5kdcentry",
+        "cn: LDAP",
+        "sn: Service",
+        "uid: ldap",
+        "userPassword: randall",
+        "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
+        "krb5KeyVersionNumber: 0"
+})
 public class KerberosConnectionTest extends AbstractLdapTestUnit
 {
-    private KerberosConnection connection;
+    private KerberosConnection kerberosConnection;
+    private LdapConnection ldapConnection;
     
     private KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
     
     private KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
     
+    
     @Before
-    public void createConnection()
+    public void createConnection() throws Exception
     {
-        connection = new KerberosConnection( "localhost", 6088 );
-        connection.connect();
+        kerberosConnection = new KerberosConnection( "localhost", 6088 );
+        kerberosConnection.connect();
+        ldapConnection = new LdapNetworkConnection( "localhost", 10389 );
+        ldapConnection.setTimeOut( 0L );
+        ldapConnection.connect();
     }
+    
     
     @Test
     public void testGetTgt() throws Exception
     {
-        connection.getTicketGrantingTicket( clientPrincipal, serverPrincipal, "secret", new ClientRequestOptions() );
+        kerberosConnection.getTicketGrantingTicket( clientPrincipal, serverPrincipal, "secret", new ClientRequestOptions() );
+    }
+    
+    
+    @Test
+    public void testGetTgtAfterPasswordChange() throws Exception
+    {
+        ldapConnection.bind( "uid=admin,ou=system", "secret" );
+        ldapConnection.modify( "uid=hnelson,ou=Users,dc=example,dc=com",
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword", "otherSecret" ) );
+    
+        kerberosConnection.getTicketGrantingTicket( clientPrincipal, serverPrincipal, "otherSecret",
+            new ClientRequestOptions() );
     }
 }
