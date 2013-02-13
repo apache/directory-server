@@ -140,6 +140,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         {
             LOG.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
+            // Get the entry's password. We will use the first one.
             BinaryValue userPassword = ( BinaryValue ) entry.get( USER_PASSWORD_AT ).get();
             String strUserPassword = userPassword.getString();
 
@@ -159,7 +160,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, strUserPassword );
 
-            entry.put( KRB5_PRINCIPAL_NAME_AT, principalName );
+            // Set the KVNO to 0 as it's a new entry
             entry.put( KRB5_KEY_VERSION_NUMBER_AT, "0" );
 
             Attribute keyAttribute = getKeyAttribute( keys );
@@ -341,6 +342,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         Attribute keyVersionNumberAttr = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
             KRB5_KEY_VERSION_NUMBER_AT );
 
+        // Set the KVNO to 0 if it's a password creation,
+        // otherwise increment it.
         if ( keyVersionNumberAttr == null )
         {
             subContext.setNewKeyVersionNumber( 0 );
