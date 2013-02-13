@@ -42,6 +42,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -108,7 +109,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
      * Test an add operation performance
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testAddPerf() throws Exception
     {
         Dn dn = new Dn( "cn=test,ou=system" );
