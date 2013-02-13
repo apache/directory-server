@@ -40,13 +40,13 @@ ou: interceptors
 objectclass: organizationalUnit
 objectclass: top
 
-dn: ads-interceptorId=aciAuthorizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 4
-ads-interceptorclassname: org.apache.directory.server.core.authz.AciAuthorizationInterceptor
-ads-interceptorid: aciAuthorizationInterceptor
+ads-interceptororder: 1
+ads-interceptorclassname: org.apache.directory.server.core.normalization.NormalizationInterceptor
+ads-interceptorid: normalizationInterceptor
 ads-enabled: TRUE
 
 dn: ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -123,13 +123,22 @@ ads-pwdMaxDelay: 0
 ads-pwdMaxIdle: 0
 ads-enabled: TRUE
 
-dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 11
-ads-interceptorclassname: org.apache.directory.server.core.collective.CollectiveAttributeInterceptor
-ads-interceptorid: collectiveAttributeInterceptor
+ads-interceptororder: 3
+ads-interceptorclassname: org.apache.directory.server.core.referral.ReferralInterceptor
+ads-interceptorid: referralInterceptor
+ads-enabled: TRUE
+
+dn: ads-interceptorId=aciAuthorizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 4
+ads-interceptorclassname: org.apache.directory.server.core.authz.AciAuthorizationInterceptor
+ads-interceptorid: aciAuthorizationInterceptor
 ads-enabled: TRUE
 
 dn: ads-interceptorId=defaultAuthorizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -141,20 +150,20 @@ ads-interceptorclassname: org.apache.directory.server.core.authz.DefaultAuthoriz
 ads-interceptorid: defaultAuthorizationInterceptor
 ads-enabled: TRUE
 
-dn: ads-interceptorId=eventInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+dn: ads-interceptorId=administrativePointInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 13
-ads-interceptorclassname: org.apache.directory.server.core.event.EventInterceptor
-ads-interceptorid: eventInterceptor
+ads-interceptororder: 6
+ads-interceptorclassname: org.apache.directory.server.core.admin.AdministrativePointInterceptor
+ads-interceptorid: administrativePointInterceptor
 ads-enabled: TRUE
 
 dn: ads-interceptorId=exceptionInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 6
+ads-interceptororder: 7
 ads-interceptorclassname: org.apache.directory.server.core.exception.ExceptionInterceptor
 ads-interceptorid: exceptionInterceptor
 ads-enabled: TRUE
@@ -164,69 +173,69 @@ objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: FALSE
-ads-interceptororder: 7
+ads-interceptororder: 8
 ads-interceptorclassname: org.apache.directory.server.core.kerberos.KeyDerivationInterceptor
 ads-interceptorid: keyDerivationInterceptor
-
-dn: ads-interceptorId=normalizationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-interceptor
-ads-interceptororder: 1
-ads-interceptorclassname: org.apache.directory.server.core.normalization.NormalizationInterceptor
-ads-interceptorid: normalizationInterceptor
-ads-enabled: TRUE
-
-dn: ads-interceptorId=operationalAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-interceptor
-ads-interceptororder: 10
-ads-interceptorclassname: org.apache.directory.server.core.operational.OperationalAttributeInterceptor
-ads-interceptorid: operationalAttributeInterceptor
-ads-enabled: TRUE
 
 dn: ads-interceptorId=passwordHashingInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
 ads-enabled: TRUE
-ads-interceptororder: 8
+ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
 ads-interceptorid: passwordHashingInterceptor
-
-dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
-objectclass: top
-objectclass: ads-base
-objectclass: ads-interceptor
-ads-interceptororder: 3
-ads-interceptorclassname: org.apache.directory.server.core.referral.ReferralInterceptor
-ads-interceptorid: referralInterceptor
-ads-enabled: TRUE
 
 dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 9
+ads-interceptororder: 10
 ads-interceptorclassname: org.apache.directory.server.core.schema.SchemaInterceptor
 ads-interceptorid: schemaInterceptor
+ads-enabled: TRUE
+
+dn: ads-interceptorId=operationalAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 11
+ads-interceptorclassname: org.apache.directory.server.core.operational.OperationalAttributeInterceptor
+ads-interceptorid: operationalAttributeInterceptor
+ads-enabled: TRUE
+
+dn: ads-interceptorId=collectiveAttributeInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 12
+ads-interceptorclassname: org.apache.directory.server.core.collective.CollectiveAttributeInterceptor
+ads-interceptorid: collectiveAttributeInterceptor
 ads-enabled: TRUE
 
 dn: ads-interceptorId=subentryInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 12
+ads-interceptororder: 13
 ads-interceptorclassname: org.apache.directory.server.core.subtree.SubentryInterceptor
 ads-interceptorid: subentryInterceptor
+ads-enabled: TRUE
+
+dn: ads-interceptorId=eventInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 14
+ads-interceptorclassname: org.apache.directory.server.core.event.EventInterceptor
+ads-interceptorid: eventInterceptor
 ads-enabled: TRUE
 
 dn: ads-interceptorId=triggerInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
-ads-interceptororder: 14
+ads-interceptororder: 15
 ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterceptor
 ads-interceptorid: triggerInterceptor
 ads-enabled: TRUE
