@@ -391,6 +391,8 @@ public class ServerAnnotationProcessor
         
         KdcServer kdcServer = new KdcServer( kdcConfig );
         
+        kdcServer.setSearchBaseDn( createKdcServer.searchBaseDn() );
+        
         CreateTransport[] transportBuilders = createKdcServer.transports();
         
         if( transportBuilders == null )

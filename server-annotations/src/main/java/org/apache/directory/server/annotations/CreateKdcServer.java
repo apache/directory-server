@@ -27,6 +27,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+
 
 /**
  * A annotation used to define a LdapServer configuration. Many elements can be configured :
@@ -78,4 +80,7 @@ public @interface CreateKdcServer
      * the first element alone is taken into consideration, rest of the
      * array elements will be ignored*/
     CreateChngPwdServer[] chngPwdServer() default {};
+    
+    /** the DN of the search base for finding users and services */
+    String searchBaseDn() default ServerDNConstants.USER_EXAMPLE_COM_DN;
 }
