@@ -92,6 +92,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     @SuppressWarnings("PMD.EmptyCatchBlock")
     public void handleSimpleAuth( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
+        DirectoryService directoryService = ldapServer.getDirectoryService();
+
         // if the user is already bound, we have to unbind him
         if ( ldapSession.isAuthenticated() )
         {
@@ -113,7 +115,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );
-        bindContext.setInterceptors( ldapServer.getDirectoryService().getInterceptors( OperationEnum.BIND ) );
+        bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         // Stores the request controls into the operation context
         LdapProtocolUtils.setRequestControls( bindContext, bindRequest );
@@ -141,7 +143,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
             try
             {
-                principalEntry = getLdapServer().getDirectoryService().getAdminSession().lookup( bindRequest.getDn() );
+                principalEntry = directoryService.getAdminSession().lookup( bindRequest.getDn() );
             }
             catch ( LdapException le )
             {
@@ -172,8 +174,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             // opContext.setEntry( principalEntry );
 
             // And call the OperationManager bind operation.
-            bindContext.setInterceptors( getLdapServer().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
-            getLdapServer().getDirectoryService().getOperationManager().bind( bindContext );
+            bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
+            directoryService.getOperationManager().bind( bindContext );
 
             // As a result, store the created session in the Core Session
             ldapSession.setCoreSession( bindContext.getSession() );
@@ -341,7 +343,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
-                BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
+                BindResponse resp = bindRequest.getResultResponse();
 
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
@@ -421,7 +423,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     private void sendBindSuccess( LdapSession ldapSession, BindRequest bindRequest, byte[] tokenBytes )
     {
         // Return the successful response
-        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+        BindResponse response = bindRequest.getResultResponse();
         response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         response.setServerSaslCreds( tokenBytes );
 
