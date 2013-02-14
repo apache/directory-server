@@ -535,18 +535,19 @@ public class ServiceBuilder
      */
     public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
-        Authenticator[] authenticators = new Authenticator[list.size()];
+        Set<Authenticator> authenticators = new HashSet<Authenticator>( list.size() );
         int i = 0;
 
         for ( AuthenticatorBean authenticatorBean : list )
         {
             if ( authenticatorBean.isEnabled() )
             {
-                authenticators[i++] = createAuthenticator( authenticatorBean );
+                authenticators.add( createAuthenticator( authenticatorBean ) );
             }
         }
 
-        return authenticators;
+        return authenticators.toArray( new Authenticator[]
+            {} );
     }
 
 
