@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
 {
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class );
 
     /**
      * default duplicate limit before duplicate keys switch to using a btree for values
