@@ -585,7 +585,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Add ONE {} = {}", name, key );
                 }
 
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -624,7 +624,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 }
 
                 count++;
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -642,7 +642,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 LOG.debug( "<--- Add BTREE {} = {}", name, key );
             }
 
-            recMan.commit();
+            commit( recMan );
         }
         catch ( Exception e )
         {
@@ -691,7 +691,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                         LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
                     }
 
-                    recMan.commit();
+                    commit( recMan );
 
                     return;
                 }
@@ -724,7 +724,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                         LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
                     }
 
-                    recMan.commit();
+                    commit( recMan );
 
                     return;
                 }
@@ -755,7 +755,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
                 }
 
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -805,7 +805,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Remove ONE {} = {}", name, key );
                 }
 
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -825,7 +825,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
 
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -839,7 +839,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Remove AVL {} = {}", name, key );
                 }
 
-                recMan.commit();
+                commit( recMan );
 
                 return;
             }
@@ -956,8 +956,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         long recId = recMan.getNamedObject( name + SZSUFFIX );
         recMan.update( recId, count );
-        recMan.commit();
-
+        commit( recMan );
     }
 
 
@@ -1134,5 +1133,19 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         keys.close();
 
         return bTree;
+    }
+
+
+    /**
+     * Commit the modification on disk
+     * 
+     * @param recordManager The recordManager used for the commit
+     */
+    private void commit( RecordManager recordManager ) throws IOException
+    {
+        if ( commitNumber.incrementAndGet() % 4000 == 0 )
+        {
+            recordManager.commit();
+        }
     }
 }

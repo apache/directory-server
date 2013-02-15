@@ -157,7 +157,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
             BaseRecordManager base = new BaseRecordManager( path );
             TransactionManager transactionManager = base.getTransactionManager();
-            transactionManager.setMaximumTransactionsInLog( 200 );
+            transactionManager.setMaximumTransactionsInLog( 2000 );
 
             if ( cacheSize < 0 )
             {

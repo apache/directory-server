@@ -88,7 +88,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
         //System.out.println( "IDX Created index " + path )
         BaseRecordManager base = new BaseRecordManager( path );
         TransactionManager transactionManager = base.getTransactionManager();
-        transactionManager.setMaximumTransactionsInLog( 200 );
+        transactionManager.setMaximumTransactionsInLog( 2000 );
 
         recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
 

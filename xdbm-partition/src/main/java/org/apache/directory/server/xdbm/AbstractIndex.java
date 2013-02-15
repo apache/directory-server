@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.i18n.I18n;
 
@@ -47,6 +49,10 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
     /** Tells if this index has a Reverse table */
     protected boolean withReverse;
 
+    /** A counter used to differ the commit on disk after N operations */
+    protected AtomicInteger commitNumber;
+
+
     /**
      * Creates a new instance of AbstractIndex.
      * 
@@ -54,10 +60,10 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
      */
     protected AbstractIndex()
     {
-        this.withReverse = true;
+        this( null, true );
     }
 
-    
+
     /**
      * Creates a new instance of AbstractIndex.
      * 
@@ -65,7 +71,7 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
      */
     protected AbstractIndex( boolean withReverse )
     {
-        this.withReverse = withReverse;
+        this( null, withReverse );
     }
 
 
@@ -78,6 +84,7 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
     {
         this.attributeId = attributeId;
         this.withReverse = withReverse;
+        commitNumber = new AtomicInteger( 0 );
     }
 
 
@@ -147,8 +154,8 @@ public abstract class AbstractIndex<K, O, ID> implements Index<K, O, ID>
             throw new IllegalStateException( I18n.err( I18n.ERR_575, property ) );
         }
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

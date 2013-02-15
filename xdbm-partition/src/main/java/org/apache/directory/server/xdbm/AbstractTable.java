@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
@@ -55,6 +56,10 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     /** whether or not this table allows for duplicates */
     protected boolean allowsDuplicates;
 
+    /** A counter used to differ the commit on disk after N operations */
+    protected AtomicInteger commitNumber;
+
+
     /**
      * Create an instance of Table
      * 
@@ -79,6 +84,8 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
         }
 
         this.valueComparator = valueComparator;
+
+        commitNumber = new AtomicInteger( 0 );
     }
 
 

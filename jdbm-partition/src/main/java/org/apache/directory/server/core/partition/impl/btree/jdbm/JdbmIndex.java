@@ -162,7 +162,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
 
         BaseRecordManager base = new BaseRecordManager( path );
         TransactionManager transactionManager = base.getTransactionManager();
-        transactionManager.setMaximumTransactionsInLog( 200 );
+        transactionManager.setMaximumTransactionsInLog( 2000 );
 
         recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
 
@@ -669,7 +669,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
             reverse.close();
         }
 
-        recMan.commit();
+        commit( recMan );
         recMan.close();
     }
 
@@ -679,7 +679,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
      */
     public synchronized void sync() throws IOException
     {
-        recMan.commit();
+        commit( recMan );
     }
 
 
@@ -695,6 +695,20 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         else
         {
             return false;
+        }
+    }
+
+
+    /**
+     * Commit the modification on disk
+     * 
+     * @param recordManager The recordManager used for the commit
+     */
+    private void commit( RecordManager recordManager ) throws IOException
+    {
+        if ( commitNumber.incrementAndGet() % 4000 == 0 )
+        {
+            recordManager.commit();
         }
     }
 
