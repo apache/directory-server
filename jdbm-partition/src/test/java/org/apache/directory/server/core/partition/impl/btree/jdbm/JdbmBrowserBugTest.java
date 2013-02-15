@@ -20,25 +20,26 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.After;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
-import java.util.Comparator;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
-import jdbm.helper.IntegerSerializer;
 import jdbm.helper.IntegerComparator;
-import jdbm.helper.TupleBrowser;
+import jdbm.helper.IntegerSerializer;
 import jdbm.helper.Tuple;
+import jdbm.helper.TupleBrowser;
 import jdbm.recman.BaseRecordManager;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -51,7 +52,7 @@ public class JdbmBrowserBugTest
     Comparator<Integer> comparator;
     BTree<Integer, Integer> bt;
     private static final String TEST_OUTPUT_PATH = "test.output.path";
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmBrowserBugTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmBrowserBugTest.class );
     private File dbFile = null;
     private RecordManager recman = null;
 

@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NotCursorTest extends AbstractCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class );
 
     UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
 

@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DupsContainerCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     JdbmTable<String, String> table;
@@ -170,7 +170,7 @@ public class DupsContainerCursorTest
         assertFalse( cursor.next() );
 
         cursor.after( new Tuple<String, DupsContainer<String>>( "7", null ) );
-        
+
         try
         {
             cursor.get();

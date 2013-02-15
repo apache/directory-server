@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AndCursorTest extends AbstractCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class );
 
     File wkdir;
 

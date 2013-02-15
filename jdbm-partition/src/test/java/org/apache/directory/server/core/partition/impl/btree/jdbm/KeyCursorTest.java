@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class KeyCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( KeyCursorTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     File dbFile;

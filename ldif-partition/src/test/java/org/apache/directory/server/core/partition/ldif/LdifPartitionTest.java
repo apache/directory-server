@@ -66,7 +66,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -83,7 +82,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LdifPartitionTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( LdifPartitionTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifPartitionTest.class );
 
     private static File wkdir;
     private static LdifPartition partition;
@@ -433,7 +432,7 @@ public class LdifPartitionTest
 
         assertEquals( 3, nbRes );
         assertEquals( 0, expectedDns.size() );
-        
+
         cursor.close();
     }
 

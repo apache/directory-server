@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbmMasterTableTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     JdbmMasterTable table;

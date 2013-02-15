@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class JdbmStoreTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class );
 
     File wkdir;
     JdbmPartition store;

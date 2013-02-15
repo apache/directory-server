@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NestedFilterTest extends AbstractCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class );
 
     File wkdir;
     static SchemaManager schemaManager = null;

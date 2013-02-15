@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DupsCursor.class );
 
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
@@ -97,7 +97,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Creating DupsCursor {}", this );
         }
-        
+
         this.table = table;
         this.containerCursor = new DupsContainerCursor<K, V>( table );
         LOG.debug( "Created on table {}", table );
@@ -311,7 +311,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             valueAvailable = true;
             returnedTuple.setKey( containerTuple.getKey() );
             returnedTuple.setValue( dupsCursor.get() );
-            
+
             return true;
         }
 
@@ -353,7 +353,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             valueAvailable = true;
             returnedTuple.setKey( containerTuple.getKey() );
             returnedTuple.setValue( dupsCursor.get() );
-            
+
             return true;
         }
 
@@ -425,7 +425,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         returnedTuple.setKey( containerTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
-        
+
         return valueAvailable = true;
     }
 
@@ -446,7 +446,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             {
                 dupsCursor.close();
             }
-            
+
             /*
              * If the wrappedCursor cursor has more elements we get the next
              * key/AvlTree Tuple to work with and get a cursor over it.
@@ -492,7 +492,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
          */
         returnedTuple.setKey( containerTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
-        
+
         return valueAvailable = true;
     }
 
@@ -523,10 +523,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing DupsCursor {}", this );
         }
-        
+
         super.close();
         containerCursor.close();
-        
+
         if ( dupsCursor != null )
         {
             dupsCursor.close();
@@ -544,10 +544,10 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             LOG_CURSOR.debug( "Closing DupsCursor {}", this );
         }
-        
+
         super.close( cause );
         containerCursor.close( cause );
-        
+
         if ( dupsCursor != null )
         {
             dupsCursor.close( cause );

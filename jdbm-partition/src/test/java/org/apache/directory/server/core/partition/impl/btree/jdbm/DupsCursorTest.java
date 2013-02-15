@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DupsCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( DupsCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DupsCursorTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
 
@@ -150,7 +150,7 @@ public class DupsCursorTest
 
         assertFalse( cursor.first() );
         assertFalse( cursor.last() );
-        
+
         cursor.close();
     }
 
@@ -176,7 +176,7 @@ public class DupsCursorTest
             assertEquals( i, Integer.parseInt( tuple.getValue() ) );
             i++;
         }
-        
+
         cursor.close();
     }
 
@@ -201,7 +201,7 @@ public class DupsCursorTest
             assertEquals( i, Integer.parseInt( tuple.getValue() ) );
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -244,7 +244,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
     }
 
@@ -289,7 +289,7 @@ public class DupsCursorTest
 
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -421,7 +421,7 @@ public class DupsCursorTest
 
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -556,7 +556,7 @@ public class DupsCursorTest
 
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -688,7 +688,7 @@ public class DupsCursorTest
 
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -823,7 +823,7 @@ public class DupsCursorTest
 
             i--;
         }
-        
+
         cursor.close();
     }
 
@@ -837,7 +837,7 @@ public class DupsCursorTest
 
         cursor.before( new Tuple<String, String>( "1", "2" ) );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
     }
 
@@ -862,7 +862,7 @@ public class DupsCursorTest
 
         cursor.before( new Tuple<String, String>( "7", "2" ) );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
     }
 
@@ -887,7 +887,7 @@ public class DupsCursorTest
 
         cursor.before( new Tuple<String, String>( "7", "2" ) );
         assertFalse( cursor.available() );
-        
+
         cursor.close();
     }
 
@@ -941,7 +941,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key with a single value but
@@ -959,7 +959,7 @@ public class DupsCursorTest
             }
 
             Tuple<String, String> tuple = cursor.get();
-            
+
             if ( i > 12 && i < 17 )
             {
                 assertEquals( 13, Integer.parseInt( tuple.getKey() ) );
@@ -972,7 +972,7 @@ public class DupsCursorTest
             }
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key value pair where the key
@@ -1004,14 +1004,14 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just after the end
         cursor = table.cursor();
         cursor.after( new Tuple<String, String>( "111", null ) );
         assertFalse( cursor.next() );
-        
+
         cursor.close();
 
         // test after to advance just before a key with a single value
@@ -1042,7 +1042,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key & value with multiple
@@ -1077,7 +1077,7 @@ public class DupsCursorTest
             }
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key & value with multiple
@@ -1114,7 +1114,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key that does not exist
@@ -1150,7 +1150,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key and value where the key
@@ -1187,7 +1187,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
     }
 
@@ -1241,7 +1241,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key with a single value but
@@ -1272,7 +1272,7 @@ public class DupsCursorTest
             }
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key value pair where the key
@@ -1306,14 +1306,14 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just after the end
         cursor = table.cursor();
         cursor.after( new Tuple<String, String>( "111", null ) );
         assertFalse( cursor.next() );
-        
+
         cursor.close();
 
         // test after to advance just before a key with a single value
@@ -1344,7 +1344,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test before to advance just before a key & value with multiple
@@ -1381,7 +1381,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key & value with multiple
@@ -1418,7 +1418,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key that does not exist
@@ -1452,7 +1452,7 @@ public class DupsCursorTest
             }
             i++;
         }
-        
+
         cursor.close();
 
         // test after to advance just before a key and value where the key
@@ -1489,7 +1489,7 @@ public class DupsCursorTest
 
             i++;
         }
-        
+
         cursor.close();
     }
 

@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SubstringTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( SubstringTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( SubstringTest.class );
 
     File wkdir;
     Store store;

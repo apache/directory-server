@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class NtpServer extends AbstractProtocolService
 {
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( NtpServer.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( NtpServer.class );
 
     /**
      * The default IP port.
@@ -92,7 +92,7 @@ public class NtpServer extends AbstractProtocolService
             UdpTransport transport = new UdpTransport( IP_PORT_DEFAULT );
             setTransports( transport );
 
-            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
+            DatagramAcceptor acceptor = transport.getAcceptor();
 
             // Set the handler
             acceptor.setHandler( ntpProtocolHandler );

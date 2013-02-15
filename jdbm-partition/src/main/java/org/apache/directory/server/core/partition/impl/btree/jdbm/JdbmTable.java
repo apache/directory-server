@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class JdbmTable<K, V> extends AbstractTable<K, V>
 {
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmTable.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTable.class );
 
     /** the key to store and retreive the count information */
     private static final String SZSUFFIX = "_btree_sz";

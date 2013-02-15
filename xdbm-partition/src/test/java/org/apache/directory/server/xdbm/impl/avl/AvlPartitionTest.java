@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class AvlPartitionTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class );
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;

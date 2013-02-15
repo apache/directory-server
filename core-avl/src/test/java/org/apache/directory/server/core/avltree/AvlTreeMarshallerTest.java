@@ -33,14 +33,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -97,7 +98,7 @@ public class AvlTreeMarshallerTest
 
     private static Comparator<Integer> comparator;
 
-    private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class );
 
 
     @BeforeClass
@@ -299,7 +300,7 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get() );
             cursor.next();
         }
-        
+
         cursor.close();
     }
 
@@ -338,7 +339,7 @@ public class AvlTreeMarshallerTest
         // this marshaller fails to preserve last node reference
         assertNotNull( deserialized.getLast() );
         assertEquals( 99, ( int ) deserialized.getLast().getKey() );
-        
+
         cursor.close();
     }
 
@@ -374,7 +375,7 @@ public class AvlTreeMarshallerTest
             assertEquals( ii, ( int ) cursor.get().intValue );
             cursor.next();
         }
-        
+
         cursor.close();
     }
 
@@ -437,7 +438,7 @@ public class AvlTreeMarshallerTest
 
         byte[] data = new byte[( int ) treeFile.length()];
         fin.read( data );
-        
+
         fin.close();
 
         AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );

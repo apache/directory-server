@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OrCursorTest extends AbstractCursorTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class );
 
     File wkdir;
     static SchemaManager schemaManager = null;

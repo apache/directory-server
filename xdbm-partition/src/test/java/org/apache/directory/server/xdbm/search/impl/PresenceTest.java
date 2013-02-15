@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PresenceTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class );
 
     File wkdir;
     Store store;

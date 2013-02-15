@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EqualityTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( EqualityTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( EqualityTest.class );
 
     File wkdir;
     Store store;

@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbmTableNoDuplicatesTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableNoDuplicatesTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
 
     Table<String, String> table;
@@ -319,7 +319,7 @@ public class JdbmTableNoDuplicatesTest
             String istr = Integer.toString( i );
             table.put( istr, istr );
         }
-        
+
         assertEquals( SIZE, table.count() );
 
         assertFalse( table.has( "-1" ) );

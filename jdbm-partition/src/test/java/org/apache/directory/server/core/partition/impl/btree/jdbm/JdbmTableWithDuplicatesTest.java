@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbmTableWithDuplicatesTest
 {
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableWithDuplicatesTest.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( JdbmTableWithDuplicatesTest.class );
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static final int SIZE = 15;
     private static final int SIZE2 = 30;
@@ -383,7 +383,7 @@ public class JdbmTableWithDuplicatesTest
         {
             //System.out.println( cursor.get() );
         }
-        
+
         cursor.close();
 
         assertFalse( table.hasLessOrEqual( "1" ) );
