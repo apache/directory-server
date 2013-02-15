@@ -19,11 +19,12 @@
  */
 package org.apache.directory.server.protocol.shared.kerberos;
 
+
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -50,9 +51,11 @@ import org.slf4j.LoggerFactory;
  */
 public class StoreUtils
 {
+    /** Loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( StoreUtils.class );
-    
-    
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
+
+
     /**
      * Creates a Entry for a PrincipalStoreEntry, doing what a state 
      * factory does but for Entry instead of Attributes.
@@ -67,11 +70,11 @@ public class StoreUtils
         throws Exception
     {
         Entry outAttrs = session.getDirectoryService().newEntry( dn );
-        
+
         // process the objectClass attribute
-        outAttrs.add( SchemaConstants.OBJECT_CLASS_AT, 
-            SchemaConstants.TOP_OC, SchemaConstants.UID_OBJECT_AT, 
-            "uidObject", SchemaConstants.EXTENSIBLE_OBJECT_OC, 
+        outAttrs.add( SchemaConstants.OBJECT_CLASS_AT,
+            SchemaConstants.TOP_OC, SchemaConstants.UID_OBJECT_AT,
+            "uidObject", SchemaConstants.EXTENSIBLE_OBJECT_OC,
             SchemaConstants.PERSON_OC, SchemaConstants.ORGANIZATIONAL_PERSON_OC,
             SchemaConstants.INET_ORG_PERSON_OC, SchemaConstants.KRB5_PRINCIPAL_OC,
             "krb5KDCEntry" );
@@ -80,9 +83,9 @@ public class StoreUtils
         outAttrs.add( KerberosAttribute.APACHE_SAM_TYPE_AT, "7" );
         outAttrs.add( SchemaConstants.SN_AT, principalEntry.getUserId() );
         outAttrs.add( SchemaConstants.CN_AT, principalEntry.getCommonName() );
-        
+
         EncryptionKey encryptionKey = principalEntry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
-        
+
         ByteBuffer buffer = ByteBuffer.allocate( encryptionKey.computeLength() );
         outAttrs.add( KerberosAttribute.KRB5_KEY_AT, encryptionKey.encode( buffer ).array() );
 
@@ -93,8 +96,8 @@ public class StoreUtils
 
         return outAttrs;
     }
-    
-    
+
+
     /**
      * Constructs a filter expression tree for the filter used to search the 
      * directory.
@@ -110,7 +113,7 @@ public class StoreUtils
         Value<String> value = new StringValue( type, principal );
         return new EqualityNode<String>( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, value );
     }
-    
+
 
     /**
      * Finds the Entry associated with the Kerberos principal name.
@@ -125,29 +128,32 @@ public class StoreUtils
         throws Exception
     {
         EntryFilteringCursor cursor = null;
-        
+
         try
         {
             SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-            cursor = session.search( searchBaseDn, SearchScope.SUBTREE, 
+            cursor = session.search( searchBaseDn, SearchScope.SUBTREE,
                 getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, null );
-    
+
             cursor.beforeFirst();
             if ( cursor.next() )
             {
                 Entry entry = cursor.get();
                 LOG.debug( "Found entry {} for kerberos principal name {}", entry, principal );
-                
+                LOG_KRB.debug( "Found entry {} for kerberos principal name {}", entry, principal );
+
                 while ( cursor.next() )
                 {
                     LOG.error( I18n.err( I18n.ERR_149, principal, cursor.next() ) );
                 }
-                
+
                 return entry;
             }
             else
             {
                 LOG.warn( "No server entry found for kerberos principal name {}", principal );
+                LOG_KRB.warn( "No server entry found for kerberos principal name {}", principal );
+
                 return null;
             }
         }

@@ -21,6 +21,7 @@ package org.apache.directory.server.operations.bind;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -45,6 +46,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -52,6 +54,12 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.authn.AnonymousAuthenticator;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Rule;
@@ -454,5 +462,63 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
         assertTrue( connection.isAuthenticated() );
         connection.close();
+    }
+
+
+    /**
+     * Tests bind operation on a server where the SimpleAuthenticator is disabled
+     */
+    @Test
+    public void testBindSimpleAuthenticatorDisabled() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0 );
+
+        try
+        {
+            connection.bind( "uid=hacker", "badsecret" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            //Expected
+        }
+
+        assertFalse( connection.isAuthenticated() );
+
+        AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) ldapServer.getDirectoryService()
+            .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+        authInterceptor.destroy();
+        authInterceptor.setAuthenticators( new Authenticator[]
+            { new StrongAuthenticator() } );
+
+        try
+        {
+            connection.bind( "uid=hacker", "badsecret" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            //Expected
+        }
+
+        // Try with an existing user
+        try
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            //Expected
+        }
+
+        assertFalse( connection.isAuthenticated() );
+        connection.close();
+
+        // Reset the authenticators
+        authInterceptor.destroy();
+        authInterceptor.setAuthenticators( new Authenticator[]
+            { new StrongAuthenticator(), new SimpleAuthenticator(), new AnonymousAuthenticator() } );
     }
 }
