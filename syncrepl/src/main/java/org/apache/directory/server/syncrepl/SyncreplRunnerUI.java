@@ -86,7 +86,7 @@ public class SyncreplRunnerUI implements ActionListener
 
     private LdapServer ldapServer;
 
-    private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class.getSimpleName() );
+    private static final Logger LOG = LoggerFactory.getLogger( SyncreplRunnerUI.class );
 
     // UI components
     private JButton btnStart;
