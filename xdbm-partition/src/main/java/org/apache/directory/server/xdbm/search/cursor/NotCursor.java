@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class NotCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -61,7 +62,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Creating NotCursor {}", this );
         }
-        
+
         this.childEvaluator = childEvaluator;
         this.uuidCursor = new AllEntriesCursor( store );
 
@@ -186,7 +187,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing NotCursor {}", this );
         }
-        
+
         super.close();
         uuidCursor.close();
     }
@@ -201,7 +202,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing NotCursor {}", this );
         }
-        
+
         super.close( cause );
         uuidCursor.close( cause );
     }

@@ -24,6 +24,7 @@ package org.apache.directory.server.core.api;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class EntryToResponseCursor extends AbstractCursor<Response> implements SearchCursor
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -76,7 +77,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
         {
             LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
         }
-        
+
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -142,7 +143,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
         {
             LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         }
-        
+
         wrapped.close();
     }
 
@@ -156,7 +157,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
         {
             LOG_CURSOR.debug( "Closing EntryToResponseCursor {}", this );
         }
-        
+
         wrapped.close( e );
     }
 

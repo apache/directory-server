@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -97,16 +98,16 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 {
     /** the logger */
     private static final Logger LOG = LoggerFactory.getLogger( MockSyncReplConsumer.class );
-    
+
     /** A dedicated logger for the consumer */
-    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
     /** The codec */
     private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
 
     /** the syncrepl configuration */
     private SyncReplConfiguration config;
-    
+
     /** A field used to tell the thread it should stop */
     private volatile boolean stop = false;
 
@@ -135,9 +136,9 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private AtomicInteger nbAdded = new AtomicInteger( 0 );
 
     private File cookieDir;
-    
+
     public static String COOKIES_DIR_NAME = "cookies";
-    
+
     /** attributes on which modification should be ignored */
     private static final String[] MOD_IGNORE_AT = new String[]
         {
@@ -241,12 +242,13 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 {
                     connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
                     disconnected = false;
-                    
+
                     return true;
                 }
                 catch ( LdapException le )
                 {
-                    CONSUMER_LOG.warn( "Failed to bind to the producer {} with the given bind Dn {}", config.getProducer(), config.getReplUserDn() );
+                    CONSUMER_LOG.warn( "Failed to bind to the producer {} with the given bind Dn {}",
+                        config.getProducer(), config.getReplUserDn() );
                     LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
                     LOG.warn( "", le );
                     disconnected = true;
@@ -254,7 +256,8 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
             else
             {
-                CONSUMER_LOG.warn( "Consumer {} cannot connect to producer {}", config.getReplicaId(), config.getProducer() );
+                CONSUMER_LOG.warn( "Consumer {} cannot connect to producer {}", config.getReplicaId(),
+                    config.getProducer() );
                 disconnected = true;
 
                 return false;
@@ -416,7 +419,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             byte[] cookie = syncInfoValue.getCookie();
 
             int replicaId = -1;
-            
+
             if ( cookie != null )
             {
                 LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
@@ -513,6 +516,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         }
     }
 
+
     private ReplicationStatusEnum doRefreshOnly()
     {
         while ( !stop )
@@ -543,7 +547,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         return ReplicationStatusEnum.STOPPED;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -559,7 +563,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     public void ping()
     {
         boolean connected = !disconnected;
-        
+
         if ( disconnected )
         {
             connected = connect();
@@ -572,15 +576,17 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             try
             {
                 Entry baseDn = connection.lookup( config.getBaseDn(), "1.1" );
-                
+
                 if ( baseDn == null )
                 {
                     // Cannot get the entry : this is bad, but possible
-                    CONSUMER_LOG.debug( "Cannot fetch '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                    CONSUMER_LOG.debug( "Cannot fetch '{}' from provider for consumer {}", config.getBaseDn(),
+                        config.getReplicaId() );
                 }
                 else
                 {
-                    CONSUMER_LOG.debug( "Fetched '{}' from provider for consumer {}", config.getBaseDn(), config.getReplicaId() );
+                    CONSUMER_LOG.debug( "Fetched '{}' from provider for consumer {}", config.getBaseDn(),
+                        config.getReplicaId() );
                 }
             }
             catch ( LdapException le )
@@ -607,7 +613,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             connected = connect();
         }
-        
+
         while ( !connected )
         {
             try
@@ -623,10 +629,10 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
             connected = connect();
         }
-        
+
         // TODO : we may have cases were we get here with the connected flag to false. With the above
         // code, thi sis not possible
-        
+
         return connected;
     }
 
@@ -704,16 +710,16 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             // log the error and handle it appropriately
             LOG.warn( "given replication base Dn {} is not found on provider", config.getBaseDn() );
-            
+
             LOG.warn( "disconnecting the consumer running in refreshAndPersist mode from the provider" );
             disconnect();
-            
+
             return ReplicationStatusEnum.DISCONNECTED;
         }
         else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
         {
             LOG.info( "unable to perform the content synchronization cause E_SYNC_REFRESH_REQUIRED" );
-            
+
             try
             {
                 deleteRecursive( new Dn( config.getBaseDn() ), null );
@@ -728,9 +734,9 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
 
             removeCookie();
-            
+
             return ReplicationStatusEnum.REFRESH_REQUIRED;
-        } 
+        }
         else
         {
             return ReplicationStatusEnum.DISCONNECTED;
@@ -741,12 +747,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     public void disconnect()
     {
         disconnected = true;
-        
+
         if ( connection == null )
         {
             return;
         }
-        
+
         if ( connection.isConnected() )
         {
             try
@@ -755,13 +761,13 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 {
                     refreshThread.stopRefreshing();
                 }
-    
+
                 connection.unBind();
                 LOG.info( "Unbound from the server {}", config.getRemoteHost() );
-    
+
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
-    
+
                 connection = null;
             }
             catch ( Exception e )
@@ -772,7 +778,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             {
                 // persist the cookie
                 storeCookie();
-                
+
                 // reset the cookie
                 syncCookie = null;
             }
@@ -797,11 +803,12 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
         try
         {
-            if( cookieFile == null )
+            if ( cookieFile == null )
             {
-                cookieFile = new File( cookieDir, String.valueOf( LdapProtocolUtils.getReplicaId( new String( syncCookie ) ) ) );
+                cookieFile = new File( cookieDir, String.valueOf( LdapProtocolUtils.getReplicaId( new String(
+                    syncCookie ) ) ) );
             }
-            
+
             FileOutputStream fout = new FileOutputStream( cookieFile );
             fout.write( syncCookie.length );
             fout.write( syncCookie );

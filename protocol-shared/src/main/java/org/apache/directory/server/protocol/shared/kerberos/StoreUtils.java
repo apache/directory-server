@@ -22,6 +22,7 @@ package org.apache.directory.server.protocol.shared.kerberos;
 
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
@@ -53,7 +54,7 @@ public class StoreUtils
 {
     /** Loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( StoreUtils.class );
-    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
 
     /**

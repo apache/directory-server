@@ -24,6 +24,7 @@ package org.apache.directory.server.ldap.replication.provider;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -48,7 +49,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaJournalCursor.class );
 
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -67,7 +68,7 @@ public class ReplConsumerManager
     private static final Logger LOG = LoggerFactory.getLogger( ReplConsumerManager.class );
 
     /** A logger for the replication provider */
-    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( Loggers.PROVIDER_LOG.getName() );
 
     /** The admin session used to commuicate with the backend */
     private CoreSession adminSession;
@@ -178,9 +179,9 @@ public class ReplConsumerManager
             SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT, String.valueOf( replica.getPurgeThresholdCount() ) );
 
         adminSession.add( entry );
-        
+
         replica.setConsumerEntryDn( consumerDn );
-        
+
         LOG.debug( "stored replication consumer entry {}", consumerDn );
     }
 
@@ -234,7 +235,8 @@ public class ReplConsumerManager
 
         if ( mod == null )
         {
-            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ADS_REPL_LAST_SENT_CSN_AT, replica.getLastSentCsn() );
+            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ADS_REPL_LAST_SENT_CSN_AT,
+                replica.getLastSentCsn() );
 
             modMap.put( replica.getId(), mod );
         }
@@ -329,16 +331,17 @@ public class ReplConsumerManager
 
         int maxIdlePeriod = Integer.parseInt( entry.get( SchemaConstants.ADS_REPL_LOG_MAX_IDLE ).getString() );
         replica.setMaxIdlePeriod( maxIdlePeriod );
-        
-        int purgeThreshold = Integer.parseInt( entry.get( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT ).getString() );
+
+        int purgeThreshold = Integer.parseInt( entry.get( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT )
+            .getString() );
         replica.setPurgeThresholdCount( purgeThreshold );
-        
+
         // explicitly mark the replica as not-dirty, cause we just loaded it from 
         // the store, this prevents updating the replica info immediately after loading
         replica.setDirty( false );
 
         replica.setConsumerEntryDn( entry.getDn() );
-        
+
         return replica;
     }
 }

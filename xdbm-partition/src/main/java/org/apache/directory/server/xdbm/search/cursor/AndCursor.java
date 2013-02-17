@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class AndCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -76,7 +77,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Creating AndCursor {}", this );
         }
-        
+
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
     }
@@ -201,7 +202,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing AndCursor {}", this );
         }
-        
+
         super.close();
         wrapped.close();
     }
@@ -216,7 +217,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing AndCursor {}", this );
         }
-        
+
         super.close( cause );
         wrapped.close( cause );
     }

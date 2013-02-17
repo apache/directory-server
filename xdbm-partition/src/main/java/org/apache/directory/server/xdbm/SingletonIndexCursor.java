@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -54,7 +55,7 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Creating SingletonIndexCursor {}", this );
         }
-        
+
         this.singleton = singleton;
     }
 
@@ -154,7 +155,7 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean isBeforeFirst() 
+    public boolean isBeforeFirst()
     {
         return beforeFirst;
     }
@@ -246,7 +247,7 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
         }
-        
+
         super.close();
     }
 
@@ -260,7 +261,7 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing SingletonIndexCursor {}", this );
         }
-        
+
         super.close( cause );
     }
 }

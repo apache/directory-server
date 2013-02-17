@@ -23,6 +23,7 @@ package org.apache.directory.server.core.logger;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -60,10 +61,10 @@ import org.slf4j.LoggerFactory;
 public class TimerInterceptor extends BaseInterceptor
 {
     /** A aggregating logger */
-    private static final Logger OPERATION_STATS = LoggerFactory.getLogger( "OPERATION_STATS" );
+    private static final Logger OPERATION_STATS = LoggerFactory.getLogger( Loggers.OPERATION_STAT.getName() );
 
     /** An operation logger */
-    private static final Logger OPERATION_TIME = LoggerFactory.getLogger( "OPERATION_TIME" );
+    private static final Logger OPERATION_TIME = LoggerFactory.getLogger( Loggers.OPERATION_TIME.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG_STATS = OPERATION_STATS.isDebugEnabled();

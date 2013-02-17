@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApacheDS
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ApacheDS.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( ApacheDS.class );
 
     /** Default delay between two flushes to the backend */
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;

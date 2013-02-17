@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.exception.LdapConfigurationException;
 import org.apache.directory.api.ldap.model.message.AbandonRequest;
@@ -129,10 +130,10 @@ public class LdapServer extends DirectoryBackedService
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class );
 
     /** Logger for the replication consumer */
-    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
     /** Value (0) for configuration where size limit is unlimited. */
     public static final long NO_SIZE_LIMIT = 0;

@@ -25,6 +25,7 @@ import java.io.IOException;
 import jdbm.btree.BTree;
 import jdbm.helper.TupleBrowser;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsContainer<V>>>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();

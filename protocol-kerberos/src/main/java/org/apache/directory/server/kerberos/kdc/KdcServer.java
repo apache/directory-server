@@ -55,8 +55,8 @@ public class KdcServer extends DirectoryBackedService
     private static final long serialVersionUID = 522567370475574165L;
 
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( KdcServer.class.getName() );
-    
+    private static final Logger LOG = LoggerFactory.getLogger( KdcServer.class );
+
     /** The default kdc service name */
     private static final String SERVICE_NAME = "Keydap Kerberos Service";
 
@@ -64,9 +64,10 @@ public class KdcServer extends DirectoryBackedService
     private ReplayCache replayCache;
 
     private KerberosConfig config;
-    
+
     private ChangePasswordServer changePwdServer;
-    
+
+
     /**
      * Creates a new instance of KdcServer with the default configuration.
      */
@@ -74,8 +75,8 @@ public class KdcServer extends DirectoryBackedService
     {
         this( new KerberosConfig() );
     }
-    
-    
+
+
     /**
      * 
      * Creates a new instance of KdcServer with the given config.
@@ -106,52 +107,52 @@ public class KdcServer extends DirectoryBackedService
     {
         PrincipalStore store;
 
-        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn(this.getSearchBaseDn())  );
-        
+        store = new DirectoryPrincipalStore( getDirectoryService(), new Dn( this.getSearchBaseDn() ) );
+
         LOG.debug( "initializing the kerberos replay cache" );
 
         Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
         replayCache = new ReplayCacheImpl( cache, config.getAllowableClockSkew() );
-        
+
         // Kerberos can use UDP or TCP
-        for ( Transport transport:transports )
+        for ( Transport transport : transports )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             // Now, configure the acceptor
             // Inject the chain
             IoFilterChainBuilder chainBuilder = new DefaultIoFilterChainBuilder();
-            
+
             if ( transport instanceof TcpTransport )
             {
                 // Now, configure the acceptor
                 // Disable the disconnection of the clients on unbind
                 acceptor.setCloseOnDeactivation( false );
-                
+
                 // No Nagle's algorithm
-                ((NioSocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
-                
+                ( ( NioSocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
+
                 // Allow the port to be reused even if the socket is in TIME_WAIT state
-                ((NioSocketAcceptor)acceptor).setReuseAddress( true );
+                ( ( NioSocketAcceptor ) acceptor ).setReuseAddress( true );
             }
-            
+
             // Inject the codec
-            ((DefaultIoFilterChainBuilder)chainBuilder).addFirst( "codec", 
-                new ProtocolCodecFilter( 
+            ( ( DefaultIoFilterChainBuilder ) chainBuilder ).addFirst( "codec",
+                new ProtocolCodecFilter(
                     KerberosProtocolCodecFactory.getInstance() ) );
-            
+
             acceptor.setFilterChainBuilder( chainBuilder );
-            
+
             // Inject the protocol handler
             acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
-            
+
             // Bind to the configured address
             acceptor.bind();
         }
-        
+
         LOG.info( "Kerberos service started." );
-        
-        if( changePwdServer != null )
+
+        if ( changePwdServer != null )
         {
             changePwdServer.start();
         }
@@ -176,8 +177,8 @@ public class KdcServer extends DirectoryBackedService
         }
 
         LOG.info( "Kerberos service stopped." );
-        
-        if( changePwdServer != null )
+
+        if ( changePwdServer != null )
         {
             changePwdServer.stop();
         }
@@ -190,17 +191,18 @@ public class KdcServer extends DirectoryBackedService
      */
     public int getTcpPort()
     {
-        for( Transport t : transports )
+        for ( Transport t : transports )
         {
             if ( t instanceof TcpTransport )
             {
                 return t.getPort();
             }
         }
-        
+
         return -1;
     }
-    
+
+
     /**
      * @return the KDC server configuration
      */

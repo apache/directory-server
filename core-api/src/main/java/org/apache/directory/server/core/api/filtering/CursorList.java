@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.directory.api.i18n.I18n;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class CursorList extends AbstractCursor<Entry> implements EntryFilteringCursor
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -465,7 +466,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
         {
             LOG_CURSOR.debug( "Closing CursorList {}", this );
         }
-        
+
         close( null );
     }
 
@@ -479,7 +480,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
         {
             LOG_CURSOR.debug( "Closing CursorList {}", this );
         }
-        
+
         closed = true;
 
         for ( EntryFilteringCursor cursor : list )

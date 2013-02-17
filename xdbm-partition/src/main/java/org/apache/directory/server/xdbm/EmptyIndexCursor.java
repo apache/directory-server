@@ -21,6 +21,7 @@ package org.apache.directory.server.xdbm;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -37,10 +38,11 @@ import org.slf4j.LoggerFactory;
 public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+
 
     public EmptyIndexCursor()
     {
@@ -173,7 +175,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
         {
             LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
         }
-        
+
         super.close();
     }
 
@@ -187,7 +189,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
         {
             LOG_CURSOR.debug( "Closing EmptyIndexCursor {}", this );
         }
-        
+
         super.close( cause );
     }
 }

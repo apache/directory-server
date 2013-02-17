@@ -22,6 +22,7 @@ package org.apache.directory.server.core.avltree;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -49,13 +50,14 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     private final AvlSingletonOrOrderedSetCursor<K, V> wrapped;
     private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
 
+
     public AvlTreeMapNoDupsWrapperCursor( AvlSingletonOrOrderedSetCursor<K, V> wrapped )
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating AvlTreeMapNoDupsWrapperCursor {}", this );
         }
-        
+
         this.wrapped = wrapped;
     }
 
@@ -193,7 +195,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
         {
             LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor {}", this );
         }
-        
+
         wrapped.close();
     }
 
@@ -204,7 +206,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
         {
             LOG_CURSOR.debug( "Closing AvlTreeMapNoDupsWrapperCursor {}", this );
         }
-        
+
         wrapped.close( reason );
     }
 }

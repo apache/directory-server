@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class OrCursor<V> extends AbstractIndexCursor<V>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -295,7 +296,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing OrCursor {}", this );
         }
-        
+
         super.close();
 
         for ( Cursor<?> cursor : cursors )
@@ -314,7 +315,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
         {
             LOG_CURSOR.debug( "Closing OrCursor {}", this );
         }
-        
+
         super.close( cause );
 
         for ( Cursor<?> cursor : cursors )

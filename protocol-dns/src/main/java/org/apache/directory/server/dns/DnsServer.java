@@ -46,7 +46,7 @@ public class DnsServer extends DirectoryBackedService
     private static final long serialVersionUID = 6943138644427163149L;
 
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( DnsServer.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( DnsServer.class );
 
     /** The default IP port. */
     private static final int DEFAULT_IP_PORT = 53;
@@ -82,7 +82,7 @@ public class DnsServer extends DirectoryBackedService
             UdpTransport transport = new UdpTransport( DEFAULT_IP_PORT );
             setTransports( transport );
 
-            DatagramAcceptor acceptor = ( DatagramAcceptor ) transport.getAcceptor();
+            DatagramAcceptor acceptor = transport.getAcceptor();
 
             // Set the handler
             acceptor.setHandler( new DnsProtocolHandler( this, store ) );

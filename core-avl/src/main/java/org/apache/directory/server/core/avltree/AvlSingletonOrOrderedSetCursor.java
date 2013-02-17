@@ -23,6 +23,7 @@ package org.apache.directory.server.core.avltree;
 import java.io.IOException;
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K, SingletonOrOrderedSet<V>>>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -63,7 +64,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
         {
             LOG_CURSOR.debug( "Creating AvlSingletonOrOrderedSetCursor {}", this );
         }
-        
+
         this.tree = tree;
     }
 
@@ -204,11 +205,11 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
             case ON_NODE:
             case AFTER_NODE:
                 node = node.next;
-                
+
                 if ( node == null )
                 {
                     afterLast();
-                    
+
                     return false;
                 }
                 else
@@ -341,7 +342,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
         {
             LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
         }
-        
+
         super.close();
     }
 
@@ -355,7 +356,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
         {
             LOG_CURSOR.debug( "Closing AvlSingletonOrOrderedSetCursor {}", this );
         }
-        
+
         super.close( reason );
     }
 }

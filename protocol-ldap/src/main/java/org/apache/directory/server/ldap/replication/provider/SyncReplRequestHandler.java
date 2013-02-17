@@ -47,6 +47,7 @@ import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -115,7 +116,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
 
     /** A logger for the replication provider */
-    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( Loggers.PROVIDER_LOG.getName() );
 
     /** Tells if the replication handler is already started */
     private boolean initialized = false;
@@ -145,8 +146,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private ReplicaEventLogJanitor logJanitor;
 
     private AttributeType REPL_LOG_MAX_IDLE_AT;
-    
+
     private AttributeType REPL_LOG_PURGE_THRESHOLD_COUNT_AT;
+
 
     /**
      * Create a SyncReplRequestHandler empty instance 
@@ -186,10 +188,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             REPL_LOG_MAX_IDLE_AT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_MAX_IDLE );
-            
+
             REPL_LOG_PURGE_THRESHOLD_COUNT_AT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT );
-            
+
             // Get and create the replication directory if it does not exist
             syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
@@ -241,13 +243,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     public void stop()
     {
         EventService evtSrv = dirService.getEventService();
-        
+
         evtSrv.removeListener( cledListener );
         //first set the 'stop' flag
         logJanitor.stopCleaning();
         //then interrupt the janitor
         logJanitor.interrupt();
-        
+
         for ( ReplicaEventLog log : replicaLogMap.values() )
         {
             try
@@ -1167,13 +1169,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         return replDir.listFiles( filter );
     }
 
-    
     /**
      * an event listener for handling deletions and updates of replication event log entries present under ou=consumers,ou=system
      */
     private class ConsumerLogEntryChangeListener extends DirectoryListenerAdapter
     {
-        
+
         private ReplicaEventLog getEventLog( OperationContext opCtx )
         {
             Dn consumerLogDn = opCtx.getDn();
@@ -1186,10 +1187,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     return log;
                 }
             } // end of for
-            
+
             return null;
         }
-        
+
+
         @Override
         public void entryDeleted( DeleteOperationContext deleteContext )
         {
@@ -1197,48 +1199,48 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             synchronized ( this )
             {
                 ReplicaEventLog log = getEventLog( deleteContext );
-                if( log != null )
+                if ( log != null )
                 {
                     logJanitor.removeEventLog( log );
                 }
             } // end of synchronized block
         } // end of delete method
 
-        
+
         @Override
         public void entryModified( ModifyOperationContext modifyContext )
         {
             List<Modification> mods = modifyContext.getModItems();
-            
+
             // lock this listener instance
             synchronized ( this )
             {
-                for( Modification m : mods )
+                for ( Modification m : mods )
                 {
                     try
                     {
                         Attribute at = m.getAttribute();
-                        
-                        if( at.isInstanceOf( REPL_LOG_MAX_IDLE_AT ) )
+
+                        if ( at.isInstanceOf( REPL_LOG_MAX_IDLE_AT ) )
                         {
                             ReplicaEventLog log = getEventLog( modifyContext );
-                            if( log != null )
+                            if ( log != null )
                             {
                                 int maxIdlePeriod = Integer.parseInt( m.getAttribute().getString() );
                                 log.setMaxIdlePeriod( maxIdlePeriod );
                             }
                         }
-                        else if( at.isInstanceOf( REPL_LOG_PURGE_THRESHOLD_COUNT_AT ) )
+                        else if ( at.isInstanceOf( REPL_LOG_PURGE_THRESHOLD_COUNT_AT ) )
                         {
                             ReplicaEventLog log = getEventLog( modifyContext );
-                            if( log != null )
+                            if ( log != null )
                             {
                                 int purgeThreshold = Integer.parseInt( m.getAttribute().getString() );
                                 log.setPurgeThresholdCount( purgeThreshold );
                             }
                         }
                     }
-                    catch( LdapInvalidAttributeValueException e )
+                    catch ( LdapInvalidAttributeValueException e )
                     {
                         LOG.warn( "Invalid attribute type", e );
                     }

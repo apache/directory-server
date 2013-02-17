@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -49,7 +50,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private static final Logger LOG = LoggerFactory.getLogger( AvlTableDupsCursor.class );
 
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();

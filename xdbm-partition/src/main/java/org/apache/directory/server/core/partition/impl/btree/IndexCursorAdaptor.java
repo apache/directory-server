@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.i18n.I18n;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -195,7 +196,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
         {
             LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         }
-        
+
         wrappedCursor.close();
     }
 
@@ -209,7 +210,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
         {
             LOG_CURSOR.debug( "Closing IndexCursorAdaptor {}", this );
         }
-        
+
         wrappedCursor.close( reason );
     }
 

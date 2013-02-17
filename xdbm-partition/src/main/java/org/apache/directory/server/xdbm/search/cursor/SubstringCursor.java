@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class SubstringCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -65,7 +66,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         {
             LOG_CURSOR.debug( "Creating SubstringCursor {}", this );
         }
-        
+
         evaluator = substringEvaluator;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
@@ -176,7 +177,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     public boolean last() throws LdapException, CursorException, IOException
     {
         afterLast();
-        
+
         return previous();
     }
 
@@ -257,7 +258,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         {
             LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
         }
-        
+
         super.close();
         wrapped.close();
         clear();
@@ -273,7 +274,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         {
             LOG_CURSOR.debug( "Closing SubstringCursor {}", this );
         }
-        
+
         super.close( cause );
         wrapped.close( cause );
         clear();

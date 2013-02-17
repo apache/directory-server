@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class ChangePasswordServer extends DirectoryBackedService
 {
     /** logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordServer.class.getName() );
+    private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordServer.class );
 
     /** The default change password port. */
     private static final int DEFAULT_IP_PORT = 464;
@@ -70,6 +70,7 @@ public class ChangePasswordServer extends DirectoryBackedService
     /** the cache used for storing change password requests */
     private ReplayCache replayCache;
 
+
     /**
      * Creates a new instance of ChangePasswordConfiguration.
      */
@@ -78,53 +79,53 @@ public class ChangePasswordServer extends DirectoryBackedService
         this( new ChangePasswordConfig() );
     }
 
-    
+
     public ChangePasswordServer( ChangePasswordConfig config )
     {
         this.config = config;
     }
 
-    
+
     /**
      * @throws IOException if we cannot bind to the specified ports
      */
     public void start() throws IOException, LdapInvalidDnException
     {
-        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new Dn(this.getSearchBaseDn())  );
-        
+        PrincipalStore store = new DirectoryPrincipalStore( getDirectoryService(), new Dn( this.getSearchBaseDn() ) );
+
         LOG.debug( "initializing the changepassword replay cache" );
 
         Cache cache = getDirectoryService().getCacheService().getCache( "changePwdReplayCache" );
         replayCache = new ReplayCacheImpl( cache );
 
-        for ( Transport transport:transports )
+        for ( Transport transport : transports )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             // Disable the disconnection of the clients on unbind
             acceptor.setCloseOnDeactivation( false );
-            
+
             if ( transport instanceof UdpTransport )
             {
                 // Allow the port to be reused even if the socket is in TIME_WAIT state
-                ((DatagramSessionConfig)acceptor.getSessionConfig()).setReuseAddress( true );
+                ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
             }
             else
             {
                 // Allow the port to be reused even if the socket is in TIME_WAIT state
-                ((SocketAcceptor)acceptor).setReuseAddress( true );
-                
+                ( ( SocketAcceptor ) acceptor ).setReuseAddress( true );
+
                 // No Nagle's algorithm
-                ((SocketAcceptor)acceptor).getSessionConfig().setTcpNoDelay( true );
+                ( ( SocketAcceptor ) acceptor ).getSessionConfig().setTcpNoDelay( true );
             }
-            
+
             // Set the handler
             acceptor.setHandler( new ChangePasswordProtocolHandler( this, store ) );
-            
+
             // Bind
             acceptor.bind();
         }
-        
+
         LOG.info( "ChangePassword service started." );
         //System.out.println( "ChangePassword service started." );
     }
@@ -132,10 +133,10 @@ public class ChangePasswordServer extends DirectoryBackedService
 
     public void stop()
     {
-        for ( Transport transport :getTransports() )
+        for ( Transport transport : getTransports() )
         {
             IoAcceptor acceptor = transport.getAcceptor();
-            
+
             if ( acceptor != null )
             {
                 acceptor.dispose();
@@ -143,7 +144,7 @@ public class ChangePasswordServer extends DirectoryBackedService
         }
 
         replayCache.clear();
-        
+
         LOG.info( "ChangePassword service stopped." );
         //System.out.println( "ChangePassword service stopped." );
     }
@@ -163,38 +164,38 @@ public class ChangePasswordServer extends DirectoryBackedService
         return config;
     }
 
-    
+
     public int getTcpPort()
     {
-        for( Transport t : getTransports() )
+        for ( Transport t : getTransports() )
         {
             if ( t instanceof TcpTransport )
             {
                 return t.getPort();
             }
         }
-        
+
         throw new IllegalStateException( "TCP transport is not enabled" );
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "ChangePasswordServer[" ).append( getServiceName() ).append( "], listening on :" ).append( '\n' );
-        
+
         if ( getTransports() != null )
         {
-            for ( Transport transport:getTransports() )
+            for ( Transport transport : getTransports() )
             {
                 sb.append( "    " ).append( transport ).append( '\n' );
             }
         }
-        
+
         return sb.toString();
     }
 }

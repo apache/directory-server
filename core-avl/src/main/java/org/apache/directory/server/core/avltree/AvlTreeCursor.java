@@ -22,6 +22,7 @@ package org.apache.directory.server.core.avltree;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class AvlTreeCursor<E> extends AbstractCursor<E>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -59,7 +60,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Creating AvlTreeCursor {}", this );
         }
-        
+
         this.tree = tree;
     }
 
@@ -297,7 +298,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
         }
-        
+
         super.close();
     }
 
@@ -311,7 +312,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
         {
             LOG_CURSOR.debug( "Closing AvlTreeCursor {}", this );
         }
-        
+
         super.close( reason );
     }
 }

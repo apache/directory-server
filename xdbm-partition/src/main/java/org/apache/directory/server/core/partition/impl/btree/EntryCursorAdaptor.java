@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class EntryCursorAdaptor extends AbstractCursor<Entry>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -59,7 +60,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
         {
             LOG_CURSOR.debug( "Creating EntryCursorAdaptor {}", this );
         }
-        
+
         indexCursor = searchResult.getResultSet();
         evaluator = searchResult.getEvaluator();
     }
@@ -128,7 +129,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
         {
             LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
         }
-        
+
         indexCursor.close();
     }
 
@@ -142,7 +143,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
         {
             LOG_CURSOR.debug( "Closing EntryCursorAdaptor {}", this );
         }
-        
+
         indexCursor.close( cause );
     }
 
@@ -169,14 +170,14 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
             {
                 Entry entry = indexEntry.getEntry();
                 indexEntry.setEntry( null );
-                
+
                 return entry;
             }
             else
             {
                 indexEntry.setEntry( null );
             }
-    
+
             return null;
         }
         catch ( Exception e )
@@ -203,7 +204,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
         return indexCursor.last();
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -220,7 +221,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     {
         return indexCursor.previous();
     }
-    
+
 
     /**
      * @see Object#toString()
@@ -228,25 +229,25 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( tabs ).append( "EntryCursorAdaptor\n" );
-        
+
         if ( indexCursor != null )
         {
             sb.append( tabs ).append( "    " ).append( "IndexCursor : \n" );
             sb.append( indexCursor.toString( tabs + "        " ) );
         }
-        
+
         if ( evaluator != null )
         {
             sb.append( tabs ).append( "    " ).append( "Evaluator : \n" );
             sb.append( evaluator.toString( tabs + "        " ) );
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

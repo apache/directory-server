@@ -19,12 +19,15 @@
  */
 package org.apache.directory.server.ldap.replication.consumer;
 
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 
 /**
  * A thread used to ping the provider o check if they are alive or not.
@@ -34,13 +37,14 @@ import org.slf4j.LoggerFactory;
 public class PingerThread extends Thread
 {
     /** Logger for the replication consumer */
-    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( "CONSUMER_LOG" );
+    private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
     /** The list of consumers we want to check */
     private Queue<ReplicationConsumer> consumers = new ConcurrentLinkedQueue<ReplicationConsumer>();
-    
+
     /** A flag to stop the pinger */
     private boolean stop = false;
+
 
     /**
      * Create a new instance of this thread.
@@ -49,8 +53,8 @@ public class PingerThread extends Thread
     {
         setDaemon( true );
     }
-    
-    
+
+
     /**
      * Starts the thread
      */
@@ -61,7 +65,7 @@ public class PingerThread extends Thread
             if ( CONSUMER_LOG.isDebugEnabled() )
             {
                 MDC.put( "Replica", "Pinger" );
-                
+
                 CONSUMER_LOG.debug( "Starting the provider's pinger" );
             }
 
@@ -80,8 +84,8 @@ public class PingerThread extends Thread
             CONSUMER_LOG.debug( "The pinger has been interrupted" );
         }
     }
-    
-    
+
+
     /**
      * Add a new consumer to ping
      * 
@@ -94,8 +98,8 @@ public class PingerThread extends Thread
             consumers.add( consumer );
         }
     }
-    
-    
+
+
     /**
      * Remove a consumer to ping
      * @param consumer The consumer we want to remove
@@ -104,8 +108,8 @@ public class PingerThread extends Thread
     {
         consumers.remove( consumer );
     }
-    
-    
+
+
     /**
      * Stops the ping for all the consumers
      */

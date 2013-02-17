@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -56,7 +57,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
 
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -66,7 +67,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
     /** the parameters associated with the search operation */
     private final SearchOperationContext operationContext;
-    
+
     /** The SchemaManager */
     private final SchemaManager schemaManager;
 
@@ -106,13 +107,14 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext, SchemaManager schemaManager )
+    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext,
+        SchemaManager schemaManager )
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
         }
-        
+
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -130,15 +132,15 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param filters a list of filters to be used
      */
     public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
-        SearchOperationContext operationContext, 
-        SchemaManager schemaManager, 
+        SearchOperationContext operationContext,
+        SchemaManager schemaManager,
         List<EntryFilter> filters )
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating BaseEntryFilteringCursor {}", this );
         }
-        
+
         this.wrapped = wrapped;
         this.operationContext = operationContext;
         this.filters = new ArrayList<EntryFilter>();
@@ -269,7 +271,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         {
             LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
         }
-        
+
         wrapped.close();
         prefetched = null;
     }
@@ -284,7 +286,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         {
             LOG_CURSOR.debug( "Closing BaseEntryFilteringCursor {}", this );
         }
-        
+
         wrapped.close( reason );
         prefetched = null;
     }
@@ -402,17 +404,17 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( 
+                ServerEntryUtils.filterContents(
                     schemaManager,
                     operationContext, prefetched );
-                
+
                 return true;
             }
 
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( 
+                ServerEntryUtils.filterContents(
                     schemaManager,
                     operationContext, prefetched );
 
@@ -438,7 +440,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         }
 
         prefetched = null;
-        
+
         return false;
     }
 
@@ -479,7 +481,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( filters.isEmpty() )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( 
+                ServerEntryUtils.filterContents(
                     schemaManager,
                     operationContext, prefetched );
 
@@ -489,7 +491,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             if ( ( filters.size() == 1 ) && filters.get( 0 ).accept( operationContext, tempResult ) )
             {
                 prefetched = tempResult;
-                ServerEntryUtils.filterContents( 
+                ServerEntryUtils.filterContents(
                     schemaManager,
                     operationContext, prefetched );
 
@@ -511,7 +513,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
              * Here the entry has been accepted by all filters.
              */
             prefetched = tempResult;
-            ServerEntryUtils.filterContents( 
+            ServerEntryUtils.filterContents(
                 schemaManager,
                 operationContext, prefetched );
 
@@ -522,15 +524,15 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
 
         return false;
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
-        
+
         if ( wrapped != null )
         {
             sb.append( tabs ).append( "BaseEntryFilteringCursor, wrapped : \n" );
@@ -540,11 +542,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         {
             sb.append( tabs ).append( "BaseEntryFilteringCursor, no wrapped\n" );
         }
-        
+
         if ( ( filters != null ) && ( filters.size() > 0 ) )
         {
             sb.append( tabs ).append( "Filters : \n" );
-            
+
             for ( EntryFilter filter : filters )
             {
                 sb.append( filter.toString( tabs + "    " ) ).append( "\n" );
@@ -554,8 +556,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         {
             sb.append( tabs ).append( "No filter\n" );
         }
-        
-        
+
         if ( prefetched != null )
         {
             sb.append( tabs ).append( "Prefetched : \n" );
@@ -565,11 +566,11 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
         {
             sb.append( tabs ).append( "No prefetched" );
         }
-        
+
         return sb.toString();
     }
-    
-    
+
+
     /**
      * @see Object#toString()
      */

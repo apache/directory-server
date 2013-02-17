@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.cursor;
 import java.io.IOException;
 
 import org.apache.commons.collections.ArrayStack;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class DescendantCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -131,6 +132,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     {
         return UNSUPPORTED_MSG;
     }
+
 
     /**
      * {@inheritDoc}

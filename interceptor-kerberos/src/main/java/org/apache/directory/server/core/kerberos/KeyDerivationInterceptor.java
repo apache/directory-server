@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
@@ -70,7 +71,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 {
     /** The log for this class. */
     private static final Logger LOG = LoggerFactory.getLogger( KeyDerivationInterceptor.class );
-    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
     /** The service name. */
     private static final String NAME = "keyDerivationService";

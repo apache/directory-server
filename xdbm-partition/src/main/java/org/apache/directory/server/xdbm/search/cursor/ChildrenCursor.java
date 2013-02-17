@@ -22,6 +22,7 @@ package org.apache.directory.server.xdbm.search.cursor;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class ChildrenCursor extends AbstractIndexCursor<String>
 {
     /** A dedicated log for cursors */
-    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
@@ -73,7 +74,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     {
         this.parentId = parentId;
         this.cursor = cursor;
-        
+
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating ChildrenCursor {}", this );
@@ -201,7 +202,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
         {
             LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
         }
-        
+
         cursor.close();
 
         super.close();
@@ -218,7 +219,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
         {
             LOG_CURSOR.debug( "Closing ChildrenCursor {}", this );
         }
-        
+
         cursor.close( cause );
 
         super.close( cause );

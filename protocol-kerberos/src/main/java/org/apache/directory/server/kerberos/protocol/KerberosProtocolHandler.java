@@ -25,8 +25,8 @@ import java.net.InetSocketAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
@@ -57,7 +57,7 @@ public class KerberosProtocolHandler implements IoHandler
 {
     /** The loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosProtocolHandler.class );
-    private static final Logger LOG_KRB = LoggerFactory.getLogger( "KERBEROS" );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
     /** The KDC server */
     private KdcServer kdcServer;

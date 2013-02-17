@@ -28,6 +28,7 @@ import jdbm.RecordManager;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.TransactionManager;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -65,7 +66,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLog.class );
 
     /** A logger for the replication provider */
-    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( "PROVIDER_LOG" );
+    private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( Loggers.PROVIDER_LOG.getName() );
 
     /** hostname of the syncrepl consumer */
     private String hostName;
@@ -90,7 +91,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     /** the duration(in seconds) of consumer inactivity after which this log will be deleted. Defaults to 172800 seconds (i.e. 2 days) */
     private long maxIdlePeriod = DEFAULT_MAX_IDLE_PERIOD;
-    
+
     /** the minimum number of entries to be present for beginning purging entries older than the last sent CSN. Default is 10000 */
     private int purgeThresholdCount = DEFAULT_PURGE_THRESHOLD_COUNT;
 
@@ -113,9 +114,10 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     public static final String REPLICA_EVENT_LOG_NAME_PREFIX = "REPL_EVENT_LOG.";
 
     public static final int DEFAULT_PURGE_THRESHOLD_COUNT = 10000;
-    
+
     public static final int DEFAULT_MAX_IDLE_PERIOD = 2 * 24 * 60;
-    
+
+
     /**
      * Creates a new instance of EventLog for a replica
      * 
@@ -447,7 +449,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         return journal.getName();
     }
 
-    
+
     /**
      * @return the number of entries present in the replica log
      */
@@ -472,11 +474,11 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     public void setMaxIdlePeriod( long maxIdlePeriod )
     {
-        if( maxIdlePeriod <= 0 )
+        if ( maxIdlePeriod <= 0 )
         {
             maxIdlePeriod = DEFAULT_MAX_IDLE_PERIOD;
         }
-        
+
         this.maxIdlePeriod = maxIdlePeriod;
     }
 
@@ -489,11 +491,11 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     public void setPurgeThresholdCount( int purgeThresholdCount )
     {
-        if( purgeThresholdCount <= 0 )
+        if ( purgeThresholdCount <= 0 )
         {
             purgeThresholdCount = DEFAULT_PURGE_THRESHOLD_COUNT;
         }
-        
+
         this.purgeThresholdCount = purgeThresholdCount;
     }
 
@@ -514,8 +516,8 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     public String toString()
     {
         return "ReplicaEventLog [hostName=" + hostName + ", searchFilter=" + searchFilter + ", lastSentCsn="
-            + lastSentCsn + ", searchCriteria=" + searchCriteria + ", replicaId=" + replicaId 
-            + ", refreshNPersist=" + refreshNPersist + ", maxInactivePeriod=" + maxIdlePeriod 
+            + lastSentCsn + ", searchCriteria=" + searchCriteria + ", replicaId=" + replicaId
+            + ", refreshNPersist=" + refreshNPersist + ", maxInactivePeriod=" + maxIdlePeriod
             + ", purgeThresholdCount=" + purgeThresholdCount + ", journalFile=" + journalFile
             + ", dirty=" + dirty + ", consumerEntryDn=" + consumerEntryDn + "]";
     }
