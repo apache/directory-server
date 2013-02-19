@@ -140,8 +140,8 @@ public class StoreUtils
             if ( cursor.next() )
             {
                 Entry entry = cursor.get();
-                LOG.debug( "Found entry {} for kerberos principal name {}", entry, principal );
-                LOG_KRB.debug( "Found entry {} for kerberos principal name {}", entry, principal );
+                LOG.debug( "Found entry {} for kerberos principal name {}", entry.getDn(), principal );
+                LOG_KRB.debug( "Found entry {} for kerberos principal name {}", entry.getDn(), principal );
 
                 while ( cursor.next() )
                 {

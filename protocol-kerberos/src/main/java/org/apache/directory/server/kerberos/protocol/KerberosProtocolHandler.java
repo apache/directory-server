@@ -238,8 +238,8 @@ public class KerberosProtocolHandler implements IoHandler
         {
             String messageText = ke.getLocalizedMessage() + " (" + ke.getErrorCode() + ")";
 
-            LOG.warn( messageText, ke );
-            LOG_KRB.warn( messageText, ke );
+            LOG.warn( messageText );
+            LOG_KRB.warn( messageText );
 
             KrbError error = getErrorMessage( kdcServer.getConfig().getServicePrincipal(), ke );
 

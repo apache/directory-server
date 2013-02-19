@@ -30,7 +30,7 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.EncoderException;
-import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
@@ -86,6 +86,7 @@ public class AuthenticationService
 {
     /** The log for this class. */
     private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
     /** The module responsible for encryption and decryption */
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
@@ -106,11 +107,14 @@ public class AuthenticationService
         {
             monitorRequest( authContext );
         }
-        
+
         authContext.setCipherTextHandler( cipherTextHandler );
 
-        if ( authContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
+        int kerberosVersion = authContext.getRequest().getProtocolVersionNumber();
+
+        if ( kerberosVersion != KerberosConstants.KERBEROS_V5 )
         {
+            LOG_KRB.error( "Kerberos V{} is not supported", kerberosVersion );
             throw new KerberosException( ErrorType.KDC_ERR_BAD_PVNO );
         }
 
@@ -119,69 +123,94 @@ public class AuthenticationService
         verifyPolicy( authContext );
         verifySam( authContext );
         verifyEncryptedTimestamp( authContext );
-        
+
         getServerEntry( authContext );
         generateTicket( authContext );
         buildReply( authContext );
     }
 
-    
-    private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+    private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
-        KdcContext kdcContext = ( KdcContext ) authContext;
+
+        LOG_KRB.debug( "--> Selecting the EncryptionType" );
+        KdcContext kdcContext = authContext;
         KerberosConfig config = kdcContext.getConfig();
 
         Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
         LOG.debug( "Encryption types requested by client {}.", requestedTypes );
-        
+        LOG_KRB.debug( "Encryption types requested by client {}.", requestedTypes );
+
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
         LOG.debug( "Session will use encryption type {}.", bestType );
+        LOG_KRB.debug( "Session will use encryption type {}.", bestType );
 
         if ( bestType == null )
         {
+            LOG_KRB.error( "No encryptionType selected !" );
             throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
         }
 
         kdcContext.setEncryptionType( bestType );
     }
 
-    
-    private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+    private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
-        KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal( 
+        LOG_KRB.debug( "--> Getting the client Entry" );
+        KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal(
             authContext.getRequest().getKdcReqBody().getCName(), authContext.getRequest().getKdcReqBody().getRealm() );
         PrincipalStore store = authContext.getStore();
 
-        PrincipalStoreEntry storeEntry = KerberosUtils.getEntry( principal, store, ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN ); 
-        authContext.setClientEntry( storeEntry );
+        try
+        {
+            PrincipalStoreEntry storeEntry = KerberosUtils.getEntry( principal, store,
+                ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN );
+            authContext.setClientEntry( storeEntry );
+
+            LOG_KRB.debug( "Found entry {} for principal {}", storeEntry.getDistinguishedName(), principal );
+        }
+        catch ( KerberosException ke )
+        {
+            LOG_KRB.error( "Error while searching for client {} : {}", principal, ke.getMessage() );
+            throw ke;
+        }
     }
-    
-    
-    private static void verifyPolicy( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+
+    private static void verifyPolicy( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
+        LOG_KRB.debug( "--> Verifying the policy" );
         PrincipalStoreEntry entry = authContext.getClientEntry();
 
         if ( entry.isDisabled() )
         {
+            LOG_KRB.error( "The entry {} is disabled", entry.getDistinguishedName() );
             throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
         }
 
         if ( entry.isLockedOut() )
         {
+            LOG_KRB.error( "The entry {} is locked out", entry.getDistinguishedName() );
             throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
         }
 
         if ( entry.getExpiration().getTime() < new Date().getTime() )
         {
+            LOG_KRB.error( "The entry {} has been revoked", entry.getDistinguishedName() );
             throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
         }
     }
-    
-    
+
+
     private static void verifySam( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
     {
         LOG.debug( "Verifying using SAM subsystem." );
+        LOG_KRB.debug( "--> Verifying using SAM subsystem." );
         KdcReq request = authContext.getRequest();
         KerberosConfig config = authContext.getConfig();
 
@@ -192,19 +221,25 @@ public class AuthenticationService
 
         if ( clientEntry.getSamType() != null )
         {
-            if ( LOG.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() || LOG_KRB.isDebugEnabled() )
             {
                 LOG.debug(
                     "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.",
                     clientName );
+                LOG_KRB
+                    .debug(
+                        "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.",
+                        clientName );
             }
 
             List<PaData> preAuthData = request.getPaData();
 
-            if ( preAuthData == null || preAuthData.size() == 0 )
+            if ( ( preAuthData == null ) || ( preAuthData.size() == 0 ) )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( authContext.getEncryptionType(), config
-                    .getEncryptionTypes() ) );
+                LOG_KRB.debug( "No PreAuth Data" );
+                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError(
+                    authContext.getEncryptionType(), config
+                        .getEncryptionTypes() ) );
             }
 
             try
@@ -222,24 +257,28 @@ public class AuthenticationService
             }
             catch ( SamException se )
             {
+                LOG_KRB.error( "Error : {}", se.getMessage() );
                 throw new KerberosException( ErrorType.KRB_ERR_GENERIC, se );
             }
 
             authContext.setClientKey( clientKey );
             authContext.setPreAuthenticated( true );
 
-            if ( LOG.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() || LOG_KRB.isDebugEnabled() )
             {
                 LOG.debug( "Pre-authentication using SAM subsystem successful for {}.", clientName );
+                LOG_KRB.debug( "Pre-authentication using SAM subsystem successful for {}.", clientName );
             }
         }
     }
-    
-    
-    private static void verifyEncryptedTimestamp( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+
+    private static void verifyEncryptedTimestamp( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
         LOG.debug( "Verifying using encrypted timestamp." );
-        
+        LOG_KRB.debug( "--> Verifying using encrypted timestamp." );
+
         KerberosConfig config = authContext.getConfig();
         KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
@@ -250,18 +289,19 @@ public class AuthenticationService
 
         if ( clientEntry.getSamType() == null )
         {
-            if ( LOG.isDebugEnabled() )
-            {
-                LOG.debug(
-                    "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.",
-                    clientName );
-            }
+            LOG.debug(
+                "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.",
+                clientName );
+            LOG_KRB.debug(
+                "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.",
+                clientName );
 
             EncryptionType encryptionType = authContext.getEncryptionType();
             clientKey = clientEntry.getKeyMap().get( encryptionType );
 
             if ( clientKey == null )
             {
+                LOG_KRB.error( "No key for client {}", clientEntry.getDistinguishedName() );
                 throw new KerberosException( ErrorType.KDC_ERR_NULL_KEY );
             }
 
@@ -271,6 +311,7 @@ public class AuthenticationService
 
                 if ( preAuthData == null )
                 {
+                    LOG_KRB.debug( "PRE_AUTH required..." );
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
                         preparePreAuthenticationError( authContext.getEncryptionType(), config.getEncryptionTypes() ) );
                 }
@@ -282,19 +323,23 @@ public class AuthenticationService
                     if ( paData.getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue = KerberosDecoder.decodeEncryptedData( paData.getPaDataValue() );
-                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+                        byte[] decryptedData = cipherTextHandler.decrypt( clientKey, dataValue,
+                            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
                         timestamp = KerberosDecoder.decodePaEncTsEnc( decryptedData );
                     }
                 }
 
                 if ( timestamp == null )
                 {
+                    LOG_KRB.error( "No timestamp found" );
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
                         preparePreAuthenticationError( authContext.getEncryptionType(), config.getEncryptionTypes() ) );
                 }
 
                 if ( !timestamp.getPaTimestamp().isInClockSkew( config.getAllowableClockSkew() ) )
                 {
+                    LOG_KRB.error( "Timestamp not in delay" );
+
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
 
@@ -311,34 +356,43 @@ public class AuthenticationService
         authContext.setClientKey( clientKey );
         authContext.setPreAuthenticated( true );
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() || LOG_KRB.isDebugEnabled() )
         {
             LOG.debug( "Pre-authentication by encrypted timestamp successful for {}.", clientName );
+            LOG_KRB.debug( "Pre-authentication by encrypted timestamp successful for {}.", clientName );
         }
     }
-    
-    
-    private static void getServerEntry( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+
+    private static void getServerEntry( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
         PrincipalName principal = authContext.getRequest().getKdcReqBody().getSName();
         PrincipalStore store = authContext.getStore();
-    
-        KerberosPrincipal principalWithRealm = new KerberosPrincipal( principal.getNameString() + "@" + authContext.getRequest().getKdcReqBody().getRealm() );
-        authContext.setServerEntry( KerberosUtils.getEntry( principalWithRealm, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
-    }    
-    
-    
-    private static void generateTicket( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+
+        LOG_KRB.debug( "--> Getting the server entry for {}" + principal );
+
+        KerberosPrincipal principalWithRealm = new KerberosPrincipal( principal.getNameString() + "@"
+            + authContext.getRequest().getKdcReqBody().getRealm() );
+        authContext.setServerEntry( KerberosUtils.getEntry( principalWithRealm, store,
+            ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+    }
+
+
+    private static void generateTicket( AuthenticationContext authContext ) throws KerberosException,
+        InvalidTicketException
     {
         KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         PrincipalName serverPrincipal = request.getKdcReqBody().getSName();
 
+        LOG_KRB.debug( "--> Generating ticket for {}", serverPrincipal );
+
         EncryptionType encryptionType = authContext.getEncryptionType();
         EncryptionKey serverKey = authContext.getServerEntry().getKeyMap().get( encryptionType );
 
         PrincipalName ticketPrincipal = request.getKdcReqBody().getSName();
-        
+
         EncTicketPart encTicketPart = new EncTicketPart();
         KerberosConfig config = authContext.getConfig();
 
@@ -357,6 +411,7 @@ public class AuthenticationService
         {
             if ( !config.isForwardableAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, because Forwadable is not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
@@ -367,6 +422,7 @@ public class AuthenticationService
         {
             if ( !config.isProxiableAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, because proxyiable is not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
@@ -377,18 +433,53 @@ public class AuthenticationService
         {
             if ( !config.isPostdatedAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, because Posdate is not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
             ticketFlags.setFlag( TicketFlag.MAY_POSTDATE );
         }
 
-        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RENEW ) 
-            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.VALIDATE )
-            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.PROXY ) 
-            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.FORWARDED )
-            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.ENC_TKT_IN_SKEY ) )
+        KdcOptions kdcOptions = request.getKdcReqBody().getKdcOptions();
+
+        if ( kdcOptions.get( KdcOptions.RENEW )
+            || kdcOptions.get( KdcOptions.VALIDATE )
+            || kdcOptions.get( KdcOptions.PROXY )
+            || kdcOptions.get( KdcOptions.FORWARDED )
+            || kdcOptions.get( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
+            if ( LOG_KRB.isDebugEnabled() )
+            {
+                if ( kdcOptions.get( KdcOptions.RENEW ) )
+                {
+                    LOG_KRB.error( "Ticket cannot be generated, as it's a renew" );
+
+                }
+
+                if ( kdcOptions.get( KdcOptions.VALIDATE ) )
+                {
+                    LOG_KRB.error( "Ticket cannot be generated, as it's a validate" );
+
+                }
+
+                if ( kdcOptions.get( KdcOptions.PROXY ) )
+                {
+                    LOG_KRB.error( "Ticket cannot be generated, as it's a proxy" );
+
+                }
+
+                if ( kdcOptions.get( KdcOptions.FORWARDED ) )
+                {
+                    LOG_KRB.error( "Ticket cannot be generated, as it's forwarded" );
+
+                }
+
+                if ( kdcOptions.get( KdcOptions.ENC_TKT_IN_SKEY ) )
+                {
+                    LOG_KRB.error( "Ticket cannot be generated, as it's a user-to-user " );
+                }
+            }
+
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
 
@@ -423,10 +514,12 @@ public class AuthenticationService
          * but the POSTDATED option has not been specified, then the error
          * KDC_ERR_CANNOT_POSTDATE is returned."
          */
-        if ( startTime != null && startTime.greaterThan( now )
-            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) 
+        if ( ( startTime != null ) && startTime.greaterThan( now )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() )
             && !request.getKdcReqBody().getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
+            LOG_KRB.error( "Ticket cannot be generated, as it's in the future and the Postdated option is not set" );
+
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
 
@@ -439,6 +532,7 @@ public class AuthenticationService
         {
             if ( !config.isPostdatedAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, as Podated is not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
@@ -448,7 +542,7 @@ public class AuthenticationService
         }
 
         long till = 0;
-        
+
         if ( request.getKdcReqBody().getTill().getTime() == 0 )
         {
             till = Long.MAX_VALUE;
@@ -473,13 +567,15 @@ public class AuthenticationService
          */
         if ( kerberosEndTime.lessThan( startTime ) )
         {
+            LOG_KRB.error( "Ticket cannot be generated, as the endTime is below the startTime" );
             throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
         }
 
         long ticketLifeTime = Math.abs( startTime.getTime() - kerberosEndTime.getTime() );
-        
+
         if ( ticketLifeTime < config.getMinimumTicketLifetime() )
         {
+            LOG_KRB.error( "Ticket cannot be generated, as the Lifetime is too small" );
             throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
         }
 
@@ -496,6 +592,7 @@ public class AuthenticationService
         {
             if ( !config.isRenewableAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, as the renew date is exceeded" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
@@ -507,6 +604,7 @@ public class AuthenticationService
         {
             if ( !config.isRenewableAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, as Renewable is not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
@@ -536,6 +634,7 @@ public class AuthenticationService
         {
             if ( !config.isEmptyAddressesAllowed() )
             {
+                LOG_KRB.error( "Ticket cannot be generated, as the addresses are null, and it's not allowed" );
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
         }
@@ -548,10 +647,8 @@ public class AuthenticationService
         newTicket.setRealm( serverRealm );
         newTicket.setEncTicketPart( encTicketPart );
 
-        if ( LOG.isDebugEnabled() )
-        {
-            LOG.debug( "Ticket will be issued for access to {}.", serverPrincipal.toString() );
-        }
+        LOG.debug( "Ticket will be issued for access to {}.", serverPrincipal.toString() );
+        LOG_KRB.debug( "Ticket will be issued for access to {}.", serverPrincipal.toString() );
 
         authContext.setTicket( newTicket );
     }
@@ -560,6 +657,7 @@ public class AuthenticationService
     private static void buildReply( AuthenticationContext authContext ) throws KerberosException,
         InvalidTicketException
     {
+        LOG_KRB.debug( "--> Building reply" );
         KdcReq request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
@@ -599,7 +697,7 @@ public class AuthenticationService
         EncAsRepPart encAsRepPart = new EncAsRepPart();
         encAsRepPart.setEncKdcRepPart( encKdcRepPart );
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() || LOG_KRB.isDebugEnabled() )
         {
             monitorContext( authContext );
             monitorReply( reply, encKdcRepPart );
@@ -611,7 +709,7 @@ public class AuthenticationService
         reply.setEncPart( encryptedData );
         //FIXME the below setter is useless, remove it
         reply.setEncKdcRepPart( encKdcRepPart );
-        
+
         authContext.setReply( reply );
     }
 
@@ -620,7 +718,7 @@ public class AuthenticationService
     {
         KdcReq request = kdcContext.getRequest();
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() || LOG_KRB.isDebugEnabled() )
         {
             try
             {
@@ -644,12 +742,15 @@ public class AuthenticationService
                 sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
                 sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
-                LOG.debug( sb.toString() );
+                String message = sb.toString();
+                LOG.debug( message );
+                LOG_KRB.debug( message );
             }
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
                 LOG.error( I18n.err( I18n.ERR_153 ), e );
+                LOG_KRB.error( I18n.err( I18n.ERR_153 ), e );
             }
         }
     }
@@ -694,12 +795,16 @@ public class AuthenticationService
             sb.append( "\n\t" + "Client key version     " + clientKeyVersion );
             sb.append( "\n\t" + "Server key version     " + serverKeyVersion );
 
-            LOG.debug( sb.toString() );
+            String message = sb.toString();
+
+            LOG.debug( message );
+            LOG_KRB.debug( message );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
             LOG.error( I18n.err( I18n.ERR_154 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
 
@@ -726,17 +831,21 @@ public class AuthenticationService
                 sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
                 sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
 
-                LOG.debug( sb.toString() );
+                String message = sb.toString();
+
+                LOG.debug( message );
+                LOG_KRB.debug( message );
             }
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
                 LOG.error( I18n.err( I18n.ERR_155 ), e );
+                LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
             }
         }
     }
-    
-    
+
+
     /**
      * Prepares a pre-authentication error message containing required
      * encryption types.
@@ -744,14 +853,15 @@ public class AuthenticationService
      * @param encryptionTypes
      * @return The error message as bytes.
      */
-    private static byte[] preparePreAuthenticationError( EncryptionType requestedType, Set<EncryptionType> encryptionTypes )
+    private static byte[] preparePreAuthenticationError( EncryptionType requestedType,
+        Set<EncryptionType> encryptionTypes )
     {
         boolean isNewEtype = KerberosUtils.isNewEncryptionType( requestedType );
-        
+
         ETypeInfo2 eTypeInfo2 = new ETypeInfo2();
-        
+
         ETypeInfo eTypeInfo = new ETypeInfo();
-        
+
         for ( EncryptionType encryptionType : encryptionTypes )
         {
             if ( !isNewEtype )
@@ -759,7 +869,7 @@ public class AuthenticationService
                 ETypeInfoEntry etypeInfoEntry = new ETypeInfoEntry( encryptionType, null );
                 eTypeInfo.addETypeInfoEntry( etypeInfoEntry );
             }
-            
+
             ETypeInfo2Entry etypeInfo2Entry = new ETypeInfo2Entry( encryptionType );
             eTypeInfo2.addETypeInfo2Entry( etypeInfo2Entry );
         }
@@ -773,7 +883,7 @@ public class AuthenticationService
                 ByteBuffer buffer = ByteBuffer.allocate( eTypeInfo.computeLength() );
                 encTypeInfo = eTypeInfo.encode( buffer ).array();
             }
-            
+
             ByteBuffer buffer = ByteBuffer.allocate( eTypeInfo2.computeLength() );
             encTypeInfo2 = eTypeInfo2.encode( buffer ).array();
         }
@@ -783,17 +893,16 @@ public class AuthenticationService
         }
 
         MethodData methodData = new MethodData();
-        
+
         methodData.addPaData( new PaData( PaDataType.PA_ENC_TIMESTAMP, null ) );
-        
+
         if ( !isNewEtype )
         {
             methodData.addPaData( new PaData( PaDataType.PA_ENCTYPE_INFO, encTypeInfo ) );
         }
-        
+
         methodData.addPaData( new PaData( PaDataType.PA_ENCTYPE_INFO2, encTypeInfo2 ) );
-        
-        
+
         try
         {
             ByteBuffer buffer = ByteBuffer.allocate( methodData.computeLength() );
