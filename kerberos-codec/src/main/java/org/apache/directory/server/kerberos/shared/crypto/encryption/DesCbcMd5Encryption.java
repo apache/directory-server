@@ -32,11 +32,14 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
-import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,6 +47,9 @@ import org.apache.directory.shared.kerberos.exceptions.ErrorType;
  */
 class DesCbcMd5Encryption extends EncryptionEngine
 {
+    /** The loggers for this class */
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
+
     private static final byte[] iv = new byte[]
         { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
             ( byte ) 0x00 };
@@ -83,6 +89,8 @@ class DesCbcMd5Encryption extends EncryptionEngine
 
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
+        LOG_KRB.debug( "Decrypting data using {}", key );
+
         // decrypt the data
         byte[] decryptedData = decrypt( data.getCipher(), key.getKeyValue() );
 

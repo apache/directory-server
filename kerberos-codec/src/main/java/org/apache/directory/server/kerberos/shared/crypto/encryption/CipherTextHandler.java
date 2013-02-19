@@ -28,11 +28,14 @@ import java.util.Map;
 
 import org.apache.directory.api.asn1.AbstractAsn1Object;
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +46,9 @@ import org.apache.directory.shared.kerberos.exceptions.KerberosException;
  */
 public class CipherTextHandler
 {
+    /** The loggers for this class */
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
+
     /** a map of the default encryption types to the encryption engine class names */
     private static final Map<EncryptionType, Class<? extends EncryptionEngine>> DEFAULT_CIPHERS;
 
@@ -109,6 +115,7 @@ public class CipherTextHandler
      */
     public byte[] decrypt( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
+        LOG_KRB.debug( "Decrypting data using key {} and usage {}", key.getKeyType(), usage );
         EncryptionEngine engine = getEngine( key );
 
         return engine.getDecryptedData( key, data, usage );
