@@ -320,6 +320,12 @@ public class JdbmPartition extends AbstractBTreePartition
 
         ( ( JdbmMasterTable ) master ).sync();
         recMan.commit();
+
+        if ( recMan instanceof CacheRecordManager )
+        {
+            ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() ).getTransactionManager()
+                .synchronizeLog();
+        }
     }
 
 

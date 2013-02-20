@@ -330,7 +330,10 @@ public class DefaultDirectoryService implements DirectoryService
 
                 try
                 {
+                    // Protect this section against concurrent access
+                    getOperationManager().lockWrite();
                     partitionNexus.sync();
+                    getOperationManager().unlockWrite();
                 }
                 catch ( Exception e )
                 {
@@ -1282,7 +1285,7 @@ public class DefaultDirectoryService implements DirectoryService
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession(), systemPartition.getSuffixDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-        
+
         Entry entry = systemPartition.lookup( loc );
 
         Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
@@ -1813,9 +1816,9 @@ public class DefaultDirectoryService implements DirectoryService
         {
             LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
-        
+
         csnFactory.setReplicaId( replicaId );
-        
+
         // If no interceptor list is defined, setup a default list
         if ( interceptors == null )
         {

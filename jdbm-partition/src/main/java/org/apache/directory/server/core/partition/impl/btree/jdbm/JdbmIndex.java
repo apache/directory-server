@@ -680,6 +680,19 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     public synchronized void sync() throws IOException
     {
         commit( recMan );
+
+        BaseRecordManager baseRecordManager = null;
+
+        if ( recMan instanceof CacheRecordManager )
+        {
+            baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
+        }
+        else
+        {
+            baseRecordManager = ( ( BaseRecordManager ) recMan );
+        }
+
+        baseRecordManager.getTransactionManager().synchronizeLog();
     }
 
 

@@ -27,8 +27,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -129,4 +129,16 @@ public interface OperationManager
      * TODO document after determining if this method should be here.
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
+
+
+    /**
+     * Acquires a WriteLock
+     */
+    public void lockWrite();
+
+
+    /**
+     * Releases a WriteLock
+     */
+    public void unlockWrite();
 }
