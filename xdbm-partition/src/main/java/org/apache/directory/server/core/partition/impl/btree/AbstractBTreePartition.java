@@ -1459,6 +1459,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Index<?, Entry, String> index = getUserIndex( attributeType );
 
+            Attribute attribute = entry.get( attributeType ).clone();
+            int nbValues = 0;
+
+            if ( attribute != null )
+            {
+                nbValues = attribute.size();
+            }
+
             /*
              * If there are no attribute values in the modifications then this
              * implies the complete removal of the attribute from the index. Else
@@ -1467,11 +1475,18 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             if ( mods.size() == 0 )
             {
                 ( ( Index ) index ).drop( id );
+                nbValues = 0;
             }
             else
             {
                 for ( Value<?> value : mods )
                 {
+                    if ( attribute.contains( value ) )
+                    {
+                        nbValues--;
+                        attribute.remove( value );
+                    }
+
                     ( ( Index ) index ).drop( value.getNormValue(), id );
                 }
             }
@@ -1480,7 +1495,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
              * If no attribute values exist for this entryId in the index then
              * we remove the presence index entry for the removed attribute.
              */
-            if ( null == index.reverseLookup( id ) )
+            if ( nbValues == 0 )
             {
                 presenceIdx.drop( modsOid, id );
             }
@@ -1503,8 +1518,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 presenceIdx.drop( modsOid, id );
             }
         }
-
-        AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( modsOid );
 
         /*
          * If there are no attribute values in the modifications then this
