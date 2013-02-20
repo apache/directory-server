@@ -112,7 +112,8 @@ public class StoreUtils
     {
         AttributeType type = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
         Value<String> value = new StringValue( type, principal );
-        return new EqualityNode<String>( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, value );
+
+        return new EqualityNode<String>( type, value );
     }
 
 
@@ -134,9 +135,10 @@ public class StoreUtils
         {
             SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
             cursor = session.search( searchBaseDn, SearchScope.SUBTREE,
-                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, null );
+                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, "*" );
 
             cursor.beforeFirst();
+
             if ( cursor.next() )
             {
                 Entry entry = cursor.get();
