@@ -58,6 +58,7 @@ import org.apache.directory.shared.kerberos.components.EncTicketPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.KdcReq;
+import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.LastReqEntry;
 import org.apache.directory.shared.kerberos.components.MethodData;
@@ -130,6 +131,12 @@ public class AuthenticationService
     }
 
 
+    /**
+     * 
+     * @param authContext
+     * @throws KerberosException
+     * @throws InvalidTicketException
+     */
     private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException,
         InvalidTicketException
     {
@@ -161,8 +168,10 @@ public class AuthenticationService
         InvalidTicketException
     {
         LOG_KRB.debug( "--> Getting the client Entry" );
+        KdcReqBody kdcReqBody = authContext.getRequest().getKdcReqBody();
         KerberosPrincipal principal = KerberosUtils.getKerberosPrincipal(
-            authContext.getRequest().getKdcReqBody().getCName(), authContext.getRequest().getKdcReqBody().getRealm() );
+            kdcReqBody.getCName(),
+            kdcReqBody.getRealm() );
         PrincipalStore store = authContext.getStore();
 
         try
