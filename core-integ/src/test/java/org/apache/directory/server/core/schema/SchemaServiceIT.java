@@ -31,14 +31,19 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -48,6 +53,10 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
+import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -811,7 +820,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
-        
+
         results.close();
 
         // admin is extra
@@ -863,7 +872,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
-        
+
         results.close();
 
         // admin is extra
@@ -915,7 +924,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
             SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
-        
+
         results.close();
 
         assertEquals( 3, persons.size() );
@@ -974,5 +983,218 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         results = schemaRoot.search( "", "(objectClass=metaTop)", controls );
         assertTrue( "Expected some results", results.hasMore() );
         results.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // Private Utility Methods
+    // -----------------------------------------------------------------------
+    private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
+    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
+
+
+    private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
+    {
+        Dn dn = new Dn( getSubschemaSubentryDN() );
+        Attribute attr = new BasicAttribute( opAttr );
+
+        for ( String description : descriptions )
+        {
+            attr.add( description );
+        }
+
+        Attributes mods = new BasicAttributes( true );
+        mods.put( attr );
+
+        getRootContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
+    }
+
+
+    /**
+     * Gets the subschemaSubentry attributes for the global schema.
+     *
+     * @return all operational attributes of the subschemaSubentry
+     * @throws NamingException if there are problems accessing this entry
+     */
+    private Attributes getSubschemaSubentryAttributes() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
+
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( getSubschemaSubentryDN(),
+            "(objectClass=*)", controls );
+        SearchResult result = results.next();
+        results.close();
+        return result.getAttributes();
+    }
+
+
+    /**
+     * Get's the subschemaSubentry attribute value from the rootDSE.
+     *
+     * @return the subschemaSubentry distinguished name
+     * @throws NamingException if there are problems accessing the RootDSE
+     */
+    private String getSubschemaSubentryDN() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { SUBSCHEMA_SUBENTRY } );
+
+        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)",
+            controls );
+        SearchResult result = results.next();
+        results.close();
+        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
+        return ( String ) subschemaSubentry.get();
+    }
+
+
+    private void enableSchema( String schemaName ) throws Exception
+    {
+        // now enable the test schema
+        ModificationItem[] mods = new ModificationItem[1];
+        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
+        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
+        getSchemaContext( getService() ).modifyAttributes( "cn=" + schemaName, mods );
+    }
+
+
+    private void checkAttributeTypePresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    {
+        // -------------------------------------------------------------------
+        // check first to see if it is present in the subschemaSubentry
+        // -------------------------------------------------------------------
+
+        Attributes attrs = getSubschemaSubentryAttributes();
+        Attribute attrTypes = attrs.get( "attributeTypes" );
+        AttributeType attributeType = null;
+
+        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        {
+            String desc = ( String ) attrTypes.get( ii );
+
+            if ( desc.indexOf( oid ) != -1 )
+            {
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
+                    .parseAttributeTypeDescription( desc );
+                break;
+            }
+        }
+
+        if ( isPresent )
+        {
+            assertNotNull( attributeType );
+            assertEquals( oid, attributeType.getOid() );
+        }
+        else
+        {
+            assertNull( attributeType );
+        }
+
+        // -------------------------------------------------------------------
+        // check next to see if it is present in the schema partition
+        // -------------------------------------------------------------------
+
+        attrs = null;
+
+        if ( isPresent )
+        {
+            attrs = getSchemaContext( getService() ).getAttributes(
+                "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            assertNotNull( attrs );
+        }
+        else
+        {
+            //noinspection EmptyCatchBlock
+            try
+            {
+                attrs = getSchemaContext( getService() ).getAttributes(
+                    "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+                fail( "should never get here" );
+            }
+            catch ( NamingException e )
+            {
+            }
+            assertNull( attrs );
+        }
+
+        // -------------------------------------------------------------------
+        // check to see if it is present in the attributeTypeRegistry
+        // -------------------------------------------------------------------
+
+        if ( isPresent )
+        {
+            assertTrue( getService().getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
+        }
+        else
+        {
+            assertFalse( getService().getSchemaManager().getAttributeTypeRegistry().contains( oid ) );
+        }
+    }
+
+
+    /**
+     * Tests to see if an attributeType is persisted when added, then server
+     * is shutdown, then restarted again.
+     *
+     * @throws Exception on error
+     */
+    @Test
+    public void testAddAttributeTypePersistence() throws Exception
+    {
+        try
+        {
+            enableSchema( "nis" );
+
+            List<String> descriptions = new ArrayList<String>();
+
+            // -------------------------------------------------------------------
+            // test successful add with everything
+            // -------------------------------------------------------------------
+
+            descriptions.add(
+                "( 1.3.6.1.4.1.18060.0.9.3.1.9" +
+                    "  NAME 'ibm-imm' " +
+                    "  DESC 'the actual block data being stored' " +
+                    "  EQUALITY caseIgnoreIA5Match " +
+                    "  ORDERING caseIgnoreOrderingMatch " +
+                    "  SUBSTR caseIgnoreSubstringsMatch " +
+                    "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{32700} " +
+                    "  SINGLE-VALUE " +
+                    "  USAGE userApplications " +
+                    "  X-SCHEMA 'nis' )" );
+
+            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
+
+            // sync operation happens anyway on shutdowns but just to make sure we can do it again
+            getService().sync();
+
+            getService().shutdown();
+            getService().startup();
+
+            Attributes attrs = new BasicAttributes( true );
+
+            Attribute attr = new BasicAttribute( "objectClass" );
+            attr.add( "top" );
+            attr.add( "person" );
+            attr.add( "extensibleObject" );
+
+            attrs.put( attr );
+            attrs.put( "cn", "blah" );
+            attrs.put( "sn", "Blah" );
+            attrs.put( "ibm-imm", "test" );
+            getSystemContext( getService() ).createSubcontext( "cn=blah", attrs );
+
+            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
+        }
+        catch ( Exception e )
+        {
+            throw e;
+        }
     }
 }
