@@ -1159,9 +1159,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
                 "( 1.3.6.1.4.1.18060.0.9.3.1.9" +
                     "  NAME 'ibm-imm' " +
                     "  DESC 'the actual block data being stored' " +
-                    "  EQUALITY caseIgnoreIA5Match " +
-                    "  ORDERING caseIgnoreOrderingMatch " +
-                    "  SUBSTR caseIgnoreSubstringsMatch " +
+                    "  EQUALITY octetStringMatch " +
                     "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{32700} " +
                     "  SINGLE-VALUE " +
                     "  USAGE userApplications " +
