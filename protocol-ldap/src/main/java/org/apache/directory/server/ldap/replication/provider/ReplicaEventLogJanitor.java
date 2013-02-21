@@ -43,17 +43,22 @@ public class ReplicaEventLogJanitor extends Thread
     private static final Logger LOG = LoggerFactory.getLogger( ReplicaEventLogJanitor.class );
 
     private DirectoryService directoryService;
-    
+
     private Map<Integer, ReplicaEventLog> replicaLogMap;
 
     private volatile boolean stop = false;
 
+    /** A lock used to wait */
+    final Object lock = new Object();
+
     /** time the janitor thread sleeps before successive cleanup attempts. Default value is 5 minutes */
     private long sleepTime = 5 * 60 * 1000L;
-    
+
     private long thresholdTime = 2 * 60 * 60 * 1000L;
-    
-    public ReplicaEventLogJanitor( final DirectoryService directoryService, final Map<Integer, ReplicaEventLog> replicaLogMap )
+
+
+    public ReplicaEventLogJanitor( final DirectoryService directoryService,
+        final Map<Integer, ReplicaEventLog> replicaLogMap )
     {
         // if log is in refreshNpersist mode, has more entries than the log's threshold count then 
         // all the entries before the last sent CSN and older than 2 hours will be purged
@@ -75,26 +80,27 @@ public class ReplicaEventLogJanitor extends Thread
                     try
                     {
                         String lastSentCsn = log.getLastSentCsn();
-                        
+
                         if ( lastSentCsn == null )
                         {
                             LOG.debug( "last sent CSN is null for the replica {}, skipping cleanup", log.getName() );
                             return;
                         }
-                        
+
                         long now = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
-                        
+
                         long maxIdleTime = log.getMaxIdlePeriod() * 1000L;
-                        
+
                         long lastUpdatedTime = new Csn( lastSentCsn ).getTimestamp();
-                        
-                        LOG.debug( "checking log idle time now={} lastUpdatedTime={} maxIdleTime={}", now, lastUpdatedTime, maxIdleTime );
-                        
-                        if( ( now - lastUpdatedTime ) >= maxIdleTime )
+
+                        LOG.debug( "checking log idle time now={} lastUpdatedTime={} maxIdleTime={}", now,
+                            lastUpdatedTime, maxIdleTime );
+
+                        if ( ( now - lastUpdatedTime ) >= maxIdleTime )
                         {
                             //max idle time of the event log reached, delete it
                             removeEventLog( log );
-                            
+
                             // delete the associated entry from DiT, note that ConsumerLogEntryDeleteListener 
                             // will get called eventually but removeEventLog() will not be called cause by 
                             // that time this log will not be present in replicaLogMap
@@ -104,52 +110,52 @@ public class ReplicaEventLogJanitor extends Thread
                             {
                                 directoryService.getAdminSession().delete( log.getConsumerEntryDn() );
                             }
-                            catch( LdapException e )
+                            catch ( LdapException e )
                             {
-                                LOG.warn( "Failed to delete the entry {} of replica event log {}", log.getConsumerEntryDn(), log.getName(), e );
+                                LOG.warn( "Failed to delete the entry {} of replica event log {}",
+                                    log.getConsumerEntryDn(), log.getName(), e );
                             }
-                            
+
                             continue;
                         }
-                        
+
                         long thresholdCount = log.getPurgeThresholdCount();
-                        
+
                         if ( log.count() < thresholdCount )
                         {
                             continue;
                         }
-                        
+
                         LOG.debug( "starting to purge the log entries that are older than {} milliseconds",
                             thresholdTime );
-                        
-                        
+
                         long deleteCount = 0;
-                        
+
                         ReplicaJournalCursor cursor = log.getCursor( null ); // pass no CSN
                         cursor.skipQualifyingWhileFetching();
-                        
+
                         while ( cursor.next() )
                         {
                             ReplicaEventMessage message = cursor.get();
                             String csnVal = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
-                            
+
                             // skip if we reach the lastSentCsn or got past it
                             if ( csnVal.compareTo( lastSentCsn ) >= 0 )
                             {
                                 break;
                             }
-                            
+
                             Csn csn = new Csn( csnVal );
-                            
+
                             if ( ( now - csn.getTimestamp() ) >= thresholdTime )
                             {
                                 cursor.delete();
                                 deleteCount++;
                             }
                         }
-                        
+
                         cursor.close();
-                        
+
                         LOG.debug( "purged {} messages from the log {}", deleteCount, log.getName() );
                     }
                     catch ( Exception e )
@@ -161,7 +167,10 @@ public class ReplicaEventLogJanitor extends Thread
 
             try
             {
-                Thread.sleep( sleepTime );
+                synchronized ( lock )
+                {
+                    lock.wait( sleepTime );
+                }
             }
             catch ( InterruptedException e )
             {
@@ -170,18 +179,18 @@ public class ReplicaEventLogJanitor extends Thread
         }
     }
 
-    
-    public synchronized void removeEventLog( ReplicaEventLog log )
+
+    public synchronized void removeEventLog( ReplicaEventLog replicaEventLog )
     {
-        directoryService.getEventService().removeListener( log.getPersistentListener() );
-        String name = log.getName();
+        directoryService.getEventService().removeListener( replicaEventLog.getPersistentListener() );
+        String name = replicaEventLog.getName();
         LOG.debug( "removed the persistent listener for replication event log {}", name );
 
-        replicaLogMap.remove( log.getId() );
-        
+        replicaLogMap.remove( replicaEventLog.getId() );
+
         try
         {
-            log.stop();
+            replicaEventLog.stop();
 
             new File( directoryService.getInstanceLayout().getReplDirectory(), name + ".db" ).delete();
             new File( directoryService.getInstanceLayout().getReplDirectory(), name + ".lg" ).delete();
@@ -195,7 +204,7 @@ public class ReplicaEventLogJanitor extends Thread
         }
     }
 
-    
+
     public void setSleepTime( long sleepTime )
     {
         this.sleepTime = sleepTime;
@@ -211,5 +220,10 @@ public class ReplicaEventLogJanitor extends Thread
     public void stopCleaning()
     {
         stop = true;
+
+        synchronized ( lock )
+        {
+            lock.notify();
+        }
     }
 }
