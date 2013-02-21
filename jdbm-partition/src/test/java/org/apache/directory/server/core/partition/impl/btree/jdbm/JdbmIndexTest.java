@@ -336,7 +336,8 @@ public class JdbmIndexTest
             idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
-        assertEquals( 26, idx.greaterThanCount( "a" ) );
+        // We should not go above the magic limit of 10
+        assertEquals( 10, idx.greaterThanCount( "a" ) );
     }
 
 
@@ -351,7 +352,8 @@ public class JdbmIndexTest
             idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
-        assertEquals( 26, idx.lessThanCount( "z" ) );
+        // We should not go above the magic limit of 10
+        assertEquals( 10, idx.lessThanCount( "z" ) );
     }
 
 

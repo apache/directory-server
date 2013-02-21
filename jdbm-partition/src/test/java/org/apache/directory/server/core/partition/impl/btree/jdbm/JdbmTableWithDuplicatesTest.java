@@ -453,8 +453,8 @@ public class JdbmTableWithDuplicatesTest
          * case guesses are allowed.
          */
 
-        assertEquals( SIZE, table.lessThanCount( "5" ) );
-        assertEquals( SIZE, table.greaterThanCount( "5" ) );
+        assertEquals( 10, table.lessThanCount( "5" ) );
+        assertEquals( 10, table.greaterThanCount( "5" ) );
     }
 
 

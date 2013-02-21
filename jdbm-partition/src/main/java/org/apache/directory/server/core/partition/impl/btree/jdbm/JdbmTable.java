@@ -29,6 +29,8 @@ import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -250,7 +252,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     public int greaterThanCount( K key ) throws IOException
     {
         // take a best guess
-        return count;
+        return Math.min( count, 10 );
     }
 
 
@@ -260,7 +262,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     public int lessThanCount( K key ) throws IOException
     {
         // take a best guess
-        return count;
+        return Math.min( count, 10 );
     }
 
 
@@ -956,7 +958,26 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         long recId = recMan.getNamedObject( name + SZSUFFIX );
         recMan.update( recId, count );
-        commit( recMan );
+
+        // Commit
+        recMan.commit();
+
+        // And flush the journal
+        if ( ( commitNumber.get() % 4000 ) == 0 )
+        {
+            BaseRecordManager baseRecordManager = null;
+
+            if ( recMan instanceof CacheRecordManager )
+            {
+                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
+            }
+            else
+            {
+                baseRecordManager = ( ( BaseRecordManager ) recMan );
+            }
+
+            baseRecordManager.getTransactionManager().synchronizeLog();
+        }
     }
 
 
@@ -1143,9 +1164,9 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      */
     private void commit( RecordManager recordManager ) throws IOException
     {
-        if ( commitNumber.incrementAndGet() % 4000 == 0 )
+        if ( commitNumber.incrementAndGet() % 2000 == 0 )
         {
-            recordManager.commit();
+            sync();
         }
     }
 }

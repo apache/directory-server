@@ -679,20 +679,25 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
      */
     public synchronized void sync() throws IOException
     {
-        commit( recMan );
+        // Commit
+        recMan.commit();
 
-        BaseRecordManager baseRecordManager = null;
-
-        if ( recMan instanceof CacheRecordManager )
+        // And flush the journal
+        if ( ( commitNumber.get() % 4000 ) == 0 )
         {
-            baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
-        }
-        else
-        {
-            baseRecordManager = ( ( BaseRecordManager ) recMan );
-        }
+            BaseRecordManager baseRecordManager = null;
 
-        baseRecordManager.getTransactionManager().synchronizeLog();
+            if ( recMan instanceof CacheRecordManager )
+            {
+                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
+            }
+            else
+            {
+                baseRecordManager = ( ( BaseRecordManager ) recMan );
+            }
+
+            baseRecordManager.getTransactionManager().synchronizeLog();
+        }
     }
 
 
@@ -719,9 +724,9 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
      */
     private void commit( RecordManager recordManager ) throws IOException
     {
-        if ( commitNumber.incrementAndGet() % 4000 == 0 )
+        if ( commitNumber.incrementAndGet() % 2000 == 0 )
         {
-            recordManager.commit();
+            sync();
         }
     }
 

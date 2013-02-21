@@ -203,9 +203,6 @@ public class DefaultDirectoryService implements DirectoryService
     /** */
     private Thread workerThread;
 
-    /** The sync worker thread */
-    private SynchWorker worker = new SynchWorker();
-
     /** The default timeLimit : 100 entries */
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
 
@@ -297,51 +294,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
-
-    /**
-     * The synchronizer thread. It flush data on disk periodically.
-     */
-    class SynchWorker implements Runnable
-    {
-        final Object lock = new Object();
-
-        /** A flag to stop the thread */
-        boolean stop;
-
-
-        /**
-         * The main loop
-         */
-        public void run()
-        {
-            while ( !stop )
-            {
-                synchronized ( lock )
-                {
-                    try
-                    {
-                        lock.wait( syncPeriodMillis );
-                    }
-                    catch ( InterruptedException e )
-                    {
-                        LOG.warn( "SynchWorker failed to wait on lock.", e );
-                    }
-                }
-
-                try
-                {
-                    // Protect this section against concurrent access
-                    getOperationManager().lockWrite();
-                    partitionNexus.sync();
-                    getOperationManager().unlockWrite();
-                }
-                catch ( Exception e )
-                {
-                    LOG.error( I18n.err( I18n.ERR_74 ), e );
-                }
-            }
-        }
-    }
 
 
     // ------------------------------------------------------------------------
@@ -1275,13 +1227,6 @@ public class DefaultDirectoryService implements DirectoryService
         initialize();
         showSecurityWarnings();
 
-        // Start the sync thread if required
-        if ( syncPeriodMillis > 0 )
-        {
-            workerThread = new Thread( worker, "SynchWorkerThread" );
-            workerThread.start();
-        }
-
         // load the last stored valid CSN value
         LookupOperationContext loc = new LookupOperationContext( getAdminSession(), systemPartition.getSuffixDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
@@ -1319,6 +1264,8 @@ public class DefaultDirectoryService implements DirectoryService
 
     public synchronized void shutdown() throws Exception
     {
+        LOG.debug( "+++ DirectoryService Shutdown required" );
+
         if ( !started )
         {
             return;
@@ -1327,29 +1274,13 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // Shutdown the sync thread
         // --------------------------------------------------------------------
-        if ( workerThread != null )
-        {
-            worker.stop = true;
-
-            synchronized ( worker.lock )
-            {
-                worker.lock.notify();
-            }
-
-            while ( workerThread.isAlive() )
-            {
-                LOG.info( "Waiting for SynchWorkerThread to die." );
-                workerThread.join( 500 );
-            }
-        }
-        else
-        {
-            partitionNexus.sync();
-        }
+        LOG.debug( "--- Syncing the nexus " );
+        partitionNexus.sync();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog
         // --------------------------------------------------------------------
+        LOG.debug( "--- Syncing the changeLog " );
         changeLog.sync();
         changeLog.destroy();
 
@@ -1358,6 +1289,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         if ( journal.isEnabled() )
         {
+            LOG.debug( "--- Destroying the journal " );
             journal.destroy();
         }
 
@@ -1365,11 +1297,19 @@ public class DefaultDirectoryService implements DirectoryService
         // Shutdown the partition
         // --------------------------------------------------------------------
 
+        LOG.debug( "--- Destroying the nexus" );
         partitionNexus.destroy();
+
+        // Last flush...
+        LOG.debug( "--- Flushing everything before quitting" );
+        getOperationManager().lockWrite();
+        partitionNexus.sync();
+        getOperationManager().unlockWrite();
 
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
+        LOG.debug( "--- Deleting the cache service" );
         cacheService.destroy();
 
         if ( lockFile != null )
@@ -1385,6 +1325,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
+        LOG.debug( "+++ DirectoryService stopped" );
         started = false;
     }
 

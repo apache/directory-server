@@ -318,14 +318,8 @@ public class JdbmPartition extends AbstractBTreePartition
             idx.sync();
         }
 
+        // Sync the master table
         ( ( JdbmMasterTable ) master ).sync();
-        recMan.commit();
-
-        if ( recMan instanceof CacheRecordManager )
-        {
-            ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() ).getTransactionManager()
-                .synchronizeLog();
-        }
     }
 
 
