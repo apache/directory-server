@@ -17,7 +17,7 @@
  *   under the License.
  *
  */
-package org.apache.directory.server.core.authn.ppolicy;
+package org.apache.directory.server.ppolicy;
 
 
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
@@ -69,6 +69,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
