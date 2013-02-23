@@ -48,6 +48,7 @@ import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -149,8 +150,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // see if we can use objectclass if present
             return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -180,8 +181,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // see if we can use objectclass if present
             return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -364,7 +365,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private void updateEntries( OperationEnum operation, CoreSession session, Dn subentryDn, Dn apDn,
         SubtreeSpecification ss, Dn baseDn, List<Attribute> operationalAttributes ) throws LdapException
     {
-        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT ); // (objectClass=*)
+        ExprNode filter = ObjectClassNode.OBJECT_CLASS_NODE; // (objectClass=*)
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
@@ -447,7 +448,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, apDn,
-            SchemaConstants.ALL_ATTRIBUTES_ARRAY);
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -1574,11 +1575,11 @@ public class SubentryInterceptor extends BaseInterceptor
         }
 
         // DO NOT hide subentries for replication operations
-        if( searchContext.isSyncreplSearch() )
+        if ( searchContext.isSyncreplSearch() )
         {
             return cursor;
         }
-        
+
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( searchContext ) )
         {

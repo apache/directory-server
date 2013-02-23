@@ -23,20 +23,18 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
-import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 
 
 /**
- * Evaluates one level scope assertions on candidates using an entry database.
+ * Evaluates base level scope assertions on candidates using an entry database.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
+public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
 {
     /** The ScopeNode containing initial search scope constraints */
     private final ScopeNode node;
@@ -58,14 +56,9 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    public BaseLevelScopeEvaluator( Store db, ScopeNode node ) throws Exception
     {
         this.node = node;
-
-        if ( node.getScope() != SearchScope.ONELEVEL )
-        {
-            throw new IllegalStateException( I18n.err( I18n.ERR_720 ) );
-        }
 
         this.db = db;
         baseId = node.getBaseId();
@@ -99,8 +92,6 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      */
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
-        ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( indexEntry.getId() );
-        boolean isChild = parent.getParentId().equals( baseId );
         Entry entry = indexEntry.getEntry();
 
         // Fetch the entry
@@ -117,46 +108,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
             indexEntry.setEntry( entry );
         }
 
-        /*
-         * The candidate id could be any entry in the db.  If search
-         * dereferencing is not enabled then we return the results of the child
-         * test.
-         */
-        if ( !dereferencing )
-        {
-            return isChild;
-        }
-
-        /*
-         * From here down alias dereferencing is enabled.  We determine if the
-         * candidate id is an alias, if so we reject it since aliases should
-         * not be returned.
-         */
-        if ( null != db.getAliasIndex().reverseLookup( indexEntry.getId() ) )
-        {
-            return false;
-        }
-
-        /*
-         * The candidate is NOT an alias at this point.  So if it is a child we
-         * just return true since it is in normal one level scope.
-         */
-        if ( isChild )
-        {
-            return true;
-        }
-
-        /*
-         * At this point the candidate is not a child and it is not an alias.
-         * We need to check if the candidate is in extended one level scope by
-         * performing a lookup on the one level alias index.  This index stores
-         * a tuple mapping the baseId to the id of objects brought into the
-         * one level scope of the base by an alias: ( baseId, aliasedObjId )
-         * If the candidate id is an object brought into one level scope then
-         * the lookup returns true accepting the candidate.  Otherwise the
-         * candidate is rejected with a false return because it is not in scope.
-         */
-        return db.getOneAliasIndex().forward( baseId, indexEntry.getId() );
+        return true;
     }
 
 
@@ -195,7 +147,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "OneLevelScopEvaluator : " ).append( node ).append( "\n" );
+        sb.append( tabs ).append( "BaseLevelScopEvaluator : " ).append( node ).append( "\n" );
 
         return sb.toString();
     }

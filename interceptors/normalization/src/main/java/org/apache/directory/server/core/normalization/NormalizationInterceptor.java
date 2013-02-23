@@ -27,7 +27,13 @@ import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.api.ldap.model.filter.AndNode;
+import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.NotNode;
+import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
+import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.name.Ava;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -295,12 +301,94 @@ public class NormalizationInterceptor extends BaseInterceptor
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
             return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
+
+        // We now have to remove the (ObjectClass=*) filter if it's present, and to add the scope filter
+        ExprNode modifiedFilter = removeObjectClass( filter );
+
+        searchContext.setFilter( modifiedFilter );
+
+        // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
+        return next( searchContext );
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from brancheNode, if we have one.
+     */
+    private ExprNode handleBranchNode( ExprNode node, BranchNode newBranchNode )
+    {
+        int nbNodes = 0;
+
+        for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
+        {
+            ExprNode modifiedNode = removeObjectClass( child );
+
+            if ( !( modifiedNode instanceof ObjectClassNode ) )
+            {
+                newBranchNode.addNode( modifiedNode );
+                nbNodes++;
+            }
+        }
+
+        switch ( nbNodes )
+        {
+            case 0:
+                // Unlikely... But (&(ObjectClass=*)) is still an option 
+                return ObjectClassNode.OBJECT_CLASS_NODE;
+
+            case 1:
+                if ( newBranchNode instanceof NotNode )
+                {
+                    return newBranchNode;
+                }
+                else
+                {
+                    // We can safely remove the AND/OR node and replace it with its first child
+                    return newBranchNode.getFirstChild();
+                }
+
+            default:
+                return newBranchNode;
+        }
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from the filter, if we have one.
+     */
+    private ExprNode removeObjectClass( ExprNode node )
+    {
+        if ( ( node instanceof PresenceNode ) &&
+            ( ( ( PresenceNode ) node ).getAttributeType() == OBJECT_CLASS_AT ) )
+        {
+            // We can safely remove the node and return an undefined node
+            return ObjectClassNode.OBJECT_CLASS_NODE;
+        }
+        // --------------------------------------------------------------------
+        //                 H A N D L E   B R A N C H   N O D E S       
+        // --------------------------------------------------------------------
+        else if ( node instanceof AndNode )
+        {
+            AndNode newAndNode = new AndNode();
+
+            return handleBranchNode( node, newAndNode );
+        }
+        else if ( node instanceof OrNode )
+        {
+            OrNode newOrNode = new OrNode();
+
+            return handleBranchNode( node, newOrNode );
+        }
+        else if ( node instanceof NotNode )
+        {
+            NotNode newNotNode = new NotNode();
+
+            return handleBranchNode( node, newNotNode );
+        }
         else
         {
-            searchContext.setFilter( filter );
-
-            // TODO Normalize the returned Attributes, storing the UP attributes to format the returned values.
-            return next( searchContext );
+            // Failover : we return the initial node as is
+            return node;
         }
     }
 

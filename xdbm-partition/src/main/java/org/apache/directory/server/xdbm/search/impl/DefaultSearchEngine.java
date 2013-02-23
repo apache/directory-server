@@ -27,8 +27,8 @@ import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
-import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
@@ -44,6 +44,7 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
+import org.apache.directory.server.xdbm.search.evaluator.BaseLevelScopeEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,11 +166,29 @@ public class DefaultSearchEngine implements SearchEngine
         {
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
             indexEntry.setId( effectiveBaseId );
-            optimizer.annotate( filter );
-            Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( filter );
 
             // Fetch the entry, as we have only one
             Entry entry = db.fetch( indexEntry.getId(), effectiveBase );
+
+            Evaluator<? extends ExprNode> evaluator = null;
+
+            if ( filter instanceof ObjectClassNode )
+            {
+                ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
+                evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
+            }
+            else
+            {
+                optimizer.annotate( filter );
+                evaluator = evaluatorBuilder.build( filter );
+
+                // Special case if the filter selects no candidate
+                if ( evaluator == null )
+                {
+                    ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
+                    evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
+                }
+            }
 
             indexEntry.setEntry( entry );
             resultSet.add( indexEntry );
@@ -183,10 +202,19 @@ public class DefaultSearchEngine implements SearchEngine
         // This is not a BaseObject scope search.
 
         // Add the scope node using the effective base to the filter
-        BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
-        root.getChildren().add( node );
-        root.getChildren().add( filter );
+        ExprNode root = null;
+
+        if ( filter instanceof ObjectClassNode )
+        {
+            root = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
+        }
+        else
+        {
+            root = new AndNode();
+            ( ( AndNode ) root ).getChildren().add( filter );
+            ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
+            ( ( AndNode ) root ).getChildren().add( node );
+        }
 
         // Annotate the node with the optimizer and return search enumeration.
         optimizer.annotate( root );

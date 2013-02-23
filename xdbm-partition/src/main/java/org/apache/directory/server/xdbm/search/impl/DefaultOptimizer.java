@@ -236,8 +236,20 @@ public class DefaultOptimizer<E> implements Optimizer
 
         for ( ExprNode child : children )
         {
+            if ( ( count == 1 ) && ( child instanceof ScopeNode ) )
+            {
+                // We can stop here
+                break;
+            }
+
             annotate( child );
             count = Math.min( ( ( Long ) child.get( "count" ) ), count );
+
+            if ( count == 0 )
+            {
+                // No need to continue
+                break;
+            }
         }
 
         return count;
@@ -262,6 +274,12 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             annotate( child );
             total += ( Long ) child.get( "count" );
+
+            if ( total == Long.MAX_VALUE )
+            {
+                // We can stop here withoit evaluating the following filters
+                break;
+            }
         }
 
         return total;

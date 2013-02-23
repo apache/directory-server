@@ -158,9 +158,24 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> candidate ) throws LdapException
+    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
-        String id = candidate.getId();
+        String id = indexEntry.getId();
+        Entry entry = indexEntry.getEntry();
+
+        // Fetch the entry
+        if ( null == entry )
+        {
+            entry = db.fetch( indexEntry.getId() );
+
+            if ( null == entry )
+            {
+                // The entry is not anymore present : get out
+                return false;
+            }
+
+            indexEntry.setEntry( entry );
+        }
 
         /*
          * This condition catches situations where the candidate is equal to 

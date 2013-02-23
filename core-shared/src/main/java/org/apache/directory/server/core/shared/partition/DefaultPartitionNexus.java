@@ -48,7 +48,7 @@ import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
-import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -439,7 +439,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( deleteContext.getDn() );
         Entry deletedEntry = partition.delete( deleteContext );
-        
+
         Entry entry = deleteContext.getEntry();
         Attribute csn = entry.get( ENTRY_CSN_AT );
         // can be null while doing subentry deletion
@@ -448,7 +448,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             directoryService.setContextCsn( csn.getString() );
         }
-        
+
         return deletedEntry;
     }
 
@@ -474,7 +474,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         return partition.hasEntry( hasEntryContext );
     }
-
 
 
     /**
@@ -526,12 +525,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition partition = getPartition( modifyContext.getDn() );
 
         partition.modify( modifyContext );
-        
-        if( modifyContext.isPushToEvtInterceptor() )
+
+        if ( modifyContext.isPushToEvtInterceptor() )
         {
             directoryService.getInterceptor( InterceptorEnum.EVENT_INTERCEPTOR.getName() ).modify( modifyContext );
         }
-        
+
         Entry alteredEntry = modifyContext.getAlteredEntry();
 
         if ( alteredEntry != null )
@@ -550,7 +549,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition partition = getPartition( moveContext.getDn() );
 
         partition.move( moveContext );
-        
+
         Entry entry = moveContext.getModifiedEntry();
         directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
@@ -563,7 +562,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( moveAndRenameContext.getDn() );
         partition.moveAndRename( moveAndRenameContext );
-        
+
         Entry entry = moveAndRenameContext.getModifiedEntry();
         directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
@@ -576,7 +575,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( renameContext.getDn() );
         partition.rename( renameContext );
-        
+
         Entry entry = renameContext.getModifiedEntry();
         directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
@@ -593,7 +592,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( ( ids == null ) || ( ids.size() == 0 ) )
         {
             Entry rootDse = getRootDse( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext, directoryService.getSchemaManager() );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext,
+                directoryService.getSchemaManager() );
         }
 
         // -----------------------------------------------------------
@@ -622,14 +622,16 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( noAttribute )
         {
             Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, directoryService.getSchemaManager() );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext,
+                directoryService.getSchemaManager() );
         }
 
         // return everything
         if ( allUserAttributes && allOperationalAttributes )
         {
             Entry rootDse = getRootDse( null );
-            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext, directoryService.getSchemaManager() );
+            return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( rootDse ), searchContext,
+                directoryService.getSchemaManager() );
         }
 
         Entry serverEntry = new DefaultEntry( schemaManager, Dn.ROOT_DSE );
@@ -654,7 +656,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
         }
 
-        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, directoryService.getSchemaManager() );
+        return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext,
+            directoryService.getSchemaManager() );
     }
 
 
@@ -714,9 +717,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         boolean isSearchAll = false;
 
         // We have to be careful, as we may have a filter which is not a PresenceFilter
-        if ( filter instanceof PresenceNode )
+        if ( filter instanceof ObjectClassNode )
         {
-            isSearchAll = ( ( PresenceNode ) filter ).getAttributeType().equals( OBJECT_CLASS_AT );
+            isSearchAll = true;
         }
 
         if ( isObjectScope )
@@ -730,7 +733,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             else
             {
                 // Nothing to return in this case
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, directoryService.getSchemaManager() );
+                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext,
+                    directoryService.getSchemaManager() );
             }
         }
         else if ( isOnelevelScope )

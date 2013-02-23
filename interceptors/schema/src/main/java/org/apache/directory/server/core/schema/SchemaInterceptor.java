@@ -56,6 +56,7 @@ import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
+import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
@@ -75,7 +76,6 @@ import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -91,6 +91,7 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -412,6 +413,12 @@ public class SchemaInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
+        if ( filter instanceof ObjectClassNode )
+        {
+            // Bypass (ObjectClass=*)
+            return;
+        }
+
         if ( filter.isLeaf() )
         {
             if ( filter instanceof EqualityNode )
@@ -461,7 +468,7 @@ public class SchemaInterceptor extends BaseInterceptor
             else if ( filter instanceof ExtensibleNode )
             {
                 ExtensibleNode node = ( ( ExtensibleNode ) filter );
-                
+
                 // Todo : add the needed checks here
             }
             else if ( filter instanceof ApproximateNode )
@@ -753,7 +760,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
                             // This is an error.
-                            String msg = I18n.err( I18n.ERR_54, (Object[])null );
+                            String msg = I18n.err( I18n.ERR_54, ( Object[] ) null );
                             LOG.error( msg );
                             throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
                         }
@@ -863,7 +870,6 @@ public class SchemaInterceptor extends BaseInterceptor
         check( dn, tempEntry );
     }
 
-
     /**
      * Filters objectClass attribute to inject top when not present.
      */
@@ -874,14 +880,14 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         public boolean accept( SearchOperationContext operationContext, Entry entry ) throws LdapException
         {
-            ServerEntryUtils.filterContents( 
+            ServerEntryUtils.filterContents(
                 operationContext.getSession().getDirectoryService().getSchemaManager(),
                 operationContext, entry );
 
             return true;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -1120,8 +1126,8 @@ public class SchemaInterceptor extends BaseInterceptor
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry entry = next( lookupContext );
-        
-        ServerEntryUtils.filterContents( 
+
+        ServerEntryUtils.filterContents(
             lookupContext.getSession().getDirectoryService().getSchemaManager(),
             lookupContext, entry );
 
@@ -1281,7 +1287,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // does not have any sub level)
         if ( searchContext.getScope() == SearchScope.OBJECT )
         {
-            // The filter can be an equality or a presence, but nothing else
+            // The filter can be an equality or (ObjectClass=*) but nothing else
             if ( filter instanceof SimpleNode )
             {
                 // We should get the value for the filter.
@@ -1313,28 +1319,23 @@ public class SchemaInterceptor extends BaseInterceptor
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                         searchContext );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
+                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext,
+                        schemaManager );
                 }
                 else
                 {
                     return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
             }
-            else if ( filter instanceof PresenceNode )
+            else if ( filter instanceof ObjectClassNode )
             {
-                PresenceNode node = ( PresenceNode ) filter;
-
-                // see if node attribute is objectClass
-                if ( node.getAttributeType().equals( OBJECT_CLASS_AT ) )
-                {
-                    // call.setBypass( true );
-                    Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
-                        searchContext );
-                    serverEntry.setDn( base );
-                    EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
-                        new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
-                    return cursor;
-                }
+                // This is (ObjectClass=*)
+                Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
+                    searchContext );
+                serverEntry.setDn( base );
+                EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
+                    new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
+                return cursor;
             }
         }
 

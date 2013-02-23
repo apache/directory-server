@@ -83,6 +83,7 @@ public class EvaluatorBuilder
     public <T> Evaluator<? extends ExprNode> build( ExprNode node ) throws Exception
     {
         Object count = node.get( "count" );
+
         if ( ( count != null ) && ( ( Long ) count == 0L ) )
         {
             return null;
