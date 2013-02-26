@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.shared.kerberos.codec.changePwdData;
 
 
@@ -18,6 +37,7 @@ import org.apache.directory.shared.kerberos.codec.changePwdData.actions.StoreTar
  * in this class. As it is a singleton, these declaration are only done once. If
  * an action is to be added or modified, this is where the work is to be done !
  *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public final class ChangePasswdDataGrammar extends AbstractGrammar<ChangePasswdDataContainer>
 {
@@ -68,7 +88,8 @@ public final class ChangePasswdDataGrammar extends AbstractGrammar<ChangePasswdD
         // --------------------------------------------------------------------------------------------
         // ChangePasswdData          ::= SEQUENCE {
         //         newPasswd         [0] OCTET STRING,
-        super.transitions[ChangePasswdDataStatesEnum.CHNGPWD_NEWPASSWD_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING.getValue()] =
+        super.transitions[ChangePasswdDataStatesEnum.CHNGPWD_NEWPASSWD_TAG_STATE.ordinal()][UniversalTag.OCTET_STRING
+            .getValue()] =
             new GrammarTransition<ChangePasswdDataContainer>(
                 ChangePasswdDataStatesEnum.CHNGPWD_NEWPASSWD_TAG_STATE,
                 ChangePasswdDataStatesEnum.CHNGPWD_NEWPASSWD_STATE,
@@ -109,7 +130,8 @@ public final class ChangePasswdDataGrammar extends AbstractGrammar<ChangePasswdD
         //         ...
         //         targName          [1] PrincipalName OPTIONAL,
         //         targRealm         [2] Realm OPTIONAL
-        super.transitions[ChangePasswdDataStatesEnum.CHNGPWD_TARGREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING.getValue()] =
+        super.transitions[ChangePasswdDataStatesEnum.CHNGPWD_TARGREALM_TAG_STATE.ordinal()][UniversalTag.GENERAL_STRING
+            .getValue()] =
             new GrammarTransition<ChangePasswdDataContainer>(
                 ChangePasswdDataStatesEnum.CHNGPWD_TARGREALM_TAG_STATE,
                 ChangePasswdDataStatesEnum.CHNGPWD_TARGREALM_STATE,

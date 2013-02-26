@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.server.kerberos;
 
 
@@ -12,52 +31,55 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 
 
+/**
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class KerberosConfig
 {
 
     /** The default kdc service principal */
     public static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
-    
+
     /** The default kdc realm */
     public static final String DEFAULT_REALM = "EXAMPLE.COM";
-    
+
     /** The default allowable clockskew */
     public static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
-    
+
     /** The default for allowing empty addresses */
     public static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
-    
+
     /** The default for requiring encrypted timestamps */
     public static final boolean DEFAULT_PA_ENC_TIMESTAMP_REQUIRED = true;
-    
+
     /** The default for the maximum ticket lifetime */
     public static final int DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME = 60000 * 1440;
-    
+
     /** The default for the minimum ticket lifetime, 4 minutes */
     public static final int DEFAULT_TGS_MINIMUM_TICKET_LIFETIME = 60000 * 4;
-    
+
     /** The default for the maximum renewable lifetime */
     public static final int DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME = 60000 * 10080;
-    
+
     /** The default for allowing forwardable tickets */
     public static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
-    
+
     /** The default for allowing proxiable tickets */
     public static final boolean DEFAULT_TGS_PROXIABLE_ALLOWED = true;
-    
+
     /** The default for allowing postdated tickets */
     public static final boolean DEFAULT_TGS_POSTDATED_ALLOWED = true;
-    
+
     /** The default for allowing renewable tickets */
     public static final boolean DEFAULT_TGS_RENEWABLE_ALLOWED = true;
-    
+
     /** The default for verifying the body checksum */
     public static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
-    
+
     /** The default encryption types */
     public static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
         { "aes128-cts-hmac-sha1-96", "des-cbc-md5", "des3-cbc-sha1-kd" };
-    
+
     /** The primary realm */
     private String primaryRealm = KerberosConfig.DEFAULT_REALM;
 
@@ -102,16 +124,17 @@ public class KerberosConfig
 
     /* cached kerberos/changepassword service principal */
     private KerberosPrincipal srvPrincipal;
-    
+
     private String searchBaseDn;
-    
+
+
     public KerberosConfig()
     {
         setSearchBaseDn( ServerDNConstants.USER_EXAMPLE_COM_DN );
         prepareEncryptionTypes();
     }
-    
-    
+
+
     /**
      * Returns the allowable clock skew.
      *
@@ -211,7 +234,7 @@ public class KerberosConfig
                 this.encryptionTypes.add( encryptionType );
             }
         }
-        
+
         this.encryptionTypes = KerberosUtils.orderEtypesByStrength( this.encryptionTypes );
     }
 
@@ -335,11 +358,11 @@ public class KerberosConfig
      */
     public KerberosPrincipal getServicePrincipal()
     {
-        if( srvPrincipal == null )
+        if ( srvPrincipal == null )
         {
             srvPrincipal = new KerberosPrincipal( servicePrincipal, PrincipalNameType.KRB_NT_SRV_INST.getValue() );
         }
-        
+
         return srvPrincipal;
     }
 
@@ -383,7 +406,7 @@ public class KerberosConfig
         this.isBodyChecksumVerified = isBodyChecksumVerified;
     }
 
-    
+
     public String getSearchBaseDn()
     {
         return searchBaseDn;
@@ -395,7 +418,7 @@ public class KerberosConfig
         this.searchBaseDn = searchBaseDn;
     }
 
-    
+
     public long getMinimumTicketLifetime()
     {
         return minimumTicketLifetime;
@@ -427,7 +450,7 @@ public class KerberosConfig
                 }
             }
         }
-        
+
         encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
     }
 }
