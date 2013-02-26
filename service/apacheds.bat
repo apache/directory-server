@@ -20,7 +20,7 @@ REM under the License.
 REM this script starts ApacheDS (as non-windows-service)
 
 REM IF NOT exist target/apacheds-service-*.jar GOTO :MVN
-IF NOT exist target/apacheds-service-2.0.0-M8.jar GOTO :MVN
+IF NOT exist target/apacheds-service-2.0.0-M11.jar GOTO :MVN
    echo "Service jar exists"
    GOTO :JAVA
 
@@ -44,5 +44,5 @@ set DEF_EXT_OP_REQ="-Ddefault.extendedOperation.requests=org.apache.directory.ap
 
 set DEF_EXT_OP_RESP="-Ddefault.extendedOperation.responses=org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory"
 
-java %DEF_CTRLS% %EXT_CTRLS% %DEF_EXT_OP_REQ% %DEF_EXT_OP_RESP% -Dlog4j.configuration="file:///%cd%/target/instance/conf/log4j.properties" -jar target/apacheds-service-2.0.0-M8.jar %cd%/target/instance
+java %DEF_CTRLS% %EXT_CTRLS% %DEF_EXT_OP_REQ% %DEF_EXT_OP_RESP% -Dlog4j.configuration="file:///%cd%/target/instance/conf/log4j.properties" -jar target/apacheds-service-2.0.0-M11.jar %cd%/target/instance
    
