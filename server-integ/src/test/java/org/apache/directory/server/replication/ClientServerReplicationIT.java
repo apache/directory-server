@@ -277,6 +277,7 @@ public class ClientServerReplicationIT
 
 
     @Test
+    @Ignore
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
