@@ -68,9 +68,6 @@ public class KdcServerBean extends DSBasedServerBean
     /** The default for verifying the body checksum */
     private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
 
-    /** The default kdc service principal */
-    private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
-
     /** The allowable clock skew. */
     @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")
     private long krbAllowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
