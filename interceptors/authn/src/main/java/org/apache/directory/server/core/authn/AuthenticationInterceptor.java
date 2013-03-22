@@ -71,6 +71,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -535,22 +536,28 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 if ( policyConfig.isPwdLockout() && ( numFailures >= policyConfig.getPwdMaxFailure() ) )
                 {
-                    Attribute pwdAccountLockedTimeAt = new DefaultAttribute( AT_PWD_ACCOUNT_LOCKED_TIME );
-
-                    // if zero, lockout permanently, only admin can unlock it
-                    if ( policyConfig.getPwdLockoutDuration() == 0 )
+                    // Checking that we're not locking the admin user of the system partition
+                    // See DIRSERVER-1812 (The default admin account should never get locked forever)
+                    if ( !userEntry.getDn().equals( new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN ) ) )
                     {
-                        pwdAccountLockedTimeAt.add( "000001010000Z" );
-                    }
-                    else
-                    {
-                        pwdAccountLockedTimeAt.add( failureTime );
-                    }
+                        Attribute pwdAccountLockedTimeAt = new DefaultAttribute( AT_PWD_ACCOUNT_LOCKED_TIME );
 
-                    Modification pwdAccountLockedMod = new DefaultModification( ADD_ATTRIBUTE, pwdAccountLockedTimeAt );
-                    mods.add( pwdAccountLockedMod );
+                        // if zero, lockout permanently, only admin can unlock it
+                        if ( policyConfig.getPwdLockoutDuration() == 0 )
+                        {
+                            pwdAccountLockedTimeAt.add( "000001010000Z" );
+                        }
+                        else
+                        {
+                            pwdAccountLockedTimeAt.add( failureTime );
+                        }
 
-                    pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.ACCOUNT_LOCKED );
+                        Modification pwdAccountLockedMod = new DefaultModification( ADD_ATTRIBUTE,
+                            pwdAccountLockedTimeAt );
+                        mods.add( pwdAccountLockedMod );
+
+                        pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.ACCOUNT_LOCKED );
+                    }
                 }
                 else if ( policyConfig.getPwdMinDelay() > 0 )
                 {
