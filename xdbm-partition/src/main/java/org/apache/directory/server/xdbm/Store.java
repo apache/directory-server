@@ -173,7 +173,7 @@ public interface Store
     /**
      * @return The Alias system index
      */
-    Index<String, Entry, String> getAliasIndex();
+    Index<Dn, Entry, String> getAliasIndex();
 
 
     /**

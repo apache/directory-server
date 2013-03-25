@@ -203,4 +203,13 @@ public class EvaluatorBuilder
 
         return evaluators;
     }
+
+
+    /**
+     * @return the schemaManager
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
 }

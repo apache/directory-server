@@ -416,11 +416,12 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 
                 if ( aliasedDn != null )
                 {
-                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -503,11 +504,12 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 
                 if ( aliasedDn != null )
                 {
-                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -518,7 +520,7 @@ public class CursorBuilder
 
                         ScopeNode newScopeNode = new ScopeNode(
                             node.getDerefAliases(),
-                            new Dn( searchResult.getSchemaManager(), aliasedDn ),
+                            aliasedDn,
                             aliasedId,
                             node.getScope() );
 

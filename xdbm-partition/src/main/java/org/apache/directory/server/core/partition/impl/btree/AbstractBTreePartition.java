@@ -148,7 +148,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected Index<String, Entry, String> entryCsnIdx;
 
     /** a system index on aliasedObjectName attribute */
-    protected Index<String, Entry, String> aliasIdx;
+    protected Index<Dn, Entry, String> aliasIdx;
 
     /** the subtree scope alias index */
     protected Index<String, Entry, String> subAliasIdx;
@@ -303,7 +303,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( getAliasIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+            Index<Dn, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
                 partitionPath, WITH_REVERSE );
             addIndex( index );
         }
@@ -356,7 +356,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         rdnIdx = ( Index<ParentIdAndRdn, Entry, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
         presenceIdx = ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-        aliasIdx = ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        aliasIdx = ( Index<Dn, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         oneAliasIdx = ( Index<String, Entry, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
         subAliasIdx = ( Index<String, Entry, String> ) systemIndices
@@ -697,7 +697,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
-                addAliasIndices( id, entryDn, aliasAttr.getString() );
+                addAliasIndices( id, entryDn, new Dn( schemaManager, aliasAttr.getString() ) );
             }
 
             // Update the EntryCsn index
@@ -1125,11 +1125,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entry != null )
             {
-                // We have to store the DN in this entry, if it has no DN yet
-                if ( !dn.equals( entry.getDn() ) )
-                {
-                    entry.setDn( dn );
-                }
+                // We have to store the DN in this entry
+                entry.setDn( dn );
 
                 if ( !entry.containsAttribute( ENTRY_DN_AT ) )
                 {
@@ -1291,7 +1288,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
         {
             Dn ndn = getEntryDn( id );
-            addAliasIndices( id, ndn, mods.getString() );
+            addAliasIndices( id, ndn, new Dn( schemaManager, mods.getString() ) );
         }
     }
 
@@ -1402,7 +1399,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {
             Dn entryDn = getEntryDn( id );
-            addAliasIndices( id, entryDn, mods.getString() );
+            addAliasIndices( id, entryDn, new Dn( schemaManager, mods.getString() ) );
         }
     }
 
@@ -1649,10 +1646,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          * aliasTarget is used as a marker to tell us if we're moving an
          * alias.  If it is null then the moved entry is not an alias.
          */
-        String aliasTarget = aliasIdx.reverseLookup( entryId );
+        Dn aliasTarget = aliasIdx.reverseLookup( entryId );
 
         if ( null != aliasTarget )
         {
+            aliasTarget.apply( schemaManager );
             addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
         }
 
@@ -1838,10 +1836,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          * aliasTarget is used as a marker to tell us if we're moving an
          * alias.  If it is null then the moved entry is not an alias.
          */
-        String aliasTarget = aliasIdx.reverseLookup( entryId );
+        Dn aliasTarget = aliasIdx.reverseLookup( entryId );
 
         if ( null != aliasTarget )
         {
+            aliasTarget.apply( schemaManager );
             addAliasIndices( entryId, buildEntryDn( entryId ), aliasTarget );
         }
     }
@@ -2399,9 +2398,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getAliasIndex()
+    public Index<Dn, Entry, String> getAliasIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        return ( Index<Dn, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
     }
 
 
@@ -2516,15 +2515,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * not allowed due to chaining or cycle formation.
      * @throws Exception if the wrappedCursor btrees cannot be altered
      */
-    protected void addAliasIndices( String aliasId, Dn aliasDn, String aliasTarget ) throws Exception
+    protected void addAliasIndices( String aliasId, Dn aliasDn, Dn aliasTarget ) throws Exception
     {
-        Dn normalizedAliasTargetDn; // Name value of aliasedObjectName
         String targetId; // Id of the aliasedObjectName
         Dn ancestorDn; // Name of an alias entry relative
         String ancestorId; // Id of an alias entry relative
-
-        // Access aliasedObjectName, normalize it and generate the Name
-        normalizedAliasTargetDn = new Dn( schemaManager, aliasTarget );
 
         /*
          * Check For Aliases External To Naming Context
@@ -2534,7 +2529,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          * need to point it out to the user instead of saying the target
          * does not exist when it potentially could outside of this upSuffix.
          */
-        if ( !normalizedAliasTargetDn.isDescendantOf( suffixDn ) )
+        if ( !aliasTarget.isDescendantOf( suffixDn ) )
         {
             String msg = I18n.err( I18n.ERR_225, suffixDn.getName() );
             LdapAliasDereferencingException e = new LdapAliasDereferencingException( msg );
@@ -2543,7 +2538,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = getEntryId( normalizedAliasTargetDn );
+        targetId = getEntryId( aliasTarget );
 
         /*
          * Check For Target Existence
@@ -2579,7 +2574,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // Add the alias to the simple alias index
-        aliasIdx.add( normalizedAliasTargetDn.getNormName(), aliasId );
+        aliasIdx.add( aliasTarget, aliasId );
 
         /*
          * Handle One Level Scope Alias Index
@@ -2592,7 +2587,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         ancestorId = getEntryId( ancestorDn );
 
         // check if alias parent and aliased entry are the same
-        Dn normalizedAliasTargetParentDn = normalizedAliasTargetDn.getParent();
+        Dn normalizedAliasTargetParentDn = aliasTarget.getParent();
 
         if ( !aliasDn.isDescendantOf( normalizedAliasTargetParentDn ) )
         {
@@ -2611,7 +2606,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          */
         while ( !ancestorDn.equals( suffixDn ) && null != ancestorId )
         {
-            if ( !normalizedAliasTargetDn.isDescendantOf( ancestorDn ) )
+            if ( !aliasTarget.isDescendantOf( ancestorDn ) )
             {
                 subAliasIdx.add( ancestorId, targetId );
             }
@@ -2633,8 +2628,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     protected void dropAliasIndices( String aliasId ) throws Exception
     {
-        String targetDn = aliasIdx.reverseLookup( aliasId );
-        String targetId = getEntryId( new Dn( schemaManager, targetDn ) );
+        Dn targetDn = aliasIdx.reverseLookup( aliasId );
+        targetDn.apply( schemaManager );
+        String targetId = getEntryId( targetDn );
 
         if ( targetId == null )
         {
@@ -2704,8 +2700,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     protected void dropAliasIndices( String aliasId, Dn movedBase ) throws Exception
     {
-        String targetDn = aliasIdx.reverseLookup( aliasId );
-        String targetId = getEntryId( new Dn( schemaManager, targetDn ) );
+        Dn targetDn = aliasIdx.reverseLookup( aliasId );
+        targetDn.apply( schemaManager );
+        String targetId = getEntryId( targetDn );
         Dn aliasDn = getEntryDn( aliasId );
 
         /*

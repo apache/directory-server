@@ -87,6 +87,7 @@ import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.DefaultJournalStore;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDnIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmRdnIndex;
@@ -1154,6 +1155,11 @@ public class ServiceBuilder
             jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             index = new JdbmRdnIndex();
+        }
+        else if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT ) ||
+            jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            index = new JdbmDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         }
         else
         {

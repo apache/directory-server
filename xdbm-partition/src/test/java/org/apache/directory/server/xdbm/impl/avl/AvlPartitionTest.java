@@ -161,7 +161,7 @@ public class AvlPartitionTest
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getAliasIndex() );
 
         assertEquals( 0, avlPartition.getCacheSize() );
@@ -217,7 +217,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )

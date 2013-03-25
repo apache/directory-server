@@ -144,7 +144,7 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Dn aliasedBase = db.getAliasIndex().reverseLookup( baseId );
         Dn effectiveBase = baseDn;
         String effectiveBaseId = baseId;
 
@@ -155,7 +155,7 @@ public class DefaultSearchEngine implements SearchEngine
              * finding the base, or always then we set the effective base to the alias target
              * got from the alias index.
              */
-            effectiveBase = new Dn( schemaManager, aliasedBase );
+            effectiveBase = aliasedBase.apply( schemaManager );
             effectiveBaseId = db.getEntryId( effectiveBase );
         }
 

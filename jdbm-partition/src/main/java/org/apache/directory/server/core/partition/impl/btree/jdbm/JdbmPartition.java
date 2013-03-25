@@ -427,6 +427,10 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             jdbmIndex = ( JdbmRdnIndex ) index;
         }
+        else if ( index instanceof JdbmDnIndex )
+        {
+            jdbmIndex = ( JdbmDnIndex ) index;
+        }
         else if ( index instanceof JdbmIndex<?, ?> )
         {
             jdbmIndex = ( JdbmIndex<?, Entry> ) index;
@@ -512,6 +516,12 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             jdbmIndex = new JdbmRdnIndex();
             jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+        }
+        else if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            jdbmIndex = new JdbmDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
         }
         else

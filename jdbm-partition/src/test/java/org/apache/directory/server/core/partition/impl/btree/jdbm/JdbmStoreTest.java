@@ -248,7 +248,7 @@ public class JdbmStoreTest
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
-        Index<String, Entry, String> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<Dn, Entry, String> index = new JdbmIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
         ( ( Store ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
@@ -309,7 +309,7 @@ public class JdbmStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
