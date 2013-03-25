@@ -34,6 +34,9 @@ import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
@@ -106,7 +109,22 @@ public class EntrySerializer implements Serializer
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutput out = new ObjectOutputStream( baos );
 
-        // Serialize the attributes.
+        // First, the Dn
+        Dn dn = entry.getDn();
+
+        // Write the Rdn of the Dn
+        if ( dn.isEmpty() )
+        {
+            out.writeByte( 0 );
+        }
+        else
+        {
+            out.writeByte( 1 );
+            Rdn rdn = dn.getRdn();
+            rdn.writeExternal( out );
+        }
+
+        // Then the attributes.
         out.writeInt( entry.getAttributes().size() );
 
         // Iterate through the keys. We store the Attribute
@@ -156,6 +174,30 @@ public class EntrySerializer implements Serializer
         try
         {
             Entry entry = new DefaultEntry( schemaManager );
+
+            // Read the Dn, if any
+            byte hasDn = in.readByte();
+
+            if ( hasDn == 1 )
+            {
+                Rdn rdn = new Rdn( schemaManager );
+                rdn.readExternal( in );
+
+                try
+                {
+                    entry.setDn( new Dn( schemaManager, rdn ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    IOException ioe = new IOException( lide.getMessage() );
+                    ioe.initCause( lide );
+                    throw ioe;
+                }
+            }
+            else
+            {
+                entry.setDn( Dn.EMPTY_DN );
+            }
 
             // Read the number of attributes
             int nbAttributes = in.readInt();
