@@ -73,7 +73,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
@@ -151,22 +150,22 @@ import org.slf4j.LoggerFactory;
     allowAnonAccess = false,
     name = "SaslBindIT-class",
     partitions =
-    {
-        @CreatePartition(
-            name = "example",
-            suffix = "dc=example,dc=com",
-            contextEntry =
-            @ContextEntry(
-                entryLdif =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry =
+                @ContextEntry(
+                    entryLdif =
                     "dn: dc=example,dc=com\n" +
-                    "dc: example\n" +
-                    "objectClass: top\n" +
-                    "objectClass: domain\n\n"),
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
                 indexes =
-                {
-                    @CreateIndex(attribute = "objectClass"),
-                    @CreateIndex(attribute = "dc"),
-                    @CreateIndex(attribute = "ou")
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "dc"),
+                        @CreateIndex(attribute = "ou")
                 })
     },
     additionalInterceptors =
@@ -174,21 +173,21 @@ import org.slf4j.LoggerFactory;
 @CreateLdapServer(transports =
     {
         @CreateTransport(protocol = "LDAP")
-    },
+},
     saslHost = "localhost",
     saslPrincipal = "ldap/localhost@EXAMPLE.COM",
     saslMechanisms =
-    {
-        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
     },
     extendedOpHandlers =
-    {
-        StoredProcedureExtendedOperationHandler.class
+        {
+            StoredProcedureExtendedOperationHandler.class
     },
     ntlmProvider = BogusNtlmProvider.class)
 @CreateKdcServer(
@@ -196,7 +195,7 @@ import org.slf4j.LoggerFactory;
         {
             @CreateTransport(protocol = "UDP", port = 6088),
             @CreateTransport(protocol = "TCP", port = 6088)
-        })
+    })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
     @Rule
@@ -263,14 +262,14 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure PLAIN-binds works
      */
     @Test
-    @Ignore
+    //@Ignore
     // The SASL Plain mechanism is not supported
     public void testSaslBindPLAIN() throws Exception
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         BindRequest bindReq = new BindRequestImpl();
-        bindReq.setCredentials( "secret" );
+        bindReq.setCredentials( '\0' + "uid=hnelson,ou=users,dc=example,dc=com" + '\0' + "secret" );
         bindReq.setDn( userDn );
         bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
 
@@ -505,7 +504,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         kdcServer.getConfig().setPaEncTimestampRequired( false );
-        
+
         GssApiRequest request = new GssApiRequest();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );

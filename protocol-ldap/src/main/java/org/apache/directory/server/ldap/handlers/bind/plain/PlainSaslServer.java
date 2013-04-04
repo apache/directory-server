@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.schema.PrepareString;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
@@ -240,13 +241,15 @@ public class PlainSaslServer extends AbstractSaslServer
 
 
     /**
-     * Try to authenticate the usr against the underlying LDAP server.
+     * Try to authenticate the user against the underlying LDAP server.
      */
     private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
         bindContext.setDn( new Dn( user ) );
         bindContext.setCredentials( Strings.getBytesUtf8( password ) );
+        bindContext.setIoSession( getLdapSession().getIoSession() );
+        bindContext.setInterceptors( getAdminSession().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
 
         getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
 
