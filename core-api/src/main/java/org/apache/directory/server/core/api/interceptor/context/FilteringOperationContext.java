@@ -100,7 +100,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     public FilteringOperationContext( CoreSession session, String... returningAttributes )
     {
         super( session );
-        
+
         setReturningAttributes( returningAttributes );
     }
 
@@ -113,7 +113,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     public FilteringOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn );
-        
+
         setReturningAttributes( returningAttributes );
     }
 
@@ -179,8 +179,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     {
         return returningAttributesString;
     }
-    
-    
+
+
     /**
      * Tells if an attribute is present in the list of attribute to return
      * 
@@ -193,11 +193,11 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             return false;
         }
-        
+
         try
         {
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
-            
+
             return contains( schemaManager, attributeType );
         }
         catch ( LdapException le )
@@ -205,8 +205,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             return false;
         }
     }
-    
-    
+
+
     /**
      * Tells if an attribute is present in the list of attribute to return
      * 
@@ -219,7 +219,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             return false;
         }
-        
+
         if ( ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS ) && allUserAttributes )
         {
             return true;
@@ -235,7 +235,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             return false;
         }
-        
+
         for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
         {
             if ( attributeTypeOptions.getAttributeType().equals( attributeType ) ||
@@ -244,7 +244,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -258,7 +258,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             // AttributeTypeOptions
             returningAttributes = new HashSet<AttributeTypeOptions>();
             Set<String> attributesString = new HashSet<String>();
-            
+
             Set<AttributeTypeOptions> collectedAttributes = collectAttributeTypes( attributeIds );
 
             // If we have valid, '*' or '+' attributes, we can get rid of the NoAttributes flag
@@ -280,7 +280,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                         returningAttributes.add( attributeTypeOption );
                         attributesString.add( attributeTypeOption.getAttributeType().getOid() );
                     }
-                    
+
                     if ( attributeTypeOption.getAttributeType().isOperational() && !allOperationalAttributes )
                     {
                         // We can add the AttributeType in the list of returningAttributeTypes
@@ -289,17 +289,17 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                     }
                 }
             }
-            
+
             if ( attributesString.size() > 0 )
             {
                 // We have some valid attributes, lt's convert it to String
                 returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
             }
-            else 
+            else
             {
                 // No valid attributes remaining, that means they were all invalid
                 returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
-            } 
+            }
         }
         else
         {
@@ -308,13 +308,13 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             returningAttributesString = ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
-    
-    
+
+
     private Set<AttributeTypeOptions> collectAttributeTypes( String... attributesIds )
     {
         Set<AttributeTypeOptions> collectedAttributes = new HashSet<AttributeTypeOptions>();
-        
-        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) ) 
+
+        if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
         {
             for ( String returnAttribute : attributesIds )
             {
@@ -322,34 +322,34 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 {
                     continue;
                 }
-                
+
                 if ( returnAttribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     noAttributes = true;
                     continue;
                 }
-    
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                 {
                     allOperationalAttributes = true;
                     continue;
                 }
-    
+
                 if ( returnAttribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
                 {
                     allUserAttributes = true;
                     continue;
                 }
-    
+
                 try
                 {
                     String id = SchemaUtils.stripOptions( returnAttribute );
                     Set<String> options = SchemaUtils.getOptions( returnAttribute );
-    
+
                     AttributeType attributeType = session.getDirectoryService()
                         .getSchemaManager().lookupAttributeTypeRegistry( id );
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
-    
+
                     collectedAttributes.add( attrOptions );
                 }
                 catch ( LdapNoSuchAttributeException nsae )
@@ -366,7 +366,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 }
             }
         }
-        
+
         return collectedAttributes;
     }
 
@@ -415,7 +415,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         return noAttributes;
     }
 
-    
+
     /**
      * @param noAttributes the noAttributes to set
      */
@@ -442,14 +442,14 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         this.typesOnly = typesOnly;
     }
 
-    
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append( "FilteringOperationContext for Dn '" );
         sb.append( getDn().getName() ).append( "'" );
 
@@ -457,7 +457,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             sb.append( ", type only" );
         }
-        
+
         if ( allOperationalAttributes )
         {
             sb.append( ", +" );
@@ -477,7 +477,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             sb.append( ", attributes : <" );
             boolean isFirst = true;
-            
+
             for ( String returningAttribute : returningAttributesString )
             {
                 if ( isFirst )
@@ -488,11 +488,11 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 {
                     sb.append( ", " );
                 }
-                
+
                 sb.append( returningAttribute );
             }
-            
-            sb.append(  ">" );
+
+            sb.append( ">" );
         }
 
         return sb.toString();

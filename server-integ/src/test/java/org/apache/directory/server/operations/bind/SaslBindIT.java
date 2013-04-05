@@ -262,24 +262,27 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure PLAIN-binds works
      */
     @Test
-    //@Ignore
-    // The SASL Plain mechanism is not supported
     public void testSaslBindPLAIN() throws Exception
     {
-        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        BindRequest bindReq = new BindRequestImpl();
-        bindReq.setCredentials( '\0' + "uid=hnelson,ou=users,dc=example,dc=com" + '\0' + "secret" );
-        bindReq.setDn( userDn );
-        bindReq.setSaslMechanism( SupportedSaslMechanisms.PLAIN );
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
 
-        BindResponse resp = connection.bind( bindReq );
+        BindResponse resp = connection.bindSaslPlain( "hnelson", "secret" );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
+        Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         Entry entry = connection.lookup( userDn );
         assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
         connection.close();
+
+        // Try to bind with a wrong user
+        resp = connection.bindSaslPlain( "hnelsom", "secret" );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
+
+        // Try to bind with a wrong password
+        resp = connection.bindSaslPlain( "hnelson", "secres" );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, resp.getLdapResult().getResultCode() );
     }
 
 

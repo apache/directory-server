@@ -25,16 +25,26 @@ import java.io.IOException;
 import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.BindRequest;
-import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.PrepareString;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationEnum;
+import org.apache.directory.server.core.api.OperationManager;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
 
@@ -241,18 +251,56 @@ public class PlainSaslServer extends AbstractSaslServer
 
 
     /**
-     * Try to authenticate the user against the underlying LDAP server.
+     * Try to authenticate the user against the underlying LDAP server. The SASL PLAIN
+     * authentication is based on the entry which uid is equal to the user name we received.
      */
     private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
     {
-        BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
-        bindContext.setDn( new Dn( user ) );
-        bindContext.setCredentials( Strings.getBytesUtf8( password ) );
-        bindContext.setIoSession( getLdapSession().getIoSession() );
-        bindContext.setInterceptors( getAdminSession().getDirectoryService().getInterceptors( OperationEnum.BIND ) );
+        LdapSession ldapSession = getLdapSession();
+        CoreSession adminSession = getAdminSession();
+        DirectoryService directoryService = adminSession.getDirectoryService();
+        LdapServer ldapServer = ldapSession.getLdapServer();
+        OperationManager operationManager = directoryService.getOperationManager();
 
-        getAdminSession().getDirectoryService().getOperationManager().bind( bindContext );
+        // first, we have to find the entries which has the uid value
+        EqualityNode<String> filter = new EqualityNode<String>(
+            directoryService.getSchemaManager().getAttributeType( SchemaConstants.UID_AT ), new StringValue( user ) );
 
-        return bindContext.getSession();
+        SearchOperationContext searchContext = new SearchOperationContext( directoryService.getAdminSession() );
+        searchContext.setDn( directoryService.getDnFactory().create( ldapServer.getSearchBaseDn() ) );
+        searchContext.setScope( SearchScope.SUBTREE );
+        searchContext.setFilter( filter );
+        searchContext.setNoAttributes( true );
+
+        EntryFilteringCursor cursor = operationManager.search( searchContext );
+        Exception bindException = new LdapAuthenticationException( "Cannot authenticate user uid=" + user );
+
+        while ( cursor.next() )
+        {
+            Entry entry = cursor.get();
+
+            try
+            {
+                BindOperationContext bindContext = new BindOperationContext( ldapSession.getCoreSession() );
+                bindContext.setDn( entry.getDn() );
+                bindContext.setCredentials( Strings.getBytesUtf8( password ) );
+                bindContext.setIoSession( ldapSession.getIoSession() );
+                bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
+
+                operationManager.bind( bindContext );
+
+                cursor.close();
+
+                return bindContext.getSession();
+            }
+            catch ( Exception e )
+            {
+                bindException = e;// Nothing to do here : we will try to bind with the next user
+            }
+        }
+
+        cursor.close();
+
+        throw bindException;
     }
 }
