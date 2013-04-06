@@ -42,29 +42,29 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateDS(
-        name="AddPerfDS",
-        partitions =
+    name = "AddPerfDS",
+    partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
                 contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
+                        "objectClass: domain\n\n"),
                 indexes =
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    //@CreateIndex( attribute = "sn" ),
-                    @CreateIndex( attribute = "cn" )
-                } )
-                
-        },
-        enableChangeLog = false )
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        //@CreateIndex( attribute = "sn" ),
+                        @CreateIndex(attribute = "cn")
+                })
+
+    },
+    enableChangeLog = false)
 public class AddPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -77,13 +77,35 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
         Dn dn = new Dn( "cn=test,dc=example,dc=com" );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
 
         connection.add( entry );
-        int nbIterations = 1500;
+        int nbIterations = 15000;
+
+        entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn", " ",
+            "cn", " " );
+
+        Entry[] entries = new Entry[nbIterations];
+
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            String name = "test" + i;
+
+            dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
+            entry = new DefaultEntry( getService().getSchemaManager(), dn,
+                "ObjectClass: top",
+                "ObjectClass: person",
+                "sn", name.toUpperCase(),
+                "cn", name );
+
+            entries[i] = entry;
+        }
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -104,16 +126,8 @@ public class AddPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            String name = "test" + i;
-            dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
-            entry = new DefaultEntry( getService().getSchemaManager(), dn,
-                "ObjectClass: top", 
-                "ObjectClass: person",
-                "sn", name.toUpperCase(),
-                "cn", name );
-
             long ttt0 = System.nanoTime();
-            connection.add( entry );
+            connection.add( entries[i] );
             long ttt1 = System.nanoTime();
             //System.out.println("added " + i + ", delta = " + (ttt1-ttt0)/1000);
         }
@@ -121,24 +135,25 @@ public class AddPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
-        
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+
         int nbFound = 0;
         long t2 = System.currentTimeMillis();
         EntryCursor result = connection.search( "dc=example,dc=com", "(sn=test123*)", SearchScope.SUBTREE, "*" );
-        
+
         while ( result.next() )
         {
             Entry res = result.get();
-            
+
             System.out.println( res.getDn() );
             nbFound++;
         }
-        
+
         result.close();
         long t3 = System.currentTimeMillis();
-        System.out.println( "Delta search : " + ( t3 - t2 ) + " for " + nbFound + " entries");
-        
+        System.out.println( "Delta search : " + ( t3 - t2 ) + " for " + nbFound + " entries" );
+
         connection.close();
     }
 }

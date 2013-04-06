@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind.cramMD5;
+package org.apache.directory.server.ldap.handlers.sasl.cramMD5;
 
 
 import javax.naming.Context;
@@ -38,8 +38,8 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslCallbackHandler;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.ldap.handlers.bind;
+package org.apache.directory.server.ldap.handlers.sasl;
 
 
 /**

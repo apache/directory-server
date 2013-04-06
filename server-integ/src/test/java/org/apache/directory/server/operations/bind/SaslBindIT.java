@@ -56,11 +56,11 @@ import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
-import org.apache.directory.ldap.client.api.CramMd5Request;
-import org.apache.directory.ldap.client.api.DigestMd5Request;
-import org.apache.directory.ldap.client.api.GssApiRequest;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.SaslCramMd5Request;
+import org.apache.directory.ldap.client.api.SaslDigestMd5Request;
+import org.apache.directory.ldap.client.api.SaslGssApiRequest;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -73,12 +73,12 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -324,7 +324,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        CramMd5Request request = new CramMd5Request();
+        SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
 
@@ -347,7 +347,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        CramMd5Request request = new CramMd5Request();
+        SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
 
@@ -366,7 +366,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -390,7 +390,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -416,7 +416,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -442,7 +442,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -466,7 +466,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( "badrealm.com" );
@@ -486,7 +486,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
-        DigestMd5Request request = new DigestMd5Request();
+        SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -508,7 +508,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
         kdcServer.getConfig().setPaEncTimestampRequired( false );
 
-        GssApiRequest request = new GssApiRequest();
+        SaslGssApiRequest request = new SaslGssApiRequest();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
@@ -533,7 +533,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        GssApiRequest request = new GssApiRequest();
+        SaslGssApiRequest request = new SaslGssApiRequest();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "secret" );
         request.setRealmName( "badrealm.com" );
@@ -563,7 +563,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
-        GssApiRequest request = new GssApiRequest();
+        SaslGssApiRequest request = new SaslGssApiRequest();
         request.setUsername( userDn.getRdn().getValue().getString() );
         request.setCredentials( "badsecret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
@@ -654,7 +654,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Digest-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            DigestMd5Request digetDigestMd5Request = new DigestMd5Request();
+            SaslDigestMd5Request digetDigestMd5Request = new SaslDigestMd5Request();
             digetDigestMd5Request.setUsername( userDn.getRdn().getValue().getString() );
             digetDigestMd5Request.setCredentials( "secret" );
             digetDigestMd5Request.setRealmName( ldapServer.getSaslRealms().get( 0 ) );
@@ -666,7 +666,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Cram-MD5
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            CramMd5Request cramMd5Request = new CramMd5Request();
+            SaslCramMd5Request cramMd5Request = new SaslCramMd5Request();
             cramMd5Request.setUsername( userDn.getRdn().getValue().getString() );
             cramMd5Request.setCredentials( "secret" );
             resp = connection.bind( cramMd5Request );
@@ -677,7 +677,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // GSSAPI
             connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-            GssApiRequest gssApiRequest = new GssApiRequest();
+            SaslGssApiRequest gssApiRequest = new SaslGssApiRequest();
             gssApiRequest.setUsername( userDn.getRdn().getValue().getString() );
             gssApiRequest.setCredentials( "secret" );
             gssApiRequest.setRealmName( ldapServer.getSaslRealms().get( 0 ) );

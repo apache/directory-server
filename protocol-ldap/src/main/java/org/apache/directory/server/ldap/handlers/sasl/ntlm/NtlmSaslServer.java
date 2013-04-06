@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind.ntlm;
+package org.apache.directory.server.ldap.handlers.sasl.ntlm;
 
 
 import javax.naming.Context;
@@ -34,8 +34,8 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslServer;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 
 
 /**

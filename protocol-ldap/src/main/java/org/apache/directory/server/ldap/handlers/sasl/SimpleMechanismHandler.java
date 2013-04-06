@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers.bind;
+package org.apache.directory.server.ldap.handlers.sasl;
 
 
 import javax.security.sasl.SaslServer;

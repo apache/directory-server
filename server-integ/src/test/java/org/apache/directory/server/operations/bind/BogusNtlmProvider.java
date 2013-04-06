@@ -21,7 +21,7 @@
 package org.apache.directory.server.operations.bind;
 
 
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmProvider;
 import org.apache.mina.core.session.IoSession;
 
 

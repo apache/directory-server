@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind.gssapi;
+package org.apache.directory.server.ldap.handlers.sasl.gssapi;
 
 
 import javax.naming.Context;
@@ -34,8 +34,8 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.kerberos.GetPrincipal;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractSaslCallbackHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslCallbackHandler;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

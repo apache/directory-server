@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind.gssapi;
+package org.apache.directory.server.ldap.handlers.sasl.gssapi;
 
 
 import java.security.PrivilegedExceptionAction;
@@ -40,8 +40,8 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.protocol.shared.kerberos.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;

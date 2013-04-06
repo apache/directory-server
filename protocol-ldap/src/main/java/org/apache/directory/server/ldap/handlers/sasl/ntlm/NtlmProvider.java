@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers.bind.ntlm;
+package org.apache.directory.server.ldap.handlers.sasl.ntlm;
 
 
 import org.apache.mina.core.session.IoSession;

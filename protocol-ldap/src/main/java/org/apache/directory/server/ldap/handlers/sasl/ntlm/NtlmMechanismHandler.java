@@ -17,54 +17,65 @@
  *  under the License.
  *
  */
-package org.apache.directory.server.ldap.handlers.bind.cramMD5;
+package org.apache.directory.server.ldap.handlers.sasl.ntlm;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
 
-import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.message.BindRequest;
-import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 
 
 /**
- * The CRAM-MD Sasl mechanism handler.
+ * A handler for the NTLM Sasl and GSS-SPNEGO mechanism. Note that both
+ * mechanisms require an NTLM mechanism provider which could be implemented
+ * using jCIFS or native Win32 system calls via a JNI wrapper.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CramMd5MechanismHandler extends AbstractMechanismHandler
+public class NtlmMechanismHandler extends AbstractMechanismHandler
 {
+    private String providerFqcn;
+    private NtlmProvider provider;
+
+
+    public void setNtlmProvider( NtlmProvider provider )
+    {
+        this.provider = provider;
+    }
+
+
+    public void setNtlmProviderFqcn( String fqcnProvider )
+    {
+        this.providerFqcn = fqcnProvider;
+    }
+
+
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss = ( SaslServer ) ldapSession.getSaslProperty( SaslConstants.SASL_SERVER );
 
-        // TODO - don't use session properties anymore
         if ( ss == null )
         {
-            String saslHost = ldapSession.getLdapServer().getSaslHost();
-            String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
-            ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
-            ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
-            Map<String, String> saslProps = new HashMap<String, String>();
+            if ( provider == null )
+            {
+                initProvider();
+            }
 
-            CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
-
-            CallbackHandler callbackHandler = new CramMd5CallbackHandler( ldapSession, adminSession, bindRequest );
-
-            ss = Sasl.createSaslServer( SupportedSaslMechanisms.CRAM_MD5, SaslConstants.LDAP_PROTOCOL, saslHost,
-                saslProps, callbackHandler );
+            ss = new NtlmSaslServer( provider, bindRequest, ldapSession, ldapSession.getLdapServer()
+                .getDirectoryService().getAdminSession() );
             ldapSession.putSaslProperty( SaslConstants.SASL_SERVER, ss );
         }
 
         return ss;
+    }
+
+
+    private void initProvider() throws Exception
+    {
+        provider = ( NtlmProvider ) Class.forName( providerFqcn ).newInstance();
     }
 
 
@@ -80,13 +91,16 @@ public class CramMd5MechanismHandler extends AbstractMechanismHandler
 
 
     /**
-     * Remove the SaslServer and Mechanism property.
+     * Remove the Host, UserBaseDn, props and Mechanism property.
      * 
-     * @param ldapSession the Ldapsession instance
+     * @param ldapSession the LdapSession instance
      */
     public void cleanup( LdapSession ldapSession )
     {
-        ldapSession.clearSaslProperties();
+        ldapSession.removeSaslProperty( SaslConstants.SASL_HOST );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_USER_BASE_DN );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_MECH );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_PROPS );
+        ldapSession.removeSaslProperty( SaslConstants.SASL_AUTHENT_USER );
     }
-
 }

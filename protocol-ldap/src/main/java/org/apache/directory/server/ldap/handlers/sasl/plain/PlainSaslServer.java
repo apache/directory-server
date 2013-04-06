@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.ldap.handlers.bind.plain;
+package org.apache.directory.server.ldap.handlers.sasl.plain;
 
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
-import org.apache.directory.server.ldap.handlers.bind.AbstractSaslServer;
+import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslServer;
 
 
 /**
