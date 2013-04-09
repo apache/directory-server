@@ -124,8 +124,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
-        
-        authInterceptor.loadPwdPolicyStateAtributeTypes();
     }
 
 

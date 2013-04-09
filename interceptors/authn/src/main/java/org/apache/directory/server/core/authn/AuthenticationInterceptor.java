@@ -1200,31 +1200,28 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public void loadPwdPolicyStateAtributeTypes() throws LdapException
     {
-        if ( directoryService.isPwdPolicyEnabled() )
-        {
-            AT_PWD_RESET = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_RESET );
-
-            AT_PWD_CHANGED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_CHANGED_TIME_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_CHANGED_TIME );
-
-            AT_PWD_HISTORY = schemaManager.lookupAttributeTypeRegistry( PWD_HISTORY_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_HISTORY );
-
-            AT_PWD_FAILURE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_FAILURE_TIME_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_FAILURE_TIME );
-
-            AT_PWD_ACCOUNT_LOCKED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_ACCOUNT_LOCKED_TIME_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_ACCOUNT_LOCKED_TIME );
-
-            AT_PWD_LAST_SUCCESS = schemaManager.lookupAttributeTypeRegistry( PWD_LAST_SUCCESS_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_LAST_SUCCESS );
-
-            AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
-
-            PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT ) );
-        }
+        AT_PWD_RESET = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_RESET );
+        
+        AT_PWD_CHANGED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_CHANGED_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_CHANGED_TIME );
+        
+        AT_PWD_HISTORY = schemaManager.lookupAttributeTypeRegistry( PWD_HISTORY_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_HISTORY );
+        
+        AT_PWD_FAILURE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_FAILURE_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_FAILURE_TIME );
+        
+        AT_PWD_ACCOUNT_LOCKED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_ACCOUNT_LOCKED_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_ACCOUNT_LOCKED_TIME );
+        
+        AT_PWD_LAST_SUCCESS = schemaManager.lookupAttributeTypeRegistry( PWD_LAST_SUCCESS_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_LAST_SUCCESS );
+        
+        AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
+        
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT ) );
     }
 
 
