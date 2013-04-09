@@ -739,7 +739,7 @@ ads-saslMechName: CRAM-MD5
 ads-enabled: TRUE
 
 dn: ads-saslMechName=DIGEST-MD5,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -747,7 +747,7 @@ ads-saslMechName: DIGEST-MD5
 ads-enabled: TRUE
 
 dn: ads-saslMechName=GSS-SPNEGO,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -756,7 +756,7 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: TRUE
 
 dn: ads-saslMechName=GSSAPI,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -764,7 +764,7 @@ ads-saslMechName: GSSAPI
 ads-enabled: TRUE
 
 dn: ads-saslMechName=NTLM,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -773,7 +773,7 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: TRUE
 
 dn: ads-saslMechName=SIMPLE,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
