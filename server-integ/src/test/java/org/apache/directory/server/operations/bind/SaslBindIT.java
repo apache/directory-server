@@ -323,6 +323,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
 
         SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue().getString() );
@@ -505,6 +506,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
 
         kdcServer.getConfig().setPaEncTimestampRequired( false );
 
