@@ -731,7 +731,7 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-saslMechName=CRAM-MD5,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
