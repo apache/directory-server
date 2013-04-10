@@ -23,8 +23,6 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.config.ConfigurationElement;
 
 
