@@ -973,4 +973,42 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userConnection.close();
         adminConnection.close();
     }
+
+
+    /**
+     * Check the minDelay/maxDelay.
+     */
+    @Test
+    @Ignore("Failing test atm")
+    public void testPwdMinMaxDelay() throws Exception
+    {
+        policyConfig.setPwdMinDelay( 2 );
+        policyConfig.setPwdMaxDelay( 16 );
+
+        Dn userDn = new Dn( "cn=userLockout4,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, userDn, "12345" );
+
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
+
+        // First attempt
+        long t0 = System.currentTimeMillis();
+        long t1 = 0L;
+
+        try
+        {
+            userConnection.bind( userDn, "badPassword" );
+        }
+        catch ( LdapAuthenticationException le )
+        {
+            t0 = System.currentTimeMillis();
+        }
+
+        assertTrue( 1 < ( t1 - t0 ) );
+
+        userConnection.close();
+        adminConnection.close();
+    }
 }
