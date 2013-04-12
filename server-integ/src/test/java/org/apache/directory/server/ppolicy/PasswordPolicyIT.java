@@ -864,7 +864,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
      * pwdFailureCountInterval attribute is set.
      */
     @Test
-    //@Ignore("Not working. See DIRSERVER-1826")
     public void testPwdLockoutFailureCountInterval() throws Exception
     {
         policyConfig.setPwdLockout( true );
