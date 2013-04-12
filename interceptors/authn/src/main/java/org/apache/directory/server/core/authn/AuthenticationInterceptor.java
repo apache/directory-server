@@ -50,6 +50,7 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyError
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
@@ -165,7 +166,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         adminSession = directoryService.getAdminSession();
-        pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( "pwdPolicySubentry" );
+        pwdPolicySubentryAT = schemaManager
+            .lookupAttributeTypeRegistry( PasswordPolicySchemaConstants.PWD_POLICY_SUBENTRY_AT );
 
         if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
         {
@@ -178,7 +180,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             register( authenticator, directoryService );
         }
 
-        loadPwdPolicyStateAtributeTypes();
+        loadPwdPolicyStateAttributeTypes();
     }
 
 
@@ -431,7 +433,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         else
         {
-
             // TODO : we should refactor that.
             // try each authenticator
             for ( Authenticator authenticator : authenticators )
@@ -527,7 +528,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 String failureTime = DateUtils.getGeneralizedTime();
                 pwdFailTimeAt.add( failureTime );
-                Modification pwdFailTimeMod = new DefaultModification( ADD_ATTRIBUTE, pwdFailTimeAt );
+                Modification pwdFailTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdFailTimeAt );
 
                 List<Modification> mods = new ArrayList<Modification>();
                 mods.add( pwdFailTimeMod );
@@ -563,6 +564,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     int numDelay = numFailures * policyConfig.getPwdMinDelay();
                     int maxDelay = policyConfig.getPwdMaxDelay();
+
                     if ( numDelay > maxDelay )
                     {
                         numDelay = maxDelay;
@@ -1198,29 +1200,29 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * 
      * @throws LdapException If the initialization failed
      */
-    public void loadPwdPolicyStateAtributeTypes() throws LdapException
+    public void loadPwdPolicyStateAttributeTypes() throws LdapException
     {
         AT_PWD_RESET = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_RESET );
-        
+
         AT_PWD_CHANGED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_CHANGED_TIME_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_CHANGED_TIME );
-        
+
         AT_PWD_HISTORY = schemaManager.lookupAttributeTypeRegistry( PWD_HISTORY_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_HISTORY );
-        
+
         AT_PWD_FAILURE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_FAILURE_TIME_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_FAILURE_TIME );
-        
+
         AT_PWD_ACCOUNT_LOCKED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_ACCOUNT_LOCKED_TIME_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_ACCOUNT_LOCKED_TIME );
-        
+
         AT_PWD_LAST_SUCCESS = schemaManager.lookupAttributeTypeRegistry( PWD_LAST_SUCCESS_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_LAST_SUCCESS );
-        
+
         AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
-        
+
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT ) );
     }
 
@@ -1440,6 +1442,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 boolean isPPolicyReqCtrlPresent = opContext
                     .hasRequestControl( PasswordPolicy.OID );
+
                 if ( isPPolicyReqCtrlPresent )
                 {
                     PasswordPolicyDecorator pwdRespCtrl =
@@ -1550,7 +1553,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( pwdPolicySubentry != null )
             {
-                Dn configDn = adminSession.getDirectoryService().getDnFactory().create( pwdPolicySubentry.getString() );
+                Dn configDn = directoryService.getDnFactory().create( pwdPolicySubentry.getString() );
 
                 return pwdPolicyContainer.getPolicyConfig( configDn );
             }

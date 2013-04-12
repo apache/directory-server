@@ -80,6 +80,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -156,11 +157,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     @Test
     public void testAddUserWithClearTextPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = new DefaultEntry(
-            userDn.toString(),
+            userDn,
             "ObjectClass: top",
             "ObjectClass: person",
             "cn: user",
@@ -171,7 +172,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addRequest );
+        AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
@@ -182,7 +183,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         pwdAt.clear();
         pwdAt.add( "12345" );
 
-        addResp = connection.add( addRequest );
+        addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
@@ -190,27 +191,31 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
+        userConnection.close();
+        adminConnection.close();
     }
 
 
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
 
-        Entry userEntry = new DefaultEntry( "cn=hashedpwd,ou=system" );
-        userEntry.add( SchemaConstants.OBJECT_CLASS, SchemaConstants.PERSON_OC );
-        userEntry.add( SchemaConstants.CN_AT, "hashedpwd" );
-        userEntry.add( SchemaConstants.SN_AT, "hashedpwd_sn" );
-        userEntry.add( SchemaConstants.USER_PASSWORD_AT, password );
+        Entry userEntry = new DefaultEntry(
+            "cn=hashedpwd,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: hashedpwd",
+            "sn: hashedpwd_sn",
+            "userPassword", password );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addRequest );
+        AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
@@ -222,7 +227,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         pwdAt.clear();
         pwdAt.add( password );
 
-        addResp = connection.add( addRequest );
+        addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
@@ -230,6 +235,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=hashedpwd,ou=system", "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
+        adminConnection.close();
     }
 
 
@@ -308,6 +314,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNull( userEntry.get( PWD_HISTORY_AT ) );
         assertNull( userEntry.get( PWD_CHANGED_TIME_AT ) );
         assertNull( userEntry.get( PWD_ACCOUNT_LOCKED_TIME_AT ) );
+        adminConnection.close();
     }
 
 
@@ -316,7 +323,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMinAge( 5 );
 
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userMinAge,ou=system" );
         Entry userEntry = new DefaultEntry(
@@ -331,7 +338,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addRequest );
+        AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
@@ -342,7 +349,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = adminConnection.modify( modReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
 
         respCtrl = getPwdRespCtrl( modResp );
@@ -350,12 +357,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         Thread.sleep( 5000 );
 
-        modResp = connection.modify( modReq );
+        modResp = adminConnection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "123456" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
+        userConnection.close();
+        adminConnection.close();
     }
 
 
@@ -364,7 +373,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     {
         policyConfig.setPwdInHistory( 2 );
 
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userPwdHist,ou=system" );
         Entry userEntry = new DefaultEntry(
@@ -379,9 +388,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        connection.add( addRequest );
+        adminConnection.add( addRequest );
 
-        Entry entry = connection.lookup( userDn, "*", "+" );
+        Entry entry = adminConnection.lookup( userDn, "*", "+" );
 
         Attribute pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
         assertNotNull( pwdHistAt );
@@ -393,9 +402,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "67891" );
 
-        connection.modify( modReq );
+        adminConnection.modify( modReq );
 
-        entry = connection.lookup( userDn, "*", "+" );
+        entry = adminConnection.lookup( userDn, "*", "+" );
 
         pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
         assertNotNull( pwdHistAt );
@@ -407,10 +416,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         modReq.addControl( PP_REQ_CTRL );
         modReq.replace( SchemaConstants.USER_PASSWORD_AT, "abcde" );
 
-        ModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = adminConnection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        entry = connection.lookup( userDn, "*", "+" );
+        entry = adminConnection.lookup( userDn, "*", "+" );
         pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
         assertNotNull( pwdHistAt );
 
@@ -418,11 +427,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( 2, pwdHistAt.size() );
 
         // try to reuse the password, should fail
-        modResp = connection.modify( modReq );
+        modResp = adminConnection.modify( modReq );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
 
         PasswordPolicy respCtrl = getPwdRespCtrl( modResp );
         assertEquals( PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+        adminConnection.close();
     }
 
 
@@ -433,7 +443,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdMaxLength( 7 );
         policyConfig.setPwdCheckQuality( 2 );
 
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userLen,ou=system" );
         Entry userEntry = new DefaultEntry(
@@ -448,7 +458,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addRequest );
+        AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
@@ -459,7 +469,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         pwdAt.clear();
         pwdAt.add( "12345678" );
 
-        addResp = connection.add( addRequest );
+        addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
         respCtrl = getPwdRespCtrl( addResp );
@@ -470,8 +480,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         pwdAt.clear();
         pwdAt.add( "123456" );
 
-        addResp = connection.add( addRequest );
+        addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        adminConnection.close();
     }
 
 
@@ -482,7 +493,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdExpireWarning( 4 );
         policyConfig.setPwdGraceAuthNLimit( 2 );
 
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
         String password = "12345";
@@ -498,7 +509,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        connection.add( addRequest );
+        adminConnection.add( addRequest );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -539,13 +550,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         respCtrl = getPwdRespCtrl( bindResp );
         assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+        adminConnection.close();
     }
 
 
     @Test
     public void testModifyPwdSubentry() throws Exception
     {
-        LdapConnection connection = getAdminNetworkConnection( getLdapServer() );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=ppolicySubentry,ou=system" );
         String password = "12345";
@@ -562,29 +574,30 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
-        AddResponse addResp = connection.add( addRequest );
+        AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
-        userEntry = connection.lookup( userDn, "*", "+" );
+        userEntry = adminConnection.lookup( userDn, "*", "+" );
         assertEquals( userDn.getName(), userEntry.get( "pwdPolicySubEntry" ).getString() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( userDn );
         String modSubEntryDn = "cn=policy,ou=system";
         modReq.replace( "pwdPolicySubEntry", modSubEntryDn );
-        ModifyResponse modResp = connection.modify( modReq );
+        ModifyResponse modResp = adminConnection.modify( modReq );
         assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-        userEntry = connection.lookup( userDn, "*", "+" );
+        userEntry = adminConnection.lookup( userDn, "*", "+" );
         assertEquals( modSubEntryDn, userEntry.get( "pwdPolicySubEntry" ).getString() );
 
         // try to modify the subentry as a non-admin
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-        connection.bind( userDn.getName(), password );
+        adminConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        adminConnection.bind( userDn.getName(), password );
 
-        modResp = connection.modify( modReq );
+        modResp = adminConnection.modify( modReq );
         modReq.replace( "pwdPolicySubEntry", userDn.getName() );
         assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
+        adminConnection.close();
     }
 
 
@@ -651,6 +664,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotSame( pwdChangedTime.getString(), latestPwdChangedTime.getString() );
 
         userConnection.close();
+        adminConnection.close();
     }
 
 
@@ -665,13 +679,13 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        Dn userDn = new Dn( "cn=userLockout4,ou=system" );
         Entry userEntry = new DefaultEntry(
             userDn.toString(),
             "ObjectClass: top",
             "ObjectClass: person",
-            "cn: userLockout",
-            "sn: userLockout_sn",
+            "cn: userLockout4",
+            "sn: userLockout4_sn",
             "userPassword: 12345" );
 
         AddRequest addRequest = new AddRequestImpl();
@@ -710,6 +724,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertTrue( userConnection.isAuthenticated() );
 
         userConnection.close();
+        adminConnection.close();
     }
 
 
@@ -781,6 +796,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNotNull( pwdAccountLockedTime );
+        adminConnection.close();
     }
 
 
@@ -795,7 +811,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdMaxFailure( 3 );
         policyConfig.setPwdLockoutDuration( 5 );
 
-        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        Dn userDn = new Dn( "cn=userLockout2,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         addUser( adminConnection, userDn, "12345" );
@@ -804,7 +820,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout2,ou=system" );
 
         // Now, try to login until the delay is elapsed
         boolean success = false;
@@ -839,6 +855,84 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNull( pwdAccountLockedTime );
+        adminConnection.close();
+    }
+
+
+    /**
+     * Check that the failure attempts are removed from the entry when the 
+     * pwdFailureCountInterval attribute is set.
+     */
+    @Test
+    //@Ignore("Not working. See DIRSERVER-1826")
+    public void testPwdLockoutFailureCountInterval() throws Exception
+    {
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdMaxFailure( 5 );
+        policyConfig.setPwdFailureCountInterval( 2 );
+
+        Dn userDn = new Dn( "cn=userLockout3,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, userDn, "12345" );
+
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
+
+        // First attempt
+        checkBind( userConnection, userDn, "badPassword", 1,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+
+        Entry userEntry = adminConnection.lookup( userDn, "+" );
+        Attribute pwdFailureTime = userEntry
+            .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
+        System.out.println( pwdFailureTime );
+        assertNotNull( pwdFailureTime );
+        assertEquals( 1, pwdFailureTime.size() );
+
+        Thread.sleep( 1000 );
+
+        // Second attempt
+        checkBind( userConnection, userDn, "badPassword", 1,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+
+        userEntry = adminConnection.lookup( userDn, "+" );
+        pwdFailureTime = userEntry
+            .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
+        System.out.println( pwdFailureTime );
+        assertNotNull( pwdFailureTime );
+        assertEquals( 2, pwdFailureTime.size() );
+
+        Thread.sleep( 1000 );
+
+        // Third attempt
+        checkBind( userConnection, userDn, "badPassword", 1,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+
+        userEntry = adminConnection.lookup( userDn, "+" );
+        pwdFailureTime = userEntry
+            .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
+        System.out.println( pwdFailureTime );
+        assertNotNull( pwdFailureTime );
+        assertEquals( 2, pwdFailureTime.size() );
+
+        Thread.sleep( 1000 );
+
+        // Forth attempt
+        checkBind( userConnection, userDn, "badPassword", 1,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+
+        userEntry = adminConnection.lookup( userDn, "+" );
+        pwdFailureTime = userEntry
+            .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
+        System.out.println( pwdFailureTime );
+        assertNotNull( pwdFailureTime );
+
+        // We should not have more than 2 attempts stored
+        assertEquals( 2, pwdFailureTime.size() );
+
+        userConnection.close();
+        adminConnection.close();
     }
 
 
@@ -847,6 +941,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testPwdAttempsDelayed() throws Exception
     {
         policyConfig.setPwdMinDelay( 200 );
@@ -877,5 +972,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         // Retry : it should work
         userConnection.bind( userDn, "12345" );
         userConnection.close();
+        adminConnection.close();
     }
 }
