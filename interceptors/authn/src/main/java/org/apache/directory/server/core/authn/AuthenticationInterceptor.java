@@ -77,6 +77,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -1231,9 +1232,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
-        final int qualityVal = policyConfig.getPwdCheckQuality();
+        final CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
 
-        if ( qualityVal == 0 )
+        if ( qualityVal == CheckQualityEnum.NO_CHECK )
         {
             return;
         }
@@ -1244,7 +1245,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // pwdCheckQuality value is set to 1
         if ( secConst != null )
         {
-            if ( qualityVal == 1 )
+            if ( qualityVal == CheckQualityEnum.CHECK_ACCEPT )
             {
                 return;
             }

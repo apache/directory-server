@@ -74,6 +74,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
@@ -240,7 +241,7 @@ public class ServiceBuilder
 
         passwordPolicy.setPwdAllowUserChange( passwordPolicyBean.isPwdAllowUserChange() );
         passwordPolicy.setPwdAttribute( passwordPolicyBean.getPwdAttribute() );
-        passwordPolicy.setPwdCheckQuality( passwordPolicyBean.getPwdCheckQuality() );
+        passwordPolicy.setPwdCheckQuality( CheckQualityEnum.getCheckQuality( passwordPolicyBean.getPwdCheckQuality() ) );
         passwordPolicy.setPwdExpireWarning( passwordPolicyBean.getPwdExpireWarning() );
         passwordPolicy.setPwdFailureCountInterval( passwordPolicyBean.getPwdFailureCountInterval() );
         passwordPolicy.setPwdGraceAuthNLimit( passwordPolicyBean.getPwdGraceAuthNLimit() );

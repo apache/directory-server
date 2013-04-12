@@ -58,9 +58,9 @@ public class PasswordPolicyConfiguration
     private int pwdInHistory = 0;
 
     /** indicates how the password quality will be verified while being modified or added.
-     *  Default value 0, do not check 
+     *  Default value NO_CHECK, do not check 
      */
-    private int pwdCheckQuality = 0;
+    private CheckQualityEnum pwdCheckQuality = CheckQualityEnum.NO_CHECK;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
      *  Default value 0, no minimum length enforced
@@ -204,13 +204,16 @@ public class PasswordPolicyConfiguration
     }
 
 
-    public int getPwdCheckQuality()
+    /**
+     * @return The Password Check Quality 
+     */
+    public CheckQualityEnum getPwdCheckQuality()
     {
         return pwdCheckQuality;
     }
 
 
-    public void setPwdCheckQuality( int pwdCheckQuality )
+    public void setPwdCheckQuality( CheckQualityEnum pwdCheckQuality )
     {
         this.pwdCheckQuality = pwdCheckQuality;
     }
@@ -445,7 +448,7 @@ public class PasswordPolicyConfiguration
             sb.append( ++errCount ).append( ". password history count cannot be negative\n" );
         }
 
-        if ( ( pwdCheckQuality < 0 ) || ( pwdCheckQuality > 2 ) )
+        if ( pwdCheckQuality == CheckQualityEnum.UNKNOW )
         {
             sb.append( ++errCount ).append( ". invalid password quality check value, valid values are 0, 1 and 2 \n" );
         }
