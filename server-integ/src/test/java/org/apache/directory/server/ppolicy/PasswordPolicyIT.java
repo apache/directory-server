@@ -768,6 +768,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addUser( adminConnection, userDn, "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
@@ -784,15 +785,72 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
 
     /**
+     * Check that we can't try more than N times to login with a wrong password before
+     * being locked. Also check that we have a delay before we can log again.
+     */
+    @Test
+    public void testPwdLockoutWithNAttemptsAndLockoutDelay() throws Exception
+    {
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdMaxFailure( 3 );
+        policyConfig.setPwdLockoutDuration( 5 );
+
+        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, userDn, "12345" );
+
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
+
+        checkBind( userConnection, userDn, "badPassword", 3,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
+
+        // Now, try to login until the delay is elapsed
+        boolean success = false;
+        int t = 0;
+
+        for ( t = 0; t < 10; t++ )
+        {
+            try
+            {
+                userConnection.bind( userDn, "12345" );
+                //System.out.println( "Attempt success " + ( t + 1 ) + " at " + new Date( System.currentTimeMillis() ) );
+                success = true;
+                break;
+            }
+            catch ( LdapException le )
+            {
+                //System.out.println( "Attempt failure " + ( t + 1 ) + " at " + new Date( System.currentTimeMillis() ) );
+                Entry userEntry = adminConnection.lookup( userDn, "+" );
+                Attribute pwdAccountLockedTime = userEntry
+                    .get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
+                assertNotNull( pwdAccountLockedTime );
+
+                // Expected : wait 1 second before retrying
+                Thread.sleep( 1000 );
+            }
+        }
+
+        assertTrue( success );
+        assertTrue( t >= 5 );
+        userConnection.close();
+
+        Entry userEntry = adminConnection.lookup( userDn, "+" );
+        Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
+        assertNull( pwdAccountLockedTime );
+    }
+
+
+    /**
      * Check that we are delayed between each attempt
      * @throws Exception
      */
     @Test
     public void testPwdAttempsDelayed() throws Exception
     {
-        policyConfig.setPwdMaxFailure( 5 );
-        policyConfig.setPwdMinDelay( 2 );
-        policyConfig.setPwdMaxDelay( 4 );
+        policyConfig.setPwdMinDelay( 200 );
+        policyConfig.setPwdMaxDelay( 400 );
         policyConfig.setPwdLockout( true );
 
         Dn userDn = new Dn( "cn=userLockout,ou=system" );
