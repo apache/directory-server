@@ -22,9 +22,7 @@ package org.apache.directory.server.ppolicy;
 
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
-import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY;
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
-import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT;
@@ -38,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
@@ -49,9 +48,13 @@ import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstan
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
@@ -72,6 +75,7 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
@@ -121,7 +125,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdInHistory( 5 );
         policyConfig.setPwdExpireWarning( 600 );
         policyConfig.setPwdGraceAuthNLimit( 5 );
-        policyConfig.setPwdCheckQuality( 2 ); // DO NOT allow the password if its quality can't be checked
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
         policyContainer.setDefaultPolicy( policyConfig );
@@ -222,7 +226,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotNull( respCtrl );
         assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
 
-        policyConfig.setPwdCheckQuality( 1 ); // allow the password if its quality can't be checked
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_ACCEPT ); // allow the password if its quality can't be checked
         Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
         pwdAt.add( password );
@@ -318,6 +322,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Test that we can't change the password before a given delay
+     */
     @Test
     public void testPwdMinAge() throws Exception
     {
@@ -334,31 +341,26 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "sn: userMinAge_sn",
             "userPassword: 12345" );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
+        adminConnection.add( userEntry );
+        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword",
+            "123456" );
 
-        AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+        // We should not be able to modify the password : it's too recent
+        try
+        {
+            adminConnection.modify( userDn, modification );
+            fail();
+        }
+        catch ( LdapException LdapInvalidAttributeValueException )
+        {
+            // Expected
+        }
 
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNull( respCtrl );
-
-        ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( userDn );
-        modReq.addControl( PP_REQ_CTRL );
-        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "123456" );
-
-        ModifyResponse modResp = adminConnection.modify( modReq );
-        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
-
-        respCtrl = getPwdRespCtrl( modResp );
-        assertEquals( PASSWORD_TOO_YOUNG, respCtrl.getResponse().getPasswordPolicyError() );
-
+        // Wait for the pwdMinAge delay to be over
         Thread.sleep( 5000 );
 
-        modResp = adminConnection.modify( modReq );
-        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        // Now, we should be able to modify the password
+        adminConnection.modify( userDn, modification );
 
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "123456" );
         assertNotNull( userConnection );
@@ -368,8 +370,44 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Check we can bind a user with a given password
+     */
+    private void checkBindSuccess( Dn userDn, String password ) throws Exception
+    {
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+        assertNotNull( userConnection );
+        assertTrue( userConnection.isAuthenticated() );
+
+        userConnection.close();
+    }
+
+
+    /**
+     * Check we cannot bind a user wth a given password
+     */
+    private void checkBindFailure( Dn userDn, String password ) throws Exception
+    {
+        try
+        {
+            LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+            assertNull( userConnection );
+            assertFalse( userConnection.isAuthenticated() );
+
+            userConnection.close();
+        }
+        catch ( LdapException le )
+        {
+            // Expected
+        }
+    }
+
+
+    /**
+     * Test the number of password we keep in history
+     */
     @Test
-    public void testPwdHistory() throws Exception
+    public void testPwdInHistory() throws Exception
     {
         policyConfig.setPwdInHistory( 2 );
 
@@ -384,11 +422,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "sn: userPwdHist_sn",
             "userPassword: 12345" );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
-
-        adminConnection.add( addRequest );
+        adminConnection.add( userEntry );
+        checkBindSuccess( userDn, "12345" );
 
         Entry entry = adminConnection.lookup( userDn, "*", "+" );
 
@@ -397,12 +432,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( 1, pwdHistAt.size() );
 
         Thread.sleep( 1000 );// to avoid creating a history value with the same timestamp
-        ModifyRequest modReq = new ModifyRequestImpl();
-        modReq.setName( userDn );
-        modReq.addControl( PP_REQ_CTRL );
-        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "67891" );
 
-        adminConnection.modify( modReq );
+        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword",
+            "67891" );
+
+        adminConnection.modify( userDn, modification );
+        checkBindSuccess( userDn, "67891" );
 
         entry = adminConnection.lookup( userDn, "*", "+" );
 
@@ -411,13 +446,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( 2, pwdHistAt.size() );
 
         Thread.sleep( 1000 );// to avoid creating a history value with the same timestamp
-        modReq = new ModifyRequestImpl();
-        modReq.setName( userDn );
-        modReq.addControl( PP_REQ_CTRL );
-        modReq.replace( SchemaConstants.USER_PASSWORD_AT, "abcde" );
 
-        ModifyResponse modResp = adminConnection.modify( modReq );
-        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword",
+            "abcde" );
+
+        adminConnection.modify( userDn, modification );
+        checkBindSuccess( userDn, "abcde" );
 
         entry = adminConnection.lookup( userDn, "*", "+" );
         pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
@@ -427,11 +461,23 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( 2, pwdHistAt.size() );
 
         // try to reuse the password, should fail
-        modResp = adminConnection.modify( modReq );
-        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, modResp.getLdapResult().getResultCode() );
+        try
+        {
+            adminConnection.modify( userDn, modification );
+            fail();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            // Expected
+        }
 
-        PasswordPolicy respCtrl = getPwdRespCtrl( modResp );
-        assertEquals( PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+        // Try to reuse the very first password, should succeed
+        modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword",
+            "12345" );
+
+        adminConnection.modify( userDn, modification );
+        checkBindSuccess( userDn, "12345" );
+
         adminConnection.close();
     }
 
@@ -441,7 +487,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMinLength( 5 );
         policyConfig.setPwdMaxLength( 7 );
-        policyConfig.setPwdCheckQuality( 2 );
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT );
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
@@ -454,34 +500,40 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "sn: userLen_sn",
             "userPassword: 1234" );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
+        // Tryu with a password below the minLength
+        try
+        {
+            adminConnection.add( userEntry );
+            fail();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            // Expected
+        }
 
-        AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
+        checkBindFailure( userDn, "1234" );
 
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNotNull( respCtrl );
-        assertEquals( PASSWORD_TOO_SHORT, respCtrl.getResponse().getPasswordPolicyError() );
+        // Try with a password above the maxLength
+        userEntry.put( "userPassword", "12345678" );
 
-        Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
-        pwdAt.clear();
-        pwdAt.add( "12345678" );
+        try
+        {
+            adminConnection.add( userEntry );
+            fail();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            // Expected
+        }
 
-        addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
+        checkBindFailure( userDn, "12345678" );
 
-        respCtrl = getPwdRespCtrl( addResp );
-        assertNotNull( respCtrl );
-        assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
+        // And try with a correct password
+        userEntry.put( "userPassword", "123456" );
 
-        pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
-        pwdAt.clear();
-        pwdAt.add( "123456" );
+        adminConnection.add( userEntry );
+        checkBindSuccess( userDn, "123456" );
 
-        addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
         adminConnection.close();
     }
 
