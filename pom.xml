@@ -130,6 +130,7 @@
     <module>test-framework</module>
     <module>ldap-client-test</module>
     <module>kerberos-client</module>
+    <module>kerberos-client2</module>
     <module>service</module>
     <module>wrapper</module>
     <!--
