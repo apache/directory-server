@@ -1,0 +1,233 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.kerberos.client;
+
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.kerberos.client.KdcConnection;
+import org.apache.directory.kerberos.client.ServiceTicket;
+import org.apache.directory.kerberos.client.TgTicket;
+import org.apache.directory.kerberos.client.TgtRequest;
+import org.apache.directory.server.annotations.CreateChngPwdServer;
+import org.apache.directory.server.annotations.CreateKdcServer;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
+import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
+@RunWith(FrameworkRunner.class)
+@CreateDS(name = "KerberosTcpIT-class", enableChangeLog = false,
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry=@ContextEntry( entryLdif = 
+                    "dn: dc=example,dc=com\n" +
+                    "objectClass: domain\n" +
+                    "dc: example" ) )
+    },
+    additionalInterceptors =
+        {
+            KeyDerivationInterceptor.class
+    })
+@CreateLdapServer(
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    })
+@CreateKdcServer(
+    searchBaseDn = "dc=example,dc=com",
+    transports =
+        {
+            @CreateTransport(protocol = "TCP")
+    },
+    chngPwdServer = @CreateChngPwdServer
+    (
+        transports =
+        {
+            @CreateTransport(protocol = "TCP")
+        }    
+    ))
+@ApplyLdifs({
+    // krbtgt
+    "dn: uid=krbtgt,dc=example,dc=com",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: inetOrgPerson",
+    "objectClass: krb5principal",
+    "objectClass: krb5kdcentry",
+    "cn: KDC Service",
+    "sn: Service",
+    "uid: krbtgt",
+    "userPassword: secret",
+    "krb5PrincipalName: krbtgt/EXAMPLE.COM@EXAMPLE.COM",
+    "krb5KeyVersionNumber: 0",
+    
+    // changepwd
+    "dn: uid=kadmin,dc=example,dc=com",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: inetOrgPerson",
+    "objectClass: krb5principal",
+    "objectClass: krb5kdcentry",
+    "cn: changepw Service",
+    "sn: Service",
+    "uid: kadmin",
+    "userPassword: secret",
+    "krb5PrincipalName: kadmin/changepw@EXAMPLE.COM",
+    "krb5KeyVersionNumber: 0",
+
+    // app service
+    "dn: uid=ldap,dc=example,dc=com",
+    "objectClass: top",
+    "objectClass: person",
+    "objectClass: inetOrgPerson",
+    "objectClass: krb5principal",
+    "objectClass: krb5kdcentry",
+    "cn: LDAP",
+    "sn: Service",
+    "uid: ldap",
+    "userPassword: randall",
+    "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
+    "krb5KeyVersionNumber: 0"
+})
+public class KdcConnectionTest extends AbstractLdapTestUnit
+{
+    public static final String USERS_DN = "dc=example,dc=com";
+    
+    private static CoreSession session;
+
+    private static KdcConnection conn;
+    
+    private String userPassword = "secret";
+    
+    private String principalName = "will@EXAMPLE.COM";
+    
+    private String serverPrincipal = "ldap/localhost@EXAMPLE.COM";
+
+    @Before
+    public void setup() throws Exception
+    {
+        if ( session == null )
+        {
+            kdcServer.setSearchBaseDn( USERS_DN );
+            session = kdcServer.getDirectoryService().getAdminSession();
+            createPrincipal( "will", userPassword, principalName );
+        }
+        
+        if ( conn == null )
+        {
+            conn = KdcConnection.createTcpConnection( "localhost", kdcServer.getTcpPort() );
+            conn.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
+            conn.setTimeout( Integer.MAX_VALUE );
+        }
+    }
+    
+    
+    @Test
+    public void testGettingInitialTicket() throws Exception
+    {
+        TgTicket tgt = conn.getTgt( principalName, userPassword );
+        assertNotNull( tgt );
+        assertFalse( tgt.isForwardable() );
+    }
+
+    
+    @Test
+    public void testTgtFlags() throws Exception
+    {
+        TgtRequest tgtReq = new TgtRequest();
+        tgtReq.setClientPrincipal( principalName );
+        tgtReq.setPassword( userPassword );
+        tgtReq.setForwardable( true );
+        
+        TgTicket tgt = conn.getTgt( tgtReq );
+        assertNotNull( tgt );
+        assertTrue( tgt.isForwardable() );
+    }
+    
+    @Test
+    public void testGetServiceTicket() throws Exception
+    {
+        ServiceTicket rep = conn.getServiceTicket( principalName, userPassword, serverPrincipal );
+        System.out.println( rep );
+        assertNotNull( rep );
+    }
+    
+    
+    @Test
+    @Ignore("Failing with NPE in public ChangePasswdErrorType getResultCode()")
+    public void testChangePassword() throws Exception
+    {
+        String newPassword = "newPassword";
+        int port = kdcServer.getChangePwdServer().getTcpPort();
+        
+        conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false );
+        
+        try
+        {
+            conn.getTgt( principalName, userPassword );
+            fail( "should fail with kerberos exception cause of invalid password" );
+        }
+        catch( KerberosException e )
+        {
+        }
+        
+        TgTicket tgt = conn.getTgt( principalName, newPassword );
+        assertNotNull( tgt );
+    }
+    
+    
+    private String createPrincipal( String uid, String userPassword, String principalName ) throws Exception
+    {
+        Entry entry = new DefaultEntry( session.getDirectoryService().getSchemaManager() );
+        entry.setDn( "uid=" + uid + "," + USERS_DN );
+        entry.add( "objectClass", "top", "person", "inetOrgPerson", "krb5principal", "krb5kdcentry" );
+        entry.add( "cn", uid );
+        entry.add( "sn", uid );
+        entry.add( "uid", uid );
+        entry.add( "userPassword", userPassword );
+        entry.add( "krb5PrincipalName", principalName );
+        entry.add( "krb5KeyVersionNumber", "0" );
+        session.add( entry );
+        
+        return entry.getDn().getName();
+    }
+}
