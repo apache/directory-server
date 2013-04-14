@@ -655,7 +655,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                             numGraceAuth = policyConfig.getPwdGraceAuthNLimit() - 1;
                         }
 
-                        pwdRespCtrl.getResponse().setGraceAuthNsRemaining( numGraceAuth );
+                        pwdRespCtrl.getResponse().setGraceAuthNRemaining( numGraceAuth );
 
                         pwdGraceUseAttr.add( DateUtils.getGeneralizedTime() );
                         Modification pwdGraceUseMod = new DefaultModification( ADD_ATTRIBUTE, pwdGraceUseAttr );

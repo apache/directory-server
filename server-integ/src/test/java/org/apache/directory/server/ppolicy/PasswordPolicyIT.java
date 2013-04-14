@@ -22,7 +22,6 @@ package org.apache.directory.server.ppolicy;
 
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY;
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_EXPIRED;
-import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT;
@@ -111,6 +110,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
 
 
+    /**
+     * Set a default PaswordPolicy configuration
+     */
     @Before
     public void setPwdPolicy() throws LdapException
     {
@@ -131,10 +133,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyContainer.setDefaultPolicy( policyConfig );
         AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getService()
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
-        authenticationInterceptor.setPwdPolicies( policyContainer );
 
-        AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) getService()
-            .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+        authenticationInterceptor.setPwdPolicies( policyContainer );
     }
 
 
@@ -145,6 +145,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Get the PasswordPolicy control from a response
+     */
     private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
     {
         Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );
@@ -158,48 +161,87 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
-    @Test
-    public void testAddUserWithClearTextPwd() throws Exception
+    /**
+     * Add a user with a password
+     */
+    private void addUser( LdapConnection adminConnection, String user, Object password ) throws Exception
     {
-        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
-
-        Dn userDn = new Dn( "cn=user,ou=system" );
         Entry userEntry = new DefaultEntry(
-            userDn,
+            "cn=" + user + ",ou=system",
             "ObjectClass: top",
             "ObjectClass: person",
-            "cn: user",
-            "sn: user_sn",
-            "userPassword: 1234" );
+            "cn", user,
+            "sn", user + "_sn",
+            "userPassword", password );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
         AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
-
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNotNull( respCtrl );
-        assertEquals( PASSWORD_TOO_SHORT, respCtrl.getResponse().getPasswordPolicyError() );
-
-        Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
-        pwdAt.clear();
-        pwdAt.add( "12345" );
-
-        addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
-
-        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
-        assertNotNull( userConnection );
-        assertTrue( userConnection.isAuthenticated() );
-        userConnection.close();
-        adminConnection.close();
     }
 
 
+    /**
+     * Check we can bind a user with a given password
+     */
+    private void checkBindSuccess( Dn userDn, String password ) throws Exception
+    {
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+        assertNotNull( userConnection );
+        assertTrue( userConnection.isAuthenticated() );
+
+        userConnection.close();
+    }
+
+
+    /**
+     * Check we cannot bind a user with a given password
+     */
+    private void checkBindFailure( Dn userDn, String password ) throws Exception
+    {
+        try
+        {
+            LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+            assertNull( userConnection );
+            assertFalse( userConnection.isAuthenticated() );
+
+            userConnection.close();
+        }
+        catch ( LdapException le )
+        {
+            // Expected
+        }
+    }
+
+
+    /**
+     * Check that we can bind N times with a user/password
+     */
+    private void checkBind( LdapConnection connection, Dn userDn, String password, int nbIterations,
+        String expectedMessage ) throws Exception
+    {
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            try
+            {
+                connection.bind( userDn, password );
+            }
+            catch ( LdapAuthenticationException le )
+            {
+                assertEquals( expectedMessage, le.getMessage() );
+            }
+        }
+    }
+
+
+    /**
+     * Test that we can't inject a hashed password when the ChekcQuality is CHECK_REJECT,
+     * and that we can when the CheckQuality is CHECK_ACCEPT
+     */
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
@@ -219,6 +261,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addRequest.setEntry( userEntry );
         addRequest.addControl( PP_REQ_CTRL );
 
+        // We should get a failure
         AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
@@ -226,6 +269,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotNull( respCtrl );
         assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
 
+        // Relax the Check Quality to CHECK_ACCEPT
         policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_ACCEPT ); // allow the password if its quality can't be checked
         Attribute pwdAt = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
         pwdAt.clear();
@@ -371,39 +415,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
 
     /**
-     * Check we can bind a user with a given password
-     */
-    private void checkBindSuccess( Dn userDn, String password ) throws Exception
-    {
-        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
-        assertNotNull( userConnection );
-        assertTrue( userConnection.isAuthenticated() );
-
-        userConnection.close();
-    }
-
-
-    /**
-     * Check we cannot bind a user wth a given password
-     */
-    private void checkBindFailure( Dn userDn, String password ) throws Exception
-    {
-        try
-        {
-            LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
-            assertNull( userConnection );
-            assertFalse( userConnection.isAuthenticated() );
-
-            userConnection.close();
-        }
-        catch ( LdapException le )
-        {
-            // Expected
-        }
-    }
-
-
-    /**
      * Test the number of password we keep in history
      */
     @Test
@@ -414,15 +425,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userPwdHist,ou=system" );
-        Entry userEntry = new DefaultEntry(
-            userDn.toString(),
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userPwdHist",
-            "sn: userPwdHist_sn",
-            "userPassword: 12345" );
 
-        adminConnection.add( userEntry );
+        addUser( adminConnection, "userPwdHist", "12345" );
+
         checkBindSuccess( userDn, "12345" );
 
         Entry entry = adminConnection.lookup( userDn, "*", "+" );
@@ -500,7 +505,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "sn: userLen_sn",
             "userPassword: 1234" );
 
-        // Tryu with a password below the minLength
+        // Try with a password below the minLength
         try
         {
             adminConnection.add( userEntry );
@@ -538,6 +543,177 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Test the pwdMaxAge configuration. The password should expire when the pwdMaxAge is reached, and
+     * the password should be locked as we don't have a grace limit. 
+     */
+    @Test
+    public void testPwdMaxAgeNoGraceAuthNLimit() throws Exception
+    {
+        policyConfig.setPwdMaxAge( 5 );
+        policyConfig.setPwdGraceAuthNLimit( 0 );
+
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        String password = "12345";
+
+        addUser( adminConnection, "userMaxAge", password );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( password.getBytes() );
+        bindReq.addControl( PP_REQ_CTRL );
+
+        LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userCon.setTimeOut( 0 );
+
+        Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+
+        BindResponse bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+
+        PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+
+        Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+
+        // this time it should fail
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+        adminConnection.close();
+    }
+
+
+    /**
+     * Test the pwdMaxAge configuration with a grace limit. We should be able to bind two
+     * times when the password has expired. 
+     */
+    @Test
+    public void testPwdMaxAgeWithGraceAuthNLimit() throws Exception
+    {
+        policyConfig.setPwdMaxAge( 5 );
+        policyConfig.setPwdGraceAuthNLimit( 2 );
+
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        String password = "12345";
+
+        addUser( adminConnection, "userMaxAge", password );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( password.getBytes() );
+        bindReq.addControl( PP_REQ_CTRL );
+
+        LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userCon.setTimeOut( 0 );
+
+        Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+
+        BindResponse bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+
+        PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+
+        Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+
+        // bind for one more time, should succeed
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
+
+        // bind for one last time, should succeed
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
+
+        // this time it should fail
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+        adminConnection.close();
+    }
+
+
+    /**
+     * Test the pwdMaxAge configuration with a grace period. We should be able to bind for a 
+     * period of time when the password has expired. 
+     */
+    @Test
+    public void testPwdMaxAgeWithGraceExpire() throws Exception
+    {
+        policyConfig.setPwdMaxAge( 5 );
+        policyConfig.setPwdGraceExpire( 2 );
+
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        String password = "12345";
+
+        addUser( adminConnection, "userMaxAge", password );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( password.getBytes() );
+        bindReq.addControl( PP_REQ_CTRL );
+
+        LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userCon.setTimeOut( 0 );
+
+        Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+
+        BindResponse bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+
+        PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+
+        Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+
+        // bind for one more time, should succeed
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
+
+        // Wait 1 second, we should still be able to bind
+        // bind for one last time, should succeed
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertNotNull( respCtrl );
+        assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
+
+        // this time it should fail
+        bindResp = userCon.bind( bindReq );
+        assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
+
+        respCtrl = getPwdRespCtrl( bindResp );
+        assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+        adminConnection.close();
+    }
+
+
+    /**
+     * Test the pwdMaxAge configuration. The password should expire when the pwdMaxAge is reached.
+     * @throws Exception
+     */
     @Test
     public void testPwdMaxAgeAndGraceAuth() throws Exception
     {
@@ -549,19 +725,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
         String password = "12345";
-        Entry userEntry = new DefaultEntry(
-            userDn.toString(),
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userMaxAge",
-            "sn: userMaxAge_sn",
-            "userPassword: " + password );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
-
-        adminConnection.add( addRequest );
+        addUser( adminConnection, "userMaxAge", password );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -587,14 +752,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( bindResp );
         assertNotNull( respCtrl );
-        assertEquals( 1, respCtrl.getResponse().getGraceAuthNsRemaining() );
+        assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
 
         // this extra second sleep is necessary to modify pwdGraceUseTime attribute with a different timestamp
         Thread.sleep( 1000 );
         bindResp = userCon.bind( bindReq );
         assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
         respCtrl = getPwdRespCtrl( bindResp );
-        assertEquals( 0, respCtrl.getResponse().getGraceAuthNsRemaining() );
+        assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
 
         // this time it should fail
         bindResp = userCon.bind( bindReq );
@@ -666,22 +831,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userGrace,ou=system" );
-        Entry userEntry = new DefaultEntry(
-            userDn.toString(),
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userGrace",
-            "sn: userGrace_sn",
-            "userPassword: 12345" );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
-
-        AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNull( respCtrl );
+        addUser( adminConnection, "userGrace", "12345" );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -694,9 +845,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         BindResponse bindResp = userConnection.bind( bindReq );
         assertTrue( userConnection.isAuthenticated() );
         PasswordPolicy ppolicy = getPwdRespCtrl( bindResp );
-        assertEquals( 1, ppolicy.getResponse().getGraceAuthNsRemaining() );
+        assertEquals( 1, ppolicy.getResponse().getGraceAuthNRemaining() );
 
-        userEntry = adminConnection.lookup( userDn, "+" );
+        Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdGraceAuthUseTime = userEntry.get( PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT );
         assertNotNull( pwdGraceAuthUseTime );
 
@@ -732,22 +883,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         Dn userDn = new Dn( "cn=userLockout4,ou=system" );
-        Entry userEntry = new DefaultEntry(
-            userDn.toString(),
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userLockout4",
-            "sn: userLockout4_sn",
-            "userPassword: 12345" );
 
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
-
-        AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNull( respCtrl );
+        addUser( adminConnection, "userLockout4", "12345" );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -762,7 +899,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertFalse( userConnection.isAuthenticated() );
         }
 
-        userEntry = adminConnection.lookup( userDn, "+" );
+        Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNotNull( pwdAccountLockedTime );
 
@@ -780,44 +917,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
-    private void addUser( LdapConnection adminConnection, Dn userDn, String password ) throws Exception
-    {
-        Entry userEntry = new DefaultEntry(
-            userDn.toString(),
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: userLockout",
-            "sn: userLockout_sn",
-            "userPassword", password );
-
-        AddRequest addRequest = new AddRequestImpl();
-        addRequest.setEntry( userEntry );
-        addRequest.addControl( PP_REQ_CTRL );
-
-        AddResponse addResp = adminConnection.add( addRequest );
-        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
-        assertNull( respCtrl );
-    }
-
-
-    private void checkBind( LdapConnection connection, Dn userDn, String password, int nbIterations,
-        String expectedMessage ) throws Exception
-    {
-        for ( int i = 0; i < nbIterations; i++ )
-        {
-            try
-            {
-                connection.bind( userDn, password );
-            }
-            catch ( LdapAuthenticationException le )
-            {
-                assertEquals( expectedMessage, le.getMessage() );
-            }
-        }
-    }
-
-
     /**
      * Check that we can't try more than N times to login with a wrong password before
      * being locked.
@@ -832,7 +931,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userLockout,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, userDn, "12345" );
+        addUser( adminConnection, "userLockout", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
@@ -866,7 +965,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userLockout2,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, userDn, "12345" );
+        addUser( adminConnection, "userLockout2", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
@@ -925,7 +1024,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userLockout3,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, userDn, "12345" );
+        addUser( adminConnection, "userLockout3", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
@@ -1002,7 +1101,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userLockout,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, userDn, "12345" );
+        addUser( adminConnection, "userLockout", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
 
@@ -1040,7 +1139,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Dn userDn = new Dn( "cn=userLockout4,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, userDn, "12345" );
+        addUser( adminConnection, "userLockout4", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
