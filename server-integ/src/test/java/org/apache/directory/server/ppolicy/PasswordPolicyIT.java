@@ -1127,39 +1127,28 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
 
     /**
-     * Check the minDelay/maxDelay.
+     * Check the maxIdle : if the user does not bind for more than this delay,
+     * the password is locked.
      */
     @Test
-    @Ignore("Failing test atm")
-    public void testPwdMinMaxDelay() throws Exception
+    public void testPwMaxIdle() throws Exception
     {
-        policyConfig.setPwdMinDelay( 2 );
-        policyConfig.setPwdMaxDelay( 16 );
+        policyConfig.setPwdMaxIdle( 5 );
 
         Dn userDn = new Dn( "cn=userLockout4,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         addUser( adminConnection, "userLockout4", "12345" );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
-        userConnection.setTimeOut( 0L );
+        // We should succeed
+        checkBindSuccess( userDn, "12345" );
 
-        // First attempt
-        long t0 = System.currentTimeMillis();
-        long t1 = 0L;
+        // Wait 5 seconds now
+        Thread.sleep( 5000 );
 
-        try
-        {
-            userConnection.bind( userDn, "badPassword" );
-        }
-        catch ( LdapAuthenticationException le )
-        {
-            t0 = System.currentTimeMillis();
-        }
+        // We shpuld not be able to succeed now
+        checkBindFailure( userDn, "12345" );
 
-        assertTrue( 1 < ( t1 - t0 ) );
-
-        userConnection.close();
         adminConnection.close();
     }
 
