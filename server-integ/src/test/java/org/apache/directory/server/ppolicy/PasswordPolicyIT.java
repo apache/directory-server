@@ -1162,4 +1162,50 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userConnection.close();
         adminConnection.close();
     }
+
+
+    /**
+     * Check the pwdAllowUserChange
+     */
+    @Test
+    public void testPwdAllowUserChange() throws Exception
+    {
+        policyConfig.setPwdAllowUserChange( false );
+
+        Dn userDn = new Dn( "cn=userAllowUserChange,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, "userAllowUserChange", "12345" );
+
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
+
+        // We should be able to bind
+        checkBindSuccess( userDn, "12345" );
+
+        // Now, try to change the password
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( userDn );
+        modReq.addControl( PP_REQ_CTRL );
+        modReq.replace( "userPassword", "67890" );
+
+        userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" );
+        userConnection.setTimeOut( 0L );
+
+        ModifyResponse modifyResponse = userConnection.modify( modReq );
+
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modifyResponse.getLdapResult().getResultCode() );
+
+        // Now, allow the user to change his password
+        policyConfig.setPwdAllowUserChange( true );
+
+        modifyResponse = userConnection.modify( modReq );
+
+        assertEquals( ResultCodeEnum.SUCCESS, modifyResponse.getLdapResult().getResultCode() );
+
+        userConnection.close();
+
+        checkBindSuccess( userDn, "67890" );
+        adminConnection.close();
+    }
 }
