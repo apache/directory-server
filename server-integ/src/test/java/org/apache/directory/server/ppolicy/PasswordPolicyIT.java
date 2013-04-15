@@ -1197,4 +1197,61 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         checkBindSuccess( userDn, "67890" );
         adminConnection.close();
     }
+
+
+    /**
+     * Check the pwdExpireWarning
+     */
+    @Test
+    public void testPwdExpireWarning() throws Exception
+    {
+        // The password will expire in 5 seconds
+        policyConfig.setPwdMaxAge( 5 );
+        policyConfig.setPwdGraceAuthNLimit( 0 );
+        // Send a warning 3 seconds before the expiration
+        policyConfig.setPwdExpireWarning( 3 );
+
+        Dn userDn = new Dn( "cn=userExpireWarning,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, "userExpireWarning", "12345" );
+
+        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        userConnection.setTimeOut( 0L );
+
+        BindRequest bindReq = new BindRequestImpl();
+        bindReq.setDn( userDn );
+        bindReq.setCredentials( "12345" );
+        bindReq.addControl( PP_REQ_CTRL );
+
+        for ( int i = 0; i < 5; i++ )
+        {
+            BindResponse bindResponse = userConnection.bind( bindReq );
+            assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+
+            PasswordPolicy respCtrl = getPwdRespCtrl( bindResponse );
+            assertNotNull( respCtrl );
+
+            if ( i < 2 )
+            {
+                assertNull( respCtrl.getResponse() );
+            }
+            else
+            {
+                assertEquals( 5 - i, respCtrl.getResponse().getTimeBeforeExpiration() );
+            }
+
+            // Added an one second wait
+            Thread.sleep( 1000 );
+        }
+
+        // Added an one second wait
+        Thread.sleep( 1000 );
+
+        // We should not be able to login
+        checkBindFailure( userDn, "12345" );
+
+        userConnection.close();
+        adminConnection.close();
+    }
 }
