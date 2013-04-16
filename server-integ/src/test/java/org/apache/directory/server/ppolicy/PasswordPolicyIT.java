@@ -555,10 +555,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        Dn userDn = new Dn( "cn=userMaxAgeNoGraceAuthNLimit,ou=system" );
         String password = "12345";
 
-        addUser( adminConnection, "userMaxAge", password );
+        addUser( adminConnection, "userMaxAgeNoGraceAuthNLimit", password );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -601,10 +601,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        Dn userDn = new Dn( "cn=userMaxAgeWithGraceAuthNLimit,ou=system" );
         String password = "12345";
 
-        addUser( adminConnection, "userMaxAge", password );
+        addUser( adminConnection, "userMaxAgeWithGraceAuthNLimit", password );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -658,13 +658,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     {
         policyConfig.setPwdMaxAge( 5 );
         policyConfig.setPwdGraceExpire( 2 );
+        policyConfig.setPwdGraceAuthNLimit( 2 );
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        Dn userDn = new Dn( "cn=userMaxAgeWithGraceExpire,ou=system" );
         String password = "12345";
 
-        addUser( adminConnection, "userMaxAge", password );
+        addUser( adminConnection, "userMaxAgeWithGraceExpire", password );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -723,10 +724,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userMaxAge,ou=system" );
+        Dn userDn = new Dn( "cn=userMaxAgeAndGraceAuth,ou=system" );
         String password = "12345";
 
-        addUser( adminConnection, "userMaxAge", password );
+        addUser( adminConnection, "userMaxAgeAndGraceAuth", password );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
@@ -882,9 +883,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        Dn userDn = new Dn( "cn=userLockout4,ou=system" );
+        Dn userDn = new Dn( "cn=userLockoutWithDuration,ou=system" );
 
-        addUser( adminConnection, "userLockout4", "12345" );
+        addUser( adminConnection, "userLockoutWithDuration", "12345" );
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
