@@ -41,6 +41,8 @@ public class KerberosChannel
     
     private int timeOut = 60000;
 
+    private SocketAddress udpServerAddr = null;
+    
     public void openConnection( String hostName, int  portNo, int timeOut, boolean isTcp ) throws IOException
     {
         this.useTcp = isTcp;
@@ -55,8 +57,8 @@ public class KerberosChannel
         }
         else
         {
-            SocketAddress bindaddr = new InetSocketAddress( hostName, portNo );
-            udpSocket = new DatagramSocket( bindaddr );
+            udpServerAddr = new InetSocketAddress( hostName, portNo );
+            udpSocket = new DatagramSocket();
         }
     }
 
@@ -86,10 +88,11 @@ public class KerberosChannel
         }
         else
         {
-            DatagramPacket reqPacket = new DatagramPacket( reqData, reqData.length );
+            DatagramPacket reqPacket = new DatagramPacket( reqData, reqData.length, udpServerAddr );
             udpSocket.send( reqPacket );
             
-            DatagramPacket repPacket = new DatagramPacket( new byte[1], 1);
+            byte[] buffer = new byte[2048];
+            DatagramPacket repPacket = new DatagramPacket( buffer, buffer.length );
             udpSocket.receive( repPacket );
             
             byte[] receivedData = repPacket.getData();

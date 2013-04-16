@@ -27,10 +27,6 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.kerberos.client.KdcConnection;
-import org.apache.directory.kerberos.client.ServiceTicket;
-import org.apache.directory.kerberos.client.TgTicket;
-import org.apache.directory.kerberos.client.TgtRequest;
 import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -43,7 +39,8 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
+import org.apache.directory.server.protocol.shared.transport.Transport;
+import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -76,13 +73,15 @@ import org.junit.runner.RunWith;
     searchBaseDn = "dc=example,dc=com",
     transports =
         {
-            @CreateTransport(protocol = "TCP")
+            @CreateTransport(protocol = "TCP"),
+            @CreateTransport(protocol = "UDP")
     },
     chngPwdServer = @CreateChngPwdServer
     (
         transports =
         {
-            @CreateTransport(protocol = "TCP")
+            @CreateTransport(protocol = "TCP"),
+            @CreateTransport(protocol = "UDP")
         }    
     ))
 @ApplyLdifs({
@@ -162,9 +161,22 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     
     
     @Test
-    public void testGettingInitialTicket() throws Exception
+    public void testGettingInitialTicketTcp() throws Exception
     {
         TgTicket tgt = conn.getTgt( principalName, userPassword );
+        assertNotNull( tgt );
+        assertFalse( tgt.isForwardable() );
+    }
+
+    
+    @Test
+    public void testGettingInitialTicketUdp() throws Exception
+    {
+        KdcConnection udpConn = KdcConnection.createUdpConnection( "localhost", getUdpPort() );
+        udpConn.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
+        udpConn.setTimeout( Integer.MAX_VALUE );
+        
+        TgTicket tgt = udpConn.getTgt( principalName, userPassword );
         assertNotNull( tgt );
         assertFalse( tgt.isForwardable() );
     }
@@ -230,4 +242,18 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         
         return entry.getDn().getName();
     }
+
+    private int getUdpPort()
+    {
+        for ( Transport t : kdcServer.getTransports() )
+        {
+            if ( t instanceof UdpTransport )
+            {
+                return t.getPort();
+            }
+        }
+
+        return -1;
+    }
+
 }
