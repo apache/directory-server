@@ -24,14 +24,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -108,12 +108,11 @@ public class PrincipalNameTest
 
         byte[] expectedResult = new byte[]
             {
-                0x30, 0x0B,
+                0x30, 0x09,
                 ( byte ) 0xA0, 0x03,
                 0x02, 0x01, 0x01,
-                ( byte ) 0xA1, 0x04,
-                0x30, 0x02,
-                0x1B, 0x00
+                ( byte ) 0xA1, 0x02,
+                0x30, 0x00
         };
 
         assertEquals( Strings.dumpBytes( expectedResult ), Strings.dumpBytes( encoded.array() ) );

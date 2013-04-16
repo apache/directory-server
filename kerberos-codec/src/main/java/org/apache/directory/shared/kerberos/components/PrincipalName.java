@@ -131,6 +131,9 @@ public class PrincipalName extends AbstractAsn1Object
     /** The principal name - we may have more than one - */
     private List<String> nameString = new ArrayList<String>();
 
+    /** The realm part */
+    private String realm;
+
     /** The principal name as a byte[], for encoding purpose */
     private List<byte[]> nameBytes;
 
@@ -175,14 +178,14 @@ public class PrincipalName extends AbstractAsn1Object
 
     /**
      * Creates a new instance of PrincipalName given a String and an 
-     * prinipal type.
+     * principal type.
      * 
      * @param nameString The name string, which can contains more than one nameComponent
      * @param nameType The principal name
      */
     public PrincipalName( String nameString, PrincipalNameType nameType ) throws ParseException
     {
-        this.nameString.add( nameString );
+        this.nameString = KerberosUtils.getNames( nameString );
         this.nameType = nameType;
     }
 

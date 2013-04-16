@@ -249,18 +249,6 @@ public class KerberosUtils
                     {
                         // We have reached the realm : let's get out
                         done = true;
-                        // We have a new name component
-
-                        if ( i - start > 0 )
-                        {
-                            String nameComponent = new String( chars, start, i - start );
-                            nameComponents.add( nameComponent );
-                            start = i + 1;
-                        }
-                        else
-                        {
-                            throw new ParseException( I18n.err( I18n.ERR_628 ), i );
-                        }
                     }
 
                     break;
@@ -270,6 +258,26 @@ public class KerberosUtils
 
             if ( done )
             {
+                // We have a new name component
+                if ( i - start > 0 )
+                {
+                    String nameComponent = new String( chars, start, i - start );
+                    nameComponents.add( nameComponent );
+                    start = i + 1;
+                }
+                else
+                {
+                    throw new ParseException( I18n.err( I18n.ERR_628 ), i );
+                }
+
+                break;
+            }
+            else if ( i + 1 == chars.length )
+            {
+                // We have a new name component
+                String nameComponent = new String( chars, start, i - start + 1 );
+                nameComponents.add( nameComponent );
+
                 break;
             }
         }
