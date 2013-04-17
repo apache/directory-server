@@ -293,10 +293,10 @@ public class KdcConnection
         PrincipalName cName = null;
         try
         {
-            cName = new PrincipalName( clientTgtReq.getClientPrincipal(), PrincipalNameType.KRB_NT_PRINCIPAL );
+            cName = new PrincipalName( clientTgtReq.getCName(), PrincipalNameType.KRB_NT_PRINCIPAL );
             body.setCName( cName );
             body.setRealm( realm );
-            PrincipalName sName = new PrincipalName( clientTgtReq.getServerPrincipal(), PrincipalNameType.KRB_NT_SRV_INST );
+            PrincipalName sName = new PrincipalName( clientTgtReq.getSName(), PrincipalNameType.KRB_NT_SRV_INST );
             body.setSName( sName );
         }
         catch( ParseException e )
