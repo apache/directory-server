@@ -46,7 +46,7 @@ public class TgtRequest
 
     private KdcOptions options = new KdcOptions();
 
-    private boolean preAuthEnabled = true;
+    private boolean preAuthEnabled = false;
 
     public TgtRequest()
     {
@@ -200,6 +200,15 @@ public class TgtRequest
         this.preAuthEnabled = preAuthEnabled;
     }
 
+    public String getSName()
+    {
+        return KdcClientUtil.extractName( serverPrincipal );
+    }
+
+    public String getCName()
+    {
+        return KdcClientUtil.extractName( clientPrincipal );
+    }
 
     private void setOrClear( int pos, boolean set )
     {

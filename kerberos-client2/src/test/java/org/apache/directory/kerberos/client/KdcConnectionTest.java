@@ -127,6 +127,11 @@ import org.junit.runner.RunWith;
     "krb5PrincipalName: ldap/localhost@EXAMPLE.COM",
     "krb5KeyVersionNumber: 0"
 })
+/**
+ * KDC connection tests
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class KdcConnectionTest extends AbstractLdapTestUnit
 {
     public static final String USERS_DN = "dc=example,dc=com";

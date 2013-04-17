@@ -29,64 +29,60 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
+/**
+ * A class for sending and receiving kerberos request and response data
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 public class KerberosChannel
 {
+    /** the TCP socket */
     private Socket tcpSocket;
+    
+    /** the UDP socket */
     private DatagramSocket udpSocket;
     
+    /** data input stream to read from */
     private DataInputStream in;
+    
+    /** data output stream to write to */
     private OutputStream out;
     
-    private boolean useTcp;
+    /** flag to detect if this is a UDP channel */
+    private boolean useUdp;
     
     private int timeOut = 60000;
 
+    /** the UDP socket address of the server */
     private SocketAddress udpServerAddr = null;
     
-    public void openConnection( String hostName, int  portNo, int timeOut, boolean isTcp ) throws IOException
+    protected void openConnection( String hostName, int  portNo, int timeOut, boolean isUdp ) throws IOException
     {
-        this.useTcp = isTcp;
+        this.useUdp = isUdp;
         this.timeOut = timeOut;
         
-        if ( isTcp )
+        if ( isUdp )
+        {
+            udpServerAddr = new InetSocketAddress( hostName, portNo );
+            udpSocket = new DatagramSocket();
+        }
+        else
         {
             tcpSocket = new Socket( hostName, portNo );
             tcpSocket.setSoTimeout( ( int ) timeOut );
             in = new DataInputStream( tcpSocket.getInputStream() );
             out = tcpSocket.getOutputStream();
         }
-        else
-        {
-            udpServerAddr = new InetSocketAddress( hostName, portNo );
-            udpSocket = new DatagramSocket();
-        }
     }
 
 
-    public ByteBuffer sendAndReceive( ByteBuffer encodedBuf ) throws IOException
+    protected ByteBuffer sendAndReceive( ByteBuffer encodedBuf ) throws IOException
     {
         byte[] reqData  = encodedBuf.array();
         
         ByteBuffer repData;
         
-        if ( useTcp )
-        {
-            out.write( reqData );
-            out.flush();
-
-            int len = in.readInt();
-            
-            repData = ByteBuffer.allocate( len + 4 );
-            repData.putInt( len );
-            
-            byte[] tmp = new byte[ 1024 * 8 ];
-            while ( in.available() > 0 )
-            {
-                int read = in.read( tmp );
-                repData.put( tmp, 0, read );
-            }
-        }
-        else
+        if ( useUdp )
         {
             DatagramPacket reqPacket = new DatagramPacket( reqData, reqData.length, udpServerAddr );
             udpSocket.send( reqPacket );
@@ -99,6 +95,23 @@ public class KerberosChannel
             repData = ByteBuffer.allocate( receivedData.length );
             repData.put( receivedData );
         }
+        else
+        {
+            out.write( reqData );
+            out.flush();
+            
+            int len = in.readInt();
+            
+            repData = ByteBuffer.allocate( len + 4 );
+            repData.putInt( len );
+            
+            byte[] tmp = new byte[ 1024 * 8 ];
+            while ( in.available() > 0 )
+            {
+                int read = in.read( tmp );
+                repData.put( tmp, 0, read );
+            }
+        }
         
         repData.flip();
         
@@ -106,21 +119,21 @@ public class KerberosChannel
     }
     
     
-    public boolean isUseTcp()
+    protected boolean isUseTcp()
     {
-        return useTcp;
+        return !useUdp;
     }
 
 
-    public void close() throws IOException
+    protected void close() throws IOException
     {
-        if( useTcp )
+        if( useUdp )
         {
-            tcpSocket.close();
+            udpSocket.close();
         }
         else
         {
-            udpSocket.close();
+            tcpSocket.close();
         }
     }
 }

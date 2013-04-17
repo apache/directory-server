@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
  * 
  * A client to connect to kerberos servers using TCP or UDP transports.
  * 
- * @author Kiran Ayyagari
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KdcConnection
 {
@@ -193,7 +193,7 @@ public class KdcConnection
     
     private void connect() throws IOException
     {
-        channel.openConnection( host, port, timeout, !useUdp );
+        channel.openConnection( host, port, timeout, useUdp );
     }
     
     
@@ -236,8 +236,47 @@ public class KdcConnection
         return getServiceTicket( new ServiceTicketRequest( tgt, serverPrincipal ) );
     }
 
-    
     public TgTicket getTgt( TgtRequest clientTgtReq ) throws KerberosException
+    {
+        TgTicket tgt = null;
+        
+        KerberosException ke = null;
+        
+        for( int i=0; i < 2; i++ )
+        {
+            ke = null;
+            
+            try
+            {
+                tgt = _getTgt( clientTgtReq );
+            }
+            catch( KerberosException e )
+            {
+                // using exception for control flow, b.a.d, but here it is better than
+                // defining a new Result class to hold ticket and exception and validating
+                // the Result instance from _getTgt()
+                ke = e;
+            }
+            
+            if( ke != null )
+            {
+                if ( ke.getErrorCode() == ErrorType.KDC_ERR_PREAUTH_REQUIRED.getValue() )
+                {
+                    encryptionTypes = KdcClientUtil.getEtypesFromError( ke.getError() );
+                    clientTgtReq.setPreAuthEnabled( true );
+                }
+            }
+        }
+        
+        if( ke != null )
+        {
+            throw ke;
+        }
+        
+        return tgt;
+    }
+    
+    /* default protected */ TgTicket _getTgt( TgtRequest clientTgtReq ) throws KerberosException
     {
         String realm = clientTgtReq.getRealm();
         
@@ -348,7 +387,7 @@ public class KdcConnection
             
             EncKdcRepPart encKdcRepPart = encAsRepPart.getEncKdcRepPart();
             
-            if ( !encKdcRepPart.getSName().getNameString().equals( clientTgtReq.getServerPrincipal() ) )
+            if ( !encKdcRepPart.getSName().getNameString().equals( clientTgtReq.getSName() ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_SERVER_NOMATCH );
             }

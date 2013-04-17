@@ -161,11 +161,10 @@ public class KdcAsRepTest extends AbstractLdapTestUnit
         TgtRequest tgtReq = new TgtRequest();
         tgtReq.setClientPrincipal( principalName );
         tgtReq.setPassword( userPassword );
-        tgtReq.setPreAuthEnabled( false );
 
         try
         {
-            conn.getTgt( tgtReq );
+            conn._getTgt( tgtReq );
         }
         catch( KerberosException e )
         {
