@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.Asn1Object;
+import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
@@ -378,15 +379,25 @@ public class KdcConnection
             }
             
             byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, rep.getEncPart(), KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
-            EncAsRepPart encAsRepPart = KerberosDecoder.decodeEncAsRepPart( decryptedEncAsRepPart );
             
-            if ( currentNonce != encAsRepPart.getEncKdcRepPart().getNonce() )
+            EncKdcRepPart encKdcRepPart = null;
+            try
+            {
+                EncAsRepPart encAsRepPart = KerberosDecoder.decodeEncAsRepPart( decryptedEncAsRepPart );
+                encKdcRepPart = encAsRepPart.getEncKdcRepPart();
+            } 
+            catch( KerberosException e ) 
+            {
+                LOG.info("Trying an encTgsRepPart instead");
+                EncTgsRepPart encTgsRepPart = KerberosDecoder.decodeEncTgsRepPart( decryptedEncAsRepPart );
+                encKdcRepPart = encTgsRepPart.getEncKdcRepPart();
+            }
+            
+            if ( currentNonce != encKdcRepPart.getNonce() )
             {
                 throw new KerberosException( ErrorType.KRB_ERR_GENERIC, "received nonce didn't match with the nonce sent in the request" );
             }
-            
-            EncKdcRepPart encKdcRepPart = encAsRepPart.getEncKdcRepPart();
-            
+                       
             if ( !encKdcRepPart.getSName().getNameString().equals( clientTgtReq.getSName() ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_SERVER_NOMATCH );
