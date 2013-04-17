@@ -490,8 +490,7 @@ public class KdcConnection
         tgsReqBody.setNonce( currentNonce );
         tgsReqBody.setEType( encryptionTypes );
         
-        KerberosPrincipal principal = new KerberosPrincipal( serverPrincipal, KerberosPrincipal.KRB_NT_SRV_HST );
-        PrincipalName principalName = new PrincipalName( principal );
+        PrincipalName principalName = new PrincipalName( KdcClientUtil.extractName( serverPrincipal ), KerberosPrincipal.KRB_NT_SRV_HST );
         tgsReqBody.setSName( principalName );
         
         TgsReq tgsReq = new TgsReq();
