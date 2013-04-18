@@ -21,10 +21,8 @@ package org.apache.directory.kerberos.client;
 
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.asn1.DecoderException;
