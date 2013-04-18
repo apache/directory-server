@@ -624,7 +624,7 @@ public class KdcConnection
             ChangePasswordRequest req = new ChangePasswordRequest( apReq, privateMessage );
             
             channel = new KerberosChannel();
-            channel.openConnection( host, port, timeout, !isUdp );
+            channel.openConnection( host, port, timeout, isUdp );
             
             AbstractPasswordMessage reply = sendAndReceiveChngPwdMsg( req, channel );
             
