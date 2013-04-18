@@ -101,7 +101,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             "org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
                 "org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
                 "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
-                "org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
+                "org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory," +
+                "org.apache.directory.api.ldap.extras.extended.ads_impl.pwdModify.PasswordModifyFactory"
+            );
 
         System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST,
             "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );

@@ -725,6 +725,14 @@ objectclass: ads-extendedOpHandler
 objectclass: ads-base
 objectclass: top
 
+dn: ads-extendedOpId=pwdModifyHandler,ou=extendedOpHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: pwdModifyHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler
+objectclass: ads-extendedOpHandler
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
 dn: ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: saslMechHandlers
 objectclass: organizationalUnit
