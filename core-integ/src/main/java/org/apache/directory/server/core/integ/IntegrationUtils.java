@@ -292,7 +292,7 @@ public class IntegrationUtils
 
         String givenName = cn.split( " " )[0];
         ldif.putAttribute( "givenName", givenName );
-        
+
         return ldif;
     }
 
@@ -424,10 +424,43 @@ public class IntegrationUtils
     public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
         throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( host, port);
+        LdapConnection connection = new LdapNetworkConnection( host, port );
 
         connection.bind( dn, password );
         openConnections.add( connection );
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = getAnonymousNetworkConnection( "localhost", ldapServer.getPort() );
+
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( host, port );
+        connection.bind();
+
+        openConnections.add( connection );
+
         return connection;
     }
 
