@@ -403,7 +403,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Operation Context: {}", bindContext );
         }
 
-        if ( ( bindContext.getSession() != null ) && ( bindContext.getSession().getEffectivePrincipal() != null ) )
+        if ( ( bindContext.getSession() != null ) &&
+            ( bindContext.getSession().getEffectivePrincipal() != null ) &&
+            ( !bindContext.getSession().isAnonymous() ) )
         {
             // null out the credentials
             bindContext.setCredentials( null );
