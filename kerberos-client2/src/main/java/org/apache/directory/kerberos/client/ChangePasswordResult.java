@@ -37,7 +37,7 @@ public class ChangePasswordResult
     public ChangePasswordResult( byte[] userData )
     {
         // first 2 bytes contain the result code ( from 0-7 )
-        int r = ( userData[0] & 0xFF << 8 ) + ( userData[1] & 0xFF );
+        int r = ( userData[0] & 0xFFFF << 8 ) + ( userData[1] & 0xFFFF );
         
         code = ChangePasswordResultCode.getByValue( r );
         
@@ -62,5 +62,5 @@ public class ChangePasswordResult
     {
         return "ChangePasswordResult [result=" + code + ", message=" + message + "]";
     }
-
+    
 }
