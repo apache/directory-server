@@ -488,7 +488,8 @@ public class DefaultCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
 
         PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter, returningAttributes );
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter,
+            returningAttributes );
         searchContext.setAliasDerefMode( aliasDerefMode );
 
         return operationManager.search( searchContext );
@@ -782,7 +783,7 @@ public class DefaultCoreSession implements CoreSession
         }
 
         SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, filterNode,
-            (String)null );
+            ( String ) null );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         setReferralHandling( searchContext, ignoreReferrals );
 
@@ -807,7 +808,14 @@ public class DefaultCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return getEffectivePrincipal().getDn().isEmpty();
+        if ( ( authorizedPrincipal == null ) && ( authenticatedPrincipal == null ) )
+        {
+            return true;
+        }
+        else
+        {
+            return getEffectivePrincipal().getDn().isEmpty();
+        }
     }
 
 
@@ -1029,7 +1037,7 @@ public class DefaultCoreSession implements CoreSession
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         searchContext.setSyncreplSearch( searchRequest.getControls().containsKey( SyncRequestValue.OID ) );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
 
         EntryFilteringCursor cursor = null;
