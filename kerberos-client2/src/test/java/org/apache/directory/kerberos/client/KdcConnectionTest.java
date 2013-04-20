@@ -46,7 +46,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import static org.apache.directory.kerberos.client.ChangePasswordResultCode.*;
 
 @RunWith(FrameworkRunner.class)
 @CreateDS(name = "KerberosTcpIT-class", enableChangeLog = false,
@@ -216,7 +216,9 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         String newPassword = "newPassword";
         int port = kdcServer.getChangePwdServer().getTcpPort();
         
-        conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false );
+        ChangePasswordResult result = conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false );
+        assertNotNull( result );
+        assertTrue( KRB5_KPASSWD_SUCCESS.getVal() == result.getCode().getVal() );
         
         try
         {
@@ -225,6 +227,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         }
         catch( KerberosException e )
         {
+            e.printStackTrace();
         }
         
         TgTicket tgt = conn.getTgt( principalName, newPassword );

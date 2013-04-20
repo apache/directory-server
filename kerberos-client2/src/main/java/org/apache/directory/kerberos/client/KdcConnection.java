@@ -35,7 +35,6 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.Asn1Object;
-import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
@@ -44,6 +43,7 @@ import org.apache.directory.server.kerberos.changepwd.io.ChangePasswordDecoder;
 import org.apache.directory.server.kerberos.changepwd.io.ChangePasswordEncoder;
 import org.apache.directory.server.kerberos.changepwd.messages.AbstractPasswordMessage;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordError;
+import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordReply;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordRequest;
 import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.server.kerberos.protocol.codec.KerberosEncoder;
@@ -59,6 +59,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
+import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
@@ -69,11 +70,13 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
+import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.ApReq;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.ChangePasswdData;
+import org.apache.directory.shared.kerberos.messages.EncApRepPart;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.EncTgsRepPart;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
@@ -580,7 +583,7 @@ public class KdcConnection
     }
     
     
-    public void changePassword( String clientPrincipal, String oldPassword, String newPassword, String host, int port, boolean isUdp ) throws ChangePasswordException
+    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword, String host, int port, boolean isUdp ) throws ChangePasswordException
     {
         KerberosChannel channel = null;
         
@@ -634,6 +637,20 @@ public class KdcConnection
                 
                 throw new ChangePasswordException( err.getResultCode(), err.getResultString() );
             }
+            
+            ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) reply;
+            ApRep chngApRep = chngPwdReply.getApplicationReply();
+            byte[] apRepData = cipherTextHandler.decrypt( tgt.getSessionKey(), chngApRep.getEncPart(), KeyUsage.AP_REP_ENC_PART_SESS_KEY );
+            
+            EncApRepPart encApRepPart = KerberosDecoder.decodeEncApRepPart( apRepData );
+            
+            KrbPriv replyPriv = chngPwdReply.getPrivateMessage();
+            byte[] data = cipherTextHandler.decrypt( encApRepPart.getSubkey(), replyPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+            EncKrbPrivPart part = KerberosDecoder.decodeEncKrbPrivPart( data );
+            
+            ChangePasswordResult result = new ChangePasswordResult( part.getUserData() );
+            
+            return result;
         }
         catch( ChangePasswordException e )
         {
