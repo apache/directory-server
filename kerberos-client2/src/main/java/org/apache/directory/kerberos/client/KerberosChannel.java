@@ -129,11 +129,17 @@ public class KerberosChannel
     {
         if( useUdp )
         {
-            udpSocket.close();
+            if( udpSocket != null )
+            {
+                udpSocket.close();
+            }
         }
         else
         {
-            tcpSocket.close();
+            if( tcpSocket != null )
+            {
+                tcpSocket.close();
+            }
         }
     }
 }
