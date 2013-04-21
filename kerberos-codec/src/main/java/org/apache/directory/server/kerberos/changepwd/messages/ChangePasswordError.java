@@ -118,7 +118,6 @@ public class ChangePasswordError extends AbstractPasswordMessage
 
         buf.get( errorBytes );
         ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
-        errorBuffer.flip();
 
         KrbErrorContainer container = new KrbErrorContainer( errorBuffer );
         Asn1Decoder decoder = new Asn1Decoder();
