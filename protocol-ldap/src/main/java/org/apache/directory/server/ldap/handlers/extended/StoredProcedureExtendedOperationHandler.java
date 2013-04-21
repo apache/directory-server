@@ -93,7 +93,8 @@ public class StoredProcedureExtendedOperationHandler implements
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         StoredProcedureResponse resp =
-            LdapApiServiceFactory.getSingleton().newExtendedResponse( req, serializedResponse );
+            LdapApiServiceFactory.getSingleton().newExtendedResponse( req.getRequestName(), req.getMessageId(),
+                serializedResponse );
         session.getIoSession().write( resp );
     }
 
