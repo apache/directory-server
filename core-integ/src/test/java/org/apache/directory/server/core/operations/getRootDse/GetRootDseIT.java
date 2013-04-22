@@ -250,7 +250,6 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         DirectoryService service = getService();
         service.setAccessControlEnabled( false );
         LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
-        connection.bind( "", "" );
 
         Entry rootDse = connection.getRootDse();
 
@@ -268,7 +267,6 @@ public class GetRootDseIT extends AbstractLdapTestUnit
         DirectoryService service = getService();
         service.setAccessControlEnabled( true );
         LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
-        connection.bind( "", "" );
 
         Entry rootDse = connection.getRootDse();
 
