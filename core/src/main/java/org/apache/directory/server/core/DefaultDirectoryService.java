@@ -226,7 +226,7 @@ public class DefaultDirectoryService implements DirectoryService
     private boolean shutdownHookEnabled = true; // allow by default
 
     /** Manage anonymous access to entries other than the RootDSE */
-    private boolean allowAnonymousAccess = true; // allow by default
+    private boolean allowAnonymousAccess = false; // forbid by default
 
     /** Manage the basic access control checks */
     private boolean accessControlEnabled; // off by default
