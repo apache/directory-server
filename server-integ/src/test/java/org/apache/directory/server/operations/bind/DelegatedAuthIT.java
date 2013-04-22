@@ -72,6 +72,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     @Rule
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
+
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
@@ -165,7 +166,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         transports =
             {
                 @CreateTransport(protocol = "LDAP")
-        })
+        }, allowAnonymousAccess = true)
     @Test
     public void testMultipleAuthenticators() throws Exception
     {

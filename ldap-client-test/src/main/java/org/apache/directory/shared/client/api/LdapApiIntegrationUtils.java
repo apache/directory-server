@@ -104,11 +104,11 @@ public class LdapApiIntegrationUtils
     public static LdapConnection getPooledAdminConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection ldapConnection = getAdminPool( ldapServer ).getConnection();
-        
+
         ldapConnection.setBinaryAttributeDetector(
             new SchemaBinaryAttributeDetector(
-                ldapServer.getDirectoryService().getSchemaManager()) );
-        
+                ldapServer.getDirectoryService().getSchemaManager() ) );
+
         return ldapConnection;
     }
 
@@ -136,7 +136,7 @@ public class LdapApiIntegrationUtils
     private static LdapConnectionPool getAdminPool( LdapServer ldapServer )
     {
         int port = ldapServer.getPort();
-        
+
         if ( !pools.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
@@ -153,4 +153,36 @@ public class LdapApiIntegrationUtils
         return pools.get( port );
     }
 
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( host, port );
+        connection.bind();
+
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param ldapServer The LDAP server we want to connect to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localHost", ldapServer.getPort() );
+        connection.setTimeOut( 0L );
+        connection.bind();
+
+        return connection;
+    }
 }

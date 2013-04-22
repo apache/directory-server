@@ -237,6 +237,7 @@ public void testLookup() throws Exception
     @Test
     public void testAnonBind() throws Exception
     {
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
         connection.bind();

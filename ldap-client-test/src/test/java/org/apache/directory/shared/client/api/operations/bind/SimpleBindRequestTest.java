@@ -209,6 +209,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAnonymous() throws Exception
     {
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
+
         //System.out.println( "------------------Create connection" + i + "-------------" );
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         //System.out.println( "------------------Bind" + i + "-------------" );
