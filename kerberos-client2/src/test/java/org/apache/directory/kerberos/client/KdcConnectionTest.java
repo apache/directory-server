@@ -216,7 +216,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         String newPassword = "newPassword";
         int port = kdcServer.getChangePwdServer().getTcpPort();
         
-        ChangePasswordResult result = conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false );
+        ChangePasswordResult result = conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false, false );
         assertNotNull( result );
         assertTrue( KRB5_KPASSWD_SUCCESS.getVal() == result.getCode().getVal() );
         

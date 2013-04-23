@@ -21,10 +21,12 @@ package org.apache.directory.kerberos.client;
 
 
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AES128_CTS_HMAC_SHA1_96;
+import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AES256_CTS_HMAC_SHA1_96;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1_KD;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD5;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -133,6 +135,7 @@ public class KdcConnection
         DEFAULT_ENCRYPTION_TYPES = new HashSet<EncryptionType>();
         
         DEFAULT_ENCRYPTION_TYPES.add( AES128_CTS_HMAC_SHA1_96 );
+        DEFAULT_ENCRYPTION_TYPES.add( AES256_CTS_HMAC_SHA1_96 );
         DEFAULT_ENCRYPTION_TYPES.add( DES_CBC_MD5 );
         DEFAULT_ENCRYPTION_TYPES.add( DES3_CBC_SHA1_KD );
 //        DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC );
@@ -280,6 +283,8 @@ public class KdcConnection
         return tgt;
     }
     
+    private EncryptionType usedEType;
+    
     /* default protected */ TgTicket _getTgt( TgtRequest clientTgtReq ) throws KerberosException
     {
         String realm = clientTgtReq.getRealm();
@@ -327,6 +332,7 @@ public class KdcConnection
         }
         
         EncryptionType encryptionType = encryptionTypes.iterator().next();
+        usedEType = encryptionType;
         EncryptionKey clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
 
         AsReq req = new AsReq();
@@ -583,7 +589,7 @@ public class KdcConnection
     }
     
     
-    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword, String host, int port, boolean isUdp ) throws ChangePasswordException
+    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword, String host, int port, boolean isUdp, boolean useRfc3244Structure ) throws ChangePasswordException
     {
         KerberosChannel channel = null;
         
@@ -606,9 +612,10 @@ public class KdcConnection
             authenticator.setCRealm( tgt.getRealm() );
             KerberosTime ctime = new KerberosTime();
             authenticator.setCTime( ctime );
+            authenticator.setCusec( 0 );
             authenticator.setSeqNumber( nonceGenerator.nextInt() );
             
-            EncryptionKey subKey = RandomKeyFactory.getRandomKey( getEncryptionTypes().iterator().next() );
+            EncryptionKey subKey = RandomKeyFactory.getRandomKey( usedEType );
             
             authenticator.setSubKey( subKey );
             
@@ -616,15 +623,33 @@ public class KdcConnection
             apReq.setAuthenticator( authData );
             
             
-            ChangePasswdData chngPwdData = new ChangePasswdData();
-            chngPwdData.setNewPasswd( Strings.getBytesUtf8( newPassword ) );
-            
-            EncryptedData  chngPwdEncData = cipherTextHandler.encrypt( subKey, getEncoded( chngPwdData ), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
-            
             KrbPriv privateMessage = new KrbPriv();
-            privateMessage.setEncPart( chngPwdEncData );
             
-            ChangePasswordRequest req = new ChangePasswordRequest( apReq, privateMessage );
+            EncKrbPrivPart part = new EncKrbPrivPart();
+            part.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
+            part.setSeqNumber( authenticator.getSeqNumber() );
+            part.setTimestamp( authenticator.getCtime() );
+
+            short changePwdPVNO = ChangePasswordRequest.OLD_PVNO;
+            
+            if( useRfc3244Structure )
+            {
+                ChangePasswdData chngPwdData = new ChangePasswdData();
+                chngPwdData.setNewPasswd( Strings.getBytesUtf8( newPassword ) );
+                //chngPwdData.setTargName( new PrincipalName( clientPrincipal, PrincipalNameType.KRB_NT_PRINCIPAL ) );
+                //chngPwdData.setTargRealm( clientTgtReq.getRealm() );
+                part.setUserData( getEncoded( chngPwdData ) );
+                changePwdPVNO = ChangePasswordRequest.PVNO;
+            }
+            else
+            {
+                part.setUserData( Strings.getBytesUtf8( newPassword ) );
+            }
+            
+            EncryptedData encKrbPrivPartData = cipherTextHandler.encrypt( subKey, getEncoded( part ), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+            privateMessage.setEncPart( encKrbPrivPartData );
+            
+            ChangePasswordRequest req = new ChangePasswordRequest( changePwdPVNO, apReq, privateMessage );
             
             channel = new KerberosChannel();
             channel.openConnection( host, port, timeout, isUdp );
@@ -635,7 +660,9 @@ public class KdcConnection
             {
                 ChangePasswordError err = ( ChangePasswordError ) reply;
                 
-                throw new ChangePasswordException( err.getResultCode(), err.getResultString() );
+                ChangePasswordResult result = new ChangePasswordResult( err.getKrbError().getEData() );
+
+                return result;
             }
             
             ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) reply;
@@ -646,7 +673,7 @@ public class KdcConnection
             
             KrbPriv replyPriv = chngPwdReply.getPrivateMessage();
             byte[] data = cipherTextHandler.decrypt( encApRepPart.getSubkey(), replyPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
-            EncKrbPrivPart part = KerberosDecoder.decodeEncKrbPrivPart( data );
+            part = KerberosDecoder.decodeEncKrbPrivPart( data );
             
             ChangePasswordResult result = new ChangePasswordResult( part.getUserData() );
             
@@ -745,7 +772,6 @@ public class KdcConnection
     {
         ByteBuffer encodedBuf = ChangePasswordEncoder.encode( req, chngPwdChannel.isUseTcp() );
         encodedBuf.flip();
-        
         ByteBuffer repData = chngPwdChannel.sendAndReceive( encodedBuf );
         
         return ChangePasswordDecoder.decode( repData, chngPwdChannel.isUseTcp() );
