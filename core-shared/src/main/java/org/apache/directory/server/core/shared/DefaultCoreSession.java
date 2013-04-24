@@ -113,7 +113,15 @@ public class DefaultCoreSession implements CoreSession
     {
         this.directoryService = directoryService;
         authenticatedPrincipal = principal;
-        anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+
+        if ( principal.getAuthenticationLevel() == AuthenticationLevel.NONE )
+        {
+            anonymousPrincipal = principal;
+        }
+        else
+        {
+            anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+        }
 
         // setup attribute type value
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -814,7 +822,7 @@ public class DefaultCoreSession implements CoreSession
         }
         else
         {
-            return getEffectivePrincipal().getDn().isEmpty();
+            return authenticatedPrincipal.getAuthenticationLevel() == AuthenticationLevel.NONE;
         }
     }
 

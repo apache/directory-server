@@ -405,7 +405,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( ( bindContext.getSession() != null ) &&
             ( bindContext.getSession().getEffectivePrincipal() != null ) &&
-            ( !bindContext.getSession().isAnonymous() ) )
+            ( !bindContext.getSession().isAnonymous() ) &&
+            ( !bindContext.getSession().isAdministrator() ) )
         {
             // null out the credentials
             bindContext.setCredentials( null );

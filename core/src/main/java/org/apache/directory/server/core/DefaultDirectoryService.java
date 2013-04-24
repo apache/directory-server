@@ -951,18 +951,27 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * Get back an anonymous session
+     */
     public CoreSession getSession()
     {
         return new DefaultCoreSession( new LdapPrincipal( schemaManager ), this );
     }
 
 
+    /** 
+     * Get back a session for a given principal
+     */
     public CoreSession getSession( LdapPrincipal principal )
     {
         return new DefaultCoreSession( principal, this );
     }
 
 
+    /**
+     * Get back a session for the give user and credentials bound with Simple Bind
+     */
     public CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException
     {
         if ( !started )
@@ -981,6 +990,9 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * Get back a session for a given user bound with SASL Bind
+     */
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
     {

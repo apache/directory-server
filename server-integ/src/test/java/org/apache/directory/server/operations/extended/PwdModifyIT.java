@@ -24,6 +24,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNe
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAnonymousNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
@@ -35,19 +36,29 @@ import org.apache.directory.api.ldap.extras.extended.PwdModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,13 +74,19 @@ import org.junit.runner.RunWith;
     transports =
         { @CreateTransport(protocol = "LDAP") },
     extendedOpHandlers =
-        { PwdModifyHandler.class })
+        { PwdModifyHandler.class },
+    allowAnonymousAccess = true)
+//disable changelog, for more info see DIRSERVER-1528
+@CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
 public class PwdModifyIT extends AbstractLdapTestUnit
 {
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
     private static final PasswordPolicyDecorator PP_REQ_CTRL =
         new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+
+    /** The passwordPolicy configuration */
+    private PasswordPolicyConfiguration policyConfig;
 
 
     /**
@@ -113,6 +130,54 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
 
     /**
+     * Check that we can bind N times with a user/password
+     */
+    private void checkBind( LdapConnection connection, Dn userDn, String password, int nbIterations,
+        String expectedMessage ) throws Exception
+    {
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            try
+            {
+                connection.bind( userDn, password );
+            }
+            catch ( LdapAuthenticationException le )
+            {
+                assertEquals( expectedMessage, le.getMessage() );
+            }
+        }
+    }
+
+
+    /**
+     * Set a default PaswordPolicy configuration
+     */
+    @Before
+    public void setPwdPolicy() throws LdapException
+    {
+        policyConfig = new PasswordPolicyConfiguration();
+
+        policyConfig.setPwdMaxAge( 110 );
+        policyConfig.setPwdFailureCountInterval( 30 );
+        policyConfig.setPwdMaxFailure( 3 );
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdLockoutDuration( 0 );
+        policyConfig.setPwdMinLength( 5 );
+        policyConfig.setPwdInHistory( 5 );
+        policyConfig.setPwdExpireWarning( 600 );
+        policyConfig.setPwdGraceAuthNLimit( 5 );
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
+
+        PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
+        policyContainer.setDefaultPolicy( policyConfig );
+        AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getService()
+            .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+
+        authenticationInterceptor.setPwdPolicies( policyContainer );
+    }
+
+
+    /**
      * Modify an existing user password while the user is connected
      */
     @Test
@@ -143,12 +208,19 @@ public class PwdModifyIT extends AbstractLdapTestUnit
      * Modify an existing user password while the user is not connected
      */
     @Test
-    @Ignore
     public void testModifyUserPasswordAnonymous() throws Exception
     {
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, "User", "secret" );
+        addUser( adminConnection, "User1", "secret1" );
+
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, "cn=User1,ou=system", "secret1" );
+
+        Entry entry = userConnection.lookup( "cn=User1,ou=system" );
+
+        assertNotNull( entry );
+
+        userConnection.close();
 
         // Bind as the user
         LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
@@ -156,13 +228,80 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Now change the password
         PwdModifyRequestImpl pwdModifyRequest = new PwdModifyRequestImpl();
-        pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User,ou=system" ) );
-        pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret" ) );
-        pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secretBis" ) );
+        pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User1,ou=system" ) );
+        pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret1" ) );
+        pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret1Bis" ) );
 
         // Send the request
         PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
 
+        assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+
+        // Check that we can now bind using the new credentials
+        userConnection = getNetworkConnectionAs( ldapServer, "cn=User1,ou=system", "secret1Bis" );
+
+        entry = userConnection.lookup( "cn=User1,ou=system" );
+
+        assertNotNull( entry );
+
+        userConnection.close();
+        anonymousConnection.close();
+        adminConnection.close();
+    }
+
+
+    /**
+     * Modify an existing user password while the user is not connected, when
+     * the PasswordPolicy is activated
+     */
+    @Test
+    public void testModifyUserPasswordAnonymousPPActivated() throws Exception
+    {
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_ACCEPT ); // allow the password if its quality can't be checked
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        addUser( adminConnection, "User2", "secret2" );
+        Dn userDn = new Dn( "cn=User2,ou=system" );
+
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, "cn=User2,ou=system", "secret2" );
+
+        Entry entry = userConnection.lookup( "cn=User2,ou=system" );
+
+        assertNotNull( entry );
+
+        userConnection.close();
+
+        // almost lock the user now
+        checkBind( userConnection, userDn, "badPassword", 2,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=User2,ou=system" );
+
+        // Bind as the user
+        LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
+        anonymousConnection.setTimeOut( 0L );
+
+        // Now change the password
+        PwdModifyRequestImpl pwdModifyRequest = new PwdModifyRequestImpl();
+        pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User2,ou=system" ) );
+        pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret2" ) );
+        pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret2Bis" ) );
+
+        // Send the request
+        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
+
+        assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+
+        // Check that we can now bind using the new credentials
+        userConnection = getNetworkConnectionAs( ldapServer, "cn=User2,ou=system", "secret2Bis" );
+
+        entry = userConnection.lookup( "cn=User2,ou=system" );
+
+        assertNotNull( entry );
+
+        // almost lock the user now, the count should be reset
+        checkBind( userConnection, userDn, "badPassword", 2,
+            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=User2,ou=system" );
+
+        userConnection.close();
         anonymousConnection.close();
         adminConnection.close();
     }
