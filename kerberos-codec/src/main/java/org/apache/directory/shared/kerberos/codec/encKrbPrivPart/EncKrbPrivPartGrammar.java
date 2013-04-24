@@ -256,6 +256,30 @@ public final class EncKrbPrivPartGrammar extends AbstractGrammar<EncKrbPrivPartC
                 new StoreSenderAddress() );
 
         // --------------------------------------------------------------------------------------------
+        // Transition from timestamp value to seq-number tag
+        // --------------------------------------------------------------------------------------------
+        // EncKrbPrivPart   ::= SEQUENCE {
+        // seq-number       [3]
+        super.transitions[EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE.ordinal()][KerberosConstants.ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG] =
+            new GrammarTransition<EncKrbPrivPartContainer>(
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE,
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG_STATE,
+                KerberosConstants.ENC_KRB_PRIV_PART_SEQ_NUMBER_TAG,
+                new CheckNotNullLength<EncKrbPrivPartContainer>() );
+        
+        // --------------------------------------------------------------------------------------------
+        // Transition from timestamp value to s-address tag
+        // --------------------------------------------------------------------------------------------
+        // EncKrbPrivPart   ::= SEQUENCE {
+        // s-address       [4]
+        super.transitions[EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE.ordinal()][KerberosConstants.ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG] =
+            new GrammarTransition<EncKrbPrivPartContainer>(
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_TIMESTAMP_STATE,
+                EncKrbPrivPartStatesEnum.ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG_STATE,
+                KerberosConstants.ENC_KRB_PRIV_PART_SENDER_ADDRESS_TAG,
+                new StoreSenderAddress() );
+
+        // --------------------------------------------------------------------------------------------
         // Transition from usec value to s-address tag
         // --------------------------------------------------------------------------------------------
         // EncKrbPrivPart   ::= SEQUENCE {
