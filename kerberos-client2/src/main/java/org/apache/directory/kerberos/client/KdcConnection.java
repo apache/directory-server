@@ -20,19 +20,12 @@
 package org.apache.directory.kerberos.client;
 
 
-import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AES128_CTS_HMAC_SHA1_96;
-import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AES256_CTS_HMAC_SHA1_96;
-import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1_KD;
-import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD5;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -54,7 +47,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKey
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -99,25 +91,10 @@ public class KdcConnection
 {
 
     private static final Logger LOG = LoggerFactory.getLogger( KdcConnection.class );
-    
-    /** host name of the Kerberos server */
-    private String host;
-
-    /** port on which the Kerberos server is listening */
-    private int port;
-
-    /** flag to indicate if the client should use UDP while connecting to Kerberos server */
-    private boolean useUdp;
-
-    /** the timeout of the connection to the Kerberos server */
-    private int timeout = 60000; // default 1 min
 
     /** a secure random number generator used for creating nonces */
     private SecureRandom nonceGenerator;
 
-    /** the set of encryption types that the client can support */
-    private Set<EncryptionType> encryptionTypes;
-    
     static final String TIME_OUT_ERROR = "TimeOut occured";
     
     /** the cipher text handler */
@@ -126,81 +103,27 @@ public class KdcConnection
     /** underlying network channel handler */
     private KerberosChannel channel;
     
-    /** the default encryption types, this includes <b>many</b> encryption types */
-    private static Set<EncryptionType> DEFAULT_ENCRYPTION_TYPES;
-    
-
-    static
-    {
-        DEFAULT_ENCRYPTION_TYPES = new HashSet<EncryptionType>();
-        
-        DEFAULT_ENCRYPTION_TYPES.add( AES128_CTS_HMAC_SHA1_96 );
-        DEFAULT_ENCRYPTION_TYPES.add( AES256_CTS_HMAC_SHA1_96 );
-        DEFAULT_ENCRYPTION_TYPES.add( DES_CBC_MD5 );
-        DEFAULT_ENCRYPTION_TYPES.add( DES3_CBC_SHA1_KD );
-//        DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC );
-//        DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC_EXP );
-        
-        DEFAULT_ENCRYPTION_TYPES = KerberosUtils.orderEtypesByStrength( DEFAULT_ENCRYPTION_TYPES );
-    }
-    
+    private KdcConfig config;
     
     /**
      * 
      * Creates a new instance of KdcConnection.
      *
-     * @param host the host name of Kerberos server
-     * @param port the port on which Kerberos server is listening
-     * @param isUdp flag to indicate if UDP should be used instead of TCP
+     * @param config the configuration of KDC
      */
-    private KdcConnection( String host, int port, boolean isUdp )
+    public KdcConnection( KdcConfig config )
     {
-        this.host = host;
-        this.port = port;
-        this.useUdp = isUdp;
+        this.config = config;
         
         nonceGenerator = new SecureRandom( String.valueOf( System.currentTimeMillis() ).getBytes() );
         cipherTextHandler = new CipherTextHandler();
         channel = new KerberosChannel();
-        encryptionTypes = DEFAULT_ENCRYPTION_TYPES;
     }
 
 
-    /**
-     * created a UDP based Kerberos client connection
-     * 
-     * @param host the host name of Kerberos server
-     * @param port the port on which Kerberos server is listening
-     * @return
-     * @throws Exception
-     */
-    public static KdcConnection createUdpConnection( String host, int port ) throws Exception
-    {
-        KdcConnection connection = new KdcConnection( host, port, true );
-        
-        return connection;
-    }
-
-
-    /**
-     * created a TCP based Kerberos client connection
-     * 
-     * @param host the host name of Kerberos server
-     * @param port the port on which Kerberos server is listening
-     * @return
-     * @throws Exception
-     */
-    public static KdcConnection createTcpConnection( String host, int port ) throws Exception
-    {
-        KdcConnection connection = new KdcConnection( host, port, false );
-        
-        return connection;
-    }
-
-    
     private void connect() throws IOException
     {
-        channel.openConnection( host, port, timeout, useUdp );
+        channel.openConnection( config.getHostName(), config.getKdcPort(), config.getTimeout(), config.isUseUdp() );
     }
     
     
@@ -237,7 +160,7 @@ public class KdcConnection
         TgtRequest clientTgtReq = new TgtRequest();
         clientTgtReq.setClientPrincipal( clientPrincipal );
         clientTgtReq.setPassword( password );
-
+        
         TgTicket tgt = getTgt( clientTgtReq );
         
         return getServiceTicket( new ServiceTicketRequest( tgt, serverPrincipal ) );
@@ -269,7 +192,7 @@ public class KdcConnection
             {
                 if ( ke.getErrorCode() == ErrorType.KDC_ERR_PREAUTH_REQUIRED.getValue() )
                 {
-                    encryptionTypes = KdcClientUtil.getEtypesFromError( ke.getError() );
+                    clientTgtReq.setETypes( KdcClientUtil.getEtypesFromError( ke.getError() ) );
                     clientTgtReq.setPreAuthEnabled( true );
                 }
             }
@@ -295,6 +218,11 @@ public class KdcConnection
             clientTgtReq.setServerPrincipal( serverPrincipal );
         }
 
+        if( clientTgtReq.getETypes() == null )
+        {
+            clientTgtReq.setETypes( config.getEncryptionTypes() );
+        }
+        
         KdcReqBody body = new KdcReqBody();
         
         body.setFrom( new KerberosTime( clientTgtReq.getStartTime() ) );
@@ -316,7 +244,7 @@ public class KdcConnection
         body.setTill( new KerberosTime( clientTgtReq.getExpiryTime() ) );
         int currentNonce = nonceGenerator.nextInt();
         body.setNonce( currentNonce );
-        body.setEType( encryptionTypes );
+        body.setEType( clientTgtReq.getETypes() );
         body.setKdcOptions( clientTgtReq.getOptions() );
         
         List<HostAddress> lstAddresses = clientTgtReq.getHostAddresses();
@@ -331,7 +259,7 @@ public class KdcConnection
             body.setAddresses( addresses );
         }
         
-        EncryptionType encryptionType = encryptionTypes.iterator().next();
+        EncryptionType encryptionType = clientTgtReq.getETypes().iterator().next();
         usedEType = encryptionType;
         EncryptionKey clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
 
@@ -508,7 +436,7 @@ public class KdcConnection
         tgsReqBody.setTill( getDefaultTill() );
         int currentNonce = nonceGenerator.nextInt();
         tgsReqBody.setNonce( currentNonce );
-        tgsReqBody.setEType( encryptionTypes );
+        tgsReqBody.setEType( config.getEncryptionTypes() );
         
         PrincipalName principalName = new PrincipalName( KdcClientUtil.extractName( serverPrincipal ), KerberosPrincipal.KRB_NT_SRV_HST );
         tgsReqBody.setSName( principalName );
@@ -589,7 +517,7 @@ public class KdcConnection
     }
     
     
-    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword, String host, int port, boolean isUdp, boolean useRfc3244Structure ) throws ChangePasswordException
+    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword ) throws ChangePasswordException
     {
         KerberosChannel channel = null;
         
@@ -630,20 +558,21 @@ public class KdcConnection
             part.setSeqNumber( authenticator.getSeqNumber() );
             part.setTimestamp( authenticator.getCtime() );
 
-            short changePwdPVNO = ChangePasswordRequest.OLD_PVNO;
+            short changePwdPVNO = ChangePasswordRequest.PVNO;
             
-            if( useRfc3244Structure )
+            if( config.isUseLegacyChngPwdProtocol() )
+            {
+                part.setUserData( Strings.getBytesUtf8( newPassword ) );
+                changePwdPVNO = ChangePasswordRequest.OLD_PVNO;
+            }
+            else
             {
                 ChangePasswdData chngPwdData = new ChangePasswdData();
                 chngPwdData.setNewPasswd( Strings.getBytesUtf8( newPassword ) );
                 //chngPwdData.setTargName( new PrincipalName( clientPrincipal, PrincipalNameType.KRB_NT_PRINCIPAL ) );
                 //chngPwdData.setTargRealm( clientTgtReq.getRealm() );
-                part.setUserData( getEncoded( chngPwdData ) );
-                changePwdPVNO = ChangePasswordRequest.PVNO;
-            }
-            else
-            {
-                part.setUserData( Strings.getBytesUtf8( newPassword ) );
+                byte[] data = getEncoded( chngPwdData );
+                part.setUserData( data );
             }
             
             EncryptedData encKrbPrivPartData = cipherTextHandler.encrypt( subKey, getEncoded( part ), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
@@ -652,7 +581,7 @@ public class KdcConnection
             ChangePasswordRequest req = new ChangePasswordRequest( changePwdPVNO, apReq, privateMessage );
             
             channel = new KerberosChannel();
-            channel.openConnection( host, port, timeout, isUdp );
+            channel.openConnection( config.getHostName(), config.getPasswdPort(), config.getTimeout(), config.isUseUdp() );
             
             AbstractPasswordMessage reply = sendAndReceiveChngPwdMsg( req, channel );
             
@@ -728,30 +657,7 @@ public class KdcConnection
         return new KerberosTime( System.currentTimeMillis() + ( KerberosTime.MINUTE * 60 ) );
     }
     
-    
-    public Set<EncryptionType> getEncryptionTypes()
-    {
-        return encryptionTypes;
-    }
 
-
-    public void setEncryptionTypes( Set<EncryptionType> encryptionTypes )
-    {
-        this.encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
-    }
-
-
-    public long getTimeout()
-    {
-        return timeout;
-    }
-
-
-    public void setTimeout( int timeout )
-    {
-        this.timeout = timeout;
-    }
-    
     private KerberosMessage sendAndReceiveKrbMsg( KerberosMessage req ) throws Exception
     {
         ByteBuffer encodedBuf = KerberosEncoder.encode( req, channel.isUseTcp() );

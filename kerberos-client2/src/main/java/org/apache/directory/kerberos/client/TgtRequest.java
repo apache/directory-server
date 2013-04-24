@@ -24,8 +24,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 
 
@@ -47,6 +49,9 @@ public class TgtRequest
     private KdcOptions options = new KdcOptions();
 
     private boolean preAuthEnabled = false;
+
+    /** the set of encryption types that the server replied */
+    private Set<EncryptionType> eTypes;
 
     public TgtRequest()
     {
@@ -209,6 +214,19 @@ public class TgtRequest
     {
         return KdcClientUtil.extractName( clientPrincipal );
     }
+
+    
+    public Set<EncryptionType> getETypes()
+    {
+        return eTypes;
+    }
+
+
+    public void setETypes( Set<EncryptionType> eTypes )
+    {
+        this.eTypes = eTypes;
+    }
+
 
     private void setOrClear( int pos, boolean set )
     {

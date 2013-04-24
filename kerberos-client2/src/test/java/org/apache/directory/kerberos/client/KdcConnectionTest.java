@@ -20,6 +20,7 @@
 package org.apache.directory.kerberos.client;
 
 
+import static org.apache.directory.kerberos.client.ChangePasswordResultCode.KRB5_KPASSWD_SUCCESS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -43,13 +44,11 @@ import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.apache.directory.kerberos.client.ChangePasswordResultCode.*;
 
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "KerberosTcpIT-class", enableChangeLog = false,
+@CreateDS(name = "KdcConnectionTest-class", enableChangeLog = false,
     partitions =
         {
             @CreatePartition(
@@ -146,21 +145,26 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     
     private String serverPrincipal = "ldap/localhost@EXAMPLE.COM";
 
+    
     @Before
     public void setup() throws Exception
     {
+        kdcServer.setSearchBaseDn( USERS_DN );
         if ( session == null )
         {
-            kdcServer.setSearchBaseDn( USERS_DN );
             session = kdcServer.getDirectoryService().getAdminSession();
             createPrincipal( "will", userPassword, principalName );
         }
         
         if ( conn == null )
         {
-            conn = KdcConnection.createTcpConnection( "localhost", kdcServer.getTcpPort() );
-            conn.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
-            conn.setTimeout( Integer.MAX_VALUE );
+            KdcConfig config = KdcConfig.getDefaultConfig();
+            config.setUseUdp( false );
+            config.setKdcPort( kdcServer.getTcpPort() );
+            config.setPasswdPort( kdcServer.getChangePwdServer().getTcpPort() );
+            config.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
+            config.setTimeout( Integer.MAX_VALUE );
+            conn = new KdcConnection( config );
         }
     }
     
@@ -177,9 +181,11 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testGettingInitialTicketUdp() throws Exception
     {
-        KdcConnection udpConn = KdcConnection.createUdpConnection( "localhost", getUdpPort() );
-        udpConn.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
-        udpConn.setTimeout( Integer.MAX_VALUE );
+        KdcConfig config = new KdcConfig();
+        config.setKdcPort( getUdpPort() );
+        config.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
+        config.setTimeout( Integer.MAX_VALUE );
+        KdcConnection udpConn = new KdcConnection( config );
         
         TgTicket tgt = udpConn.getTgt( principalName, userPassword );
         assertNotNull( tgt );
@@ -210,19 +216,21 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     
     
     @Test
-    @Ignore("Failing with NPE in public ChangePasswdErrorType getResultCode()")
     public void testChangePassword() throws Exception
     {
-        String newPassword = "newPassword";
-        int port = kdcServer.getChangePwdServer().getTcpPort();
+        String uid = "kayyagari";
+        String principal = uid + "@EXAMPLE.COM";
+        createPrincipal( uid, userPassword, principal );
         
-        ChangePasswordResult result = conn.changePassword( principalName, userPassword, newPassword, "localhost", port, false, false );
+        String newPassword = "newPassword";
+        
+        ChangePasswordResult result = conn.changePassword( principal, userPassword, newPassword );
         assertNotNull( result );
         assertTrue( KRB5_KPASSWD_SUCCESS.getVal() == result.getCode().getVal() );
         
         try
         {
-            conn.getTgt( principalName, userPassword );
+            conn.getTgt( principal, userPassword );
             fail( "should fail with kerberos exception cause of invalid password" );
         }
         catch( KerberosException e )
@@ -230,7 +238,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
             e.printStackTrace();
         }
         
-        TgTicket tgt = conn.getTgt( principalName, newPassword );
+        TgTicket tgt = conn.getTgt( principal, newPassword );
         assertNotNull( tgt );
     }
     

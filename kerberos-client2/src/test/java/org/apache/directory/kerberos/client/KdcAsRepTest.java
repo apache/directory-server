@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "KerberosTcpIT-class", enableChangeLog = false,
+@CreateDS(name = "KdcAsRepTest-class", enableChangeLog = false,
     partitions =
         {
             @CreatePartition(
@@ -133,8 +133,12 @@ public class KdcAsRepTest extends AbstractLdapTestUnit
         
         if ( conn == null )
         {
-            conn = KdcConnection.createTcpConnection( "localhost", kdcServer.getTcpPort() );
-            conn.setTimeout( Integer.MAX_VALUE );
+            KdcConfig config = KdcConfig.getDefaultConfig();
+            config.setUseUdp( false );
+            config.setKdcPort( kdcServer.getTcpPort() );
+            config.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
+            config.setTimeout( Integer.MAX_VALUE );
+            conn = new KdcConnection( config );
         }
     }
     
