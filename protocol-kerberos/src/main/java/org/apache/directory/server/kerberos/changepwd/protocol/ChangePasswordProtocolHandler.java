@@ -187,6 +187,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         krbError.setSName( new PrincipalName( principal ) );
         krbError.setSTime( now );
         krbError.setSusec( 0 );
+        krbError.setRealm( principal.getRealm() );
         krbError.setEData( buildExplanatoryData( exception ) );
 
         return krbError;
