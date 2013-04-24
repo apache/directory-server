@@ -87,6 +87,10 @@
       <level value="warn"/> 
     </logger>
 
+    <logger name="org.apache.directory.api.asn1.ber">
+      <level value="warn"/> 
+    </logger>
+    
     <root>
        <level value="off"/>
        <appender-ref ref="stdout" />
