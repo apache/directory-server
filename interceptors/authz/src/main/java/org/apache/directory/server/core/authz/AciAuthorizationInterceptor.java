@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.aci.ACIItem;
 import org.apache.directory.api.ldap.aci.ACIItemParser;
 import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.aci.MicroOperation;
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -79,7 +78,6 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,9 +192,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         ExprNode filter =
             new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
@@ -241,9 +237,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
                 new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
@@ -285,10 +279,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         // Create the caches
         tupleCache = new TupleCache( adminSession );

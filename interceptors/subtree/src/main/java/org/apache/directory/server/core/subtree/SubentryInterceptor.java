@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
@@ -65,7 +64,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -82,7 +80,6 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,8 +230,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             Dn suffixDn = directoryService.getDnFactory().create( suffix );
 
-            CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), directoryService );
+            CoreSession adminSession = directoryService.getAdminSession();
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, filter,
                 controls );

@@ -25,7 +25,6 @@ import java.util.Set;
 
 import javax.naming.NoPermissionException;
 
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -36,7 +35,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -50,7 +48,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -98,8 +95,8 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             return DefaultAuthorizationInterceptor.this.isSearchable( operation, entry );
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -141,10 +138,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, ADMIN_GROUP_DN ) );
 
