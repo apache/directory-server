@@ -661,8 +661,9 @@ ads-saslPrincipal: ldap/ldap.example.com@EXAMPLE.COM
 ads-saslRealms: example.com
 ads-saslRealms: apache.org
 ads-searchBaseDN: ou=users,ou=system
-ads-enabled: TRUE
 ads-replEnabled: true
+ads-replPingerSleep: 5
+ads-enabled: TRUE
 
 dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit

@@ -256,7 +256,13 @@ public class LdapServer extends DirectoryBackedService
 
     private KeyManagerFactory keyManagerFactory;
 
+    /** the time interval between subsequent pings to each replication provider */    
+    private int pingerSleepTime;
 
+    /** the list of cipher suites to be used in LDAPS and StartTLS */
+    private List<String> enabledCipherSuites = new ArrayList<String>();
+    
+    
     /**
      * Creates an LDAP protocol provider.
      */
@@ -436,7 +442,7 @@ public class LdapServer extends DirectoryBackedService
             if ( dfcb.contains( sslFilterName ) )
             {
                 DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer
-                    .init( keyManagerFactory );
+                    .init( this );
                 dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
                 newChain = null;
             }
@@ -477,7 +483,7 @@ public class LdapServer extends DirectoryBackedService
 
             if ( transport.isSSLEnabled() )
             {
-                chain = LdapsInitializer.init( keyManagerFactory );
+                chain = LdapsInitializer.init( this );
             }
             else
             {
@@ -696,7 +702,7 @@ public class LdapServer extends DirectoryBackedService
     {
         if ( ( replConsumers != null ) && ( replConsumers.size() > 0 ) )
         {
-            final PingerThread pingerThread = new PingerThread();
+            final PingerThread pingerThread = new PingerThread( pingerSleepTime );
             pingerThread.start();
 
             for ( final ReplicationConsumer consumer : replConsumers )
@@ -938,7 +944,7 @@ public class LdapServer extends DirectoryBackedService
      */
     public void setMaxTimeLimit( int maxTimeLimit )
     {
-        this.maxTimeLimit = maxTimeLimit;
+        this.maxTimeLimit = maxTimeLimit; //TODO review the time parameters used all over the server and convert to seconds 
     }
 
 
@@ -1693,6 +1699,48 @@ public class LdapServer extends DirectoryBackedService
         }
 
         this.maxPDUSize = maxPDUSize;
+    }
+
+
+    /**
+     * @return the number of seconds pinger thread sleeps between subsequent pings
+     */
+    public int getReplPingerSleepTime()
+    {
+        return pingerSleepTime;
+    }
+
+
+    /**
+     * The number of seconds pinger thread should sleep before pinging the providers
+     *  
+     * @param pingerSleepTime
+     */
+    public void setReplPingerSleepTime( int pingerSleepTime )
+    {
+        this.pingerSleepTime = pingerSleepTime;
+    }
+
+
+    /**
+     * Gives the list of enabled cipher suites
+     * 
+     * @return
+     */
+    public List<String> getEnabledCipherSuites()
+    {
+        return enabledCipherSuites;
+    }
+
+
+    /**
+     * Sets the list of cipher suites to be used in LDAPS and StartTLS
+     * 
+     * @param enabledCipherSuites if null the default cipher suites will be used
+     */
+    public void setEnabledCipherSuites( List<String> enabledCipherSuites )
+    {
+        this.enabledCipherSuites = enabledCipherSuites;
     }
 
 

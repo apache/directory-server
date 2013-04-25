@@ -90,6 +90,13 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(objectClass = "ads-extendedOpHandler", container = "extendedOpHandlers", isOptional = true)
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
+    /** the time interval between subsequent pings to each replication provider */
+    @ConfigurationElement(attributeType = "ads-replPingerSleep")
+    private int replPingerSleep;
+
+    /** the list of cipher suites to be used in LDAPS and StartTLS */
+    @ConfigurationElement(attributeType = "ads-enabledCipherSuites", isOptional = true)
+    private List<String> enabledCipherSuites = new ArrayList<String>();
 
     /**
      * Create a new LdapServerBean instance
@@ -403,7 +410,13 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( tabs ).append( "  sasl host : " ).append( saslHost ).append( '\n' );
         sb.append( toString( tabs, "  confidentiality required", confidentialityRequired ) );
         sb.append( toString( tabs, "  enable replication provider", replReqHandler ) );
-
+        sb.append( toString( tabs, "  Pinger thread sleep time(in sec.)", replPingerSleep ) );
+        
+        if( ( enabledCipherSuites != null ) && !enabledCipherSuites.isEmpty() )
+        {
+            sb.append( toString( tabs, "  enabled cipher suites", enabledCipherSuites.toString() ) );
+        }
+        
         if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
         {
             sb.append( tabs ).append( "  extended operation handlers :\n" );
@@ -467,6 +480,42 @@ public class LdapServerBean extends DSBasedServerBean
     }
 
 
+    public int getReplPingerSleep()
+    {
+        return replPingerSleep;
+    }
+
+
+    public void setReplPingerSleep( int replPingerSleep )
+    {
+        this.replPingerSleep = replPingerSleep;
+    }
+
+
+    public List<String> getEnabledCipherSuites()
+    {
+        return enabledCipherSuites;
+    }
+
+
+    public void setEnabledCipherSuites( List<String> enabledCipherSuites )
+    {
+        this.enabledCipherSuites = enabledCipherSuites;
+    }
+
+    
+    /**
+     * @param enabledCipherSuites the cipher suites to add
+     */
+    public void addEnabledCipherSuites( String... enabledCipherSuites )
+    {
+        for ( String cs : enabledCipherSuites )
+        {
+            this.enabledCipherSuites.add( cs );
+        }
+    }
+
+    
     /**
      * {@inheritDoc}
      */

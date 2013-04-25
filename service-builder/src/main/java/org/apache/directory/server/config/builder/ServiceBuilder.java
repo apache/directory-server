@@ -970,6 +970,15 @@ public class ServiceBuilder
         // Sasl realm
         ldapServer.setSaslRealms( ldapServerBean.getLdapServerSaslRealms() );
 
+        // Relplication pinger thread sleep time
+        ldapServer.setReplPingerSleepTime( ldapServerBean.getReplPingerSleep() );
+        
+        // Enabled cipher suites
+        if( ldapServerBean.getEnabledCipherSuites() != null )
+        {
+            ldapServer.setEnabledCipherSuites( ldapServerBean.getEnabledCipherSuites() );
+        }
+        
         // The transports
         Transport[] transports = createTransports( ldapServerBean.getTransports() );
         ldapServer.setTransports( transports );
