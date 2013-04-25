@@ -505,7 +505,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
         Dn baseDn = new Dn( schemaManager, dn );
-        
+
         return lookup( baseDn, null, attributes );
     }
 
@@ -576,7 +576,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      */
     public Entry lookup( Dn dn ) throws LdapException
     {
-        return lookup( dn, (String[])null );
+        return lookup( dn, ( String[] ) null );
     }
 
 
@@ -585,7 +585,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return lookup( new Dn( schemaManager, dn ), (String[])null );
+        return lookup( new Dn( schemaManager, dn ), ( String[] ) null );
     }
 
 
@@ -1062,7 +1062,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             {
                 session.unbind();
             }
-            
+
             session = null;
         }
     }
@@ -1190,7 +1190,8 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( bindRequest.getDn() );
+
+        bindContext.setDn( bindRequest.getDn().apply( directoryService.getSchemaManager() ) );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         OperationManager operationManager = directoryService.getOperationManager();

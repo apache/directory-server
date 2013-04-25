@@ -46,7 +46,6 @@ import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
@@ -126,16 +125,6 @@ public class NormalizationInterceptor extends BaseInterceptor
         addContext.getEntry().getDn().apply( schemaManager );
         addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
         next( addContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        bindContext.getDn().apply( schemaManager );
-        next( bindContext );
     }
 
 
