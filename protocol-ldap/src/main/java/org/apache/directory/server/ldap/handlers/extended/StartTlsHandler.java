@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
@@ -63,6 +64,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsHandler.class );
 
     private SSLContext sslContext;
+    
+    private List<String> cipherSuites;
 
     static
     {
@@ -81,6 +84,12 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         if ( sslFilter == null )
         {
             sslFilter = new SslFilter( sslContext );
+
+            if( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
+            {
+                sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
+            }
+
             chain.addFirst( "sslFilter", sslFilter );
         }
         else
@@ -137,5 +146,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         {
             throw new RuntimeException( I18n.err( I18n.ERR_682 ), e );
         }
+        
+        this.cipherSuites = ldapServer.getEnabledCipherSuites();
     }
 }

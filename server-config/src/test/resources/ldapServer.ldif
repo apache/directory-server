@@ -40,6 +40,7 @@ ads-certificatePassword: secret
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
 ads-replEnabled: true
+ads-replPingerSleep: 5
 
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
