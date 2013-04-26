@@ -59,7 +59,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -181,7 +180,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
      * Modify an existing user password while the user is connected
      */
     @Test
-    @Ignore
     public void testModifyOwnPasswordConnected() throws Exception
     {
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
@@ -198,6 +196,15 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Send the request
         PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+
+        assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+
+        // Now try to bind with the new password
+        userConnection = getNetworkConnectionAs( ldapServer, "cn=User,ou=system", "secretBis" );
+
+        Entry entry = userConnection.lookup( "cn=User,ou=system" );
+
+        assertNotNull( entry );
 
         userConnection.close();
         adminConnection.close();
@@ -308,23 +315,35 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
 
     /**
-     * Modify an existing user password while the user is not connected
+     * Modify an existing user password with an admin account
      */
     @Test
-    @Ignore
-    public void testSwitchFromAnonymousToBound() throws Exception
+    public void testAdminModifyPassword() throws Exception
     {
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        addUser( adminConnection, "User", "secret" );
+        addUser( adminConnection, "User3", "secret3" );
 
-        // Bind as the user
-        LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
-        anonymousConnection.setTimeOut( 0L );
+        // Modify the user with the admin account
 
-        anonymousConnection.bind( "cn=user,ou=system", "secret" );
+        // Now change the password
+        PwdModifyRequestImpl pwdModifyRequest = new PwdModifyRequestImpl();
+        pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User3,ou=system" ) );
+        pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret3Bis" ) );
 
-        anonymousConnection.close();
+        // Send the request
+        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) adminConnection.extended( pwdModifyRequest );
+
+        assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+
+        // Now try to bind with the new password
+        LdapConnection userConnection = getNetworkConnectionAs( ldapServer, "cn=User3,ou=system", "secret3Bis" );
+
+        Entry entry = userConnection.lookup( "cn=User3,ou=system" );
+
+        assertNotNull( entry );
+
+        userConnection.close();
         adminConnection.close();
     }
 }
