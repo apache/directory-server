@@ -41,6 +41,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
@@ -83,43 +84,224 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
 
     /**
+     * Modify the user's credentials.
+     */
+    private void modifyUserPassword( LdapSession requestor, Dn userDn, byte[] oldPassword, byte[] newPassword,
+        PwdModifyRequest req )
+    {
+        DirectoryService service = requestor.getLdapServer().getDirectoryService();
+        CoreSession adminSession = service.getAdminSession();
+
+        // First, check that the user exists
+        try
+        {
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession );
+            hasEntryContext.setDn( userDn );
+
+            if ( !service.getOperationManager().hasEntry( hasEntryContext ) )
+            {
+                LOG.error( "Cannot find an entry for DN " + userDn );
+                // We can't find the entry in the DIT
+                requestor.getIoSession().write( new PwdModifyResponseImpl(
+                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT ) );
+
+                return;
+            }
+        }
+        catch ( LdapException le )
+        {
+            LOG.error( "Cannot find an entry for DN " + userDn + ", exception : " + le.getMessage() );
+            // We can't find the entry in the DIT
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT ) );
+
+            return;
+        }
+
+        // We can try to update the userPassword now
+        ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
+        modifyContext.setDn( userDn );
+        List<Modification> modifications = new ArrayList<Modification>();
+        Modification modification = null;
+
+        if ( oldPassword != null )
+        {
+            modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                SchemaConstants.USER_PASSWORD_AT, oldPassword );
+
+            modifications.add( modification );
+        }
+
+        if ( newPassword != null )
+        {
+            if ( oldPassword == null )
+            {
+                modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                    SchemaConstants.USER_PASSWORD_AT, newPassword );
+            }
+            else
+            {
+                modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+                    SchemaConstants.USER_PASSWORD_AT, newPassword );
+            }
+
+            modifications.add( modification );
+        }
+
+        modifyContext.setModItems( modifications );
+
+        try
+        {
+            service.getOperationManager().modify( modifyContext );
+
+            LOG.debug( "Password modified for user " + userDn );
+
+            // Ok, all done
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.SUCCESS ) );
+        }
+        catch ( LdapException le )
+        {
+            LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + le.getMessage() );
+            // We can't modify the password
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
+
+            return;
+        }
+    }
+
+
+    /**
+     * Modify his password
+     */
+    private void modifyOwnPassword( LdapSession requestor, Dn principalDn, byte[] oldPassword, byte[] newPassword,
+        PwdModifyRequest req )
+    {
+        DirectoryService service = requestor.getLdapServer().getDirectoryService();
+        CoreSession adminSession = service.getAdminSession();
+
+        // Try to update the userPassword
+        ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
+        modifyContext.setDn( principalDn );
+        List<Modification> modifications = new ArrayList<Modification>();
+        Modification modification = null;
+
+        if ( oldPassword != null )
+        {
+            modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                SchemaConstants.USER_PASSWORD_AT, oldPassword );
+
+            modifications.add( modification );
+        }
+        else
+        {
+            modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                SchemaConstants.USER_PASSWORD_AT );
+
+            modifications.add( modification );
+        }
+
+        if ( newPassword != null )
+        {
+            modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+                SchemaConstants.USER_PASSWORD_AT, newPassword );
+
+            modifications.add( modification );
+        }
+
+        modifyContext.setModItems( modifications );
+
+        try
+        {
+            service.getOperationManager().modify( modifyContext );
+
+            LOG.debug( "Password modified for user " + principalDn );
+
+            // Ok, all done
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.SUCCESS ) );
+        }
+        catch ( LdapException le )
+        {
+            LOG.error( "Cannot modify the password for user " + principalDn + ", exception : " + le.getMessage() );
+            // We can't modify the password
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
+
+            return;
+        }
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public void handleExtendedOperation( LdapSession requestor, PwdModifyRequest req ) throws Exception
     {
+        LOG.debug( "Password modification requested" );
+
         // Grab the adminSession, we might need it later
         DirectoryService service = requestor.getLdapServer().getDirectoryService();
         CoreSession adminSession = service.getAdminSession();
+        String userIdentity = Strings.utf8ToString( req.getUserIdentity() );
+        Dn userDn = null;
 
-        // First check if the user is bound or not
-        if ( requestor.isAuthenticated() )
+        if ( !Strings.isEmpty( userIdentity ) )
         {
-
-        }
-        else
-        {
-            // The user is not authenticated : we have to use the provided userIdentity
-            // and the oldPassword to check if the user is present
-            String userIdentity = Strings.utf8ToString( req.getUserIdentity() );
-
-            Dn userDn = null;
-
             try
             {
                 userDn = service.getDnFactory().create( userIdentity );
             }
             catch ( LdapInvalidDnException lide )
             {
+                LOG.error( "The user DN is invalid : " + userDn );
                 // The userIdentity is not a DN : return with an error code.
                 requestor.getIoSession().write( new PwdModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX ) );
 
                 return;
             }
+        }
 
-            byte[] oldPassword = req.getOldPassword();
-            byte[] newPassword = req.getNewPassword();
+        byte[] oldPassword = req.getOldPassword();
+        byte[] newPassword = req.getNewPassword();
 
+        // First check if the user is bound or not
+        if ( requestor.isAuthenticated() )
+        {
+            Dn principalDn = requestor.getCoreSession().getEffectivePrincipal().getDn();
+
+            LOG.debug( "Trying to modify password for user " + principalDn );
+
+            // First, check that the userDn is null : we can't change the password of someone else
+            // except if we are admin
+            if ( ( userDn != null ) && ( !userDn.equals( principalDn ) ) )
+            {
+                // Are we admin ?
+                if ( !requestor.getCoreSession().isAdministrator() )
+                {
+                    // No : error
+                    LOG.error( "Cannot access to another user's password to modify it" );
+                    requestor.getIoSession().write( new PwdModifyResponseImpl(
+                        req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
+                }
+                else
+                {
+                    // We are administrator, we can try to modify the user's credentials 
+                    modifyUserPassword( requestor, userDn, oldPassword, newPassword, req );
+                }
+            }
+            else
+            {
+                // We are trying to modify our own password
+                modifyOwnPassword( requestor, principalDn, oldPassword, newPassword, req );
+            }
+        }
+        else
+        {
+            // The user is not authenticated : we have to use the provided userIdentity
+            // and the oldPassword to check if the user is present
             BindOperationContext bindContext = new BindOperationContext( adminSession );
             bindContext.setDn( userDn );
             bindContext.setCredentials( oldPassword );
