@@ -31,10 +31,6 @@
   <packaging>jar</packaging>
   <name>ApacheDS Kerberos Client</name>
   
-  <properties>
-    <kerberos.codec.version>${project.version}</kerberos.codec.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.junit</groupId>
@@ -45,7 +41,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
-      <version>${kerberos.codec.version}</version>
     </dependency>
 
     <dependency>
