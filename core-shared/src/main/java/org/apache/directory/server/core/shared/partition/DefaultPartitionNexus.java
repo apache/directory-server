@@ -791,8 +791,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      */
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
-        Partition partition = getPartition( unbindContext.getDn() );
-        partition.unbind( unbindContext );
+        Dn unbindContextDn = unbindContext.getDn();
+
+        if ( !Dn.isNullOrEmpty( unbindContextDn ) )
+        {
+            Partition partition = getPartition( unbindContext.getDn() );
+            partition.unbind( unbindContext );
+        }
     }
 
 
