@@ -112,6 +112,18 @@ public class AuthenticationInterceptorBean extends InterceptorBean
 
 
     /**
+     * @param ppolicies the password policies to add
+     */
+    public void removePasswordPolicies( PasswordPolicyBean... ppolicies )
+    {
+        for ( PasswordPolicyBean ppolicy : ppolicies )
+        {
+            this.passwordPolicies.remove( ppolicy );
+        }
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
