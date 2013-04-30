@@ -540,7 +540,11 @@ public class DefaultDirectoryService implements DirectoryService
 
             if ( hasCorrestSig && method.getName().equals( operation.getMethodName() ) )
             {
-                selectedInterceptorList.add( interceptor.getName() );
+                if ( !selectedInterceptorList.contains( interceptor.getName() ) )
+                {
+                    selectedInterceptorList.add( interceptor.getName() );
+                }
+
                 break;
             }
         }
