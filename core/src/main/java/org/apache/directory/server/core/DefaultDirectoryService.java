@@ -516,6 +516,8 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
+        // We don't call getMethods() because it would get back the default methods
+        // from the BaseInterceptor, something we don't want.
         Method[] methods = interceptorClz.getDeclaredMethods();
 
         for ( Method method : methods )
@@ -549,6 +551,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
+        // Recurse on extended classes, as we have used getDeclaredMethods() instead of getmethods()
         gatherInterceptors( interceptor, interceptorClz.getSuperclass(), operation, selectedInterceptorList );
     }
 
