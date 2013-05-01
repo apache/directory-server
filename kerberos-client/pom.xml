@@ -25,11 +25,9 @@
     <artifactId>apacheds-parent</artifactId>
     <version>2.0.0-M13-SNAPSHOT</version>
   </parent>
-  
-  <!--groupId>org.apache.directory.kerberos.client</groupId-->
   <artifactId>kerberos-client</artifactId>
   <name>kerberos-client</name>
-  <description>A kerberos client implementation using new codec</description>
+  <description>ApacheDS Kerberos Client</description>
   
   <dependencies>
     <dependency>
@@ -37,40 +35,46 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
-  
+
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-kerberos-codec</artifactId>
     </dependency>
-  
+
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-    </dependency>
-  
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-annotations</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-server-annotations</artifactId>
       <scope>test</scope>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-test-framework</artifactId>
       <scope>test</scope>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
       <scope>test</scope>
     </dependency>
-  
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
