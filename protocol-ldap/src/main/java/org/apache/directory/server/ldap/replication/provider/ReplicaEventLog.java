@@ -115,7 +115,8 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     public static final int DEFAULT_PURGE_THRESHOLD_COUNT = 10000;
 
-    public static final int DEFAULT_MAX_IDLE_PERIOD = 2 * 24 * 60;
+    /** The max delay for an idle replication log with no activity */
+    public static final int DEFAULT_MAX_IDLE_PERIOD = 2 * 24 * 60 * 60;
 
 
     /**
