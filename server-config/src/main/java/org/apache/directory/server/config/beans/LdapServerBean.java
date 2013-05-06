@@ -98,6 +98,7 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(attributeType = "ads-enabledCipherSuites", isOptional = true)
     private List<String> enabledCipherSuites = new ArrayList<String>();
 
+
     /**
      * Create a new LdapServerBean instance
      */
@@ -411,12 +412,12 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  confidentiality required", confidentialityRequired ) );
         sb.append( toString( tabs, "  enable replication provider", replReqHandler ) );
         sb.append( toString( tabs, "  Pinger thread sleep time(in sec.)", replPingerSleep ) );
-        
-        if( ( enabledCipherSuites != null ) && !enabledCipherSuites.isEmpty() )
+
+        if ( ( enabledCipherSuites != null ) && !enabledCipherSuites.isEmpty() )
         {
             sb.append( toString( tabs, "  enabled cipher suites", enabledCipherSuites.toString() ) );
         }
-        
+
         if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
         {
             sb.append( tabs ).append( "  extended operation handlers :\n" );
@@ -503,7 +504,13 @@ public class LdapServerBean extends DSBasedServerBean
         this.enabledCipherSuites = enabledCipherSuites;
     }
 
-    
+
+    public void clearEnabledCipherSuites()
+    {
+        this.enabledCipherSuites.clear();
+    }
+
+
     /**
      * @param enabledCipherSuites the cipher suites to add
      */
@@ -515,7 +522,16 @@ public class LdapServerBean extends DSBasedServerBean
         }
     }
 
-    
+
+    public void removeEnabledCipherSuites( String... enabledCipherSuites )
+    {
+        for ( String cs : enabledCipherSuites )
+        {
+            this.enabledCipherSuites.remove( cs );
+        }
+    }
+
+
     /**
      * {@inheritDoc}
      */
