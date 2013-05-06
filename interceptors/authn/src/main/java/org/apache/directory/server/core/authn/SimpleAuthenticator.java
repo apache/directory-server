@@ -43,7 +43,10 @@ import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.UnixCrypt;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -261,9 +264,22 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         checkPwdPolicy( userEntry );
 
+        DirectoryService directoryService = getDirectoryService();
+        String userPasswordAttribute = SchemaConstants.USER_PASSWORD_AT;
+
+        if ( directoryService.isPwdPolicyEnabled() )
+        {
+            AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) directoryService
+                .getInterceptor(
+                InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+            PasswordPolicyConfiguration pPolicyConfig = authenticationInterceptor.getPwdPolicy( userEntry );
+            userPasswordAttribute = pPolicyConfig.getPwdAttribute();
+
+        }
+
         Value<?> userPassword;
 
-        Attribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        Attribute userPasswordAttr = userEntry.get( userPasswordAttribute );
 
         bindContext.setEntry( new ClonedServerEntry( userEntry ) );
 

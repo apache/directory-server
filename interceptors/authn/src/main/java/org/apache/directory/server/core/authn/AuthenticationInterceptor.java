@@ -338,11 +338,21 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkPwdReset( addContext );
 
-        if ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null )
+        // Get the password depending on the configuration
+        String passwordAttribute = SchemaConstants.USER_PASSWORD_AT;
+
+        if ( isPPolicyReqCtrlPresent )
+        {
+            passwordAttribute = policyConfig.getPwdAttribute();
+        }
+
+        Attribute userPasswordAttribute = entry.get( passwordAttribute );
+
+        if ( userPasswordAttribute != null )
         {
             String username = null;
 
-            BinaryValue userPassword = ( BinaryValue ) entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+            BinaryValue userPassword = ( BinaryValue ) userPasswordAttribute.get();
 
             try
             {
