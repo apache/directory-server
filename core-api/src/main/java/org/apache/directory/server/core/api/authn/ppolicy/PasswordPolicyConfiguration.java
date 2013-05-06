@@ -33,8 +33,9 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class PasswordPolicyConfiguration
 {
-    /** the name of the attribute to which the password policy is applied. 
-     * Currently only "userPassword" attribute is supported
+    /**
+     * The name of the attribute to which the password policy is applied. 
+     * The default value is "userPassword"
      */
     private String pwdAttribute = SchemaConstants.USER_PASSWORD_AT;
 
@@ -156,18 +157,28 @@ public class PasswordPolicyConfiguration
     private PasswordValidator pwdValidator = DefaultPasswordValidator.INSTANCE;
 
 
+    /**
+     * @return The name of the attribute used to store the password
+     */
     public String getPwdAttribute()
     {
         return pwdAttribute;
     }
 
 
+    /**
+     * Set the name of the attribute storing the password
+     * @param pwdAttribute The attribute's name
+     */
     public void setPwdAttribute( String pwdAttribute )
     {
         this.pwdAttribute = pwdAttribute;
     }
 
 
+    /**
+     * @return The time that should elapse before we can change the password
+     */
     public int getPwdMinAge()
     {
         return pwdMinAge;
