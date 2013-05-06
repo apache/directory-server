@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -93,8 +94,13 @@ public class ClientServerReplicationIT
     public static void setUp() throws Exception
     {
         Class.forName( FrameworkRunner.class.getName() );
-        startProvider();
-        startConsumer();
+        CountDownLatch counter = new CountDownLatch( 2 );
+
+        startProvider( counter );
+        startConsumer( counter );
+
+        // Wait for the two servers to be up and running
+        counter.await();
     }
 
 
@@ -187,6 +193,7 @@ public class ClientServerReplicationIT
                 Entry consumerEntry = consumerSession.lookup( entryDn, "*", "+" );
                 Csn providerCSN = new Csn( providerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
                 Csn consumerCSN = new Csn( consumerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+
                 if ( consumerCSN.compareTo( providerCSN ) >= 0 )
                 {
                     if ( print )
@@ -277,7 +284,6 @@ public class ClientServerReplicationIT
 
 
     @Test
-    @Ignore
     public void testModDn() throws Exception
     {
         Entry provUser = createEntry();
@@ -287,7 +293,7 @@ public class ClientServerReplicationIT
 
         // Add entry "cn=entryN,dc=example,dc=com" and check it is replicated
         providerSession.add( provUser );
-        
+
         assertTrue( checkEntryReplicated( userDn ) );
 
         // Add container for users "ou=users,dc=example,dc=com" and check it is replicated
@@ -333,7 +339,7 @@ public class ClientServerReplicationIT
 
         assertTrue( checkEntryReplicated( movedAndRenamedEntryDn ) );
         compareEntries( movedAndRenamedEntryDn );
-        
+
         // cleanup
         providerSession.delete( usersContainerDn );
     }
@@ -490,7 +496,7 @@ public class ClientServerReplicationIT
     private void compareEntries( Dn dn ) throws Exception
     {
         String[] searchAttributes = new String[]
-        {
+            {
                 SchemaConstants.ALL_USER_ATTRIBUTES,
                 SchemaConstants.ENTRY_UUID_AT
         };
@@ -539,7 +545,7 @@ public class ClientServerReplicationIT
         })
     @CreateLdapServer(transports =
         { @CreateTransport(port = 16000, protocol = "LDAP") })
-    public static void startProvider() throws Exception
+    public static void startProvider( final CountDownLatch counter ) throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
@@ -556,6 +562,7 @@ public class ClientServerReplicationIT
                 {
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
+                    counter.countDown();
                 }
                 catch ( Exception e )
                 {
@@ -604,7 +611,7 @@ public class ClientServerReplicationIT
             refreshInterval = 1000,
             replicaId = 1
         )
-        public static void startConsumer() throws Exception
+        public static void startConsumer( final CountDownLatch counter ) throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
         consumerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
@@ -649,6 +656,7 @@ public class ClientServerReplicationIT
 
                     consumerSession = consumerServer.getDirectoryService().getAdminSession();
                     consumerSession.add( provConfigEntry );
+                    counter.countDown();
                 }
                 catch ( Exception e )
                 {
