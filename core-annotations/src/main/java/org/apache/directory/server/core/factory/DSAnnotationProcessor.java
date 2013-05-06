@@ -128,6 +128,9 @@ public class DSAnnotationProcessor
 
                 authenticators.add( auth );
             }
+
+            authenticationInterceptor.setAuthenticators( authenticators );
+            authenticationInterceptor.init( service );
         }
 
         service.setInterceptors( interceptorList );
