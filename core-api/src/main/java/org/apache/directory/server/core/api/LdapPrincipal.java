@@ -49,7 +49,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     /** The userPassword
      * @todo security risk remove this immediately
      */
-    private byte[] userPassword;
+    private byte[][] userPasswords;
 
     /** The SchemaManager */
     private SchemaManager schemaManager;
@@ -77,7 +77,7 @@ public final class LdapPrincipal implements Principal, Cloneable
         }
 
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = null;
+        this.userPasswords = null;
     }
 
 
@@ -95,8 +95,9 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         this.dn = dn;
         this.authenticationLevel = authenticationLevel;
-        this.userPassword = new byte[userPassword.length];
-        System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
+        this.userPasswords = new byte[1][];
+        this.userPasswords[0] = new byte[userPassword.length];
+        System.arraycopy( userPassword, 0, this.userPasswords[0], 0, userPassword.length );
         this.schemaManager = schemaManager;
     }
 
@@ -108,7 +109,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     public LdapPrincipal()
     {
         authenticationLevel = AuthenticationLevel.NONE;
-        userPassword = null;
+        userPasswords = null;
     }
 
 
@@ -119,7 +120,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     public LdapPrincipal( SchemaManager schemaManager )
     {
         authenticationLevel = AuthenticationLevel.NONE;
-        userPassword = null;
+        userPasswords = null;
         this.schemaManager = schemaManager;
     }
 
@@ -156,16 +157,23 @@ public final class LdapPrincipal implements Principal, Cloneable
     }
 
 
-    public byte[] getUserPassword()
+    public byte[][] getUserPasswords()
     {
-        return userPassword;
+        return userPasswords;
     }
 
 
-    public void setUserPassword( byte[] userPassword )
+    public void setUserPassword( byte[]... userPasswords )
     {
-        this.userPassword = new byte[userPassword.length];
-        System.arraycopy( userPassword, 0, this.userPassword, 0, userPassword.length );
+        this.userPasswords = new byte[userPasswords.length][];
+        int pos = 0;
+
+        for ( byte[] userPassword : userPasswords )
+        {
+            this.userPasswords[pos] = new byte[userPassword.length];
+            System.arraycopy( userPassword, 0, this.userPasswords[pos], 0, userPassword.length );
+            pos++;
+        }
     }
 
 
@@ -177,9 +185,9 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         LdapPrincipal clone = ( LdapPrincipal ) super.clone();
 
-        if ( userPassword != null )
+        if ( userPasswords != null )
         {
-            clone.setUserPassword( userPassword );
+            clone.setUserPassword( userPasswords );
         }
 
         return clone;

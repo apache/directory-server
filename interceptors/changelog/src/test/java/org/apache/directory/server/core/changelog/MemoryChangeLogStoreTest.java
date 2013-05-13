@@ -144,7 +144,7 @@ public class MemoryChangeLogStoreTest
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
         assertEquals( principal.getDn(), readPrincipal.getDn() );
-        assertNull( readPrincipal.getUserPassword() );
+        assertNull( readPrincipal.getUserPasswords() );
 
         assertEquals( zuluTime, read.getZuluTime() );
         assertEquals( revision, read.getRevision() );

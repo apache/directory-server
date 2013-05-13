@@ -77,7 +77,21 @@ import org.junit.runner.RunWith;
         "sn: administrator",
         "displayName: Directory Superuser",
         "uid: superuser",
-        "userPassword: test" })
+        "userPassword: test",
+        "",
+        // Entry # 2
+        "dn: uid=superuser2,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: top",
+        "cn: superuser2",
+        "sn: administrator",
+        "displayName: Directory Superuser",
+        "uid: superuser2",
+        "userPassword: test1",
+        "userPassword: test2"
+    })
 public class SimpleBindRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
@@ -90,6 +104,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
     }
 
 
@@ -155,6 +170,34 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         bindRequest.setCredentials( "secret" );
 
         BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * Test a successful simple bind request when the user has 2 passwords.
+     */
+    @Test
+    public void testSimpleBindRequest2Passwords() throws Exception
+    {
+        BindRequest bindRequest = new BindRequestImpl();
+        bindRequest.setDn( new Dn( "uid=superUser2,ou=system" ) );
+        bindRequest.setCredentials( "test1" );
+
+        BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+
+        bindRequest = new BindRequestImpl();
+        bindRequest.setDn( new Dn( "uid=superUser2,ou=system" ) );
+        bindRequest.setCredentials( "test2" );
+
+        bindResponse = connection.bind( bindRequest );
 
         assertNotNull( bindResponse );
         assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );

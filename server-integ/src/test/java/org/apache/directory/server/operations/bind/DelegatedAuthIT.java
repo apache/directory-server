@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
 
 
 /**
- * Tests the server to make sure standard compare operations work properly.
+ * Tests the Delegated authenticator
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -100,6 +100,8 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
         LdapConnection ldapConnection = new LdapNetworkConnection( "localhost", getLdapServer()
             .getPort() );
+
+        ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
 
         assertTrue( ldapConnection.isAuthenticated() );

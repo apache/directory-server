@@ -28,7 +28,6 @@ import java.util.Arrays;
 import javax.naming.Context;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -40,7 +39,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.Base64;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.UnixCrypt;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -133,26 +131,28 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
         }
 
-        byte[] storedPassword;
+        byte[][] storedPasswords;
 
         if ( principal == null )
         {
             // Not found in the cache
             // Get the user password from the backend
-            storedPassword = lookupUserPassword( bindContext );
+            storedPasswords = lookupUserPassword( bindContext );
 
             // Deal with the special case where the user didn't enter a password
             // We will compare the empty array with the credentials. Sometime,
             // a user does not set a password. This is bad, but there is nothing
             // we can do against that, except education ...
-            if ( storedPassword == null )
+            if ( storedPasswords == null )
             {
-                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+                storedPasswords = new byte[][]
+                    {};
             }
 
             // Create the new principal before storing it in the cache
             principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
-                AuthenticationLevel.SIMPLE, storedPassword );
+                AuthenticationLevel.SIMPLE );
+            principal.setUserPassword( storedPasswords );
 
             // Now, update the local cache ONLY if pwdpolicy is not enabled.
             if ( !getDirectoryService().isPwdPolicyEnabled() )
@@ -198,25 +198,26 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
 
         // Get the stored password, either from cache or from backend
-        byte[] storedPassword = principal.getUserPassword();
+        byte[][] storedPasswords = principal.getUserPasswords();
 
-        // Now, compare the two passwords.
-        if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
+        // Now, compare the passwords.
+        for ( byte[] storedPassword : storedPasswords )
         {
-            if ( IS_DEBUG )
+            if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
             {
-                LOG.debug( "{} Authenticated", bindContext.getDn() );
-            }
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "{} Authenticated", bindContext.getDn() );
+                }
 
-            return principal;
+                return principal;
+            }
         }
-        else
-        {
-            // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
-            LOG.info( message );
-            throw new LdapAuthenticationException( message );
-        }
+
+        // Bad password ...
+        String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+        LOG.info( message );
+        throw new LdapAuthenticationException( message );
     }
 
 
@@ -226,7 +227,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return the credentials from the backend
      * @throws Exception if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( BindOperationContext bindContext ) throws LdapException
+    private byte[][] lookupUserPassword( BindOperationContext bindContext ) throws LdapException
     {
         // ---- lookup the principal entry's userPassword attribute
         Entry userEntry;
@@ -277,8 +278,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         }
 
-        Value<?> userPassword;
-
         Attribute userPasswordAttr = userEntry.get( userPasswordAttribute );
 
         bindContext.setEntry( new ClonedServerEntry( userEntry ) );
@@ -286,13 +285,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
-            return StringConstants.EMPTY_BYTES;
+            return new byte[][]
+                {};
         }
         else
         {
-            userPassword = userPasswordAttr.get();
+            byte[][] userPasswords = new byte[userPasswordAttr.size()][];
+            int pos = 0;
 
-            return userPassword.getBytes();
+            for ( Value<?> userPassword : userPasswordAttr )
+            {
+                userPasswords[pos] = userPassword.getBytes();
+                pos++;
+            }
+
+            return userPasswords;
         }
     }
 
