@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>2.0.0-M13-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-mavibot-partition</artifactId>
+  <name>ApacheDS Mavibot Partition</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.junit</groupId>
+      <artifactId>junit-addons</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.labs.mavibot</groupId>
+      <artifactId>apache-mavibot</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-avl</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-i18n</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-xdbm-partition</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-xdbm-partition</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-model</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-schema-data</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-util</artifactId>
+    </dependency>
+  </dependencies>
+</project>
