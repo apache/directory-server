@@ -40,7 +40,6 @@ import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,9 +60,10 @@ public class MavibotEntrySerializationTest
 {
 
     private MavibotEntrySerializer serializer = new MavibotEntrySerializer();
-    
+
     private static SchemaManager schemaManager;
-    
+
+
     @BeforeClass
     public static void init() throws Exception
     {
@@ -88,7 +88,7 @@ public class MavibotEntrySerializationTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         MavibotEntrySerializer.setSchemaManager( schemaManager );
     }
 
@@ -96,15 +96,15 @@ public class MavibotEntrySerializationTest
     @Test
     public void testEntryFullSerialization() throws IOException, LdapException, ClassNotFoundException
     {
-        Entry entry1 = new DefaultEntry( schemaManager, 
+        Entry entry1 = new DefaultEntry( schemaManager,
             "dc=example",
             "ObjectClass: top",
             "ObjectClass: domain",
             "dc: example",
             "l: test" );
-        
+
         byte[] data = serializer.serialize( entry1 );
-        
+
         Entry entry2 = serializer.deserialize( ByteBuffer.wrap( data ) );
 
         assertEquals( entry1, entry2 );
