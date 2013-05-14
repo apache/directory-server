@@ -116,7 +116,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "OBJECT level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
     }
@@ -189,7 +189,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
+        System.out.println( "ONE level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
             + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
     }
@@ -262,7 +262,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "SUB level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
             * 10
             + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         connection.close();
