@@ -55,4 +55,8 @@ public @interface CreateAuthenticator
 
     /** Delegate port, use for testing DelegatingAuthenticator */
     int delegatePort() default -1;
+
+
+    /** Tells if we use SSL to connect */
+    boolean delegateSsl() default true;
 }

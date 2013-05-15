@@ -52,6 +52,12 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /** The associated port */
     private int delegatePort;
 
+    /** Tells if we use SSL to connect */
+    private boolean delegateSsl;
+
+    /** The base DN which will be the starting point from which we use the delegator authenticator */
+    private String delegateBaseDn;
+
 
     /**
      * Creates a new instance.
@@ -111,6 +117,42 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
 
     /**
+     * @return the delegateSsl
+     */
+    public boolean isDelegateSsl()
+    {
+        return delegateSsl;
+    }
+
+
+    /**
+     * @param delegateSsl the delegateSsl to set
+     */
+    public void setDelegateSsl( boolean delegateSsl )
+    {
+        this.delegateSsl = delegateSsl;
+    }
+
+
+    /**
+     * @return the delegateBaseDn
+     */
+    public String getDelegateBaseDn()
+    {
+        return delegateBaseDn;
+    }
+
+
+    /**
+     * @param delegateBaseDn the delegateBaseDn to set
+     */
+    public void setDelegateBaseDn( String delegateBaseDn )
+    {
+        this.delegateBaseDn = delegateBaseDn;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public LdapPrincipal authenticate( BindOperationContext bindContext )
@@ -124,7 +166,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         }
 
         // Create a connection on the remote host
-        LdapConnection ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort );
+        LdapConnection ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort, delegateSsl );
 
         try
         {

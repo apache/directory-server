@@ -124,6 +124,7 @@ public class DSAnnotationProcessor
                     DelegatingAuthenticator dauth = ( DelegatingAuthenticator ) auth;
                     dauth.setDelegateHost( createAuthenticator.delegateHost() );
                     dauth.setDelegatePort( createAuthenticator.delegatePort() );
+                    dauth.setDelegateSsl( createAuthenticator.delegateSsl() );
                 }
 
                 authenticators.add( auth );
