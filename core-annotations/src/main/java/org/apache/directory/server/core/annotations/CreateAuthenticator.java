@@ -57,6 +57,22 @@ public @interface CreateAuthenticator
     int delegatePort() default -1;
 
 
+    /** The base DN from which we will delegate authentication */
+    String delegateBaseDn() default "";
+
+
     /** Tells if we use SSL to connect */
-    boolean delegateSsl() default true;
+    boolean delegateSsl() default false;
+
+
+    /** Tells if we use startTls to connect */
+    boolean delegateTls() default true;
+
+
+    /** The SSL TrustManager FQCN */
+    String delegateSslTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
+
+
+    /** The startTls TrustManager FQCN */
+    String delegateTlsTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
 }
