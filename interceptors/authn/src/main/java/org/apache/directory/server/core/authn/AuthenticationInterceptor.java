@@ -285,9 +285,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             authenticatorList = new ArrayList<Authenticator>();
             authenticatorsMapByType.put( authenticator.getAuthenticatorType(), authenticatorList );
+            authenticators.add( authenticator );
         }
 
-        authenticatorList.add( authenticator );
+        if ( !authenticatorList.contains( authenticator ) )
+        {
+            authenticatorList.add( authenticator );
+        }
     }
 
 
