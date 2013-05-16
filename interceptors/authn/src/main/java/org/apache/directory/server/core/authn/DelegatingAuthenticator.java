@@ -260,7 +260,6 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             connectionConfig = new LdapConnectionConfig();
             connectionConfig.setLdapHost( delegateHost );
             connectionConfig.setLdapPort( delegatePort );
-            connectionConfig.setTrustManagers( new NoVerificationTrustManager() );
 
             ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort );
             ldapConnection.connect();
