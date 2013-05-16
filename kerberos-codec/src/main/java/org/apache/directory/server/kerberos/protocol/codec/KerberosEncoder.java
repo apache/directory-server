@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.AbstractAsn1Object;
 import org.apache.directory.api.asn1.EncoderException;
-import org.apache.directory.api.asn1.util.Asn1StringUtils;
 
 
 /**
@@ -37,16 +36,16 @@ public class KerberosEncoder
     {
         ByteBuffer response = null;
         ByteBuffer kerberosMessage = null;
-        
+
         int responseLength = asn1Obj.computeLength();
         kerberosMessage = ByteBuffer.allocate( responseLength );
-        
+
         try
         {
             asn1Obj.encode( kerberosMessage );
 
             if ( isTcp )
-            { 
+            {
                 response = ByteBuffer.allocate( responseLength + 4 );
                 response.putInt( responseLength );
                 response.put( kerberosMessage.array() );
@@ -60,9 +59,9 @@ public class KerberosEncoder
 
             return response;
         }
-        catch( EncoderException e )
+        catch ( EncoderException e )
         {
-            throw new IOException(e.getMessage());
+            throw new IOException( e.getMessage() );
         }
     }
 }

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.avltree;
 
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -30,12 +30,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -187,7 +188,7 @@ public class AvlTreeMapTest
 
         assertTrue( node.value.getOrderedSet().getClass() == AvlTreeImpl.class );
 
-        AvlTree<Integer> dupsTree = ( ( SingletonOrOrderedSet<Integer> ) node.value ).getOrderedSet();
+        AvlTree<Integer> dupsTree = node.value.getOrderedSet();
         assertEquals( 3, dupsTree.getSize() );
     }
 

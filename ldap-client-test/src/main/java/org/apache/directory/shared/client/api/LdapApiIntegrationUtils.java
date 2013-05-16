@@ -32,8 +32,6 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,10 +39,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapApiIntegrationUtils
 {
-
-    /** The class logger. */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapApiIntegrationUtils.class );
-
     /** The Constant DEFAULT_HOST. */
     private static final String DEFAULT_HOST = "localhost";
 

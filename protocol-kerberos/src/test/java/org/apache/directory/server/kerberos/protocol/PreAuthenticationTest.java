@@ -33,7 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -72,7 +71,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     {
         kdcServer = new KdcServer();
         config = kdcServer.getConfig();
-        store  = new MapPrincipalStoreImpl();
+        store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( kdcServer, store );
         session = new KrbDummySession();
         lockBox = new CipherTextHandler();
@@ -260,7 +259,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         assertEquals( "session.getMessage() instanceOf", KrbError.class, msg.getClass() );
         KrbError error = ( KrbError ) msg;
 
-        assertEquals( "ignores unknown pre-auth type and expects PA_ENC_TMSTMP pre-auth", ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
+        assertEquals( "ignores unknown pre-auth type and expects PA_ENC_TMSTMP pre-auth",
+            ErrorType.KDC_ERR_PREAUTH_REQUIRED, error.getErrorCode() );
     }
 
 
@@ -305,7 +305,8 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 
         EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

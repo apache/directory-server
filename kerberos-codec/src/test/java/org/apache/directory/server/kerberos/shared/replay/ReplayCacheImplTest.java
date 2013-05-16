@@ -24,8 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -71,9 +69,9 @@ public class ReplayCacheImplTest
         try
         {
             long clockSkew = 1000; // 1 sec
-    
+
             cacheManager = new CacheManager();
-    
+
             cacheManager.addCache( "kdcReplayCache" );
             Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
             ehCache.getCacheConfiguration().setMaxElementsInMemory( 2 );

@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
-import java.util.List;
+
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -77,7 +77,8 @@ public abstract class AbstractAuthenticationServiceTest
 
         EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp,
+            KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
 
         ByteBuffer buffer = ByteBuffer.allocate( encryptedData.computeLength() );
         byte[] encodedEncryptedData = encryptedData.encode( buffer ).array();

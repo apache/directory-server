@@ -19,12 +19,12 @@
  */
 package org.apache.directory.shared.kerberos;
 
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 
 
@@ -311,8 +311,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime == 0;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
