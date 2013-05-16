@@ -66,7 +66,7 @@ public @interface CreateAuthenticator
 
 
     /** Tells if we use startTls to connect */
-    boolean delegateTls() default true;
+    boolean delegateTls() default false;
 
 
     /** The SSL TrustManager FQCN */
