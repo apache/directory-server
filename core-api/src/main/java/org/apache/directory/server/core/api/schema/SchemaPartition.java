@@ -29,9 +29,9 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -309,7 +309,7 @@ public final class SchemaPartition extends AbstractPartition
             {
                 nbEntry++;
             }
-            
+
             cursor.close();
 
             return nbEntry;
@@ -334,7 +334,7 @@ public final class SchemaPartition extends AbstractPartition
 
         if ( nbChild > 1 )
         {
-            throw new LdapUnwillingToPerformException( "There are children under the entry " + deleteContext.getDn() );
+            throw new LdapContextNotEmptyException( "There are children under the entry " + deleteContext.getDn() );
         }
 
         // The SchemaObject always exist when we reach this method.
@@ -352,7 +352,7 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         updateSchemaModificationAttributes( deleteContext );
-        
+
         return deletedEntry;
     }
 
