@@ -730,7 +730,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         checkAuthenticated( compareContext );
         checkPwdReset( compareContext );
         boolean result = next( compareContext );
-        invalidateAuthenticatorCaches( compareContext.getDn() );
 
         return result;
     }
@@ -834,7 +833,18 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( !directoryService.isPwdPolicyEnabled() || modifyContext.isReplEvent() )
         {
             next( modifyContext );
-            invalidateAuthenticatorCaches( modifyContext.getDn() );
+
+            List<Modification> modifications = modifyContext.getModItems();
+
+            for ( Modification modification : modifications )
+            {
+                if ( USER_PASSWORD_AT.equals( modification.getAttribute().getAttributeType() ) )
+                {
+                    invalidateAuthenticatorCaches( modifyContext.getDn() );
+                    break;
+                }
+            }
+
             return;
         }
 
