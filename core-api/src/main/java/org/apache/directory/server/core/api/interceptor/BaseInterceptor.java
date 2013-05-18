@@ -36,8 +36,8 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -81,10 +81,10 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** The CollectiveExclusions AttributeType */
     protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
-    
+
     /** A storage for the createTimestamp attributeType */
     protected static AttributeType CREATE_TIMESTAMP_AT;
-    
+
     /** A storage for the creatorsName attributeType */
     protected static AttributeType CREATORS_NAME_AT;
 
@@ -121,8 +121,11 @@ public abstract class BaseInterceptor implements Interceptor
     /** A reference to the TriggerExecutionSubentries AT */
     protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
 
-    /** A starage for the uniqueMember attributeType */
+    /** A storage for the uniqueMember attributeType */
     protected static AttributeType UNIQUE_MEMBER_AT;
+
+    /** A storage for the UserPassword attributeType */
+    protected static AttributeType USER_PASSWORD_AT;
 
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
@@ -352,6 +355,7 @@ public abstract class BaseInterceptor implements Interceptor
         TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
             .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        USER_PASSWORD_AT = schemaManager.getAttributeType( SchemaConstants.USER_PASSWORD_AT_OID );
 
         FINAL_INTERCEPTOR.init( directoryService );
     }
