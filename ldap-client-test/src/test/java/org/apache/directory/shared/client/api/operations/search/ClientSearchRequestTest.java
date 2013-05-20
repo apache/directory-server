@@ -354,6 +354,6 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
         assertEquals( "cn=user1,ou=users,ou=system", resultEntry.getDn().getName() );
     
-        cursor.close();
+        searchCursor.close();
     }
 }
