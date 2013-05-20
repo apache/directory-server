@@ -356,4 +356,31 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     
         searchCursor.close();
     }
+
+
+    /**
+     * Test to demonstrate https://issues.apache.org/jira/browse/DIRAPI-140
+     */
+    @Test
+    public void test_DIRAPI140() throws Exception
+    {
+        for ( int i = 0; i < 100; i++ )
+        {
+            System.out.println( "Loop " + i );
+
+            SearchRequest req = new SearchRequestImpl();
+            req.setScope( SearchScope.SUBTREE );
+            req.addAttributes( "*" );
+            req.setTimeLimit( 0 );
+            req.setBase( new Dn( "ou=system" ) );
+            req.setFilter( "(cn=user1)" );
+
+            SearchCursor searchCursor = connection.search( req );
+
+            assertTrue( searchCursor.next() );
+
+            searchCursor.close();
+        }
+    }
+
 }
