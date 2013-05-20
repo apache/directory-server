@@ -208,10 +208,11 @@ public class SaslBindIT extends AbstractLdapTestUnit
         // isn't resolved to localhost by default. In that case we need
         // to use the IP address for the service principal.
         String hostName;
+
         try
         {
             InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
-            hostName = loopback.getHostName();
+            hostName = "localhost";
         }
         catch ( UnknownHostException e )
         {
@@ -502,6 +503,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure GSS-API binds below the RootDSE work.
      */
     @Test
+    //@Ignore("Fails on ac OSX")
     public void testSaslGssApiBind() throws Exception
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );

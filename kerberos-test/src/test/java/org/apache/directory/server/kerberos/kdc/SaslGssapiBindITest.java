@@ -24,8 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
@@ -170,19 +168,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // On Windows 7 and Server 2008 the loopback address 127.0.0.1
         // isn't resolved to localhost by default. In that case we need
         // to use the IP address for the service principal.
-        String hostName;
-        
-        try
-        {
-            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
-            hostName = loopback.getHostName();
-        }
-        catch ( UnknownHostException e )
-        {
-            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
-            hostName = "localhost";
-        }
-        
+        String hostName = "localhost";
         String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
         getLdapServer().setSaslPrincipal( servicePrincipal );
 
@@ -197,7 +183,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         // check if krb5kdc is disabled
         Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
         boolean isKrb5KdcDisabled = false;
-        
+
         if ( krb5kdcAttrs.get( "m-disabled" ) != null )
         {
             isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
