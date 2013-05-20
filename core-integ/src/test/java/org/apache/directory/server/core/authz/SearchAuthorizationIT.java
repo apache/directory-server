@@ -1267,4 +1267,82 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
 
         cnx.unBind();
     }
+
+
+    /**
+     * Checks to make sure <b>allUsers</b> userClass works for search operations.
+     *
+     * @throws Exception if the test encounters an error
+     */
+    @Test
+    public void testDenySearchUserPassword() throws Exception
+    {
+        // create the non-admin user
+        createUser( "billyd", "billyd" );
+
+        // try a search operation which should fail without any ACI
+        LdapConnection userCtx = getConnectionAs( "uid=billyd,ou=users,ou=system", "billyd" );
+        EntryCursor cursor = userCtx.search( "ou=users,ou=system", "(ObjectClass=*)", SearchScope.SUBTREE,
+            "userPassword" );
+        int counter = 0;
+
+        while ( cursor.next() )
+        {
+            Entry result = cursor.get();
+            results.put( result.getDn().getName(), result );
+            counter++;
+        }
+
+        cursor.close();
+
+        assertEquals( 0, counter );
+
+        // now add a subentry that enables anyone to search an entry below ou=system
+        createAccessControlSubentry( "protectUserPassword",
+            "{" +
+                "  identificationTag \"protectUserPassword\"," +
+                "  precedence 14," +
+                "  authenticationLevel none," +
+                "  itemOrUserFirst itemFirst: " +
+                "  {" +
+                "    protectedItems " +
+                "    {" +
+                "      allAttributeValues { userPassword }" +
+                "    }," +
+                "    itemPermissions " +
+                "    {" +
+                "      {" +
+                "        userClasses " +
+                "        {" +
+                "          allUsers " +
+                "        }," +
+                "        grantsAndDenials { denyBrowse }" +
+                "      }," +
+                "      {" +
+                "        userClasses " +
+                "        {" +
+                "          thisEntry " +
+                "        }," +
+                "        grantsAndDenials { grantBrowse }" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}" );
+
+        // see if we can now search that tree which we could not before
+        // should work now with billyd now that all users are authorized
+        userCtx = getConnectionAs( "uid=billyd,ou=users,ou=system", "billyd" );
+        cursor = userCtx.search( "ou=users,ou=system", "(ObjectClass=*)", SearchScope.SUBTREE,
+            "userPassword" );
+        counter = 0;
+
+        while ( cursor.next() )
+        {
+            Entry result = cursor.get();
+            results.put( result.getDn().getName(), result );
+            counter++;
+        }
+
+        cursor.close();
+    }
 }
