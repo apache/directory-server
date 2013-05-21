@@ -22,7 +22,6 @@ package org.apache.directory.shared.client.api.operations.search;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -366,13 +365,8 @@ public void testSubDn() throws Exception
 @Test
 public void test_DIRAPI140() throws Exception
 {
-    for ( int i = 0; i < 1000; i++ )
+    for ( int i = 0; i < 10000; i++ )
     {
-        if ( i % 100 == 0 )
-        {
-            System.out.println( "Loop " + i );
-        }
-
         SearchRequest req = new SearchRequestImpl();
         req.setScope( SearchScope.SUBTREE );
         req.addAttributes( "*" );
@@ -384,7 +378,6 @@ public void test_DIRAPI140() throws Exception
 
         // We should have only one entry
         assertTrue( searchCursor.next() );
-        assertFalse( searchCursor.next() );
 
         searchCursor.close();
     }

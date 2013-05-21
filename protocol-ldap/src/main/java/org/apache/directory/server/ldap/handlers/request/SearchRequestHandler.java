@@ -222,8 +222,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
     }
-    
-    
+
+
     /**
      * Handle the replication request.
      */
@@ -405,6 +405,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             if ( req.isAbandoned() )
             {
+                cursor.close( new OperationAbandonedException() );
+
                 // The cursor has been closed by an abandon request.
                 if ( IS_DEBUG )
                 {
@@ -676,7 +678,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
-                
+
                 return req.getResultResponse();
             }
             else
@@ -842,7 +844,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         }
         finally
         {
-            if ( ( cursor != null  ) && !cursor.isClosed() )
+            if ( ( cursor != null ) && !cursor.isClosed() )
             {
                 try
                 {
@@ -1212,7 +1214,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         try
         {
             isReferral = referralManager.isReferral( reqTargetDn );
-    
+
             if ( !isReferral )
             {
                 // Check if the entry has a parent which is a referral
@@ -1616,6 +1618,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
+        Exception cause = null;
 
         /*
          * Set the result code or guess the best option.
@@ -1624,16 +1627,25 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         if ( e instanceof CursorClosedException )
         {
-            e = (Exception)((CursorClosedException)e).getCause();
-        }
+            cause = ( Exception ) ( ( CursorClosedException ) e ).getCause();
 
-        if ( e instanceof LdapOperationException )
-        {
-            code = ( ( LdapOperationException ) e ).getResultCode();
+            if ( cause == null )
+            {
+                cause = e;
+            }
         }
         else
         {
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            cause = e;
+        }
+
+        if ( cause instanceof LdapOperationException )
+        {
+            code = ( ( LdapOperationException ) cause ).getResultCode();
+        }
+        else
+        {
+            code = ResultCodeEnum.getBestEstimate( cause, req.getType() );
         }
 
         result.setResultCode( code );
@@ -1643,23 +1655,19 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
          * exception into the message if we are in debug mode.  Note we
          * embed the result code name into the message.
          */
-        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
+        String msg = code.toString() + ": failed for " + req + ": " + cause.getLocalizedMessage();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( msg, e );
-        }
-
-        if ( IS_DEBUG )
-        {
-            msg += ":\n" + ExceptionUtils.getStackTrace( e );
+            LOG.debug( msg, cause );
+            msg += ":\n" + ExceptionUtils.getStackTrace( cause );
         }
 
         result.setDiagnosticMessage( msg );
 
-        if ( e instanceof LdapOperationException )
+        if ( cause instanceof LdapOperationException )
         {
-            LdapOperationException ne = ( LdapOperationException ) e;
+            LdapOperationException ne = ( LdapOperationException ) cause;
 
             // Add the matchedDN if necessary
             boolean setMatchedDn = code == ResultCodeEnum.NO_SUCH_OBJECT || code == ResultCodeEnum.ALIAS_PROBLEM
