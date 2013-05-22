@@ -154,7 +154,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean connect() throws LdapException, IOException
+    public boolean connect() throws LdapException
     {
         return true;
     }
@@ -1152,7 +1152,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public void bind() throws LdapException, IOException
+    public void bind() throws LdapException
     {
         throw new UnsupportedOperationException(
             "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
@@ -1162,7 +1162,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public void anonymousBind() throws LdapException, IOException
+    public void anonymousBind() throws LdapException
     {
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setName( "" );
@@ -1177,7 +1177,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
+    public BindResponse bind( BindRequest bindRequest ) throws LdapException
     {
         if ( bindRequest == null )
         {
