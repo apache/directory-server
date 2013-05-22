@@ -44,6 +44,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -165,12 +166,13 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        // On Windows 7 and Server 2008 the loopback address 127.0.0.1
-        // isn't resolved to localhost by default. In that case we need
-        // to use the IP address for the service principal.
-        String hostName = "localhost";
-        String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
-        getLdapServer().setSaslPrincipal( servicePrincipal );
+        // Within the KerberosPrincipal/PrincipalName class a DNS lookup is done 
+        // to get the canonical name of the host. So the principal name
+        // may be extended to the form "ldap/localhost.example.com@EXAMPLE.COM"
+        KerberosPrincipal servicePrincipal = new KerberosPrincipal( "ldap/localhost@EXAMPLE.COM",
+            KerberosPrincipal.KRB_NT_SRV_HST );
+        String servicePrincipalName = servicePrincipal.getName();
+        getLdapServer().setSaslPrincipal( servicePrincipalName );
 
         Attributes attrs;
 
@@ -218,7 +220,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
         attrs = getPrincipalAttributes( "Service", "KDC Service", "krbtgt", "secret", "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
         users.createSubcontext( "uid=krbtgt", attrs );
 
-        attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", servicePrincipal );
+        attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", servicePrincipalName );
         users.createSubcontext( "uid=ldap", attrs );
     }
 

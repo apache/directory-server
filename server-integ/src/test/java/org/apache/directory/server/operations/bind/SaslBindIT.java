@@ -25,8 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import javax.naming.NamingEnumeration;
@@ -34,6 +32,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
@@ -204,28 +203,19 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
     public SaslBindIT() throws Exception
     {
-        // On Windows 7 and Server 2008 the loopback address 127.0.0.1
-        // isn't resolved to localhost by default. In that case we need
-        // to use the IP address for the service principal.
-        String hostName;
+        // Within the KerberosPrincipal/PrincipalName class a DNS lookup is done 
+        // to get the canonical name of the host. So the principal name
+        // may be extended to the form "ldap/localhost.example.com@EXAMPLE.COM"
+        KerberosPrincipal servicePrincipal = new KerberosPrincipal( "ldap/localhost@EXAMPLE.COM",
+            KerberosPrincipal.KRB_NT_SRV_HST );
+        String servicePrincipalName = servicePrincipal.getName();
 
-        try
-        {
-            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
-            hostName = "localhost";
-        }
-        catch ( UnknownHostException e )
-        {
-            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
-            hostName = "localhost";
-        }
-        String servicePrincipal = "ldap/" + hostName + "@EXAMPLE.COM";
-        getLdapServer().setSaslPrincipal( servicePrincipal );
+        getLdapServer().setSaslPrincipal( servicePrincipalName );
 
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( new Dn( "uid=ldap,ou=users,dc=example,dc=com" ) );
         modifyRequest.replace( "userPassword", "randall" );
-        modifyRequest.replace( "krb5PrincipalName", servicePrincipal );
+        modifyRequest.replace( "krb5PrincipalName", servicePrincipalName );
         getService().getAdminSession().modify( modifyRequest );
     }
 
