@@ -65,12 +65,6 @@ import org.junit.runner.RunWith;
 })
 public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 {
-    @AfterClass
-    public static void after()
-    {
-        System.out.println( "PasswordHashingInterceptorTestIT tests done");
-    }
-
     @Test
     public void testAddWithPlainPassword() throws Exception
     {
