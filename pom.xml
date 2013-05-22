@@ -24,7 +24,8 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>29</version>
+    <version>30-SNAPSHOT</version>
+    <relativePath></relativePath>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -51,11 +52,11 @@
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.4</ant.version>
+    <ant.version>1.9.1</ant.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
-    <commons.daemon.version>1.0.13</commons.daemon.version>
+    <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.2</commons.net.version>
@@ -73,8 +74,8 @@
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.7</mina.core.version>
     <plexus.utils.version>3.0.10</plexus.utils.version>
-    <slf4j.api.version>1.7.2</slf4j.api.version>
-    <slf4j.log4j12.version>1.7.2</slf4j.log4j12.version>
+    <slf4j.api.version>1.7.5</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.5</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
@@ -96,7 +97,7 @@
     <module>i18n</module>
     <module>all</module>
     <module>jdbm-partition</module>
-    <!--module>mvbt-partition</module-->
+    <!--module>mavibot-partition</module-->
     <module>xdbm-partition</module>
     <module>core-shared</module>
     <module>core-api</module>
@@ -289,6 +290,7 @@
               <configuration>
                 <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
                 <aggregate>true</aggregate>
+                <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
               </configuration>
             </plugin>
       
