@@ -45,6 +45,7 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
@@ -178,7 +179,11 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             directoryService.getOperationManager().bind( bindContext );
 
             // As a result, store the created session in the Core Session
-            ldapSession.setCoreSession( bindContext.getSession() );
+            CoreSession coreSession = bindContext.getSession();
+            ldapSession.setCoreSession( coreSession );
+
+            // Store the IoSession in the coreSession
+            ( ( DefaultCoreSession ) coreSession ).setIoSession( bindContext.getIoSession() );
 
             // And set the current state accordingly
             if ( !ldapSession.getCoreSession().isAnonymous() )
@@ -330,6 +335,9 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
                     // Set the user session into the ldap session 
                     ldapSession.setCoreSession( userSession );
+
+                    // Store the IoSession in the coreSession
+                    ( ( DefaultCoreSession ) userSession ).setIoSession( ldapSession.getIoSession() );
                 }
 
                 // Mark the user as authenticated

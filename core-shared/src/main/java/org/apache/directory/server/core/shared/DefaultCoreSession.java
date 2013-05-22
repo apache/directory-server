@@ -76,6 +76,7 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -103,6 +104,9 @@ public class DefaultCoreSession implements CoreSession
     /** A reference to the ObjectClass AT */
     protected AttributeType OBJECT_CLASS_AT;
 
+    /** The associated IoSession */
+    private IoSession ioSession;
+
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -125,6 +129,17 @@ public class DefaultCoreSession implements CoreSession
 
         // setup attribute type value
         OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+    }
+
+
+    /**
+     * Stores the IoSession into the CoreSession. This is only useful when the server is not embedded.
+     * 
+     * @param ioSession The IoSession for this CoreSession
+     */
+    public void setIoSession( IoSession ioSession )
+    {
+        this.ioSession = ioSession;
     }
 
 
@@ -368,13 +383,19 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#getClientAddress()
+    /**
+     * {@inheritDoc}
      */
     public SocketAddress getClientAddress()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if ( ioSession != null )
+        {
+            return ioSession.getRemoteAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -421,13 +442,19 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#getServiceAddress()
+    /**
+     * {@inheritDoc}
      */
     public SocketAddress getServiceAddress()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if ( ioSession != null )
+        {
+            return ioSession.getServiceAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
