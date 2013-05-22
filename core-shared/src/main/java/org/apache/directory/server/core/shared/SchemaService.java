@@ -310,7 +310,7 @@ public class SchemaService
                         new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
             }
 
-            return ( Entry ) schemaSubentry.clone();
+            return schemaSubentry.clone();
         }
     }
 
@@ -331,14 +331,15 @@ public class SchemaService
                     new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
         }
 
-        return ( Entry ) schemaSubentry.clone();
+        return schemaSubentry.clone();
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public static Entry getSubschemaEntry( DirectoryService directoryService, FilteringOperationContext operationContext ) throws LdapException
+    public static Entry getSubschemaEntry( DirectoryService directoryService, FilteringOperationContext operationContext )
+        throws LdapException
     {
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
