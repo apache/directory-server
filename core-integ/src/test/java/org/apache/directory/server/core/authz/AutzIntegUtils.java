@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.AddRequest;
@@ -287,6 +288,25 @@ public class AutzIntegUtils
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( dn );
         modReq.add( "entryACI", aciItem );
+
+        getAdminConnection().modify( modReq );
+    }
+
+
+    /**
+     * Adds and entryACI attribute to an entry specified by a relative name
+     * with respect to ou=system
+     *
+     * @param dn a name relative to ou=system
+     * @param aciItem the entryACI attribute value
+     * @throws Exception if there is a problem adding the attribute
+     */
+    public static void removeEntryACI( Dn dn ) throws Exception
+    {
+        // modify the entry relative to ou=system to include the aciItem
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( dn );
+        modReq.remove( new DefaultAttribute( "entryACI" ) );
 
         getAdminConnection().modify( modReq );
     }
