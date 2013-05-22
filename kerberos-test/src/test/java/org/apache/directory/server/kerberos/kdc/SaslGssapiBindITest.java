@@ -44,7 +44,6 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -166,13 +165,7 @@ public class SaslGssapiBindITest extends AbstractLdapTestUnit
     @Before
     public void setUp() throws Exception
     {
-        // Within the KerberosPrincipal/PrincipalName class a DNS lookup is done 
-        // to get the canonical name of the host. So the principal name
-        // may be extended to the form "ldap/localhost.example.com@EXAMPLE.COM"
-        KerberosPrincipal servicePrincipal = new KerberosPrincipal( "ldap/localhost@EXAMPLE.COM",
-            KerberosPrincipal.KRB_NT_SRV_HST );
-        String servicePrincipalName = servicePrincipal.getName();
-        getLdapServer().setSaslPrincipal( servicePrincipalName );
+        String servicePrincipalName = KerberosTestUtils.fixServicePrincipalName( "ldap/localhost@EXAMPLE.COM", null, getLdapServer() );
 
         Attributes attrs;
 

@@ -32,7 +32,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
@@ -50,8 +49,6 @@ import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.Message;
-import org.apache.directory.api.ldap.model.message.ModifyRequest;
-import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
@@ -72,6 +69,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.kerberos.kdc.KerberosTestUtils;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
@@ -79,6 +77,7 @@ import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -201,22 +200,11 @@ public class SaslBindIT extends AbstractLdapTestUnit
     public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
 
 
-    public SaslBindIT() throws Exception
+    @Before
+    public void init() throws Exception
     {
-        // Within the KerberosPrincipal/PrincipalName class a DNS lookup is done 
-        // to get the canonical name of the host. So the principal name
-        // may be extended to the form "ldap/localhost.example.com@EXAMPLE.COM"
-        KerberosPrincipal servicePrincipal = new KerberosPrincipal( "ldap/localhost@EXAMPLE.COM",
-            KerberosPrincipal.KRB_NT_SRV_HST );
-        String servicePrincipalName = servicePrincipal.getName();
-
-        getLdapServer().setSaslPrincipal( servicePrincipalName );
-
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new Dn( "uid=ldap,ou=users,dc=example,dc=com" ) );
-        modifyRequest.replace( "userPassword", "randall" );
-        modifyRequest.replace( "krb5PrincipalName", servicePrincipalName );
-        getService().getAdminSession().modify( modifyRequest );
+        KerberosTestUtils.fixServicePrincipalName( "ldap/localhost@EXAMPLE.COM", new Dn(
+            "uid=ldap,ou=users,dc=example,dc=com" ), getLdapServer() );
     }
 
 

@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -40,6 +41,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.kerberos.kdc.KerberosTestUtils;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
@@ -139,11 +141,11 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
 
     private static KdcConnection conn;
     
-    private String userPassword = "secret";
+    private static String userPassword = "secret";
     
-    private String principalName = "will@EXAMPLE.COM";
+    private static String principalName = "will@EXAMPLE.COM";
     
-    private String serverPrincipal = "ldap/localhost@EXAMPLE.COM";
+    private static String serverPrincipal;
 
     
     @Before
@@ -165,6 +167,11 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
             config.setEncryptionTypes( kdcServer.getConfig().getEncryptionTypes() );
             config.setTimeout( Integer.MAX_VALUE );
             conn = new KdcConnection( config );
+        }
+        if ( serverPrincipal == null )
+        {
+            serverPrincipal = KerberosTestUtils.fixServicePrincipalName( "ldap/localhost@EXAMPLE.COM", new Dn(
+                "uid=ldap,dc=example,dc=com" ), getLdapServer() );
         }
     }
     
