@@ -900,24 +900,24 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 {
                     ldapUrl = new LdapUrl( url );
                     ldapUrl.setForceScopeRendering( true );
+
+                    switch ( req.getScope() )
+                    {
+                        case SUBTREE:
+                            ldapUrl.setScope( SearchScope.SUBTREE.getScope() );
+                            break;
+
+                        case ONELEVEL: // one level here is object level on remote server
+                            ldapUrl.setScope( SearchScope.OBJECT.getScope() );
+                            break;
+
+                        default:
+                            ldapUrl.setScope( SearchScope.OBJECT.getScope() );
+                    }
                 }
                 catch ( LdapURLEncodingException e )
                 {
                     LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
-                }
-
-                switch ( req.getScope() )
-                {
-                    case SUBTREE:
-                        ldapUrl.setScope( SearchScope.SUBTREE.getScope() );
-                        break;
-
-                    case ONELEVEL: // one level here is object level on remote server
-                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
-                        break;
-
-                    default:
-                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
                 }
 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );
