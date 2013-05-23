@@ -43,7 +43,6 @@ public class KdcReqBodyContainer extends AbstractContainer
     public KdcReqBodyContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = KdcReqBodyGrammar.getInstance();
         setTransition( KdcReqBodyStatesEnum.START_STATE );
     }

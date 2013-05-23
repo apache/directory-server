@@ -44,7 +44,6 @@ public class EncTgsRepPartContainer extends AbstractContainer
     public EncTgsRepPartContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = EncTgsRepPartGrammar.getInstance();
         setTransition( EncTgsRepPartStatesEnum.START_STATE );
     }

@@ -47,7 +47,6 @@ public class TicketContainer extends AbstractContainer
     public TicketContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[10];
         this.grammar = TicketGrammar.getInstance();
         setTransition( TicketStatesEnum.START_STATE );
     }

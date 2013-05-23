@@ -44,7 +44,6 @@ public class EncKrbPrivPartContainer extends AbstractContainer
     public EncKrbPrivPartContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = EncKrbPrivPartGrammar.getInstance();
         setTransition( EncKrbPrivPartStatesEnum.START_STATE );
     }

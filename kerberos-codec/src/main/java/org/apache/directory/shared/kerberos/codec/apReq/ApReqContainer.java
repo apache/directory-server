@@ -44,7 +44,6 @@ public class ApReqContainer extends AbstractContainer
     public ApReqContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = ApReqGrammar.getInstance();
         setTransition( ApReqStatesEnum.START_STATE );
     }

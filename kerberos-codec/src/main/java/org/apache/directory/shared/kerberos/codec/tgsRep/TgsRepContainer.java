@@ -44,7 +44,6 @@ public class TgsRepContainer extends KdcRepContainer
     public TgsRepContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = TgsRepGrammar.getInstance();
         setTransition( TgsRepStatesEnum.START_STATE );
     }

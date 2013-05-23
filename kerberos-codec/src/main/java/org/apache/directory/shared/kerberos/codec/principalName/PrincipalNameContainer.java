@@ -41,7 +41,6 @@ public class PrincipalNameContainer extends AbstractContainer
     public PrincipalNameContainer()
     {
         super();
-        this.stateStack = new int[1];
         this.grammar = PrincipalNameGrammar.getInstance();
         setTransition( PrincipalNameStatesEnum.START_STATE );
     }

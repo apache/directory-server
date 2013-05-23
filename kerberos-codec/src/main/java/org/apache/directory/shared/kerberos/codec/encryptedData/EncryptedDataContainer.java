@@ -41,7 +41,6 @@ public class EncryptedDataContainer extends AbstractContainer
     public EncryptedDataContainer()
     {
         super();
-        this.stateStack = new int[1];
         this.grammar = EncryptedDataGrammar.getInstance();
         setTransition( EncryptedDataStatesEnum.START_STATE );
     }

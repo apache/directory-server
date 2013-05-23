@@ -41,7 +41,6 @@ public class PaEncTsEncContainer extends AbstractContainer
     public PaEncTsEncContainer()
     {
         super();
-        this.stateStack = new int[1];
         this.grammar = PaEncTsEncGrammar.getInstance();
         setTransition( PaEncTsEncStatesEnum.START_STATE );
     }

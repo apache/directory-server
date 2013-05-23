@@ -285,7 +285,7 @@ public class ApacheDsService
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.setCacheService( cacheService );
-        
+
         configPartition.initialize();
     }
 
@@ -309,9 +309,9 @@ public class ApacheDsService
 
         // Store the default directories
         directoryService.setInstanceLayout( instanceLayout );
-        
+
         directoryService.setCacheService( cacheService );
-        
+
         directoryService.startup();
 
         AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -328,11 +328,11 @@ public class ApacheDsService
 
         AttributeType createdTimeAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
         MANDATORY_ENTRY_ATOP_MAP.put( createdTimeAt.getName(), new AttributeTypeOptions( createdTimeAt ) );
-        
+
         MANDATORY_ENTRY_ATOP_AT = new String[MANDATORY_ENTRY_ATOP_MAP.size()];
-        
+
         int pos = 0;
-        
+
         for ( AttributeTypeOptions attributeTypeOptions : MANDATORY_ENTRY_ATOP_MAP.values() )
         {
             MANDATORY_ENTRY_ATOP_AT[pos++] = attributeTypeOptions.getAttributeType().getName();
@@ -461,7 +461,8 @@ public class ApacheDsService
     /**
      * start the KERBEROS server
      */
-    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService ) throws Exception
+    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService )
+        throws Exception
     {
         LOG.info( "Starting the Kerberos server" );
         long startTime = System.currentTimeMillis();
@@ -475,7 +476,7 @@ public class ApacheDsService
         }
 
         LOG.info( "Starting the Kerberos server" );
-        
+
         getDirectoryService().startup();
         kdcServer.setDirectoryService( getDirectoryService() );
 

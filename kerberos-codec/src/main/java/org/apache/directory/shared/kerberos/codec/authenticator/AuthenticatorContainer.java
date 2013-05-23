@@ -44,7 +44,6 @@ public class AuthenticatorContainer extends AbstractContainer
     public AuthenticatorContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = AuthenticatorGrammar.getInstance();
         setTransition( AuthenticatorStatesEnum.START_STATE );
     }

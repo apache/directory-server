@@ -41,7 +41,6 @@ public class KrbSafeBodyContainer extends AbstractContainer
     public KrbSafeBodyContainer()
     {
         super();
-        this.stateStack = new int[1];
         this.grammar = KrbSafeBodyGrammar.getInstance();
         setTransition( KrbSafeBodyStatesEnum.START_STATE );
     }

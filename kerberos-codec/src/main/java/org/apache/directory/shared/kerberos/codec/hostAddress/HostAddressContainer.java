@@ -41,7 +41,6 @@ public class HostAddressContainer extends AbstractContainer
     public HostAddressContainer()
     {
         super();
-        this.stateStack = new int[1];
         this.grammar = HostAddressGrammar.getInstance();
         setTransition( HostAddressStatesEnum.START_STATE );
     }

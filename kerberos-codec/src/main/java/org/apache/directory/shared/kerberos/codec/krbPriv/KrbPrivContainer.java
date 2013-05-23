@@ -44,7 +44,6 @@ public class KrbPrivContainer extends AbstractContainer
     public KrbPrivContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
         this.grammar = KrbPrivGrammar.getInstance();
         setTransition( KrbPrivStatesEnum.START_STATE );
     }
