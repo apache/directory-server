@@ -192,7 +192,7 @@ public class ChangePasswdData extends AbstractAsn1Object
 
         sb.append( "ChangePasswdData : \n" );
 
-        sb.append( "    newPasswd : " ).append( newPasswd ).append( '\n' );
+        sb.append( "    newPasswd : " ).append( Strings.utf8ToString( newPasswd ) ).append( '\n' );
         sb.append( "    targName : " ).append( targName ).append( '\n' );
         sb.append( "    targRealm : " ).append( targRealm ).append( '\n' );
 

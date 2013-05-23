@@ -37,8 +37,6 @@ import org.apache.directory.api.util.Strings;
  */
 public class KerberosTime implements Comparable<KerberosTime>
 {
-    private static final long serialVersionUID = 1L;
-
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
 

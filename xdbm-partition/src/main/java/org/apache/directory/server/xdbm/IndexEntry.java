@@ -163,7 +163,7 @@ public class IndexEntry<K, ID>
     }
 
 
-    public boolean equals( IndexEntry<K, ID> that )
+    public boolean equals( Object that )
     {
         if ( that == this )
         {
@@ -175,7 +175,8 @@ public class IndexEntry<K, ID>
             return false;
         }
 
-        IndexEntry<K, ID> thatIndexEntry = that;
+        @SuppressWarnings("unchecked")
+        IndexEntry<K, ID> thatIndexEntry = ( IndexEntry<K, ID> ) that;
 
         if ( thatIndexEntry.getId() == null )
         {
