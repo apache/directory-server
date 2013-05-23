@@ -981,9 +981,12 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException
     {
-        if ( !started )
+        synchronized ( this )
         {
-            throw new IllegalStateException( "Service has not started." );
+            if ( !started )
+            {
+                throw new IllegalStateException( "Service has not started." );
+            }
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
@@ -1003,9 +1006,13 @@ public class DefaultDirectoryService implements DirectoryService
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
     {
-        if ( !started )
+        synchronized ( this )
         {
-            throw new IllegalStateException( "Service has not started." );
+            if ( !started )
+            {
+                throw new IllegalStateException( "Service has not started." );
+
+            }
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
@@ -1424,7 +1431,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public boolean isStarted()
+    public synchronized boolean isStarted()
     {
         return started;
     }

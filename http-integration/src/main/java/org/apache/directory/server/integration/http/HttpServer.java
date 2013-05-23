@@ -203,6 +203,7 @@ public class HttpServer
 
                 OutputStream stream = new FileOutputStream( ksFile );
                 ks.store( stream, password.toCharArray() );
+                stream.close();
 
                 SslSocketConnector httpsConnector = new SslSocketConnector();
                 httpsConnector.setPort( httpsTransport.getPort() );
