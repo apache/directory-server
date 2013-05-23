@@ -386,6 +386,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                     case MODDN:
                         syncStateType = SyncStateTypeEnum.MODDN;
+                        break;
 
                     case DELETE:
                         syncStateType = SyncStateTypeEnum.DELETE;
