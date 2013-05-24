@@ -130,17 +130,17 @@ public class JdbmPartition extends AbstractBTreePartition
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
-                optimizer = new NoOpOptimizer();
+                setOptimizer( new NoOpOptimizer() );
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry>( this );
+                setOptimizer( new DefaultOptimizer<Entry>( this ) );
             }
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
 
-            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
+            setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );

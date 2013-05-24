@@ -74,14 +74,14 @@ public class AvlPartition extends AbstractBTreePartition
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
-                optimizer = new NoOpOptimizer();
+                setOptimizer( new NoOpOptimizer() );
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry>( this );
+                setOptimizer( new DefaultOptimizer<Entry>( this ) );
             }
 
-            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
+            setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
 
             if ( isInitialized() )
             {

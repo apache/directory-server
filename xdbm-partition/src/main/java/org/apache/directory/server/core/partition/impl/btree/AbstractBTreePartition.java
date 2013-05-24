@@ -100,10 +100,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private static final Logger LOG = LoggerFactory.getLogger( AbstractBTreePartition.class );
 
     /** the search engine used to search the database */
-    protected SearchEngine searchEngine;
+    private SearchEngine searchEngine;
 
     /** The optimizer to use during search operation */
-    protected Optimizer optimizer;
+    private Optimizer optimizer;
 
     /** Tells if the Optimizer is enabled */
     protected boolean optimizerEnabled = true;
@@ -2891,5 +2891,32 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public void addToCache( String id, Entry entry )
     {
+    }
+
+
+    /**
+     * @return the optimizer
+     */
+    public Optimizer getOptimizer()
+    {
+        return optimizer;
+    }
+
+
+    /**
+     * @param optimizer the optimizer to set
+     */
+    public void setOptimizer( Optimizer optimizer )
+    {
+        this.optimizer = optimizer;
+    }
+
+
+    /**
+     * @param searchEngine the searchEngine to set
+     */
+    public void setSearchEngine( SearchEngine searchEngine )
+    {
+        this.searchEngine = searchEngine;
     }
 }

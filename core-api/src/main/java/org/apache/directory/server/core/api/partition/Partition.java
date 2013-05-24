@@ -281,8 +281,8 @@ public interface Partition
      * @throws IOException if we can't write the data
      */
     void dumpIndex( OutputStream stream, String name ) throws IOException;
-    
-    
+
+
     /**
      * set the Cache service 
      *
