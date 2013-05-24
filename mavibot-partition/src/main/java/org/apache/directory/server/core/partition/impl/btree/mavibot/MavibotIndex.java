@@ -38,7 +38,6 @@ import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.mavibot.btree.BTreeConfiguration;
 import org.apache.mavibot.btree.RecordManager;
 import org.apache.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.mavibot.btree.serializer.ElementSerializer;
@@ -77,12 +76,12 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
      */
     protected MavibotTable<String, K> reverse;
 
-
     /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
 
     protected RecordManager recordMan;
-    
+
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ----------------------------------------------------------------------
@@ -94,7 +93,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         super( attributeId, withReverse );
 
         this.recordMan = recordMan;
-        
+
         initialized = false;
     }
 
@@ -163,8 +162,8 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
          */
 
         ElementSerializer<K> forwardKeySerializer = null;
-        
-        if( !attributeType.getSyntax().isHumanReadable() )
+
+        if ( !attributeType.getSyntax().isHumanReadable() )
         {
             forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer();
         }
@@ -172,9 +171,10 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         {
             forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer();
         }
-        
+
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
-        forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer, new StringSerializer(), true );
+        forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
+            new StringSerializer(), true );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -185,7 +185,8 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         if ( withReverse )
         {
             String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-            reverse = new MavibotTable<String, K>( recordMan, schemaManager, reverseTableName, new StringSerializer(), forwardKeySerializer, !attributeType.isSingleValued() );
+            reverse = new MavibotTable<String, K>( recordMan, schemaManager, reverseTableName, new StringSerializer(),
+                forwardKeySerializer, !attributeType.isSingleValued() );
         }
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();

@@ -33,7 +33,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.mavibot.btree.BTreeConfiguration;
 import org.apache.mavibot.btree.RecordManager;
 import org.apache.mavibot.btree.serializer.StringSerializer;
 import org.slf4j.Logger;
@@ -123,9 +122,11 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn, Entry>
         MavibotParentIdAndRdnSerializer parentIdAndSerializer = new MavibotParentIdAndRdnSerializer();
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
-        forward = new MavibotTable<ParentIdAndRdn, String>( recordMan, schemaManager, forwardTableName, parentIdAndSerializer, new StringSerializer(), false );
+        forward = new MavibotTable<ParentIdAndRdn, String>( recordMan, schemaManager, forwardTableName,
+            parentIdAndSerializer, new StringSerializer(), false );
 
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-        reverse = new MavibotTable<String, ParentIdAndRdn>( recordMan, schemaManager, reverseTableName, new StringSerializer(), parentIdAndSerializer, false );
+        reverse = new MavibotTable<String, ParentIdAndRdn>( recordMan, schemaManager, reverseTableName,
+            new StringSerializer(), parentIdAndSerializer, false );
     }
 }
