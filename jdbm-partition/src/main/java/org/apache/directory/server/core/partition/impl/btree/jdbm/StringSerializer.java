@@ -37,7 +37,7 @@ public class StringSerializer implements Serializer
     private static final long serialVersionUID = -173163945773783649L;
 
     /** A static instance of a StringSerializer */
-    public static StringSerializer INSTANCE = new StringSerializer();
+    public static final StringSerializer INSTANCE = new StringSerializer();
 
 
     /**

@@ -114,8 +114,10 @@ public class DhcpProtocolHandler implements IoHandler
         throws Exception
     {
         if ( logger.isDebugEnabled() )
+        {
             logger.debug( "{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
                 session.getLocalAddress() );
+        }
 
         final DhcpMessage request = ( DhcpMessage ) message;
 
@@ -156,19 +158,31 @@ public class DhcpProtocolHandler implements IoHandler
     {
 
         final MessageType mt = reply.getMessageType();
+
         if ( !isNullAddress( request.getRelayAgentAddress() ) )
+        {
             // send to agent, if received via agent.
             return new InetSocketAddress( request.getRelayAgentAddress(), SERVER_PORT );
+        }
         else if ( null != mt && mt == MessageType.DHCPNAK )
+        {
             // force broadcast for DHCPNAKs
             return new InetSocketAddress( "255.255.255.255", 68 );
-        else // not a NAK...
-        if ( !isNullAddress( request.getCurrentClientAddress() ) )
-            // have a current address? unicast to it.
-            return new InetSocketAddress( request.getCurrentClientAddress(),
-                CLIENT_PORT );
+        }
         else
-            return new InetSocketAddress( "255.255.255.255", 68 );
+        {
+            // not a NAK...
+            if ( !isNullAddress( request.getCurrentClientAddress() ) )
+            {
+                // have a current address? unicast to it.
+                return new InetSocketAddress( request.getCurrentClientAddress(),
+                    CLIENT_PORT );
+            }
+            else
+            {
+                return new InetSocketAddress( "255.255.255.255", 68 );
+            }
+        }
     }
 
 
@@ -182,9 +196,15 @@ public class DhcpProtocolHandler implements IoHandler
     private boolean isNullAddress( InetAddress addr )
     {
         final byte a[] = addr.getAddress();
+
         for ( int i = 0; i < a.length; i++ )
+        {
             if ( a[i] != 0 )
+            {
                 return false;
+            }
+        }
+
         return true;
     }
 
@@ -192,7 +212,9 @@ public class DhcpProtocolHandler implements IoHandler
     public void messageSent( IoSession session, Object message )
     {
         if ( logger.isDebugEnabled() )
+        {
             logger.debug( "{} -> {} SENT: " + message, session.getRemoteAddress(),
                 session.getLocalAddress() );
+        }
     }
 }

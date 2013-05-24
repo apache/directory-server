@@ -72,7 +72,7 @@ public class ReferralInterceptor extends BaseInterceptor
     private Dn subschemaSubentryDn;
 
 
-    static private void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
+    private static void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
     {
         StringValue ref = ( StringValue ) value;
 
@@ -138,7 +138,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    static private boolean isReferral( Entry entry ) throws LdapException
+    private static boolean isReferral( Entry entry ) throws LdapException
     {
         // Check that the entry is not null, otherwise return FALSE.
         // This is typically to cover the case where the entry has not
@@ -331,7 +331,7 @@ public class ReferralInterceptor extends BaseInterceptor
         // TODO: this can be spare, as we already have the altered entry
         // into the opContext, but for an unknow reason, this will fail
         // on eferral tests...
-        LookupOperationContext lookupContext = 
+        LookupOperationContext lookupContext =
             new LookupOperationContext( modifyContext.getSession(), dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry newEntry = nexus.lookup( lookupContext );

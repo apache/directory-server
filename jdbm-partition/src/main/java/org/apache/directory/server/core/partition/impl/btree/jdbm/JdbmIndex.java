@@ -154,7 +154,6 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
 
-            e.printStackTrace();
             throw e;
         }
 

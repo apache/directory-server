@@ -35,7 +35,7 @@ public interface AvlTree<K>
     /**
      * @return the comparator associated with this tree 
      */
-    public abstract Comparator<K> getComparator();
+    abstract Comparator<K> getComparator();
 
 
     /**
@@ -45,7 +45,7 @@ public interface AvlTree<K>
      * @return the replaced key if it already exists
      * Note: Ignores if a node with the given key already exists.
      */
-    public abstract K insert( K key );
+    abstract K insert( K key );
 
 
     /**
@@ -54,7 +54,7 @@ public interface AvlTree<K>
      * @param key the value of the node to be removed
      * @return the removed key, if any, or null if the key does not exist
      */
-    public abstract K remove( K key );
+    abstract K remove( K key );
 
 
     /**
@@ -62,7 +62,7 @@ public interface AvlTree<K>
      * 
      * @return true if the tree is empty, false otherwise
      */
-    public abstract boolean isEmpty();
+    abstract boolean isEmpty();
 
 
     /**
@@ -71,38 +71,38 @@ public interface AvlTree<K>
      * @return the number of nodes present in this tree
      */
     //NOTE: This method is internally used by AVLTreeMarshaller
-    public abstract int getSize();
+    abstract int getSize();
 
 
     /**
      * @return the root element of this tree (ie, not the first, but the
      * topmost element)
      */
-    public abstract LinkedAvlNode<K> getRoot();
+    abstract LinkedAvlNode<K> getRoot();
 
 
     /**
      * @return a list of the stored keys in this tree
      */
-    public abstract List<K> getKeys();
+    abstract List<K> getKeys();
 
 
     /**
      * Prints the contents of AVL tree in pretty format
      */
-    public abstract void printTree();
+    abstract void printTree();
 
 
     /**
      * @return The first element of this tree
      */
-    public abstract LinkedAvlNode<K> getFirst();
+    abstract LinkedAvlNode<K> getFirst();
 
 
     /**
      * @return The last element in this tree
      */
-    public abstract LinkedAvlNode<K> getLast();
+    abstract LinkedAvlNode<K> getLast();
 
 
     /**
@@ -112,7 +112,7 @@ public interface AvlTree<K>
      * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
-    public abstract LinkedAvlNode<K> findGreater( K key );
+    abstract LinkedAvlNode<K> findGreater( K key );
 
 
     /**
@@ -122,7 +122,7 @@ public interface AvlTree<K>
      * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
-    public abstract LinkedAvlNode<K> findGreaterOrEqual( K key );
+    abstract LinkedAvlNode<K> findGreaterOrEqual( K key );
 
 
     /**
@@ -132,7 +132,7 @@ public interface AvlTree<K>
      * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
-    public abstract LinkedAvlNode<K> findLess( K key );
+    abstract LinkedAvlNode<K> findLess( K key );
 
 
     /**
@@ -142,7 +142,7 @@ public interface AvlTree<K>
      * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
-    public abstract LinkedAvlNode<K> findLessOrEqual( K key );
+    abstract LinkedAvlNode<K> findLessOrEqual( K key );
 
 
     /**
@@ -152,6 +152,5 @@ public interface AvlTree<K>
      * @param key the key to find
      * @return the list of traversed LinkedAvlNode.
      */
-    public abstract LinkedAvlNode<K> find( K key );
-
+    abstract LinkedAvlNode<K> find( K key );
 }

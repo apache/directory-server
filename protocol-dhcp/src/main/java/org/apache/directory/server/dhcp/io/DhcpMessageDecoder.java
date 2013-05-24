@@ -105,8 +105,11 @@ public class DhcpMessageDecoder
 
         // find zero-terminator
         int slen = 0;
+
         while ( bytes[slen] != 0 )
+        {
             slen++;
+        }
 
         try
         {
@@ -130,6 +133,7 @@ public class DhcpMessageDecoder
     {
         byte[] addr = new byte[4];
         buffer.get( addr );
+
         try
         {
             return InetAddress.getByAddress( addr );
@@ -164,11 +168,16 @@ public class DhcpMessageDecoder
         while ( true )
         {
             code = message.get();
+
             if ( code == 0 ) // pad option
+            {
                 continue;
+            }
 
             if ( code == -1 ) // end option
+            {
                 break;
+            }
 
             length = message.get();
             value = new byte[length];

@@ -36,10 +36,10 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 public interface RegistrySynchronizer
 {
     /** A constant to tell the caller that the schema has been modified */
-    static final boolean SCHEMA_MODIFIED = true;
+    boolean SCHEMA_MODIFIED = true;
 
     /** A constant to tell the caller that the schema has not been modified */
-    static final boolean SCHEMA_UNCHANGED = false;
+    boolean SCHEMA_UNCHANGED = false;
 
 
     /**

@@ -89,7 +89,7 @@ public interface Store
      * Partition (store with search capabilities) when it just needs a simple
      * store and it's indices to conduct search operations.
      */
-    public static final String[] SYS_INDEX_OID_ARRAY =
+    static final String[] SYS_INDEX_OID_ARRAY =
         {
             ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
             ApacheSchemaConstants.APACHE_RDN_AT_OID,
@@ -101,7 +101,7 @@ public interface Store
             SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID
     };
 
-    public static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
+    static final Set<String> SYS_INDEX_OIDS = Collections.unmodifiableSet( new HashSet<String>( Arrays
         .asList( SYS_INDEX_OID_ARRAY ) ) );
 
 

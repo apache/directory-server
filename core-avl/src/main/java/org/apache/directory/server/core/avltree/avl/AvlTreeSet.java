@@ -32,11 +32,12 @@ import java.util.Stack;
  */
 public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 {
-
     private AvlNode<T> tree;
     private int size = 0;
 
-    final boolean useFreeList;
+    private final boolean useFreeList;
+
+    private Stack<AvlNode<T>> freeList = new Stack<AvlNode<T>>();
 
 
     public AvlTreeSet()
@@ -74,8 +75,9 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
         // empty tree case
         if ( tree == null )
         {
-            tree = new_node( null, value );
+            tree = newNode( null, value );
             ++size;
+
             return true;
         }
 
@@ -83,90 +85,116 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 
         // find the place and insert the value
         int cmp = value.compareTo( node.value );
+
         for ( ; cmp != 0; cmp = value.compareTo( node.value ) )
         {
             if ( cmp < 0 )
             {
                 if ( node.left == null )
                 {
-                    node.left = new_node( node, value );
+                    node.left = newNode( node, value );
                     break;
                 }
                 else
+                {
                     node = node.left;
+                }
             }
             else if ( cmp > 0 )
             {
                 if ( node.right == null )
                 {
-                    node.right = new_node( node, value );
+                    node.right = newNode( node, value );
                     break;
                 }
                 else
+                {
                     node = node.right;
+                }
             }
             else
+            {
                 assert false : "should never happen";
+            }
         }
 
         // node with _value_ already exists
         if ( cmp == 0 )
+        {
             return false;
-        rebalance_up( node );
+        }
+
+        rebalanceUp( node );
         ++size;
 
         return true;
     }
 
-    Stack<AvlNode<T>> free_list = new Stack<AvlNode<T>>();
 
-
-    private final AvlNode<T> new_node( AvlNode<T> parent, T value )
+    private final AvlNode<T> newNode( AvlNode<T> parent, T value )
     {
-        if ( !useFreeList || free_list.isEmpty() )
+        if ( !useFreeList || freeList.isEmpty() )
+        {
             return new AvlNode<T>( parent, value );
+        }
         else
         {
-            AvlNode<T> node = free_list.pop();
+            AvlNode<T> node = freeList.pop();
+
             return node.reset( parent, value );
         }
     }
 
 
-    private final void recycle_node( AvlNode<T> node )
+    private final void recycleNode( AvlNode<T> node )
     {
         if ( !useFreeList )
+        {
             return;
+        }
 
         // keep free list size not bigger than tree size
-        while ( free_list.size() > size )
-            free_list.pop();
-        if ( free_list.size() == size )
-            return;
+        while ( freeList.size() > size )
+        {
+            freeList.pop();
+        }
 
-        free_list.push( node );
+        if ( freeList.size() == size )
+        {
+            return;
+        }
+
+        freeList.push( node );
     }
 
 
-    private void rebalance_up( AvlNode<T> node )
+    private void rebalanceUp( AvlNode<T> node )
     {
         while ( node != null )
         {
-            int height_before = node.height;
-            update_height( node );
+            int heightBefore = node.height;
+            updateHeight( node );
 
             // rebalance
             if ( node.balance == -2 )
-                node = big_right_rotation( node );
+            {
+                node = bigRightRotation( node );
+            }
             else if ( node.balance == 2 )
-                node = big_left_rotation( node );
+            {
+                node = bigLeftRotation( node );
+            }
 
             if ( node.parent == null )
+            {
                 tree = node;
+            }
 
             // if parent node is not affected
-            if ( height_before == node.height )
+            if ( heightBefore == node.height )
+            {
                 break;
+            }
 
             node = node.parent;
         }
@@ -176,15 +204,21 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     public final boolean remove( T value )
     {
         AvlNode<T> node = tree;
+
         if ( node == null )
+        {
             return false;
+        }
 
         // find the node to be removed
         for ( int cmp = value.compareTo( node.value ); cmp != 0; cmp = value.compareTo( node.value ) )
         {
             node = ( cmp < 0 ) ? node.left : node.right;
+
             if ( node == null )
+            {
                 return false;
+            }
         }
 
         // find a replacement node (if needed)
@@ -192,6 +226,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
         final int RIGHT = 1;
         final int NONE = 0;
         int replaceFrom = NONE;
+
         if ( node.left != null && node.right == null )
         {
             replaceFrom = LEFT;
@@ -221,20 +256,26 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
             { // the tree root, single node in the tree
                 tree = null;
                 --size;
-                recycle_node( node );
+                recycleNode( node );
+
                 return true;
             }
             else
             { // non-root leaf node
-                // detach from parent
+              // detach from parent
                 if ( node.parent.left == node )
+                {
                     node.parent.left = null;
+                }
                 else
+                {
                     node.parent.right = null;
+                }
 
                 AvlNode<T> dead = node;
-                node = node.parent; // update heights/rebalance from node's parents up (the bottom of this method)
-                recycle_node( dead );
+                // update heights/rebalance from node's parents up (the bottom of this method)
+                node = node.parent;
+                recycleNode( dead );
                 replaceFrom = NONE;
             }
         }
@@ -242,49 +283,70 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
         if ( replaceFrom != NONE )
         {
             AvlNode<T> leaf = null;
+
             if ( replaceFrom == LEFT )
             {
                 leaf = node.left;
+
                 while ( leaf.left != null || leaf.right != null )
                 {
                     if ( leaf.right != null )
+                    {
                         leaf = leaf.right;
+                    }
                     else
-                        leaf = small_right_rotation( leaf ); // the rotation should ensure (leaf.right != null) on the next iteration
+                    {
+                        // the rotation should ensure (leaf.right != null) on the next iteration
+                        leaf = smallRightRotation( leaf );
+                    }
                 }
             }
             else if ( replaceFrom == RIGHT )
             {
                 leaf = node.right;
+
                 while ( leaf.right != null || leaf.left != null )
                 {
                     if ( leaf.left != null )
+                    {
                         leaf = leaf.left;
+                    }
                     else
-                        leaf = small_left_rotation( leaf ); // the rotation should ensure (leaf.left != null) on the next iteration
+                    {
+                        // the rotation should ensure (leaf.left != null) on the next iteration
+                        leaf = smallLeftRotation( leaf );
+                    }
                 }
             }
             else
+            {
                 assert false : "should never happen";
+            }
 
             assert leaf != null : "replacement leaf should always exist at this point";
 
             // detach leaf from its parent
             if ( leaf.parent.left == leaf )
+            {
                 leaf.parent.left = null;
+            }
             else if ( leaf.parent.right == leaf )
+            {
                 leaf.parent.right = null;
+            }
             else
+            {
                 assert false : "broken parent/child reference in the tree";
+            }
 
             node.value = leaf.value; // replace node value with leaf's value
             node = leaf.parent; // change recursion point down so that below down-up update picks up
             // everything from leaf's parent up
 
-            recycle_node( leaf );
+            recycleNode( leaf );
         }
 
-        rebalance_up( node );
+        rebalanceUp( node );
 
         --size;
 
@@ -295,33 +357,42 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     public final boolean contains( T value )
     {
         AvlNode<T> node = tree;
+
         while ( node != null )
         {
             int cmp = value.compareTo( node.value );
+
             if ( cmp < 0 )
+            {
                 node = node.left;
+            }
             else if ( cmp > 0 )
+            {
                 node = node.right;
+            }
             else
+            {
                 return true;
+            }
         }
+
         return false;
 
     }
 
 
-    private static final <T extends Comparable<T>> void update_height( AvlNode<T> node )
+    private static final <T extends Comparable<T>> void updateHeight( AvlNode<T> node )
     {
-        int left_height = ( node.left == null ) ? -1 : node.left.height;
-        int right_height = ( node.right == null ) ? -1 : node.right.height;
-        node.height = 1 + ( right_height > left_height ? right_height : left_height );
-        node.balance = right_height - left_height;
+        int leftHeight = ( node.left == null ) ? -1 : node.left.height;
+        int rightHeight = ( node.right == null ) ? -1 : node.right.height;
+        node.height = 1 + ( rightHeight > leftHeight ? rightHeight : leftHeight );
+        node.balance = rightHeight - leftHeight;
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> small_left_rotation( AvlNode<T> node )
+    private static final <T extends Comparable<T>> AvlNode<T> smallLeftRotation( AvlNode<T> node )
     {
-        assert node.balance > 0 : "null right child in small_left";
+        assert node.balance > 0 : "null right child in smallLeft";
 
         // update child references
         AvlNode<T> right = node.right;
@@ -330,29 +401,36 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 
         // update parent references
         if ( node.right != null )
+        {
             node.right.parent = node;
+        }
+
         right.parent = node.parent;
 
         if ( right.parent != null )
         {
             if ( right.parent.left == node )
+            {
                 node.parent.left = right;
+            }
             else
+            {
                 node.parent.right = right;
+            }
         }
 
         node.parent = right;
 
-        update_height( node );
-        update_height( right );
+        updateHeight( node );
+        updateHeight( right );
 
         return right;
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> small_right_rotation( AvlNode<T> node )
+    private static final <T extends Comparable<T>> AvlNode<T> smallRightRotation( AvlNode<T> node )
     {
-        assert node.balance < 0 : "null left child in small_right";
+        assert node.balance < 0 : "null left child in smallRight";
 
         // update child references
         AvlNode<T> left = node.left;
@@ -361,48 +439,59 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 
         // update parent references
         if ( node.left != null )
+        {
             node.left.parent = node;
+        }
+
         left.parent = node.parent;
 
         if ( left.parent != null )
         {
             if ( left.parent.left == node )
+            {
                 node.parent.left = left;
+            }
             else
+            {
                 node.parent.right = left;
+            }
         }
 
         node.parent = left;
 
-        update_height( node );
-        update_height( left );
+        updateHeight( node );
+        updateHeight( left );
 
         return left;
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> big_left_rotation( AvlNode<T> node )
+    private static final <T extends Comparable<T>> AvlNode<T> bigLeftRotation( AvlNode<T> node )
     {
-        assert node.right != null : "null right child in big_left";
+        assert node.right != null : "null right child in bigLeft";
 
         if ( node.right.balance < 0 )
-            node.right = small_right_rotation( node.right );
+        {
+            node.right = smallRightRotation( node.right );
+        }
 
-        update_height( node );
+        updateHeight( node );
 
-        return small_left_rotation( node );
+        return smallLeftRotation( node );
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> big_right_rotation( AvlNode<T> node )
+    private static final <T extends Comparable<T>> AvlNode<T> bigRightRotation( AvlNode<T> node )
     {
-        assert node.left != null : "null right child in big_right";
+        assert node.left != null : "null right child in bigRight";
 
         if ( node.left.balance > 0 )
-            node.left = small_left_rotation( node.left );
+        {
+            node.left = smallLeftRotation( node.left );
+        }
 
-        update_height( node );
+        updateHeight( node );
 
-        return small_right_rotation( node );
+        return smallRightRotation( node );
     }
 }

@@ -38,5 +38,5 @@ public final class CoreSchemaConstants
     {
     }
 
-    public final static String SCHEMA_NAME = "core";
+    public static final String SCHEMA_NAME = "core";
 }

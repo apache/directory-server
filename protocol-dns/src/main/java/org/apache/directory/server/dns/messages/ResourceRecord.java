@@ -29,30 +29,30 @@ public interface ResourceRecord
     /**
      * @return Returns the domainName.
      */
-    public String getDomainName();
+    String getDomainName();
 
 
     /**
      * @return Returns the recordType.
      */
-    public RecordType getRecordType();
+    RecordType getRecordType();
 
 
     /**
      * @return Returns the recordClass.
      */
-    public RecordClass getRecordClass();
+    RecordClass getRecordClass();
 
 
     /**
      * @return Returns the timeToLive.
      */
-    public int getTimeToLive();
+    int getTimeToLive();
 
 
     /**
      * @param id 
      * @return Returns the value for an id.
      */
-    public String get( String id );
+    String get( String id );
 }

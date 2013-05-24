@@ -37,7 +37,7 @@ public interface StoredProcedureParameterInjector
     List<Object> getArgumentsToInject( OperationContext opContext,
         List<StoredProcedureParameter> parameterList ) throws LdapException;
 
-    public interface MicroInjector
+    interface MicroInjector
     {
         Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException;
     }

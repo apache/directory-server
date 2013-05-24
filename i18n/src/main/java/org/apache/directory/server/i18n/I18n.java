@@ -788,7 +788,7 @@ public enum I18n
     private static ResourceBundle errBundle = ResourceBundle
         .getBundle( "org.apache.directory.server.i18n.errors" );
 
-    private final static ResourceBundle msgBundle = ResourceBundle
+    private static final ResourceBundle msgBundle = ResourceBundle
         .getBundle( "org/apache/directory/server/i18n/messages" );
 
     /** The error code */

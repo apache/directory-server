@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.kerberos.changepwd.messages;
 
+
 import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.EncoderException;
@@ -27,17 +28,17 @@ import org.apache.directory.api.asn1.EncoderException;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-abstract public class AbstractPasswordMessage
+public abstract class AbstractPasswordMessage
 {
     /**
      * ChangePassword protocol version number.
      */
-    public static final short PVNO = (short) 0xFF80;
+    public static final short PVNO = ( short ) 0xFF80;
 
     public static final short OLD_PVNO = 1;
-    
+
     static final int HEADER_LENGTH = 6;
-    
+
     private short versionNumber;
 
 
@@ -56,8 +57,10 @@ abstract public class AbstractPasswordMessage
     {
         return versionNumber;
     }
-    
+
+
     public abstract short computeLength();
-    
+
+
     public abstract ByteBuffer encode( ByteBuffer buf ) throws EncoderException;
 }

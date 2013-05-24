@@ -156,7 +156,9 @@ public abstract class DhcpOption
                 Class c = OPTION_CLASSES[i];
 
                 if ( !DhcpOption.class.isAssignableFrom( c ) )
+                {
                     throw new RuntimeException( I18n.err( I18n.ERR_639, c ) );
+                }
 
                 DhcpOption o = ( DhcpOption ) c.newInstance();
 
@@ -232,8 +234,11 @@ public abstract class DhcpOption
 
         // FIXME: handle continuation, i.e. options longer than 128 bytes?
         byte data[] = getData();
+
         if ( data.length > 255 )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_641 ) );
+        }
 
         out.put( ( byte ) data.length );
         out.put( data );

@@ -122,7 +122,7 @@ class KeytabDecoder
             }
         }
 
-        principalNameBuffer.append( "@" + realm );
+        principalNameBuffer.append( "@" ).append( realm );
 
         return principalNameBuffer.toString();
     }

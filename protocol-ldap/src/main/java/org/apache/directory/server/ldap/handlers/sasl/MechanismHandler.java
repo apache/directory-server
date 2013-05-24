@@ -43,7 +43,7 @@ public interface MechanismHandler
      * @return The {@link SaslServer} to use for the duration of the bound session.
      * @throws Exception
      */
-    public SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
+    SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
 
 
     /**
@@ -51,7 +51,7 @@ public interface MechanismHandler
      *
      * @param ldapSession the Ldapsession instance
      */
-    public void init( LdapSession ldapSession );
+    void init( LdapSession ldapSession );
 
 
     /**
@@ -59,5 +59,5 @@ public interface MechanismHandler
      *
      * @param ldapSession the Ldapsession instance
      */
-    public void cleanup( LdapSession ldapSession );
+    void cleanup( LdapSession ldapSession );
 }

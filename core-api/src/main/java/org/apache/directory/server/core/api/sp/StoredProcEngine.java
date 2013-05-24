@@ -37,7 +37,7 @@ public interface StoredProcEngine
      * Returns the unique identifier of the supported stored procedure language.
      * 
      */
-    public String getSPLangId();
+    String getSPLangId();
 
 
     /**
@@ -46,7 +46,7 @@ public interface StoredProcEngine
      * <p>
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
      */
-    public void setSPUnitEntry( final Entry spUnit );
+    void setSPUnitEntry( final Entry spUnit );
 
 
     /**
@@ -57,6 +57,5 @@ public interface StoredProcEngine
      * @return The value obtained from invoked procedure. The client should know what will return exactly so that it can downcast to the appropriate type.
      * @throws org.apache.directory.api.ldap.model.exception.LdapException If an error occurs during invocation.
      */
-    public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws LdapException;
-
+    Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws LdapException;
 }

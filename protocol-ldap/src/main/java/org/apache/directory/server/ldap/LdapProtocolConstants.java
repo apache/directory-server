@@ -40,7 +40,7 @@ public final class LdapProtocolConstants
     {
     }
 
-    public final static Control[] EMPTY_CONTROLS = new Control[0];
-    public final static String OUTSTANDING_KEY = "outstandingRequestsKey";
-    public final static String CORE_SESSION_KEY = "coreSessionKey";
+    public static final Control[] EMPTY_CONTROLS = new Control[0];
+    public static final String OUTSTANDING_KEY = "outstandingRequestsKey";
+    public static final String CORE_SESSION_KEY = "coreSessionKey";
 }

@@ -52,10 +52,14 @@ public class Subnet extends DhcpConfigElement
         // mask address to match subnet
         byte masked[] = netmask.getAddress();
         byte addrBytes[] = netmask.getAddress();
+
         for ( int i = 0; i < addrBytes.length; i++ )
+        {
             masked[i] &= addrBytes[i];
+        }
 
         if ( !Arrays.equals( masked, addrBytes ) )
+        {
             try
             {
                 address = InetAddress.getByAddress( masked );
@@ -64,6 +68,7 @@ public class Subnet extends DhcpConfigElement
             {
                 // ignore - doesn't happen.
             }
+        }
 
         this.address = address;
         this.netmask = netmask;
@@ -119,12 +124,17 @@ public class Subnet extends DhcpConfigElement
     {
         // check address type
         if ( !clientAddress.getClass().equals( address.getClass() ) )
+        {
             return false;
+        }
 
         byte client[] = clientAddress.getAddress();
         byte masked[] = netmask.getAddress();
+
         for ( int i = 0; i < masked.length; i++ )
+        {
             masked[i] &= client[i];
+        }
 
         return Arrays.equals( masked, address.getAddress() );
     }
@@ -140,14 +150,21 @@ public class Subnet extends DhcpConfigElement
     {
         byte client[] = clientAddress.getAddress();
         byte masked[] = netmask.getAddress();
+
         for ( int i = 0; i < masked.length; i++ )
+        {
             masked[i] &= client[i];
+        }
 
         if ( null != rangeMin && arrayComp( masked, rangeMin.getAddress() ) < 0 )
+        {
             return false;
+        }
 
         if ( null != rangeMin && arrayComp( masked, rangeMax.getAddress() ) > 0 )
+        {
             return false;
+        }
 
         return true;
     }
@@ -158,7 +175,9 @@ public class Subnet extends DhcpConfigElement
         for ( int i = 0; i < a1.length && i < a2.length; i++ )
         {
             if ( a1[i] != a2[i] )
+            {
                 return ( a1[i] & 0xff ) - ( a2[i] & 0xff );
+            }
         }
 
         return a1.length - a2.length;

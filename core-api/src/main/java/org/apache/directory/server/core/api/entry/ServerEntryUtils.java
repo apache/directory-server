@@ -261,7 +261,7 @@ public class ServerEntryUtils
     public static Entry getTargetEntry( Modification mod, Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
-        Entry targetEntry = ( Entry ) entry.clone();
+        Entry targetEntry = entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getUpId();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
@@ -532,7 +532,7 @@ public class ServerEntryUtils
 
                 // TODO : handle options
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-                modificationsList.add( toServerModification( ( ModificationItem ) modification, attributeType ) );
+                modificationsList.add( toServerModification( modification, attributeType ) );
             }
 
             return modificationsList;
@@ -682,7 +682,7 @@ public class ServerEntryUtils
      */
     private static String stripOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" );
+        int optionsPos = attributeId.indexOf( ';' );
 
         if ( optionsPos != -1 )
         {
@@ -705,7 +705,7 @@ public class ServerEntryUtils
      */
     private static Set<String> getOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" );
+        int optionsPos = attributeId.indexOf( ';' );
 
         if ( optionsPos != -1 )
         {
@@ -728,8 +728,8 @@ public class ServerEntryUtils
             return null;
         }
     }
-    
-    
+
+
     /**
      * Filters an entry accordingly to the requested Attribute list.
      * 
@@ -737,18 +737,19 @@ public class ServerEntryUtils
      * @param operationContext The SearchingOperationContext
      * @throws LdapException If the filtering fails
      */
-    public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext, Entry entry ) throws LdapException
+    public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext,
+        Entry entry ) throws LdapException
     {
         boolean typesOnly = operationContext.isTypesOnly();
 
         boolean returnAll = ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() )
             && ( !typesOnly );
-        
+
         if ( returnAll )
         {
             return;
         }
-        
+
         Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
 
         // First, remove all the attributes if we have the NoAtribute flag set to true
@@ -762,7 +763,7 @@ public class ServerEntryUtils
 
             return;
         }
-                
+
         // If the user has requested all the User attributes ('*') only, we filter the entry's attribute to keep only
         // the USER attributes, plus the Operational attributes in the returning list 
         if ( operationContext.isAllUserAttributes() )
@@ -798,7 +799,6 @@ public class ServerEntryUtils
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-
 
                 if ( attributeType.isUser() )
                 {

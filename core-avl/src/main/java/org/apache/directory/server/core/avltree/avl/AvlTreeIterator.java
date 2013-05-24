@@ -64,19 +64,28 @@ final class AvlTreeIterator<T extends Comparable<T>> implements Iterator<T>
         if ( next == null )
         {
             if ( root == null || !initial )
+            {
                 return;
+            }
+
             initial = false;
             next = root;
+
             while ( next.left != null )
+            {
                 next = next.left;
+            }
         }
         else
         {
             if ( next.right != null )
             {
                 next = next.right;
+
                 while ( next.left != null )
+                {
                     next = next.left;
+                }
             }
             else
             {

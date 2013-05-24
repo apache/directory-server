@@ -77,7 +77,6 @@ public class JdbmDnIndex extends JdbmIndex<Dn, Entry>
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
 
-            e.printStackTrace();
             throw e;
         }
 

@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public class EventInterceptor extends BaseInterceptor
 {
     /** A logger for this class */
-    private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
 
     private Evaluator evaluator;
     private ExecutorService executor;
@@ -118,9 +118,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case DELETE:
                 if ( listener.isSynchronous() )
                 {
@@ -136,9 +136,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MODIFY:
                 if ( listener.isSynchronous() )
                 {
@@ -154,9 +154,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MOVE:
                 if ( listener.isSynchronous() )
                 {
@@ -172,7 +172,7 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
 
             case RENAME:
@@ -190,15 +190,16 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MOVE_AND_RENAME:
                 if ( listener.isSynchronous() )
                 {
                     listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
                 }
                 else
+                {
                     executor.execute( new Runnable()
                     {
                         public void run()
@@ -206,7 +207,8 @@ public class EventInterceptor extends BaseInterceptor
                             listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
                         }
                     } );
-                
+                }
+
                 break;
         }
     }
@@ -268,7 +270,7 @@ public class EventInterceptor extends BaseInterceptor
         Entry oriEntry = modifyContext.getEntry();
 
         // modification was already done when this flag is turned on, move to sending the events
-        if( !modifyContext.isPushToEvtInterceptor() )
+        if ( !modifyContext.isPushToEvtInterceptor() )
         {
             next( modifyContext );
         }
@@ -282,7 +284,8 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modified entry
         CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
@@ -366,7 +369,8 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modified entry
         CoreSession session = renameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         renameContext.setModifiedEntry( alteredEntry );
@@ -388,7 +392,7 @@ public class EventInterceptor extends BaseInterceptor
     private List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
     {
         List<RegistrationEntry> registrations = directoryService.getEventService().getRegistrationEntries();
-        
+
         if ( registrations.isEmpty() )
         {
             return Collections.emptyList();

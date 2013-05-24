@@ -134,11 +134,11 @@ public interface OperationManager
     /**
      * Acquires a WriteLock
      */
-    public void lockWrite();
+    void lockWrite();
 
 
     /**
      * Releases a WriteLock
      */
-    public void unlockWrite();
+    void unlockWrite();
 }

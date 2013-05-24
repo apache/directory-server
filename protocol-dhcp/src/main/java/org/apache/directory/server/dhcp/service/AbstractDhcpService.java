@@ -57,14 +57,17 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         // ignore messages with an op != REQUEST/REPLY
-        if ( request.getOp() != DhcpMessage.OP_BOOTREQUEST
-            && request.getOp() != DhcpMessage.OP_BOOTREPLY )
+        if ( ( request.getOp() != DhcpMessage.OP_BOOTREQUEST )
+            && ( request.getOp() != DhcpMessage.OP_BOOTREPLY ) )
+        {
             return null;
+        }
 
         // message type option MUST be set - we don't support plain BOOTP.
         if ( null == request.getMessageType() )
         {
             logger.warn( "Missing message type option - plain BOOTP not supported." );
+
             return null;
         }
 
@@ -74,10 +77,13 @@ public abstract class AbstractDhcpService implements DhcpService
         // client-to-server messages
             case DHCPDISCOVER:
                 return handleDISCOVER( localAddress, clientAddress, request );
+
             case DHCPREQUEST:
                 return handleREQUEST( localAddress, clientAddress, request );
+
             case DHCPRELEASE:
                 return handleRELEASE( localAddress, clientAddress, request );
+
             case DHCPINFORM:
                 return handleINFORM( localAddress, clientAddress, request );
 
@@ -109,8 +115,10 @@ public abstract class AbstractDhcpService implements DhcpService
         DhcpMessage request )
     {
         if ( logger.isWarnEnabled() )
-            logger.warn( "Got unknkown DHCP message: " + request + " from:  "
-                + clientAddress );
+        {
+            logger.warn( "Got unknkown DHCP message: {} from: {}", request, clientAddress );
+        }
+
         return null;
     }
 
@@ -129,8 +137,10 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         if ( logger.isDebugEnabled() )
-            logger.debug( "Got INFORM message: " + request + " from:  "
-                + clientAddress );
+        {
+            logger.debug( "Got INFORM message: {} from: {}", request, clientAddress );
+        }
+
         return null;
     }
 
@@ -149,8 +159,7 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         if ( logger.isDebugEnabled() )
-            logger.debug( "Got RELEASE message: " + request + " from:  "
-                + clientAddress );
+            logger.debug( "Got RELEASE message: {} from: {}", request, clientAddress );
         return null;
     }
 
@@ -169,8 +178,10 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         if ( logger.isDebugEnabled() )
-            logger.debug( "Got REQUEST message: " + request + " from:  "
-                + clientAddress );
+        {
+            logger.debug( "Got REQUEST message: {} from: {}", request, clientAddress );
+        }
+
         return null;
     }
 
@@ -190,8 +201,10 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         if ( logger.isDebugEnabled() )
-            logger.debug( "Got DISCOVER message: " + request + " from:  "
-                + clientAddress );
+        {
+            logger.debug( "Got DISCOVER message: {} from: {}", request, clientAddress );
+        }
+
         return null;
     }
 
@@ -211,8 +224,10 @@ public abstract class AbstractDhcpService implements DhcpService
         throws DhcpException
     {
         if ( logger.isDebugEnabled() )
-            logger
-                .debug( "Got OFFER message: " + request + " from:  " + clientAddress );
+        {
+            logger.debug( "Got OFFER message: {} from: {}", request, clientAddress );
+        }
+
         return null;
     }
 
@@ -236,7 +251,7 @@ public abstract class AbstractDhcpService implements DhcpService
     protected final DhcpMessage initGeneralReply( InetSocketAddress localAddress,
         DhcpMessage request )
     {
-        final DhcpMessage reply = new DhcpMessage();
+        DhcpMessage reply = new DhcpMessage();
 
         reply.setOp( DhcpMessage.OP_BOOTREPLY );
 
@@ -264,8 +279,13 @@ public abstract class AbstractDhcpService implements DhcpService
     private boolean isZeroAddress( byte[] addr )
     {
         for ( int i = 0; i < addr.length; i++ )
+        {
             if ( addr[i] != 0 )
+            {
                 return false;
+            }
+        }
+
         return true;
     }
 
@@ -289,7 +309,9 @@ public abstract class AbstractDhcpService implements DhcpService
 
         // if the relay agent address is set, we use it as the selection base
         if ( !isZeroAddress( request.getRelayAgentAddress().getAddress() ) )
+        {
             return request.getRelayAgentAddress();
+        }
 
         return clientAddress.getAddress();
     }
@@ -305,18 +327,32 @@ public abstract class AbstractDhcpService implements DhcpService
     protected final void stripUnwantedOptions( DhcpMessage request,
         OptionsField options )
     {
-        final ParameterRequestList prl = ( ParameterRequestList ) request
+        ParameterRequestList prl = ( ParameterRequestList ) request
             .getOptions().get( ParameterRequestList.class );
+
         if ( null != prl )
         {
-            final byte[] list = prl.getData();
-            for ( final Iterator i = options.iterator(); i.hasNext(); )
+            byte[] list = prl.getData();
+
+            for ( Iterator i = options.iterator(); i.hasNext(); )
             {
-                final DhcpOption o = ( DhcpOption ) i.next();
+                DhcpOption o = ( DhcpOption ) i.next();
+
+                boolean found = false;
+
                 for ( int j = 0; j < list.length; j++ )
+                {
                     if ( list[j] == o.getTag() )
-                        continue;
-                i.remove();
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if ( !found )
+                {
+                    i.remove();
+                }
             }
         }
     }

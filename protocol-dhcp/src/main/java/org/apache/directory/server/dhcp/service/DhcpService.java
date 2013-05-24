@@ -44,6 +44,6 @@ public interface DhcpService
      * @return DhcpMessage
      * @throws DhcpException 
      */
-    public DhcpMessage getReplyFor( InetSocketAddress localAddress, InetSocketAddress clientAddress, DhcpMessage request )
+    DhcpMessage getReplyFor( InetSocketAddress localAddress, InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException;
 }

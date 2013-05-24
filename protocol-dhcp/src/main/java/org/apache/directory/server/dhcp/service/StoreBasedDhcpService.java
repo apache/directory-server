@@ -76,10 +76,16 @@ public class StoreBasedDhcpService extends AbstractDhcpService
         // try to get the lease (address) requested by the client
         InetAddress requestedAddress = null;
         AddressOption requestedAddressOption = ( AddressOption ) request.getOptions().get( RequestedIpAddress.class );
+
         if ( null != requestedAddressOption )
+        {
             requestedAddress = requestedAddressOption.getAddress();
+        }
+
         if ( null == requestedAddress )
+        {
             requestedAddress = request.getCurrentClientAddress();
+        }
 
         InetAddress selectionBase = determineSelectionBase( clientAddress, request );
 
@@ -87,7 +93,9 @@ public class StoreBasedDhcpService extends AbstractDhcpService
             requestedLeaseTime, request.getOptions() );
 
         if ( null == lease )
+        {
             return null;
+        }
 
         return lease;
     }
@@ -130,8 +138,11 @@ public class StoreBasedDhcpService extends AbstractDhcpService
         // try to get the lease (address) requested by the client
         InetAddress requestedAddress = null;
         AddressOption requestedAddressOption = ( AddressOption ) request.getOptions().get( RequestedIpAddress.class );
+
         if ( null != requestedAddressOption )
+        {
             requestedAddress = requestedAddressOption.getAddress();
+        }
 
         InetAddress selectionBase = determineSelectionBase( clientAddress, request );
 
@@ -152,8 +163,11 @@ public class StoreBasedDhcpService extends AbstractDhcpService
     {
         // check server ident
         AddressOption serverIdentOption = ( AddressOption ) request.getOptions().get( ServerIdentifier.class );
+
         if ( null != serverIdentOption && serverIdentOption.getAddress().isAnyLocalAddress() )
+        {
             return null; // not me?! FIXME: handle authoritative server case
+        }
 
         Lease lease = getExistingLease( clientAddress, request );
 
@@ -193,6 +207,7 @@ public class StoreBasedDhcpService extends AbstractDhcpService
 
             stripUnwantedOptions( request, options );
         }
+
         return reply;
 
     }
@@ -209,7 +224,9 @@ public class StoreBasedDhcpService extends AbstractDhcpService
 
         // null lease? don't offer one.
         if ( null == lease )
+        {
             return null;
+        }
 
         DhcpMessage reply = initGeneralReply( localAddress, request );
 
@@ -247,8 +264,11 @@ public class StoreBasedDhcpService extends AbstractDhcpService
     {
         // check server ident
         AddressOption serverIdentOption = ( AddressOption ) request.getOptions().get( ServerIdentifier.class );
+
         if ( null != serverIdentOption && serverIdentOption.getAddress().isAnyLocalAddress() )
+        {
             return null; // not me?! FIXME: handle authoritative server case
+        }
 
         Lease lease = getExistingLease( clientAddress, request );
 

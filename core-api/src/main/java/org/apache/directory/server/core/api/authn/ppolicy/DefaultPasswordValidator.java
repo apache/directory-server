@@ -30,7 +30,7 @@ public class DefaultPasswordValidator implements PasswordValidator
 {
 
     /** the default validator's instance */
-    public final static DefaultPasswordValidator INSTANCE = new DefaultPasswordValidator();
+    public static final DefaultPasswordValidator INSTANCE = new DefaultPasswordValidator();
 
 
     /**

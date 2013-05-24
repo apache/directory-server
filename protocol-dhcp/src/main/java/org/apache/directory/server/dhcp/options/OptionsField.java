@@ -97,7 +97,9 @@ public class OptionsField
     public void merge( OptionsField options )
     {
         if ( null == options )
+        {
             return;
+        }
 
         for ( Iterator i = options.iterator(); i.hasNext(); )
         {

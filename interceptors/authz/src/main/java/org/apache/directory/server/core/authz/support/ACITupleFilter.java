@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public interface ACITupleFilter
 {
     /** the dedicated logger for ACI */
-    static final Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
+    Logger ACI_LOG = LoggerFactory.getLogger( Loggers.ACI_LOG.getName() );
 
 
     /**

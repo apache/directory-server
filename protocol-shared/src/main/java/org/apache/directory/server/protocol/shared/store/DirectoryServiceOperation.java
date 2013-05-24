@@ -39,5 +39,5 @@ public interface DirectoryServiceOperation
      * @return Object The result returned by the command
      * @throws Exception The exception thrown by the command
      */
-    public Object execute( CoreSession session, Dn baseDn ) throws Exception;
+    Object execute( CoreSession session, Dn baseDn ) throws Exception;
 }

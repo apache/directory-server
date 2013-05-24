@@ -37,5 +37,5 @@ public interface NtpService
      * @param request
      * @return The {@link NtpMessage} reply.
      */
-    public NtpMessage getReplyFor( NtpMessage request );
+    NtpMessage getReplyFor( NtpMessage request );
 }

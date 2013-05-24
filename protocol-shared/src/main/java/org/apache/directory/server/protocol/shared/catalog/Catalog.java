@@ -34,5 +34,5 @@ public interface Catalog
      * @param name
      * @return The base Dn for searches.
      */
-    public String getBaseDn( String name );
+    String getBaseDn( String name );
 }

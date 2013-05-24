@@ -40,14 +40,13 @@ import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperat
  */
 public interface PartitionNexus extends Partition
 {
-
     /** the admin super user uid */
-    public static final String ADMIN_UID = "admin";
+    static final String ADMIN_UID = "admin";
 
     /** the initial admin passwd set on startup */
-    public static final String ADMIN_PASSWORD_STRING = "secret";
+    static final String ADMIN_PASSWORD_STRING = "secret";
 
-    public static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
+    static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
 
 
     /**
@@ -55,7 +54,7 @@ public interface PartitionNexus extends Partition
      *
      * @return the attributes of the RootDSE
      */
-    public Entry getRootDse( GetRootDseOperationContext getRootDseContext );
+    Entry getRootDse( GetRootDseOperationContext getRootDseContext );
 
 
     /**
@@ -64,7 +63,7 @@ public interface PartitionNexus extends Partition
      * @param Partition The Partition to add
      * @throws Exception If the addition can't be done
      */
-    public void addContextPartition( Partition partition ) throws LdapException;
+    void addContextPartition( Partition partition ) throws LdapException;
 
 
     /**
@@ -73,8 +72,7 @@ public interface PartitionNexus extends Partition
      * @param partitionDn the partition Dn
      * @throws Exception If the removal can't be done
      */
-    public void removeContextPartition( Dn partitionDn )
-        throws LdapException;
+    void removeContextPartition( Dn partitionDn ) throws LdapException;
 
 
     /**
@@ -87,7 +85,7 @@ public interface PartitionNexus extends Partition
      * @return the partition containing the entry represented by the dn
      * @throws Exception if there is no partition for the dn
      */
-    public Partition getPartition( Dn dn ) throws LdapException;
+    Partition getPartition( Dn dn ) throws LdapException;
 
 
     /**
@@ -99,7 +97,7 @@ public interface PartitionNexus extends Partition
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      */
-    public Dn getSuffixDn( Dn dn ) throws LdapException;
+    Dn getSuffixDn( Dn dn ) throws LdapException;
 
 
     /**
@@ -109,7 +107,7 @@ public interface PartitionNexus extends Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws Exception if there are any problems
      */
-    public Set<String> listSuffixes() throws LdapException;
+    Set<String> listSuffixes() throws LdapException;
 
 
     /**
@@ -118,7 +116,7 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension
      * attribute in the RootDSE
      */
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
+    void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
 
 
     /**
@@ -127,8 +125,8 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms
      * attribute in the RootDSE
      */
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
+    void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 
 
-    public boolean compare( CompareOperationContext compareContext ) throws LdapException;
+    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 }

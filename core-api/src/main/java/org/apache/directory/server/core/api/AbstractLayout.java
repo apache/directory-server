@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractLayout
 {
     /** The logger*/
-    private final static Logger log = LoggerFactory.getLogger( AbstractLayout.class );
+    private static final Logger log = LoggerFactory.getLogger( AbstractLayout.class );
 
     /** The required directories */
     private File[] requiredDirectories = new File[0];

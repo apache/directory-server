@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FilteringOperationContext extends AbstractOperationContext
 {
     /** The LoggerFactory used by this Interceptor */
-    protected static Logger LOG = LoggerFactory.getLogger( FilteringOperationContext.class );
+    protected static final Logger LOG = LoggerFactory.getLogger( FilteringOperationContext.class );
 
     /** A set containing the returning attributeTypesOptions */
     protected Set<AttributeTypeOptions> returningAttributes;

@@ -73,7 +73,9 @@ public class DhcpMessageEncoder
 
         // update message type option (if set)
         if ( null != message.getMessageType() )
+        {
             options.add( new DhcpMessageType( message.getMessageType() ) );
+        }
 
         encodeOptions( options, byteBuffer );
     }
@@ -89,7 +91,9 @@ public class DhcpMessageEncoder
     private void writeString( ByteBuffer byteBuffer, String string, int len )
     {
         if ( null == string )
+        {
             string = "";
+        }
 
         try
         {
@@ -140,15 +144,20 @@ public class DhcpMessageEncoder
     private void writeBytes( ByteBuffer byteBuffer, byte bytes[], int len )
     {
         if ( null == bytes )
+        {
             bytes = new byte[]
                 {};
+        }
 
         byteBuffer.put( bytes, 0, Math.min( len, bytes.length ) );
 
         // pad as necessary
         int remain = len - bytes.length;
+
         while ( remain-- > 0 )
+        {
             byteBuffer.put( ( byte ) 0 );
+        }
     }
 
     private static final byte[] VENDOR_MAGIC_COOKIE =

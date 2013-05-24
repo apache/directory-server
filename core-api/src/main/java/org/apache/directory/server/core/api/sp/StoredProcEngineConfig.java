@@ -32,13 +32,12 @@ public interface StoredProcEngineConfig
      * Returns the type of the associated {@link StoredProcEngine}.
      * 
      */
-    public Class<? extends StoredProcEngine> getStoredProcEngineType();
+    Class<? extends StoredProcEngine> getStoredProcEngineType();
 
 
     /**
      * Returns the unique language identifier of the {@link StoredProcEngine}.
      * 
      */
-    public String getStoredProcLangId();
-
+    String getStoredProcLangId();
 }

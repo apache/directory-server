@@ -37,5 +37,5 @@ public class SystemSchemaConstants
     {
     }
 
-    public final static String SCHEMA_NAME = "system";
+    public static final String SCHEMA_NAME = "system";
 }

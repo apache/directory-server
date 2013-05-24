@@ -71,7 +71,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected final SchemaEntityFactory factory;
 
     /** A map associating a SchemaObject type with its path on the partition*/
-    private final static Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
+    private static final Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
 
     static
     {
