@@ -202,92 +202,9 @@ public class SearchIT extends AbstractLdapTestUnit
      * @throws NamingException on errors
      */
     @Before
-    public void createData() throws Exception
+    public void init() throws Exception
     {
         sysRoot = getSystemContext( getService() );
-    
-        /*
-         * Check ou=testing00,ou=system
-         */
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        Attributes attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        Attribute attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-    
-        /*
-         * check ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing01", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-    
-        /*
-         * Check ou=testing02,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
-        assertNotNull( ctx );
-    
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing02", attributes.get( "ou" ).get() );
-    
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-    
-        /*
-         * Check ou=subtest,ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
-        assertNotNull( ctx );
-    
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "subtest", attributes.get( "ou" ).get() );
-    
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-    
-        /*
-         *  Check entry cn=Heather Nova, ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( RDN );
-        assertNotNull( ctx );
-    
-        // -------------------------------------------------------------------
-        // Add a bunch of nis groups
-        // -------------------------------------------------------------------
-        //addNisPosixGroup( "testGroup0", 0 );
-        //addNisPosixGroup( "testGroup1", 1 );
-        //addNisPosixGroup( "testGroup2", 2 );
-        //addNisPosixGroup( "testGroup4", 4 );
-        //addNisPosixGroup( "testGroup5", 5 );
-    }
-    
-    
-    /**
-     * Create a NIS group
-     */
-    private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
-    {
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: posixGroup", "cn", name,
-            "gidNumber", String.valueOf( gid ) );
-    
-        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }
     
     
