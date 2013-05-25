@@ -262,9 +262,9 @@ public class ClientServerReplicationIT
         assertFalse( consumerSession.exists( provUser.getDn() ) );
 
         // add the entry and check it is replicated
-        System.out.println( ">--------------------------------------- Adding " + provUser );
+        //System.out.println( ">--------------------------------------- Adding " + provUser );
         providerSession.add( provUser );
-        System.out.println( ">--------------------------------------- Added " );
+        //System.out.println( ">--------------------------------------- Added " );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
@@ -274,9 +274,9 @@ public class ClientServerReplicationIT
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
 
-        System.out.println( ">--------------------------------------- Modifying " + modReq );
+        //System.out.println( ">--------------------------------------- Modifying " + modReq );
         providerSession.modify( modReq );
-        System.out.println( ">--------------------------------------- Modified " );
+        //System.out.println( ">--------------------------------------- Modified " );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
         compareEntries( provUser.getDn() );
@@ -437,7 +437,7 @@ public class ClientServerReplicationIT
 
     private Entry restartConsumer( Entry provUser ) throws Exception
     {
-        System.out.println( "------------------------------------- Stop consumer" );
+        //System.out.println( "------------------------------------- Stop consumer" );
         // Now stop the consumer
         consumerServer.stop();
 
@@ -458,7 +458,7 @@ public class ClientServerReplicationIT
         Thread.sleep( 1000 );
 
         // Restart the consumer
-        System.out.println( "------------------------------------- Start consumer" );
+        //System.out.println( "------------------------------------- Start consumer" );
         consumerServer.start();
 
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
