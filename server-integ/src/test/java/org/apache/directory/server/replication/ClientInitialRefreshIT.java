@@ -80,11 +80,12 @@ public class ClientInitialRefreshIT
     private static AtomicInteger entryCount = new AtomicInteger();
 
     private static final int INSERT_COUNT = 10;
-    
+
     private static final int TOTAL_COUNT = INSERT_COUNT + 1;
 
     private static File cookiesDir;
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -99,22 +100,22 @@ public class ClientInitialRefreshIT
 
             providerSession.add( entry );
         }
-        
+
         cookiesDir = new File( FileUtils.getTempDirectory(), MockSyncReplConsumer.COOKIES_DIR_NAME );
     }
 
-    
+
     @Before
     @After
     public void deleteCookies() throws IOException
     {
-        if( cookiesDir.exists() )
+        if ( cookiesDir.exists() )
         {
             FileUtils.cleanDirectory( cookiesDir );
         }
     }
 
-    
+
     @AfterClass
     public static void tearDown() throws Exception
     {
@@ -196,13 +197,13 @@ public class ClientInitialRefreshIT
      */
     private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
     {
-        System.out.println( "\nNbAdded every 100ms : " );
-        boolean isFirst = true;
+        //boolean isFirst = true;
 
         for ( int i = 0; i < 50; i++ )
         {
             int nbAdded = ( ( MockSyncReplConsumer ) consumer ).getNbAdded();
 
+            /*
             if ( isFirst )
             {
                 isFirst = false;
@@ -213,6 +214,7 @@ public class ClientInitialRefreshIT
             }
 
             System.out.print( nbAdded );
+            */
 
             if ( nbAdded == expected )
             {
@@ -231,7 +233,7 @@ public class ClientInitialRefreshIT
      */
     private boolean waitUntilLimitSyncReplClient( int limit, ReplicationConsumer... consumers ) throws Exception
     {
-        System.out.println( "\nCompleted so far : " );
+        //System.out.println( "\nCompleted so far : " );
         int nbConsumers = consumers.length;
         int[] nbAddeds = new int[nbConsumers];
         int nbCompleted = 0;
@@ -247,7 +249,7 @@ public class ClientInitialRefreshIT
                     if ( nbAddeds[j] >= limit )
                     {
                         nbCompleted++;
-                        System.out.println( "(consumer" + ( j + 1 ) + " completed) " );
+                        //System.out.println( "(consumer" + ( j + 1 ) + " completed) " );
                     }
                 }
             }
@@ -355,7 +357,7 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoad() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshLoad" );
+        //System.out.println( "\n---> Running testInitialRefreshLoad" );
 
         ReplicationConsumer consumer = createConsumer();
 
@@ -363,7 +365,7 @@ public class ClientInitialRefreshIT
         assertTrue( waitForSyncReplClient( consumer, TOTAL_COUNT ) );
         consumer.stop();
 
-        System.out.println( "\n<-- Done" );
+        //System.out.println( "\n<-- Done" );
     }
 
 
@@ -374,7 +376,7 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshLoadAndAdd() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshLoadAndAdd" );
+        //System.out.println( "\n---> Running testInitialRefreshLoadAndAdd" );
 
         ReplicationConsumer consumer = createConsumer();
 
@@ -395,7 +397,7 @@ public class ClientInitialRefreshIT
         providerSession.delete( addedEntry.getDn() );
         consumer.stop();
 
-        System.out.println( "\n<-- Done" );
+        //System.out.println( "\n<-- Done" );
     }
 
 
@@ -406,7 +408,7 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefreshStopAndGo() throws Exception
     {
-        System.out.println( "\n---> Running testInitialRefreshStopAndGo" );
+        //System.out.println( "\n---> Running testInitialRefreshStopAndGo" );
 
         ReplicationConsumer consumer = createConsumer();
 
@@ -418,7 +420,7 @@ public class ClientInitialRefreshIT
 
         int additionalCount = 10;
         List<Dn> newEntries = new ArrayList<Dn>();
-        for( int i = 0; i < additionalCount; i++ )
+        for ( int i = 0; i < additionalCount; i++ )
         {
             // Inject a new entry in the producer
             Entry addedEntry = createEntry();
@@ -433,12 +435,12 @@ public class ClientInitialRefreshIT
         assertTrue( waitForSyncReplClient( consumer, additionalCount ) );
         consumer.stop();
 
-        for( Dn dn : newEntries )
+        for ( Dn dn : newEntries )
         {
             providerSession.delete( dn );
         }
-        
-        System.out.println( "\n<-- Done" );
+
+        //System.out.println( "\n<-- Done" );
     }
 
 
@@ -448,7 +450,7 @@ public class ClientInitialRefreshIT
     @Test
     public void testInitialRefresh4Consumers() throws Exception
     {
-        System.out.println( "\n--->Running testInitialRefresh4Consumers" );
+        //System.out.println( "\n--->Running testInitialRefresh4Consumers" );
 
         ReplicationConsumer consumer1 = createConsumer();
         ReplicationConsumer consumer2 = createConsumer();
@@ -462,6 +464,6 @@ public class ClientInitialRefreshIT
         consumer3.stop();
         consumer4.stop();
 
-        System.out.println( "\n<-- Done" );
+        //System.out.println( "\n<-- Done" );
     }
 }
