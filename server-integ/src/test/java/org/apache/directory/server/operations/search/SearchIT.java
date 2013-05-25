@@ -386,6 +386,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
         catch ( NamingException ne )
         {
+            ne.printStackTrace();
             fail();
         }
     }
@@ -1669,8 +1670,8 @@ public class SearchIT extends AbstractLdapTestUnit
             // first binding. (hmmm, even client API won't allow searching without binding)
             asyncCnx.bind( "uid=admin,ou=system", "secret" );
     
-            // First, add 1000 entries in the server
-            for ( int i = 0; i < 1000; i++ )
+            // First, add 100 entries in the server
+            for ( int i = 0; i < 100; i++ )
             {
                 String dn = "cn=user" + i + "," + BASE;
                 Entry kate = new DefaultEntry( dn );
@@ -1694,8 +1695,8 @@ public class SearchIT extends AbstractLdapTestUnit
     
                 if ( count == 10 )
                 {
-                    // the message ID = 1 bind op + 1000 add ops + 1 search op
-                    asyncCnx.abandon( 1002 );
+                    // the message ID = 1 bind op + 100 add ops + 1 search op
+                    asyncCnx.abandon( 102 );
                 }
             }
     
