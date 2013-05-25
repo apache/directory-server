@@ -1037,7 +1037,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdFailureTime = userEntry
             .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
-        System.out.println( pwdFailureTime );
         assertNotNull( pwdFailureTime );
         assertEquals( 1, pwdFailureTime.size() );
 
@@ -1050,7 +1049,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry
             .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
-        System.out.println( pwdFailureTime );
         assertNotNull( pwdFailureTime );
         assertEquals( 2, pwdFailureTime.size() );
 
@@ -1063,7 +1061,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry
             .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
-        System.out.println( pwdFailureTime );
         assertNotNull( pwdFailureTime );
         assertEquals( 2, pwdFailureTime.size() );
 
@@ -1076,7 +1073,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry
             .get( PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT );
-        System.out.println( pwdFailureTime );
         assertNotNull( pwdFailureTime );
 
         // We should not have more than 2 attempts stored
