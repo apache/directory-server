@@ -477,6 +477,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         boolean hasMoreEntry = cursor.next();
 
+        // We have some entry, move back to the first one, as we just moved forward 
+        // to get the first entry
         if ( hasMoreEntry )
         {
             cursor.previous();

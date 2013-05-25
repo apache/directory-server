@@ -29,6 +29,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
@@ -95,6 +96,10 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.MODIFY ) );
+        }
+        else
+        {
+            throw new LdapOperationErrorException( "Cannot proceed the operation with no session" );
         }
 
         modItems = ServerEntryUtils.toServerModification( modifyRequest.getModifications().toArray(

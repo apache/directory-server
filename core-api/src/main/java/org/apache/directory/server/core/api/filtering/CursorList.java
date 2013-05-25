@@ -112,7 +112,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
             this.list = Collections.emptyList();
         }
 
-        listSize = list.size();
+        listSize = this.list.size();
 
         if ( ( start < 0 ) || ( start > listSize ) )
         {
@@ -135,7 +135,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
         this.end = end;
         this.searchContext = searchContext;
         index = start;
-        currentCursor = list.get( index );
+        currentCursor = this.list.get( index );
     }
 
 

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
@@ -117,6 +118,10 @@ public class AddOperationContext extends AbstractChangeOperationContext
         if ( session != null )
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
+        }
+        else
+        {
+            throw new LdapOperationErrorException( "No session to proceed the operation" );
         }
 
         entry = new ClonedServerEntry(

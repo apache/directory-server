@@ -69,7 +69,6 @@ import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
-import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -514,7 +513,7 @@ public class ServiceBuilder
         {
             transport = new TcpTransport();
         }
-        else if ( transportBean instanceof UdpTransportBean )
+        else
         {
             transport = new UdpTransport();
         }
@@ -972,13 +971,13 @@ public class ServiceBuilder
 
         // Relplication pinger thread sleep time
         ldapServer.setReplPingerSleepTime( ldapServerBean.getReplPingerSleep() );
-        
+
         // Enabled cipher suites
-        if( ldapServerBean.getEnabledCipherSuites() != null )
+        if ( ldapServerBean.getEnabledCipherSuites() != null )
         {
             ldapServer.setEnabledCipherSuites( ldapServerBean.getEnabledCipherSuites() );
         }
-        
+
         // The transports
         Transport[] transports = createTransports( ldapServerBean.getTransports() );
         ldapServer.setTransports( transports );

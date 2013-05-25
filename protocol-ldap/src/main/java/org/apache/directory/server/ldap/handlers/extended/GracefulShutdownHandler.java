@@ -247,21 +247,21 @@ public class GracefulShutdownHandler implements
                     LOG.warn( "Failed to sent NoD for client: " + session, e );
                 }
             }
-        }
 
-        // And close the connections when the NoDs are sent.
-        Iterator<IoSession> sessionIt = sessions.iterator();
+            // And close the connections when the NoDs are sent.
+            Iterator<IoSession> sessionIt = sessions.iterator();
 
-        for ( WriteFuture future : writeFutures )
-        {
-            try
+            for ( WriteFuture future : writeFutures )
             {
-                future.awaitUninterruptibly( 1000 );
-                sessionIt.next().close( true );
-            }
-            catch ( Exception e )
-            {
-                LOG.warn( "Failed to sent NoD.", e );
+                try
+                {
+                    future.awaitUninterruptibly( 1000 );
+                    sessionIt.next().close( true );
+                }
+                catch ( Exception e )
+                {
+                    LOG.warn( "Failed to sent NoD.", e );
+                }
             }
         }
     }

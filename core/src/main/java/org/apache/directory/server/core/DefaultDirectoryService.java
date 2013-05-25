@@ -1792,10 +1792,13 @@ public class DefaultDirectoryService implements DirectoryService
             setDefaultInterceptorConfigurations();
         }
 
-        if ( cacheService != null )
+        if ( cacheService == null )
         {
-            cacheService.initialize( instanceLayout );
+            // Initialize a default cache service
+            cacheService = new CacheService();
         }
+
+        cacheService.initialize( instanceLayout );
 
         // Initialize the AP caches
         accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
