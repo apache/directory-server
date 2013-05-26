@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -220,9 +221,22 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             dirService.getEventService().addListener( cledListener, criteria );
 
-            Thread consumerInfoUpdateThread = new Thread( createConsumerInfoUpdateTask() );
+            CountDownLatch latch = new CountDownLatch( 1 );
+
+            Thread consumerInfoUpdateThread = new Thread( createConsumerInfoUpdateTask( latch ) );
             consumerInfoUpdateThread.setDaemon( true );
             consumerInfoUpdateThread.start();
+
+            // Wait for the thread to be ready. We wait 5 minutes, it should be way more
+            // than necessary
+            boolean threadInitDone = latch.await( 5, TimeUnit.MINUTES );
+
+            if ( !threadInitDone )
+            {
+                // We have had a time out : just get out
+                PROVIDER_LOG.error( "The consumer replica thread has not been initialized in time" );
+                throw new RuntimeException( "Cannot initialize the Provider replica listener" );
+            }
 
             initialized = true;
             LOG.info( "syncrepl provider initialized successfully" );
@@ -1068,7 +1082,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Create a thread to process replication communication with a consumer
      */
-    private Runnable createConsumerInfoUpdateTask()
+    private Runnable createConsumerInfoUpdateTask( final CountDownLatch latch )
     {
         Runnable task = new Runnable()
         {
@@ -1080,6 +1094,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                     try
                     {
+                        latch.countDown();
                         Thread.sleep( 10000 );
                     }
                     catch ( InterruptedException e )
