@@ -92,8 +92,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             return true;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -147,7 +147,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         {
             return result;
         }
-        
+
         // Adding the collective attributes if any
         addCollectiveAttributes( lookupContext, result );
 
@@ -174,7 +174,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next( searchContext );
 
         // only add collective attributes for non-syncrepl search
-        if( !searchContext.isSyncreplSearch() )
+        if ( !searchContext.isSyncreplSearch() )
         {
             cursor.addEntryFilter( SEARCH_FILTER );
         }
@@ -342,6 +342,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             return;
         }
 
+        LOG.debug( "Filtering entry " + entry.getDn() );
         /*
          * Before we proceed we need to lookup the exclusions within the entry
          * and build a set of exclusions for rapid lookup.  We use OID values
@@ -350,10 +351,12 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         Attribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             COLLECTIVE_EXCLUSIONS_AT );
-        Set<String> exclusions = new HashSet<String>();
+        Set<AttributeType> exclusions = new HashSet<AttributeType>();
 
         if ( collectiveExclusions != null )
         {
+            LOG.debug( "The entry has some exclusions : {}", collectiveExclusions );
+
             if ( collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT_OID )
                 || collectiveExclusions.contains( SchemaConstants.EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_AT ) )
             {
@@ -361,15 +364,15 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * This entry does not allow any collective attributes
                  * to be injected into itself.
                  */
+                LOG.debug( "The entry excludes all the collectiveAttributes" );
                 return;
             }
-
-            exclusions = new HashSet<String>();
 
             for ( Value<?> value : collectiveExclusions )
             {
                 AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
-                exclusions.add( attrType.getOid() );
+                exclusions.add( attrType );
+                LOG.debug( "Adding {} in the list of excluded collectiveAttributes", attrType.getName() );
             }
         }
 
@@ -383,6 +386,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             String subentryDnStr = value.getString();
             Dn subentryDn = session.getDirectoryService().getDnFactory().create( subentryDnStr );
 
+            LOG.debug( "Applying subentries {}", subentryDn.getName() );
+
             /*
              * TODO - Instead of hitting disk here can't we leverage the
              * SubentryService to get us cached sub-entries so we're not
@@ -394,14 +399,17 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             Entry subentry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
+            //LOG.debug( "Fetched the subentry : {}", subentry.getDn().getName() );
+
             for ( Attribute attribute : subentry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                String attrId = attributeType.getName();
+                //String attrId = attributeType.getName();
 
-                // Skip the attributes which are not collectve
+                // Skip the attributes which are not collective
                 if ( !attributeType.isCollective() )
                 {
+                    //LOG.debug( "The {} subentry attribute is not collective", attributeType.getName() );
                     continue;
                 }
 
@@ -409,8 +417,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * Skip the addition of this collective attribute if it is excluded
                  * in the 'collectiveAttributes' attribute.
                  */
-                if ( exclusions.contains( attributeType.getOid() ) )
+                if ( exclusions.contains( attributeType ) )
                 {
+                    LOG.debug( "The {} subentry attribute has been removed, it's in the exclusion list",
+                        attributeType.getName() );
                     continue;
                 }
 
@@ -420,18 +430,20 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 if ( !opContext.isAllUserAttributes() && !opContext.contains( schemaManager, attributeType ) )
                 {
+                    LOG.debug( "The {} subentry attribute is not in the list of attributes to return",
+                        attributeType.getName() );
                     continue;
                 }
 
-                Attribute subentryColAttr = subentry.get( attrId );
-                Attribute entryColAttr = entry.get( attrId );
+                Attribute subentryColAttr = subentry.get( attributeType );
+                Attribute entryColAttr = entry.get( attributeType );
 
                 /*
                  * If entry does not have attribute for collective attribute then create it.
                  */
                 if ( entryColAttr == null )
                 {
-                    entryColAttr = new DefaultAttribute( schemaManager.lookupAttributeTypeRegistry( attrId ) );
+                    entryColAttr = new DefaultAttribute( attributeType );
                     entry.put( entryColAttr );
                 }
 
@@ -441,6 +453,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  */
                 for ( Value<?> subentryColVal : subentryColAttr )
                 {
+                    LOG.debug( "Adding the {} collective attribute into the entry", subentryColAttr );
                     entryColAttr.add( subentryColVal.getString() );
                 }
             }
