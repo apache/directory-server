@@ -126,7 +126,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private SchemaManager schemaManager;
 
     /** flag to indicate whether the consumer was disconnected */
-    private boolean disconnected;
+    private volatile boolean disconnected;
 
     /** the core session */
     private CoreSession session;
@@ -136,8 +136,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             SchemaConstants.ENTRY_UUID_AT,
             SchemaConstants.ENTRY_DN_AT,
-            SchemaConstants.CREATE_TIMESTAMP_AT,
-            SchemaConstants.CREATORS_NAME_AT,
             SchemaConstants.ENTRY_PARENT_ID_AT,
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT
     };
@@ -539,17 +537,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 config.getProducer() );
         }
 
-        // Cleanup
-        disconnected = true;
-        connection = null;
-
-        // persist the cookie
-        storeCookie();
-
-        // reset the cookie
-        syncCookie = null;
-
-        return;
+        disconnect();
     }
 
 
