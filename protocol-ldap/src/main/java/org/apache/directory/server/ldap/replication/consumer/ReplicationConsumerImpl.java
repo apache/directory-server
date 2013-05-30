@@ -136,6 +136,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             SchemaConstants.ENTRY_UUID_AT,
             SchemaConstants.ENTRY_DN_AT,
+            SchemaConstants.CREATE_TIMESTAMP_AT,
+            SchemaConstants.CREATORS_NAME_AT,
             SchemaConstants.ENTRY_PARENT_ID_AT,
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT
     };
@@ -861,42 +863,37 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         disconnected = true;
 
-        if ( connection == null )
+        try
         {
-            return;
-        }
-
-        if ( connection.isConnected() )
-        {
-            try
+            if ( ( connection != null ) && connection.isConnected() )
             {
                 connection.unBind();
                 LOG.info( "Unbound from the server {}", config.getProducer() );
-
+                
                 if ( CONSUMER_LOG.isDebugEnabled() )
                 {
                     MDC.put( "Replica", Integer.toString( config.getReplicaId() ) );
                     CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
                 }
-
+                
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getProducer() );
                 CONSUMER_LOG.info( "Connection closed for the server {}", config.getProducer() );
-
+                
                 connection = null;
             }
-            catch ( Exception e )
-            {
-                LOG.error( "Failed to close the connection", e );
-            }
-            finally
-            {
-                // persist the cookie
-                storeCookie();
-
-                // reset the cookie
-                syncCookie = null;
-            }
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Failed to close the connection", e );
+        }
+        finally
+        {
+            // persist the cookie
+            storeCookie();
+            
+            // reset the cookie
+            syncCookie = null;
         }
     }
 
