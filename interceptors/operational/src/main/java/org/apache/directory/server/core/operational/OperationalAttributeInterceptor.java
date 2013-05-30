@@ -317,7 +317,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_32 );
+                    String message = I18n.err( I18n.ERR_30, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -331,7 +331,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_32 );
+                    String message = I18n.err( I18n.ERR_30, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -343,7 +343,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
             {
-                String message = I18n.err( I18n.ERR_32 );
+                String message = I18n.err( I18n.ERR_30, attributeType );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
