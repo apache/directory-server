@@ -117,7 +117,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        LOG.debug( "CollectiveAttribute interceptor initilaized" );
+        LOG.debug( "CollectiveAttribute interceptor initialized" );
     }
 
 
