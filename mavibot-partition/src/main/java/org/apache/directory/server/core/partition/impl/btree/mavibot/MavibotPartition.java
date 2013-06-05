@@ -101,19 +101,19 @@ public class MavibotPartition extends AbstractBTreePartition
         if ( !initialized )
         {
             // setup optimizer and registries for parent
-            if ( !optimizerEnabled )
+            if ( !isOptimizerEnabled() )
             {
-                optimizer = new NoOpOptimizer();
+                setOptimizer( new NoOpOptimizer() );
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry>( this );
+                setOptimizer( new DefaultOptimizer<Entry>( this ) );
             }
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
 
-            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
+            setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
