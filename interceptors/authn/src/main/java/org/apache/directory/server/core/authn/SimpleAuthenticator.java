@@ -326,7 +326,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             String algorithm = sPassword.substring( 1, rightParen );
 
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getAlgorithm().equalsIgnoreCase( algorithm ) )
             {
                 return algorithm;
             }
@@ -371,7 +371,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // create message digest object
         try
         {
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getAlgorithm().equalsIgnoreCase( algorithm ) )
             {
                 String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString( password ), "" );
                 String crypted = saltWithCrypted.substring( 2 );
