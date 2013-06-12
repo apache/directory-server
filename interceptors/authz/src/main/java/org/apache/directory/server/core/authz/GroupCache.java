@@ -185,9 +185,8 @@ public class GroupCache
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                LOG.error( "Exception while initializing the groupCache:  {}", e.getCause() );
                 LdapOperationException le = new LdapOperationException( e.getMessage(), e );
-                le.initCause( e );
                 throw le;
             }
         }
