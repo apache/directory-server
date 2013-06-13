@@ -144,9 +144,8 @@ public class AddPerfIT extends AbstractLdapTestUnit
 
         while ( result.next() )
         {
-            Entry res = result.get();
+            result.get();
 
-            System.out.println( res.getDn() );
             nbFound++;
         }
 
