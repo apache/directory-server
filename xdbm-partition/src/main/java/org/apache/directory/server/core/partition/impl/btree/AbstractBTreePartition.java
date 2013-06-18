@@ -1340,23 +1340,27 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Index<?, Entry, String> index = getUserIndex( attributeType );
 
-            // if the id exists in the index drop all existing attribute
-            // value index entries and add new ones
-            if ( index.reverse( id ) )
+            // Drop all the previous values
+            Attribute oldAttribute = entry.get( mods.getAttributeType() );
+
+            if ( oldAttribute != null )
             {
-                ( ( Index<?, Entry, String> ) index ).drop( id );
+                for ( Value<?> value : oldAttribute )
+                {
+                    ( ( Index<Object, Entry, String> ) index ).drop( value.getNormValue(), id );
+                }
             }
 
+            // And add the new ones
             for ( Value<?> value : mods )
             {
                 ( ( Index<Object, Entry, String> ) index ).add( value.getNormValue(), id );
             }
 
             /*
-             * If no attribute values exist for this entryId in the index then
-             * we remove the presence index entry for the removed attribute.
+             * If we have no new value, we have to drop the AT fro the presence index
              */
-            if ( null == index.reverseLookup( id ) )
+            if ( mods.size() == 0 )
             {
                 presenceIdx.drop( modsOid, id );
             }
