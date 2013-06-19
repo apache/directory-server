@@ -20,14 +20,20 @@
 package org.apache.directory.shared.client.api.operations.search;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -307,7 +313,6 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
     @Test
     public void testModify() throws Exception
     {
-
         // Add the entry
         Dn dn = new Dn( "uid=1,dc=example,dc=com" );
         Entry entry = new DefaultEntry(
@@ -318,49 +323,416 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
             "objectClass: organizationalPerson",
             "objectClass: inetOrgPerson",
             "uid: 1",
-            "mail: A-A-R.Awg-Rosli@acme.com",
-            "title: Snr Operations Technician (D)",
-            "sn: Awg-Rosli",
-            "departmentNumber: SMDS - UIA/G/MMO52D",
-            "cn: Awg-Rosli, Awg-Abd-Rahim SMDS-UIA/G/MMO52D",
-            "description: UI - S",
-            "telephoneNumber: 555-1212",
-            "givenName: Awg-Abd-Rahim",
-            "businessCategory: Ops MDS (Malaysia) Sdn Bhd",
-            "displayName: 1Awg-Rosli",
-            "employeeNumber: A-A-R.Awg-Rosli",
+            "mail: test@acme.com",
+            "title: technician",
+            "sn: Test",
+            "departmentNumber: Dep1",
+            "cn: entryTest",
+            "description: Test entry",
+            "telephoneNumber: 123 456",
+            "givenName: Test user",
+            "businessCategory: Test ops",
+            "displayName: testUser",
+            "employeeNumber: Test user",
             "pwdPolicySubEntry: ads-pwdId=cproint,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
 
         connection.add( entry );
 
-        EntryCursor results = connection.search( "dc=example,dc=com", "(displayName=1*)", SearchScope.SUBTREE, "*" );
+        EntryCursor results = connection.search( "dc=example,dc=com", "(displayName=T*)", SearchScope.SUBTREE, "*" );
 
         while ( results.next() )
         {
             Entry result = results.get();
-            assertTrue( result.contains( "displayName", "1Awg-Rosli" ) );
+            assertTrue( result.contains( "displayName", "testUser" ) );
         }
 
         results.close();
 
         // Now, modify it
         connection
-            .modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "displayName", "test" ) );
+            .modify( dn,
+                new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "displayName", "anotherTest" ) );
 
-        results = connection.search( "dc=example,dc=com", "(displayName=t*)", SearchScope.SUBTREE, "*" );
+        results = connection.search( "dc=example,dc=com", "(displayName=a*)", SearchScope.SUBTREE, "*" );
 
         while ( results.next() )
         {
             Entry result = results.get();
-            assertTrue( result.contains( "displayName", "test" ) );
+            assertTrue( result.contains( "displayName", "anotherTest" ) );
         }
 
         results.close();
 
-        results = connection.search( "dc=example,dc=com", "(displayName=1*)", SearchScope.SUBTREE, "*" );
+        results = connection.search( "dc=example,dc=com", "(displayName=T*)", SearchScope.SUBTREE, "*" );
 
         assertFalse( results.next() );
 
         results.close();
+
+        // Delete the entry
+        connection.delete( dn );
+    }
+
+
+    /**
+     * Test that the index are correctly updated after a modify operation when we replace an index
+     * AT values
+     * @throws IOException 
+     * @throws CursorException 
+     */
+    @Test
+    public void testModifyReplace() throws LdapException, CursorException, IOException
+    {
+        // Add the entry
+        Dn dn = new Dn( "uid=1,dc=example,dc=com" );
+        Entry entry = new DefaultEntry(
+            getService().getSchemaManager(),
+            dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "uid: 1",
+            "mail: test@acme.com",
+            "title: technician",
+            "sn: Test",
+            "departmentNumber: Dep1",
+            "cn: entryTest",
+            "description: Test entry",
+            "telephoneNumber: 123 456",
+            "givenName: Test user",
+            "businessCategory: Test ops",
+            "displayName: testUser",
+            "employeeNumber: Test user",
+            "pwdPolicySubEntry: ads-pwdId=cproint,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
+
+        connection.add( entry );
+
+        // Check the search using the cn index
+        EntryCursor results = connection.search( "dc=example,dc=com", "(cn=e*)", SearchScope.SUBTREE, "*" );
+
+        int nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        results.close();
+
+        assertEquals( 1, nbFound );
+
+        // Ok, now replace the cn
+        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "cn", "New cn" );
+
+        connection.modify( dn, modification );
+
+        // The Substring index on CN should still work
+        // The old cn should not be present anymore
+        results = connection.search( "dc=example,dc=com", "(cn=e*)", SearchScope.SUBTREE, "*" );
+
+        assertFalse( results.next() );
+
+        results.close();
+
+        // Check that we can find the new cn
+        results = connection.search( "dc=example,dc=com", "(cn=n*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "New cn" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Now, check the presence index
+        results = connection.search( "dc=example,dc=com", "(cn=*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "New cn" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Delete the entry
+        connection.delete( dn );
+    }
+
+
+    /**
+     * Test that the index are correctly updated after a modify operation when we add an index
+     * AT values
+     */
+    @Test
+    public void testModifyAdd() throws LdapException, CursorException, IOException
+    {
+        // Add the entry
+        Dn dn = new Dn( "uid=1,dc=example,dc=com" );
+        Entry entry = new DefaultEntry(
+            getService().getSchemaManager(),
+            dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "uid: 1",
+            "mail: test@acme.com",
+            "title: technician",
+            "sn: Test",
+            "departmentNumber: Dep1",
+            "cn: entryTest",
+            "description: Test entry",
+            "telephoneNumber: 123 456",
+            "givenName: Test user",
+            "businessCategory: Test ops",
+            "employeeNumber: Test user",
+            "pwdPolicySubEntry: ads-pwdId=cproint,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
+
+        connection.add( entry );
+
+        // Check the search using the cn index
+        EntryCursor results = connection.search( "dc=example,dc=com", "(cn=e*)", SearchScope.SUBTREE, "*" );
+
+        int nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        results.close();
+
+        assertEquals( 1, nbFound );
+
+        // Ok, now replace the cn
+        Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "cn", "New cn" );
+
+        connection.modify( dn, modification );
+
+        // The Substring index on CN should still work
+        // The old cn should still be present anymore
+        results = connection.search( "dc=example,dc=com", "(cn=e*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Check that we can find the new cn
+        results = connection.search( "dc=example,dc=com", "(cn=n*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "New cn" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Now, check the presence index
+        results = connection.search( "dc=example,dc=com", "(cn=*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "New cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Now, check that the index on displayName is correctly updated
+        modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "displayName", "testUser" );
+
+        connection.modify( dn, modification );
+
+        // Check the displayName index
+        results = connection.search( "dc=example,dc=com", "(displayName=t*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "displayName", "testUser" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Now, check the presence index
+        results = connection.search( "dc=example,dc=com", "(displayName=*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "displayName", "testUser" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Delete the entry
+        connection.delete( dn );
+    }
+
+
+    /**
+     * Test that the index are correctly updated after a modify operation when we delete an index
+     * AT values
+     */
+    @Test
+    public void testModifyDelete() throws LdapException, CursorException, IOException
+    {
+        // Add the entry
+        Dn dn = new Dn( "uid=1,dc=example,dc=com" );
+        Entry entry = new DefaultEntry(
+            getService().getSchemaManager(),
+            dn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "uid: 1",
+            "mail: test@acme.com",
+            "title: technician",
+            "sn: Test",
+            "departmentNumber: Dep1",
+            "cn: entryTest",
+            "cn: test2",
+            "description: Test entry",
+            "telephoneNumber: 123 456",
+            "givenName: Test user",
+            "displayName: testEntry",
+            "businessCategory: Test ops",
+            "employeeNumber: Test user",
+            "pwdPolicySubEntry: ads-pwdId=cproint,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
+
+        connection.add( entry );
+
+        // Check the search using the cn index
+        EntryCursor results = connection.search( "dc=example,dc=com", "(cn=e*)", SearchScope.SUBTREE, "*" );
+
+        int nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        results.close();
+
+        assertEquals( 1, nbFound );
+
+        // Ok, now replace the cn
+        Modification modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "displayName",
+            "testEntry" );
+
+        connection.modify( dn, modification );
+
+        // We should not find anything using the substring filter for the displayName AT
+        results = connection.search( "dc=example,dc=com", "(displayName=t*)", SearchScope.SUBTREE, "*" );
+
+        assertFalse( results.next() );
+
+        results.close();
+
+        // Check that we cannot find the displayName using the presence index
+        results = connection.search( "dc=example,dc=com", "(displayName=n*)", SearchScope.SUBTREE, "*" );
+
+        assertFalse( results.next() );
+
+        results.close();
+
+        // Now, Delete one value from the cn index
+        modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "cn", "test2" );
+
+        connection.modify( dn, modification );
+
+        // Check the cn index using the remaining value
+        results = connection.search( "dc=example,dc=com", "(cn=E*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertFalse( result.contains( "cn", "test2" ) );
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Check the cn index using the removed value
+        results = connection.search( "dc=example,dc=com", "(cn=t*)", SearchScope.SUBTREE, "*" );
+
+        assertFalse( results.next() );
+
+        results.close();
+
+        // Now, check the presence index
+        results = connection.search( "dc=example,dc=com", "(cn=*)", SearchScope.SUBTREE, "*" );
+
+        nbFound = 0;
+
+        while ( results.next() )
+        {
+            Entry result = results.get();
+            assertFalse( result.contains( "cn", "test2" ) );
+            assertTrue( result.contains( "cn", "entryTest" ) );
+            nbFound++;
+        }
+
+        assertEquals( 1, nbFound );
+
+        results.close();
+
+        // Delete the entry
+        connection.delete( dn );
     }
 }
