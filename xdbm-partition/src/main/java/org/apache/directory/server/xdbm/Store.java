@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -427,4 +428,10 @@ public interface Store
      * @return The masterTable instance
      */
     MasterTable getMasterTable();
+
+
+    /**
+     * @return The ReadWrite lock used to protect the server against concurrent read and writes
+     */
+    ReadWriteLock getReadWriteLock();
 }

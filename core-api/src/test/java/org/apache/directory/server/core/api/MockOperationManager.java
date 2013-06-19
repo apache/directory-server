@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.api;
 
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
@@ -129,5 +132,26 @@ public class MockOperationManager implements OperationManager
 
     public void unlockWrite()
     {
+    }
+
+
+    @Override
+    public void lockRead()
+    {
+    }
+
+
+    @Override
+    public void unlockRead()
+    {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ReadWriteLock getRWLock()
+    {
+        return new ReentrantReadWriteLock();
     }
 }

@@ -173,8 +173,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected static final boolean ADD_CHILD = true;
     protected static final boolean REMOVE_CHILD = false;
 
-    /** A lock to protect the MasterTable from concurrent access */
-    private ReadWriteLock masterTableLock = new ReentrantReadWriteLock();
+    /** A lock to protect the backend from concurrent reads/writes */
+    private ReadWriteLock rwLock;
 
 
     // ------------------------------------------------------------------------
@@ -598,6 +598,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( addContext );
             Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
 
             Dn entryDn = entry.getDn();
@@ -802,6 +803,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( deleteContext );
             Dn dn = deleteContext.getDn();
             String id = null;
 
@@ -1021,6 +1023,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( searchContext );
 
             PartitionSearchResult searchResult = searchEngine.computeResult( schemaManager, searchContext );
 
@@ -1048,6 +1051,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
+        setRWLock( lookupContext );
         String id = getEntryId( lookupContext.getDn() );
 
         if ( id == null )
@@ -1070,10 +1074,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public Entry fetch( String id ) throws LdapException
     {
-        lockRead();
-
         try
         {
+            rwLock.readLock().lock();
+
             Dn dn = buildEntryDn( id );
 
             return fetch( id, dn );
@@ -1084,7 +1088,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         finally
         {
-            unlockRead();
+            rwLock.readLock().unlock();
         }
     }
 
@@ -1112,15 +1116,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 return new ClonedServerEntry( entry );
             }
 
-            lockRead();
-
             try
             {
+                rwLock.readLock().lock();
                 entry = master.get( id );
             }
             finally
             {
-                unlockRead();
+                rwLock.readLock().unlock();
             }
 
             if ( entry != null )
@@ -1157,6 +1160,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( modifyContext );
+
             Entry modifiedEntry = modify( modifyContext.getDn(),
                 modifyContext.getModItems().toArray( new Modification[]
                     {} ) );
@@ -1569,6 +1574,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         try
         {
+            setRWLock( moveContext );
             Dn oldDn = moveContext.getDn();
             Dn newSuperior = moveContext.getNewSuperior();
             Dn newDn = moveContext.getNewDn();
@@ -1587,7 +1593,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public synchronized final void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry ) throws Exception
+    public synchronized final void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry )
+        throws Exception
     {
         // Check that the parent Dn exists
         String newParentId = getEntryId( newSuperiorDn );
@@ -1697,6 +1704,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         try
         {
+            setRWLock( moveAndRenameContext );
             Dn oldDn = moveAndRenameContext.getDn();
             Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
             Rdn newRdn = moveAndRenameContext.getNewRdn();
@@ -1722,7 +1730,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
+    public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn,
+        Entry modifiedEntry,
         boolean deleteOldRdn ) throws Exception
     {
         // Check that the old entry exists
@@ -1793,7 +1802,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * @param modifiedEntry the modified entry
      * @throws Exception if something goes wrong
      */
-    private void moveAndRename( Dn oldDn, String entryId, Dn newSuperior, Rdn newRdn, Entry modifiedEntry )
+    private void moveAndRename( Dn oldDn, String entryId, Dn newSuperior, Rdn newRdn,
+        Entry modifiedEntry )
         throws Exception
     {
         // Get the child and the new parent to be entries and Ids
@@ -1860,6 +1870,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( renameContext );
             Dn oldDn = renameContext.getDn();
             Rdn newRdn = renameContext.getNewRdn();
             boolean deleteOldRdn = renameContext.getDeleteOldRdn();
@@ -2051,6 +2062,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
+            setRWLock( entryContext );
+
             String id = getEntryId( entryContext.getDn() );
 
             Entry entry = fetch( id, entryContext.getDn() );
@@ -2101,33 +2114,42 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         Rdn[] rdnArray = new Rdn[10];
         int pos = 0;
 
-        do
+        try
         {
-            ParentIdAndRdn cur = rdnIdx.reverseLookup( parentId );
+            rwLock.readLock().lock();
 
-            if ( cur == null )
+            do
             {
-                return null;
-            }
+                ParentIdAndRdn cur = rdnIdx.reverseLookup( parentId );
 
-            Rdn[] rdns = cur.getRdns();
-
-            for ( Rdn rdn : rdns )
-            {
-                if ( ( pos > 0 ) && ( pos % 10 == 0 ) )
+                if ( cur == null )
                 {
-                    // extend the array
-                    Rdn[] newRdnArray = new Rdn[pos + 10];
-                    System.arraycopy( rdnArray, 0, newRdnArray, 0, pos );
-                    rdnArray = newRdnArray;
+                    return null;
                 }
 
-                rdnArray[pos++] = rdn;
-            }
+                Rdn[] rdns = cur.getRdns();
 
-            parentId = cur.getParentId();
+                for ( Rdn rdn : rdns )
+                {
+                    if ( ( pos > 0 ) && ( pos % 10 == 0 ) )
+                    {
+                        // extend the array
+                        Rdn[] newRdnArray = new Rdn[pos + 10];
+                        System.arraycopy( rdnArray, 0, newRdnArray, 0, pos );
+                        rdnArray = newRdnArray;
+                    }
+
+                    rdnArray[pos++] = rdn;
+                }
+
+                parentId = cur.getParentId();
+            }
+            while ( !parentId.equals( rootId ) );
         }
-        while ( !parentId.equals( rootId ) );
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
 
         Dn dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
 
@@ -2186,21 +2208,29 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             ParentIdAndRdn suffixKey = new ParentIdAndRdn( Partition.ROOT_ID, suffixDn.getRdns() );
 
             // Check into the Rdn index, starting with the partition Suffix
-            String currentId = rdnIdx.forwardLookup( suffixKey );
-
-            for ( int i = dn.size() - suffixDn.size(); i > 0; i-- )
+            try
             {
-                Rdn rdn = dn.getRdn( i - 1 );
-                ParentIdAndRdn currentRdn = new ParentIdAndRdn( currentId, rdn );
-                currentId = rdnIdx.forwardLookup( currentRdn );
+                rwLock.readLock().lock();
+                String currentId = rdnIdx.forwardLookup( suffixKey );
 
-                if ( currentId == null )
+                for ( int i = dn.size() - suffixDn.size(); i > 0; i-- )
                 {
-                    break;
-                }
-            }
+                    Rdn rdn = dn.getRdn( i - 1 );
+                    ParentIdAndRdn currentRdn = new ParentIdAndRdn( currentId, rdn );
+                    currentId = rdnIdx.forwardLookup( currentRdn );
 
-            return currentId;
+                    if ( currentId == null )
+                    {
+                        break;
+                    }
+                }
+
+                return currentId;
+            }
+            finally
+            {
+                rwLock.readLock().unlock();
+            }
         }
         catch ( Exception e )
         {
@@ -2214,14 +2244,22 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     public String getParentId( String childId ) throws Exception
     {
-        ParentIdAndRdn key = rdnIdx.reverseLookup( childId );
-
-        if ( key == null )
+        try
         {
-            return null;
-        }
+            rwLock.readLock().lock();
+            ParentIdAndRdn key = rdnIdx.reverseLookup( childId );
 
-        return key.getParentId();
+            if ( key == null )
+            {
+                return null;
+            }
+
+            return key.getParentId();
+        }
+        finally
+        {
+            rwLock.readLock().unlock();
+        }
     }
 
 
@@ -2234,7 +2272,15 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             ParentIdAndRdn key = new ParentIdAndRdn( Partition.ROOT_ID, suffixDn.getRdns() );
 
-            suffixId = rdnIdx.forwardLookup( key );
+            try
+            {
+                rwLock.readLock().lock();
+                suffixId = rdnIdx.forwardLookup( key );
+            }
+            finally
+            {
+                rwLock.readLock().unlock();
+            }
         }
 
         return suffixId;
@@ -2830,7 +2876,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     private void lockRead()
     {
-        masterTableLock.readLock().lock();
+        rwLock.readLock().lock();
     }
 
 
@@ -2839,7 +2885,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     private void unlockRead()
     {
-        masterTableLock.readLock().unlock();
+        rwLock.readLock().unlock();
     }
 
 
@@ -2848,7 +2894,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     private void lockWrite()
     {
-        masterTableLock.writeLock().lock();
+        rwLock.writeLock().lock();
     }
 
 
@@ -2857,7 +2903,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     private void unlockWrite()
     {
-        masterTableLock.writeLock().unlock();
+        rwLock.writeLock().unlock();
     }
 
 
@@ -2922,5 +2968,36 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public void setSearchEngine( SearchEngine searchEngine )
     {
         this.searchEngine = searchEngine;
+    }
+
+
+    /**
+     * Set and return the ReadWrite lock we use to protect the backend against concurrent modifications
+     * 
+     * @param operationContext The OperationContext which contain the reference to the OperationManager
+     */
+    private void setRWLock( OperationContext operationContext )
+    {
+        if ( operationContext.getSession() != null )
+        {
+            rwLock = operationContext.getSession().getDirectoryService().getOperationManager().getRWLock();
+        }
+        else
+        {
+            if ( rwLock == null )
+            {
+                // Create a ReadWrite lock from scratch
+                rwLock = new ReentrantReadWriteLock();
+            }
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public ReadWriteLock getReadWriteLock()
+    {
+        return rwLock;
     }
 }

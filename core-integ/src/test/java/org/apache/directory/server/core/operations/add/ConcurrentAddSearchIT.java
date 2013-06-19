@@ -127,7 +127,7 @@ public class ConcurrentAddSearchIT extends AbstractLdapTestUnit
 
         // Now that we have started the add thread, let's do some searches
 
-        for ( int i = 0; i < 120; i++ )
+        for ( int i = 0; i < 100; i++ )
         {
             try
             {
@@ -135,15 +135,22 @@ public class ConcurrentAddSearchIT extends AbstractLdapTestUnit
 
                 int nbFound = 0;
 
-                while ( results.next() )
+                while ( results.next() && ( nbFound < 1000 ) )
                 {
                     Entry result = results.get();
                     nbFound++;
                 }
 
-                System.out.println( "Running " + i + "th search, getting back " + nbFound + " entries" );
+                System.out.println( "Running " + i + "th search, getting back " + nbFound
+                    + " entries, nb added entries : " + nbAdded );
 
                 results.close();
+
+                if ( nbAdded >= 10000 )
+                {
+                    break;
+                }
+
                 Thread.sleep( 1000 );
             }
             catch ( Exception e )

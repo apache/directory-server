@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.api;
 
 
+import java.util.concurrent.locks.ReadWriteLock;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -141,4 +143,22 @@ public interface OperationManager
      * Releases a WriteLock
      */
     void unlockWrite();
+
+
+    /**
+     * Acquires a ReadLock
+     */
+    void lockRead();
+
+
+    /**
+     * Releases a ReadLock
+     */
+    void unlockRead();
+
+
+    /**
+     * @return the OperationManager R/W lock
+     */
+    ReadWriteLock getRWLock();
 }

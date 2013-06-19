@@ -102,9 +102,18 @@ public class DefaultOperationManager implements OperationManager
 
 
     /**
+     * {@inheritDoc}
+     */
+    public ReadWriteLock getRWLock()
+    {
+        return rwLock;
+    }
+
+
+    /**
      * Acquires a ReadLock
      */
-    private void lockRead()
+    public void lockRead()
     {
         rwLock.readLock().lock();
     }
@@ -131,7 +140,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * Releases a ReadLock
      */
-    private void unlockRead()
+    public void unlockRead()
     {
         rwLock.readLock().unlock();
     }
