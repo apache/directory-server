@@ -74,7 +74,9 @@ import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.DefaultPasswordValidator;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordValidator;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
@@ -258,7 +260,31 @@ public class ServiceBuilder
         passwordPolicy.setPwdMinLength( passwordPolicyBean.getPwdMinLength() );
         passwordPolicy.setPwdMustChange( passwordPolicyBean.isPwdMustChange() );
         passwordPolicy.setPwdSafeModify( passwordPolicyBean.isPwdSafeModify() );
-
+        
+        PasswordValidator validator = null;
+        
+        try
+        {
+        	String className = passwordPolicyBean.getPwdValidator();
+        	
+        	if ( className != null )
+        	{
+        		Class<?> cls = Class.forName( className );
+        		validator = ( PasswordValidator ) cls.newInstance();
+        	}
+        }
+        catch( Exception e )
+        {
+        	LOG.warn( "Failed to load and instantiate the custom password validator for password policy config {}, using the default validator", passwordPolicyBean.getDn(), e );
+        }
+        
+        if ( validator == null )
+        {
+        	validator = new DefaultPasswordValidator();
+        }
+        	
+        passwordPolicy.setPwdValidator(validator);
+        
         return passwordPolicy;
     }
 

@@ -121,6 +121,7 @@ ads-pwdGraceExpire: 0
 ads-pwdMinDelay: 0
 ads-pwdMaxDelay: 0
 ads-pwdMaxIdle: 0
+ads-pwdValidator: org.apache.directory.server.core.api.authn.ppolicy.DefaultPasswordValidator
 ads-enabled: TRUE
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config

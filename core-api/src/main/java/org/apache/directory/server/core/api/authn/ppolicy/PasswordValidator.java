@@ -35,8 +35,8 @@ public interface PasswordValidator
      *       so the implementor should concentrate on the content checking.</p>
      *  
      * @param password the password value
-     * @param entryRdnVal the value of entry's RDN(typically this is the username) e.x 'admin' if the entry's DN is {uid/cn/etc..}=admin,ou=system
+     * @param userId user's ID (it is the value of entry's RDN e.x 'admin' if the entry's DN is {uid/cn/etc..}=admin,ou=system)
      * @throws PasswordPolicyException if the password doesn't meet the quality contraints
      */
-    void validate( String password, String entryRdnVal ) throws PasswordPolicyException;
+    void validate( String password, String userId ) throws PasswordPolicyException;
 }

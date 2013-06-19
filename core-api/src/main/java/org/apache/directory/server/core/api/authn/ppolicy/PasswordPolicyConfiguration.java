@@ -153,7 +153,6 @@ public class PasswordPolicyConfiguration
     private int pwdMaxIdle = 0;
 
     /** validator used for checking the quality of password */
-    //TODO to be injected from config  
     private PasswordValidator pwdValidator = DefaultPasswordValidator.INSTANCE;
 
 
