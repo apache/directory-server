@@ -378,7 +378,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
      */
     public synchronized void add( K attrVal, String id ) throws Exception
     {
-        // The pair to be removed must exists
+        // The pair to be added must exists
         forward.put( attrVal, id );
 
         if ( withReverse )
