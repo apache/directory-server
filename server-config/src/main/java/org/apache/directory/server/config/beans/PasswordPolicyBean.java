@@ -178,7 +178,7 @@ public class PasswordPolicyBean extends AdsBaseBean
     private int pwdMaxIdle = 0;
 
     /** the FQCN of the password validator */
-    @ConfigurationElement(attributeType = "ads-pwdValidator", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-pwdValidator")
     private String pwdValidator = null;
 
     public String getPwdAttribute()
