@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>29</version>
+    <version>30-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
 
@@ -45,7 +45,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M18-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>1.0.0-M18</org.apache.directory.api.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M2</org.apache.directory.jdbm.version>
@@ -59,7 +59,7 @@
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
-    <commons.net.version>3.2</commons.net.version>
+    <commons.net.version>3.3</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
     <dnsjava.version>2.1.1</dnsjava.version>
     <ehcache.version>2.4.4</ehcache.version>
@@ -97,7 +97,7 @@
     <module>i18n</module>
     <module>all</module>
     <module>jdbm-partition</module>
-    <!--module>mavibot-partition</module-->
+    <!-- module>mavibot-partition</module -->
     <module>xdbm-partition</module>
     <module>core-shared</module>
     <module>core-api</module>
