@@ -246,7 +246,7 @@
     </pluginManagement>
     
     <plugins>
-      <plugin>
+      <!-- plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <dependencies>
@@ -256,7 +256,7 @@
             <version>${org.apache.directory.checkstyle-configuration.version}</version>
           </dependency>
         </dependencies>
-      </plugin>
+      </plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -302,7 +302,7 @@
               </configuration>
             </plugin>
        
-            <plugin>
+            <!-- plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-pmd-plugin</artifactId>
               <configuration>
@@ -312,7 +312,7 @@
                 <targetJdk>1.6</targetJdk>
                 <aggregate>true</aggregate>
               </configuration>
-            </plugin>
+            </plugin -->
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -437,14 +437,14 @@
               </configuration>
             </plugin>
       
-            <plugin>
+            <!-- plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-checkstyle-plugin</artifactId>
               <configuration>
                 <configLocation>directory-checks.xml</configLocation>
                 <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
               </configuration>
-            </plugin>
+            </plugin -->
       
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
