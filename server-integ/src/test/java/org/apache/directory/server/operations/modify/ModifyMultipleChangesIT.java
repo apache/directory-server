@@ -23,6 +23,7 @@ package org.apache.directory.server.operations.modify;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.naming.NamingEnumeration;
@@ -35,7 +36,13 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
