@@ -35,7 +35,6 @@ import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
@@ -243,6 +242,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
+
         if ( e instanceof LdapOperationException )
         {
             code = ( ( LdapOperationException ) e ).getResultCode();
@@ -261,10 +261,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          */
         String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
 
-        if ( LOG.isDebugEnabled() )
-        {
-            LOG.debug( msg, e );
+        LOG.debug( msg, e );
 
+        if ( LOG.isDebugEnabled() || ( code == ResultCodeEnum.OTHER ) )
+        {
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
 
@@ -280,7 +280,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( Dn ) ne.getResolvedDn() );
+                result.setMatchedDn( ne.getResolvedDn() );
             }
 
             // Add the referrals if necessary
