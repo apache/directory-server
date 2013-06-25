@@ -920,6 +920,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 catch ( LdapURLEncodingException e )
                 {
                     LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
+                    ldapUrl = new LdapUrl();
                 }
 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );
@@ -1486,6 +1487,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             catch ( LdapURLEncodingException e )
             {
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                ldapUrl = new LdapUrl();
             }
 
             // Normalize the Dn to check for same dn
@@ -1565,6 +1567,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             catch ( LdapURLEncodingException e )
             {
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                ldapUrl = new LdapUrl();
             }
 
             Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
