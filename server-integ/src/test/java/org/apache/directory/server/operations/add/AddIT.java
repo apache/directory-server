@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +51,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+
+import netscape.ldap.LDAPException;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -1510,15 +1513,54 @@ public class AddIT extends AbstractLdapTestUnit
         assertNotNull( certificate );
         assertEquals( 1, certificate.size() );
         assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
-        
+
         // Same check without the ";binary"
         certificate = kateReloaded.get( "userCertificate" );
         assertNotNull( certificate );
         assertEquals( 1, certificate.size() );
         assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
-        
+
         // Remove entry
         con.delete( dn );
         con.unBind();
+    }
+
+
+    @Test
+    public void testAddNullValue() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "cn=test,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "cn: test",
+            "sn: Test",
+            "userPassword:",
+            "mail:" );
+
+        connection.add( entry );
+
+        // Now fetch the entry
+        Entry found = connection.lookup( "cn=test,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "userPassword" ) );
+        assertNotNull( found.get( "mail" ) );
+        String userPassword = found.get( "userPassword" ).getString();
+        String mail = found.get( "mail" ).getString();
+
+        assertTrue( Strings.isEmpty( userPassword ) );
+        assertTrue( Strings.isEmpty( mail ) );
+
+        connection.close();
     }
 }
