@@ -66,6 +66,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
@@ -1560,6 +1561,40 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertTrue( Strings.isEmpty( userPassword ) );
         assertTrue( Strings.isEmpty( mail ) );
+
+        connection.close();
+    }
+
+
+    @Test
+    public void testAddNullValueDirectoryString() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "cn=test,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "cn: test",
+            "sn: Test",
+            "displayName:" ); // The DisplayName must contain a value
+
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            // Expected
+        }
 
         connection.close();
     }
