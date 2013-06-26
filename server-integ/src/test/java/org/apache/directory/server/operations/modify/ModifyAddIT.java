@@ -51,7 +51,6 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
@@ -707,7 +706,7 @@ public void testAddNewBinaryAttributeValue0x80() throws Exception
 
 
 @Test
-public void testModifyMultipleValues() throws LdapException, IOException
+public void testModifyAddWithNullValues() throws LdapException, IOException
 {
     LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
     connection.setTimeOut( 0L );
@@ -725,61 +724,24 @@ public void testModifyMultipleValues() throws LdapException, IOException
         "uid: 12345",
         "cn: test",
         "sn: Test",
-        "userPassword: null" );
+        "userPassword: 12345" );
 
     connection.add( entry );
 
-    // Now modify the entry
+    // Now modify the entry : we should add two null values
     connection.modify( new Dn( "uid=12345,ou=system" ),
-        new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "sn", "foo" ),
-        new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "cn", "Foo" ),
-        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "userPassword", "123456" ),
-        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "givenname", "foo" ),
-        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "displayName", "foo" ),
-        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "employeeNumber", "foo" ),
-        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mail" )
+        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "userPassword", Strings.EMPTY_BYTES ),
+        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mail", ( String ) null )
         );
 
     // Get back the entry
     Entry found = connection.lookup( "uid=12345,ou=system" );
 
     assertNotNull( found );
+    assertNotNull( found.get( "mail" ) );
     assertNotNull( found.get( "userPassword" ) );
     assertTrue( found.contains( "mail", Strings.EMPTY_BYTES ) );
-
-    connection.close();
-}
-
-
-@Test
-public void testAddNullValueDirectoryString() throws LdapException, IOException
-{
-    LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
-    connection.setTimeOut( 0L );
-
-    // Use the client API
-    connection.bind( "uid=admin,ou=system", "secret" );
-
-    // Add a new entry with some null values
-    Entry entry = new DefaultEntry( "cn=test,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: person",
-        "ObjectClass: person",
-        "ObjectClass: OrganizationalPerson",
-        "ObjectClass: inetOrgPerson",
-        "cn: test",
-        "sn: Test",
-        "displayName:" ); // The DisplayName must contain a value
-
-    try
-    {
-        connection.add( entry );
-        fail();
-    }
-    catch ( LdapInvalidAttributeValueException liave )
-    {
-        // Expected
-    }
+    assertTrue( found.contains( "userPassword", "12345", "" ) );
 
     connection.close();
 }
