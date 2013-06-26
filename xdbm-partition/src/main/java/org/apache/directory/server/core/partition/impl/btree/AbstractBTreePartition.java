@@ -36,8 +36,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapAliasDereferencingException;
 import org.apache.directory.api.ldap.model.exception.LdapAliasException;
@@ -1257,9 +1259,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Index<?, Entry, String> index = getUserIndex( attributeType );
 
-            for ( Value<?> value : mods )
+            if ( mods.size() > 0 )
             {
-                ( ( Index ) index ).add( value.getNormValue(), id );
+                for ( Value<?> value : mods )
+                {
+                    ( ( Index ) index ).add( value.getNormValue(), id );
+                }
+            }
+            else
+            {
+                // Special case when we have null values
+                ( ( Index ) index ).add( null, id );
             }
 
             // If the attr didn't exist for this id add it to presence index
@@ -1285,9 +1295,24 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // add all the values in mods to the same attribute in the entry
-        for ( Value<?> value : mods )
+        if ( mods.size() > 0 )
         {
-            entry.add( mods.getAttributeType(), value );
+            for ( Value<?> value : mods )
+            {
+                entry.add( mods.getAttributeType(), value );
+            }
+        }
+        else
+        {
+            // Special cases for null values
+            if ( mods.getAttributeType().getSyntax().isHumanReadable() )
+            {
+                entry.add( mods.getAttributeType(), new StringValue( null ) );
+            }
+            else
+            {
+                entry.add( mods.getAttributeType(), new BinaryValue( null ) );
+            }
         }
 
         if ( modsOid.equals( SchemaConstants.ALIASED_OBJECT_NAME_AT_OID ) )
