@@ -24,6 +24,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -742,6 +743,65 @@ public void testModifyAddWithNullValues() throws LdapException, IOException
     assertNotNull( found.get( "userPassword" ) );
     assertTrue( found.contains( "mail", Strings.EMPTY_BYTES ) );
     assertTrue( found.contains( "userPassword", "12345", "" ) );
+
+    connection.close();
+}
+
+
+@Test
+public void testModifyReplaceWithNullValues() throws LdapException, IOException
+{
+    LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+    connection.setTimeOut( 0L );
+
+    // Use the client API
+    connection.bind( "uid=admin,ou=system", "secret" );
+
+    // Add a new entry with some null values
+    Entry entry = new DefaultEntry( "uid=12345,ou=system",
+        "ObjectClass: top",
+        "ObjectClass: person",
+        "ObjectClass: person",
+        "ObjectClass: OrganizationalPerson",
+        "ObjectClass: inetOrgPerson",
+        "uid: 12345",
+        "cn: test",
+        "sn: Test",
+        "userPassword: 12345" );
+
+    connection.add( entry );
+
+    // Now modify the entry : we should replace the password with a null value
+    // and add a mail Attribute with a null value
+    connection.modify( new Dn( "uid=12345,ou=system" ),
+        new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword", Strings.EMPTY_BYTES ),
+        new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mail", ( String ) null )
+        );
+
+    // Get back the entry
+    Entry found = connection.lookup( "uid=12345,ou=system" );
+
+    assertNotNull( found );
+    assertNotNull( found.get( "mail" ) );
+    assertNotNull( found.get( "userPassword" ) );
+    assertEquals( 1, found.get( "mail" ).size() );
+    assertEquals( 1, found.get( "userPassword" ).size() );
+    assertTrue( found.contains( "mail", Strings.EMPTY_BYTES ) );
+    assertTrue( found.contains( "userPassword", "" ) );
+
+    // Now, do a replace with no value. We should not anymore have a mail
+    connection.modify( new Dn( "uid=12345,ou=system" ),
+        new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "mail" )
+        );
+
+    // Get back the entry
+    found = connection.lookup( "uid=12345,ou=system" );
+
+    assertNotNull( found );
+    assertNull( found.get( "mail" ) );
+    assertNotNull( found.get( "userPassword" ) );
+    assertEquals( 1, found.get( "userPassword" ).size() );
+    assertTrue( found.contains( "userPassword", "" ) );
 
     connection.close();
 }
