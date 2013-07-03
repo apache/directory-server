@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
@@ -119,8 +120,6 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-
-            e.printStackTrace();
             throw e;
         }
 
@@ -155,6 +154,9 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
+        SerializableComparator<K> comp = new SerializableComparator<K>( mr.getOid() );
+        comp.setSchemaManager( schemaManager );
+        
         /*
          * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
@@ -165,11 +167,11 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
 
         if ( !attributeType.getSyntax().isHumanReadable() )
         {
-            forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer();
+            forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer( comp );
         }
         else
         {
-            forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer();
+            forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer( comp );
         }
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.IOException;
+import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -28,6 +29,7 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.i18n.I18n;
@@ -75,6 +77,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 // should never happen
                 throw new RuntimeException( e );
             }
+        }
+        else
+        {
+        	// it is important to set the serializers cause serializers will contain default 
+        	// comparators when loaded from disk and we need schema aware comparators in certain indices
+        	bt.setKeySerializer( keySerializer );
+        	bt.setValueSerializer( valueSerializer );
         }
         
         this.allowsDuplicates = allowDuplicates;

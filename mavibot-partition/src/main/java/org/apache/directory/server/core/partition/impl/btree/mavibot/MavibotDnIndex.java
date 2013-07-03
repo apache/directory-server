@@ -70,8 +70,6 @@ public class MavibotDnIndex extends MavibotIndex<Dn, Entry>
         if ( this.wkDirPath == null )
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-
-            e.printStackTrace();
             throw e;
         }
 

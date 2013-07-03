@@ -60,16 +60,24 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
     private static Comparator<Dn> comp = new Comparator<Dn>()
     {
         @Override
-        public int compare( Dn dn0, Dn dn1 )
+        public int compare( Dn dn1, Dn dn2 )
         {
-            if ( dn0.equals( dn1 ) )
+            if ( dn1 == null )
             {
-                return 0;
-            }
-            else
-            {
+                if ( dn2 == null )
+                {
+                    return 0;
+                }
+
                 return -1;
             }
+
+            if ( dn2 == null )
+            {
+                return 1;
+            }
+
+            return dn1.getNormName().compareTo( dn2.getNormName() );
         }
     };
 
