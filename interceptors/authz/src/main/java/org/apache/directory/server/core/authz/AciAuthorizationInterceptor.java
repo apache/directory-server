@@ -820,13 +820,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             next( modifyContext );
 
-            /**
-             * @TODO: A virtual entry can be created here for not hitting the backend again.
-             */
-            CoreSession session = modifyContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
-                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+            Entry modifiedEntry = modifyContext.getAlteredEntry();
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
 
@@ -946,14 +940,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         next( modifyContext );
-        /**
-         * @TODO: A virtual entry can be created here for not hitting the backend again.
-         */
-        CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
-            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-        Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+        Entry modifiedEntry = modifyContext.getAlteredEntry();
         tupleCache.subentryModified( dn, mods, modifiedEntry );
         groupCache.groupModified( dn, mods, entry, schemaManager );
     }
