@@ -105,7 +105,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
@@ -135,7 +135,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
 
@@ -150,7 +150,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
         return next();
@@ -174,7 +174,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -185,7 +185,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         while ( wrapped.previous() )
         {
@@ -210,7 +210,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         while ( wrapped.next() )
         {
@@ -236,7 +236,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<String, String> get() throws CursorException, IOException
+    public IndexEntry<String, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

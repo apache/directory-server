@@ -127,7 +127,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
@@ -136,7 +136,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
@@ -145,7 +145,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
     }
 
@@ -153,7 +153,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
     }
 
@@ -161,16 +161,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
-    {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
@@ -179,20 +170,37 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
+    {
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
-        if ( wrapped.hasPrev() )
+        
+        try
         {
-            org.apache.mavibot.btree.Tuple<V, V> t = wrapped.prev();
-            returnedTuple.setKey( key );
-            returnedTuple.setValue( t.getKey() );
-            return valueAvailable = true;
+        	if ( wrapped.hasPrev() )
+        	{
+        		org.apache.mavibot.btree.Tuple<V, V> t = wrapped.prev();
+        		returnedTuple.setKey( key );
+        		returnedTuple.setValue( t.getKey() );
+        		return valueAvailable = true;
+        	}
+        	else
+        	{
+        		clearValue();
+        		return false;
+        	}
         }
-        else
+        catch( IOException e )
         {
-            clearValue();
-            return false;
+        	throw new CursorException( e );
         }
     }
 
@@ -200,20 +208,27 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
-        if ( wrapped.hasNext() )
+        try
         {
-            org.apache.mavibot.btree.Tuple<V, V> t = wrapped.next();
-            returnedTuple.setKey( key );
-            returnedTuple.setValue( t.getKey() );
-            return valueAvailable = true;
+        	if ( wrapped.hasNext() )
+        	{
+        		org.apache.mavibot.btree.Tuple<V, V> t = wrapped.next();
+        		returnedTuple.setKey( key );
+        		returnedTuple.setValue( t.getKey() );
+        		return valueAvailable = true;
+        	}
+        	else
+        	{
+        		clearValue();
+        		return false;
+        	}
         }
-        else
+        catch( IOException e )
         {
-            clearValue();
-            return false;
+        	throw new CursorException( e );
         }
     }
 
@@ -221,7 +236,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, V> get() throws CursorException, IOException
+    public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

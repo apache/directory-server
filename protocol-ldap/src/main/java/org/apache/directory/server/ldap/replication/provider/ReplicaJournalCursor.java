@@ -91,7 +91,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public void after( ReplicaEventMessage arg0 ) throws LdapException, CursorException, IOException
+    public void after( ReplicaEventMessage arg0 ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -100,7 +100,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -118,7 +118,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public void before( ReplicaEventMessage arg0 ) throws LdapException, CursorException, IOException
+    public void before( ReplicaEventMessage arg0 ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -127,7 +127,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
     }
 
@@ -135,7 +135,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -185,7 +185,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -194,7 +194,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         while ( tupleCursor.next() )
         {
@@ -218,7 +218,14 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
             }
             else
             {
-                journal.remove( csn );
+            	try
+            	{
+            		journal.remove( csn );
+            	}
+                catch( IOException e )
+                {
+                	throw new CursorException( e );
+                }
             }
         }
 
@@ -231,7 +238,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }

@@ -137,7 +137,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         setAvailable( false );
@@ -147,7 +147,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -156,7 +156,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -167,7 +167,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -176,7 +176,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -200,7 +200,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
         boolean finished = false;
@@ -291,7 +291,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<String, String> get() throws CursorException, IOException
+    public IndexEntry<String, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

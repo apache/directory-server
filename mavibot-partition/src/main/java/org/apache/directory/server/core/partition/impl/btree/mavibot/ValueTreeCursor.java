@@ -62,72 +62,86 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     }
 
     @Override
-    public void before( V element ) throws LdapException, CursorException, IOException
+    public void before( V element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
     @Override
-    public void after( V element ) throws LdapException, CursorException, IOException
+    public void after( V element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );        
     }
 
     @Override
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
     }
 
     @Override
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );        
     }
 
     @Override
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
     @Override
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
     @Override
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
-        if( wrapped.hasPrev() )
+    	try
+    	{
+    		if( wrapped.hasPrev() )
+    		{
+    			available = wrapped.prev().getKey();
+    			return true;
+    		}
+    		else
+    		{
+    			available = NOT_AVAILABLE;
+    			return false;
+    		}
+    	}
+        catch( IOException e )
         {
-            available = wrapped.prev().getKey();
-            return true;
-        }
-        else
-        {
-            available = NOT_AVAILABLE;
-            return false;
+        	throw new CursorException( e );
         }
     }
 
     @Override
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
-        if( wrapped.hasNext() )
+    	try
+    	{
+    		if( wrapped.hasNext() )
+    		{
+    			available = wrapped.next().getKey();
+    			return true;
+    		}
+    		else
+    		{
+    			available = NOT_AVAILABLE;
+    			return false;
+    		}
+    	}
+        catch( IOException e )
         {
-            available = wrapped.next().getKey();
-            return true;
-        }
-        else
-        {
-            available = NOT_AVAILABLE;
-            return false;
+        	throw new CursorException( e );
         }
     }
 
     @Override
-    public V get() throws CursorException, IOException
+    public V get() throws CursorException
     {
         return available;
     }

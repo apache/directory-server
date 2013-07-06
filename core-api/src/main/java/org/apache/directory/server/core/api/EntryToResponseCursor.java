@@ -92,7 +92,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void after( Response resp ) throws LdapException, CursorException, IOException
+    public void after( Response resp ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -101,7 +101,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         wrapped.afterLast();
     }
@@ -119,7 +119,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void before( Response resp ) throws LdapException, CursorException, IOException
+    public void before( Response resp ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -128,7 +128,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         wrapped.beforeFirst();
     }
@@ -165,7 +165,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         return wrapped.first();
     }
@@ -174,7 +174,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public Response get() throws CursorException, IOException
+    public Response get() throws CursorException
     {
         Entry entry = wrapped.get();
         SearchResultEntry se = new SearchResultEntryImpl( messageId );
@@ -207,7 +207,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         return wrapped.last();
     }
@@ -216,7 +216,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         boolean next = wrapped.next();
 
@@ -234,7 +234,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         return wrapped.previous();
     }

@@ -1180,12 +1180,6 @@ public class DefaultDirectoryService implements DirectoryService
                 }
             }
         }
-        catch ( IOException e )
-        {
-            String message = I18n.err( I18n.ERR_77, revision );
-            LOG.error( message );
-            throw new LdapException( message );
-        }
         catch ( Exception e )
         {
             throw new LdapOperationException( e.getMessage(), e );

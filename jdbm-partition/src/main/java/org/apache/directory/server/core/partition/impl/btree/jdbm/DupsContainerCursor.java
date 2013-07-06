@@ -119,12 +119,19 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeKey( K key ) throws LdapException, CursorException, IOException
+    public void beforeKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "beforeKey()" );
-        browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
-        forwardDirection = null;
-        clearValue();
+        try
+        {
+        	browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
+        	forwardDirection = null;
+        	clearValue();
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
@@ -132,43 +139,50 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws LdapException, CursorException, IOException
+    public void afterKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "afterKey()" );
 
-        browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
-        forwardDirection = null;
-
-        /*
-         * While the next value is less than or equal to the element keep
-         * advancing forward to the next item.  If we cannot advance any
-         * further then stop and return.  If we find a value greater than
-         * the element then we stop, backup, and return so subsequent calls
-         * to getNext() will return a value greater than the element.
-         */
-        while ( browser.getNext( jdbmTuple ) )
+        try
         {
-            checkNotClosed( "afterKey()" );
-            K next = jdbmTuple.getKey();
-
-            int nextCompared = table.getKeyComparator().compare( next, key );
-
-            if ( nextCompared > 0 )
-            {
-                browser.getPrevious( jdbmTuple );
-
-                // switch in direction bug workaround: when a JDBM browser
-                // switches direction with next then previous as is occurring
-                // here then two previous moves are needed.
-                browser.getPrevious( jdbmTuple );
-                forwardDirection = false;
-                clearValue();
-
-                return;
-            }
+        	browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
+        	forwardDirection = null;
+        	
+        	/*
+        	 * While the next value is less than or equal to the element keep
+        	 * advancing forward to the next item.  If we cannot advance any
+        	 * further then stop and return.  If we find a value greater than
+        	 * the element then we stop, backup, and return so subsequent calls
+        	 * to getNext() will return a value greater than the element.
+        	 */
+        	while ( browser.getNext( jdbmTuple ) )
+        	{
+        		checkNotClosed( "afterKey()" );
+        		K next = jdbmTuple.getKey();
+        		
+        		int nextCompared = table.getKeyComparator().compare( next, key );
+        		
+        		if ( nextCompared > 0 )
+        		{
+        			browser.getPrevious( jdbmTuple );
+        			
+        			// switch in direction bug workaround: when a JDBM browser
+        			// switches direction with next then previous as is occurring
+        			// here then two previous moves are needed.
+        			browser.getPrevious( jdbmTuple );
+        			forwardDirection = false;
+        			clearValue();
+        			
+        			return;
+        		}
+        	}
+        	
+        	clearValue();
         }
-
-        clearValue();
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
@@ -196,7 +210,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
     {
         beforeKey( element.getKey() );
     }
@@ -205,7 +219,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
     {
         afterKey( element.getKey() );
     }
@@ -215,12 +229,19 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
-        browser = table.getBTree().browse();
-        forwardDirection = null;
-        clearValue();
+        try
+        {
+        	browser = table.getBTree().browse();
+        	forwardDirection = null;
+        	clearValue();
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
@@ -228,19 +249,26 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
-        browser = table.getBTree().browse( null );
-        forwardDirection = null;
-        clearValue();
+        try
+        {
+        	browser = table.getBTree().browse( null );
+        	forwardDirection = null;
+        	clearValue();
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -251,7 +279,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -262,7 +290,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
@@ -271,49 +299,56 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
             afterLast();
         }
 
-        boolean advanceSuccess = browser.getPrevious( jdbmTuple );
-
-        // only want to set this if the advance is a success which means we
-        // are not at front
-        if ( forwardDirection == null )
+        try
         {
-            if ( advanceSuccess )
-            {
-                forwardDirection = false;
-            }
-            else
-            {
-                clearValue();
-
-                return false;
-            }
+        	boolean advanceSuccess = browser.getPrevious( jdbmTuple );
+        	
+        	// only want to set this if the advance is a success which means we
+        	// are not at front
+        	if ( forwardDirection == null )
+        	{
+        		if ( advanceSuccess )
+        		{
+        			forwardDirection = false;
+        		}
+        		else
+        		{
+        			clearValue();
+        			
+        			return false;
+        		}
+        	}
+        	else if ( forwardDirection )
+        	{
+        		advanceSuccess = browser.getPrevious( jdbmTuple );
+        		forwardDirection = false;
+        	}
+        	
+        	valueAvailable = advanceSuccess;
+        	
+        	if ( valueAvailable )
+        	{
+        		returnedTuple.setKey( jdbmTuple.getKey() );
+        		returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
+        	}
+        	else
+        	{
+        		clearValue();
+        	}
+        	
+        	return valueAvailable;
         }
-        else if ( forwardDirection )
+        catch( IOException e )
         {
-            advanceSuccess = browser.getPrevious( jdbmTuple );
-            forwardDirection = false;
+        	throw new CursorException( e );
         }
-
-        valueAvailable = advanceSuccess;
-
-        if ( valueAvailable )
-        {
-            returnedTuple.setKey( jdbmTuple.getKey() );
-            returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
-        }
-        else
-        {
-            clearValue();
-        }
-
-        return valueAvailable;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -323,53 +358,60 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
             beforeFirst();
         }
 
-        // Check if we can move forward and grab a tuple
-        boolean advanceSuccess = browser.getNext( jdbmTuple );
-
-        // only want to set this if the advance is a success which means
-        // we are not at end
-        if ( forwardDirection == null )
+        try
         {
-            if ( advanceSuccess )
-            {
-                forwardDirection = true;
-            }
-            else
-            {
-                clearValue();
-
-                // No value available
-                return false;
-            }
+        	// Check if we can move forward and grab a tuple
+        	boolean advanceSuccess = browser.getNext( jdbmTuple );
+        	
+        	// only want to set this if the advance is a success which means
+        	// we are not at end
+        	if ( forwardDirection == null )
+        	{
+        		if ( advanceSuccess )
+        		{
+        			forwardDirection = true;
+        		}
+        		else
+        		{
+        			clearValue();
+        			
+        			// No value available
+        			return false;
+        		}
+        	}
+        	
+        	if ( !forwardDirection )
+        	{
+        		advanceSuccess = browser.getNext( jdbmTuple );
+        		forwardDirection = true;
+        	}
+        	
+        	valueAvailable = advanceSuccess;
+        	
+        	if ( valueAvailable )
+        	{
+        		// create the fetched tuple containing the key and the deserialized value
+        		returnedTuple.setKey( jdbmTuple.getKey() );
+        		returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
+        	}
+        	else
+        	{
+        		clearValue();
+        	}
+        	
+        	return valueAvailable;
         }
-
-        if ( !forwardDirection )
+        catch( IOException e )
         {
-            advanceSuccess = browser.getNext( jdbmTuple );
-            forwardDirection = true;
+        	throw new CursorException( e );
         }
-
-        valueAvailable = advanceSuccess;
-
-        if ( valueAvailable )
-        {
-            // create the fetched tuple containing the key and the deserialized value
-            returnedTuple.setKey( jdbmTuple.getKey() );
-            returnedTuple.setValue( table.getDupsContainer( ( byte[] ) jdbmTuple.getValue() ) );
-        }
-        else
-        {
-            clearValue();
-        }
-
-        return valueAvailable;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, DupsContainer<V>> get() throws CursorException, IOException
+    public Tuple<K, DupsContainer<V>> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

@@ -95,7 +95,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
@@ -106,7 +106,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
         wrapped.afterLast();
@@ -117,7 +117,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -128,7 +128,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -139,7 +139,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         while ( wrapped.previous() )
         {
@@ -160,7 +160,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         while ( wrapped.next() )
         {
@@ -180,7 +180,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, String> get() throws CursorException, IOException
+    public IndexEntry<V, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

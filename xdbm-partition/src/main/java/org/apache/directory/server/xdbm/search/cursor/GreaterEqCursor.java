@@ -118,7 +118,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "before()" );
 
@@ -152,7 +152,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "after()" );
 
@@ -199,7 +199,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
 
@@ -222,7 +222,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
 
@@ -243,7 +243,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -254,7 +254,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -265,7 +265,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
@@ -308,7 +308,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -339,7 +339,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, String> get() throws CursorException, IOException
+    public IndexEntry<V, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

@@ -135,50 +135,57 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterValue( K key, V value ) throws LdapException, CursorException, IOException
+    public void afterValue( K key, V value ) throws LdapException, CursorException
     {
         if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
         }
 
-        browser = btree.browse( value );
-
-        /*
-         * While the next value is less than or equal to the element keep
-         * advancing forward to the next item.  If we cannot advance any
-         * further then stop and return.  If we find a value greater than
-         * the element then we stop, backup, and return so subsequent calls
-         * to getNext() will return a value greater than the element.
-         */
-        while ( browser.getNext( valueTuple ) )
+        try
         {
-            checkNotClosed( "afterValue" );
-
-            V next = ( V ) valueTuple.getKey();
-
-            int nextCompared = comparator.compare( next, value );
-
-            if ( nextCompared > 0 )
-            {
-                /*
-                 * If we just have values greater than the element argument
-                 * then we are before the first element and cannot backup, and
-                 * the call below to getPrevious() will fail.  In this special
-                 * case we just reset the Cursor's browser and return.
-                 */
-                if ( !browser.getPrevious( valueTuple ) )
-                {
-                    browser = btree.browse( this.key );
-                }
-
-                clearValue();
-
-                return;
-            }
+        	browser = btree.browse( value );
+        	
+        	/*
+        	 * While the next value is less than or equal to the element keep
+        	 * advancing forward to the next item.  If we cannot advance any
+        	 * further then stop and return.  If we find a value greater than
+        	 * the element then we stop, backup, and return so subsequent calls
+        	 * to getNext() will return a value greater than the element.
+        	 */
+        	while ( browser.getNext( valueTuple ) )
+        	{
+        		checkNotClosed( "afterValue" );
+        		
+        		V next = ( V ) valueTuple.getKey();
+        		
+        		int nextCompared = comparator.compare( next, value );
+        		
+        		if ( nextCompared > 0 )
+        		{
+        			/*
+        			 * If we just have values greater than the element argument
+        			 * then we are before the first element and cannot backup, and
+        			 * the call below to getPrevious() will fail.  In this special
+        			 * case we just reset the Cursor's browser and return.
+        			 */
+        			if ( !browser.getPrevious( valueTuple ) )
+        			{
+        				browser = btree.browse( this.key );
+        			}
+        			
+        			clearValue();
+        			
+        			return;
+        		}
+        	}
+        	
+        	clearValue();
         }
-
-        clearValue();
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
@@ -190,18 +197,25 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         checkNotClosed( "before()" );
-        browser = btree.browse( element.getValue() );
-        clearValue();
+        try
+        {
+        	browser = btree.browse( element.getValue() );
+        	clearValue();
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         afterValue( key, element.getValue() );
     }
@@ -210,28 +224,42 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
-        browser = btree.browse();
-        clearValue();
+        try
+        {
+        	browser = btree.browse();
+        	clearValue();
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
-        browser = btree.browse( null );
+        try
+        {
+        	browser = btree.browse( null );
+        }
+        catch( IOException e )
+        {
+        	throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -242,7 +270,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -254,28 +282,35 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
-        if ( browser.getPrevious( valueTuple ) )
+        try
         {
-            // work around to fix direction change problem with jdbm browser
-            if ( ( returnedTuple.getValue() != null ) &&
-                ( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
-            {
-                browser.getPrevious( valueTuple );
-            }
-            returnedTuple.setKey( key );
-            returnedTuple.setValue( ( V ) valueTuple.getKey() );
-
-            return valueAvailable = true;
+        	if ( browser.getPrevious( valueTuple ) )
+        	{
+        		// work around to fix direction change problem with jdbm browser
+        		if ( ( returnedTuple.getValue() != null ) &&
+        				( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
+        		{
+        			browser.getPrevious( valueTuple );
+        		}
+        		returnedTuple.setKey( key );
+        		returnedTuple.setValue( ( V ) valueTuple.getKey() );
+        		
+        		return valueAvailable = true;
+        	}
+        	else
+        	{
+        		clearValue();
+        		
+        		return false;
+        	}
         }
-        else
+        catch( IOException e )
         {
-            clearValue();
-
-            return false;
+        	throw new CursorException( e );
         }
     }
 
@@ -284,29 +319,36 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
-        if ( browser.getNext( valueTuple ) )
+        try
         {
-            // work around to fix direction change problem with jdbm browser
-            if ( returnedTuple.getValue() != null &&
-                comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
-            {
-                browser.getNext( valueTuple );
-            }
-
-            returnedTuple.setKey( key );
-            returnedTuple.setValue( ( V ) valueTuple.getKey() );
-
-            return valueAvailable = true;
+        	if ( browser.getNext( valueTuple ) )
+        	{
+        		// work around to fix direction change problem with jdbm browser
+        		if ( returnedTuple.getValue() != null &&
+        				comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+        		{
+        			browser.getNext( valueTuple );
+        		}
+        		
+        		returnedTuple.setKey( key );
+        		returnedTuple.setValue( ( V ) valueTuple.getKey() );
+        		
+        		return valueAvailable = true;
+        	}
+        	else
+        	{
+        		clearValue();
+        		
+        		return false;
+        	}
         }
-        else
+        catch( IOException e )
         {
-            clearValue();
-
-            return false;
+        	throw new CursorException( e );
         }
     }
 
@@ -314,7 +356,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, V> get() throws CursorException, IOException
+    public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

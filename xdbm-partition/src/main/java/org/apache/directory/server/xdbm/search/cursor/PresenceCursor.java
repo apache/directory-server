@@ -108,7 +108,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<String, String> element ) throws LdapException, CursorException, IOException
+    public void before( IndexEntry<String, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "before()" );
 
@@ -126,7 +126,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<String, String> element ) throws LdapException, CursorException, IOException
+    public void after( IndexEntry<String, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "after()" );
 
@@ -144,7 +144,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
 
@@ -163,7 +163,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
 
@@ -181,7 +181,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         checkNotClosed( "first()" );
         if ( presenceCursor != null )
@@ -197,7 +197,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         checkNotClosed( "last()" );
 
@@ -215,7 +215,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
@@ -242,7 +242,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -271,7 +271,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<String, String> get() throws CursorException, IOException
+    public IndexEntry<String, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 

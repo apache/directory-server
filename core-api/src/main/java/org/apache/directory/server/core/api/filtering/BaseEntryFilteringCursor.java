@@ -218,7 +218,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void after( Entry element ) throws LdapException, CursorException, IOException
+    public void after( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -227,7 +227,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         wrapped.afterLast();
         prefetched = null;
@@ -246,7 +246,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void before( Entry element ) throws LdapException, CursorException, IOException
+    public void before( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -255,7 +255,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         wrapped.beforeFirst();
         prefetched = null;
@@ -304,7 +304,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -322,7 +322,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public Entry get() throws InvalidCursorPositionException, IOException
+    public Entry get() throws InvalidCursorPositionException
     {
         if ( available() )
         {
@@ -345,7 +345,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -363,7 +363,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         if ( operationContext.isAbandoned() )
         {
@@ -448,7 +448,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         if ( operationContext.isAbandoned() )
         {

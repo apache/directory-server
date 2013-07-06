@@ -61,7 +61,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
@@ -70,7 +70,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( getUnsupportedMessage() );
     }
