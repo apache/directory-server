@@ -772,7 +772,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     /**
      * @see Table#remove(Object)
      */
-    public synchronized void remove( K key ) throws IOException
+    public synchronized void remove( K key )
     {
         try
         {
@@ -849,11 +849,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         catch ( Exception e )
         {
             LOG.error( I18n.err( I18n.ERR_133, key, name ), e );
-
-            if ( e instanceof IOException )
-            {
-                throw ( IOException ) e;
-            }
         }
     }
 

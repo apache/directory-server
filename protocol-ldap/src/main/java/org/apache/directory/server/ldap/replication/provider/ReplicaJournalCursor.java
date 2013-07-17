@@ -21,7 +21,6 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -218,14 +217,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
             }
             else
             {
-            	try
-            	{
-            		journal.remove( csn );
-            	}
-                catch( IOException e )
-                {
-                	throw new CursorException( e );
-                }
+                journal.remove( csn );
             }
         }
 

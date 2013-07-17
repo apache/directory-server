@@ -240,6 +240,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
+
         if ( browser == null )
         {
             afterLast();

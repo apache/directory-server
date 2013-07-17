@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.api.filtering;
 
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
