@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.avltree;
 
 
-import java.io.IOException;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
