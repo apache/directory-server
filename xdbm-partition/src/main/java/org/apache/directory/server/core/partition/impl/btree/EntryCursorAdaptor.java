@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.io.IOException;
-
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
