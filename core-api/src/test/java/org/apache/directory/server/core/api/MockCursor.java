@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.api;
 
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
