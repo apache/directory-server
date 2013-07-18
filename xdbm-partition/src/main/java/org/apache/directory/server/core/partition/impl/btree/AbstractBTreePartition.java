@@ -694,7 +694,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
 
-                objectClassIdx.add( ( String ) value.getNormValue(), id );
+                String valueStr = ( String ) value.getNormValue();
+                objectClassIdx.add( valueStr, id );
             }
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
@@ -790,6 +791,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new LdapException( e );
         }
     }
