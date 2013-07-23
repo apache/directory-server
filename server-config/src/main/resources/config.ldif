@@ -241,6 +241,15 @@ ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterc
 ads-interceptorid: triggerInterceptor
 ads-enabled: TRUE
 
+dn: ads-interceptorId=journalInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 16
+ads-interceptorclassname: org.apache.directory.server.core.journal.JournalInterceptor
+ads-interceptorid: journalInterceptor
+ads-enabled: TRUE
+
 dn: ou=partitions,ads-directoryServiceId=default,ou=config
 ou: partitions
 objectclass: organizationalUnit
