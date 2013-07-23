@@ -36,6 +36,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -209,6 +210,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
+            
+            // Store the IoSession in the coreSession
+            ( ( DefaultCoreSession ) coreSession ).setIoSession( ldapSession.getIoSession() );
 
             if ( message instanceof AbandonRequest )
             {
