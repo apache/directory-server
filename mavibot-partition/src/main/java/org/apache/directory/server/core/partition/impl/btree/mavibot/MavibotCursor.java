@@ -48,11 +48,11 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     private org.apache.mavibot.btree.Cursor<K, V> browser;
 
+
     /**
      * Creates a Cursor over the tuples of a Mavibot table.
      *
      * @param table the JDBM Table to build a Cursor over
-     * @throws IOException of there are problems accessing the BTree
      */
     public MavibotCursor( MavibotTable<K, V> table )
     {
@@ -79,14 +79,23 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     {
         checkNotClosed( "beforeKey()" );
         closeBrowser( browser );
-        
+
         try
         {
-        	browser = table.getBTree().browseFrom( key );
+            browser = table.getBTree().browseFrom( key );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
+        }
+
+        try
+        {
+            browser = table.getBTree().browseFrom( key );
+        }
+        catch ( IOException ioe )
+        {
+            throw new CursorException( ioe.getMessage() );
         }
 
         clearValue();
@@ -97,32 +106,34 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void afterKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "afterKey()" );
+
         closeBrowser( browser );
         try
         {
-        	browser = table.getBTree().browseFrom( key );
-        	
-        	if( table.isDupsEnabled() )
-        	{
-        		browser.moveToNextNonDuplicateKey();
-        	}
-        	else
-        	{
-        		if( browser.hasNext() )
-        		{
-        			browser.next();
-        		}
-        		else
-        		{
-        			browser.afterLast();
-        		}
-        	}
-        	
-        	clearValue();
+            browser = table.getBTree().browseFrom( key );
+
+            if ( table.isDupsEnabled() )
+            {
+                browser.moveToNextNonDuplicateKey();
+            }
+            else
+            {
+                if ( browser.hasNext() )
+                {
+                    browser.next();
+                }
+                else
+                {
+                    browser.afterLast();
+                }
+            }
+
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            clearValue();
+            throw new CursorException( e );
         }
     }
 
@@ -143,15 +154,14 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * Positions this Cursor before the key of the supplied tuple.
      *
      * @param element the tuple who's key is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element )throws LdapException, CursorException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         beforeKey( element.getKey() );
     }
 
 
-    public void after( Tuple<K, V> element )throws LdapException, CursorException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         afterKey( element.getKey() );
     }
@@ -160,20 +170,20 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
-        
+
         try
         {
-        	if( browser == null )
-        	{
-        		browser = table.getBTree().browse();
-        	}
-        	
-        	browser.beforeFirst();
-        	clearValue();
+            if ( browser == null )
+            {
+                browser = table.getBTree().browse();
+            }
+
+            browser.beforeFirst();
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -181,20 +191,20 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
-        
+
         try
         {
-        	if( browser == null )
-        	{
-        		browser = table.getBTree().browse();
-        	}
-        	
-        	browser.afterLast();
-        	clearValue();
+            if ( browser == null )
+            {
+                browser = table.getBTree().browse();
+            }
+
+            browser.afterLast();
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -224,23 +234,23 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         try
         {
-        	if ( browser.hasPrev() )
-        	{
-        		org.apache.mavibot.btree.Tuple<K, V> tuple = browser.prev();
-        		
-        		returnedTuple.setKey( tuple.getKey() );
-        		returnedTuple.setValue( ( V ) tuple.getValue() );
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		return false;
-        	}
+            if ( browser.hasPrev() )
+            {
+                org.apache.mavibot.btree.Tuple<K, V> tuple = browser.prev();
+
+                returnedTuple.setKey( tuple.getKey() );
+                returnedTuple.setValue( tuple.getValue() );
+                return valueAvailable = true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -257,23 +267,23 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         try
         {
-        	if ( browser.hasNext() )
-        	{
-        		org.apache.mavibot.btree.Tuple<K, V> tuple = browser.next();
-        		
-        		returnedTuple.setKey( tuple.getKey() );
-        		returnedTuple.setValue( tuple.getValue() );
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		return false;
-        	}
+            if ( browser.hasNext() )
+            {
+                org.apache.mavibot.btree.Tuple<K, V> tuple = browser.next();
+
+                returnedTuple.setKey( tuple.getKey() );
+                returnedTuple.setValue( tuple.getValue() );
+                return valueAvailable = true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
