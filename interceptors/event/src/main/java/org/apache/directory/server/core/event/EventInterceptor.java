@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.event;
 
 
+import static org.apache.directory.api.ldap.model.message.SearchScope.OBJECT;
+import static org.apache.directory.api.ldap.model.message.SearchScope.ONELEVEL;
+import static org.apache.directory.api.ldap.model.message.SearchScope.SUBTREE;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -53,7 +58,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} based service for notifying {@link
@@ -406,9 +410,25 @@ public class EventInterceptor extends BaseInterceptor
 
             Dn base = criteria.getBase();
 
+            SearchScope scope = criteria.getScope();
+            
+            boolean inscope = false;
+            
             // fix for DIRSERVER-1502
-            if ( ( name.equals( base ) || name.isDescendantOf( base ) )
-                && evaluator.evaluate( criteria.getFilter(), base, entry ) )
+            if ( ( scope == OBJECT ) && name.equals( base ) )
+            {
+                inscope = true;
+            }
+            else if ( ( scope == ONELEVEL ) && name.getParent().equals( base ) )
+            {
+                inscope = true;
+            }
+            else if ( ( scope == SUBTREE ) && ( name.isDescendantOf( base ) || name.equals( base ) ) )
+            {
+                inscope = true;
+            } 
+            
+            if ( inscope && evaluator.evaluate( criteria.getFilter(), base, entry ) )
             {
                 selecting.add( registration );
             }
