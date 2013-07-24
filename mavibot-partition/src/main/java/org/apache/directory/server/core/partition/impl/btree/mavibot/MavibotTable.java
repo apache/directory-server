@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.IOException;
-import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -29,7 +28,6 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.i18n.I18n;
@@ -41,6 +39,7 @@ import org.apache.mavibot.btree.serializer.ElementSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -48,31 +47,34 @@ import org.slf4j.LoggerFactory;
 public class MavibotTable<K, V> extends AbstractTable<K, V>
 {
 
-    private BTree<K,V> bt;
+    private BTree<K, V> bt;
 
     private ArrayMarshaller<V> arrayMarshaller;
-    
+
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( MavibotTable.class );
 
     protected RecordManager recordMan;
-    
-    public MavibotTable( RecordManager recordMan, SchemaManager schemaManager, String name, ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates ) throws IOException
+
+
+    public MavibotTable( RecordManager recordMan, SchemaManager schemaManager, String name,
+        ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates )
+        throws IOException
     {
         super( schemaManager, name, keySerializer.getComparator(), valueSerializer.getComparator() );
         this.recordMan = recordMan;
-        
+
         bt = recordMan.getManagedTree( name );
-        
-        if( bt == null )
+
+        if ( bt == null )
         {
             bt = new BTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates );
-            
+
             try
             {
                 recordMan.manage( bt );
             }
-            catch( BTreeAlreadyManagedException e )
+            catch ( BTreeAlreadyManagedException e )
             {
                 // should never happen
                 throw new RuntimeException( e );
@@ -80,12 +82,12 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         else
         {
-        	// it is important to set the serializers cause serializers will contain default 
-        	// comparators when loaded from disk and we need schema aware comparators in certain indices
-        	bt.setKeySerializer( keySerializer );
-        	bt.setValueSerializer( valueSerializer );
+            // it is important to set the serializers cause serializers will contain default 
+            // comparators when loaded from disk and we need schema aware comparators in certain indices
+            bt.setKeySerializer( keySerializer );
+            bt.setValueSerializer( valueSerializer );
         }
-        
+
         this.allowsDuplicates = allowDuplicates;
         arrayMarshaller = new ArrayMarshaller<V>( valueComparator );
     }
@@ -122,16 +124,16 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasGreaterOrEqual( K key ) throws Exception
     {
-        org.apache.mavibot.btree.Cursor<K,V> cursor = null;
+        org.apache.mavibot.btree.Cursor<K, V> cursor = null;
         try
         {
             cursor = bt.browseFrom( key );
-            
+
             return cursor.hasNext();
         }
         finally
         {
-            if( cursor != null )
+            if ( cursor != null )
             {
                 cursor.close();
             }
@@ -142,42 +144,42 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasLessOrEqual( K key ) throws Exception
     {
-        org.apache.mavibot.btree.Cursor<K,V> cursor = null;
-        
+        org.apache.mavibot.btree.Cursor<K, V> cursor = null;
+
         try
         {
             cursor = bt.browseFrom( key );
-            
-            org.apache.mavibot.btree.Tuple<K,V> tuple = null;
-            
-            if( cursor.hasNext() )
+
+            org.apache.mavibot.btree.Tuple<K, V> tuple = null;
+
+            if ( cursor.hasNext() )
             {
                 tuple = cursor.next();
             }
-            
+
             // Test for equality first since it satisfies both greater/less than
-            if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+            if ( null != tuple && keyComparator.compare( tuple.getKey(), key ) == 0 )
             {
                 return true;
             }
-            
-            if( null == tuple )
+
+            if ( null == tuple )
             {
                 return count > 0;
             }
             else
             {
-                if( cursor.hasPrev() )
+                if ( cursor.hasPrev() )
                 {
-                    return true;   
+                    return true;
                 }
             }
-            
+
             return false;
         }
         finally
         {
-            if( cursor != null )
+            if ( cursor != null )
             {
                 cursor.close();
             }
@@ -198,19 +200,19 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        org.apache.mavibot.btree.Cursor<V,V> cursor = null;
-        
+        org.apache.mavibot.btree.Cursor<V, V> cursor = null;
+
         try
         {
-            if( !bt.hasKey( key ) )
+            if ( !bt.hasKey( key ) )
             {
                 return false;
             }
-            
-            BTree<V,V> dups = bt.getValues( key );
+
+            BTree<V, V> dups = bt.getValues( key );
 
             cursor = dups.browseFrom( val );
-            
+
             return cursor.hasNext();
         }
         catch ( Exception e )
@@ -219,7 +221,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         finally
         {
-            if( cursor != null )
+            if ( cursor != null )
             {
                 cursor.close();
             }
@@ -240,49 +242,49 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        if( !bt.hasKey( key ) )
+        if ( !bt.hasKey( key ) )
         {
             return false;
         }
-        
-        BTree<V,V> dups = bt.getValues( key );
 
-        org.apache.mavibot.btree.Cursor<V,V> cursor = null;
-        
+        BTree<V, V> dups = bt.getValues( key );
+
+        org.apache.mavibot.btree.Cursor<V, V> cursor = null;
+
         try
         {
             cursor = dups.browseFrom( val );
-            
-            org.apache.mavibot.btree.Tuple<V,V> tuple = null;
-            
-            if( cursor.hasNext() )
+
+            org.apache.mavibot.btree.Tuple<V, V> tuple = null;
+
+            if ( cursor.hasNext() )
             {
                 tuple = cursor.next();
             }
-            
+
             // Test for equality first since it satisfies both greater/less than
             if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
             {
                 return true;
             }
-            
-            if( null == tuple )
+
+            if ( null == tuple )
             {
                 return count > 0;
             }
             else
             {
-                if( cursor.hasPrev() )
+                if ( cursor.hasPrev() )
                 {
-                    return true;   
+                    return true;
                 }
             }
-            
+
             return false;
         }
         finally
         {
-            if( cursor != null )
+            if ( cursor != null )
             {
                 cursor.close();
             }
@@ -300,16 +302,16 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if( bt.hasKey( key ) )
+            if ( bt.hasKey( key ) )
             {
                 return bt.get( key );
             }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new LdapException( e );
         }
-        
+
         return null;
     }
 
@@ -325,7 +327,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
 
             V replaced = bt.insert( key, value );
-            if( replaced == null )
+
+            if ( replaced == null )
             {
                 count++;
             }
@@ -348,7 +351,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.mavibot.btree.Tuple<K,V> returned = bt.delete( key );
+            org.apache.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
 
             if ( null == returned )
             {
@@ -379,9 +382,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.mavibot.btree.Tuple<K,V> t = bt.delete( key, value );
-            
-            if( t != null )
+            org.apache.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
+
+            if ( t != null )
             {
                 count--;
             }
@@ -414,20 +417,19 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             {
                 return new EmptyCursor<Tuple<K, V>>();
             }
-            
-            
+
             if ( !allowsDuplicates )
             {
                 V val = bt.get( key );
                 return new SingletonCursor<Tuple<K, V>>(
                     new Tuple<K, V>( key, val ) );
             }
-            
-            BTree<V,V> dups = bt.getValues( key );
-            
+
+            BTree<V, V> dups = bt.getValues( key );
+
             return new KeyTupleArrayCursor<K, V>( dups, key );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new LdapException( e );
         }
@@ -448,19 +450,18 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             {
                 return new EmptyCursor<V>();
             }
-            
-            
+
             if ( !allowsDuplicates )
             {
                 V val = bt.get( key );
                 return new SingletonCursor<V>( val );
             }
-            
-            BTree<V,V> dups = bt.getValues( key );
-            
+
+            BTree<V, V> dups = bt.getValues( key );
+
             return new ValueTreeCursor<V>( dups );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new LdapException( e );
         }
@@ -483,7 +484,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                BTree<V,V> values = bt.getValues( key );
+                BTree<V, V> values = bt.getValues( key );
                 return ( int ) values.getNbElems();
             }
         }
@@ -505,7 +506,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         // take a best guess
         return Math.min( count, 10 );
-     }
+    }
 
 
     @Override
@@ -513,6 +514,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         // do nothing here, the RecordManager will be closed in MavibotMasterTable.close()
     }
+
 
     public ArrayTree<V> getDupsContainer( byte[] serialized ) throws IOException
     {
@@ -525,12 +527,12 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
-	protected BTree<K, V> getBTree() 
-	{
-		return bt;
-	}
-	
-	
+    protected BTree<K, V> getBTree()
+    {
+        return bt;
+    }
+
+
     /**
      * Synchronizes the buffers with disk.
      *
@@ -539,5 +541,5 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     public synchronized void sync() throws IOException
     {
         bt.flush();
-    }	
+    }
 }
