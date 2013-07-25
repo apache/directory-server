@@ -1112,10 +1112,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entry != null )
             {
-                if ( !entry.containsAttribute( ENTRY_DN_AT ) )
+                // Replace the entry's DN with the provided one
+                if ( entry.containsAttribute( ENTRY_DN_AT ) )
                 {
-                    entry.add( ENTRY_DN_AT, dn.getName() );
+                    entry.removeAttributes( ENTRY_DN_AT );
                 }
+
+                entry.add( ENTRY_DN_AT, dn.getName() );
+                entry.setDn( dn );
 
                 return new ClonedServerEntry( entry );
             }
