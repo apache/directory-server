@@ -540,6 +540,5 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      */
     public synchronized void sync() throws IOException
     {
-        bt.flush();
     }
 }
