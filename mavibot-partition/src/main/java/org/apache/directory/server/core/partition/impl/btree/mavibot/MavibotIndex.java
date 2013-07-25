@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -174,9 +175,18 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
             forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer( comp );
         }
 
+        boolean forwardDups = true;
+        
+        String oid = attributeType.getOid();
+        // disable duplicates for entryCSN and entryUUID attribute indices
+        if( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) || oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
+        {
+            forwardDups = false;
+        }
+        
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
-            new StringSerializer(), true );
+            new StringSerializer(), forwardDups );
 
         /*
          * Now the reverse map stores the primary key into the master table as
