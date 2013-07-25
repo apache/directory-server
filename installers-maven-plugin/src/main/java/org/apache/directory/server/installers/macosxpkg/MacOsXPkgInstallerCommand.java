@@ -211,6 +211,9 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "Info.plist" ), new File( targetDirectory,
                 "Info.plist" ) );
 
+            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "preflight" ), new File(
+                pkgScriptsDirectory, "preflight" ) );
+
             MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "postflight" ), new File(
                 pkgScriptsDirectory, "postflight" ) );
         }
@@ -281,9 +284,13 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
             throw new MojoFailureException( "Failed to copy DMG resources files." );
         }
 
-        // Setting execution permission to the postflight script
+        // Setting execution permission to the preflight and postflight scripts
         // (unfortunately, the execution permission has been lost after the 
         // copy of the PKG to the dmg folder)
+        MojoHelperUtils.exec( new String[]
+            { "chmod", "755",
+                new File( dmgDirectory, "dmg/Apache Directory Server Installer.pkg/Contents/Resources/preflight" )
+                    .toString() }, dmgDirectory, false );
         MojoHelperUtils.exec( new String[]
             { "chmod", "755",
                 new File( dmgDirectory, "dmg/Apache Directory Server Installer.pkg/Contents/Resources/postflight" )

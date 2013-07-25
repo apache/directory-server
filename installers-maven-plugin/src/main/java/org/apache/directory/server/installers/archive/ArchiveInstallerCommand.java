@@ -23,6 +23,7 @@ package org.apache.directory.server.installers.archive;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
@@ -56,6 +57,31 @@ public class ArchiveInstallerCommand extends AbstractMojoCommand<ArchiveTarget>
     {
         super( mojo, target );
         initializeFilterProperties();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    protected void createInstanceLayout() throws IOException
+    {
+        // Getting the instance layout and creating directories
+        InstanceLayout instanceLayout = getInstanceLayout();
+        instanceLayout.mkdirs();
+
+        // Copying the log4j.properties file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+            getClass().getResourceAsStream( "/org/apache/directory/server/installers/archive/log4j.properties" ),
+            new File( instanceLayout.getConfDirectory(), "log4j.properties" ), true );
+
+        // Copying the wrapper configuration file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+            getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
+            new File( instanceLayout.getConfDirectory(), "wrapper.conf" ), true );
+
+        // Copying ApacheDS LDIF configuration file
+        MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
+            getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
+            new File( instanceLayout.getConfDirectory(), "config.ldif" ), false );
     }
 
 

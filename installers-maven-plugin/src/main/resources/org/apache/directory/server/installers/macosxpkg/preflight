@@ -19,12 +19,14 @@
 #
 #
 
-# Setting the correct permission on the org.apache.directory.server.plist file
-chmod 644 /Library/LaunchDaemons/org.apache.directory.server.plist
-
 #
-# Loading the ApacheDS launch daemon
+# Stopping and unloading the ApacheDS launch daemon
 #
-launchctl load /Library/LaunchDaemons/org.apache.directory.server.plist
+LOADED=`launchctl list | grep "org.apache.directory.server" | tail -1`
+if [ "X$LOADED" != "X" ]
+then
+    launchctl stop org.apache.directory.server
+    launchctl unload /Library/LaunchDaemons/org.apache.directory.server.plist
+fi
 
 
