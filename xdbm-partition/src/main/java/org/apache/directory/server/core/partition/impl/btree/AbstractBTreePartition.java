@@ -828,7 +828,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
             }
 
-            int childCount = getChildCount( id );
+            long childCount = getChildCount( id );
 
             if ( childCount > 0 )
             {
@@ -2191,7 +2191,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public int count() throws Exception
+    public long count() throws Exception
     {
         return master.count();
     }
@@ -2200,7 +2200,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public final int getChildCount( String id ) throws LdapException
+    public final long getChildCount( String id ) throws LdapException
     {
         try
         {

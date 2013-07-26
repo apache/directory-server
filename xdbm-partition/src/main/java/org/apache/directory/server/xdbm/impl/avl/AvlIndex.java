@@ -152,7 +152,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public int count() throws Exception
+    public long count() throws Exception
     {
         return forward.count();
     }
@@ -161,7 +161,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public int count( K attrVal ) throws Exception
+    public long count( K attrVal ) throws Exception
     {
         return forward.count( attrVal );
     }
@@ -307,7 +307,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public int greaterThanCount( K attrVal ) throws Exception
+    public long greaterThanCount( K attrVal ) throws Exception
     {
         return forward.greaterThanCount( attrVal );
     }
@@ -316,7 +316,7 @@ public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
     /**
      * {@inheritDoc}
      */
-    public int lessThanCount( K attrVal ) throws Exception
+    public long lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( attrVal );
     }

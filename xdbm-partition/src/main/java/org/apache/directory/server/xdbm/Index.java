@@ -119,7 +119,7 @@ public interface Index<K, O, ID>
      * @return the number of key/value pairs in this index
      * @throws Exception on failure to access index db files
      */
-    int count() throws Exception;
+    long count() throws Exception;
 
 
     /**
@@ -130,13 +130,13 @@ public interface Index<K, O, ID>
      * @return the number of key/value pairs in this index with the value value
      * @throws Exception on failure to access index db files
      */
-    int count( K attrVal ) throws Exception;
+    long count( K attrVal ) throws Exception;
 
 
-    int greaterThanCount( K attrVal ) throws Exception;
+    long greaterThanCount( K attrVal ) throws Exception;
 
 
-    int lessThanCount( K attrVal ) throws Exception;
+    long lessThanCount( K attrVal ) throws Exception;
 
 
     ID forwardLookup( K attrVal ) throws Exception;

@@ -454,7 +454,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /**
      * @return the number of entries present in the replica log
      */
-    public synchronized int count()
+    public synchronized long count()
     {
         try
         {

@@ -157,7 +157,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
 
         SerializableComparator<K> comp = new SerializableComparator<K>( mr.getOid() );
         comp.setSchemaManager( schemaManager );
-        
+
         /*
          * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
@@ -246,7 +246,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count() throws IOException
+    public long count() throws IOException
     {
         return forward.count();
     }
@@ -255,13 +255,13 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count( K attrVal ) throws Exception
+    public long count( K attrVal ) throws Exception
     {
         return forward.count( attrVal );
     }
 
 
-    public int greaterThanCount( K attrVal ) throws Exception
+    public long greaterThanCount( K attrVal ) throws Exception
     {
         return forward.greaterThanCount( attrVal );
     }
@@ -270,7 +270,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
-    public int lessThanCount( K attrVal ) throws Exception
+    public long lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( attrVal );
     }

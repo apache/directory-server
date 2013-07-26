@@ -163,7 +163,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             bt = new BTree<K, V>().load( recMan, recId );
             ( ( SerializableComparator<K> ) bt.getComparator() ).setSchemaManager( schemaManager );
             recId = recMan.getNamedObject( name + SZSUFFIX );
-            count = ( Integer ) recMan.fetch( recId );
+            count = ( Long ) recMan.fetch( recId );
         }
     }
 
@@ -205,7 +205,17 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             ( ( SerializableComparator<K> ) bt.getComparator() ).setSchemaManager( schemaManager );
             bt.setValueSerializer( valueSerializer );
             recId = recMan.getNamedObject( name + SZSUFFIX );
-            count = ( Integer ) recMan.fetch( recId );
+
+            Object value = recMan.fetch( recId );
+
+            if ( value instanceof Integer )
+            {
+                count = ( ( Integer ) value ).longValue();
+            }
+            else
+            {
+                count = ( Long ) value;
+            }
         }
         else
         {
@@ -249,31 +259,31 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     /**
      * @see Table#greaterThanCount(Object)
      */
-    public int greaterThanCount( K key ) throws IOException
+    public long greaterThanCount( K key ) throws IOException
     {
         // take a best guess
-        return Math.min( count, 10 );
+        return Math.min( count, 10L );
     }
 
 
     /**
      * @see Table#lessThanCount(Object)
      */
-    public int lessThanCount( K key ) throws IOException
+    public long lessThanCount( K key ) throws IOException
     {
         // take a best guess
-        return Math.min( count, 10 );
+        return Math.min( count, 10L );
     }
 
 
     /**
      * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
      */
-    public int count( K key ) throws LdapException
+    public long count( K key ) throws LdapException
     {
         if ( key == null )
         {
-            return 0;
+            return 0L;
         }
 
         try
@@ -282,11 +292,11 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             {
                 if ( null == bt.find( key ) )
                 {
-                    return 0;
+                    return 0L;
                 }
                 else
                 {
-                    return 1;
+                    return 1L;
                 }
             }
 

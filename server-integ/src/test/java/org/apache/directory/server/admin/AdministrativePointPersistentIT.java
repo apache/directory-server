@@ -175,6 +175,11 @@ public void testPersistAutonomousArea() throws Exception
 {
     assertTrue( getLdapServer().isStarted() );
 
+    // Check the caches
+    DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
+    AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    assertNotNull( aap1 );
+
     // Stop the server now, we will restart it immediately 
     getLdapServer().stop();
     assertFalse( getLdapServer().isStarted() );
@@ -197,7 +202,7 @@ public void testPersistAutonomousArea() throws Exception
     assertEquals( "autonomousArea", getAdminRole( "ou=subAAP1,ou=noAP3,ou=AAP2,ou=system" ).getString() );
 
     // Check the caches
-    DnNode<AccessControlAdministrativePoint> acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
+    acCache = getLdapServer().getDirectoryService().getAccessControlAPCache();
     DnNode<CollectiveAttributeAdministrativePoint> caCache = getLdapServer().getDirectoryService()
         .getCollectiveAttributeAPCache();
     DnNode<TriggerExecutionAdministrativePoint> teCache = getLdapServer().getDirectoryService()
@@ -205,7 +210,7 @@ public void testPersistAutonomousArea() throws Exception
     DnNode<SubschemaAdministrativePoint> ssCache = getLdapServer().getDirectoryService().getSubschemaAPCache();
 
     // The ACs
-    AdministrativePoint aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
+    aap1 = acCache.getElement( new Dn( schemaManager, "ou=AAP1,ou=noAP1,ou=system" ) );
     assertNotNull( aap1 );
 
     AdministrativePoint aap2 = acCache.getElement( new Dn( schemaManager, "ou=AAP2,ou=system" ) );

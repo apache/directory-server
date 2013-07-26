@@ -90,6 +90,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         this.allowsDuplicates = allowDuplicates;
         arrayMarshaller = new ArrayMarshaller<V>( valueComparator );
+
+        // Initialize the count
+        count = bt.getNbElems();
     }
 
 
@@ -469,7 +472,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
 
     @Override
-    public int count( K key ) throws Exception
+    public long count( K key ) throws Exception
     {
         if ( key == null )
         {
@@ -480,12 +483,12 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         {
             if ( !allowsDuplicates )
             {
-                return 1;
+                return 1L;
             }
             else
             {
                 BTree<V, V> values = bt.getValues( key );
-                return ( int ) values.getNbElems();
+                return values.getNbElems();
             }
         }
 
@@ -494,18 +497,18 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
 
     @Override
-    public int greaterThanCount( K key ) throws Exception
+    public long greaterThanCount( K key ) throws Exception
     {
         // take a best guess
-        return Math.min( count, 10 );
+        return Math.min( count, 10L );
     }
 
 
     @Override
-    public int lessThanCount( K key ) throws Exception
+    public long lessThanCount( K key ) throws Exception
     {
         // take a best guess
-        return Math.min( count, 10 );
+        return Math.min( count, 10L );
     }
 
 

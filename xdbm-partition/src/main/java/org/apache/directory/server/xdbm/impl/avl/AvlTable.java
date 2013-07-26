@@ -49,6 +49,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     private final AvlTreeMap<K, V> avl;
     private final Comparator<Tuple<K, V>> keyOnlytupleComparator;
 
+
     public AvlTable( String name, final Comparator<K> keyComparator, final Comparator<V> valueComparator,
         boolean dupsEnabled )
     {
@@ -77,18 +78,18 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public int count( K key ) throws Exception
+    public long count( K key ) throws Exception
     {
         if ( key == null )
         {
-            return 0;
+            return 0L;
         }
 
         LinkedAvlMapNode<K, V> node = avl.find( key );
 
         if ( node == null )
         {
-            return 0;
+            return 0L;
         }
 
         SingletonOrOrderedSet<V> val = node.getValue();
@@ -98,7 +99,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
             return val.getOrderedSet().getSize();
         }
 
-        return 1;
+        return 1L;
     }
 
 
@@ -133,7 +134,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public int greaterThanCount( K key ) throws Exception
+    public long greaterThanCount( K key ) throws Exception
     {
         return avl.getSize();
     }
@@ -261,7 +262,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public int lessThanCount( K key ) throws Exception
+    public long lessThanCount( K key ) throws Exception
     {
         return count;
     }
@@ -331,7 +332,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     {
         if ( !allowsDuplicates )
         {
-            return new AvlTreeMapNoDupsWrapperCursor<K, V>( 
+            return new AvlTreeMapNoDupsWrapperCursor<K, V>(
                 new AvlSingletonOrOrderedSetCursor<K, V>( avl ) );
         }
 

@@ -278,7 +278,7 @@ public interface Table<K, V>
      * @return the number of records
      * @throws Exception if there is a failure to read the underlying Db
      */
-    int count() throws Exception;
+    long count() throws Exception;
 
 
     /**
@@ -289,7 +289,7 @@ public interface Table<K, V>
      * @return the number of duplicate records for a key.
      * @throws Exception if there is a failure to read the underlying Db
      */
-    int count( K key ) throws Exception;
+    long count( K key ) throws Exception;
 
 
     /**
@@ -301,7 +301,7 @@ public interface Table<K, V>
      * @return the number of keys greater than or equal to the key
      * @throws Exception if there is a failure to read the underlying db
      */
-    int greaterThanCount( K key ) throws Exception;
+    long greaterThanCount( K key ) throws Exception;
 
 
     /**
@@ -313,7 +313,7 @@ public interface Table<K, V>
      * @return the number of keys less than or equal to the key
      * @throws Exception if there is a failure to read the underlying db
      */
-    int lessThanCount( K key ) throws Exception;
+    long lessThanCount( K key ) throws Exception;
 
 
     /**

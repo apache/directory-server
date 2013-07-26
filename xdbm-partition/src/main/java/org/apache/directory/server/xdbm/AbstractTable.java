@@ -51,7 +51,7 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     protected final Comparator<V> valueComparator;
 
     /** the current count of entries in this Table */
-    protected int count;
+    protected long count;
 
     /** whether or not this table allows for duplicates */
     protected boolean allowsDuplicates;
@@ -119,7 +119,7 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    public int count() throws IOException
+    public long count() throws IOException
     {
         return count;
     }

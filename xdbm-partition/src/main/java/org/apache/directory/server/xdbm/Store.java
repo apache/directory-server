@@ -312,7 +312,7 @@ public interface Store
      * @return the total count of entries within this store
      * @throws Exception on failures to access the underlying store
      */
-    int count() throws Exception;
+    long count() throws Exception;
 
 
     /**
@@ -353,7 +353,7 @@ public interface Store
      * @return the child count
      * @throws Exception on failures to access the underlying store
      */
-    int getChildCount( String id ) throws Exception;
+    long getChildCount( String id ) throws Exception;
 
 
     /**

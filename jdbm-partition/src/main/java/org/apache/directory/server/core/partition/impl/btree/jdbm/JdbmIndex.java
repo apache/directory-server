@@ -310,7 +310,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count() throws IOException
+    public long count() throws IOException
     {
         return forward.count();
     }
@@ -319,13 +319,13 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count( K attrVal ) throws Exception
+    public long count( K attrVal ) throws Exception
     {
         return forward.count( attrVal );
     }
 
 
-    public int greaterThanCount( K attrVal ) throws Exception
+    public long greaterThanCount( K attrVal ) throws Exception
     {
         return forward.greaterThanCount( attrVal );
     }
@@ -334,7 +334,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
-    public int lessThanCount( K attrVal ) throws Exception
+    public long lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( attrVal );
     }
