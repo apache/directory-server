@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operations.add;
 
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -45,9 +46,9 @@ import org.apache.directory.server.core.hash.Md5PasswordHashingInterceptor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 
 /**
  * Test case for checking PasswordHashingInterceptor.
@@ -55,102 +56,129 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "PasswordHashingInterceptorTest-DS", additionalInterceptors=Md5PasswordHashingInterceptor.class)
-@ApplyLdifs( {
-    "dn: cn=test,ou=system",
-    "objectClass: person",
-    "cn: test",
-    "sn: sn_test",
-    "userPassword: secret"
+@CreateDS(name = "PasswordHashingInterceptorTest-DS", additionalInterceptors = Md5PasswordHashingInterceptor.class)
+@ApplyLdifs(
+    {
+        "dn: cn=test,ou=system",
+        "objectClass: person",
+        "cn: test",
+        "sn: sn_test",
+        "userPassword: secret",
+        "userPassword: secret2"
 })
 public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 {
-    @Test
-    public void testAddWithPlainPassword() throws Exception
-    {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+@Test
+public void testAddWithPlainPassword() throws Exception
+{
+    LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "secret".getBytes();
-        Dn dn = new Dn( "cn=test,ou=system" );
+    byte[] plainPwd = "secret".getBytes();
+    Dn dn = new Dn( "cn=test,ou=system" );
 
-        Entry entry = connection.lookup( dn );
-        Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
-        
-        assertFalse( Arrays.equals( plainPwd, pwdAt.getBytes() ) );
-        assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
-    }
-    
-    
-    @Test
-    public void testModifyWithPlainPassword() throws Exception
-    {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+    Entry entry = connection.lookup( dn );
+    Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
 
-        byte[] plainPwd = "newsecret".getBytes();
-        Dn dn = new Dn( "cn=test,ou=system" );
+    assertFalse( Arrays.equals( plainPwd, pwdAt.getBytes() ) );
+    assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
+}
 
-        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
-        
-        Attribute pwdAt = new DefaultAttribute( pwdAtType );
-        pwdAt.add( plainPwd );
-        
-        Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
-        connection.modify( dn, mod );
-        
-        Entry entry = connection.lookup( dn );
-        pwdAt = entry.get( pwdAtType );
-        
-        assertFalse( Arrays.equals( plainPwd, pwdAt.getBytes() ) );
-        assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
-    }
 
-    
-    @Test
-    public void testAddWithHashedPassword() throws Exception
-    {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+@Test
+public void testModifyWithPlainPassword() throws Exception
+{
+    LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "secret".getBytes();
-        byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA );
-        
-        Dn dn = new Dn( "cn=testHash,ou=system" );
-        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
-        entry.add( "ObjectClass", "top", "person" );
-        entry.add( "sn", "TEST" );
-        entry.add( "cn", "testHash" );
-        entry.add( SchemaConstants.USER_PASSWORD_AT, hashedPwd );
+    byte[] plainPwd = "newsecret".getBytes();
+    Dn dn = new Dn( "cn=test,ou=system" );
 
-        connection.add( entry );
+    AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry(
+        SchemaConstants.USER_PASSWORD_AT );
 
-        entry = connection.lookup( dn );
-        Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
-        assertTrue( Arrays.equals( hashedPwd, pwdAt.getBytes() ) );
-        assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
-    }
-    
-    
-    @Test
-    public void testModifyWithHashedPassword() throws Exception
-    {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+    Attribute pwdAt = new DefaultAttribute( pwdAtType );
+    pwdAt.add( plainPwd );
 
-        byte[] plainPwd = "xyzsecret".getBytes();
-        byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA256 );
+    Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
+    connection.modify( dn, mod );
 
-        Dn dn = new Dn( "cn=test,ou=system" );
+    Entry entry = connection.lookup( dn );
+    pwdAt = entry.get( pwdAtType );
 
-        AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
-        
-        Attribute pwdAt = new DefaultAttribute( pwdAtType );
-        pwdAt.add( hashedPwd );
-        
-        Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
-        connection.modify( dn, mod );
-        
-        Entry entry = connection.lookup( dn );
-        pwdAt = entry.get( pwdAtType );
-        
-        assertTrue( Arrays.equals( hashedPwd, pwdAt.getBytes() ) );
-        assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
-    }
+    assertFalse( Arrays.equals( plainPwd, pwdAt.getBytes() ) );
+    assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
+}
+
+
+@Test
+public void testModifyWithEmptyPassword() throws Exception
+{
+    LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+    Dn dn = new Dn( "cn=test,ou=system" );
+
+    AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry(
+        SchemaConstants.USER_PASSWORD_AT );
+
+    Attribute pwdAt = new DefaultAttribute( pwdAtType );
+    pwdAt.add( ( byte[] ) null );
+
+    Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
+    connection.modify( dn, mod );
+
+    Entry entry = connection.lookup( dn );
+    pwdAt = entry.get( pwdAtType );
+
+    assertNull( pwdAt );
+}
+
+
+@Test
+public void testAddWithHashedPassword() throws Exception
+{
+    LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+    byte[] plainPwd = "secret".getBytes();
+    byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA );
+
+    Dn dn = new Dn( "cn=testHash,ou=system" );
+    Entry entry = new DefaultEntry( getService().getSchemaManager(), dn );
+    entry.add( "ObjectClass", "top", "person" );
+    entry.add( "sn", "TEST" );
+    entry.add( "cn", "testHash" );
+    entry.add( SchemaConstants.USER_PASSWORD_AT, hashedPwd );
+
+    connection.add( entry );
+
+    entry = connection.lookup( dn );
+    Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
+    assertTrue( Arrays.equals( hashedPwd, pwdAt.getBytes() ) );
+    assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
+}
+
+
+@Test
+public void testModifyWithHashedPassword() throws Exception
+{
+    LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+    byte[] plainPwd = "xyzsecret".getBytes();
+    byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA256 );
+
+    Dn dn = new Dn( "cn=test,ou=system" );
+
+    AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry(
+        SchemaConstants.USER_PASSWORD_AT );
+
+    Attribute pwdAt = new DefaultAttribute( pwdAtType );
+    pwdAt.add( hashedPwd );
+
+    Modification mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, pwdAt );
+    connection.modify( dn, mod );
+
+    Entry entry = connection.lookup( dn );
+    pwdAt = entry.get( pwdAtType );
+
+    assertTrue( Arrays.equals( hashedPwd, pwdAt.getBytes() ) );
+    assertTrue( PasswordUtil.compareCredentials( plainPwd, pwdAt.getBytes() ) );
+}
 }
