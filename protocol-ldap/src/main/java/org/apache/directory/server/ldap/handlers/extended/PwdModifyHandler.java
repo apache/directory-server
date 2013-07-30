@@ -103,7 +103,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
                 LOG.error( "Cannot find an entry for DN " + userDn );
                 // We can't find the entry in the DIT
                 requestor.getIoSession().write( new PwdModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT ) );
+                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
 
                 return;
             }
@@ -112,8 +112,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         {
             LOG.error( "Cannot find an entry for DN " + userDn + ", exception : " + le.getMessage() );
             // We can't find the entry in the DIT
-            requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT ) );
+            requestor.getIoSession().write(
+                new PwdModifyResponseImpl(
+                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn
+                        + ", exception : " + le.getMessage() ) );
 
             return;
         }
@@ -165,7 +167,8 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + le.getMessage() );
             // We can't modify the password
             requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
+                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS, "Cannot modify the password for user "
+                    + userDn + ", exception : " + le.getMessage() ) );
 
             return;
         }
@@ -226,8 +229,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         {
             LOG.error( "Cannot modify the password for user " + principalDn + ", exception : " + le.getMessage() );
             // We can't modify the password
-            requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
+            requestor.getIoSession().write(
+                new PwdModifyResponseImpl( req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS,
+                    "Cannot modify the password for user "
+                        + principalDn + ", exception : " + le.getMessage() ) );
 
             return;
         }
@@ -258,8 +263,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
                 LOG.error( "The user DN is invalid : " + userDn );
                 // The userIdentity is not a DN : return with an error code.
                 requestor.getIoSession().write( new PwdModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX ) );
-
+                    req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX, "The user DN is invalid : " + userDn ) );
                 return;
             }
         }
@@ -284,7 +288,8 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
                     // No : error
                     LOG.error( "Cannot access to another user's password to modify it" );
                     requestor.getIoSession().write( new PwdModifyResponseImpl(
-                        req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
+                        req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS,
+                        "Cannot access to another user's password to modify it" ) );
                 }
                 else
                 {
@@ -341,8 +346,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             catch ( LdapException le )
             {
                 // We can't modify the password
-                requestor.getIoSession().write( new PwdModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
+                requestor.getIoSession().write(
+                    new PwdModifyResponseImpl(
+                        req.getMessageId(), ResultCodeEnum.UNWILLING_TO_PERFORM,
+                        "Cannot modify the password, exception : " + le.getMessage() ) );
 
                 return;
             }
