@@ -289,6 +289,8 @@ public class ClientServerReplicationIT
         Entry provUser = createEntry();
         Dn userDn = provUser.getDn();
 
+        Thread.sleep( 500 );
+
         assertFalse( consumerSession.exists( userDn ) );
 
         // Add entry "cn=entryN,dc=example,dc=com" and check it is replicated
