@@ -622,7 +622,6 @@ public class ClientServerReplicationIT
         replConsumers.add( consumer );
 
         consumerServer.setReplConsumers( replConsumers );
-        consumerServer.startReplicationConsumers();
 
         Runnable r = new Runnable()
         {
@@ -669,5 +668,7 @@ public class ClientServerReplicationIT
         t.setDaemon( true );
         t.start();
         t.join();
+
+        consumerServer.startReplicationConsumers();
     }
 }
