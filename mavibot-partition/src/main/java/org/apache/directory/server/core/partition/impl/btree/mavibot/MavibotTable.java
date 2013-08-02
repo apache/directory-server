@@ -35,6 +35,7 @@ import org.apache.directory.server.xdbm.AbstractTable;
 import org.apache.mavibot.btree.BTree;
 import org.apache.mavibot.btree.RecordManager;
 import org.apache.mavibot.btree.exception.BTreeAlreadyManagedException;
+import org.apache.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.mavibot.btree.serializer.ElementSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -305,17 +306,30 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if ( bt.hasKey( key ) )
-            {
-                return bt.get( key );
-            }
+            return bt.get( key );
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            return null;
         }
         catch ( Exception e )
         {
             throw new LdapException( e );
         }
 
-        return null;
+        //        try
+        //        {
+        //            if ( bt.hasKey( key ) )
+        //            {
+        //                return bt.get( key );
+        //            }
+        //        }
+        //        catch ( Exception e )
+        //        {
+        //            throw new LdapException( e );
+        //        }
+        //
+        //        return null;
     }
 
 
@@ -416,7 +430,33 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if ( !bt.hasKey( key ) )
+            if ( !allowsDuplicates )
+            {
+                V val = bt.get( key );
+
+                return new SingletonCursor<Tuple<K, V>>(
+                    new Tuple<K, V>( key, val ) );
+            }
+            else
+            {
+                BTree<V, V> dups = bt.getValues( key );
+
+                return new KeyTupleArrayCursor<K, V>( dups, key );
+            }
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            return new EmptyCursor<Tuple<K, V>>();
+        }
+        catch ( Exception e )
+        {
+            throw new LdapException( e );
+        }
+    }
+
+
+    /*
+                if ( !bt.hasKey( key ) )
             {
                 return new EmptyCursor<Tuple<K, V>>();
             }
@@ -437,7 +477,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new LdapException( e );
         }
     }
-
+    */
 
     @Override
     public Cursor<V> valueCursor( K key ) throws Exception
@@ -479,6 +519,27 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             return 0;
         }
 
+        try
+        {
+            if ( bt.isAllowDuplicates() )
+            {
+                BTree<V, V> values = bt.getValues( key );
+
+                return values.getNbElems();
+            }
+            else
+            {
+                bt.get( key );
+
+                return 1;
+            }
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            return 0L;
+        }
+
+        /*
         if ( bt.hasKey( key ) )
         {
             if ( !allowsDuplicates )
@@ -493,6 +554,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
 
         return 0;
+        */
     }
 
 
