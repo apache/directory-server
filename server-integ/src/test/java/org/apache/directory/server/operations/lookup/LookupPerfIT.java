@@ -32,7 +32,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.util.JndiUtils;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -42,7 +41,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,8 +55,6 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 public class LookupPerfIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     /**
      * Evaluate the lookup operation performances
      */

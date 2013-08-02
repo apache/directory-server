@@ -29,14 +29,12 @@ import static org.junit.Assert.fail;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,8 +52,6 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP") })
 public class AddAliasIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private LdapConnection conn;
 
 
@@ -229,7 +225,7 @@ public class AddAliasIT extends AbstractLdapTestUnit
             {
                 //System.out.println( cursor.get().getDn() );
             }
-            
+
             cursor.close();
         }
         finally

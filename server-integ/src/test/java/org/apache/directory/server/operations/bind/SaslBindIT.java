@@ -51,7 +51,6 @@ import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.Message;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SaslCramMd5Request;
@@ -79,7 +78,6 @@ import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandle
 import org.apache.directory.shared.kerberos.KerberosAttribute;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -196,10 +194,6 @@ import org.slf4j.LoggerFactory;
     })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
-
     @Before
     public void init() throws Exception
     {

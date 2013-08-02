@@ -47,7 +47,6 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -57,7 +56,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -86,9 +84,6 @@ import org.slf4j.LoggerFactory;
         { StartTlsHandler.class })
 public class StartTlsIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsIT.class );
     private static final String[] CERT_IDS = new String[]
         { "userCertificate" };

@@ -35,7 +35,6 @@ import javax.naming.ldap.ManageReferralControl;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -47,7 +46,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -134,18 +132,14 @@ import org.junit.runner.RunWith;
         "dn: ou=Countries,ou=system",
         "objectClass: top",
         "objectClass: organizationalUnit",
-        "ou: Countries"
-})
+        "ou: Countries" })
 public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     @Before
     public void setupReferrals() throws Exception
     {
         getLdapServer().getDirectoryService().getChangeLog().setEnabled( false );
-    
+
         String ldif =
             "dn: c=europ,ou=Countries,ou=system\n" +
                 "objectClass: top\n" +
@@ -153,16 +147,16 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
                 "objectClass: extensibleObject\n" +
                 "c: europ\n" +
                 "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=france,ou=system\n\n" +
-    
+
                 "dn: c=america,ou=Countries,ou=system\n" +
                 "objectClass: top\n" +
                 "objectClass: referral\n" +
                 "objectClass: extensibleObject\n" +
                 "c: america\n" +
                 "ref: ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system\n\n";
-    
+
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
-        
+
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
@@ -172,8 +166,8 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
 
         reader.close();
     }
-    
-    
+
+
     /**
      * Test of an search operation with a referral after the entry
      * has been moved.
@@ -186,10 +180,10 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
     public void testSearchBaseWithReferralThrowAfterMove() throws Exception
     {
         DirContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
-    
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    
+
         try
         {
             ctx.search( "c=america,ou=Countries,ou=system", "(cn=alex karasulu)", controls );
@@ -200,18 +194,18 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
             String referral = ( String ) re.getReferralInfo();
             assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
         }
-    
+
         ( ( LdapContext ) ctx ).setRequestControls( new javax.naming.ldap.Control[]
             { new ManageReferralControl() } );
-    
+
         // Now let's move the entry
         ctx.rename( "c=america,ou=Countries,ou=system", "c=america,ou=system" );
-    
+
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    
+
         ( ( LdapContext ) ctx ).setRequestControls( new javax.naming.ldap.Control[]
             {} );
-    
+
         try
         {
             ctx.search( "c=america,ou=system", "(cn=alex karasulu)", controls );
@@ -223,8 +217,8 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
             assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/c=usa,ou=system??base", referral );
         }
     }
-    
-    
+
+
     @After
     public void after()
     {

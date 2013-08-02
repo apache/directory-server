@@ -41,14 +41,12 @@ import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -102,15 +100,12 @@ import org.slf4j.LoggerFactory;
         "objectClass: top",
         "uid: elecharny",
         "cn: Emmanuel Lecharny",
-        "sn: lecharny"
-})
+        "sn: lecharny" })
 public class ModifyDnReferralIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( ModifyDnReferralIT.class );
-    
-    
+
+
     /**
      * Tests ModifyDN operation on referral entry with the ManageDsaIT control.
      */
@@ -118,27 +113,27 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         ManageDsaIT manageDSAIT = new ManageDsaITImpl();
         manageDSAIT.setCritical( true );
-    
+
         // ModifyDN success
         ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
         modifyDnRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
         modifyDnRequest.setNewRdn( new Rdn( "uid=ref" ) );
         modifyDnRequest.setDeleteOldRdn( true );
         modifyDnRequest.addControl( manageDSAIT );
-    
+
         conn.modifyDn( modifyDnRequest );
         Entry entry = conn.lookup( "uid=ref,ou=users,ou=system", new Control[]
             { manageDSAIT } );
         assertNotNull( entry );
         assertEquals( "uid=ref,ou=users,ou=system", entry.getDn().getName() );
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests ModifyDN operation with newSuperior on referral entry with the
      * ManageDsaIT control.
@@ -147,17 +142,17 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testNewSuperiorOnReferralWithManageDsaITControl() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         ManageDsaIT manageDSAIT = new ManageDsaITImpl();
         manageDSAIT.setCritical( true );
-    
+
         ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
         modifyDnRequest.setName( new Dn( "uid=elecharny,ou=users,ou=system" ) );
         modifyDnRequest.setNewRdn( new Rdn( "uid=newuser" ) );
         modifyDnRequest.setNewSuperior( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
         modifyDnRequest.setDeleteOldRdn( true );
         modifyDnRequest.addControl( manageDSAIT );
-    
+
         // ModifyDN success
         try
         {
@@ -167,11 +162,11 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
         {
             assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, le.getResultCode() );
         }
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests ModifyDN operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
@@ -181,28 +176,28 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testOnReferral() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
         modifyDnRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
         modifyDnRequest.setNewRdn( new Rdn( "uid=ref" ) );
         modifyDnRequest.setDeleteOldRdn( true );
-    
+
         ModifyDnResponse modifyDnResponse = conn.modifyDn( modifyDnRequest );
-    
+
         assertEquals( ResultCodeEnum.REFERRAL, modifyDnResponse.getLdapResult().getResultCode() );
-    
+
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests ModifyDN operation on normal and referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
@@ -212,7 +207,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testNewSuperiorOnReferral() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         try
         {
@@ -222,11 +217,11 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
         {
             assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, e.getResultCode() );
         }
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests ModifyDN operation on normal and referral entries without the
      * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
@@ -236,7 +231,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testThrowOnReferralWithJndi() throws Exception
     {
         LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
-    
+
         // ModifyDN referrals failure
         try
         {
@@ -248,11 +243,11 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
             // seems JNDI only returns the first referral URL and not all so we test for it
             assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
         }
-    
+
         ctx.close();
     }
-    
-    
+
+
     /**
      * Tests referral handling when an ancestor is a referral.
      */
@@ -260,30 +255,30 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testAncestorReferral() throws Exception
     {
         LOG.debug( "" );
-    
+
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         ModifyDnRequest modifyDnRequest = new ModifyDnRequestImpl();
         modifyDnRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
         modifyDnRequest.setNewRdn( new Rdn( "ou=Machines" ) );
         modifyDnRequest.setDeleteOldRdn( true );
-    
+
         ModifyDnResponse modifyDnResponse = conn.modifyDn( modifyDnRequest );
-    
+
         assertEquals( ResultCodeEnum.REFERRAL, modifyDnResponse.getLdapResult().getResultCode() );
-    
+
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyDnResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests referral handling when an ancestor is a referral.
      */
@@ -291,9 +286,9 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
     public void testNewSuperiorAncestorReferral() throws Exception
     {
         LOG.debug( "" );
-    
+
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         try
         {
@@ -305,7 +300,7 @@ public class ModifyDnReferralIT extends AbstractLdapTestUnit
         {
             assertEquals( ResultCodeEnum.AFFECTS_MULTIPLE_DSAS, e.getResultCode() );
         }
-    
+
         conn.close();
     }
 }

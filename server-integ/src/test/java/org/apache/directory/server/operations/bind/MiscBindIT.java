@@ -53,7 +53,6 @@ import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.controls.OpaqueControl;
 import org.apache.directory.api.ldap.util.JndiUtils;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -71,7 +70,6 @@ import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -108,9 +106,6 @@ import org.junit.runner.RunWith;
     })
 public class MiscBindIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private boolean oldAnnonymousAccess;
 
 

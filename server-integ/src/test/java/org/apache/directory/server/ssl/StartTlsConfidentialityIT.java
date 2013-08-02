@@ -54,7 +54,6 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -65,7 +64,6 @@ import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -94,9 +92,6 @@ import org.slf4j.LoggerFactory;
         { StartTlsHandler.class })
 public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsConfidentialityIT.class );
     private static final String[] CERT_IDS = new String[]
         { "userCertificate" };
@@ -266,7 +261,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
                 new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
         };
         ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
-        Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );
+        Attributes reread = ctx.getAttributes( "cn=foo bar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
 
         // -------------------------------------------------------------------
@@ -282,7 +277,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         catch ( NameNotFoundException e )
         {
         }
-        reread = ( Attributes ) ctx.getAttributes( "cn=fbar,ou=system" );
+        reread = ctx.getAttributes( "cn=fbar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
 
         // -------------------------------------------------------------------

@@ -54,7 +54,6 @@ import org.apache.directory.api.ldap.model.message.controls.PagedResults;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -63,7 +62,6 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.LdapServer;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -205,16 +203,12 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "cn: user",
         "userPassword: secret",
-        "sn: user"
-})
+        "sn: user" })
 public class PagedSearchIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-    
     private LdapApiService codec = LdapApiServiceFactory.getSingleton();
-    
-    
+
+
     /**
      * Create the searchControls with a paged size
      * @throws EncoderException on codec failures
@@ -227,14 +221,14 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator( codec );
         pagedSearchControl.setSize( pagedSize );
-    
+
         ( ( LdapContext ) ctx ).setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
             { pagedSearchControl } ) );
-    
+
         return controls;
     }
-    
-    
+
+
     /**
      * Create the searchControls with a paged size
      * @throws EncoderException on codec failures
@@ -248,8 +242,8 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         ( ( LdapContext ) ctx ).setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
             { pagedSearchControl } ) );
     }
-    
-    
+
+
     /**
      * Check that we got the correct result set
      */
@@ -257,26 +251,26 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     {
         assertEquals( expectedSize, results.size() );
         Set<String> expected = new HashSet<String>();
-    
+
         for ( int i = 0; i < 10; i++ )
         {
             expected.add( "user" + i );
         }
-    
+
         // check that we have correctly read all the entries
         for ( int i = 0; i < expectedSize; i++ )
         {
             SearchResult entry = results.get( i );
             String user = ( String ) entry.getAttributes().get( "cn" ).get();
             assertTrue( expected.contains( user ) );
-    
+
             expected.remove( user );
         }
-    
+
         assertEquals( 10 - expectedSize, expected.size() );
     }
-    
-    
+
+
     /**
      * Do the loop over the entries, until we can't get any more, or until we
      * reach a limit. It will check that we have got all the expected entries.
@@ -289,16 +283,16 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         int loop = 0;
         boolean hasSizeLimitException = false;
         List<SearchResult> results = new ArrayList<SearchResult>();
-    
+
         while ( true )
         {
             loop++;
             NamingEnumeration<SearchResult> list = null;
-    
+
             try
             {
                 list = ctx.search( "dc=users,ou=system", "(cn=*)", controls );
-    
+
                 while ( list.hasMore() )
                 {
                     SearchResult result = list.next();
@@ -318,36 +312,36 @@ public class PagedSearchIT extends AbstractLdapTestUnit
                     list.close();
                 }
             }
-    
+
             // Now read the next ones
             javax.naming.ldap.Control[] responseControls = ( ( LdapContext ) ctx ).getResponseControls();
-    
+
             PagedResultsResponseControl responseControl =
                 ( PagedResultsResponseControl ) responseControls[0];
             assertEquals( 0, responseControl.getResultSize() );
-    
+
             // check if this is over
             byte[] cookie = responseControl.getCookie();
-    
+
             if ( Strings.isEmpty( cookie ) )
             {
                 // If so, exit the loop
                 break;
             }
-    
+
             // Prepare the next iteration
             createNextSearchControls( ctx, responseControl.getCookie(), pagedSizeLimit );
         }
-    
+
         assertEquals( expectedException, hasSizeLimitException );
         assertEquals( expectedLoop, loop );
         checkResults( results, expectedNbEntries );
-    
+
         // And close the connection
         closeConnection( ctx );
     }
-    
-    
+
+
     /**
      * Close a connection, and wait a bit to be sure it's done
      */
@@ -356,7 +350,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         if ( ctx != null )
         {
             ctx.close();
-    
+
             try
             {
                 Thread.sleep( 10 );
@@ -366,8 +360,8 @@ public class PagedSearchIT extends AbstractLdapTestUnit
             }
         }
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = none<br>
@@ -382,11 +376,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 3 );
-    
+
         doLoop( ctx, controls, 3, 4, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = none<br>
@@ -401,11 +395,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 3<br>
@@ -420,11 +414,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = none<br>
@@ -439,11 +433,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -458,11 +452,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 3 );
-    
+
         doLoop( ctx, controls, 3, 4, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = none<br>
@@ -477,11 +471,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 9, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -496,11 +490,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = none<br>
@@ -515,11 +509,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -534,11 +528,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 4<br>
@@ -553,11 +547,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -572,11 +566,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
-    
+
         doLoop( ctx, controls, 4, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -591,11 +585,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 4<br>
@@ -610,11 +604,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 4<br>
@@ -629,11 +623,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 3<br>
@@ -648,11 +642,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
-    
+
         doLoop( ctx, controls, 4, 2, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 3<br>
@@ -667,11 +661,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = yes <br>
      * SL = 5<br>
@@ -686,11 +680,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer() );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -705,11 +699,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 3 );
-    
+
         doLoop( ctx, controls, 3, 4, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -724,11 +718,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 10, false );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 3<br>
@@ -743,11 +737,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -762,11 +756,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -781,11 +775,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -800,11 +794,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 9, 5 );
-    
+
         doLoop( ctx, controls, 5, 2, 9, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -819,11 +813,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -838,11 +832,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -857,11 +851,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 4<br>
@@ -876,11 +870,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -895,11 +889,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 4 );
-    
+
         doLoop( ctx, controls, 4, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -914,11 +908,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 4<br>
@@ -933,11 +927,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 3 );
-    
+
         doLoop( ctx, controls, 3, 2, 4, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 4<br>
@@ -952,11 +946,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 4 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 3, 5 );
-    
+
         doLoop( ctx, controls, 3, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 3<br>
@@ -971,11 +965,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 4 );
-    
+
         doLoop( ctx, controls, 3, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 3<br>
@@ -990,11 +984,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 3 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 4, 5 );
-    
+
         doLoop( ctx, controls, 3, 1, 3, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = 5<br>
@@ -1009,11 +1003,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( 5 );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, 5, 5 );
-    
+
         doLoop( ctx, controls, 5, 1, 5, true );
     }
-    
-    
+
+
     /**
      * Admin = no <br>
      * SL = none<br>
@@ -1028,11 +1022,11 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, -2 );
-    
+
         doLoop( ctx, controls, -2, 1, 10, false );
     }
-    
-    
+
+
     /**
      * Do a test with a paged search and send a wrong cookie in the middle
      */
@@ -1041,24 +1035,24 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
-    
+
         SearchControls controls = new SearchControls();
         controls.setCountLimit( ( int ) LdapServer.NO_SIZE_LIMIT );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         PagedResults pagedSearchControl = new PagedResultsDecorator( codec );
         pagedSearchControl.setSize( 3 );
-    
+
         // Loop over all the elements
         int loop = 0;
         List<Entry> results = new ArrayList<Entry>();
         boolean hasUnwillingToPerform = false;
-    
+
         while ( true )
         {
             loop++;
-    
+
             EntryCursor cursor = null;
-    
+
             try
             {
                 SearchRequest searchRequest = new SearchRequestImpl();
@@ -1067,21 +1061,21 @@ public class PagedSearchIT extends AbstractLdapTestUnit
                 searchRequest.setScope( SearchScope.SUBTREE );
                 searchRequest.addAttributes( "*" );
                 searchRequest.addControl( pagedSearchControl );
-    
+
                 cursor = new EntryCursorImpl( connection.search( searchRequest ) );
-    
+
                 int i = 0;
-    
+
                 while ( cursor.next() )
                 {
                     Entry result = cursor.get();
                     results.add( result );
                     ++i;
                 }
-    
+
                 SearchResultDone result = cursor.getSearchResultDone();
                 pagedSearchControl = ( PagedResults ) result.getControl( PagedResults.OID );
-    
+
                 if ( result.getLdapResult().getResultCode() == ResultCodeEnum.UNWILLING_TO_PERFORM )
                 {
                     hasUnwillingToPerform = true;
@@ -1095,32 +1089,32 @@ public class PagedSearchIT extends AbstractLdapTestUnit
                     cursor.close();
                 }
             }
-    
+
             // Now read the next ones
             assertEquals( 0, pagedSearchControl.getSize() );
-    
+
             // check if this is over
             byte[] cookie = pagedSearchControl.getCookie();
-    
+
             if ( Strings.isEmpty( cookie ) )
             {
                 // If so, exit the loop
                 break;
             }
-    
+
             // Prepare the next iteration, sending a bad cookie
             pagedSearchControl.setCookie( "test".getBytes( "UTF-8" ) );
             pagedSearchControl.setSize( 3 );
         }
-    
+
         assertTrue( hasUnwillingToPerform );
-    
+
         // Cleanup the session
         connection.unBind();
         connection.close();
     }
-    
-    
+
+
     /**
      * Do a test with a paged search, changing the number of entries to
      * return in the middle of the loop
@@ -1131,52 +1125,52 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         getLdapServer().setMaxSizeLimit( LdapServer.NO_SIZE_LIMIT );
         DirContext ctx = getWiredContext( getLdapServer(), "cn=user,ou=system", "secret" );
         SearchControls controls = createSearchControls( ctx, ( int ) LdapServer.NO_SIZE_LIMIT, 4 );
-    
+
         // Loop over all the elements
         int loop = 0;
         List<SearchResult> results = new ArrayList<SearchResult>();
-    
+
         // The expected size after each loop.
         int[] expectedSize = new int[]
             { 4, 7, 9, 10 };
-    
+
         while ( true )
         {
             loop++;
-    
+
             NamingEnumeration<SearchResult> list =
                 ctx.search( "dc=users,ou=system", "(cn=*)", controls );
-    
+
             while ( list.hasMore() )
             {
                 SearchResult result = list.next();
                 results.add( result );
             }
-    
+
             list.close();
-    
+
             // Now read the next ones
             javax.naming.ldap.Control[] responseControls = ( ( LdapContext ) ctx ).getResponseControls();
-    
+
             PagedResultsResponseControl responseControl =
                 ( PagedResultsResponseControl ) responseControls[0];
             assertEquals( 0, responseControl.getResultSize() );
-    
+
             // check if this is over
             byte[] cookie = responseControl.getCookie();
-    
+
             if ( Strings.isEmpty( cookie ) )
             {
                 // If so, exit the loop
                 break;
             }
-    
+
             // Prepare the next iteration, sending a bad cookie
             createNextSearchControls( ctx, responseControl.getCookie(), 4 - loop );
-    
+
             assertEquals( expectedSize[loop - 1], results.size() );
         }
-    
+
         assertEquals( 4, loop );
         checkResults( results, 10 );
     }

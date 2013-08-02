@@ -20,6 +20,7 @@
 package org.apache.directory.server.operations.add;
 
 
+import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -33,16 +34,13 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 
 
 /**
@@ -56,8 +54,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
     { @CreateTransport(protocol = "LDAP") })
 public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private Entry getPersonEntry( String sn, String cn ) throws LdapException
     {
         Entry entry = new DefaultEntry();
@@ -220,7 +216,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             assertNotNull( ou );
             assertTrue( ou.contains( "AC\\DC" ) );
         }
-        
+
         cursor.close();
 
         assertTrue( "no entry found", entryFound );
