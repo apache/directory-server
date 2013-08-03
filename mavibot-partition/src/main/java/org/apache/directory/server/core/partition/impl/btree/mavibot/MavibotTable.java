@@ -316,20 +316,6 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         {
             throw new LdapException( e );
         }
-
-        //        try
-        //        {
-        //            if ( bt.hasKey( key ) )
-        //            {
-        //                return bt.get( key );
-        //            }
-        //        }
-        //        catch ( Exception e )
-        //        {
-        //            throw new LdapException( e );
-        //        }
-        //
-        //        return null;
     }
 
 
@@ -455,30 +441,6 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    /*
-                if ( !bt.hasKey( key ) )
-            {
-                return new EmptyCursor<Tuple<K, V>>();
-            }
-
-            if ( !allowsDuplicates )
-            {
-                V val = bt.get( key );
-                return new SingletonCursor<Tuple<K, V>>(
-                    new Tuple<K, V>( key, val ) );
-            }
-
-            BTree<V, V> dups = bt.getValues( key );
-
-            return new KeyTupleArrayCursor<K, V>( dups, key );
-        }
-        catch ( Exception e )
-        {
-            throw new LdapException( e );
-        }
-    }
-    */
-
     @Override
     public Cursor<V> valueCursor( K key ) throws Exception
     {
@@ -489,20 +451,22 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if ( !bt.hasKey( key ) )
-            {
-                return new EmptyCursor<V>();
-            }
-
             if ( !allowsDuplicates )
             {
                 V val = bt.get( key );
+
                 return new SingletonCursor<V>( val );
             }
+            else
+            {
+                BTree<V, V> dups = bt.getValues( key );
 
-            BTree<V, V> dups = bt.getValues( key );
-
-            return new ValueTreeCursor<V>( dups );
+                return new ValueTreeCursor<V>( dups );
+            }
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            return new EmptyCursor<V>();
         }
         catch ( Exception e )
         {
