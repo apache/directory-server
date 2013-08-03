@@ -451,7 +451,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         StringBuilder sb = new StringBuilder();
 
         sb.append( "FilteringOperationContext for Dn '" );
-        sb.append( getDn().getName() ).append( "'" );
+        sb.append( dn.getName() ).append( "'" );
 
         if ( isTypesOnly() )
         {
