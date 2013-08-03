@@ -20,9 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
@@ -301,7 +304,21 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
 
-            return idx.count( node.getValue().getValue() );
+            //return idx.count( node.getValue().getValue() );
+
+            Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
+            Set<String> values = new HashSet<String>();
+
+            for ( String value : result )
+            {
+                values.add( value );
+            }
+
+            result.close();
+
+            node.set( "candidates", values );
+
+            return values.size();
         }
 
         // count for non-indexed attribute is unknown so we presume da worst

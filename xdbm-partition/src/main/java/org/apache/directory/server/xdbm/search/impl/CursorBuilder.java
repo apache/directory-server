@@ -193,6 +193,20 @@ public class CursorBuilder
     private <T> long computeEquality( EqualityNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
+        Set<String> thisCandidates = ( Set<String> ) node.get( "candidates" );
+
+        if ( thisCandidates != null )
+        {
+            Set<String> candidates = searchResult.getCandidateSet();
+
+            for ( String candidate : thisCandidates )
+            {
+                candidates.add( candidate );
+            }
+
+            return thisCandidates.size();
+        }
+
         AttributeType attributeType = node.getAttributeType();
         Value<T> value = node.getValue();
         int nbResults = 0;
