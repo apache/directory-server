@@ -304,21 +304,35 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
 
-            //return idx.count( node.getValue().getValue() );
-
             Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
             Set<String> values = new HashSet<String>();
+            int nbFound = 0;
 
             for ( String value : result )
             {
                 values.add( value );
+                nbFound++;
+
+                // Arbitrary stop gathering the candidates if we have more than 100
+                if ( nbFound == 100 )
+                {
+                    break;
+                }
             }
 
             result.close();
 
-            node.set( "candidates", values );
+            if ( nbFound < 100 )
+            {
+                // Store the found candidates in the node
+                node.set( "candidates", values );
 
-            return values.size();
+                return values.size();
+            }
+            else
+            {
+                return idx.count( node.getValue().getValue() );
+            }
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
