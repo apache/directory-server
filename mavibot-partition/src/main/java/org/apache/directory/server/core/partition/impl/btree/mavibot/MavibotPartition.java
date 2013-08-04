@@ -45,7 +45,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

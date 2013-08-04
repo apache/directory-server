@@ -65,7 +65,7 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.apache.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

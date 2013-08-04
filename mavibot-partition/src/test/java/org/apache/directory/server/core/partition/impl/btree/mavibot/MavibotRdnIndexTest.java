@@ -43,7 +43,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

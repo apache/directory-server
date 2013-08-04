@@ -32,11 +32,11 @@ import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
-import org.apache.mavibot.btree.BTree;
-import org.apache.mavibot.btree.RecordManager;
-import org.apache.mavibot.btree.exception.BTreeAlreadyManagedException;
-import org.apache.mavibot.btree.exception.KeyNotFoundException;
-import org.apache.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.BTree;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
+import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
+import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasGreaterOrEqual( K key ) throws Exception
     {
-        org.apache.mavibot.btree.Cursor<K, V> cursor = null;
+        org.apache.directory.mavibot.btree.Cursor<K, V> cursor = null;
         try
         {
             cursor = bt.browseFrom( key );
@@ -148,13 +148,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasLessOrEqual( K key ) throws Exception
     {
-        org.apache.mavibot.btree.Cursor<K, V> cursor = null;
+        org.apache.directory.mavibot.btree.Cursor<K, V> cursor = null;
 
         try
         {
             cursor = bt.browseFrom( key );
 
-            org.apache.mavibot.btree.Tuple<K, V> tuple = null;
+            org.apache.directory.mavibot.btree.Tuple<K, V> tuple = null;
 
             if ( cursor.hasNext() )
             {
@@ -204,7 +204,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        org.apache.mavibot.btree.Cursor<V, V> cursor = null;
+        org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
 
         try
         {
@@ -253,13 +253,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         BTree<V, V> dups = bt.getValues( key );
 
-        org.apache.mavibot.btree.Cursor<V, V> cursor = null;
+        org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
 
         try
         {
             cursor = dups.browseFrom( val );
 
-            org.apache.mavibot.btree.Tuple<V, V> tuple = null;
+            org.apache.directory.mavibot.btree.Tuple<V, V> tuple = null;
 
             if ( cursor.hasNext() )
             {
@@ -354,7 +354,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
+            org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
 
             if ( null == returned )
             {
@@ -385,7 +385,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
+            org.apache.directory.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
 
             if ( t != null )
             {

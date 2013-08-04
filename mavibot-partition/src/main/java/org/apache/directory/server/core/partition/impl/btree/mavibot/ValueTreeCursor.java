@@ -26,7 +26,7 @@ import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mavibot.btree.BTree;
+import org.apache.directory.mavibot.btree.BTree;
 
 /**
  * TODO ValueTreeCursor.
@@ -36,7 +36,7 @@ import org.apache.mavibot.btree.BTree;
 public class ValueTreeCursor<V> extends AbstractCursor<V>
 {
 
-    private org.apache.mavibot.btree.Cursor<V, V> wrapped;
+    private org.apache.directory.mavibot.btree.Cursor<V, V> wrapped;
     
     private V available;
 

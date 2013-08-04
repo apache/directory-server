@@ -31,8 +31,8 @@ import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mavibot.btree.serializer.AbstractElementSerializer;
-import org.apache.mavibot.btree.serializer.BufferHandler;
+import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.BufferHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

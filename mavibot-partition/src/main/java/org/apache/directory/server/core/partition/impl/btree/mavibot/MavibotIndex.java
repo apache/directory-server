@@ -40,10 +40,10 @@ import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.mavibot.btree.RecordManager;
-import org.apache.mavibot.btree.serializer.ByteArraySerializer;
-import org.apache.mavibot.btree.serializer.ElementSerializer;
-import org.apache.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
+import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

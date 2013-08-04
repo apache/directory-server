@@ -33,7 +33,7 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

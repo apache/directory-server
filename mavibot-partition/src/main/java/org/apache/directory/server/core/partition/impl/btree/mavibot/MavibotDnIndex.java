@@ -31,8 +31,8 @@ import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mavibot.btree.RecordManager;
-import org.apache.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -40,8 +40,8 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mavibot.btree.serializer.BufferHandler;
-import org.apache.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.BufferHandler;
+import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

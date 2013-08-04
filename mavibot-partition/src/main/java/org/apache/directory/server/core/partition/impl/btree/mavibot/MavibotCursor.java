@@ -46,7 +46,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private Tuple<K, V> returnedTuple = new Tuple<K, V>();
     private boolean valueAvailable;
 
-    private org.apache.mavibot.btree.Cursor<K, V> browser;
+    private org.apache.directory.mavibot.btree.Cursor<K, V> browser;
 
 
     /**
@@ -236,7 +236,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( browser.hasPrev() )
             {
-                org.apache.mavibot.btree.Tuple<K, V> tuple = browser.prev();
+                org.apache.directory.mavibot.btree.Tuple<K, V> tuple = browser.prev();
 
                 returnedTuple.setKey( tuple.getKey() );
                 returnedTuple.setValue( tuple.getValue() );
@@ -269,7 +269,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( browser.hasNext() )
             {
-                org.apache.mavibot.btree.Tuple<K, V> tuple = browser.next();
+                org.apache.directory.mavibot.btree.Tuple<K, V> tuple = browser.next();
 
                 returnedTuple.setKey( tuple.getKey() );
                 returnedTuple.setValue( tuple.getValue() );
@@ -324,7 +324,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    private void closeBrowser( org.apache.mavibot.btree.Cursor<K, V> browser )
+    private void closeBrowser( org.apache.directory.mavibot.btree.Cursor<K, V> browser )
     {
         if ( browser != null )
         {
