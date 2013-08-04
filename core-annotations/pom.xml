@@ -68,9 +68,9 @@
       <artifactId>apacheds-xdbm-partition</artifactId>
     </dependency>
 
-    <!-- dependency>
-      <groupId>org.apache.labs.mavibot</groupId>
-      <artifactId>apache-mavibot</artifactId>
+    <dependency>
+      <groupId>org.apache.directory.mavibot</groupId>
+      <artifactId>apacheds-mavibot</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
@@ -78,7 +78,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-mavibot-partition</artifactId>
       <version>${project.version}</version>
-    </dependency -->
+    </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>

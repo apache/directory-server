@@ -97,7 +97,7 @@
     <module>i18n</module>
     <module>all</module>
     <module>jdbm-partition</module>
-    <!-- module>mavibot-partition</module -->
+    <module>mavibot-partition</module>
     <module>xdbm-partition</module>
     <module>core-shared</module>
     <module>core-api</module>
