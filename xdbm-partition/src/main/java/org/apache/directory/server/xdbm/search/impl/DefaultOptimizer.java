@@ -58,6 +58,8 @@ import org.apache.directory.server.xdbm.search.Optimizer;
  */
 public class DefaultOptimizer<E> implements Optimizer
 {
+    static final String CANDIDATES_ANNOTATION_KEY = "candidates";
+
     /** the database this optimizer operates on */
     private final Store db;
     private String contextEntryId;
@@ -325,12 +327,15 @@ public class DefaultOptimizer<E> implements Optimizer
             if ( nbFound < 100 )
             {
                 // Store the found candidates in the node
-                node.set( "candidates", values );
+                node.set( CANDIDATES_ANNOTATION_KEY, values );
 
                 return values.size();
             }
             else
             {
+                // Reset the candidates annotation
+                node.set( CANDIDATES_ANNOTATION_KEY, null );
+
                 return idx.count( node.getValue().getValue() );
             }
         }
