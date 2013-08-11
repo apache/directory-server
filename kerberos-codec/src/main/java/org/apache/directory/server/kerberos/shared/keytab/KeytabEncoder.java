@@ -20,8 +20,9 @@
 package org.apache.directory.server.kerberos.shared.keytab;
 
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
@@ -35,6 +36,30 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 class KeytabEncoder
 {
     /**
+     * Tells if the keytabCersion is 0x0501 or 0x0502
+     */
+    private short getKeytabVersion( byte[] version )
+    {
+        if ( ( version != null ) && ( version.length == 2 ) && ( version[0] == 0x05 ) )
+        {
+            switch ( version[1] )
+            {
+                case 0x01:
+                    return Keytab.VERSION_0X501;
+
+                case 0x02:
+                    return Keytab.VERSION_0X502;
+
+                default:
+                    return -1;
+            }
+        }
+
+        return -1;
+    }
+
+
+    /**
      * Write the keytab version and entries into a {@link ByteBuffer}.
      *
      * @param keytabVersion
@@ -43,9 +68,23 @@ class KeytabEncoder
      */
     ByteBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
     {
-        ByteBuffer buffer = ByteBuffer.allocate( 512 );
-        putKeytabVersion( buffer, keytabVersion );
-        putKeytabEntries( buffer, entries );
+        List<ByteBuffer> keytabEntryBuffers = new ArrayList<ByteBuffer>();;
+        short version = getKeytabVersion( keytabVersion );
+
+        int buffersSize = encodeKeytabEntries( keytabEntryBuffers, version, entries );
+
+        ByteBuffer buffer = ByteBuffer.allocate(
+            keytabVersion.length + buffersSize );
+
+        // The keytab version (0x0502 or 0x5001)
+        buffer.put( keytabVersion );
+
+        for ( ByteBuffer keytabEntryBuffer : keytabEntryBuffers )
+        {
+            // The buffer
+            buffer.put( keytabEntryBuffer );
+        }
+
         buffer.flip();
 
         return buffer;
@@ -53,35 +92,32 @@ class KeytabEncoder
 
 
     /**
-     * Encode the 16-bit file format version.  This
-     * keytab reader currently only support verision 5.2.
-     */
-    private void putKeytabVersion( ByteBuffer buffer, byte[] version )
-    {
-        buffer.put( version );
-    }
-
-
-    /**
-     * Encode the keytab entries.
+     * Encode the keytab entries. Each entry stores :
+     * - the size
+     * - the principal name
+     * - the type (int, 4 bytes)
+     * - the timestamp (int, 4 bytes)
+     * - the key version (1 byte)
+     * - the key 
      *
      * @param buffer
      * @param entries
      */
-    private void putKeytabEntries( ByteBuffer buffer, List<KeytabEntry> entries )
+    private int encodeKeytabEntries( List<ByteBuffer> buffers, short version, List<KeytabEntry> entries )
     {
-        Iterator<KeytabEntry> iterator = entries.iterator();
+        int size = 0;
 
-        while ( iterator.hasNext() )
+        for ( KeytabEntry keytabEntry : entries )
         {
-            ByteBuffer entryBuffer = putKeytabEntry( iterator.next() );
-            int size = entryBuffer.position();
+            ByteBuffer entryBuffer = encodeKeytabEntry( version, keytabEntry );
 
-            entryBuffer.flip();
+            buffers.add( entryBuffer );
 
-            buffer.putInt( size );
-            buffer.put( entryBuffer );
+            // The buffer size
+            size += entryBuffer.limit();
         }
+
+        return size;
     }
 
 
@@ -89,19 +125,49 @@ class KeytabEncoder
      * Encode a "keytab entry," which consists of a principal name,
      * principal type, key version number, and key material.
      */
-    private ByteBuffer putKeytabEntry( KeytabEntry entry )
+    private ByteBuffer encodeKeytabEntry( short version, KeytabEntry entry )
     {
-        ByteBuffer buffer = ByteBuffer.allocate( 100 );
+        // Compute the principalName encoding
+        ByteBuffer principalNameBuffer = encodePrincipalName( version, entry.getPrincipalName() );
 
-        putPrincipalName( buffer, entry.getPrincipalName() );
+        // Compute the keyblock encoding
+        ByteBuffer keyBlockBuffer = encodeKeyBlock( entry.getKey() );
 
-        buffer.putInt( ( int ) entry.getPrincipalType() );
+        int bufferSize =
+            4 + // size
+                principalNameBuffer.limit() + // principalName size
+                4 + // timeStamp
+                1 + // keyVersion
+                keyBlockBuffer.limit(); // keyBlock size
 
+        if ( version == Keytab.VERSION_0X502 )
+        {
+            bufferSize += 4; // Add the principal NameType only for version 0x502
+        }
+
+        ByteBuffer buffer = ByteBuffer.allocate( bufferSize );
+
+        // Store the size
+        buffer.putInt( bufferSize - 4 );
+
+        // Store the principalNames
+        buffer.put( principalNameBuffer );
+
+        // Store the principal type if version == 0x0502
+        if ( version == Keytab.VERSION_0X502 )
+        {
+            buffer.putInt( ( int ) entry.getPrincipalType() );
+        }
+
+        // Store the timeStamp 
         buffer.putInt( ( int ) ( entry.getTimeStamp().getTime() / 1000 ) );
 
+        // Store the key version
         buffer.put( entry.getKeyVersion() );
 
-        putKeyBlock( buffer, entry.getKey() );
+        // Store the KeyBlock
+        buffer.put( keyBlockBuffer );
+        buffer.flip();
 
         return buffer;
     }
@@ -113,34 +179,78 @@ class KeytabEncoder
      * @param buffer
      * @param principalName
      */
-    private void putPrincipalName( ByteBuffer buffer, String principalName )
+    private ByteBuffer encodePrincipalName( short version, String principalName )
     {
         String[] split = principalName.split( "@" );
-        String nameComponent = split[0];
+        String nameComponentPart = split[0];
         String realm = split[1];
 
-        String[] nameComponents = nameComponent.split( "/" );
+        String[] nameComponents = nameComponentPart.split( "/" );
 
-        // increment for v1
-        buffer.putShort( ( short ) nameComponents.length );
+        // Compute the size of the buffer
+        List<byte[]> strings = new ArrayList<byte[]>();
 
-        putCountedString( buffer, realm );
-        // write components
+        // Initialize the size with the number of components' size
+        int size = 2;
 
-        for ( int ii = 0; ii < nameComponents.length; ii++ )
+        size += encodeCountedString( strings, realm );
+
+        // compute NameComponents
+        for ( String nameComponent : nameComponents )
         {
-            putCountedString( buffer, nameComponents[ii] );
+            size += encodeCountedString( strings, nameComponent );
         }
+
+        ByteBuffer buffer = ByteBuffer.allocate( size );
+
+        // Now, write the data into the buffer
+        // store the numComponents
+        if ( version == Keytab.VERSION_0X501 )
+        {
+            // increment for version 0x0501
+            buffer.putShort( ( short ) ( nameComponents.length + 1 ) );
+        }
+        else
+        {
+            // Version = OxO502
+            buffer.putShort( ( short ) ( nameComponents.length ) );
+        }
+
+        // Store the realm and the nameComponents
+        for ( byte[] string : strings )
+        {
+            buffer.putShort( ( short ) ( string.length ) );
+            buffer.put( string );
+        }
+
+        buffer.flip();
+
+        return buffer;
     }
 
 
     /**
      * Encode a 16-bit encryption type and symmetric key material.
+     * 
+     * We store the KeyType value ( a short ) and the KeyValue ( a length
+     * on a short and the bytes )
      */
-    private void putKeyBlock( ByteBuffer buffer, EncryptionKey key )
+    private ByteBuffer encodeKeyBlock( EncryptionKey key )
     {
+        byte[] keyBytes = key.getKeyValue();
+        int size = 2 + 2 + keyBytes.length; // type, length, data
+        ByteBuffer buffer = ByteBuffer.allocate( size );
+
+        // The type
         buffer.putShort( ( short ) key.getKeyType().getValue() );
-        putCountedBytes( buffer, key.getKeyValue() );
+
+        // Use a prefixed 16-bit length to encode raw bytes.
+        buffer.putShort( ( short ) keyBytes.length );
+        buffer.put( keyBytes );
+
+        buffer.flip();
+
+        return buffer;
     }
 
 
@@ -148,20 +258,18 @@ class KeytabEncoder
      * Use a prefixed 16-bit length to encode a String.  Realm and name
      * components are ASCII encoded text with no zero terminator.
      */
-    private void putCountedString( ByteBuffer buffer, String string )
+    private short encodeCountedString( List<byte[]> nameComponentBytes, String string )
     {
-        byte[] data = string.getBytes();
-        buffer.putShort( ( short ) data.length );
-        buffer.put( data );
-    }
+        try
+        {
+            byte[] data = string.getBytes( "US-ASCII" );
+            nameComponentBytes.add( data );
 
-
-    /**
-     * Use a prefixed 16-bit length to encode raw bytes.
-     */
-    private void putCountedBytes( ByteBuffer buffer, byte[] data )
-    {
-        buffer.putShort( ( short ) data.length );
-        buffer.put( data );
+            return ( short ) ( data.length + 2 );
+        }
+        catch ( UnsupportedEncodingException uee )
+        {
+            throw new RuntimeException( uee.getMessage(), uee );
+        }
     }
 }

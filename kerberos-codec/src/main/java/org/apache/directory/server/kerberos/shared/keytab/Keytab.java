@@ -35,7 +35,38 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * Keytab file.
+ * Keytab file. The format is the following :
+ * <pre>
+ * { 
+ *   version : 2 bytes (0x05 0x02)
+ *   keytabEntry*
+ * }
+ *
+ * keytab_entry 
+ * {
+ *     size : int
+ *     numComponents :  short
+ *     realm : countedOctetString
+ *     components[numComponents] : countedOctetString
+ *     nameType : int
+ *     timestamp : int
+ *     vno8 : byte
+ *     key : keyBlock
+ *     vno : int // only present if >= 4 bytes left in entry
+ * };
+ *
+ * keyblock 
+ * {
+ *     type : int
+ *     data : countedOctetString
+ * }
+ *
+ * countedOctetString 
+ * {
+ *     length : short
+ *     data[length] : bytes
+ * }
+ *
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -44,16 +75,22 @@ public class Keytab
     /**
      * Byte array constant for keytab file format 5.1.
      */
-    public static final byte[] VERSION_51 = new byte[]
+    public static final byte[] VERSION_0X501_BYTES = new byte[]
         { ( byte ) 0x05, ( byte ) 0x01 };
+
+    // Format 0x0501
+    public static final short VERSION_0X501 = 0x0501;
 
     /**
      * Byte array constant for keytab file format 5.2.
      */
-    public static final byte[] VERSION_52 = new byte[]
+    public static final byte[] VERSION_0X502_BYTES = new byte[]
         { ( byte ) 0x05, ( byte ) 0x02 };
 
-    private byte[] keytabVersion = VERSION_52;
+    // Format 0x0502
+    public static final short VERSION_0X502 = 0x0502;
+
+    private byte[] keytabVersion = VERSION_0X502_BYTES;
     private List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
 
 
@@ -218,7 +255,7 @@ public class Keytab
 
         // Close the input stream and return bytes.
         is.close();
-        
+
         return bytes;
     }
 

@@ -35,6 +35,7 @@ import java.util.Map;
 
 import javax.crypto.spec.DESKeySpec;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
@@ -45,6 +46,7 @@ import org.junit.runner.RunWith;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+
 
 /**
  * Tests 'keytab' formatted files.
@@ -92,7 +94,7 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab1 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_52, keytab.getKeytabVersion() ) );
+        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
         assertEquals( "Entries size", 1, keytab.getEntries().size() );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
@@ -119,7 +121,7 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab2 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_52, keytab.getKeytabVersion() ) );
+        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
         assertEquals( "Entries size", 1, keytab.getEntries().size() );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
@@ -152,6 +154,8 @@ public class KeytabTest
         Keytab writer = Keytab.getInstance();
         writer.setEntries( entries );
         ByteBuffer buffer = writer.write();
+
+        System.out.println( Strings.dumpBytes( buffer.array() ) );
         assertEquals( "Expected file size.", 130, buffer.limit() );
     }
 
