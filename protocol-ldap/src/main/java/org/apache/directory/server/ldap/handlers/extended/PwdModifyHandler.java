@@ -149,6 +149,19 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
             modifications.add( modification );
         }
+        else
+        {
+            // In this case, we could either generate a new password, or return an error
+            // Atm, we will return an unwillingToPerform error
+            LOG.error( "Cannot create a new password for user " + userDn + ", exception : " + userDn );
+
+            // We can't modify the password
+            requestor.getIoSession().write( new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot generate a new password for user "
+                    + userDn ) );
+
+            return;
+        }
 
         modifyContext.setModItems( modifications );
 
