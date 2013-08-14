@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.apache.directory.mavibot</groupId>
       <artifactId>apacheds-mavibot</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-M1</version>
     </dependency>
 
     <dependency>
