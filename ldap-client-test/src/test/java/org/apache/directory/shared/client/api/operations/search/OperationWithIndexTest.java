@@ -22,9 +22,12 @@ package org.apache.directory.shared.client.api.operations.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -34,6 +37,8 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -73,10 +78,26 @@ import org.junit.runner.RunWith;
                         @CreateIndex(attribute = "sn"),
                         @CreateIndex(attribute = "cn"),
                         @CreateIndex(attribute = "displayName")
+                }),
+            @CreatePartition(
+                name = "test",
+                suffix = "dc=test,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
+                    "dn: dc=test,dc=com\n" +
+                        "dc: test\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn"),
+                        @CreateIndex(attribute = "displayName")
                 })
 
     },
-    enableChangeLog = false)
+    enableChangeLog = true)
 @CreateLdapServer(transports =
     {
         @CreateTransport(protocol = "LDAP"),
@@ -734,5 +755,64 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
 
         // Delete the entry
         connection.delete( dn );
+    }
+
+
+    /**
+     * Check that we can find entries in more than one partition 
+     */
+    @Test
+    public void testSimpleSearch() throws Exception
+    {
+        // Add an entry in ou=system
+        Dn dn1 = new Dn( "cn=test,ou=system" );
+        Entry entry1 = new DefaultEntry( getService().getSchemaManager(), dn1,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry1 );
+
+        // Add an entry in dc=test
+        Dn dn2 = new Dn( "cn=test,dc=test,dc=com" );
+        Entry entry2 = new DefaultEntry( getService().getSchemaManager(), dn2,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry2 );
+
+        // Add an entry in dc=example
+        Dn dn3 = new Dn( "cn=test,dc=example,dc=com" );
+        Entry entry3 = new DefaultEntry( getService().getSchemaManager(), dn3,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry3 );
+
+        // Now search the entry from the root
+        EntryCursor cursor = connection.search( "", "(cn=test)", SearchScope.SUBTREE );
+        List<String> entries = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            Entry entryFound = cursor.get();
+            assertNotNull( entryFound );
+            entries.add( entryFound.getDn().getName() );
+        }
+
+        SearchResultDone done = cursor.getSearchResultDone();
+
+        assertNotNull( done );
+        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+        assertEquals( 3, entries.size() );
+        assertTrue( entries.contains( "cn=test,dc=test,dc=com" ) );
+        assertTrue( entries.contains( "cn=test,dc=example,dc=com" ) );
+        assertTrue( entries.contains( "cn=test,ou=system" ) );
+        cursor.close();
     }
 }
