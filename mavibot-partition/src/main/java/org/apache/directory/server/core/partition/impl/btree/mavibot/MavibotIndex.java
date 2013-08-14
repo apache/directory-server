@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -34,16 +35,16 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
+import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.mavibot.btree.RecordManager;
-import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
-import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
-import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,22 +169,22 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
 
         if ( !attributeType.getSyntax().isHumanReadable() )
         {
-            forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer( comp );
+            forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer( ( Comparator<byte[]> ) comp );
         }
         else
         {
-            forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer( comp );
+            forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer( ( Comparator<String> ) comp );
         }
 
         boolean forwardDups = true;
-        
+
         String oid = attributeType.getOid();
         // disable duplicates for entryCSN and entryUUID attribute indices
-        if( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) || oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
+        if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) || oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
         {
             forwardDups = false;
         }
-        
+
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
             new StringSerializer(), forwardDups );
