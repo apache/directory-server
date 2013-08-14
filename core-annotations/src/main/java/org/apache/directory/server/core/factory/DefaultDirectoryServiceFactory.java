@@ -25,7 +25,10 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.NormalizingComparator;
+import org.apache.directory.api.ldap.model.schema.registries.ComparatorRegistry;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
@@ -174,6 +177,17 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
+        // Tell all the normalizer comparators that they should not normalize anything
+        ComparatorRegistry comparatorRegistry = schemaManager.getComparatorRegistry();
+
+        for ( LdapComparator<?> comparator : comparatorRegistry )
+        {
+            if ( comparator instanceof NormalizingComparator )
+            {
+                ( ( NormalizingComparator ) comparator ).setOnServer();
+            }
+        }
+
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
@@ -229,7 +243,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         cacheService.initialize( directoryService.getInstanceLayout() );
 
         directoryService.setCacheService( cacheService );
-        
+
         // Init the service now
         initSchema();
         initSystemPartition();
