@@ -333,52 +333,22 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     {
         if ( listSize > 0 )
         {
-            // if parked at -1 we advance to the start index and return true
             if ( index == -1 )
             {
                 index = start;
+            }
+
+            while ( index < end )
+            {
                 currentCursor = list.get( index );
 
-                return currentCursor.next();
-            }
-
-            // if the index plus one is less than the end then increment and return true
-            if ( index < end - 1 )
-            {
-                if ( !currentCursor.next() )
-                {
-                    index++;
-
-                    if ( index < end )
-                    {
-                        currentCursor = list.get( index );
-
-                        return currentCursor.next();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
+                if ( currentCursor.next() )
                 {
                     return true;
                 }
-            }
-
-            // if the index plus one is equal to the end then increment and return false
-            if ( index == end - 1 )
-            {
-                if ( !currentCursor.next() )
-                {
-                    index++;
-                    currentCursor = null;
-
-                    return false;
-                }
                 else
                 {
-                    return true;
+                    index++;
                 }
             }
         }
