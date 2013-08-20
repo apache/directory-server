@@ -163,7 +163,8 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         TransactionManager transactionManager = base.getTransactionManager();
         transactionManager.setMaximumTransactionsInLog( 2000 );
 
-        recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
+        int realCacheSize = Math.max( cacheSize, DEFAULT_INDEX_CACHE_SIZE );
+        recMan = new CacheRecordManager( base, new MRU( realCacheSize ) );
 
         try
         {
