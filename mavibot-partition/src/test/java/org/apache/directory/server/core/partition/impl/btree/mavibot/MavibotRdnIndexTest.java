@@ -124,22 +124,23 @@ public class MavibotRdnIndexTest
 
     void initIndex() throws Exception
     {
-        MavibotRdnIndex index = new MavibotRdnIndex( recordMan );
+        MavibotRdnIndex index = new MavibotRdnIndex();
         index.setWkDirPath( tmpDir.getRoot().toURI() );
         initIndex( index );
     }
 
 
-    void initIndex( MavibotRdnIndex jdbmIdx ) throws Exception
+    void initIndex( MavibotRdnIndex mavibotIdx ) throws Exception
     {
-        if ( jdbmIdx == null )
+        if ( mavibotIdx == null )
         {
-            jdbmIdx = new MavibotRdnIndex( recordMan );
+            mavibotIdx = new MavibotRdnIndex();
         }
 
-        jdbmIdx.init( schemaManager,
+        mavibotIdx.setRecordManager( recordMan );
+        mavibotIdx.init( schemaManager,
             schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
-        this.idx = jdbmIdx;
+        this.idx = mavibotIdx;
     }
 
 
@@ -151,7 +152,7 @@ public class MavibotRdnIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        MavibotRdnIndex MavibotRdnIndex = new MavibotRdnIndex( recordMan );
+        MavibotRdnIndex MavibotRdnIndex = new MavibotRdnIndex();
         MavibotRdnIndex.setCacheSize( 337 );
         assertEquals( 337, MavibotRdnIndex.getCacheSize() );
 
@@ -177,7 +178,7 @@ public class MavibotRdnIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        MavibotRdnIndex rdnIndex = new MavibotRdnIndex( recordMan );
+        MavibotRdnIndex rdnIndex = new MavibotRdnIndex();
         assertNull( rdnIndex.getAttribute() );
 
         initIndex();

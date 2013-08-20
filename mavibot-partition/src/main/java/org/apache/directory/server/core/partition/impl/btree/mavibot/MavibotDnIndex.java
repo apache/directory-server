@@ -49,9 +49,9 @@ public class MavibotDnIndex extends MavibotIndex<Dn, Entry>
     private static final Logger LOG = LoggerFactory.getLogger( MavibotDnIndex.class );
 
 
-    public MavibotDnIndex( RecordManager recordMan, String oid )
+    public MavibotDnIndex( String oid )
     {
-        super( recordMan, oid, true );
+        super( oid, true );
         initialized = false;
     }
 

@@ -208,13 +208,12 @@ public class MavibotPartition extends AbstractBTreePartition
         {
             LOG.debug( "Supplied index {} is not a MavibotIndex.  "
                 + "Will create new MavibotIndex using copied configuration parameters.", index );
-            mavibotIndex = new MavibotIndex( recordMan, index.getAttributeId(), true );
+            mavibotIndex = new MavibotIndex( index.getAttributeId(), true );
             mavibotIndex.setCacheSize( index.getCacheSize() );
             mavibotIndex.setWkDirPath( index.getWkDirPath() );
         }
 
-        // during restart the indices will contain reference to an old recordmanager
-        mavibotIndex.recordMan = recordMan;
+        mavibotIndex.setRecordManager( recordMan );
         
         mavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
@@ -231,17 +230,17 @@ public class MavibotPartition extends AbstractBTreePartition
 
         if ( indexOid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
-            mavibotIndex = new MavibotRdnIndex( recordMan );
+            mavibotIndex = new MavibotRdnIndex();
             mavibotIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
         }
         else if ( indexOid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
         {
-            mavibotIndex = new MavibotDnIndex( recordMan, ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            mavibotIndex = new MavibotDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             mavibotIndex.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         }
         else
         {
-            mavibotIndex = new MavibotIndex( recordMan, indexOid, withReverse );
+            mavibotIndex = new MavibotIndex( indexOid, withReverse );
         }
 
         mavibotIndex.setWkDirPath( path );

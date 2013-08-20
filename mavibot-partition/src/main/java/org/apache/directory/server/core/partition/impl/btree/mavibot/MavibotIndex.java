@@ -91,11 +91,9 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * Creates a JdbmIndex instance for a give AttributeId
      */
-    public MavibotIndex( RecordManager recordMan, String attributeId, boolean withReverse )
+    public MavibotIndex( String attributeId, boolean withReverse )
     {
         super( attributeId, withReverse );
-
-        this.recordMan = recordMan;
 
         initialized = false;
     }
@@ -111,6 +109,12 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+        
+        // check if the RecordManager reference is null, if yes, then throw an IllegalStateException
+        if ( recordMan == null )
+        {
+            throw new IllegalStateException( "No RecordManager reference was set in the index " + getAttributeId() );
+        }
 
         this.attributeType = attributeType;
 
@@ -210,7 +214,18 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         fw.close();
     }
 
-
+    
+    /**
+     * Sets the RecordManager
+     * 
+     * @param rm the RecordManager instance
+     */
+    public void setRecordManager( RecordManager rm )
+    {
+        this.recordMan = rm;
+    }
+    
+    
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------

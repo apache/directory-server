@@ -51,9 +51,9 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn, Entry>
     private static final Logger LOG = LoggerFactory.getLogger( MavibotRdnIndex.class );
 
 
-    public MavibotRdnIndex( RecordManager recordMan )
+    public MavibotRdnIndex()
     {
-        super( recordMan, ApacheSchemaConstants.APACHE_RDN_AT_OID, true );
+        super( ApacheSchemaConstants.APACHE_RDN_AT_OID, true );
         initialized = false;
     }
 

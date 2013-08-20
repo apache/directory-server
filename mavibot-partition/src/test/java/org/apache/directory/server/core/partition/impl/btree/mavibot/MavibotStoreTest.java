@@ -161,11 +161,11 @@ public class MavibotStoreTest
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        MavibotIndex ouIndex = new MavibotIndex( recordMan, SchemaConstants.OU_AT_OID, false );
+        MavibotIndex ouIndex = new MavibotIndex( SchemaConstants.OU_AT_OID, false );
         ouIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( ouIndex );
 
-        MavibotIndex uidIndex = new MavibotIndex( recordMan, SchemaConstants.UID_AT_OID, false );
+        MavibotIndex uidIndex = new MavibotIndex( SchemaConstants.UID_AT_OID, false );
         uidIndex.setWkDirPath( wkdir.toURI() );
         store.addIndex( uidIndex );
 
@@ -217,8 +217,8 @@ public class MavibotStoreTest
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
         store2.setSyncOnWrite( false );
-        store2.addIndex( new MavibotIndex( recordMan, SchemaConstants.OU_AT_OID, false ) );
-        store2.addIndex( new MavibotIndex( recordMan, SchemaConstants.UID_AT_OID, false ) );
+        store2.addIndex( new MavibotIndex( SchemaConstants.OU_AT_OID, false ) );
+        store2.addIndex( new MavibotIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
         store2.initialize();
 
@@ -251,7 +251,7 @@ public class MavibotStoreTest
         MavibotPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( MavibotPartition.getAliasIndex() );
-        Index<Dn, Entry, String> index = new MavibotIndex<Dn, Entry>( recordMan, ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<Dn, Entry, String> index = new MavibotIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
         ( ( Store ) MavibotPartition ).addIndex( index );
         assertNotNull( MavibotPartition.getAliasIndex() );
@@ -261,7 +261,7 @@ public class MavibotStoreTest
         assertEquals( 24, MavibotPartition.getCacheSize() );
 
         assertNull( MavibotPartition.getPresenceIndex() );
-        MavibotPartition.addIndex( new MavibotIndex<String, Entry>( recordMan, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+        MavibotPartition.addIndex( new MavibotIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
         assertNotNull( MavibotPartition.getPresenceIndex() );
 
         assertNull( MavibotPartition.getId() );
@@ -269,16 +269,15 @@ public class MavibotStoreTest
         assertEquals( "foo", MavibotPartition.getId() );
 
         assertNull( MavibotPartition.getRdnIndex() );
-        MavibotPartition.addIndex( new MavibotRdnIndex( recordMan ) );
+        MavibotPartition.addIndex( new MavibotRdnIndex() );
         assertNotNull( MavibotPartition.getRdnIndex() );
 
         assertNull( MavibotPartition.getOneAliasIndex() );
-        ( ( Store ) MavibotPartition ).addIndex( new MavibotIndex<Long, Entry>( recordMan,
-            ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+        ( ( Store ) MavibotPartition ).addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( MavibotPartition.getOneAliasIndex() );
 
         assertNull( MavibotPartition.getSubAliasIndex() );
-        MavibotPartition.addIndex( new MavibotIndex<Long, Entry>( recordMan, ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+        MavibotPartition.addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
         assertNotNull( MavibotPartition.getSubAliasIndex() );
 
         assertNull( MavibotPartition.getSuffixDn() );
@@ -288,7 +287,7 @@ public class MavibotStoreTest
         assertNotNull( MavibotPartition.getSuffixDn() );
 
         assertFalse( MavibotPartition.getUserIndices().hasNext() );
-        MavibotPartition.addIndex( new MavibotIndex<Object, Entry>( recordMan, "2.5.4.3", false ) );
+        MavibotPartition.addIndex( new MavibotIndex<Object, Entry>( "2.5.4.3", false ) );
         assertEquals( true, MavibotPartition.getUserIndices().hasNext() );
 
         assertNull( MavibotPartition.getPartitionPath() );
@@ -312,7 +311,7 @@ public class MavibotStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.addIndex( new MavibotIndex<Dn, Entry>( recordMan, ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
+            store.addIndex( new MavibotIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -331,7 +330,7 @@ public class MavibotStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.addIndex( new MavibotIndex<String, Entry>( recordMan, ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+            store.addIndex( new MavibotIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -351,7 +350,7 @@ public class MavibotStoreTest
         assertNotNull( store.getRdnIndex() );
         try
         {
-            store.addIndex( new MavibotRdnIndex( recordMan ) );
+            store.addIndex( new MavibotRdnIndex() );
             fail();
         }
         catch ( IllegalStateException e )
@@ -361,7 +360,7 @@ public class MavibotStoreTest
         assertNotNull( store.getOneAliasIndex() );
         try
         {
-            store.addIndex( new MavibotIndex<Long, Entry>( recordMan, ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+            store.addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -371,7 +370,7 @@ public class MavibotStoreTest
         assertNotNull( store.getSubAliasIndex() );
         try
         {
-            store.addIndex( new MavibotIndex<Long, Entry>( recordMan, ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+            store.addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -799,7 +798,7 @@ public class MavibotStoreTest
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
         // do not add ou index this time
-        store.addIndex( new MavibotIndex( recordMan, SchemaConstants.UID_AT_OID, false ) );
+        store.addIndex( new MavibotIndex( SchemaConstants.UID_AT_OID, false ) );
 
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );

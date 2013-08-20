@@ -72,7 +72,7 @@ public class MavibotPartitionFactory implements PartitionFactory
 
         RecordManager recordMan = ( ( MavibotPartition ) partition ).getRecordMan();
         
-        MavibotIndex<Object, Entry> index = new MavibotIndex<Object, Entry>( recordMan, attributeId, false );
+        MavibotIndex<Object, Entry> index = new MavibotIndex<Object, Entry>( attributeId, false );
         index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );
