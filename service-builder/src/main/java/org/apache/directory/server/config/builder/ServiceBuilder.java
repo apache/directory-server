@@ -62,6 +62,8 @@ import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
+import org.apache.directory.server.config.beans.MavibotIndexBean;
+import org.apache.directory.server.config.beans.MavibotPartitionBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
@@ -81,6 +83,7 @@ import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.journal.JournalStore;
+import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
@@ -93,6 +96,10 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDnIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmRdnIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotDnIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotRdnIndex;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
@@ -1292,42 +1299,7 @@ public class ServiceBuilder
         jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes(),
             directoryService ) );
 
-        String contextEntry = jdbmPartitionBean.getContextEntry();
-
-        if ( contextEntry != null )
-        {
-            try
-            {
-                // Replace '\n' to real LF
-                String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
-
-                LdifReader ldifReader = new LdifReader();
-
-                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
-
-                if ( ( entries != null ) && ( entries.size() > 0 ) )
-                {
-                    LdifEntry entry = entries.get( 0 );
-                    jdbmPartition.setContextEntry( entry.getEntry() );
-                }
-
-                try
-                {
-                    ldifReader.close();
-                }
-                catch ( IOException ioe )
-                {
-                    LOG.error( "Cannot close the ldif reader" );
-                }
-
-            }
-            catch ( LdapLdifException lle )
-            {
-                String message = "Cannot parse the context entry : " + contextEntry + ", " + lle.getMessage();
-                LOG.error( message );
-                throw new ConfigurationException( message );
-            }
-        }
+        setContextEntry( jdbmPartitionBean, jdbmPartition );
 
         return jdbmPartition;
     }
@@ -1351,6 +1323,10 @@ public class ServiceBuilder
         if ( partitionBean instanceof JdbmPartitionBean )
         {
             return createJdbmPartition( directoryService, ( JdbmPartitionBean ) partitionBean );
+        }
+        else if ( partitionBean instanceof MavibotPartitionBean )
+        {
+            return createMavibotPartition( directoryService, ( MavibotPartitionBean ) partitionBean );
         }
         else
         {
@@ -1483,5 +1459,151 @@ public class ServiceBuilder
         }
 
         return directoryService;
+    }
+    
+    
+    public static MavibotPartition createMavibotPartition( DirectoryService directoryService,
+        MavibotPartitionBean mvbtPartitionBean ) throws ConfigurationException
+    {
+        if ( ( mvbtPartitionBean == null ) || mvbtPartitionBean.isDisabled() )
+        {
+            return null;
+        }
+
+        MavibotPartition mvbtPartition = new MavibotPartition( directoryService.getSchemaManager() );
+
+        mvbtPartition.setId( mvbtPartitionBean.getPartitionId() );
+        //mvbtPartition.setOptimizerEnabled( mvbtPartitionBean.isJdbmPartitionOptimizerEnabled() );
+        File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
+            mvbtPartitionBean.getPartitionId() );
+        mvbtPartition.setPartitionPath( partitionPath.toURI() );
+
+        try
+        {
+            mvbtPartition.setSuffixDn( mvbtPartitionBean.getPartitionSuffix() );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            String message = "Cannot set the Dn " + mvbtPartitionBean.getPartitionSuffix() + ", " + lide.getMessage();
+            LOG.error( message );
+            throw new ConfigurationException( message );
+        }
+
+        mvbtPartition.setSyncOnWrite( mvbtPartitionBean.isPartitionSyncOnWrite() );
+        mvbtPartition.setIndexedAttributes( createMavibotIndexes( mvbtPartition, mvbtPartitionBean.getIndexes(),
+            directoryService ) );
+
+        setContextEntry( mvbtPartitionBean, mvbtPartition );
+
+        return mvbtPartition;
+    }
+ 
+    
+    /**
+     * Create the list of MavibotIndex from the configuration
+     */
+    private static Set<Index<?, ?, String>> createMavibotIndexes( MavibotPartition partition,
+        List<IndexBean> indexesBeans,
+        DirectoryService directoryService ) //throws Exception
+    {
+        Set<Index<?, ?, String>> indexes = new HashSet<Index<?, ?, String>>();
+
+        for ( IndexBean indexBean : indexesBeans )
+        {
+            if ( indexBean.isEnabled() && ( indexBean instanceof MavibotIndexBean ) )
+            {
+                indexes.add( createMavibotIndex( partition, ( MavibotIndexBean ) indexBean, directoryService ) );
+            }
+        }
+
+        return indexes;
+    }
+
+    
+    /**
+     * Create a new instance of a MavibotIndex from an instance of MavibotIndexBean
+     * 
+     * @param MavibotIndexBean The MavibotIndexBean to convert
+     * @return An MavibotIndex instance
+     * @throws Exception If the instance cannot be created
+     */
+    public static MavibotIndex<?, ?> createMavibotIndex( MavibotPartition partition,
+        MavibotIndexBean<String, Entry> mavobotIndexBean, DirectoryService directoryService )
+    {
+        if ( ( mavobotIndexBean == null ) || mavobotIndexBean.isDisabled() )
+        {
+            return null;
+        }
+
+        MavibotIndex<?, ?> index = null;
+
+        boolean hasReverse = mavobotIndexBean.getIndexHasReverse();
+
+        if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
+            mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            index = new MavibotRdnIndex();
+        }
+        else if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT ) ||
+            mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            index = new MavibotDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        }
+        else
+        {
+            index = new MavibotIndex<String, Entry>( mavobotIndexBean.getIndexAttributeId(), hasReverse );
+        }
+
+        index.setWkDirPath( partition.getPartitionPath() );
+        
+        return index;
+    }
+
+
+    /**
+     * Sets the configured context entry if present in the given partition bean 
+     *
+     * @param bean the partition configuration bean
+     * @param partition the partition instance
+     * @throws ConfigurationException
+     */
+    private static void setContextEntry(PartitionBean bean, AbstractPartition partition) throws ConfigurationException
+    {
+        String contextEntry = bean.getContextEntry();
+
+        if ( contextEntry != null )
+        {
+            try
+            {
+                // Replace '\n' to real LF
+                String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
+
+                LdifReader ldifReader = new LdifReader();
+
+                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
+
+                if ( ( entries != null ) && ( entries.size() > 0 ) )
+                {
+                    LdifEntry entry = entries.get( 0 );
+                    partition.setContextEntry( entry.getEntry() );
+                }
+
+                try
+                {
+                    ldifReader.close();
+                }
+                catch ( IOException ioe )
+                {
+                    LOG.error( "Cannot close the ldif reader" );
+                }
+
+            }
+            catch ( LdapLdifException lle )
+            {
+                String message = "Cannot parse the context entry : " + contextEntry + ", " + lle.getMessage();
+                LOG.error( message );
+                throw new ConfigurationException( message );
+            }
+        }
     }
 }
