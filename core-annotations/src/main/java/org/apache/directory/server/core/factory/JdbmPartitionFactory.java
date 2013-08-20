@@ -49,7 +49,7 @@ public class JdbmPartitionFactory implements PartitionFactory
         JdbmPartition partition = new JdbmPartition( schemaManager );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
-        partition.setCacheSize( 500 );
+        partition.setCacheSize( cacheSize );
         partition.setPartitionPath( workingDirectory.toURI() );
 
         return partition;
