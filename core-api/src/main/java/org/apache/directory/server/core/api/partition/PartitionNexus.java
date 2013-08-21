@@ -23,8 +23,10 @@ package org.apache.directory.server.core.api.partition;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
@@ -55,6 +57,15 @@ public interface PartitionNexus extends Partition
      * @return the attributes of the RootDSE
      */
     Entry getRootDse( GetRootDseOperationContext getRootDseContext );
+
+
+    /**
+     * Get's the RootDSE value associated with an AttributeType
+     * 
+     * @param attributeType The attribute type for which we want a value
+     * @return the values associated with the given attributeType
+     */
+    Value<?> getRootDseValue( AttributeType attributeType );
 
 
     /**

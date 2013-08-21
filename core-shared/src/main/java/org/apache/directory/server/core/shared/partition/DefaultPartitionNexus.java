@@ -813,6 +813,17 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * {@inheritDoc}
      */
+    public Value<?> getRootDseValue( AttributeType attributeType )
+    {
+        Value<?> value = rootDse.get( attributeType ).get();
+
+        return value.clone();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public synchronized void addContextPartition( Partition partition ) throws LdapException
     {
         // Turn on default indices

@@ -100,6 +100,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /** cached to save redundant lookups into registries */
     private AttributeType OBJECT_CLASS_AT;
 
+    /** cached to save redundant lookups into registries */
+    private AttributeType SUBSCHEMA_SUBENTRY_AT;
+
     /** The replication handler */
     protected ReplicationRequestHandler replicationReqHandler;
 
@@ -1434,8 +1437,15 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
-        Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDn = new Dn( ds.getSchemaManager(), subschemaSubentry.getString() );
+
+        if ( SUBSCHEMA_SUBENTRY_AT == null )
+        {
+            SUBSCHEMA_SUBENTRY_AT = session.getCoreSession().getDirectoryService().getSchemaManager().getAttributeType(
+                SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        }
+
+        Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         return subschemaSubentryDnNorm.equals( baseNormForm );
