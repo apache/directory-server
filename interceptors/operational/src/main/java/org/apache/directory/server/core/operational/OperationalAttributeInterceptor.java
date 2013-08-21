@@ -82,17 +82,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     /** The admin Dn */
     private Dn adminDn;
-    
-    /** Some attributeTypes we use locally */
-    private static AttributeType entryUuidAT;
-    private static AttributeType entryCsnAT;
-    private static AttributeType creatorsNameAT;
-    private static AttributeType createTimeStampAT;
-    private static AttributeType accessControlSubentriesAT;
-    private static AttributeType collectiveAttributeSubentriesAT;
-    private static AttributeType triggerExecutionSubentriesAT;
-    private static AttributeType subschemaSubentryAT;
-    
+
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -107,14 +97,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 return true;
             }
-            
+
             // Denormalize the operational Attributes
             denormalizeEntryOpAttrs( entry );
-            
+
             return true;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -139,22 +129,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
         subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
         adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        
-        // Initialize the AttributeType we use locally
-        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT_OID );
-        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT_OID );
-        creatorsNameAT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
-        createTimeStampAT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT_OID );
-        accessControlSubentriesAT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT_OID );
-        collectiveAttributeSubentriesAT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID );
-        triggerExecutionSubentriesAT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        subschemaSubentryAT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
     }
 
 
@@ -166,7 +145,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Check if we have to add an operational attribute, or if the admin has injected one
      */
-    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute ) throws LdapException
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute )
+        throws LdapException
     {
         if ( entry.containsAttribute( attribute ) )
         {
@@ -213,41 +193,41 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         // The EntryUUID attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, entryUuidAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_UUID_AT ) )
         {
-            entry.put( entryUuidAT, UUID.randomUUID().toString() );
+            entry.put( ENTRY_UUID_AT, UUID.randomUUID().toString() );
         }
 
         // The EntryCSN attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, entryCsnAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_CSN_AT ) )
         {
-            entry.put( entryCsnAT, directoryService.getCSN().toString() );
+            entry.put( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, creatorsNameAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATORS_NAME_AT ) )
         {
-            entry.put( creatorsNameAT, principal );
+            entry.put( CREATORS_NAME_AT, principal );
         }
 
         // The CreateTimeStamp attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, createTimeStampAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATE_TIMESTAMP_AT ) )
         {
-            entry.put( createTimeStampAT, DateUtils.getGeneralizedTime() );
+            entry.put( CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         }
 
         // Now, check that the user does not add operational attributes
         // The accessControlSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, accessControlSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, ACCESS_CONTROL_SUBENTRIES_AT );
 
         // The CollectiveAttributeSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, collectiveAttributeSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         // The TriggerExecutionSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, triggerExecutionSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         // The SubSchemaSybentry attribute
-        checkAddOperationalAttribute( isAdmin, entry, subschemaSubentryAT );
+        checkAddOperationalAttribute( isAdmin, entry, SUBSCHEMA_SUBENTRY_AT );
 
         next( addContext );
     }
@@ -397,7 +377,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
+
         Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         modifiedEntry.put( csnAt );
 
@@ -417,7 +397,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
-        
+
         Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         modifiedEntry.put( csnAt );
 
@@ -439,7 +419,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
+
         Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         modifiedEntry.put( csnAt );
 
@@ -475,7 +455,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // insert a new CSN into the entry, this is for replication
-        Entry entry = deleteContext.getEntry();        
+        Entry entry = deleteContext.getEntry();
         Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
         entry.put( csnAt );
 

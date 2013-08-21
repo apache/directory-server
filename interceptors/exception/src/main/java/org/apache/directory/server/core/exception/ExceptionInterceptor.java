@@ -104,7 +104,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> attr = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
         subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
     }
 
@@ -155,7 +155,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             try
             {
                 CoreSession session = addContext.getSession();
-                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
+                    SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }

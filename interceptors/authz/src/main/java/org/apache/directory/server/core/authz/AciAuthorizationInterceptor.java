@@ -290,8 +290,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine = new ACDFEngine( schemaManager );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
         Dn subschemaSubentryDnName = directoryService.getDnFactory().create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
 
