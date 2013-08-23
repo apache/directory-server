@@ -3621,7 +3621,7 @@ public class SchemaAwareEntryTest
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        assertEquals( "Entry\n    dn[n]: dc=example,dc=com\n", entry.toString() );
+        assertEquals( "Entry\n    dn[n]: dc=example,dc=com\n\n", entry.toString() );
 
         Value<String> strValueTop = new StringValue( "top" );
         Value<String> strValuePerson = new StringValue( "person" );
@@ -3637,10 +3637,10 @@ public class SchemaAwareEntryTest
             "Entry\n" +
                 "    dn[n]: dc=example,dc=com\n" +
                 "    ObjectClass: top\n" +
-                "    ObjectClass: person\n" +
+                "    ObjectClass: person\n\n" +
                 "    UserPassword: '0x61 0x62 '\n" +
                 "    UserPassword: '0x62 '\n" +
-                "    UserPassword: ''\n";
+                "    UserPassword: ''";
 
         assertEquals( expected, entry.toString() );
     }
