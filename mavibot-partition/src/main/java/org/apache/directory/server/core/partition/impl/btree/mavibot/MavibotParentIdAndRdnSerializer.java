@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,10 +31,10 @@ import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +70,9 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
         {
             return rdn1.compareTo( rdn2 );
         }
-        
+
     };
+
 
     /**
      * Creates a new instance of ParentIdAndRdnSerializer.
@@ -92,20 +94,19 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
         try
         {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            
+
             int totalBytes = 0;
             // write dummy length for preserving the space for 'length' to be filled later
             baos.write( 0 );
             baos.write( 0 );
             baos.write( 0 );
             baos.write( 0 );
-            
+
             ObjectOutput out = new ObjectOutputStream( baos );
-            
-            
+
             // First, the Dn
             Rdn[] rdns = parentIdAndRdn.getRdns();
-            
+
             // Write the Rdn of the Dn
             if ( ( rdns == null ) || ( rdns.length == 0 ) )
             {
@@ -114,43 +115,44 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
             else
             {
                 out.writeByte( rdns.length );
-                
+
                 for ( Rdn rdn : rdns )
                 {
                     rdn.writeExternal( out );
                 }
             }
-            
+
             // Then the parentId.
             out.writeUTF( parentIdAndRdn.getParentId() );
-            
+
             // The number of children
             out.writeInt( parentIdAndRdn.getNbChildren() );
-            
+
             // The number of descendants
             out.writeInt( parentIdAndRdn.getNbDescendants() );
-            
+
             out.flush();
-            
+
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
                 LOG.debug( "Serialize " + parentIdAndRdn );
             }
-            
+
             byte[] bytes = baos.toByteArray();
-            
+            baos.close();
+
             totalBytes = bytes.length - 4; //subtract the first 4 dummy bytes
-            
+
             // replace the dummy length with the actual length
             bytes[0] = ( byte ) ( totalBytes >>> 24 );
             bytes[1] = ( byte ) ( totalBytes >>> 16 );
             bytes[2] = ( byte ) ( totalBytes >>> 8 );
             bytes[3] = ( byte ) ( totalBytes );
-            
+
             return bytes;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new RuntimeException( e );
         }
@@ -215,14 +217,14 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
             parentIdAndRdn.setNbDescendants( nbDescendants );
 
             buffer.position( buffer.position() + len );
-            
+
             return parentIdAndRdn;
         }
         catch ( ClassNotFoundException cnfe )
         {
             LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
             throw new IOException( cnfe.getLocalizedMessage() );
-        }        
+        }
     }
 
 
@@ -238,6 +240,7 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
     {
         return comparator;
     }
+
 
     public static void setSchemaManager( SchemaManager schemaManager )
     {

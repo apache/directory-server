@@ -443,6 +443,12 @@ public class ClonedServerEntry implements Entry
     }
 
 
+    public Entry shallowClone()
+    {
+        return clonedEntry.shallowClone();
+    }
+
+
     /**
      * {@inheritDoc}
      */

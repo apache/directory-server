@@ -280,7 +280,7 @@ objectclass: top
 dn: ads-indexAttributeId=apacheRdn,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheRdn
 ads-indexHasReverse: TRUE
-ads-indexcachesize: 100
+ads-indexcachesize: 1000
 objectclass: ads-index
 objectclass: ads-jdbmIndex
 objectclass: ads-base

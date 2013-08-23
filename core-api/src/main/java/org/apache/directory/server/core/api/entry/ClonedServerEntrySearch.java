@@ -48,6 +48,6 @@ public class ClonedServerEntrySearch extends ClonedServerEntry
     {
         super();
         this.originalEntry = originalEntry;
-        this.clonedEntry = ( Entry ) originalEntry.clone();
+        this.clonedEntry = originalEntry.clone();
     }
 }

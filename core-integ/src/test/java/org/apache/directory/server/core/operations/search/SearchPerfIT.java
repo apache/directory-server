@@ -57,6 +57,7 @@ import org.junit.runner.RunWith;
     partitions =
         {
             @CreatePartition(
+                cacheSize = 10000,
                 name = "example",
                 suffix = "dc=example,dc=com",
                 contextEntry = @ContextEntry(
@@ -67,10 +68,10 @@ import org.junit.runner.RunWith;
                         "objectClass: domain\n\n"),
                 indexes =
                     {
-                        @CreateIndex(attribute = "objectClass"),
-                        @CreateIndex(attribute = "sn"),
-                        @CreateIndex(attribute = "cn"),
-                        @CreateIndex(attribute = "displayName")
+                        @CreateIndex(attribute = "objectClass", cacheSize = 1000),
+                        @CreateIndex(attribute = "sn", cacheSize = 1000),
+                        @CreateIndex(attribute = "cn", cacheSize = 10000),
+                        @CreateIndex(attribute = "displayName", cacheSize = 1000)
                 })
 
     },
@@ -315,7 +316,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             "ou: People" );
 
         connection.add( rootPeople );
-        int nbUsers = 10000;
+        int nbUsers = 100000;
 
         long tadd0 = System.currentTimeMillis();
         for ( int i = 0; i < nbUsers; i++ )
@@ -351,6 +352,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 System.out.println( "Injected " + i );
             }
         }
+
         long tadd1 = System.currentTimeMillis();
 
         System.out.println( "Time to inject " + nbUsers + " entries : " + ( ( tadd1 - tadd0 ) / 1000 ) + "s" );
