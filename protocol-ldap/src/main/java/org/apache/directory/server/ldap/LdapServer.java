@@ -33,8 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManagerFactory;
 
@@ -494,9 +492,6 @@ public class LdapServer extends DirectoryBackedService
         // Install the replication handler if we have one
         startReplicationProducer();
 
-        // And start the replication consumers on this server
-        startReplicationConsumers();
-
         for ( Transport transport : transports )
         {
             if ( !( transport instanceof TcpTransport ) )
@@ -547,6 +542,10 @@ public class LdapServer extends DirectoryBackedService
 
             startNetwork( transport, chain );
         }
+
+        // And start the replication consumers on this server
+        // these should be started only after starting the network see DIRSERVER-1894
+        startReplicationConsumers();
 
         started = true;
 
@@ -711,9 +710,6 @@ public class LdapServer extends DirectoryBackedService
             {
                 consumer.init( getDirectoryService() );
 
-                // A counter to be decremented when the consumer thread is started
-                final CountDownLatch counter = new CountDownLatch( 1 );
-
                 Runnable consumerTask = new Runnable()
                 {
                     public void run()
@@ -733,8 +729,6 @@ public class LdapServer extends DirectoryBackedService
 
                                 if ( isConnected )
                                 {
-                                    // Ok, we are connected, we can signal the parent that all is ok
-                                    counter.countDown();
                                     pingerThread.addConsumer( consumer );
 
                                     // We are now connected, start the replication
@@ -766,9 +760,6 @@ public class LdapServer extends DirectoryBackedService
                 Thread consumerThread = new Thread( consumerTask );
                 consumerThread.setDaemon( true );
                 consumerThread.start();
-                
-                // Wait for the consumer thread to be started
-                counter.await( 60, TimeUnit.SECONDS );
             }
         }
     }
