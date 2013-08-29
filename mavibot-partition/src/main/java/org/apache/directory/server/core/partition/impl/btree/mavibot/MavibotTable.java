@@ -28,15 +28,16 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.core.avltree.ArrayMarshaller;
-import org.apache.directory.server.core.avltree.ArrayTree;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.xdbm.AbstractTable;
 import org.apache.directory.mavibot.btree.BTree;
+import org.apache.directory.mavibot.btree.DuplicateKeyVal;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.server.core.avltree.ArrayMarshaller;
+import org.apache.directory.server.core.avltree.ArrayTree;
+import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.xdbm.AbstractTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,11 +214,20 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return false;
             }
 
-            BTree<V, V> dups = bt.getValues( key );
-
-            cursor = dups.browseFrom( val );
-
-            return cursor.hasNext();
+            DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+            if( dupHolder.isSingleValue() )
+            {
+                int equal = bt.getValueSerializer().compare( val, dupHolder.getSingleValue() );
+                return ( equal == 0 );
+            }
+            else
+            {
+                BTree<V, V> dups = dupHolder.getSubTree();
+                
+                cursor = dups.browseFrom( val );
+                
+                return cursor.hasNext();
+            }
         }
         catch ( Exception e )
         {
@@ -251,7 +261,14 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             return false;
         }
 
-        BTree<V, V> dups = bt.getValues( key );
+        DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+
+        if( dupHolder.isSingleValue() )
+        {
+            return true;
+        }
+            
+        BTree<V, V> dups = dupHolder.getSubTree();
 
         org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
 
@@ -425,7 +442,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                BTree<V, V> dups = bt.getValues( key );
+                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+                if( dupHolder.isSingleValue() )
+                {
+                    return new SingletonCursor<Tuple<K,V>>( new Tuple<K, V>( key, dupHolder.getSingleValue() ) );
+                }
+                
+                BTree<V, V> dups = dupHolder.getSubTree();
 
                 return new KeyTupleArrayCursor<K, V>( dups, key );
             }
@@ -459,9 +482,15 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                BTree<V, V> dups = bt.getValues( key );
-
-                return new ValueTreeCursor<V>( dups );
+                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+                if( dupHolder.isSingleValue() )
+                {
+                    return new SingletonCursor<V>( dupHolder.getSingleValue() );
+                }
+                else
+                {
+                    return new ValueTreeCursor<V>( dupHolder.getSubTree() );
+                }
             }
         }
         catch ( KeyNotFoundException knfe )
@@ -487,7 +516,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         {
             if ( bt.isAllowDuplicates() )
             {
-                BTree<V, V> values = bt.getValues( key );
+                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+                if( dupHolder.isSingleValue() )
+                {
+                    return 1;
+                }
+                
+                BTree<V, V> values = dupHolder.getSubTree();
 
                 return values.getNbElems();
             }
