@@ -35,7 +35,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.OperationAbandonedException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.entry.ClonedServerEntrySearch;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.slf4j.Logger;
@@ -389,7 +388,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
             }
             else
             {
-                tempResult = new ClonedServerEntrySearch( tempEntry );
+                tempResult = new ClonedServerEntry( tempEntry );
             }
 
             /*
@@ -467,7 +466,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
                 continue;
             }
 
-            tempResult = new ClonedServerEntrySearch( entry );
+            tempResult = new ClonedServerEntry/*Search*/( entry );
 
             /*
              * O P T I M I Z A T I O N
