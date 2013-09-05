@@ -130,10 +130,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
-        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
-        adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        adminDn = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
     }
 
 
@@ -471,7 +471,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn creatorsName = directoryService.getDnFactory().create( attr.getString() );
+                Dn creatorsName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -481,7 +481,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
+                Dn modifiersName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -491,7 +491,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
+                Dn modifiersName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );

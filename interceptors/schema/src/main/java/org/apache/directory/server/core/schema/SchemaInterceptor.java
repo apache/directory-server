@@ -177,21 +177,21 @@ public class SchemaInterceptor extends BaseInterceptor
         topFilter = new TopFilter();
         filters.add( topFilter );
 
-        schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
+        schemaBaseDn = dnFactory.create( SchemaConstants.OU_SCHEMA );
 
         // stuff for dealing with subentries (garbage for now)
         Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
-        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDn = directoryService.getDnFactory().create(
+        schemaModificationAttributesDn = dnFactory.create(
             SchemaConstants.SCHEMA_MODIFICATIONS_DN );
 
         computeSuperiors();
 
         // Initialize the schema manager
         SchemaLoader loader = directoryService.getSchemaManager().getLoader();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDnFactory() );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, dnFactory );
 
         if ( IS_DEBUG )
         {
@@ -878,9 +878,7 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         public boolean accept( SearchOperationContext operationContext, Entry entry ) throws LdapException
         {
-            ServerEntryUtils.filterContents(
-                operationContext.getSession().getDirectoryService().getSchemaManager(),
-                operationContext, entry );
+            ServerEntryUtils.filterContents( schemaManager, operationContext, entry );
 
             return true;
         }

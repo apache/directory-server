@@ -99,6 +99,8 @@ public class SubentryInterceptor extends BaseInterceptor
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = Subentries.OID;
 
+    private static Value<String> SUBENTRY_OC;
+
     /** The set of Subentry operational attributes */
     public static AttributeType[] SUBENTRY_OPATTRS;
 
@@ -145,7 +147,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+            return !entry.contains( OBJECT_CLASS_AT, SUBENTRY_OC );
         }
 
 
@@ -223,12 +225,13 @@ public class SubentryInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
-        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Dn adminDn = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        SUBENTRY_OC = new StringValue( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
 
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
-            Dn suffixDn = directoryService.getDnFactory().create( suffix );
+            Dn suffixDn = dnFactory.create( suffix );
 
             CoreSession adminSession = directoryService.getAdminSession();
 

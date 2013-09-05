@@ -122,13 +122,13 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        ADMIN_SYSTEM_DN = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        ADMIN_SYSTEM_DN = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
-        GROUPS_BASE_DN = directoryService.getDnFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
+        GROUPS_BASE_DN = dnFactory.create( ServerDNConstants.GROUPS_SYSTEM_DN );
 
-        USERS_BASE_DN = directoryService.getDnFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
+        USERS_BASE_DN = dnFactory.create( ServerDNConstants.USERS_SYSTEM_DN );
 
-        ADMIN_GROUP_DN = directoryService.getDnFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        ADMIN_GROUP_DN = dnFactory.create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
 
         loadAdministrators( directoryService );
     }
@@ -151,7 +151,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value<?> value : uniqueMember )
         {
-            Dn memberDn = directoryService.getDnFactory().create( value.getString() );
+            Dn memberDn = dnFactory.create( value.getString() );
             newAdministrators.add( memberDn.getNormName() );
         }
 
@@ -519,7 +519,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = entry.getDn();
 
-        dn.apply( opContext.getSession().getDirectoryService().getSchemaManager() );
+        dn.apply( schemaManager );
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )

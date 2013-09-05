@@ -343,6 +343,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         }
 
         LOG.debug( "Filtering entry " + entry.getDn() );
+
         /*
          * Before we proceed we need to lookup the exclusions within the entry
          * and build a set of exclusions for rapid lookup.  We use OID values
@@ -365,6 +366,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  * to be injected into itself.
                  */
                 LOG.debug( "The entry excludes all the collectiveAttributes" );
+
                 return;
             }
 
@@ -384,7 +386,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         for ( Value<?> value : collectiveAttributeSubentries )
         {
             String subentryDnStr = value.getString();
-            Dn subentryDn = session.getDirectoryService().getDnFactory().create( subentryDnStr );
+            Dn subentryDn = dnFactory.create( subentryDnStr );
 
             LOG.debug( "Applying subentries {}", subentryDn.getName() );
 
@@ -397,14 +399,13 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            Entry subentry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
+            Entry subentry = directoryService.getPartitionNexus().lookup( lookupContext );
 
             //LOG.debug( "Fetched the subentry : {}", subentry.getDn().getName() );
 
             for ( Attribute attribute : subentry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                //String attrId = attributeType.getName();
 
                 // Skip the attributes which are not collective
                 if ( !attributeType.isCollective() )

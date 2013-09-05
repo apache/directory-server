@@ -1581,7 +1581,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( pwdPolicySubentry != null )
             {
-                Dn configDn = directoryService.getDnFactory().create( pwdPolicySubentry.getString() );
+                Dn configDn = dnFactory.create( pwdPolicySubentry.getString() );
 
                 return pwdPolicyContainer.getPolicyConfig( configDn );
             }

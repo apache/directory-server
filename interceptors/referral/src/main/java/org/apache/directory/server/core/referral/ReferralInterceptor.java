@@ -214,7 +214,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
-        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
     }
 
 

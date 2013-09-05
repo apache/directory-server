@@ -29,6 +29,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -66,6 +67,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /** A reference to the SchemaManager instance */
     protected SchemaManager schemaManager;
+
+    /** The DN factory */
+    protected DnFactory dnFactory;
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
     protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
@@ -331,8 +335,10 @@ public abstract class BaseInterceptor implements Interceptor
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
+        // Initialize the fields that will be used by all the interceptors
         this.directoryService = directoryService;
-        this.schemaManager = directoryService.getSchemaManager();
+        schemaManager = directoryService.getSchemaManager();
+        dnFactory = directoryService.getDnFactory();
 
         // Init the At we use locally
         ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
