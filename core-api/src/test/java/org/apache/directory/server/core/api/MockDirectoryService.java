@@ -556,6 +556,14 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setDnFactory( DnFactory dnFactory )
+    {
+    }
+
+
     public LdapApiService getLdapCodecService()
     {
         return null;
@@ -613,11 +621,12 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
     }
 
+
     /**
      * {@inheritDoc}
      */
     public void setCacheService( CacheService cacheService )
     {
-      // nothing
+        // nothing
     }
 }

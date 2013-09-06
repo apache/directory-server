@@ -47,6 +47,7 @@ import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 
+
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
@@ -614,7 +615,13 @@ public interface DirectoryService extends ServerEntryFactory
      */
     DnFactory getDnFactory();
 
-    
+
+    /**
+     * Sets the Dn factory.
+     */
+    void setDnFactory( DnFactory dnFactory );
+
+
     /**
      * Sets the CacheService
      * 

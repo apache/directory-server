@@ -165,9 +165,9 @@ public class ApacheDsService
 
         CacheService cacheService = new CacheService();
         cacheService.initialize( instanceLayout );
-        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         initSchemaManager( instanceLayout );
+        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
         initSchemaLdifPartition( instanceLayout, dnFactory );
         initConfigPartition( instanceLayout, dnFactory, cacheService );
 
@@ -179,7 +179,8 @@ public class ApacheDsService
         DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
 
         // Initialize the DirectoryService now
-        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean, cacheService );
+        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean, cacheService,
+            dnFactory );
 
         // start the LDAP server
         startLdap( directoryServiceBean.getLdapServerBean(), directoryService );
@@ -295,7 +296,7 @@ public class ApacheDsService
 
 
     private DirectoryService initDirectoryService( InstanceLayout instanceLayout,
-        DirectoryServiceBean directoryServiceBean, CacheService cacheService ) throws Exception
+        DirectoryServiceBean directoryServiceBean, CacheService cacheService, DnFactory dnFactory ) throws Exception
     {
         LOG.info( "Initializing the DirectoryService..." );
 
@@ -303,6 +304,9 @@ public class ApacheDsService
 
         DirectoryService directoryService = ServiceBuilder.createDirectoryService( directoryServiceBean,
             instanceLayout, schemaManager );
+
+        // Inject the DnFactory
+        directoryService.setDnFactory( dnFactory );
 
         // The schema partition
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );

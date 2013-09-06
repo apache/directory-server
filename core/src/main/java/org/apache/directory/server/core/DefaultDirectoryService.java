@@ -51,7 +51,6 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -1333,6 +1332,9 @@ public class DefaultDirectoryService implements DirectoryService
         LOG.debug( "--- Deleting the cache service" );
         cacheService.destroy();
 
+        LOG.debug( "---Deleting the DnCache" );
+        dnFactory = null;
+
         if ( lockFile != null )
         {
             try
@@ -1801,7 +1803,10 @@ public class DefaultDirectoryService implements DirectoryService
         subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        if ( dnFactory == null )
+        {
+            dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        }
 
         // triggers partition to load schema fully from schema partition
         schemaPartition.setCacheService( cacheService );
@@ -2284,6 +2289,15 @@ public class DefaultDirectoryService implements DirectoryService
     public DnFactory getDnFactory()
     {
         return dnFactory;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDnFactory( DnFactory dnFactory )
+    {
+        this.dnFactory = dnFactory;
     }
 
 
