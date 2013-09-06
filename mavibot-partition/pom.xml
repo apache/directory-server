@@ -48,6 +48,11 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
