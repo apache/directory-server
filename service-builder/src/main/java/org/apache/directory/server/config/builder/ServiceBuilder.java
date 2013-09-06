@@ -267,31 +267,33 @@ public class ServiceBuilder
         passwordPolicy.setPwdMinLength( passwordPolicyBean.getPwdMinLength() );
         passwordPolicy.setPwdMustChange( passwordPolicyBean.isPwdMustChange() );
         passwordPolicy.setPwdSafeModify( passwordPolicyBean.isPwdSafeModify() );
-        
+
         PasswordValidator validator = null;
-        
+
         try
         {
-        	String className = passwordPolicyBean.getPwdValidator();
-        	
-        	if ( className != null )
-        	{
-        		Class<?> cls = Class.forName( className );
-        		validator = ( PasswordValidator ) cls.newInstance();
-        	}
+            String className = passwordPolicyBean.getPwdValidator();
+
+            if ( className != null )
+            {
+                Class<?> cls = Class.forName( className );
+                validator = ( PasswordValidator ) cls.newInstance();
+            }
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
-        	LOG.warn( "Failed to load and instantiate the custom password validator for password policy config {}, using the default validator", passwordPolicyBean.getDn(), e );
+            LOG.warn(
+                "Failed to load and instantiate the custom password validator for password policy config {}, using the default validator",
+                passwordPolicyBean.getDn(), e );
         }
-        
+
         if ( validator == null )
         {
-        	validator = new DefaultPasswordValidator();
+            validator = new DefaultPasswordValidator();
         }
-        	
-        passwordPolicy.setPwdValidator(validator);
-        
+
+        passwordPolicy.setPwdValidator( validator );
+
         return passwordPolicy;
     }
 
@@ -1275,7 +1277,8 @@ public class ServiceBuilder
             return null;
         }
 
-        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager() );
+        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory() );
 
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
@@ -1460,8 +1463,8 @@ public class ServiceBuilder
 
         return directoryService;
     }
-    
-    
+
+
     public static MavibotPartition createMavibotPartition( DirectoryService directoryService,
         MavibotPartitionBean mvbtPartitionBean ) throws ConfigurationException
     {
@@ -1470,7 +1473,8 @@ public class ServiceBuilder
             return null;
         }
 
-        MavibotPartition mvbtPartition = new MavibotPartition( directoryService.getSchemaManager() );
+        MavibotPartition mvbtPartition = new MavibotPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory() );
 
         mvbtPartition.setId( mvbtPartitionBean.getPartitionId() );
         //mvbtPartition.setOptimizerEnabled( mvbtPartitionBean.isJdbmPartitionOptimizerEnabled() );
@@ -1497,8 +1501,8 @@ public class ServiceBuilder
 
         return mvbtPartition;
     }
- 
-    
+
+
     /**
      * Create the list of MavibotIndex from the configuration
      */
@@ -1519,7 +1523,7 @@ public class ServiceBuilder
         return indexes;
     }
 
-    
+
     /**
      * Create a new instance of a MavibotIndex from an instance of MavibotIndexBean
      * 
@@ -1555,7 +1559,7 @@ public class ServiceBuilder
         }
 
         index.setWkDirPath( partition.getPartitionPath() );
-        
+
         return index;
     }
 
@@ -1567,7 +1571,8 @@ public class ServiceBuilder
      * @param partition the partition instance
      * @throws ConfigurationException
      */
-    private static void setContextEntry(PartitionBean bean, AbstractPartition partition) throws ConfigurationException
+    private static void setContextEntry( PartitionBean bean, AbstractPartition partition )
+        throws ConfigurationException
     {
         String contextEntry = bean.getContextEntry();
 

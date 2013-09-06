@@ -25,6 +25,7 @@ import java.net.URI;
 
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 
@@ -43,9 +44,9 @@ public abstract class AbstractLdifPartition extends AvlPartition
     protected static CsnFactory defaultCSNFactory;
 
 
-    public AbstractLdifPartition( SchemaManager schemaManager )
+    public AbstractLdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
 
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId

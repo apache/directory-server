@@ -51,6 +51,7 @@ import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtra
 import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
@@ -73,6 +74,7 @@ public class PartitionTest
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
 
     /** The OU AttributType instance */
     private static AttributeType OU_AT;
@@ -121,7 +123,7 @@ public class PartitionTest
     {
 
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 

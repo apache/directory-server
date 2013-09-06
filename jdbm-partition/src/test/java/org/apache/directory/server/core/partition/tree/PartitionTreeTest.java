@@ -38,9 +38,12 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.DupsContainerCursorTest;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -53,6 +56,7 @@ import org.junit.Test;
 public class PartitionTreeTest
 {
     private static SchemaManager schemaManager;
+    private static DnFactory dnFactory;
 
 
     @BeforeClass
@@ -79,6 +83,10 @@ public class PartitionTreeTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -92,7 +100,7 @@ public class PartitionTreeTest
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
         Dn suffix = new Dn( schemaManager, "dc=example, dc=com" );
-        Partition partition = new JdbmPartition( schemaManager );
+        Partition partition = new JdbmPartition( schemaManager, dnFactory );
         partition.setSuffixDn( suffix );
 
         partitionLookupTree.add( suffix, partition );
@@ -120,13 +128,13 @@ public class PartitionTreeTest
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
         Dn suffix1 = new Dn( schemaManager, "dc=example, dc=com" );
-        Partition partition1 = new JdbmPartition( schemaManager );
+        Partition partition1 = new JdbmPartition( schemaManager, dnFactory );
         partition1.setSuffixDn( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
         Dn suffix2 = new Dn( schemaManager, "ou=system" );
-        Partition partition2 = new JdbmPartition( schemaManager );
+        Partition partition2 = new JdbmPartition( schemaManager, dnFactory );
         partition2.setSuffixDn( suffix2 );
 
         partitionLookupTree.add( suffix2, partition2 );
@@ -160,13 +168,13 @@ public class PartitionTreeTest
         DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
         Dn suffix1 = new Dn( schemaManager, "dc=example1, dc=com" );
-        Partition partition1 = new JdbmPartition( schemaManager );
+        Partition partition1 = new JdbmPartition( schemaManager, dnFactory );
         partition1.setSuffixDn( suffix1 );
 
         partitionLookupTree.add( suffix1, partition1 );
 
         Dn suffix2 = new Dn( schemaManager, "dc=example2, dc=com" );
-        Partition partition2 = new JdbmPartition( schemaManager );
+        Partition partition2 = new JdbmPartition( schemaManager, dnFactory );
         partition2.setSuffixDn( suffix2 );
 
         partitionLookupTree.add( suffix2, partition2 );

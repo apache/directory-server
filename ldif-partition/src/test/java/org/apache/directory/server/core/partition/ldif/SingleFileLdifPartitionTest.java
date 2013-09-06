@@ -64,8 +64,10 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -80,6 +82,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -97,6 +100,8 @@ import org.junit.rules.TemporaryFolder;
 public class SingleFileLdifPartitionTest
 {
     private static SchemaManager schemaManager = null;
+
+    private static DnFactory dnFactory;
 
     private static CsnFactory defaultCSNFactory;
 
@@ -158,6 +163,10 @@ public class SingleFileLdifPartitionTest
         LdifEntry ldifEntry = reader.parseLdif( contextEntryStr ).get( 0 );
 
         contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -186,9 +195,9 @@ public class SingleFileLdifPartitionTest
         // Remove the entryDn attribute
         Entry copy = entry.clone();
         copy.removeAttributes( "entryDn" );
-        
+
         // while writing to the file 1 extra newline char will be added
-        
+
         String ldif = LdifUtils.convertToLdif( copy ) + "\n";
         byte[] data = Strings.getBytesUtf8( ldif );
 
@@ -222,7 +231,7 @@ public class SingleFileLdifPartitionTest
             rf.close();
         }
 
-        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
@@ -247,19 +256,19 @@ public class SingleFileLdifPartitionTest
         Entry fetched = partition.lookup( opCtx );
 
         assertNotNull( fetched );
-        
+
         // Check the EntryDn attribute
         Attribute entryDn = fetched.get( "entryDn" );
-        
+
         assertNotNull( entryDn );
         assertEquals( entryDn.getString(), entry.getDn().getName() );
-        
+
         if ( !entry.contains( entryDn ) )
         {
             // Removed the entryDn attribute to be able to compare the entries
             fetched.removeAttributes( "entryDn" );
         }
-        
+
         assertEquals( entry, fetched );
     }
 
@@ -306,7 +315,7 @@ public class SingleFileLdifPartitionTest
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( getEntryLdifLen( contextEntry ), file.length() );
-        
+
         file.close();
 
         partition = reloadPartition();
@@ -462,7 +471,7 @@ public class SingleFileLdifPartitionTest
         String ldif = Strings.utf8ToString( entry1Data );
 
         LdifEntry ldifEntry = reader.parseLdif( ldif ).get( 0 );
-        
+
         // Remove the EntryDN
         entry1.removeAttributes( "entryDn" );
 

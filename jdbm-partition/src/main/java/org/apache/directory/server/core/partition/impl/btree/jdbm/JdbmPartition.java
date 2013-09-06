@@ -51,6 +51,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -106,9 +107,9 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartition( SchemaManager schemaManager )
+    public JdbmPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
 
         // Initialize the cache size
         if ( cacheSize < 0 )

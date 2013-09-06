@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -42,11 +43,12 @@ public class JdbmPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public JdbmPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+    public JdbmPartition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id, String suffix,
+        int cacheSize,
         File workingDirectory )
         throws Exception
     {
-        JdbmPartition partition = new JdbmPartition( schemaManager );
+        JdbmPartition partition = new JdbmPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( cacheSize );

@@ -35,6 +35,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -62,9 +63,9 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      * @param schemaManager
      *      the schema manager
      */
-    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager )
+    public ReadOnlyConfigurationPartition( InputStream inputStream, SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
         this.inputStream = inputStream;
         id = "config";
 
@@ -112,7 +113,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             if ( !itr.hasNext() )
             {
                 reader.close();
-                
+
                 return;
             }
 

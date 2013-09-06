@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
@@ -55,9 +56,9 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * Creates a store based on AVL Trees.
      */
-    public AvlPartition( SchemaManager schemaManager )
+    public AvlPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
     }
 
 

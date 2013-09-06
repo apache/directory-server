@@ -52,8 +52,10 @@ import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtra
 import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -66,6 +68,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -87,6 +90,7 @@ public class LdifPartitionTest
     private static File wkdir;
     private static LdifPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static CsnFactory defaultCSNFactory;
 
     @Rule
@@ -119,6 +123,10 @@ public class LdifPartitionTest
         }
 
         defaultCSNFactory = new CsnFactory( 0 );
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -131,7 +139,7 @@ public class LdifPartitionTest
 
         // initialize the store
         // initialize the partition
-        partition = new LdifPartition( schemaManager );
+        partition = new LdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );

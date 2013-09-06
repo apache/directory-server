@@ -37,7 +37,10 @@ import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +61,7 @@ public class KerberosServerConfigReaderTest
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
     private static SchemaManager schemaManager;
+    private static DnFactory dnFactory;
 
 
     @BeforeClass
@@ -93,6 +97,10 @@ public class KerberosServerConfigReaderTest
         {
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -102,7 +110,7 @@ public class KerberosServerConfigReaderTest
         File configDir = new File( workDir, "kerberosServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "kerberosServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );

@@ -54,13 +54,16 @@ import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
@@ -88,6 +91,7 @@ public class JdbmStoreTest
     CoreSession session;
 
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static LdifSchemaLoader loader;
     private static Dn EXAMPLE_COM;
 
@@ -135,6 +139,10 @@ public class JdbmStoreTest
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -147,7 +155,7 @@ public class JdbmStoreTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
 
         // initialize the store
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -210,7 +218,7 @@ public class JdbmStoreTest
         wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
 
         // initialize the 2nd store
-        JdbmPartition store2 = new JdbmPartition( schemaManager );
+        JdbmPartition store2 = new JdbmPartition( schemaManager, dnFactory );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
@@ -244,7 +252,7 @@ public class JdbmStoreTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager );
+        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager, dnFactory );
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
@@ -789,7 +797,7 @@ public class JdbmStoreTest
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
 
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );

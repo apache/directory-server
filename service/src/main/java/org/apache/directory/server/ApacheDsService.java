@@ -64,6 +64,7 @@ import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -71,6 +72,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -163,10 +165,11 @@ public class ApacheDsService
 
         CacheService cacheService = new CacheService();
         cacheService.initialize( instanceLayout );
+        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         initSchemaManager( instanceLayout );
-        initSchemaLdifPartition( instanceLayout );
-        initConfigPartition( instanceLayout, cacheService );
+        initSchemaLdifPartition( instanceLayout, dnFactory );
+        initConfigPartition( instanceLayout, dnFactory, cacheService );
 
         // Read the configuration
         cpReader = new ConfigPartitionReader( configPartition );
@@ -246,12 +249,12 @@ public class ApacheDsService
      * @param instanceLayout the instance layout
      * @throws Exception in case of any problems while initializing the SchemaPartition
      */
-    private void initSchemaLdifPartition( InstanceLayout instanceLayout ) throws Exception
+    private void initSchemaLdifPartition( InstanceLayout instanceLayout, DnFactory dnFactory ) throws Exception
     {
         File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
 
         // Init the LdifPartition
-        schemaLdifPartition = new LdifPartition( schemaManager );
+        schemaLdifPartition = new LdifPartition( schemaManager, dnFactory );
         schemaLdifPartition.setPartitionPath( schemaPartitionDirectory.toURI() );
     }
 
@@ -264,7 +267,8 @@ public class ApacheDsService
      * @param cacheService the Cache service
      * @throws Exception in case of any issues while extracting the schema
      */
-    private void initConfigPartition( InstanceLayout instanceLayout, CacheService cacheService ) throws Exception
+    private void initConfigPartition( InstanceLayout instanceLayout, DnFactory dnFactory, CacheService cacheService )
+        throws Exception
     {
         File confFile = new File( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE );
 
@@ -279,7 +283,7 @@ public class ApacheDsService
             isConfigPartitionFirstExtraction = true;
         }
 
-        configPartition = new SingleFileLdifPartition( schemaManager );
+        configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( confFile.toURI() );
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );

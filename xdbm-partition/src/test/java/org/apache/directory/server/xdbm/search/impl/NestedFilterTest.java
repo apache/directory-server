@@ -119,6 +119,8 @@ public class NestedFilterTest extends AbstractCursorTest
     @Before
     public void createStore() throws Exception
     {
+        directoryService = new MockDirectoryService();
+
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -126,7 +128,7 @@ public class NestedFilterTest extends AbstractCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, directoryService.getDnFactory() );
         ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -143,7 +145,6 @@ public class NestedFilterTest extends AbstractCursorTest
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         optimizer = new DefaultOptimizer( store );
 
-        directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
 

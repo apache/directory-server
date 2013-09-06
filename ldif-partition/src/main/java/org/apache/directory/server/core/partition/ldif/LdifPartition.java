@@ -47,6 +47,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -126,9 +127,9 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of LdifPartition.
      */
-    public LdifPartition( SchemaManager schemaManager )
+    public LdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
     }
 
 
@@ -258,7 +259,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void add( AddOperationContext addContext ) throws LdapException
     {
         super.add( addContext );
-        
+
         addEntry( addContext.getEntry() );
     }
 
@@ -288,7 +289,7 @@ public class LdifPartition extends AbstractLdifPartition
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
         }
-        
+
         return deletedEntry;
     }
 

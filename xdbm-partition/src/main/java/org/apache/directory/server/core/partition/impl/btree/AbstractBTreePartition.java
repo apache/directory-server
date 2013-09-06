@@ -61,6 +61,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -186,9 +187,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Creates a B-tree based context partition.
      */
-    protected AbstractBTreePartition( SchemaManager schemaManager )
+    protected AbstractBTreePartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
         this.schemaManager = schemaManager;
+        this.dnFactory = dnFactory;
 
         indexedAttributes = new HashSet<Index<?, ?, String>>();
 

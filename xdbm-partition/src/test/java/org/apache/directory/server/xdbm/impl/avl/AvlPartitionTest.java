@@ -53,9 +53,12 @@ import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.junit.After;
@@ -78,6 +81,7 @@ public class AvlPartitionTest
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static Dn EXAMPLE_COM;
 
     /** The OU AttributeType instance */
@@ -111,6 +115,9 @@ public class AvlPartitionTest
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
         schemaManager = new DefaultSchemaManager( loader );
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         boolean loaded = schemaManager.loadAllEnabled();
 
@@ -132,7 +139,7 @@ public class AvlPartitionTest
     public void createStore() throws Exception
     {
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
@@ -157,7 +164,7 @@ public class AvlPartitionTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        AvlPartition avlPartition = new AvlPartition( schemaManager );
+        AvlPartition avlPartition = new AvlPartition( schemaManager, dnFactory );
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );

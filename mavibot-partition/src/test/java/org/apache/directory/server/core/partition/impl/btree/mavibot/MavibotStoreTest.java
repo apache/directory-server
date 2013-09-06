@@ -53,19 +53,22 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,12 +91,13 @@ public class MavibotStoreTest
     private static final Logger LOG = LoggerFactory.getLogger( MavibotStoreTest.class );
 
     private File wkdir;
-    
+
     private MavibotPartition store;
-    
+
     private CoreSession session;
 
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static LdifSchemaLoader loader;
     private static Dn EXAMPLE_COM;
 
@@ -113,7 +117,8 @@ public class MavibotStoreTest
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
-    
+
+
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -145,6 +150,10 @@ public class MavibotStoreTest
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -155,7 +164,7 @@ public class MavibotStoreTest
         wkdir = tmpDir.newFolder( getClass().getSimpleName() );
 
         // initialize the store
-        store = new MavibotPartition( schemaManager );
+        store = new MavibotPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -175,7 +184,7 @@ public class MavibotStoreTest
         store.initialize();
 
         recordMan = store.getRecordMan();
-        
+
         StoreUtils.loadExampleData( store, schemaManager );
 
         DirectoryService directoryService = new MockDirectoryService();
@@ -212,7 +221,7 @@ public class MavibotStoreTest
         File wkdir2 = tmpDir.newFolder( getClass().getSimpleName() + "-store2" );
 
         // initialize the 2nd store
-        MavibotPartition store2 = new MavibotPartition( schemaManager );
+        MavibotPartition store2 = new MavibotPartition( schemaManager, dnFactory );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
@@ -247,7 +256,7 @@ public class MavibotStoreTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        MavibotPartition MavibotPartition = new MavibotPartition( schemaManager );
+        MavibotPartition MavibotPartition = new MavibotPartition( schemaManager, dnFactory );
         MavibotPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( MavibotPartition.getAliasIndex() );
@@ -261,7 +270,8 @@ public class MavibotStoreTest
         assertEquals( 24, MavibotPartition.getCacheSize() );
 
         assertNull( MavibotPartition.getPresenceIndex() );
-        MavibotPartition.addIndex( new MavibotIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+        MavibotPartition
+            .addIndex( new MavibotIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
         assertNotNull( MavibotPartition.getPresenceIndex() );
 
         assertNull( MavibotPartition.getId() );
@@ -273,11 +283,13 @@ public class MavibotStoreTest
         assertNotNull( MavibotPartition.getRdnIndex() );
 
         assertNull( MavibotPartition.getOneAliasIndex() );
-        ( ( Store ) MavibotPartition ).addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+        ( ( Store ) MavibotPartition ).addIndex( new MavibotIndex<Long, Entry>(
+            ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( MavibotPartition.getOneAliasIndex() );
 
         assertNull( MavibotPartition.getSubAliasIndex() );
-        MavibotPartition.addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+        MavibotPartition
+            .addIndex( new MavibotIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
         assertNotNull( MavibotPartition.getSubAliasIndex() );
 
         assertNull( MavibotPartition.getSuffixDn() );
@@ -774,7 +786,7 @@ public class MavibotStoreTest
 
 
     @Test
-    @Ignore( "Ignore till mavibot file nam extensions are frozen" )
+    @Ignore("Ignore till mavibot file nam extensions are frozen")
     public void testDeleteUnusedIndexFiles() throws Exception
     {
         File ouIndexDbFile = new File( wkdir, SchemaConstants.OU_AT_OID + ".db" );
@@ -792,7 +804,7 @@ public class MavibotStoreTest
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
 
-        store = new MavibotPartition( schemaManager );
+        store = new MavibotPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );

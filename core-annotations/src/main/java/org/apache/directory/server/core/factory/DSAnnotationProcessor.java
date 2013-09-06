@@ -44,6 +44,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -205,6 +206,7 @@ public class DSAnnotationProcessor
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
                 partition = partitionFactory.createPartition(
                     schemaManager,
+                    service.getDnFactory(),
                     createPartition.name(),
                     createPartition.suffix(),
                     createPartition.cacheSize(),
@@ -225,10 +227,10 @@ public class DSAnnotationProcessor
                 // The annotation contains a specific partition type, we use
                 // that type.
                 Class<?> partypes[] = new Class[]
-                    { SchemaManager.class };
+                    { SchemaManager.class, DnFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
                 partition = ( Partition ) constructor.newInstance( new Object[]
-                    { schemaManager } );
+                    { schemaManager, service.getDnFactory() } );
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( schemaManager, createPartition.suffix() ) );
 

@@ -33,6 +33,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -54,6 +55,9 @@ public abstract class AbstractPartition implements Partition
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
 
+    /** The DnFactory to use to create DN */
+    protected DnFactory dnFactory;
+
     /** The partition ID */
     protected String id;
 
@@ -62,7 +66,8 @@ public abstract class AbstractPartition implements Partition
 
     /** the cache service */
     protected CacheService cacheService;
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -238,7 +243,7 @@ public abstract class AbstractPartition implements Partition
         this.contextEntry = contextEntry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */

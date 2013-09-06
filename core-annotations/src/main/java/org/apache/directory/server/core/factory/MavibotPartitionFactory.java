@@ -25,11 +25,12 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.mavibot.btree.RecordManager;
 
 
 /**
@@ -43,11 +44,12 @@ public class MavibotPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public MavibotPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+    public MavibotPartition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id,
+        String suffix, int cacheSize,
         File workingDirectory )
         throws Exception
     {
-        MavibotPartition partition = new MavibotPartition( schemaManager );
+        MavibotPartition partition = new MavibotPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
@@ -71,7 +73,7 @@ public class MavibotPartitionFactory implements PartitionFactory
         Set<Index<?, ?, String>> indexedAttributes = mavibotPartition.getIndexedAttributes();
 
         RecordManager recordMan = ( ( MavibotPartition ) partition ).getRecordMan();
-        
+
         MavibotIndex<Object, Entry> index = new MavibotIndex<Object, Entry>( attributeId, false );
         index.setCacheSize( cacheSize );
 

@@ -35,7 +35,9 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
@@ -45,7 +47,6 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,13 +76,14 @@ public class MavibotPartition extends AbstractBTreePartition
     };
 
     private RecordManager recordMan;
-    
-    public MavibotPartition( SchemaManager schemaManager )
+
+
+    public MavibotPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
-        
+        super( schemaManager, dnFactory );
+
         MavibotEntrySerializer.setSchemaManager( schemaManager );
-        
+
         // Initialize the cache size
         if ( cacheSize < 0 )
         {
@@ -152,30 +154,30 @@ public class MavibotPartition extends AbstractBTreePartition
             // one for collecting all user indices
             // two for finding a new index to be built
             // just to avoid another iteration for determining which is the new index
-/* FIXME the below code needs to be modified to suit Mavibot
-            for ( Index<?, Entry, String> index : userIndices.values() )
-            {
-                String indexOid = index.getAttribute().getOid();
-                allIndices.add( indexOid );
+            /* FIXME the below code needs to be modified to suit Mavibot
+                        for ( Index<?, Entry, String> index : userIndices.values() )
+                        {
+                            String indexOid = index.getAttribute().getOid();
+                            allIndices.add( indexOid );
 
-                // take the part after removing .db from the
-                String name = indexOid + MAVIBOT_DB_FILE_EXTN;
+                            // take the part after removing .db from the
+                            String name = indexOid + MAVIBOT_DB_FILE_EXTN;
 
-                // if the name doesn't exist in the list of index DB files
-                // this is a new index and we need to build it
-                if ( !indexDbFileNameList.contains( name ) )
-                {
-                    indexToBuild.add( index );
-                }
-            }
+                            // if the name doesn't exist in the list of index DB files
+                            // this is a new index and we need to build it
+                            if ( !indexDbFileNameList.contains( name ) )
+                            {
+                                indexToBuild.add( index );
+                            }
+                        }
 
-            if ( indexToBuild.size() > 0 )
-            {
-                buildUserIndex( indexToBuild );
-            }
+                        if ( indexToBuild.size() > 0 )
+                        {
+                            buildUserIndex( indexToBuild );
+                        }
 
-            deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
-*/
+                        deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
+            */
             // We are done !
             initialized = true;
         }
@@ -214,7 +216,7 @@ public class MavibotPartition extends AbstractBTreePartition
         }
 
         mavibotIndex.setRecordManager( recordMan );
-        
+
         mavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
         return mavibotIndex;
@@ -271,18 +273,18 @@ public class MavibotPartition extends AbstractBTreePartition
 
         ( ( MavibotMasterTable ) master ).sync();
     }
-    
-    
+
+
     /**jdbm
      * removes any unused/removed attribute index files present under the partition's
      * working directory
      */
     private void deleteUnusedIndexFiles( List<String> allIndices, File[] dbFiles )
     {
-        
+
     }
 
-    
+
     /**
      * Builds user defined indexes on a attributes by browsing all the entries present in master db
      * 
@@ -327,7 +329,7 @@ public class MavibotPartition extends AbstractBTreePartition
         cursor.close();
     }
 
-    
+
     /**
      * {@inheritDoc}}
      */

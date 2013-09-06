@@ -121,6 +121,8 @@ public class OrCursorTest extends AbstractCursorTest
     @Before
     public void createStore() throws Exception
     {
+        directoryService = new MockDirectoryService();
+
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -128,7 +130,7 @@ public class OrCursorTest extends AbstractCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, directoryService.getDnFactory() );
         ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -143,7 +145,6 @@ public class OrCursorTest extends AbstractCursorTest
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
 

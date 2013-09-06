@@ -191,7 +191,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, directoryService.getDnFactory() );
         ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
         schemaPartition.setWrappedPartition( ldifPartition );
@@ -219,6 +219,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // Inject the System Partition
         Partition systemPartition = partitionFactory.createPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory(),
             "system", ServerDNConstants.SYSTEM_DN, 500,
             new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ) );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );

@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.Index;
@@ -42,11 +43,12 @@ public class AvlPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public AvlPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+    public AvlPartition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id, String suffix,
+        int cacheSize,
         File workingDirectory )
         throws Exception
     {
-        AvlPartition partition = new AvlPartition( schemaManager );
+        AvlPartition partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );

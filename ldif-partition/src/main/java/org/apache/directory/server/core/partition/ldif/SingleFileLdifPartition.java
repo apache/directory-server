@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -80,9 +81,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of SingleFileLdifPartition.
      */
-    public SingleFileLdifPartition( SchemaManager schemaManager )
+    public SingleFileLdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
     }
 
 
@@ -138,7 +139,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         if ( !itr.hasNext() )
         {
             parser.close();
-            
+
             return;
         }
 
@@ -215,7 +216,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 Entry modifiedEntry = super.modify( modifyContext.getDn(),
                     modifyContext.getModItems().toArray( new Modification[]
                         {} ) );
-                
+
                 // Remove the EntryDN
                 modifiedEntry.removeAttributes( ENTRY_DN_AT );
 
@@ -282,7 +283,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             Entry deletedEntry = super.delete( id );
             dirty = true;
             rewritePartitionData();
-            
+
             return deletedEntry;
         }
     }
@@ -320,10 +321,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 if ( suffixEntry != null )
                 {
                     Entry entry = master.get( suffixId );
-                    
+
                     // Don't write the EntryDN attribute
                     entry.removeAttributes( ENTRY_DN_AT );
-                    
+
                     entry.setDn( suffixDn );
 
                     appendLdif( entry );
@@ -360,7 +361,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             IndexEntry<ParentIdAndRdn, String> element = cursor.get();
             String childId = element.getId();
             Entry entry = fetch( childId );
-            
+
             // Remove the EntryDn
             entry.removeAttributes( SchemaConstants.ENTRY_DN_AT );
 
