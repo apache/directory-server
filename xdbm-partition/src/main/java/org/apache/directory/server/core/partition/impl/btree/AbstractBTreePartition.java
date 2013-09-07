@@ -2768,58 +2768,44 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
-            dropAliasIndices( movedBaseId, movedBase );
-        }
-    }
+            Dn targetDn = aliasIdx.reverseLookup( movedBaseId );
+            targetDn.apply( schemaManager );
+            String targetId = getEntryId( targetDn );
+            Dn aliasDn = getEntryDn( movedBaseId );
 
+            /*
+             * Start droping index tuples with the first ancestor right above the
+             * moved base.  This is the first ancestor effected by the move.
+             */
+            Dn ancestorDn = new Dn( schemaManager, movedBase.getRdn( movedBase.size() - 1 ) );
+            String ancestorId = getEntryId( ancestorDn );
 
-    /**
-     * For the alias id all ancestor one and subtree alias tuples are moved
-     * above the moved base.
-     *
-     * @param aliasId the id of the alias
-     * @param movedBase the base where the move occurred
-     * @throws Exception if userIndices fail
-     */
-    protected void dropAliasIndices( String aliasId, Dn movedBase ) throws Exception
-    {
-        Dn targetDn = aliasIdx.reverseLookup( aliasId );
-        targetDn.apply( schemaManager );
-        String targetId = getEntryId( targetDn );
-        Dn aliasDn = getEntryDn( aliasId );
-
-        /*
-         * Start droping index tuples with the first ancestor right above the
-         * moved base.  This is the first ancestor effected by the move.
-         */
-        Dn ancestorDn = new Dn( schemaManager, movedBase.getRdn( movedBase.size() - 1 ) );
-        String ancestorId = getEntryId( ancestorDn );
-
-        /*
-         * We cannot just drop all tuples in the one level and subtree userIndices
-         * linking baseIds to the targetId.  If more than one alias refers to
-         * the target then droping all tuples with a value of targetId would
-         * make all other aliases to the target inconsistent.
-         *
-         * We need to walk up the path of alias ancestors right above the moved
-         * base until we reach the upSuffix, deleting each ( ancestorId,
-         * targetId ) tuple in the subtree scope alias.  We only need to do
-         * this for the direct parent of the alias on the one level subtree if
-         * the moved base is the alias.
-         */
-        if ( aliasDn.equals( movedBase ) )
-        {
-            oneAliasIdx.drop( ancestorId, targetId );
-        }
-
-        subAliasIdx.drop( ancestorId, targetId );
-
-        while ( !ancestorDn.equals( suffixDn ) )
-        {
-            ancestorDn = new Dn( schemaManager, ancestorDn.getRdn( ancestorDn.size() - 1 ) );
-            ancestorId = getEntryId( ancestorDn );
+            /*
+             * We cannot just drop all tuples in the one level and subtree userIndices
+             * linking baseIds to the targetId.  If more than one alias refers to
+             * the target then droping all tuples with a value of targetId would
+             * make all other aliases to the target inconsistent.
+             *
+             * We need to walk up the path of alias ancestors right above the moved
+             * base until we reach the upSuffix, deleting each ( ancestorId,
+             * targetId ) tuple in the subtree scope alias.  We only need to do
+             * this for the direct parent of the alias on the one level subtree if
+             * the moved base is the alias.
+             */
+            if ( aliasDn.equals( movedBase ) )
+            {
+                oneAliasIdx.drop( ancestorId, targetId );
+            }
 
             subAliasIdx.drop( ancestorId, targetId );
+
+            while ( !ancestorDn.equals( suffixDn ) )
+            {
+                ancestorDn = new Dn( schemaManager, ancestorDn.getRdn( ancestorDn.size() - 1 ) );
+                ancestorId = getEntryId( ancestorDn );
+
+                subAliasIdx.drop( ancestorId, targetId );
+            }
         }
     }
 
