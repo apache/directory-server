@@ -395,8 +395,6 @@ public class ApacheDsService
 
         printBanner( BANNER_LDAP );
 
-        ldapServer.setDirectoryService( directoryService );
-
         // And start the server now
         ldapServer.start();
 
