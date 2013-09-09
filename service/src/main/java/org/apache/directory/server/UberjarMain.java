@@ -36,7 +36,7 @@ public class UberjarMain
     private static final Logger LOG = LoggerFactory.getLogger( UberjarMain.class );
 
     /** The ApacheDS service */
-    ApacheDsService service;
+    private ApacheDsService service;
 
 
     /**
@@ -50,7 +50,7 @@ public class UberjarMain
         if ( ( args != null ) && ( args.length == 1 ) )
         {
             UberjarMain uberjarMain = new UberjarMain();
-            
+
             uberjarMain.start( args );
         }
         else
@@ -60,8 +60,8 @@ public class UberjarMain
                 "Program must be launched with 1 arguement, the path to the instance directory." );
         }
     }
-    
-    
+
+
     public void start( String[] args )
     {
         // Creating ApacheDS service
@@ -82,8 +82,8 @@ public class UberjarMain
             System.exit( 1 );
         }
     }
-    
-    
+
+
     public void stop()
     {
         if ( service != null )
