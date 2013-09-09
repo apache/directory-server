@@ -42,7 +42,12 @@ public abstract class AbstractTicket
     }
 
 
-    /*default protected*/ Ticket getTicket()
+    public EncKdcRepPart getEncKdcRepPart()
+    {
+    	return this.encKdcRepPart;
+    }
+    
+    public Ticket getTicket()
     {
         return ticket;
     }

@@ -26,9 +26,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.kerberos.client.Kinit;
+import org.apache.directory.kerberos.credentials.cache.CredentialsCache;
 import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -221,6 +225,19 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         assertNotNull( rep );
     }
     
+    @Test
+    public void testKinit() throws Exception
+    {
+    	File ccFile = File.createTempFile( "credCache-", ".cc" );
+    	Kinit kinit = new Kinit( conn );
+    	kinit.setCredCacheFile( ccFile );
+    	
+    	kinit.kinit(principalName, userPassword);
+    	System.out.println( "Kinit generated file " + ccFile.getAbsolutePath() );
+    	
+    	CredentialsCache credCache = CredentialsCache.load( ccFile );    	
+        assertNotNull( credCache );
+    }
     
     @Test
     public void testChangePassword() throws Exception

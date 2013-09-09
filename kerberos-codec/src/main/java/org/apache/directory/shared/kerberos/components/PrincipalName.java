@@ -166,6 +166,7 @@ public class PrincipalName extends AbstractAsn1Object
         try
         {
             nameString = KerberosUtils.getNames( principal );
+            realm = principal.getRealm();
         }
         catch ( ParseException pe )
         {
@@ -189,7 +190,32 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = nameType;
     }
 
-
+    
+    /**
+     * Creates a new instance of PrincipalName given a String[] and an 
+     * principal type.
+     * 
+     * @param nameParts The name string, which can contains more than one nameComponent
+     * @param nameType The principal name type
+     */
+    public PrincipalName( String[] nameParts, int nameType )
+    {
+    	if ( nameParts == null || nameParts.length == 0 )
+    	{
+    		throw new IllegalArgumentException("Empty name parts");
+    	}
+    	
+    	List<String> nameComponents = new ArrayList<String>();
+    	for ( String np : nameParts )
+    	{
+    		nameComponents.add( np );
+    	}
+    	
+        this.nameString = nameComponents;
+        this.nameType = PrincipalNameType.getTypeByValue( nameType );;
+    }
+    
+    
     /**
      * Creates a new instance of PrincipalName.
      *
@@ -241,7 +267,24 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
-
+    /**
+     * Set the realm for the principal
+     * @param realm the realm of the principal
+     */
+    public void setRealm( String realm )
+    {
+    	this.realm = realm;
+    }
+    
+    /**
+     * Get the realm for the principal
+     * @return realm the realm of the principal
+     */
+    public String getRealm()
+    {
+    	return realm;
+    }
+    
     /**
      * Returns the name components.
      *
@@ -483,13 +526,20 @@ public class PrincipalName extends AbstractAsn1Object
                 sb.append( '\'' ).append( name ).append( '\'' );
             }
 
-            sb.append( "> }" );
+            sb.append( ">" );
         }
         else
         {
-            sb.append( " no name-string }" );
+            sb.append( " no name-string" );
         }
 
+        if ( realm != null )
+        {
+        	sb.append( "realm: " ).append( realm );
+        }
+        
+        sb.append( " }" );
+        
         return sb.toString();
     }
 
