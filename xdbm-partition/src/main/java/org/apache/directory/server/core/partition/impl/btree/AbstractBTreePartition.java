@@ -186,12 +186,37 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /**
      * Creates a B-tree based context partition.
+     * 
+     * @param schemaManager the schema manager
+     */
+    protected AbstractBTreePartition( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+
+        initInstance();
+    }
+
+
+    /**
+     * Creates a B-tree based context partition.
+     * 
+     * @param schemaManager the schema manager
+     * @param dnFactory the DN factory
      */
     protected AbstractBTreePartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
         this.schemaManager = schemaManager;
         this.dnFactory = dnFactory;
 
+        initInstance();
+    }
+
+
+    /**
+     * Intializes the instance.
+     */
+    private void initInstance()
+    {
         indexedAttributes = new HashSet<Index<?, ?, String>>();
 
         // Initialize Attribute types used all over this method
@@ -201,6 +226,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+
     }
 
 

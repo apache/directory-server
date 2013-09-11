@@ -44,10 +44,38 @@ public abstract class AbstractLdifPartition extends AvlPartition
     protected static CsnFactory defaultCSNFactory;
 
 
+    /**
+     * Creates a new instance of AbstractLdifPartition.
+     *
+     * @param schemaManager the schema manager
+     */
+    public AbstractLdifPartition( SchemaManager schemaManager )
+    {
+        super( schemaManager );
+        
+        initInstance();
+    }
+
+
+    /**
+     * Creates a new instance of AbstractLdifPartition.
+     *
+     * @param schemaManager the schema manager
+     * @param dnFactory the DN factory
+     */
     public AbstractLdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
         super( schemaManager, dnFactory );
+        
+        initInstance();
+    }
 
+
+    /**
+     * Intializes the instance.
+     */
+    public void initInstance()
+    {
         // Create the CsnFactory with a invalid ReplicaId
         // @TODO : inject a correct ReplicaId
         defaultCSNFactory = new CsnFactory( 0 );

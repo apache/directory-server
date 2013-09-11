@@ -55,6 +55,20 @@ public class AvlPartition extends AbstractBTreePartition
 
     /**
      * Creates a store based on AVL Trees.
+     * 
+     * @param schemaManager the schema manager
+     */
+    public AvlPartition( SchemaManager schemaManager )
+    {
+        super( schemaManager );
+    }
+
+
+    /**
+     * Creates a store based on AVL Trees.
+     *
+     * @param schemaManager the schema manager
+     * @param dnFactory the DN factory
      */
     public AvlPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
