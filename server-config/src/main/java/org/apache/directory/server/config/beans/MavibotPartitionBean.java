@@ -44,7 +44,7 @@ public class MavibotPartitionBean extends PartitionBean
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( tabs ).append( "JdbmPartitionBean :\n" );
+        sb.append( tabs ).append( "MavibotPartitionBean :\n" );
         sb.append( super.toString( tabs ) );
 
         return sb.toString();
