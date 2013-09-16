@@ -27,7 +27,7 @@ package org.apache.directory.server.config.beans;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotIndexBean<K, E> extends IndexBean
+public class MavibotIndexBean extends IndexBean
 {
     /**
      * Create a new MavibotIndexBean instance

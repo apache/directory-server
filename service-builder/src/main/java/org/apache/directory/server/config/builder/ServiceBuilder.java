@@ -1177,7 +1177,7 @@ public class ServiceBuilder
      * @throws Exception If the instance cannot be created
      */
     public static JdbmIndex<?, ?> createJdbmIndex( JdbmPartition partition,
-        JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
+        JdbmIndexBean jdbmIndexBean, DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
         {
@@ -1532,7 +1532,7 @@ public class ServiceBuilder
      * @throws Exception If the instance cannot be created
      */
     public static MavibotIndex<?, ?> createMavibotIndex( MavibotPartition partition,
-        MavibotIndexBean<String, Entry> mavobotIndexBean, DirectoryService directoryService )
+        MavibotIndexBean mavobotIndexBean, DirectoryService directoryService )
     {
         if ( ( mavobotIndexBean == null ) || mavobotIndexBean.isDisabled() )
         {
