@@ -81,7 +81,13 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
 
         Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
 
-        includeHashedPassword( pwdAt );
+        Attribute hashedPwdAt = includeHashedPassword( pwdAt );
+        
+        if ( hashedPwdAt != null )
+        {
+            entry.remove( pwdAt );
+            entry.add( hashedPwdAt );
+        }
 
         next( addContext );
     }
