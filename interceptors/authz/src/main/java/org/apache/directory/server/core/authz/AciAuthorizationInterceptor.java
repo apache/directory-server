@@ -333,7 +333,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      *
      * @param tuples the collection of tuples to add to
      * @param dn the normalized distinguished name of the protected entry
-     * @param entry the target entry that access to is being controled
+     * @param entry the target entry whose access is being controlled
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */

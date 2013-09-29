@@ -25,13 +25,16 @@ import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 
 
 /**
- * PasswordHashingInterceptor using PBKDF2WithHmacSHA1 encryption algorithm
- * to generate a secret key and use its encoded value as the password hash
- * with {PKCS5S2} prefix.
+ * PasswordHashingInterceptor using PBKDF2WithHmacSHA1 encryption algorithm<br>
+ * to generate a secret key and use its encoded value as the password hash<br>
+ * with {PKCS5S2} prefix.<br><br>
  * 
  * See <a href="http://en.wikipedia.org/wiki/PBKDF2">PBKDF2 spec</a> for more
- * details.
- *
+ * details.<br><br>
+ * 
+ * Note: This has been implemented to generate hashes compatible with what JIRA generates.
+ *       See the <a href="http://pythonhosted.org/passlib/lib/passlib.hash.atlassian_pbkdf2_sha1.html">JIRA's passlib</a>
+ *       
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class Pkcs5s2PasswordHashingInterceptor extends PasswordHashingInterceptor
