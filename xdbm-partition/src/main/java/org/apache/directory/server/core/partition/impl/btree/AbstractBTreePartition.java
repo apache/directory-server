@@ -1140,10 +1140,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entry != null )
             {
+                entry.setDn( dn );
+                
+                entry = new ClonedServerEntry( entry );
+
                 // Replace the entry's DN with the provided one
                 Attribute entryDnAt = entry.get( ENTRY_DN_AT );
                 
-                // see DIRSERVER-1902
                 if ( entryDnAt == null )
                 {
                     entry.add( ENTRY_DN_AT, dn.getName() );
@@ -1153,10 +1156,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     entryDnAt.clear();
                     entryDnAt.add( dn.getName() );
                 }
-                
-                entry.setDn( dn );
 
-                return new ClonedServerEntry( entry );
+                return entry;
             }
 
             try
@@ -1174,14 +1175,17 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 // We have to store the DN in this entry
                 entry.setDn( dn );
 
+                // always store original entry in the cache
+                addToCache( id, entry );
+                
+                entry = new ClonedServerEntry( entry );
+                
                 if ( !entry.containsAttribute( ENTRY_DN_AT ) )
                 {
                     entry.add( ENTRY_DN_AT, dn.getName() );
                 }
 
-                addToCache( id, entry );
-
-                return new ClonedServerEntry( entry );
+                return entry;
             }
 
             return null;

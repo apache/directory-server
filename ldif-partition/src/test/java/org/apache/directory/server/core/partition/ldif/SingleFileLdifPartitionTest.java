@@ -310,7 +310,13 @@ public class SingleFileLdifPartitionTest
 
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.fetch( id ) );
+        
+        Entry fetched = partition.fetch( id );
+        
+        //remove the entryDn cause it is not present in the above hand made contextEntry
+        fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
+        
+        assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
@@ -889,7 +895,13 @@ public class SingleFileLdifPartitionTest
         // search works fine
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.fetch( id ) );
+
+        Entry fetched = partition.fetch( id );
+        
+        //remove the entryDn cause it is not present in the above hand made contextEntry
+        fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
+        
+        assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 

@@ -750,8 +750,11 @@ public class ServerEntryUtils
             return;
         }
 
+        // for special handling of entryDN attribute, see DIRSERVER-1902
         Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
 
+        AttributeType entryDnType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_DN_AT_OID );
+        
         // First, remove all the attributes if we have the NoAtribute flag set to true
         if ( operationContext.isNoAttributes() )
         {
@@ -761,6 +764,8 @@ public class ServerEntryUtils
                 entry.remove( entry.get( attributeType ) );
             }
 
+            entry.removeAttributes( entryDnType );
+            
             return;
         }
 
@@ -789,6 +794,8 @@ public class ServerEntryUtils
                 }
             }
 
+            entry.removeAttributes( entryDnType );
+            
             return;
         }
 
@@ -815,6 +822,15 @@ public class ServerEntryUtils
                 {
                     entry.get( attributeType ).clear();
                 }
+            }
+
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
+            else if ( typesOnly )
+            {
+                entry.get( entryDnType ).clear();
             }
 
             return;
@@ -851,6 +867,15 @@ public class ServerEntryUtils
                 {
                     entry.get( attributeType ).clear();
                 }
+            }
+            
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
+            else if ( typesOnly )
+            {
+                entry.get( entryDnType ).clear();
             }
         }
     }
