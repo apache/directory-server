@@ -35,7 +35,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
@@ -109,7 +109,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
-        
+
         // check if the RecordManager reference is null, if yes, then throw an IllegalStateException
         if ( recordMan == null )
         {
@@ -214,7 +214,7 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
         fw.close();
     }
 
-    
+
     /**
      * Sets the RecordManager
      * 
@@ -224,8 +224,8 @@ public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
     {
         this.recordMan = rm;
     }
-    
-    
+
+
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------

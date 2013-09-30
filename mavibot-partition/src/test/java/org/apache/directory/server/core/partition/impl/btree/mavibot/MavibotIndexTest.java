@@ -41,9 +41,9 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -67,7 +67,8 @@ public class MavibotIndexTest
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
-    
+
+
     @BeforeClass
     public static void init() throws Exception
     {
@@ -110,7 +111,7 @@ public class MavibotIndexTest
         destroyIndex();
 
         recordMan.close();
-        
+
         if ( ( dbFileDir != null ) && dbFileDir.exists() )
         {
             FileUtils.deleteDirectory( dbFileDir );
@@ -147,7 +148,7 @@ public class MavibotIndexTest
         {
             mavibotIdx = new MavibotIndex<String, Entry>( attributeType.getName(), false );
         }
-        
+
         mavibotIdx.setRecordManager( recordMan );
         mavibotIdx.init( schemaManager, attributeType );
         this.idx = mavibotIdx;
@@ -528,10 +529,12 @@ public class MavibotIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT, false );
+        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT,
+            false );
         MavibotIndex.setWkDirPath( dbFileDir.toURI() );
         MavibotIndex.setRecordManager( recordMan );
-        MavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
+        MavibotIndex
+            .init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         MavibotIndex.close();
     }
 }

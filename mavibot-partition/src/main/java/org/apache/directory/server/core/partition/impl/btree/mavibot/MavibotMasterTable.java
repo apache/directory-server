@@ -25,9 +25,10 @@ import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.xdbm.MasterTable;
-import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.xdbm.MasterTable;
+
 
 /**
  * TODO MavibotMasterTable.

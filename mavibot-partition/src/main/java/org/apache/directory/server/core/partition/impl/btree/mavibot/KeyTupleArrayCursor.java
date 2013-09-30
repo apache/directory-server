@@ -27,8 +27,8 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.mavibot.btree.managed.BTree;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.mavibot.btree.BTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private final org.apache.directory.mavibot.btree.Cursor<V,V> wrapped;
+    private final org.apache.directory.mavibot.btree.Cursor<V, V> wrapped;
     private final K key;
 
     private Tuple<K, V> returnedTuple = new Tuple<K, V>();
@@ -61,19 +61,19 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param arrayTree the ArrayTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      */
-    public KeyTupleArrayCursor( BTree<V,V> arrayTree, K key )
+    public KeyTupleArrayCursor( BTree<V, V> arrayTree, K key )
     {
         this.key = key;
-        
+
         try
         {
             this.wrapped = arrayTree.browse();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw new RuntimeException( e );
         }
-        
+
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating KeyTupleArrayCursor {}", this );
@@ -182,25 +182,25 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
-        
+
         try
         {
-        	if ( wrapped.hasPrev() )
-        	{
-        		org.apache.directory.mavibot.btree.Tuple<V, V> t = wrapped.prev();
-        		returnedTuple.setKey( key );
-        		returnedTuple.setValue( t.getKey() );
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		return false;
-        	}
+            if ( wrapped.hasPrev() )
+            {
+                org.apache.directory.mavibot.btree.Tuple<V, V> t = wrapped.prev();
+                returnedTuple.setKey( key );
+                returnedTuple.setValue( t.getKey() );
+                return valueAvailable = true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -213,22 +213,22 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed( "next()" );
         try
         {
-        	if ( wrapped.hasNext() )
-        	{
-        		org.apache.directory.mavibot.btree.Tuple<V, V> t = wrapped.next();
-        		returnedTuple.setKey( key );
-        		returnedTuple.setValue( t.getKey() );
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		return false;
-        	}
+            if ( wrapped.hasNext() )
+            {
+                org.apache.directory.mavibot.btree.Tuple<V, V> t = wrapped.next();
+                returnedTuple.setKey( key );
+                returnedTuple.setValue( t.getKey() );
+                return valueAvailable = true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 

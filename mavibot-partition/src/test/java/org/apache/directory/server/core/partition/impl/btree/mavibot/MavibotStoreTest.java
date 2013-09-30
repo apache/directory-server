@@ -53,7 +53,7 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;

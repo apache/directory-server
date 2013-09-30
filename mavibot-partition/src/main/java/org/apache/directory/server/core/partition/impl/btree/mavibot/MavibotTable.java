@@ -28,11 +28,11 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.mavibot.btree.BTree;
-import org.apache.directory.mavibot.btree.DuplicateKeyVal;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
+import org.apache.directory.mavibot.btree.managed.BTree;
+import org.apache.directory.mavibot.btree.managed.DuplicateKeyVal;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
@@ -215,7 +215,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
 
             DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-            if( dupHolder.isSingleValue() )
+            if ( dupHolder.isSingleValue() )
             {
                 int equal = bt.getValueSerializer().compare( val, dupHolder.getSingleValue() );
                 return ( equal == 0 );
@@ -223,9 +223,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             else
             {
                 BTree<V, V> dups = dupHolder.getSubTree();
-                
+
                 cursor = dups.browseFrom( val );
-                
+
                 return cursor.hasNext();
             }
         }
@@ -263,11 +263,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         DuplicateKeyVal<V> dupHolder = bt.getValues( key );
 
-        if( dupHolder.isSingleValue() )
+        if ( dupHolder.isSingleValue() )
         {
             return true;
         }
-            
+
         BTree<V, V> dups = dupHolder.getSubTree();
 
         org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
@@ -443,11 +443,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             else
             {
                 DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if( dupHolder.isSingleValue() )
+                if ( dupHolder.isSingleValue() )
                 {
-                    return new SingletonCursor<Tuple<K,V>>( new Tuple<K, V>( key, dupHolder.getSingleValue() ) );
+                    return new SingletonCursor<Tuple<K, V>>( new Tuple<K, V>( key, dupHolder.getSingleValue() ) );
                 }
-                
+
                 BTree<V, V> dups = dupHolder.getSubTree();
 
                 return new KeyTupleArrayCursor<K, V>( dups, key );
@@ -483,7 +483,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             else
             {
                 DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if( dupHolder.isSingleValue() )
+                if ( dupHolder.isSingleValue() )
                 {
                     return new SingletonCursor<V>( dupHolder.getSingleValue() );
                 }
@@ -517,11 +517,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             if ( bt.isAllowDuplicates() )
             {
                 DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if( dupHolder.isSingleValue() )
+                if ( dupHolder.isSingleValue() )
                 {
                     return 1;
                 }
-                
+
                 BTree<V, V> values = dupHolder.getSubTree();
 
                 return values.getNbElems();

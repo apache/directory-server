@@ -25,7 +25,7 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;

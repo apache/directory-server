@@ -20,13 +20,15 @@
 
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
+
 import java.io.IOException;
 
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.mavibot.btree.managed.BTree;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.mavibot.btree.BTree;
+
 
 /**
  * TODO ValueTreeCursor.
@@ -37,29 +39,32 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
 {
 
     private org.apache.directory.mavibot.btree.Cursor<V, V> wrapped;
-    
+
     private V available;
 
     // marker to detect the availability (cause Mavibot supports null values also)
     private V NOT_AVAILABLE = ( V ) new Object();
-    
-    public ValueTreeCursor( BTree<V,V> dupsTree )
+
+
+    public ValueTreeCursor( BTree<V, V> dupsTree )
     {
         try
         {
             this.wrapped = dupsTree.browse();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             throw new RuntimeException( e );
         }
     }
-    
+
+
     @Override
     public boolean available()
     {
         return ( available != NOT_AVAILABLE );
     }
+
 
     @Override
     public void before( V element ) throws LdapException, CursorException
@@ -67,22 +72,26 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
+
     @Override
     public void after( V element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );        
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
+
 
     @Override
     public void beforeFirst() throws LdapException, CursorException
     {
     }
 
+
     @Override
     public void afterLast() throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );        
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
+
 
     @Override
     public boolean first() throws LdapException, CursorException
@@ -90,55 +99,59 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
+
     @Override
     public boolean last() throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
     }
 
+
     @Override
     public boolean previous() throws LdapException, CursorException
     {
-    	try
-    	{
-    		if( wrapped.hasPrev() )
-    		{
-    			available = wrapped.prev().getKey();
-    			return true;
-    		}
-    		else
-    		{
-    			available = NOT_AVAILABLE;
-    			return false;
-    		}
-    	}
-        catch( IOException e )
+        try
         {
-        	throw new CursorException( e );
+            if ( wrapped.hasPrev() )
+            {
+                available = wrapped.prev().getKey();
+                return true;
+            }
+            else
+            {
+                available = NOT_AVAILABLE;
+                return false;
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
         }
     }
+
 
     @Override
     public boolean next() throws LdapException, CursorException
     {
-    	try
-    	{
-    		if( wrapped.hasNext() )
-    		{
-    			available = wrapped.next().getKey();
-    			return true;
-    		}
-    		else
-    		{
-    			available = NOT_AVAILABLE;
-    			return false;
-    		}
-    	}
-        catch( IOException e )
+        try
         {
-        	throw new CursorException( e );
+            if ( wrapped.hasNext() )
+            {
+                available = wrapped.next().getKey();
+                return true;
+            }
+            else
+            {
+                available = NOT_AVAILABLE;
+                return false;
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
         }
     }
+
 
     @Override
     public V get() throws CursorException

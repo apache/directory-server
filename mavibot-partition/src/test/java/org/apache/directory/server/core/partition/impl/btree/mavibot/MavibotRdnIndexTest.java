@@ -39,11 +39,11 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -60,14 +60,15 @@ import org.junit.rules.TemporaryFolder;
 public class MavibotRdnIndexTest
 {
     private Index<ParentIdAndRdn, Entry, String> idx;
-    
+
     private static SchemaManager schemaManager;
 
     private RecordManager recordMan;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
-    
+
+
     @BeforeClass
     public static void init() throws Exception
     {
@@ -323,7 +324,6 @@ public class MavibotRdnIndexTest
         assertEquals( "cn=key2", e3.getKey().getRdns()[0].getName() );
         assertEquals( Strings.getUUID( 2 ), e3.getKey().getParentId() );
 
-        
         // test before(Tuple<>)
         cursor.before( e3 );
         // e3
@@ -339,9 +339,8 @@ public class MavibotRdnIndexTest
         assertEquals( Strings.getUUID( 4 ), cursor.get().getId() );
 
         assertFalse( cursor.next() );
-        
+
         cursor.close();
     }
 
-    
 }

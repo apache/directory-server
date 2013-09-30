@@ -33,7 +33,7 @@ import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,14 +54,15 @@ public class MavibotMasterTableTest
     private static final Logger LOG = LoggerFactory.getLogger( MavibotMasterTableTest.class );
 
     private MavibotMasterTable table;
-    
+
     private static SchemaManager schemaManager = null;
 
     private RecordManager recordMan;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
-    
+
+
     @BeforeClass
     public static void loadSchema() throws Exception
     {
@@ -87,7 +88,7 @@ public class MavibotMasterTableTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
-        
+
         MavibotEntrySerializer.setSchemaManager( schemaManager );
     }
 
@@ -98,7 +99,7 @@ public class MavibotMasterTableTest
         destroyTable();
 
         recordMan = new RecordManager( tmpDir.getRoot().getAbsolutePath() );
-        
+
         table = new MavibotMasterTable( recordMan, schemaManager, "master" );
         LOG.debug( "Created new table and populated it with data" );
     }
@@ -107,11 +108,11 @@ public class MavibotMasterTableTest
     @After
     public void destroyTable() throws Exception
     {
-        if( table == null )
+        if ( table == null )
         {
             return;
         }
-        
+
         table.close();
     }
 

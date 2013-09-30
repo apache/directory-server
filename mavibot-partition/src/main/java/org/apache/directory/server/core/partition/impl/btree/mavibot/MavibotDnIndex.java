@@ -30,9 +30,8 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
-import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,10 +106,12 @@ public class MavibotDnIndex extends MavibotIndex<Dn, Entry>
         DnSerializer dnSerializer = new DnSerializer();
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
-        forward = new MavibotTable<Dn, String>( recordMan, schemaManager, forwardTableName, dnSerializer, new StringSerializer(), false );
+        forward = new MavibotTable<Dn, String>( recordMan, schemaManager, forwardTableName, dnSerializer,
+            new StringSerializer(), false );
 
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-        reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, new StringSerializer(), dnSerializer, !attributeType.isSingleValued() );
+        reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, new StringSerializer(),
+            dnSerializer, !attributeType.isSingleValued() );
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
         // finally write a text file in the format <OID>-<attribute-name>.txt
@@ -119,5 +120,5 @@ public class MavibotDnIndex extends MavibotIndex<Dn, Entry>
         fw.write( attributeType.toString() );
         fw.close();
     }
-    
+
 }
