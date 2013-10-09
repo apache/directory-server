@@ -294,4 +294,11 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
     {
         MavibotEntrySerializer.schemaManager = schemaManager;
     }
+
+
+    @Override
+    public Class<?> getType()
+    {
+        return Entry.class;
+    }
 }

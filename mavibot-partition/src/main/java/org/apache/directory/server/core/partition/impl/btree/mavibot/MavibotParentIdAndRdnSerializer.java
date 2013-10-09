@@ -247,4 +247,11 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
         MavibotParentIdAndRdnSerializer.schemaManager = schemaManager;
     }
 
+
+    @Override
+    public Class<?> getType()
+    {
+        return MavibotParentIdAndRdnSerializer.class;
+    }
+
 }
