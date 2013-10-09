@@ -118,7 +118,7 @@ class KeytabDecoder
 
             if ( ii < count - 1 )
             {
-                principalNameBuffer.append( "\\" );
+                principalNameBuffer.append( "/" );
             }
         }
 
