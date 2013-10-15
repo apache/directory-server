@@ -717,12 +717,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             for ( Value<?> value : objectClass )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
                 {
                     continue;
                 }
 
-                String valueStr = ( String ) value.getNormValue();
                 objectClassIdx.add( valueStr, id );
             }
 
@@ -1141,12 +1142,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             if ( entry != null )
             {
                 entry.setDn( dn );
-                
+
                 entry = new ClonedServerEntry( entry );
 
                 // Replace the entry's DN with the provided one
                 Attribute entryDnAt = entry.get( ENTRY_DN_AT );
-                
+
                 if ( entryDnAt == null )
                 {
                     entry.add( ENTRY_DN_AT, dn.getName() );
@@ -1177,9 +1178,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 // always store original entry in the cache
                 addToCache( id, entry );
-                
+
                 entry = new ClonedServerEntry( entry );
-                
+
                 if ( !entry.containsAttribute( ENTRY_DN_AT ) )
                 {
                     entry.add( ENTRY_DN_AT, dn.getName() );
