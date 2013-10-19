@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.normalization;
 
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -29,7 +30,9 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.LeafNode;
 import org.apache.directory.api.ldap.model.filter.NotNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
@@ -347,16 +350,34 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     private ExprNode removeObjectClass( ExprNode node )
     {
-        if ( ( node instanceof PresenceNode ) &&
-            ( ( ( PresenceNode ) node ).getAttributeType() == OBJECT_CLASS_AT ) )
+        if ( node instanceof LeafNode )
         {
-            // We can safely remove the node and return an undefined node
-            return ObjectClassNode.OBJECT_CLASS_NODE;
+            LeafNode ln = ( LeafNode ) node;
+            
+            if ( ln.getAttributeType() == OBJECT_CLASS_AT )
+            {
+                if ( ln instanceof PresenceNode )
+                {
+                    // We can safely remove the node and return an undefined node
+                    return ObjectClassNode.OBJECT_CLASS_NODE;
+                }
+                else if ( ln instanceof EqualityNode )
+                {
+                    Value<String> v = ( ( EqualityNode<String> ) ln ).getValue();
+                    if( v.getNormValue().equals( SchemaConstants.TOP_OC ) )
+                    {
+                        // Here too we can safely remove the node and return an undefined node
+                        return ObjectClassNode.OBJECT_CLASS_NODE;
+                    }
+                }
+            }
         }
+        
         // --------------------------------------------------------------------
         //                 H A N D L E   B R A N C H   N O D E S       
         // --------------------------------------------------------------------
-        else if ( node instanceof AndNode )
+        
+        if ( node instanceof AndNode )
         {
             AndNode newAndNode = new AndNode();
 
