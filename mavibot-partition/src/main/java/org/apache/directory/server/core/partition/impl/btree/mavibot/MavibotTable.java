@@ -28,10 +28,11 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.mavibot.btree.TupleCursor;
+import org.apache.directory.mavibot.btree.ValueCursor;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.managed.BTree;
-import org.apache.directory.mavibot.btree.managed.DuplicateKeyVal;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
@@ -129,7 +130,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasGreaterOrEqual( K key ) throws Exception
     {
-        org.apache.directory.mavibot.btree.Cursor<K, V> cursor = null;
+        TupleCursor<K, V> cursor = null;
+
         try
         {
             cursor = bt.browseFrom( key );
@@ -149,7 +151,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     @Override
     public boolean hasLessOrEqual( K key ) throws Exception
     {
-        org.apache.directory.mavibot.btree.Cursor<K, V> cursor = null;
+        TupleCursor<K, V> cursor = null;
 
         try
         {
@@ -205,7 +207,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
+        TupleCursor<V, V> cursor = null;
 
         try
         {
@@ -214,20 +216,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return false;
             }
 
-            DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-            if ( dupHolder.isSingleValue() )
-            {
-                int equal = bt.getValueSerializer().compare( val, dupHolder.getSingleValue() );
-                return ( equal == 0 );
-            }
-            else
-            {
-                BTree<V, V> dups = dupHolder.getSubTree();
+            ValueCursor<V> dupHolder = bt.getValues( key );
 
-                cursor = dups.browseFrom( val );
+            int equal = bt.getValueSerializer().compare( val, dupHolder.next() );
 
-                return cursor.hasNext();
-            }
+            return ( equal == 0 );
         }
         catch ( Exception e )
         {
@@ -261,55 +254,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             return false;
         }
 
-        DuplicateKeyVal<V> dupHolder = bt.getValues( key );
+        ValueCursor<V> dupHolder = bt.getValues( key );
 
-        if ( dupHolder.isSingleValue() )
-        {
-            return true;
-        }
-
-        BTree<V, V> dups = dupHolder.getSubTree();
-
-        org.apache.directory.mavibot.btree.Cursor<V, V> cursor = null;
-
-        try
-        {
-            cursor = dups.browseFrom( val );
-
-            org.apache.directory.mavibot.btree.Tuple<V, V> tuple = null;
-
-            if ( cursor.hasNext() )
-            {
-                tuple = cursor.next();
-            }
-
-            // Test for equality first since it satisfies both greater/less than
-            if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
-            {
-                return true;
-            }
-
-            if ( null == tuple )
-            {
-                return count > 0;
-            }
-            else
-            {
-                if ( cursor.hasPrev() )
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        finally
-        {
-            if ( cursor != null )
-            {
-                cursor.close();
-            }
-        }
+        return dupHolder.hasNext();
     }
 
 
@@ -442,15 +389,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if ( dupHolder.isSingleValue() )
-                {
-                    return new SingletonCursor<Tuple<K, V>>( new Tuple<K, V>( key, dupHolder.getSingleValue() ) );
-                }
+                ValueCursor<V> dupHolder = bt.getValues( key );
 
-                BTree<V, V> dups = dupHolder.getSubTree();
-
-                return new KeyTupleArrayCursor<K, V>( dups, key );
+                return new KeyTupleArrayCursor<K, V>( dupHolder, key );
             }
         }
         catch ( KeyNotFoundException knfe )
@@ -482,15 +423,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if ( dupHolder.isSingleValue() )
-                {
-                    return new SingletonCursor<V>( dupHolder.getSingleValue() );
-                }
-                else
-                {
-                    return new ValueTreeCursor<V>( dupHolder.getSubTree() );
-                }
+                ValueCursor<V> dupHolder = bt.getValues( key );
+
+                return new ValueTreeCursor<V>( dupHolder );
             }
         }
         catch ( KeyNotFoundException knfe )
@@ -516,15 +451,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         {
             if ( bt.isAllowDuplicates() )
             {
-                DuplicateKeyVal<V> dupHolder = bt.getValues( key );
-                if ( dupHolder.isSingleValue() )
-                {
-                    return 1;
-                }
+                ValueCursor<V> dupHolder = bt.getValues( key );
 
-                BTree<V, V> values = dupHolder.getSubTree();
-
-                return values.getNbElems();
+                return dupHolder.size();
             }
             else
             {

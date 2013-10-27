@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.mavibot.btree.managed.BTree;
+import org.apache.directory.mavibot.btree.ValueCursor;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -38,7 +38,7 @@ import org.apache.directory.server.i18n.I18n;
 public class ValueTreeCursor<V> extends AbstractCursor<V>
 {
 
-    private org.apache.directory.mavibot.btree.Cursor<V, V> wrapped;
+    private ValueCursor<V> wrapped;
 
     private V available;
 
@@ -46,16 +46,9 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     private V NOT_AVAILABLE = ( V ) new Object();
 
 
-    public ValueTreeCursor( BTree<V, V> dupsTree )
+    public ValueTreeCursor( ValueCursor<V> cursor )
     {
-        try
-        {
-            this.wrapped = dupsTree.browse();
-        }
-        catch ( IOException e )
-        {
-            throw new RuntimeException( e );
-        }
+        this.wrapped = cursor;
     }
 
 
@@ -114,7 +107,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
         {
             if ( wrapped.hasPrev() )
             {
-                available = wrapped.prev().getKey();
+                available = wrapped.prev();
                 return true;
             }
             else
@@ -137,7 +130,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
         {
             if ( wrapped.hasNext() )
             {
-                available = wrapped.next().getKey();
+                available = wrapped.next();
                 return true;
             }
             else

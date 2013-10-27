@@ -31,8 +31,8 @@ import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
-import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotParentIdAndRdnSerializer implements ElementSerializer<ParentIdAndRdn>
+public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<ParentIdAndRdn>
 {
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
     /** The schemaManager reference */
     private static SchemaManager schemaManager;
 
-    private Comparator<ParentIdAndRdn> comparator = new Comparator<ParentIdAndRdn>()
+    private static Comparator<ParentIdAndRdn> comparator = new Comparator<ParentIdAndRdn>()
     {
 
         @Override
@@ -80,6 +80,7 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
      */
     public MavibotParentIdAndRdnSerializer()
     {
+        super( comparator );
     }
 
 
@@ -105,7 +106,16 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
             ObjectOutput out = new ObjectOutputStream( baos );
 
             // First, the Dn
-            Rdn[] rdns = parentIdAndRdn.getRdns();
+            Rdn[] rdns;
+
+            try
+            {
+                rdns = parentIdAndRdn.getRdns();
+            }
+            catch ( NullPointerException npe )
+            {
+                throw npe;
+            }
 
             // Write the Rdn of the Dn
             if ( ( rdns == null ) || ( rdns.length == 0 ) )
@@ -248,10 +258,79 @@ public class MavibotParentIdAndRdnSerializer implements ElementSerializer<Parent
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ParentIdAndRdn fromBytes( byte[] buffer ) throws IOException
+    {
+        return fromBytes( buffer, 4 );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ParentIdAndRdn fromBytes( byte[] buffer, int pos ) throws IOException
+    {
+        int len = buffer.length - pos;
+
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer, pos, len ) );
+
+        try
+        {
+            ParentIdAndRdn parentIdAndRdn = new ParentIdAndRdn();
+
+            // Read the number of rdns, if any
+            byte nbRdns = in.readByte();
+
+            if ( nbRdns == 0 )
+            {
+                parentIdAndRdn.setRdns( new Rdn[0] );
+            }
+            else
+            {
+                Rdn[] rdns = new Rdn[nbRdns];
+
+                for ( int i = 0; i < nbRdns; i++ )
+                {
+                    Rdn rdn = new Rdn( schemaManager );
+                    rdn.readExternal( in );
+                    rdns[i] = rdn;
+                }
+
+                parentIdAndRdn.setRdns( rdns );
+            }
+
+            // Read the parent ID
+            String uuid = in.readUTF();
+
+            parentIdAndRdn.setParentId( uuid );
+
+            // Read the nulber of children and descendants
+            int nbChildren = in.readInt();
+            int nbDescendants = in.readInt();
+
+            parentIdAndRdn.setNbChildren( nbChildren );
+            parentIdAndRdn.setNbDescendants( nbDescendants );
+
+            return parentIdAndRdn;
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
+            throw new IOException( cnfe.getLocalizedMessage() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<?> getType()
     {
-        return MavibotParentIdAndRdnSerializer.class;
+        return ParentIdAndRdn.class;
     }
-
 }

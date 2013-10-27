@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.mavibot.btree.TupleCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private Tuple<K, V> returnedTuple = new Tuple<K, V>();
     private boolean valueAvailable;
 
-    private org.apache.directory.mavibot.btree.Cursor<K, V> browser;
+    private TupleCursor<K, V> browser;
 
 
     /**
@@ -324,7 +325,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    private void closeBrowser( org.apache.directory.mavibot.btree.Cursor<K, V> browser )
+    private void closeBrowser( TupleCursor<K, V> browser )
     {
         if ( browser != null )
         {

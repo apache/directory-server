@@ -30,9 +30,9 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
+import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +89,7 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
      */
     public DnSerializer()
     {
-        super(comp);
+        super( comp );
     }
 
 
@@ -159,4 +159,48 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Dn fromBytes( byte[] buffer ) throws IOException
+    {
+        return fromBytes( buffer, 0 );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Dn fromBytes( byte[] buffer, int pos ) throws IOException
+    {
+        int length = buffer.length - pos;
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer, pos, length ) );
+
+        try
+        {
+            Dn dn = new Dn();
+
+            dn.readExternal( in );
+
+            return dn;
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
+            throw new IOException( cnfe.getLocalizedMessage() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<?> getType()
+    {
+        return DnSerializer.class;
+    }
 }

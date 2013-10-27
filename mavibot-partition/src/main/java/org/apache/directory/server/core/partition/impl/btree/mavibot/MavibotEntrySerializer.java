@@ -39,9 +39,9 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
-import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotEntrySerializer implements ElementSerializer<Entry>
+public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
 {
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
@@ -70,6 +70,19 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
     /** The schemaManager reference */
     private static SchemaManager schemaManager;
 
+    private static class EntryComparator implements Comparator<Entry>
+    {
+
+        @Override
+        public int compare( Entry entry1, Entry entry2 )
+        {
+            return entry1.getDn().getName().compareTo( entry1.getDn().getName() );
+        }
+
+    }
+
+    private static Comparator<Entry> comparator = new EntryComparator();
+
 
     /**
      * Creates a new instance of ServerEntrySerializer.
@@ -77,23 +90,15 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
      */
     public MavibotEntrySerializer()
     {
+        super( comparator );
     }
-
-    
-    @Override
-    public int compare( Entry entry1, Entry entry2 )
-    {
-        return entry1.getDn().getName().compareTo( entry1.getDn().getName() );
-    }
-
 
 
     @Override
     public Comparator<Entry> getComparator()
     {
-        return null;
+        return comparator;
     }
-
 
 
     /**
@@ -130,13 +135,12 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
             baos.write( 0 );
             baos.write( 0 );
             baos.write( 0 );
-            
+
             ObjectOutput out = new ObjectOutputStream( baos );
-            
-            
+
             // First, the Dn
             Dn dn = entry.getDn();
-            
+
             // Write the Rdn of the Dn
             if ( dn.isEmpty() )
             {
@@ -148,10 +152,10 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
                 Rdn rdn = dn.getRdn();
                 rdn.writeExternal( out );
             }
-            
+
             // Then the attributes.
             out.writeInt( entry.getAttributes().size() );
-            
+
             // Iterate through the keys. We store the Attribute
             // here, to be able to restore it in the readExternal :
             // we need access to the registries, which are not available
@@ -159,30 +163,30 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
             for ( Attribute attribute : entry.getAttributes() )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-                
+
                 // Write the oid to be able to restore the AttributeType when deserializing
                 // the attribute
                 String oid = attributeType.getOid();
-                
+
                 out.writeUTF( oid );
-                
+
                 // Write the attribute
                 attribute.writeExternal( out );
             }
-            
+
             out.flush();
-            
+
             // Note : we don't store the ObjectClassAttribute. It has already
             // been stored as an attribute.
-            
+
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
                 LOG.debug( "Serialize " + entry );
             }
-            
+
             byte[] bytes = baos.toByteArray();
-            
+
             totalBytes = bytes.length - 4; //subtract the first 4 dummy bytes
 
             // replace the dummy length with the actual length
@@ -193,7 +197,7 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
 
             return bytes;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new RuntimeException( e );
         }
@@ -213,7 +217,7 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
         int len = buffer.getInt();
 
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer.array(), buffer.position(), len ) );
-        
+
         try
         {
             Entry entry = new DefaultEntry( schemaManager );
@@ -271,7 +275,7 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
             }
 
             buffer.position( buffer.position() + len ); // previous position + length
-            
+
             return entry;
         }
         catch ( ClassNotFoundException cnfe )
@@ -282,20 +286,109 @@ public class MavibotEntrySerializer implements ElementSerializer<Entry>
     }
 
 
-
     @Override
     public Entry deserialize( BufferHandler bufferHandler ) throws IOException
     {
         return deserialize( ByteBuffer.wrap( bufferHandler.getBuffer() ) );
     }
 
-    
+
     public static void setSchemaManager( SchemaManager schemaManager )
     {
         MavibotEntrySerializer.schemaManager = schemaManager;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Entry fromBytes( byte[] buffer ) throws IOException
+    {
+        return fromBytes( buffer, 0 );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Entry fromBytes( byte[] buffer, int pos ) throws IOException
+    {
+        // read the length
+        int len = buffer.length - pos;
+
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer, pos, len ) );
+
+        try
+        {
+            Entry entry = new DefaultEntry( schemaManager );
+
+            // Read the Dn, if any
+            byte hasDn = in.readByte();
+
+            if ( hasDn == 1 )
+            {
+                Rdn rdn = new Rdn( schemaManager );
+                rdn.readExternal( in );
+
+                try
+                {
+                    entry.setDn( new Dn( schemaManager, rdn ) );
+                }
+                catch ( LdapInvalidDnException lide )
+                {
+                    IOException ioe = new IOException( lide.getMessage() );
+                    ioe.initCause( lide );
+                    throw ioe;
+                }
+            }
+            else
+            {
+                entry.setDn( Dn.EMPTY_DN );
+            }
+
+            // Read the number of attributes
+            int nbAttributes = in.readInt();
+
+            // Read the attributes
+            for ( int i = 0; i < nbAttributes; i++ )
+            {
+                // Read the attribute's OID
+                String oid = in.readUTF();
+
+                try
+                {
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+
+                    // Create the attribute we will read
+                    Attribute attribute = new DefaultAttribute( attributeType );
+
+                    // Read the attribute
+                    attribute.readExternal( in );
+
+                    entry.add( attribute );
+                }
+                catch ( LdapException ne )
+                {
+                    // We weren't able to find the OID. The attribute will not be added
+                    throw new ClassNotFoundException( ne.getMessage(), ne );
+                }
+            }
+
+            return entry;
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
+            throw new IOException( cnfe.getLocalizedMessage() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<?> getType()
     {

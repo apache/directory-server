@@ -28,16 +28,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
@@ -76,6 +89,9 @@ public class MavibotPartition extends AbstractBTreePartition
     };
 
     private RecordManager recordMan;
+
+    /** the entry cache */
+    private Cache entryCache;
 
 
     public MavibotPartition( SchemaManager schemaManager, DnFactory dnFactory )
@@ -119,9 +135,20 @@ public class MavibotPartition extends AbstractBTreePartition
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
+
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
                 throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
+            }
+
+            if ( cacheSize < 0 )
+            {
+                cacheSize = DEFAULT_CACHE_SIZE;
+                LOG.debug( "Using the default entry cache size of {} for {} partition", cacheSize, id );
+            }
+            else
+            {
+                LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
 
             recordMan = new RecordManager( partitionDir.getPath() );
@@ -178,6 +205,12 @@ public class MavibotPartition extends AbstractBTreePartition
 
                         deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
             */
+
+            if ( cacheService != null )
+            {
+                entryCache = cacheService.getCache( getId() );
+            }
+
             // We are done !
             initialized = true;
         }
@@ -220,6 +253,53 @@ public class MavibotPartition extends AbstractBTreePartition
         mavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
 
         return mavibotIndex;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    protected synchronized void doDestroy() throws Exception
+    {
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
+
+        if ( !initialized )
+        {
+            return;
+        }
+
+        try
+        {
+            super.doDestroy();
+        }
+        catch ( Exception e )
+        {
+            errors.addThrowable( e );
+        }
+
+        // This is specific to the MAVIBOT store : close the record manager
+        try
+        {
+            recordMan.close();
+            LOG.debug( "Closed record manager for {} partition.", suffixDn );
+        }
+        catch ( Throwable t )
+        {
+            LOG.error( I18n.err( I18n.ERR_127 ), t );
+            errors.addThrowable( t );
+        }
+        finally
+        {
+            if ( entryCache != null )
+            {
+                entryCache.removeAll();
+            }
+        }
+
+        if ( errors.size() > 0 )
+        {
+            throw errors;
+        }
     }
 
 
@@ -353,4 +433,83 @@ public class MavibotPartition extends AbstractBTreePartition
         return recordMan;
     }
 
+
+    public Entry lookupCache( String id )
+    {
+        if ( entryCache == null )
+        {
+            return null;
+        }
+
+        Element el = entryCache.get( id );
+
+        if ( el != null )
+        {
+            return ( Entry ) el.getValue();
+        }
+
+        return null;
+    }
+
+
+    @Override
+    public void addToCache( String id, Entry entry )
+    {
+        if ( entryCache == null )
+        {
+            return;
+        }
+
+        if ( entry instanceof ClonedServerEntry )
+        {
+            entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+        }
+
+        entryCache.put( new Element( id, entry ) );
+    }
+
+
+    @Override
+    public void updateCache( OperationContext opCtx )
+    {
+        if ( entryCache == null )
+        {
+            return;
+        }
+
+        try
+        {
+            if ( opCtx instanceof ModifyOperationContext )
+            {
+                // replace the entry
+                ModifyOperationContext modCtx = ( ModifyOperationContext ) opCtx;
+                Entry entry = modCtx.getAlteredEntry();
+                String id = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
+
+                if ( entry instanceof ClonedServerEntry )
+                {
+                    entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+                }
+
+                entryCache.replace( new Element( id, entry ) );
+            }
+            else if ( ( opCtx instanceof MoveOperationContext ) ||
+                ( opCtx instanceof MoveAndRenameOperationContext ) ||
+                ( opCtx instanceof RenameOperationContext ) )
+            {
+                // clear the cache it is not worth updating all the children
+                entryCache.removeAll();
+            }
+            else if ( opCtx instanceof DeleteOperationContext )
+            {
+                // delete the entry
+                DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
+                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+            }
+        }
+        catch ( LdapException e )
+        {
+            LOG.warn( "Failed to update entry cache", e );
+        }
+    }
 }
