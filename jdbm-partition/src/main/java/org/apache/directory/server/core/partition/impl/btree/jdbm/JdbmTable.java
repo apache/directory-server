@@ -163,7 +163,16 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             bt = new BTree<K, V>().load( recMan, recId );
             ( ( SerializableComparator<K> ) bt.getComparator() ).setSchemaManager( schemaManager );
             recId = recMan.getNamedObject( name + SZSUFFIX );
-            count = ( Long ) recMan.fetch( recId );
+            Object value = recMan.fetch( recId );
+
+            if ( value instanceof Integer )
+            {
+                count = ( ( Integer ) value ).longValue();
+            }
+            else
+            {
+                count = ( Long ) value;
+            }
         }
     }
 
