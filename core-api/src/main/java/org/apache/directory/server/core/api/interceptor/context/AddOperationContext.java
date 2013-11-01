@@ -124,8 +124,18 @@ public class AddOperationContext extends AbstractChangeOperationContext
             throw new LdapOperationErrorException( "No session to proceed the operation" );
         }
 
-        entry = new ClonedServerEntry(
-            new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+        Entry addEntry = addRequest.getEntry();
+
+        if ( addEntry.isSchemaAware() )
+        {
+            entry = new ClonedServerEntry( addEntry );
+        }
+        else
+        {
+            entry = new ClonedServerEntry(
+                new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+        }
+
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
 
