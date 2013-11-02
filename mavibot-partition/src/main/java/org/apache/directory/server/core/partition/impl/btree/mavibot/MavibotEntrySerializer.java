@@ -129,13 +129,6 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
         {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            int totalBytes = 0;
-            // write dummy length for preserving the space for 'length' to be filled later
-            baos.write( 0 );
-            baos.write( 0 );
-            baos.write( 0 );
-            baos.write( 0 );
-
             ObjectOutput out = new ObjectOutputStream( baos );
 
             // First, the Dn
@@ -187,14 +180,6 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
 
             byte[] bytes = baos.toByteArray();
 
-            totalBytes = bytes.length - 4; //subtract the first 4 dummy bytes
-
-            // replace the dummy length with the actual length
-            bytes[0] = ( byte ) ( totalBytes >>> 24 );
-            bytes[1] = ( byte ) ( totalBytes >>> 16 );
-            bytes[2] = ( byte ) ( totalBytes >>> 8 );
-            bytes[3] = ( byte ) ( totalBytes );
-
             return bytes;
         }
         catch ( Exception e )
@@ -214,7 +199,7 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
     public Entry deserialize( ByteBuffer buffer ) throws IOException
     {
         // read the length
-        int len = buffer.getInt();
+        int len = buffer.limit();
 
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer.array(), buffer.position(), len ) );
 

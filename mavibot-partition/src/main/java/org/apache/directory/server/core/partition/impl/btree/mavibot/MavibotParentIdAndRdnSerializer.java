@@ -20,19 +20,17 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Serialize;
 import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
+import org.apache.directory.mavibot.btree.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.slf4j.Logger;
@@ -85,82 +83,94 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
 
 
     /**
-     * <p>
-     * 
-     * This is the place where we serialize ParentIdAndRdn
-     * <p>
+     * This is the place where we serialize ParentIdAndRdn. The format is the following :<br/>
+     * <ul>
+     * <li>length</li>
+     * <li>the RDN</li>
+     * <li>the parent ID</li>
+     * <li>Number of children</li>
+     * <li>Number of descendant</li>
+     * <li></li>
+     * <li></li>
+     * <li></li>
+     * </ul>
      */
     public byte[] serialize( ParentIdAndRdn parentIdAndRdn )
     {
         try
         {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int bufferSize = 1024;
 
-            int totalBytes = 0;
-            // write dummy length for preserving the space for 'length' to be filled later
-            baos.write( 0 );
-            baos.write( 0 );
-            baos.write( 0 );
-            baos.write( 0 );
-
-            ObjectOutput out = new ObjectOutputStream( baos );
-
-            // First, the Dn
-            Rdn[] rdns;
-
-            try
+            while ( bufferSize < Integer.MAX_VALUE )
             {
-                rdns = parentIdAndRdn.getRdns();
-            }
-            catch ( NullPointerException npe )
-            {
-                throw npe;
-            }
+                // allocate a big enough buffer for most of the cases
+                byte[] buffer = new byte[bufferSize];
 
-            // Write the Rdn of the Dn
-            if ( ( rdns == null ) || ( rdns.length == 0 ) )
-            {
-                out.writeByte( 0 );
-            }
-            else
-            {
-                out.writeByte( rdns.length );
-
-                for ( Rdn rdn : rdns )
+                try
                 {
-                    rdn.writeExternal( out );
+                    // The current position. Start at 4, as we will add the length at pos 0
+                    int pos = 0;
+
+                    // First, the Dn
+                    Rdn[] rdns;
+
+                    try
+                    {
+                        rdns = parentIdAndRdn.getRdns();
+                    }
+                    catch ( NullPointerException npe )
+                    {
+                        throw npe;
+                    }
+
+                    // Write the Rdn of the Dn
+                    // The number of RDN (we may have more than one)
+                    if ( ( rdns == null ) || ( rdns.length == 0 ) )
+                    {
+                        pos = Serialize.serialize( 0, buffer, pos );
+                    }
+                    else
+                    {
+                        pos = Serialize.serialize( rdns.length, buffer, pos );
+
+                        for ( Rdn rdn : rdns )
+                        {
+                            pos = rdn.serialize( buffer, pos );
+                        }
+                    }
+
+                    // Then the parentId.
+                    String parentId = parentIdAndRdn.getParentId();
+                    byte[] parentIdBytes = Strings.getBytesUtf8( parentId );
+                    pos = Serialize.serialize( parentIdBytes, buffer, pos );
+
+                    // The number of children
+                    pos = Serialize.serialize( parentIdAndRdn.getNbChildren(), buffer, pos );
+
+                    // The number of descendants
+                    pos = Serialize.serialize( parentIdAndRdn.getNbDescendants(), buffer, pos );
+
+                    if ( IS_DEBUG )
+                    {
+                        LOG.debug( ">------------------------------------------------" );
+                        LOG.debug( "Serialize " + parentIdAndRdn );
+                    }
+
+
+                    byte[] result = new byte[pos];
+                    System.arraycopy( buffer, 0, result, 0, pos );
+
+                    return result;
+                }
+                catch ( ArrayIndexOutOfBoundsException aioobe )
+                {
+                    // Bad luck, try with a bigger buffer
+                    bufferSize += bufferSize;
                 }
             }
 
-            // Then the parentId.
-            out.writeUTF( parentIdAndRdn.getParentId() );
-
-            // The number of children
-            out.writeInt( parentIdAndRdn.getNbChildren() );
-
-            // The number of descendants
-            out.writeInt( parentIdAndRdn.getNbDescendants() );
-
-            out.flush();
-
-            if ( IS_DEBUG )
-            {
-                LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + parentIdAndRdn );
-            }
-
-            byte[] bytes = baos.toByteArray();
-            baos.close();
-
-            totalBytes = bytes.length - 4; //subtract the first 4 dummy bytes
-
-            // replace the dummy length with the actual length
-            bytes[0] = ( byte ) ( totalBytes >>> 24 );
-            bytes[1] = ( byte ) ( totalBytes >>> 16 );
-            bytes[2] = ( byte ) ( totalBytes >>> 8 );
-            bytes[3] = ( byte ) ( totalBytes );
-
-            return bytes;
+            // No reason we should reach this point
+            throw new RuntimeException();
         }
         catch ( Exception e )
         {
@@ -187,54 +197,11 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     {
         int len = buffer.getInt();
 
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer.array(), buffer.position(), len ) );
+        ParentIdAndRdn parentIdAndRdn = fromBytes( buffer.array(), buffer.position() );
 
-        try
-        {
-            ParentIdAndRdn parentIdAndRdn = new ParentIdAndRdn();
+        buffer.position( buffer.position() + len );
 
-            // Read the number of rdns, if any
-            byte nbRdns = in.readByte();
-
-            if ( nbRdns == 0 )
-            {
-                parentIdAndRdn.setRdns( new Rdn[0] );
-            }
-            else
-            {
-                Rdn[] rdns = new Rdn[nbRdns];
-
-                for ( int i = 0; i < nbRdns; i++ )
-                {
-                    Rdn rdn = new Rdn( schemaManager );
-                    rdn.readExternal( in );
-                    rdns[i] = rdn;
-                }
-
-                parentIdAndRdn.setRdns( rdns );
-            }
-
-            // Read the parent ID
-            String uuid = in.readUTF();
-
-            parentIdAndRdn.setParentId( uuid );
-
-            // Read the nulber of children and descendants
-            int nbChildren = in.readInt();
-            int nbDescendants = in.readInt();
-
-            parentIdAndRdn.setNbChildren( nbChildren );
-            parentIdAndRdn.setNbDescendants( nbDescendants );
-
-            buffer.position( buffer.position() + len );
-
-            return parentIdAndRdn;
-        }
-        catch ( ClassNotFoundException cnfe )
-        {
-            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
-            throw new IOException( cnfe.getLocalizedMessage() );
-        }
+        return parentIdAndRdn;
     }
 
 
@@ -264,7 +231,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     @Override
     public ParentIdAndRdn fromBytes( byte[] buffer ) throws IOException
     {
-        return fromBytes( buffer, 4 );
+        return fromBytes( buffer, 0 );
     }
 
 
@@ -274,16 +241,13 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     @Override
     public ParentIdAndRdn fromBytes( byte[] buffer, int pos ) throws IOException
     {
-        int len = buffer.length - pos;
-
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer, pos, len ) );
-
         try
         {
             ParentIdAndRdn parentIdAndRdn = new ParentIdAndRdn();
 
             // Read the number of rdns, if any
-            byte nbRdns = in.readByte();
+            int nbRdns = Serialize.deserializeInt( buffer, pos );
+            pos += 4;
 
             if ( nbRdns == 0 )
             {
@@ -296,7 +260,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                 for ( int i = 0; i < nbRdns; i++ )
                 {
                     Rdn rdn = new Rdn( schemaManager );
-                    rdn.readExternal( in );
+                    pos = rdn.deserialize( buffer, pos );
                     rdns[i] = rdn;
                 }
 
@@ -304,20 +268,25 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
             }
 
             // Read the parent ID
-            String uuid = in.readUTF();
+            byte[] uuidBytes = Serialize.deserializeBytes( buffer, pos );
+            pos += 4 + uuidBytes.length;
+            String uuid = Strings.utf8ToString( uuidBytes );
 
             parentIdAndRdn.setParentId( uuid );
 
-            // Read the nulber of children and descendants
-            int nbChildren = in.readInt();
-            int nbDescendants = in.readInt();
+            // Read the number of children and descendants
+            int nbChildren = Serialize.deserializeInt( buffer, pos );
+            pos += 4;
+
+            int nbDescendants = Serialize.deserializeInt( buffer, pos );
+            pos += 4;
 
             parentIdAndRdn.setNbChildren( nbChildren );
             parentIdAndRdn.setNbDescendants( nbDescendants );
 
             return parentIdAndRdn;
         }
-        catch ( ClassNotFoundException cnfe )
+        catch ( LdapInvalidAttributeValueException cnfe )
         {
             LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
             throw new IOException( cnfe.getLocalizedMessage() );

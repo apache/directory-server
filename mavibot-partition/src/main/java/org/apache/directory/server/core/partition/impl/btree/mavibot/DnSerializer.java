@@ -201,6 +201,6 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
     @Override
     public Class<?> getType()
     {
-        return DnSerializer.class;
+        return Dn.class;
     }
 }

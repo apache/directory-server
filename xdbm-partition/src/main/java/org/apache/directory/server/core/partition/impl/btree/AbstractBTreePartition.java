@@ -1353,7 +1353,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Special cases for null values
             if ( mods.getAttributeType().getSyntax().isHumanReadable() )
             {
-                entry.add( mods.getAttributeType(), new StringValue( null ) );
+                entry.add( mods.getAttributeType(), new StringValue( ( String ) null ) );
             }
             else
             {

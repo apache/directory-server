@@ -273,10 +273,10 @@ public class MavibotIndexTest
         assertEquals( 1, idx.count() );
 
         idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count() );
+        assertEquals( 1, idx.count() );
 
         idx.add( "bar", Strings.getUUID( 555L ) );
-        assertEquals( 3, idx.count() );
+        assertEquals( 2, idx.count() );
     }
 
 
@@ -473,16 +473,16 @@ public class MavibotIndexTest
         assertEquals( 1, idx.count() );
 
         idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count() );
+        assertEquals( 1, idx.count() );
 
         idx.add( "bar", Strings.getUUID( 555L ) );
-        assertEquals( 3, idx.count() );
+        assertEquals( 2, idx.count() );
 
         // use forward index's cursor
         Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
-        assertEquals( 3, idx.count() );
+        assertEquals( 2, idx.count() );
 
         cursor.next();
         IndexEntry<String, String> e1 = cursor.get();
@@ -492,6 +492,7 @@ public class MavibotIndexTest
         cursor.next();
         IndexEntry<String, String> e2 = cursor.get();
         assertEquals( Strings.getUUID( 333L ), e2.getId() );
+        //assertEquals( Strings.getUUID( 1234L ), e3.getId() );
         assertEquals( "foo", e2.getKey() );
 
         cursor.next();

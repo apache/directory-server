@@ -201,7 +201,7 @@ public class MavibotStoreTest
         if ( store != null )
         {
             // make sure all files are closed so that they can be deleted on Windows.
-            store.destroy();
+            //store.destroy();
         }
 
         store = null;
@@ -248,7 +248,7 @@ public class MavibotStoreTest
         assertEquals( 2, lookup.getDn().size() );
 
         // make sure all files are closed so that they can be deleted on Windows.
-        store2.destroy();
+        //store2.destroy();
         FileUtils.deleteDirectory( wkdir2 );
     }
 
@@ -676,7 +676,7 @@ public class MavibotStoreTest
 
         store.move( childDn, parentDn, newDn, childEntry );
 
-        assertEquals( 4, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count() );
     }
 
 

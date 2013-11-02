@@ -83,6 +83,7 @@ import org.junit.runner.RunWith;
     },
     enableChangeLog = false)
 @CreateLdapServer(transports =
+    //{ @CreateTransport(address = "192.168.1.1", port = 10389, protocol = "LDAP") })
     { @CreateTransport(protocol = "LDAP") })
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
@@ -187,7 +188,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "OBJECT level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            System.out.println( "OBJECT level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
 
             System.out.println( "DeltaSearch : " + ( deltaSearch / nbIterations ) );
@@ -293,7 +295,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "ONE level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
+            System.out.println( "ONE level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
                 + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
         catch ( LdapException e )
@@ -396,7 +399,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "SUB level - Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            System.out.println( "SUB level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 * 10
                 + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
@@ -414,7 +418,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
 
     @Test
-    public void testSearch100kUsers() throws LdapException, CursorException
+    public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException
     {
         LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
@@ -428,7 +432,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         connection.add( rootPeople );
 
         long tadd0 = System.currentTimeMillis();
-        for ( int i = 0; i < 10000; i++ )
+        for ( int i = 0; i < 100000; i++ )
         {
             Entry user = new DefaultEntry(
                 "uid=user." + i + ",ou=People,dc=example,dc=com",
@@ -465,6 +469,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         System.out.println( "Time to inject 100k entries : " + ( ( tadd1 - tadd0 ) / 1000 ) + "s" );
 
+        // Sleep forever
+        //Thread.sleep( 3600000L );
+
         // Now do a random search
         SearchRequest searchRequest = new SearchRequestImpl();
 
@@ -495,7 +502,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            searchRequest.setFilter( "(cn=user" + random.nextInt( 10000 ) + ")" );
+            searchRequest.setFilter( "(cn=user" + random.nextInt( 100000 ) + ")" );
 
             SearchCursor cursor = connection.search( searchRequest );
 

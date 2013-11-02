@@ -216,9 +216,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return false;
             }
 
-            ValueCursor<V> dupHolder = bt.getValues( key );
+            ValueCursor<V> valueCursor = bt.getValues( key );
 
-            int equal = bt.getValueSerializer().compare( val, dupHolder.next() );
+            int equal = bt.getValueSerializer().compare( val, valueCursor.next() );
 
             return ( equal == 0 );
         }
@@ -351,7 +351,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             org.apache.directory.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
 
-            if ( t != null )
+            // We decrement the counter only when the key was found and when it has no more values
+            if ( ( t != null ) && ( t.getValue() == null ) )
             {
                 count--;
             }
