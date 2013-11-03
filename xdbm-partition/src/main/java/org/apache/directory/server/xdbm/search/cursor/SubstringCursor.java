@@ -70,7 +70,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else

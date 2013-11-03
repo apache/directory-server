@@ -127,9 +127,9 @@ public class PartitionTest
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.UID_AT_OID ) );
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.UID_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
         partition.initialize();
@@ -223,7 +223,7 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
+        Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
@@ -252,7 +252,7 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
+        Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
         assertTrue( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );

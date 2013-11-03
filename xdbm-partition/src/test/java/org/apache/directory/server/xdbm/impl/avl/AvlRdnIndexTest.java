@@ -29,7 +29,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
@@ -57,7 +56,7 @@ import org.junit.Test;
 public class AvlRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn, Entry, String> idx;
+    Index<ParentIdAndRdn, String> idx;
     private static SchemaManager schemaManager;
 
 

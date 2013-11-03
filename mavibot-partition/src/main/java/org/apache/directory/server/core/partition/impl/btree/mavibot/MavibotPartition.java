@@ -170,12 +170,12 @@ public class MavibotPartition extends AbstractBTreePartition
             // then add all index objects to a list
             List<String> allIndices = new ArrayList<String>();
 
-            for ( Index<?, Entry, String> index : systemIndices.values() )
+            for ( Index<?, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
 
-            List<Index<?, Entry, String>> indexToBuild = new ArrayList<Index<?, Entry, String>>();
+            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
@@ -218,9 +218,9 @@ public class MavibotPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
-        MavibotIndex<?, Entry> mavibotIndex;
+        MavibotIndex<?> mavibotIndex;
 
         if ( index instanceof MavibotRdnIndex )
         {
@@ -230,9 +230,9 @@ public class MavibotPartition extends AbstractBTreePartition
         {
             mavibotIndex = ( MavibotDnIndex ) index;
         }
-        else if ( index instanceof MavibotIndex<?, ?> )
+        else if ( index instanceof MavibotIndex<?> )
         {
-            mavibotIndex = ( MavibotIndex<?, Entry> ) index;
+            mavibotIndex = ( MavibotIndex<?> ) index;
 
             if ( mavibotIndex.getWkDirPath() == null )
             {
@@ -308,7 +308,7 @@ public class MavibotPartition extends AbstractBTreePartition
     {
         LOG.debug( "Supplied index {} is not a MavibotIndex.  " +
             "Will create new MavibotIndex using copied configuration parameters." );
-        MavibotIndex<?, Entry> mavibotIndex;
+        MavibotIndex<?> mavibotIndex;
 
         if ( indexOid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
@@ -340,13 +340,13 @@ public class MavibotPartition extends AbstractBTreePartition
         }
 
         // Sync all system indices
-        for ( Index<?, Entry, String> idx : systemIndices.values() )
+        for ( Index<?, String> idx : systemIndices.values() )
         {
             idx.sync();
         }
 
         // Sync all user defined userIndices
-        for ( Index<?, Entry, String> idx : userIndices.values() )
+        for ( Index<?, String> idx : userIndices.values() )
         {
             idx.sync();
         }
@@ -371,7 +371,7 @@ public class MavibotPartition extends AbstractBTreePartition
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, Entry, String>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, String>> userIndexes ) throws Exception
     {
         Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();

@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
+public class JdbmIndex<K> extends AbstractIndex<K, String>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class );

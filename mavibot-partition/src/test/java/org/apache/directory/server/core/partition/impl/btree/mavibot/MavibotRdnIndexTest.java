@@ -59,7 +59,7 @@ import org.junit.rules.TemporaryFolder;
  */
 public class MavibotRdnIndexTest
 {
-    private Index<ParentIdAndRdn, Entry, String> idx;
+    private Index<ParentIdAndRdn, String> idx;
 
     private static SchemaManager schemaManager;
 
@@ -211,11 +211,11 @@ public class MavibotRdnIndexTest
 
         //count shouldn't get affected cause of inserting the same key
         idx.add( key, Strings.getUUID( 2L ) );
-        assertEquals( 2, idx.count() );
+        assertEquals( 3, idx.count() );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
         idx.add( key, Strings.getUUID( 3L ) );
-        assertEquals( 3, idx.count() );
+        assertEquals( 4, idx.count() );
     }
 
 

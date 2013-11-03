@@ -57,7 +57,7 @@ import org.junit.Test;
 public class JdbmRdnIndexTest
 {
     private static File dbFileDir;
-    Index<ParentIdAndRdn, Entry, String> idx;
+    Index<ParentIdAndRdn, String> idx;
     private static SchemaManager schemaManager;
 
 

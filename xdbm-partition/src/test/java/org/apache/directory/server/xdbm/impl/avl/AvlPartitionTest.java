@@ -168,13 +168,13 @@ public class AvlPartitionTest
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getAliasIndex() );
 
         assertEquals( 0, avlPartition.getCacheSize() );
 
         assertNull( avlPartition.getPresenceIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( avlPartition.getPresenceIndex() );
 
         assertNull( avlPartition.getId() );
@@ -186,11 +186,11 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getRdnIndex() );
 
         assertNull( avlPartition.getOneAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getOneAliasIndex() );
 
         assertNull( avlPartition.getSubAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getSubAliasIndex() );
 
         assertNull( avlPartition.getSuffixDn() );
@@ -200,7 +200,7 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getSuffixDn() );
 
         assertFalse( avlPartition.getUserIndices().hasNext() );
-        avlPartition.addIndex( new AvlIndex<Object, Entry>( "2.5.4.3" ) );
+        avlPartition.addIndex( new AvlIndex<Object>( "2.5.4.3" ) );
         assertTrue( avlPartition.getUserIndices().hasNext() );
 
         assertNull( avlPartition.getPartitionPath() );
@@ -224,7 +224,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -236,7 +236,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+            partition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -269,7 +269,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -280,7 +280,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )

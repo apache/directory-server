@@ -127,40 +127,40 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected URI partitionPath;
 
     /** The set of indexed attributes */
-    private Set<Index<?, ?, String>> indexedAttributes;
+    private Set<Index<?, String>> indexedAttributes;
 
     /** the master table storing entries by primary key */
     protected MasterTable master;
 
     /** a map of attributeType numeric UUID to user userIndices */
-    protected Map<String, Index<?, Entry, String>> userIndices = new HashMap<String, Index<?, Entry, String>>();
+    protected Map<String, Index<?, String>> userIndices = new HashMap<String, Index<?, String>>();
 
     /** a map of attributeType numeric UUID to system userIndices */
-    protected Map<String, Index<?, Entry, String>> systemIndices = new HashMap<String, Index<?, Entry, String>>();
+    protected Map<String, Index<?, String>> systemIndices = new HashMap<String, Index<?, String>>();
 
     /** the relative distinguished name index */
-    protected Index<ParentIdAndRdn, Entry, String> rdnIdx;
+    protected Index<ParentIdAndRdn, String> rdnIdx;
 
     /** a system index on objectClass attribute*/
-    protected Index<String, Entry, String> objectClassIdx;
+    protected Index<String, String> objectClassIdx;
 
     /** the attribute presence index */
-    protected Index<String, Entry, String> presenceIdx;
+    protected Index<String, String> presenceIdx;
 
     /** a system index on entryCSN attribute */
-    protected Index<String, Entry, String> entryCsnIdx;
+    protected Index<String, String> entryCsnIdx;
 
     /** a system index on aliasedObjectName attribute */
-    protected Index<Dn, Entry, String> aliasIdx;
+    protected Index<Dn, String> aliasIdx;
 
     /** the subtree scope alias index */
-    protected Index<String, Entry, String> subAliasIdx;
+    protected Index<String, String> subAliasIdx;
 
     /** the one level scope alias index */
-    protected Index<String, Entry, String> oneAliasIdx;
+    protected Index<String, String> oneAliasIdx;
 
     /** a system index on administrativeRole attribute */
-    protected Index<String, Entry, String> adminRoleIdx;
+    protected Index<String, String> adminRoleIdx;
 
     /** Cached attributes types to avoid lookup all over the code */
     protected AttributeType OBJECT_CLASS_AT;
@@ -217,7 +217,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      */
     private void initInstance()
     {
-        indexedAttributes = new HashSet<Index<?, ?, String>>();
+        indexedAttributes = new HashSet<Index<?, String>>();
 
         // Initialize Attribute types used all over this method
         OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
@@ -318,14 +318,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // add missing system indices
         if ( getPresenceIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
+            Index<String, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID,
                 partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getRdnIndex() == null )
         {
-            Index<ParentIdAndRdn, Entry, String> index = createSystemIndex(
+            Index<ParentIdAndRdn, String> index = createSystemIndex(
                 ApacheSchemaConstants.APACHE_RDN_AT_OID,
                 partitionPath, WITH_REVERSE );
             addIndex( index );
@@ -333,42 +333,42 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( getAliasIndex() == null )
         {
-            Index<Dn, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+            Index<Dn, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
                 partitionPath, WITH_REVERSE );
             addIndex( index );
         }
 
         if ( getOneAliasIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
+            Index<String, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID,
                 partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getSubAliasIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
+            Index<String, String> index = createSystemIndex( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID,
                 partitionPath, NO_REVERSE );
             addIndex( index );
         }
 
         if ( getObjectClassIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( SchemaConstants.OBJECT_CLASS_AT_OID, partitionPath,
+            Index<String, String> index = createSystemIndex( SchemaConstants.OBJECT_CLASS_AT_OID, partitionPath,
                 NO_REVERSE );
             addIndex( index );
         }
 
         if ( getEntryCsnIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath,
+            Index<String, String> index = createSystemIndex( SchemaConstants.ENTRY_CSN_AT_OID, partitionPath,
                 NO_REVERSE );
             addIndex( index );
         }
 
         if ( getAdministrativeRoleIndex() == null )
         {
-            Index<String, Entry, String> index = createSystemIndex( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID,
+            Index<String, String> index = createSystemIndex( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID,
                 partitionPath,
                 NO_REVERSE );
             addIndex( index );
@@ -377,23 +377,23 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // convert and initialize system indices
         for ( String oid : systemIndices.keySet() )
         {
-            Index<?, Entry, String> index = systemIndices.get( oid );
+            Index<?, String> index = systemIndices.get( oid );
             index = convertAndInit( index );
             systemIndices.put( oid, index );
         }
 
         // set index shortcuts
-        rdnIdx = ( Index<ParentIdAndRdn, Entry, String> ) systemIndices
+        rdnIdx = ( Index<ParentIdAndRdn, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
-        presenceIdx = ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
-        aliasIdx = ( Index<Dn, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
-        oneAliasIdx = ( Index<String, Entry, String> ) systemIndices
+        presenceIdx = ( Index<String, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+        aliasIdx = ( Index<Dn, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        oneAliasIdx = ( Index<String, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
-        subAliasIdx = ( Index<String, Entry, String> ) systemIndices
+        subAliasIdx = ( Index<String, String> ) systemIndices
             .get( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
-        objectClassIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
-        entryCsnIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
-        adminRoleIdx = ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
+        objectClassIdx = ( Index<String, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
+        entryCsnIdx = ( Index<String, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
+        adminRoleIdx = ( Index<String, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
     }
 
 
@@ -403,7 +403,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected void setupUserIndices() throws Exception
     {
         // convert and initialize system indices
-        Map<String, Index<?, Entry, String>> tmp = new HashMap<String, Index<?, Entry, String>>();
+        Map<String, Index<?, String>> tmp = new HashMap<String, Index<?, String>>();
 
         for ( String oid : userIndices.keySet() )
         {
@@ -413,7 +413,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( mr != null )
             {
-                Index<?, Entry, String> index = userIndices.get( oid );
+                Index<?, String> index = userIndices.get( oid );
                 index = convertAndInit( index );
                 tmp.put( oid, index );
             }
@@ -449,7 +449,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * @return the converted and initialized index
      * @throws Exception
      */
-    protected abstract Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception;
+    protected abstract Index<?, String> convertAndInit( Index<?, String> index ) throws Exception;
 
 
     /**
@@ -483,7 +483,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
-        for ( Index<?, Entry, String> index : userIndices.values() )
+        for ( Index<?, String> index : userIndices.values() )
         {
             try
             {
@@ -497,7 +497,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
         }
 
-        for ( Index<?, Entry, String> index : systemIndices.values() )
+        for ( Index<?, String> index : systemIndices.values() )
         {
             try
             {
@@ -767,7 +767,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 if ( hasUserIndexOn( attributeType ) )
                 {
-                    Index<Object, Entry, String> idx = ( Index<Object, Entry, String> ) getUserIndex( attributeType );
+                    Index<Object, String> idx = ( Index<Object, String> ) getUserIndex( attributeType );
 
                     // here lookup by attributeId is OK since we got attributeId from
                     // the entry via the enumeration - it's in there as is for sure
@@ -1004,7 +1004,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 if ( hasUserIndexOn( attributeType ) )
                 {
-                    Index<?, Entry, String> index = getUserIndex( attributeType );
+                    Index<?, String> index = getUserIndex( attributeType );
 
                     // here lookup by attributeId is ok since we got attributeId from
                     // the entry via the enumeration - it's in there as is for sure
@@ -1303,7 +1303,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, Entry, String> index = getUserIndex( attributeType );
+            Index<?, String> index = getUserIndex( attributeType );
 
             if ( mods.size() > 0 )
             {
@@ -1414,7 +1414,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, Entry, String> index = getUserIndex( attributeType );
+            Index<?, String> index = getUserIndex( attributeType );
 
             // Drop all the previous values
             Attribute oldAttribute = entry.get( mods.getAttributeType() );
@@ -1423,14 +1423,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 for ( Value<?> value : oldAttribute )
                 {
-                    ( ( Index<Object, Entry, String> ) index ).drop( value.getNormValue(), id );
+                    ( ( Index<Object, String> ) index ).drop( value.getNormValue(), id );
                 }
             }
 
             // And add the new ones
             for ( Value<?> value : mods )
             {
-                ( ( Index<Object, Entry, String> ) index ).add( value.getNormValue(), id );
+                ( ( Index<Object, String> ) index ).add( value.getNormValue(), id );
             }
 
             /*
@@ -1533,7 +1533,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
         else if ( hasUserIndexOn( attributeType ) )
         {
-            Index<?, Entry, String> index = getUserIndex( attributeType );
+            Index<?, String> index = getUserIndex( attributeType );
 
             Attribute attribute = entry.get( attributeType ).clone();
             int nbValues = 0;
@@ -1995,7 +1995,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( hasUserIndexOn( newRdnAttrType ) )
             {
-                Index<?, Entry, String> index = getUserIndex( newRdnAttrType );
+                Index<?, String> index = getUserIndex( newRdnAttrType );
                 ( ( Index ) index ).add( newNormValue, oldId );
 
                 // Make sure the altered entry shows the existence of the new attrib
@@ -2051,7 +2051,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                     if ( hasUserIndexOn( oldRdnAttrType ) )
                     {
-                        Index<?, Entry, String> index = getUserIndex( oldRdnAttrType );
+                        Index<?, String> index = getUserIndex( oldRdnAttrType );
                         ( ( Index ) index ).drop( oldNormValue, id );
 
                         /*
@@ -2364,7 +2364,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public void addIndex( Index<?, Entry, String> index ) throws Exception
+    public void addIndex( Index<?, String> index ) throws Exception
     {
         checkInitialized( "addIndex" );
 
@@ -2406,9 +2406,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Add some new indexes
      * @param indexes The added indexes
      */
-    public void addIndexedAttributes( Index<?, Entry, String>... indexes )
+    public void addIndexedAttributes( Index<?, String>... indexes )
     {
-        for ( Index<?, Entry, String> index : indexes )
+        for ( Index<?, String> index : indexes )
         {
             indexedAttributes.add( index );
         }
@@ -2419,7 +2419,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Set the list of indexes for this partition
      * @param indexedAttributes The list of indexes
      */
-    public void setIndexedAttributes( Set<Index<?, ?, String>> indexedAttributes )
+    public void setIndexedAttributes( Set<Index<?, String>> indexedAttributes )
     {
         this.indexedAttributes = indexedAttributes;
     }
@@ -2428,7 +2428,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * @return The list of indexed attributes
      */
-    public Set<Index<?, ?, String>> getIndexedAttributes()
+    public Set<Index<?, String>> getIndexedAttributes()
     {
         return indexedAttributes;
     }
@@ -2455,7 +2455,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public Index<?, Entry, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         String id = attributeType.getOid();
 
@@ -2476,7 +2476,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public Index<?, Entry, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         if ( attributeType == null )
         {
@@ -2497,7 +2497,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public Index<?, Entry, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
+    public Index<?, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException
     {
         if ( attributeType == null )
         {
@@ -2519,9 +2519,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<Dn, Entry, String> getAliasIndex()
+    public Index<Dn, String> getAliasIndex()
     {
-        return ( Index<Dn, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        return ( Index<Dn, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
     }
 
 
@@ -2529,9 +2529,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getOneAliasIndex()
+    public Index<String, String> getOneAliasIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID );
     }
 
 
@@ -2539,9 +2539,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getSubAliasIndex()
+    public Index<String, String> getSubAliasIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID );
     }
 
 
@@ -2549,9 +2549,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getObjectClassIndex()
+    public Index<String, String> getObjectClassIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
 
 
@@ -2559,9 +2559,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getEntryCsnIndex()
+    public Index<String, String> getEntryCsnIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( SchemaConstants.ENTRY_CSN_AT_OID );
     }
 
 
@@ -2569,9 +2569,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getAdministrativeRoleIndex()
+    public Index<String, String> getAdministrativeRoleIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID );
     }
 
 
@@ -2579,9 +2579,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<String, Entry, String> getPresenceIndex()
+    public Index<String, String> getPresenceIndex()
     {
-        return ( Index<String, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
+        return ( Index<String, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID );
     }
 
 
@@ -2589,9 +2589,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Index<ParentIdAndRdn, Entry, String> getRdnIndex()
+    public Index<ParentIdAndRdn, String> getRdnIndex()
     {
-        return ( Index<ParentIdAndRdn, Entry, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+        return ( Index<ParentIdAndRdn, String> ) systemIndices.get( ApacheSchemaConstants.APACHE_RDN_AT_OID );
     }
 
 
@@ -2851,7 +2851,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     //---------------------------------------------------------------------------------------------
     // Debug methods
     //---------------------------------------------------------------------------------------------
-    private void dumpIndex( OutputStream stream, Index<?, Entry, String> index )
+    private void dumpIndex( OutputStream stream, Index<?, String> index )
     {
         try
         {

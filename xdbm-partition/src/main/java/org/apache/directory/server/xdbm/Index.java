@@ -36,10 +36,9 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <K> The Indexed value type, used to retrieve an element
- * @param <O> The indexed element type, when retrieved
  * @param <ID> The unique identifier type in the master table
  */
-public interface Index<K, O, ID>
+public interface Index<K, ID>
 {
     /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;

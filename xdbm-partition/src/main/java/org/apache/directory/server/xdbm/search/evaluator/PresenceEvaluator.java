@@ -56,7 +56,7 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     private final SchemaManager schemaManager;
 
     /** The index to use if any */
-    private final Index<String, Entry, String> idx;
+    private final Index<String, String> idx;
 
 
     public PresenceEvaluator( PresenceNode node, Store db, SchemaManager schemaManager )

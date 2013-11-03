@@ -59,7 +59,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected LdapComparator<? super Object> ldapComparator;
 
     /** The index to use if any */
-    protected Index<T, Entry, String> idx;
+    protected Index<T, String> idx;
 
 
     @SuppressWarnings("unchecked")

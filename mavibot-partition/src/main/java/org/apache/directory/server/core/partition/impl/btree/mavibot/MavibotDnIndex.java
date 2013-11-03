@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotDnIndex extends MavibotIndex<Dn, Entry>
+public class MavibotDnIndex extends MavibotIndex<Dn>
 {
 
     /** A logger for this class */

@@ -256,7 +256,7 @@ public class JdbmStoreTest
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
-        Index<Dn, Entry, String> index = new JdbmIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<Dn, String> index = new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
         ( ( Store ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
@@ -266,7 +266,7 @@ public class JdbmStoreTest
         assertEquals( 24, jdbmPartition.getCacheSize() );
 
         assertNull( jdbmPartition.getPresenceIndex() );
-        jdbmPartition.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+        jdbmPartition.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
         assertNotNull( jdbmPartition.getPresenceIndex() );
 
         assertNull( jdbmPartition.getId() );
@@ -278,12 +278,12 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
-        ( ( Store ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+        ( ( Store ) jdbmPartition ).addIndex( new JdbmIndex<Long>(
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getOneAliasIndex() );
 
         assertNull( jdbmPartition.getSubAliasIndex() );
-        jdbmPartition.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+        jdbmPartition.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getSubAliasIndex() );
 
         assertNull( jdbmPartition.getSuffixDn() );
@@ -293,7 +293,7 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getSuffixDn() );
 
         assertFalse( jdbmPartition.getUserIndices().hasNext() );
-        jdbmPartition.addIndex( new JdbmIndex<Object, Entry>( "2.5.4.3", false ) );
+        jdbmPartition.addIndex( new JdbmIndex<Object>( "2.5.4.3", false ) );
         assertEquals( true, jdbmPartition.getUserIndices().hasNext() );
 
         assertNull( jdbmPartition.getPartitionPath() );
@@ -317,7 +317,7 @@ public class JdbmStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Dn, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -336,7 +336,7 @@ public class JdbmStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+            store.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -366,7 +366,7 @@ public class JdbmStoreTest
         assertNotNull( store.getOneAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -376,7 +376,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSubAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )

@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotIndex<K, V> extends AbstractIndex<K, V, String>
+public class MavibotIndex<K> extends AbstractIndex<K, String>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( MavibotIndex.class.getSimpleName() );

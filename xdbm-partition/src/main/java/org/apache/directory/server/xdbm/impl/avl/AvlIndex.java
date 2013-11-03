@@ -44,7 +44,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlIndex<K, O> extends AbstractIndex<K, O, String>
+public class AvlIndex<K> extends AbstractIndex<K, String>
 {
     protected Normalizer normalizer;
     protected AvlTable<K, String> forward;

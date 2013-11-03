@@ -52,7 +52,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            idx = ( Index<T, String> ) db.getIndex( attributeType );
         }
         else
         {

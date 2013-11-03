@@ -34,6 +34,7 @@ import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.managed.BTree;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
+import org.apache.directory.mavibot.btree.managed.ValueHolder;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
@@ -295,7 +296,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             V replaced = bt.insert( key, value );
 
-            if ( replaced == null )
+            if  ( ( replaced == null ) || ( !replaced.equals( value ) ) )
             {
                 count++;
             }
@@ -318,6 +319,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
+            // Get the associated valueHolder
+            ValueCursor<V> valueCursor = bt.getValues( key );
             org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
 
             if ( null == returned )
@@ -325,7 +328,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            this.count--;
+            count -= valueCursor.size();
         }
         catch ( Exception e )
         {
@@ -351,8 +354,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             org.apache.directory.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
 
-            // We decrement the counter only when the key was found and when it has no more values
-            if ( ( t != null ) && ( t.getValue() == null ) )
+            // We decrement the counter only when the key was found
+            if ( t != null )
             {
                 count--;
             }

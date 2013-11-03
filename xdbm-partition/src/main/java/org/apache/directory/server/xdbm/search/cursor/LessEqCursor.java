@@ -87,7 +87,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, String> ) store.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else

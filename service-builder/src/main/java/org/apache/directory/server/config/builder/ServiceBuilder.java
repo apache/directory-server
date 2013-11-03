@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
@@ -1176,7 +1175,7 @@ public class ServiceBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?, ?> createJdbmIndex( JdbmPartition partition,
+    public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition,
         JdbmIndexBean jdbmIndexBean, DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
@@ -1191,7 +1190,7 @@ public class ServiceBuilder
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
 
-        JdbmIndex<?, ?> index = null;
+        JdbmIndex<?> index = null;
 
         boolean hasReverse = jdbmIndexBean.getIndexHasReverse();
 
@@ -1207,7 +1206,7 @@ public class ServiceBuilder
         }
         else
         {
-            index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
+            index = new JdbmIndex<String>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
@@ -1243,11 +1242,11 @@ public class ServiceBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, ?, String>> createJdbmIndexes( JdbmPartition partition,
+    private static Set<Index<?, String>> createJdbmIndexes( JdbmPartition partition,
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, ?, String>> indexes = new HashSet<Index<?, ?, String>>();
+        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {
@@ -1506,11 +1505,11 @@ public class ServiceBuilder
     /**
      * Create the list of MavibotIndex from the configuration
      */
-    private static Set<Index<?, ?, String>> createMavibotIndexes( MavibotPartition partition,
+    private static Set<Index<?, String>> createMavibotIndexes( MavibotPartition partition,
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, ?, String>> indexes = new HashSet<Index<?, ?, String>>();
+        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {
@@ -1531,7 +1530,7 @@ public class ServiceBuilder
      * @return An MavibotIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static MavibotIndex<?, ?> createMavibotIndex( MavibotPartition partition,
+    public static MavibotIndex<?> createMavibotIndex( MavibotPartition partition,
         MavibotIndexBean mavobotIndexBean, DirectoryService directoryService )
     {
         if ( ( mavobotIndexBean == null ) || mavobotIndexBean.isDisabled() )
@@ -1539,7 +1538,7 @@ public class ServiceBuilder
             return null;
         }
 
-        MavibotIndex<?, ?> index = null;
+        MavibotIndex<?> index = null;
 
         boolean hasReverse = mavobotIndexBean.getIndexHasReverse();
 
@@ -1555,7 +1554,7 @@ public class ServiceBuilder
         }
         else
         {
-            index = new MavibotIndex<String, Entry>( mavobotIndexBean.getIndexAttributeId(), hasReverse );
+            index = new MavibotIndex<String>( mavobotIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setWkDirPath( partition.getPartitionPath() );

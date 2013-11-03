@@ -22,7 +22,6 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
@@ -70,11 +69,11 @@ public class MavibotPartitionFactory implements PartitionFactory
         }
 
         MavibotPartition mavibotPartition = ( MavibotPartition ) partition;
-        Set<Index<?, ?, String>> indexedAttributes = mavibotPartition.getIndexedAttributes();
+        Set<Index<?, String>> indexedAttributes = mavibotPartition.getIndexedAttributes();
 
         RecordManager recordMan = ( ( MavibotPartition ) partition ).getRecordMan();
 
-        MavibotIndex<Object, Entry> index = new MavibotIndex<Object, Entry>( attributeId, false );
+        MavibotIndex<Object> index = new MavibotIndex<Object>( attributeId, false );
         index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

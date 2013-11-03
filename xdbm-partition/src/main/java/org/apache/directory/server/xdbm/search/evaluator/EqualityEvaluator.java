@@ -63,7 +63,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            idx = ( Index<T, String> ) db.getIndex( attributeType );
         }
 
         MatchingRule mr = attributeType.getEquality();

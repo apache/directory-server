@@ -159,17 +159,17 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
-        AvlIndex<?, Entry> avlIndex;
+        AvlIndex<?> avlIndex;
 
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             avlIndex = new AvlRdnIndex( index.getAttributeId() );
         }
-        else if ( index instanceof AvlIndex<?, ?> )
+        else if ( index instanceof AvlIndex<?> )
         {
-            avlIndex = ( AvlIndex<?, Entry> ) index;
+            avlIndex = ( AvlIndex<?> ) index;
         }
         else
         {
@@ -192,7 +192,7 @@ public class AvlPartition extends AbstractBTreePartition
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
 
-        AvlIndex<?, Entry> avlIndex;
+        AvlIndex<?> avlIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {

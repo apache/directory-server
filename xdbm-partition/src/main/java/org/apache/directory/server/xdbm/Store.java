@@ -159,7 +159,7 @@ public interface Store
      * @param index The index to add
      * @throws Exception If the addition failed
      */
-    void addIndex( Index<?, Entry, String> index ) throws Exception;
+    void addIndex( Index<?, String> index ) throws Exception;
 
 
     //------------------------------------------------------------------------
@@ -168,43 +168,43 @@ public interface Store
     /**
      * @return The Presence system index
      */
-    Index<String, Entry, String> getPresenceIndex();
+    Index<String, String> getPresenceIndex();
 
 
     /**
      * @return The Alias system index
      */
-    Index<Dn, Entry, String> getAliasIndex();
+    Index<Dn, String> getAliasIndex();
 
 
     /**
      * @return The OneAlias system index
      */
-    Index<String, Entry, String> getOneAliasIndex();
+    Index<String, String> getOneAliasIndex();
 
 
     /**
      * @return The SubAlias system index
      */
-    Index<String, Entry, String> getSubAliasIndex();
+    Index<String, String> getSubAliasIndex();
 
 
     /**
      * @return The Rdn system index
      */
-    Index<ParentIdAndRdn, Entry, String> getRdnIndex();
+    Index<ParentIdAndRdn, String> getRdnIndex();
 
 
     /**
      * @return The ObjectClass system index
      */
-    Index<String, Entry, String> getObjectClassIndex();
+    Index<String, String> getObjectClassIndex();
 
 
     /**
      * @return The EntryCSN system index
      */
-    Index<String, Entry, String> getEntryCsnIndex();
+    Index<String, String> getEntryCsnIndex();
 
 
     /**
@@ -256,7 +256,7 @@ public interface Store
      * @return The associated user <strong>or</strong> system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, Entry, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, String> getIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -265,7 +265,7 @@ public interface Store
      * @return The associated user index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, Entry, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, String> getUserIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**
@@ -274,7 +274,7 @@ public interface Store
      * @return The associated system index
      * @throws IndexNotFoundException If the index does not exist
      */
-    Index<?, Entry, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
+    Index<?, String> getSystemIndex( AttributeType attributeType ) throws IndexNotFoundException;
 
 
     /**

@@ -184,18 +184,18 @@ public class JdbmPartition extends AbstractBTreePartition
             // then add all index objects to a list
             List<String> allIndices = new ArrayList<String>();
 
-            for ( Index<?, Entry, String> index : systemIndices.values() )
+            for ( Index<?, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
 
-            List<Index<?, Entry, String>> indexToBuild = new ArrayList<Index<?, Entry, String>>();
+            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
             // two for finding a new index to be built
             // just to avoid another iteration for determining which is the new index
-            for ( Index<?, Entry, String> index : userIndices.values() )
+            for ( Index<?, String> index : userIndices.values() )
             {
                 String indexOid = index.getAttribute().getOid();
                 allIndices.add( indexOid );
@@ -308,13 +308,13 @@ public class JdbmPartition extends AbstractBTreePartition
         }
 
         // Sync all system indices
-        for ( Index<?, Entry, String> idx : systemIndices.values() )
+        for ( Index<?, String> idx : systemIndices.values() )
         {
             idx.sync();
         }
 
         // Sync all user defined userIndices
-        for ( Index<?, Entry, String> idx : userIndices.values() )
+        for ( Index<?, String> idx : userIndices.values() )
         {
             idx.sync();
         }
@@ -330,7 +330,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, Entry, String>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, String>> userIndexes ) throws Exception
     {
         Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
@@ -420,9 +420,9 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
-        JdbmIndex<?, Entry> jdbmIndex;
+        JdbmIndex<?> jdbmIndex;
 
         if ( index instanceof JdbmRdnIndex )
         {
@@ -432,9 +432,9 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             jdbmIndex = ( JdbmDnIndex ) index;
         }
-        else if ( index instanceof JdbmIndex<?, ?> )
+        else if ( index instanceof JdbmIndex<?> )
         {
-            jdbmIndex = ( JdbmIndex<?, Entry> ) index;
+            jdbmIndex = ( JdbmIndex<?> ) index;
 
             if ( jdbmIndex.getWkDirPath() == null )
             {
@@ -511,7 +511,7 @@ public class JdbmPartition extends AbstractBTreePartition
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
             "Will create new JdbmIndex using copied configuration parameters." );
-        JdbmIndex<?, Entry> jdbmIndex;
+        JdbmIndex<?> jdbmIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {

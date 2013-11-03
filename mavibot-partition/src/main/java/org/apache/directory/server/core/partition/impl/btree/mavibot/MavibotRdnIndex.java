@@ -26,7 +26,6 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn, Entry>
+public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
 {
 
     /** A logger for this class */

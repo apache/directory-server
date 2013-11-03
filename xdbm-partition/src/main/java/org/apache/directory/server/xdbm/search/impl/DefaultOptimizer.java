@@ -304,7 +304,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
             Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
             Set<String> values = new HashSet<String>();
@@ -359,7 +359,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
             if ( isGreaterThan )
             {
@@ -390,7 +390,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, String> idx = ( Index<String, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<String, String> idx = ( Index<String, String> ) db.getIndex( node.getAttributeType() );
 
             String initial = node.getInitial();
 
@@ -425,7 +425,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<?, ?, ?> idx = db.getIndex( node.getAttributeType() );
+            Index<?, ?> idx = db.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -445,13 +445,13 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+            Index<String, String> presenceIndex = db.getPresenceIndex();
 
             return presenceIndex.count( node.getAttributeType().getOid() );
         }
         else if ( node.getAttributeType().getOid().equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
         {
-            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+            Index<String, String> presenceIndex = db.getPresenceIndex();
 
             return presenceIndex.count( node.getAttributeType().getOid() );
         }

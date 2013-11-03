@@ -32,7 +32,6 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 import jdbm.recman.TransactionManager;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmDnIndex extends JdbmIndex<Dn, Entry>
+public class JdbmDnIndex extends JdbmIndex<Dn>
 {
 
     /** A logger for this class */

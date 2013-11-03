@@ -91,7 +91,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
         if ( store.hasIndexOn( attributeType ) )
         {
-            Index<V, Entry, String> index = ( Index<V, Entry, String> ) store.getIndex( attributeType );
+            Index<V, String> index = ( Index<V, String> ) store.getIndex( attributeType );
             userIdxCursor = index.forwardCursor( value.getValue() );
             uuidIdxCursor = null;
         }

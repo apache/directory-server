@@ -47,6 +47,7 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -60,7 +61,7 @@ import org.junit.rules.TemporaryFolder;
 public class MavibotIndexTest
 {
     private static File dbFileDir;
-    Index<String, Entry, String> idx;
+    Index<String, String> idx;
     private static SchemaManager schemaManager;
 
     private RecordManager recordMan;
@@ -134,19 +135,19 @@ public class MavibotIndexTest
     void initIndex() throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
-        MavibotIndex<String, Entry> index = new MavibotIndex<String, Entry>( attributeType.getName(), false );
+        MavibotIndex<String> index = new MavibotIndex<String>( attributeType.getName(), false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
 
 
-    void initIndex( MavibotIndex<String, Entry> mavibotIdx ) throws Exception
+    void initIndex( MavibotIndex<String> mavibotIdx ) throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         if ( mavibotIdx == null )
         {
-            mavibotIdx = new MavibotIndex<String, Entry>( attributeType.getName(), false );
+            mavibotIdx = new MavibotIndex<String>( attributeType.getName(), false );
         }
 
         mavibotIdx.setRecordManager( recordMan );
@@ -163,10 +164,10 @@ public class MavibotIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        MavibotIndex<Object, Object> MavibotIndex1 = new MavibotIndex<Object, Object>( "foo", false );
+        MavibotIndex<Object> MavibotIndex1 = new MavibotIndex<Object>( "foo", false );
         assertEquals( "foo", MavibotIndex1.getAttributeId() );
 
-        MavibotIndex<Object, Object> MavibotIndex2 = new MavibotIndex<Object, Object>( "bar", false );
+        MavibotIndex<Object> MavibotIndex2 = new MavibotIndex<Object>( "bar", false );
         assertEquals( "bar", MavibotIndex2.getAttributeId() );
 
         // initialized index
@@ -184,7 +185,7 @@ public class MavibotIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        MavibotIndex<String, Entry> index = new MavibotIndex<String, Entry>( "foo", false );
+        MavibotIndex<String> index = new MavibotIndex<String>( "foo", false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
         assertEquals( "foo", idx.getAttributeId() );
@@ -195,7 +196,7 @@ public class MavibotIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( "ou", false );
+        MavibotIndex<Object> MavibotIndex = new MavibotIndex<Object>( "ou", false );
         MavibotIndex.setCacheSize( 337 );
         assertEquals( 337, MavibotIndex.getCacheSize() );
 
@@ -220,7 +221,7 @@ public class MavibotIndexTest
         File wkdir = new File( dbFileDir, "foo" );
 
         // uninitialized index
-        MavibotIndex<String, Entry> MavibotIndex = new MavibotIndex<String, Entry>( "foo", false );
+        MavibotIndex<String> MavibotIndex = new MavibotIndex<String>( "foo", false );
         MavibotIndex.setWkDirPath( wkdir.toURI() );
         assertEquals( "foo", new File( MavibotIndex.getWkDirPath() ).getName() );
 
@@ -239,7 +240,7 @@ public class MavibotIndexTest
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
-        MavibotIndex = new MavibotIndex<String, Entry>( "ou", false );
+        MavibotIndex = new MavibotIndex<String>( "ou", false );
         wkdir.mkdirs();
         MavibotIndex.setWkDirPath( wkdir.toURI() );
         initIndex( MavibotIndex );
@@ -251,7 +252,7 @@ public class MavibotIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( "ou", false );
+        MavibotIndex<Object> MavibotIndex = new MavibotIndex<Object>( "ou", false );
         assertNull( MavibotIndex.getAttribute() );
 
         initIndex();
@@ -273,10 +274,10 @@ public class MavibotIndexTest
         assertEquals( 1, idx.count() );
 
         idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 1, idx.count() );
+        assertEquals( 2, idx.count() );
 
         idx.add( "bar", Strings.getUUID( 555L ) );
-        assertEquals( 2, idx.count() );
+        assertEquals( 3, idx.count() );
     }
 
 
@@ -507,7 +508,7 @@ public class MavibotIndexTest
     @Test
     public void testNoEqualityMatching() throws Exception
     {
-        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( "1.1", false );
+        MavibotIndex<Object> MavibotIndex = new MavibotIndex<Object>( "1.1", false );
 
         try
         {
@@ -530,7 +531,7 @@ public class MavibotIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        MavibotIndex<Object, Object> MavibotIndex = new MavibotIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT,
+        MavibotIndex<Object> MavibotIndex = new MavibotIndex<Object>( SchemaConstants.CREATORS_NAME_AT,
             false );
         MavibotIndex.setWkDirPath( dbFileDir.toURI() );
         MavibotIndex.setRecordManager( recordMan );

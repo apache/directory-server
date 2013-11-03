@@ -36,7 +36,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn, Entry>
+public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
 {
     public AvlRdnIndex()
     {
