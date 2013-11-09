@@ -656,8 +656,12 @@ public class MavibotStoreTest
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
             "entryUUID", UUID.randomUUID().toString() );
 
+        assertEquals( 3, store.getSubAliasIndex().count() );
+
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
         store.add( addContext );
+
+        assertEquals( 3, store.getSubAliasIndex().count() );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 

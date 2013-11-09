@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
@@ -47,7 +46,6 @@ import org.apache.directory.server.xdbm.IndexEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -65,6 +63,12 @@ public class MavibotIndexTest
     private static SchemaManager schemaManager;
 
     private RecordManager recordMan;
+    
+    private static final String UUID_0 = Strings.getUUID( 0L );
+    private static final String UUID_1 = Strings.getUUID( 1L );
+    private static final String UUID_1234 = Strings.getUUID( 1234L );
+    private static final String UUID_333 = Strings.getUUID( 333L );
+    private static final String UUID_555 = Strings.getUUID( 555L );
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -270,13 +274,13 @@ public class MavibotIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
+        idx.add( "foo", UUID_1234 );
         assertEquals( 1, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
+        idx.add( "foo", UUID_333 );
         assertEquals( 2, idx.count() );
 
-        idx.add( "bar", Strings.getUUID( 555L ) );
+        idx.add( "bar", UUID_555 );
         assertEquals( 3, idx.count() );
     }
 
@@ -287,13 +291,13 @@ public class MavibotIndexTest
         initIndex();
         assertEquals( 0, idx.count( "foo" ) );
 
-        idx.add( "bar", Strings.getUUID( 1234L ) );
+        idx.add( "bar", UUID_1234 );
         assertEquals( 0, idx.count( "foo" ) );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
+        idx.add( "foo", UUID_1234 );
         assertEquals( 1, idx.count( "foo" ) );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
+        idx.add( "foo", UUID_333 );
         assertEquals( 2, idx.count( "foo" ) );
     }
 
@@ -340,53 +344,21 @@ public class MavibotIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -24L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -24L ) ) );
 
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
+        idx.add( "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        assertTrue( idx.forward( "foo", UUID_0 ) );
 
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
+        idx.add( "foo", UUID_1 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        assertTrue( idx.forward( "foo", UUID_0 ) );
+        assertTrue( idx.forward( "foo", UUID_1 ) );
 
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
-        assertTrue( idx.forward( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( -1L ) ) );
+        idx.add( "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
+        assertTrue( idx.forward( "bar", UUID_0 ) );
+        assertTrue( idx.forward( "foo", UUID_0 ) );
+        assertTrue( idx.forward( "foo", UUID_1 ) );
     }
 
 
@@ -398,26 +370,26 @@ public class MavibotIndexTest
         assertNull( idx.forwardLookup( "bar" ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
+        idx.add( "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
+        idx.drop( "foo", UUID_0 );
         assertNull( idx.forwardLookup( "foo" ) );
 
         // test add/drop with duplicates in bulk
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
+        idx.add( "foo", UUID_0 );
+        idx.add( "foo", UUID_1 );
+        idx.add( "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        idx.drop( "bar", Strings.getUUID( 0L ) );
-        assertFalse( idx.forward( "bar", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forward( "foo", Strings.getUUID( 0L ) ) );
+        idx.drop( "foo", UUID_0 );
+        idx.drop( "bar", UUID_0 );
+        assertFalse( idx.forward( "bar", UUID_0 ) );
+        assertFalse( idx.forward( "foo", UUID_0 ) );
 
-        idx.drop( "bar", Strings.getUUID( 1L ) );
-        idx.drop( "foo", Strings.getUUID( 1L ) );
+        idx.drop( "bar", UUID_1 );
+        idx.drop( "foo", UUID_1 );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
         assertEquals( 0, idx.count() );
@@ -432,28 +404,28 @@ public class MavibotIndexTest
         assertNull( idx.forwardLookup( "bar" ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
+        idx.add( "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
+        idx.drop( "foo", UUID_0 );
         assertNull( idx.forwardLookup( "foo" ) );
 
         // test add/drop with duplicates but one at a time
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
+        idx.add( "foo", UUID_0 );
+        idx.add( "foo", UUID_1 );
+        idx.add( "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
 
-        idx.drop( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "bar", Strings.getUUID( 0L ) ) );
+        idx.drop( "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        assertFalse( idx.forward( "bar", UUID_0 ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 1L ), idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "foo", Strings.getUUID( 0L ) ) );
+        idx.drop( "foo", UUID_0 );
+        assertEquals( UUID_1, idx.forwardLookup( "foo" ) );
+        assertFalse( idx.forward( "foo", UUID_0 ) );
 
-        idx.drop( "foo", Strings.getUUID( 1L ) );
+        idx.drop( "foo", UUID_1 );
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
         assertEquals( 0, idx.count() );
@@ -470,35 +442,35 @@ public class MavibotIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
+        idx.add( "foo", UUID_1234 );
         assertEquals( 1, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 1, idx.count() );
-
-        idx.add( "bar", Strings.getUUID( 555L ) );
+        idx.add( "foo", UUID_333 );
         assertEquals( 2, idx.count() );
+
+        idx.add( "bar", UUID_555 );
+        assertEquals( 3, idx.count() );
 
         // use forward index's cursor
         Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor();
         cursor.beforeFirst();
 
-        assertEquals( 2, idx.count() );
+        assertEquals( 3, idx.count() );
 
         cursor.next();
         IndexEntry<String, String> e1 = cursor.get();
-        assertEquals( Strings.getUUID( 555L ), e1.getId() );
+        assertEquals( UUID_555, e1.getId() );
         assertEquals( "bar", e1.getKey() );
 
         cursor.next();
         IndexEntry<String, String> e2 = cursor.get();
-        assertEquals( Strings.getUUID( 333L ), e2.getId() );
-        //assertEquals( Strings.getUUID( 1234L ), e3.getId() );
+        assertEquals( UUID_333, e2.getId() );
+        //assertEquals( UUID_1234, e3.getId() );
         assertEquals( "foo", e2.getKey() );
 
         cursor.next();
         IndexEntry<String, String> e3 = cursor.get();
-        assertEquals( Strings.getUUID( 1234L ), e3.getId() );
+        assertEquals( UUID_1234, e3.getId() );
         assertEquals( "foo", e3.getKey() );
 
         cursor.close();

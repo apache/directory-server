@@ -100,6 +100,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isDupsEnabled()
     {
@@ -107,6 +110,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean has( K key ) throws IOException
     {
@@ -114,6 +120,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean has( K key, V value ) throws LdapException
     {
@@ -128,6 +137,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasGreaterOrEqual( K key ) throws Exception
     {
@@ -195,6 +207,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasGreaterOrEqual( K key, V val ) throws LdapException
     {
@@ -221,7 +236,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             int equal = bt.getValueSerializer().compare( val, valueCursor.next() );
 
-            return ( equal == 0 );
+            return ( equal >= 0 );
         }
         catch ( Exception e )
         {
@@ -237,6 +252,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasLessOrEqual( K key, V val ) throws Exception
     {
@@ -261,6 +279,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public V get( K key ) throws LdapException
     {
@@ -284,6 +305,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void put( K key, V value ) throws Exception
     {
@@ -294,10 +318,10 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
 
-            V replaced = bt.insert( key, value );
-
-            if  ( ( replaced == null ) || ( !replaced.equals( value ) ) )
+            if ( !bt.contains( key, value ) )
             {
+                bt.insert( key, value );
+    
                 count++;
             }
         }
@@ -309,6 +333,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void remove( K key ) throws Exception
     {
@@ -342,6 +369,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void remove( K key, V value ) throws Exception
     {
@@ -352,10 +382,10 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.directory.mavibot.btree.Tuple<K, V> t = bt.delete( key, value );
+            org.apache.directory.mavibot.btree.Tuple<K, V> tuple = bt.delete( key, value );
 
             // We decrement the counter only when the key was found
-            if ( t != null )
+            if ( tuple != null )
             {
                 count--;
             }
@@ -367,6 +397,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Cursor<Tuple<K, V>> cursor() throws LdapException
     {
@@ -374,6 +407,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Cursor<Tuple<K, V>> cursor( K key ) throws LdapException
     {
@@ -409,6 +445,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Cursor<V> valueCursor( K key ) throws Exception
     {
@@ -427,9 +466,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                ValueCursor<V> dupHolder = bt.getValues( key );
+                ValueCursor<V> dupCursor = bt.getValues( key );
 
-                return new ValueTreeCursor<V>( dupHolder );
+                return new ValueTreeCursor<V>( dupCursor );
             }
         }
         catch ( KeyNotFoundException knfe )
@@ -443,6 +482,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long count( K key ) throws Exception
     {
@@ -451,45 +493,37 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             return 0;
         }
 
-        try
+        if ( bt.isAllowDuplicates() )
         {
-            if ( bt.isAllowDuplicates() )
+            try
             {
                 ValueCursor<V> dupHolder = bt.getValues( key );
-
+    
                 return dupHolder.size();
             }
-            else
+            catch ( KeyNotFoundException knfe )
             {
-                bt.get( key );
-
+                // No key 
+                return 0;
+            }
+        }
+        else
+        {
+            if ( bt.hasKey( key ) )
+            {
                 return 1;
             }
-        }
-        catch ( KeyNotFoundException knfe )
-        {
-            return 0L;
-        }
-
-        /*
-        if ( bt.hasKey( key ) )
-        {
-            if ( !allowsDuplicates )
-            {
-                return 1L;
-            }
             else
             {
-                BTree<V, V> values = bt.getValues( key );
-                return values.getNbElems();
+                return 0;
             }
         }
-
-        return 0;
-        */
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long greaterThanCount( K key ) throws Exception
     {
@@ -498,6 +532,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long lessThanCount( K key ) throws Exception
     {
@@ -506,6 +543,12 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws Exception
     {

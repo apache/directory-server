@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Cursor over the Tuples of a Mavibot BTree.
+ * Cursor over the Tuples of a Mavibot BTree. If the BTree allows duplicate values,
+ * we will browse each value and return a Tuple for each one of them.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -42,11 +43,16 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( "CURSOR" );
 
+    /** The table we are building a cursor over */
     private final MavibotTable<K, V> table;
 
+    /** The tuple which will be returned */
     private Tuple<K, V> returnedTuple = new Tuple<K, V>();
-    private boolean valueAvailable;
+    
+    /** A flag set when there is a Tuple available */
+    private boolean valueAvailable = false;
 
+    /** The Tuple browser */
     private TupleCursor<K, V> browser;
 
 
@@ -62,6 +68,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * Cleanup the returned tuple before reusing it.
+     */
     private void clearValue()
     {
         returnedTuple.setKey( null );
@@ -70,12 +79,21 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean available()
     {
         return valueAvailable;
     }
 
 
+    /**
+     * Sets the position before a given key
+     * @param key The key we want to start with
+     * @throws LdapException 
+     * @throws CursorException
+     */
     public void beforeKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "beforeKey()" );
@@ -103,7 +121,12 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Sets the position before a given key
+     * @param key The key we want to start with
+     * @throws LdapException 
+     * @throws CursorException
+     */
     public void afterKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "afterKey()" );
@@ -139,12 +162,26 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * Sets the position before a given key and a given value for this key
+     * @param key The key we want to start with
+     * @param value The value we want to start with
+     * @throws LdapException 
+     * @throws CursorException
+     */
     public void beforeValue( K key, V value ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
     }
 
 
+    /**
+     * Sets the position after a given key and a given value for this key
+     * @param key The key we want to start with
+     * @param value The value we want to start with
+     * @throws LdapException 
+     * @throws CursorException
+     */
     public void afterValue( K key, V value ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
@@ -152,9 +189,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
 
     /**
-     * Positions this Cursor before the key of the supplied tuple.
-     *
-     * @param element the tuple who's key is used to position this Cursor
+     * {@inheritDoc}
      */
     public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
@@ -162,12 +197,18 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         afterKey( element.getKey() );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
@@ -189,6 +230,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
@@ -210,13 +254,20 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
+        
         return next();
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean last() throws LdapException, CursorException
     {
         afterLast();
@@ -224,7 +275,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
@@ -256,7 +309,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    @SuppressWarnings("unchecked")
+    /**
+     * {@inheritDoc}
+     */
     public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
@@ -289,6 +344,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
@@ -325,6 +383,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
+    /**
+     * Close the browser
+     */
     private void closeBrowser( TupleCursor<K, V> browser )
     {
         if ( browser != null )
