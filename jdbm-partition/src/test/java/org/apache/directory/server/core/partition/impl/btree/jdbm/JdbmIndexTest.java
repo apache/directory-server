@@ -367,53 +367,21 @@ public class JdbmIndexTest
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -24L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -24L ) ) );
 
         idx.add( "foo", Strings.getUUID( 0L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "foo", Strings.getUUID( 1L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "bar", Strings.getUUID( 0L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
         assertTrue( idx.forward( "bar", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( -1L ) ) );
     }
 
 

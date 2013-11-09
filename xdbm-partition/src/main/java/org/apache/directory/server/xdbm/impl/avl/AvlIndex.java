@@ -253,42 +253,6 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forwardGreaterOrEq( K attrVal ) throws Exception
-    {
-        return forward.hasGreaterOrEqual( attrVal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardGreaterOrEq( K attrVal, String id ) throws Exception
-    {
-        return forward.hasGreaterOrEqual( attrVal, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardLessOrEq( K attrVal ) throws Exception
-    {
-        return forward.hasLessOrEqual( attrVal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardLessOrEq( K attrVal, String id ) throws Exception
-    {
-        return forward.hasLessOrEqual( attrVal, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public String forwardLookup( K attrVal ) throws Exception
     {
         return forward.get( attrVal );
@@ -384,70 +348,6 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
         else
         {
             return new EmptyIndexCursor<K>();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( String id ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasGreaterOrEqual( id );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( String id, K attrVal ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return reverse.hasGreaterOrEqual( id, attrVal );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( String id ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasLessOrEqual( id );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( String id, K attrVal ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasLessOrEqual( id, attrVal );
-        }
-        else
-        {
-            return false;
         }
     }
 

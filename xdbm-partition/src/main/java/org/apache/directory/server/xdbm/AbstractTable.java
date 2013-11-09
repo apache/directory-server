@@ -50,7 +50,7 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     /** a value comparator for the values in this Table */
     protected final Comparator<V> valueComparator;
 
-    /** the current count of entries in this Table */
+    /** the current count of Tuples in this Table */
     protected long count;
 
     /** whether or not this table allows for duplicates */

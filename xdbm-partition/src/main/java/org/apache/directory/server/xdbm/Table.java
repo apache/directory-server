@@ -273,7 +273,7 @@ public interface Table<K, V>
     // ------------------------------------------------------------------------
 
     /**
-     * Gets the count of the number of records in this Table.
+     * Gets the count of the number of Tuples in this Table.
      *
      * @return the number of records
      * @throws Exception if there is a failure to read the underlying Db

@@ -225,30 +225,6 @@ public interface Index<K, ID>
     boolean reverse( ID id, K attrVal ) throws Exception;
 
 
-    boolean forwardGreaterOrEq( K attrVal ) throws Exception;
-
-
-    boolean forwardGreaterOrEq( K attrVal, ID id ) throws Exception;
-
-
-    boolean reverseGreaterOrEq( ID id ) throws Exception;
-
-
-    boolean reverseGreaterOrEq( ID id, K attrVal ) throws LdapException;
-
-
-    boolean forwardLessOrEq( K attrVal ) throws Exception;
-
-
-    boolean forwardLessOrEq( K attrVal, ID id ) throws Exception;
-
-
-    boolean reverseLessOrEq( ID id ) throws Exception;
-
-
-    boolean reverseLessOrEq( ID id, K attrVal ) throws Exception;
-
-
     void close() throws Exception;
 
 
