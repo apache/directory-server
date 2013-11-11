@@ -39,6 +39,7 @@ import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
@@ -191,7 +192,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
-            new StringSerializer(), forwardDups );
+            new StringSerializer(), forwardDups, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
 
         /*
          * Now the reverse map stores the primary key into the master table as

@@ -34,10 +34,10 @@ import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.managed.BTree;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
-import org.apache.directory.mavibot.btree.managed.ValueHolder;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
 import org.slf4j.Logger;
@@ -65,6 +65,14 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates )
         throws IOException
     {
+        this( recordMan, schemaManager, name, keySerializer, valueSerializer, allowDuplicates, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
+    }
+
+
+    public MavibotTable( RecordManager recordMan, SchemaManager schemaManager, String name,
+        ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates, int cacheSize )
+        throws IOException
+    {
         super( schemaManager, name, keySerializer.getComparator(), valueSerializer.getComparator() );
         this.recordMan = recordMan;
 
@@ -72,7 +80,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         if ( bt == null )
         {
-            bt = new BTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates );
+            bt = new BTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
 
             try
             {

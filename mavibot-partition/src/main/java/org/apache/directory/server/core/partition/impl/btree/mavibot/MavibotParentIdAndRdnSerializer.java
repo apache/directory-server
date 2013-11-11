@@ -108,7 +108,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
 
                 try
                 {
-                    // The current position. Start at 4, as we will add the length at pos 0
+                    // The current position.
                     int pos = 0;
 
                     // First, the Dn
@@ -157,6 +157,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                     }
 
 
+                    // Copy the serialized data
                     byte[] result = new byte[pos];
                     System.arraycopy( buffer, 0, result, 0, pos );
 
@@ -195,11 +196,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     @Override
     public ParentIdAndRdn deserialize( ByteBuffer buffer ) throws IOException
     {
-        int len = buffer.getInt();
-
         ParentIdAndRdn parentIdAndRdn = fromBytes( buffer.array(), buffer.position() );
-
-        buffer.position( buffer.position() + len );
 
         return parentIdAndRdn;
     }

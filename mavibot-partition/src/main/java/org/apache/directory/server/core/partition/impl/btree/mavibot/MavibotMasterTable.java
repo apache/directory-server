@@ -37,6 +37,11 @@ import org.apache.directory.server.xdbm.MasterTable;
  */
 public class MavibotMasterTable extends MavibotTable<String, Entry> implements MasterTable
 {
+    public MavibotMasterTable( RecordManager recordMan, SchemaManager schemaManager, String name, int cacheSize )
+        throws IOException
+    {
+        super( recordMan, schemaManager, name, new StringSerializer(), new MavibotEntrySerializer(), false, cacheSize );
+    }
 
     public MavibotMasterTable( RecordManager recordMan, SchemaManager schemaManager, String name )
         throws IOException
