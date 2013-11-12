@@ -211,6 +211,8 @@ public class DSAnnotationProcessor
                     createPartition.suffix(),
                     createPartition.cacheSize(),
                     new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
+                
+                partition.setCacheService( service.getCacheService() );
 
                 CreateIndex[] indexes = createPartition.indexes();
 

@@ -23,6 +23,8 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.ehcache.Element;
+
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
@@ -144,7 +146,30 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-        Dn aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+//        Dn aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Element element = null;
+        
+        if ( db.getAliasCache() != null )
+        {
+            element = db.getAliasCache().get( baseId );
+        }
+        
+        Dn aliasedBase = null;
+        
+        if ( element != null )
+        {
+            aliasedBase = (Dn)element.getObjectValue();
+        }
+        else
+        {
+            aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+            
+            if ( db.getAliasCache() != null )
+            {
+                db.getAliasCache().put( new Element( baseId, aliasedBase ) );
+            }
+        }
+        
         Dn effectiveBase = baseDn;
         String effectiveBaseId = baseId;
 

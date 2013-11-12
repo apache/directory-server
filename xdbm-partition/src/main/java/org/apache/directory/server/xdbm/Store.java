@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -434,4 +436,11 @@ public interface Store
      * @return The ReadWrite lock used to protect the server against concurrent read and writes
      */
     ReadWriteLock getReadWriteLock();
+    
+    
+    /**
+     * @return the Alias cache
+     * @return
+     */
+    Cache getAliasCache();
 }

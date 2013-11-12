@@ -51,7 +51,7 @@ public class MavibotPartitionFactory implements PartitionFactory
         MavibotPartition partition = new MavibotPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
-        partition.setCacheSize( 500 );
+        partition.setCacheSize( cacheSize );
         partition.setPartitionPath( workingDirectory.toURI() );
 
         return partition;

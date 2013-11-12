@@ -33,6 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -117,6 +120,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /** The Entry cache size for this partition */
     protected int cacheSize = -1;
 
+    /** The alias cache */
+    protected Cache aliasCache;
+
     /** true if we sync disks on every write operation */
     protected AtomicBoolean isSyncOnWrite = new AtomicBoolean( true );
 
@@ -178,7 +184,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /** A lock to protect the backend from concurrent reads/writes */
     private ReadWriteLock rwLock;
-
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -2696,6 +2701,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Add the alias to the simple alias index
         aliasIdx.add( aliasTarget, aliasId );
+        
+        if ( aliasCache != null )
+        {
+            aliasCache.put( new Element( aliasId, aliasTarget ) );
+        } 
 
         /*
          * Handle One Level Scope Alias Index
@@ -2789,6 +2799,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Drops all alias tuples pointing to the id of the alias to be deleted
         aliasIdx.drop( aliasId );
+        
+        if ( aliasCache != null )
+        {
+            aliasCache.remove( aliasId );
+        }
     }
 
 
@@ -3056,5 +3071,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public ReadWriteLock getReadWriteLock()
     {
         return rwLock;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Cache getAliasCache()
+    {
+        return aliasCache;
     }
 }
