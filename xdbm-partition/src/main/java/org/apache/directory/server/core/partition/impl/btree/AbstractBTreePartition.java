@@ -34,7 +34,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -875,6 +874,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Entry deletedEntry = delete( id );
 
             updateCache( deleteContext );
+            
+            Entry found = fetch( id );
 
             return deletedEntry;
         }
@@ -976,7 +977,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Update the ObjectClass index
             for ( Value<?> value : objectClass )
             {
-                objectClassIdx.drop( value.getString(), id );
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+                
+                objectClassIdx.drop( valueStr, id );
             }
 
             // Update the parent's nbChildren and nbDescendants values
@@ -1303,7 +1311,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             for ( Value<?> value : mods )
             {
-                objectClassIdx.add( ( String ) value.getNormValue(), id );
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+                
+                objectClassIdx.add( valueStr, id );
             }
         }
         else if ( hasUserIndexOn( attributeType ) )
@@ -1404,17 +1419,26 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // value index entries and add new ones
             for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
             {
-                objectClassIdx.drop( ( String ) value.getNormValue(), id );
-            }
+                String valueStr = ( String ) value.getNormValue();
 
-            for ( Value<?> value : mods )
-            {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
                 {
                     continue;
                 }
 
-                objectClassIdx.add( ( String ) value.getNormValue(), id );
+                objectClassIdx.drop( valueStr, id );
+            }
+
+            for ( Value<?> value : mods )
+            {
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+
+                objectClassIdx.add( valueStr, id );
             }
         }
         else if ( hasUserIndexOn( attributeType ) )
@@ -1452,13 +1476,27 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Remove the previous values
             for ( Value<?> value : entry.get( ADMINISTRATIVE_ROLE_AT ) )
             {
-                objectClassIdx.drop( ( String ) value.getNormValue(), id );
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+                
+                objectClassIdx.drop( valueStr, id );
             }
 
             // And add the new ones 
             for ( Value<?> value : mods )
             {
-                adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+                
+                adminRoleIdx.add( valueStr, id );
             }
         }
 
@@ -1523,16 +1561,30 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
              */
             if ( mods.size() == 0 )
             {
-                for ( Value<?> objectClass : entry.get( OBJECT_CLASS_AT ) )
+                for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
                 {
-                    objectClassIdx.drop( ( String ) objectClass.getNormValue(), id );
+                    String valueStr = ( String ) value.getNormValue();
+
+                    if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                    {
+                        continue;
+                    }
+
+                    objectClassIdx.drop( valueStr, id );
                 }
             }
             else
             {
                 for ( Value<?> value : mods )
                 {
-                    objectClassIdx.drop( ( String ) value.getNormValue(), id );
+                    String valueStr = ( String ) value.getNormValue();
+
+                    if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                    {
+                        continue;
+                    }
+
+                    objectClassIdx.drop( valueStr, id );
                 }
             }
         }
@@ -2701,11 +2753,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Add the alias to the simple alias index
         aliasIdx.add( aliasTarget, aliasId );
-        
-        if ( aliasCache != null )
-        {
-            aliasCache.put( new Element( aliasId, aliasTarget ) );
-        } 
 
         /*
          * Handle One Level Scope Alias Index
@@ -2799,11 +2846,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Drops all alias tuples pointing to the id of the alias to be deleted
         aliasIdx.drop( aliasId );
-        
-        if ( aliasCache != null )
-        {
-            aliasCache.remove( aliasId );
-        }
     }
 
 
