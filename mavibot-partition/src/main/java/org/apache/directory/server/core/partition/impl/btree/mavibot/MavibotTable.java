@@ -355,15 +355,29 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
 
             // Get the associated valueHolder
-            ValueCursor<V> valueCursor = bt.getValues( key );
-            org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
-
-            if ( null == returned )
+            if ( bt.isAllowDuplicates() )
             {
-                return;
-            }
+                ValueCursor<V> valueCursor = bt.getValues( key );
+                org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
 
-            count -= valueCursor.size();
+                if ( null == returned )
+                {
+                    return;
+                }
+
+                count -= valueCursor.size();
+            }
+            else
+            {
+                org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
+
+                if ( null == returned )
+                {
+                    return;
+                }
+
+                count--;
+            }
         }
         catch ( Exception e )
         {
