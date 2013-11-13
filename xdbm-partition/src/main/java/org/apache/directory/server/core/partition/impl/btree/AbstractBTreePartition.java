@@ -875,8 +875,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             updateCache( deleteContext );
             
-            Entry found = fetch( id );
-
             return deletedEntry;
         }
         catch ( LdapException le )
@@ -954,7 +952,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             try
             {
-                entry = master.get( id );
+                 entry = master.get( id );
             }
             finally
             {
