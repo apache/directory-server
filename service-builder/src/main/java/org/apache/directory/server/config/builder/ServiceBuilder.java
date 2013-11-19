@@ -1148,7 +1148,8 @@ public class ServiceBuilder
                 config.setSearchTimeout( replBean.getReplSearchTimeout() );
                 config.setReplUserDn( replBean.getReplUserDn() );
                 config.setReplUserPassword( replBean.getReplUserPassword() );
-
+                config.setSearchSizeLimit( replBean.getReplSearchSizeLimit() );
+                
                 config.setUseTls( replBean.isReplUseTls() );
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
 
