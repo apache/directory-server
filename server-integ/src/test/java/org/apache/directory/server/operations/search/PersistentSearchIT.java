@@ -21,7 +21,7 @@ package org.apache.directory.server.operations.search;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -47,14 +47,22 @@ import org.apache.directory.api.ldap.codec.api.CodecControl;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.message.Control;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearchImpl;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -177,6 +185,11 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @After
     public void tearDownListener() throws Exception
     {
+        if( listener == null )
+        {
+            return;
+        }
+        
         listener.close();
         ctx.close();
 
@@ -360,6 +373,71 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
     }
 
+
+    /**
+     * Test for DIRSERVER-1908 
+     */
+    @Test
+    public void testPsearchMove() throws Exception
+    {
+        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        connection.bind( "uid=admin,ou=system", "secret" );
+        
+        Entry newOu = new DefaultEntry( "uid=persist, ou=users,ou=system" );
+        newOu.add( "objectClass", "inetOrgPerson" );
+        newOu.add( "cn", "persist_cn" );
+        newOu.add( "sn", "persist_sn" );
+        
+        connection.add( newOu );
+        
+        SearchRequest sr = new SearchRequestImpl();
+        sr.setBase( new Dn( BASE ) );
+        sr.setFilter( "(objectClass=*)" );
+        sr.setScope( SearchScope.SUBTREE );
+        
+        PersistentSearch ps = new PersistentSearchImpl();
+        ps.setChangesOnly( true );
+        ps.setReturnECs( true );
+        ps.setCritical( true );
+        
+        sr.addControl( ps );
+        
+        final SearchCursor cursor = connection.search( sr );
+        
+        final List<Entry> entryList = new ArrayList<Entry>();
+        
+        Runnable r = new Runnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                try
+                {
+                    while( cursor.next() )
+                    {
+                        entryList.add( cursor.getEntry() );
+                    }
+                }
+                catch( Exception e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        };
+        
+        new Thread( r ).start();
+        
+        connection.move( newOu.getDn(), newOu.getDn().getParent().getParent() );
+        Thread.sleep( 1000 );
+        assertFalse( entryList.isEmpty() );
+        assertEquals( 1, entryList.size() );
+        assertEquals( "uid=persist,ou=system", entryList.get( 0 ).getDn().getName() );
+        
+        connection.close();
+    }
+
+    
     /**
      * Shows correct notifications for add(1) changes with returned
      * EntryChangeControl and changesOnly set to false so we return
