@@ -1266,4 +1266,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     {
         // Does nothing
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
+    }
 }
