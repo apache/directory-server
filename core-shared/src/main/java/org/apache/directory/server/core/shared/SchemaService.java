@@ -145,7 +145,7 @@ public class SchemaService
 
         for ( MatchingRule matchingRule : schemaManager.getMatchingRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( matchingRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( matchingRule ) );
         }
 
         return attr;
@@ -159,7 +159,7 @@ public class SchemaService
 
         for ( MatchingRuleUse matchingRuleUse : schemaManager.getMatchingRuleUseRegistry() )
         {
-            attr.add( SchemaUtils.render( matchingRuleUse ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( matchingRuleUse ) );
         }
 
         return attr;
@@ -173,7 +173,7 @@ public class SchemaService
 
         for ( LdapSyntax syntax : schemaManager.getLdapSyntaxRegistry() )
         {
-            attr.add( SchemaUtils.render( syntax ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( syntax ) );
         }
 
         return attr;
