@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.model.schema.NameForm;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.SchemaObjectRenderer;
 import org.apache.directory.api.ldap.model.schema.SchemaUtils;
 import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.registries.NormalizerRegistry;
@@ -116,7 +117,7 @@ public class SchemaService
 
         for ( ObjectClass objectClass : schemaManager.getObjectClassRegistry() )
         {
-            attr.add( SchemaUtils.render( objectClass ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( objectClass ) );
         }
 
         return attr;
@@ -130,7 +131,7 @@ public class SchemaService
 
         for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
-            attr.add( SchemaUtils.render( attributeType ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( attributeType ) );
         }
 
         return attr;
