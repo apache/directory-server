@@ -105,6 +105,13 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     }
 
 
+    public DefaultDirectoryServiceFactory( DirectoryService directoryService, PartitionFactory partitionFactory )
+    {
+        this.directoryService = directoryService;
+        this.partitionFactory = partitionFactory;
+    }
+    
+    
     /**
      * {@inheritDoc}
      */

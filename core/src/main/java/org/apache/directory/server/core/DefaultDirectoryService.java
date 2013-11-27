@@ -1686,7 +1686,8 @@ public class DefaultDirectoryService implements DirectoryService
      * Displays security warning messages if any possible secutiry issue is found.
      * @throws Exception if there are failures parsing and accessing internal structures
      */
-    private void showSecurityWarnings() throws Exception
+    // made protected as per the request in DIRSERVER-1920
+    protected void showSecurityWarnings() throws Exception
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
