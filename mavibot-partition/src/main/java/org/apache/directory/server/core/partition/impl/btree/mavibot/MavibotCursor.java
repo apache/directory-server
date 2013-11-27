@@ -108,15 +108,6 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             throw new CursorException( e );
         }
 
-        try
-        {
-            browser = table.getBTree().browseFrom( key );
-        }
-        catch ( IOException ioe )
-        {
-            throw new CursorException( ioe.getMessage() );
-        }
-
         clearValue();
     }
 
@@ -138,7 +129,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
             if ( table.isDupsEnabled() )
             {
-                browser.moveToNextNonDuplicateKey();
+                browser.nextKey();
             }
             else
             {

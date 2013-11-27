@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
