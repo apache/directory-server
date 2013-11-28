@@ -63,6 +63,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.LoadSchema;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -2027,4 +2028,27 @@ public class SearchIT extends AbstractLdapTestUnit
 
         assertNotNull( rootDse );
     }
+    
+    
+    /**
+     * Test for DIRSERVER-1922
+     */
+    @Test
+    public void testNotEvaluator() throws Exception
+    {
+        LdapConnection con = new LdapCoreSessionConnection( service.getAdminSession() );
+
+        EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=00001))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        int count = 0;
+        while ( cursor.next() )
+        {
+            count++;
+        }
+        
+        cursor.close();
+        
+        assertEquals( 5, count );
+    }
+    
 }

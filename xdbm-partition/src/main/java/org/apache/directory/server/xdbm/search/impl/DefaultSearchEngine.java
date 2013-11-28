@@ -47,6 +47,7 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.evaluator.BaseLevelScopeEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.EmptyEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,7 +186,7 @@ public class DefaultSearchEngine implements SearchEngine
                 evaluator = evaluatorBuilder.build( filter );
 
                 // Special case if the filter selects no candidate
-                if ( evaluator == null )
+                if ( ( evaluator == null ) || ( evaluator instanceof EmptyEvaluator ) )
                 {
                     ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
                     evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
