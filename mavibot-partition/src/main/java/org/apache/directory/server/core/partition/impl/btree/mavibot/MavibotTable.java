@@ -328,10 +328,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             if ( !bt.contains( key, value ) )
             {
-                bt.insert( key, value );
-    
                 count++;
             }
+            
+            // Always insert the entry. If it already exists, it will replace the previous entry
+            bt.insert( key, value );
         }
         catch ( Exception e )
         {

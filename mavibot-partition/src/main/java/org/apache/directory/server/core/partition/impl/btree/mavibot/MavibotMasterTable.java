@@ -60,7 +60,7 @@ public class MavibotMasterTable extends MavibotTable<String, Entry> implements M
     @Override
     public void close() throws Exception
     {
-        recordMan.close();
+        // do nothing here, the RecordManager will be closed in MavibotMasterTable.close()
     }
 
 }

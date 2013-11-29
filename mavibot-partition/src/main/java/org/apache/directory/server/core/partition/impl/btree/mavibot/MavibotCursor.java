@@ -133,9 +133,9 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             }
             else
             {
-                if ( browser.hasNext() )
+                if ( browser.hasNextKey() )
                 {
-                    browser.next();
+                    browser.nextKey();
                 }
                 else
                 {
