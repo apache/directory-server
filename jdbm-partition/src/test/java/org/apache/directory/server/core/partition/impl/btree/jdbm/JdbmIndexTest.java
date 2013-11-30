@@ -360,6 +360,30 @@ public class JdbmIndexTest
     // -----------------------------------------------------------------------
     // Add, Drop and Lookup Test Methods
     // -----------------------------------------------------------------------
+    
+
+    @Test
+    public void testLookupsToo() throws Exception
+    {
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "seeAlso" );
+        JdbmIndex<String> index = new JdbmIndex<String>( attributeType.getName(), false );
+        index.setWkDirPath( dbFileDir.toURI() );
+        index.init( schemaManager, attributeType );
+        this.idx = index;
+
+        String foobarDn = "uid=foo,ou=bar";
+        String bazbarDn = "uid=baz,ou=bar";
+
+        assertNull( idx.forwardLookup( foobarDn ) );
+        assertNull( idx.forwardLookup( bazbarDn ) );
+        idx.add( foobarDn, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
+        assertNull( idx.forwardLookup( bazbarDn ) );
+        idx.add( bazbarDn, Strings.getUUID( 24L ) );
+        assertEquals( Strings.getUUID( 24L ), idx.forwardLookup( bazbarDn ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
+    }
+
 
     @Test
     public void testLookups() throws Exception
