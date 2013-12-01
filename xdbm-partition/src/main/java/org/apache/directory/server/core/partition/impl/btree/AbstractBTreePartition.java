@@ -925,8 +925,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // Inject the modified element into the index
-            // we first need to drop it so that the key can be replaced
-            rdnIdx.drop( parentId );
             rdnIdx.add( parent, parentId );
 
             parentId = parent.getParentId();
