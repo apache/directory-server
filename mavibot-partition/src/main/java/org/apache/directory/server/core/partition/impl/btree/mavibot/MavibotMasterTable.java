@@ -62,5 +62,4 @@ public class MavibotMasterTable extends MavibotTable<String, Entry> implements M
     {
         // do nothing here, the RecordManager will be closed in MavibotMasterTable.close()
     }
-
 }
