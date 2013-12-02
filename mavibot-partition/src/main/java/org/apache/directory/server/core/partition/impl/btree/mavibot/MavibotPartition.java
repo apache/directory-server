@@ -72,12 +72,11 @@ import org.slf4j.LoggerFactory;
  */
 public class MavibotPartition extends AbstractBTreePartition
 {
-
     /** static logger */
     private static final Logger LOG = LoggerFactory.getLogger( MavibotPartition.class );
 
     private static final String MAVIBOT_DB_FILE_EXTN = ".data";
-
+    
     private static final FilenameFilter DB_FILTER = new FilenameFilter()
     {
 
@@ -209,7 +208,31 @@ public class MavibotPartition extends AbstractBTreePartition
             if ( cacheService != null )
             {
                 entryCache = cacheService.getCache( getId() );
+                
+                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                }
+                
                 aliasCache = cacheService.getCache( "alias" );
+
+                cacheSizeConfig = aliasCache.getCacheConfiguration().getMaxElementsInMemory();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    aliasCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                }
+                
+                piarCache = cacheService.getCache( "piar" );
+                
+                cacheSizeConfig = piarCache.getCacheConfiguration().getMaxElementsInMemory();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    piarCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize * 3 );
+                }
             }
 
             // We are done !

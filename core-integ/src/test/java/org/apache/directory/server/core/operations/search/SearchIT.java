@@ -2028,6 +2028,32 @@ public class SearchIT extends AbstractLdapTestUnit
 
         assertNotNull( rootDse );
     }
+
+
+    @Test
+    public void testSearchOrGidNumber() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
+        LdapContext nullRootCtx = getRootContext( getService() );
+
+        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(|(&(objectclass=posixGroup)(|(gidnumber=1)(gidnumber=1)))(objectClass=posixGroupp))", controls );
+        Attributes rootDse = null;
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            rootDse = result.getAttributes();
+        }
+
+        list.close();
+
+        assertNotNull( rootDse );
+    }
     
     
     /**
@@ -2050,5 +2076,4 @@ public class SearchIT extends AbstractLdapTestUnit
         
         assertEquals( 5, count );
     }
-    
 }

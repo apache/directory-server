@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -121,6 +122,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /** The alias cache */
     protected Cache aliasCache;
+
+    /** The ParentIdAndRdn cache */
+    protected Cache piarCache;
 
     /** true if we sync disks on every write operation */
     protected AtomicBoolean isSyncOnWrite = new AtomicBoolean( true );
@@ -2244,11 +2248,24 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             do
             {
-                ParentIdAndRdn cur = rdnIdx.reverseLookup( parentId );
-
-                if ( cur == null )
+                ParentIdAndRdn cur = null;
+            
+                Element piar = piarCache.get( parentId );
+                
+                if ( piar != null )
                 {
-                    return null;
+                    cur = (ParentIdAndRdn)piar.getValue();
+                }
+                else
+                {
+                    cur = rdnIdx.reverseLookup( parentId );
+                    
+                    if ( cur == null )
+                    {
+                        return null;
+                    }
+                    
+                    piarCache.put( new Element( parentId, cur) );
                 }
 
                 Rdn[] rdns = cur.getRdns();
