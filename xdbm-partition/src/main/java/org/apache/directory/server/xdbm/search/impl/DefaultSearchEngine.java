@@ -147,7 +147,27 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-        Dn aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Dn aliasedBase = null;
+        
+        if ( db.getAliasCache() != null )
+        {
+            Element aliasBaseElement = db.getAliasCache().get( baseId );
+            
+            if ( aliasBaseElement != null )
+            { 
+                aliasedBase = (Dn)(aliasBaseElement).getObjectValue();
+            }
+            else
+            {
+                aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+                db.getAliasCache().put( new Element( baseId, aliasedBase ) );
+            }
+        }
+        else
+        {
+            aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        }
+        
         Dn effectiveBase = baseDn;
         String effectiveBaseId = baseId;
 
