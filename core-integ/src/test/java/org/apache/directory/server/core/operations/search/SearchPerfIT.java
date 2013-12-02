@@ -24,10 +24,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
 
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
@@ -39,9 +41,11 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,7 +61,7 @@ import org.junit.runner.RunWith;
     partitions =
         {
             @CreatePartition(
-                cacheSize = 10000,
+                cacheSize = 12000,
                 name = "example",
                 suffix = "dc=example,dc=com",
                 contextEntry = @ContextEntry(
@@ -68,10 +72,10 @@ import org.junit.runner.RunWith;
                         "objectClass: domain\n\n"),
                 indexes =
                     {
-                        @CreateIndex(attribute = "objectClass", cacheSize = 1000),
-                        @CreateIndex(attribute = "sn", cacheSize = 1000),
-                        @CreateIndex(attribute = "cn", cacheSize = 10000),
-                        @CreateIndex(attribute = "displayName", cacheSize = 1000)
+                        @CreateIndex(attribute = "objectClass", cacheSize = 2000),
+                        @CreateIndex(attribute = "sn", cacheSize = 2000),
+                        @CreateIndex(attribute = "cn", cacheSize = 2000),
+                        @CreateIndex(attribute = "displayName", cacheSize = 2000)
                 })
 
     },
@@ -310,18 +314,25 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         connection.bind( "uid=admin,ou=system", "secret" );
 
         Entry rootPeople = new DefaultEntry(
+            connection.getSchemaManager(),
             "ou=People,dc=example,dc=com",
             "objectClass: top",
             "objectClass: organizationalUnit",
             "ou: People" );
 
         connection.add( rootPeople );
-        int nbUsers = 100000;
+        int nbUsers = 10000;
+        
+        System.out.println( "Sleeping..." );
+        Thread.sleep( 10000 );
 
         long tadd0 = System.currentTimeMillis();
+        long tadd = tadd0;
+
         for ( int i = 0; i < nbUsers; i++ )
         {
             Entry user = new DefaultEntry(
+                connection.getSchemaManager(),
                 "uid=user." + i + ",ou=People,dc=example,dc=com",
                 "objectClass: top",
                 "objectClass: person",
@@ -345,17 +356,33 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 "postalAddress: Aaccf Amar$00599 First Street$Augusta, MN  30667",
                 "description: This is the description for Aaccf Amar." );
 
-            connection.add( user );
-
-            if ( i % 100 == 0 )
+            try
             {
-                System.out.println( "Injected " + i );
+                connection.add( user );
+            }
+            catch ( NullPointerException npe )
+            {
+                System.out.println( i );
+                npe.printStackTrace();
+                throw npe;
+            }
+
+            if ( i % 1000 == 0 )
+            {
+                long tadd1 = System.currentTimeMillis();
+                System.out.println( "Injected " + i + " in " + ( tadd1 - tadd ) );
+                tadd = tadd1;
             }
         }
+
+        System.out.println( "Sleeping after add ..." );
+        //Thread.sleep( 10000 );
 
         long tadd1 = System.currentTimeMillis();
 
         System.out.println( "Time to inject " + nbUsers + " entries : " + ( ( tadd1 - tadd0 ) / 1000 ) + "s" );
+
+        //Thread.sleep( 10000 );
 
         // Now do a random search
         SearchRequest searchRequest = new SearchRequestImpl();
@@ -368,7 +395,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
-        int nbIterations = 200000;
+        int nbIterations = 400000;
         int count = 0;
         Random random = new Random();
 
@@ -382,7 +409,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( j == 5000 )
+            if ( j == 100000 )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -391,10 +418,13 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             SearchCursor cursor = connection.search( searchRequest );
 
-            while ( cursor.next() )
+            boolean hasNext = firstNext( cursor );
+            
+            while ( hasNext )
             {
                 count++;
                 cursor.getEntry();
+                hasNext = innerNext( cursor );
             }
 
             cursor.close();
@@ -403,7 +433,19 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 100000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
+    }
+    
+    
+    private boolean firstNext( SearchCursor cursor ) throws LdapException, CursorException
+    {
+        return cursor.next();
+    }
+    
+    
+    private boolean innerNext( SearchCursor cursor ) throws LdapException, CursorException
+    {
+        return cursor.next();
     }
 }
