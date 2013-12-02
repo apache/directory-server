@@ -201,7 +201,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != db.getAliasIndex().reverseLookup( id ) )
+        if ( db.getAliasCache().get( id ) != null )
         {
             return false;
         }
