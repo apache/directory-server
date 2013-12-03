@@ -215,24 +215,6 @@ public class MavibotPartition extends AbstractBTreePartition
                 {
                     entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
                 }
-                
-                aliasCache = cacheService.getCache( "alias" );
-
-                cacheSizeConfig = aliasCache.getCacheConfiguration().getMaxElementsInMemory();
-
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    aliasCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
-                }
-                
-                piarCache = cacheService.getCache( "piar" );
-                
-                cacheSizeConfig = piarCache.getCacheConfiguration().getMaxElementsInMemory();
-
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    piarCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize * 3 );
-                }
             }
 
             // We are done !

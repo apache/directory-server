@@ -555,6 +555,26 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         setupSystemIndices();
         setupUserIndices();
 
+        if ( cacheService != null )
+        {
+            aliasCache = cacheService.getCache( "alias" );
+    
+            int cacheSizeConfig = aliasCache.getCacheConfiguration().getMaxElementsInMemory();
+    
+            if ( cacheSizeConfig < cacheSize )
+            {
+                aliasCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+            }
+            
+            piarCache = cacheService.getCache( "piar" );
+            
+            cacheSizeConfig = piarCache.getCacheConfiguration().getMaxElementsInMemory();
+    
+            if ( cacheSizeConfig < cacheSize )
+            {
+                piarCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize * 3 );
+            }
+        }
     }
 
 
@@ -2250,11 +2270,25 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 ParentIdAndRdn cur = null;
             
-                Element piar = piarCache.get( parentId );
-                
-                if ( piar != null )
+                if ( piarCache != null )
                 {
-                    cur = (ParentIdAndRdn)piar.getValue();
+                    Element piar = piarCache.get( parentId );
+                    
+                    if ( piar != null )
+                    {
+                        cur = (ParentIdAndRdn)piar.getValue();
+                    }
+                    else
+                    {
+                        cur = rdnIdx.reverseLookup( parentId );
+                        
+                        if ( cur == null )
+                        {
+                            return null;
+                        }
+                        
+                        piarCache.put( new Element( parentId, cur) );
+                    }
                 }
                 else
                 {
@@ -2264,8 +2298,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     {
                         return null;
                     }
-                    
-                    piarCache.put( new Element( parentId, cur) );
                 }
 
                 Rdn[] rdns = cur.getRdns();
@@ -2766,6 +2798,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Add the alias to the simple alias index
         aliasIdx.add( aliasTarget, aliasId );
+        
+        if ( aliasCache != null )
+        {
+            aliasCache.put(  new Element( aliasId, aliasTarget ) );
+        }
 
         /*
          * Handle One Level Scope Alias Index
@@ -2859,6 +2896,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Drops all alias tuples pointing to the id of the alias to be deleted
         aliasIdx.drop( aliasId );
+
+        if ( aliasCache != null )
+        {
+            aliasCache.remove( aliasId );
+        }
     }
 
 
@@ -2874,9 +2916,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         String movedBaseId = getEntryId( movedBase );
 
-        if ( aliasIdx.reverseLookup( movedBaseId ) != null )
+        Dn targetDn = aliasIdx.reverseLookup( movedBaseId );
+        
+        if ( targetDn != null )
         {
-            Dn targetDn = aliasIdx.reverseLookup( movedBaseId );
             targetDn.apply( schemaManager );
             String targetId = getEntryId( targetDn );
             Dn aliasDn = getEntryDn( movedBaseId );

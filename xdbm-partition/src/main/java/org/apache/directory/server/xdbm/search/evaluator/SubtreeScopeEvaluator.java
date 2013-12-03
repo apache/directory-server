@@ -20,10 +20,13 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
+import net.sf.ehcache.Element;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -201,7 +204,21 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( db.getAliasCache().get( id ) != null )
+        if ( db.getAliasCache() != null )
+        {
+            Element element = db.getAliasCache().get( id );
+            
+            if ( element != null )
+            {
+                if ( element.getValue() != null )
+                {
+                    Dn dn = (Dn)element.getValue();
+                    
+                    return false;
+                }
+            }
+        }
+        else if ( null != db.getAliasIndex().reverseLookup( id ) )
         {
             return false;
         }

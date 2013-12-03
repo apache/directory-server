@@ -268,7 +268,13 @@ public class JdbmPartition extends AbstractBTreePartition
             if ( cacheService != null )
             {
                 entryCache = cacheService.getCache( getId() );
-                aliasCache = cacheService.getCache( "alias" );
+
+                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                }
             }
 
             // We are done !
