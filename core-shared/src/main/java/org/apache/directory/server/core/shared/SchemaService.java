@@ -187,7 +187,7 @@ public class SchemaService
 
         for ( DitContentRule ditContentRule : schemaManager.getDITContentRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( ditContentRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( ditContentRule ) );
         }
 
         return attr;
@@ -201,7 +201,7 @@ public class SchemaService
 
         for ( DitStructureRule ditStructureRule : schemaManager.getDITStructureRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( ditStructureRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( ditStructureRule ) );
         }
 
         return attr;
@@ -215,7 +215,7 @@ public class SchemaService
 
         for ( NameForm nameForm : schemaManager.getNameFormRegistry() )
         {
-            attr.add( SchemaUtils.render( nameForm ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( nameForm ) );
         }
 
         return attr;
