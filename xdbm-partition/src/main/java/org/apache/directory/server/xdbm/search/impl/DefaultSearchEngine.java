@@ -158,10 +158,6 @@ public class DefaultSearchEngine implements SearchEngine
             { 
                 aliasedBase = (Dn)(aliasBaseElement).getObjectValue();
             }
-            else
-            {
-                aliasedBase = db.getAliasIndex().reverseLookup( baseId );
-            }
         }
         else
         {
