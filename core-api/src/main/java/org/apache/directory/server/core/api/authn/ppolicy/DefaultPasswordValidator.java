@@ -20,6 +20,8 @@
 
 package org.apache.directory.server.core.api.authn.ppolicy;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+
 
 /**
  * The default password validator.
@@ -44,9 +46,9 @@ public class DefaultPasswordValidator implements PasswordValidator
     /**
      * {@inheritDoc}
      */
-    public void validate( String password, String entryRdnVal ) throws PasswordPolicyException
+    public void validate( String password, Entry entry ) throws PasswordPolicyException
     {
-        checkUsernameSubstring( password, entryRdnVal );
+        checkUsernameSubstring( password, entry );
         //TODO add more checks
     }
 
@@ -63,8 +65,10 @@ public class DefaultPasswordValidator implements PasswordValidator
      * "first" or "last" as a substring anywhere in the password. All of these checks are
      * case-insensitive.
      */
-    private void checkUsernameSubstring( String password, String username ) throws PasswordPolicyException
+    private void checkUsernameSubstring( String password, Entry entry ) throws PasswordPolicyException
     {
+        String username = entry.getDn().getRdn().getValue().getString();
+        
         if ( username == null || username.trim().length() == 0 )
         {
             return;

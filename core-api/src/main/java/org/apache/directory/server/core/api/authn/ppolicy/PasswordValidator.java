@@ -20,6 +20,8 @@
 
 package org.apache.directory.server.core.api.authn.ppolicy;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+
 
 /**
  * An interface for implementing password quality verifiers.
@@ -29,14 +31,14 @@ package org.apache.directory.server.core.api.authn.ppolicy;
 public interface PasswordValidator
 {
     /**
-     * checks if the given password meets the required quality contraints.<br>
+     * checks if the given password meets the required quality constraints.<br>
      * <p>Note: the length based validations are already done before calling this method<br>
      *       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      *       so the implementor should concentrate on the content checking.</p>
      *  
      * @param password the password value
-     * @param userId user's ID (it is the value of entry's RDN e.x 'admin' if the entry's DN is {uid/cn/etc..}=admin,ou=system)
+     * @param entry user entry
      * @throws PasswordPolicyException if the password doesn't meet the quality contraints
      */
-    void validate( String password, String userId ) throws PasswordPolicyException;
+    void validate( String password, Entry entry ) throws PasswordPolicyException;
 }

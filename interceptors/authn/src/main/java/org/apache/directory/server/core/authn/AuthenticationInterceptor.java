@@ -354,14 +354,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( userPasswordAttribute != null )
         {
-            String username = null;
-
             BinaryValue userPassword = ( BinaryValue ) userPasswordAttribute.get();
 
             try
             {
-                username = entry.getDn().getRdn().getValue().getString();
-                check( username, userPassword.getValue(), policyConfig );
+                check( entry, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
             {
@@ -939,8 +936,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 try
                 {
-                    String userName = entry.getDn().getRdn().getValue().getString();
-                    check( userName, newPassword, policyConfig );
+                    check( entry, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )
                 {
@@ -1256,7 +1252,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     // ---------- private methods ----------------
-    private void check( String username, byte[] password, PasswordPolicyConfiguration policyConfig )
+    private void check( Entry entry, byte[] password, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
         final CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
@@ -1288,7 +1284,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // perform the length validation
         validatePasswordLength( strPassword, policyConfig );
 
-        policyConfig.getPwdValidator().validate( strPassword, username );
+        policyConfig.getPwdValidator().validate( strPassword, entry );
     }
 
 
