@@ -95,6 +95,8 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
 
         assertNotNull( batchResp );
 
+        assertEquals( 101, batchResp.getRequestID() );
+        
         SearchResponse searchResp = ( SearchResponse ) batchResp.getCurrentResponse().getDecorated();
 
         assertEquals( 5, searchResp.getSearchResultEntryList().size() );
@@ -124,7 +126,9 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
         BatchResponseDsml batchResp = respParser.getBatchResponse();
 
         assertNotNull( batchResp );
-
+        
+        assertEquals( 101, batchResp.getRequestID() );
+        
         SearchResponse searchResp = ( SearchResponse ) batchResp.getCurrentResponse().getDecorated();
 
         assertEquals( 5, searchResp.getSearchResultEntryList().size() );
