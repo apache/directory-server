@@ -28,11 +28,12 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.mavibot.btree.BTree;
 import org.apache.directory.mavibot.btree.TupleCursor;
 import org.apache.directory.mavibot.btree.ValueCursor;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
-import org.apache.directory.mavibot.btree.managed.BTree;
+import org.apache.directory.mavibot.btree.managed.PersistedBTree;
 import org.apache.directory.mavibot.btree.managed.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
@@ -80,7 +81,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         if ( bt == null )
         {
-            bt = new BTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
+            bt = new PersistedBTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
 
             try
             {
