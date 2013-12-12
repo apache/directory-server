@@ -22,3 +22,4 @@ Where do you want to install ApacheDS instances|INSTANCES_HOME_DIRECTORY|/var/li
 What name do you want for the default instance|DEFAULT_INSTANCE_NAME|default||
 Where do you want to install the startup script|STARTUP_SCRIPT_DIRECTORY|/etc/init.d||
 Which user do you want to run the server with (if not already existing, the specified user will be created)|RUN_AS_USER|apacheds||
+Which group do you want to run the server with (if not already existing, the specified group will be created)|RUN_AS_GROUP|apacheds||

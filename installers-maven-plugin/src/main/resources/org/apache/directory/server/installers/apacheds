@@ -51,7 +51,7 @@ PIDDIR=$INSTANCE_DIRECTORY/run
 #  TERM signals.
 #IGNORE_SIGNALS=true
 
-# If specified, the Wrapper will be run as the specified user.
+# If specified, the Wrapper will be run as the specified user and group.
 # IMPORTANT - Make sure that the user has the required privileges to write
 #  the PID file and wrapper.log files.  Failure to be able to write the log
 #  file will cause the Wrapper to exit without any way to write out an error
@@ -60,6 +60,7 @@ PIDDIR=$INSTANCE_DIRECTORY/run
 #  the JVM and is not useful in situations where a privileged resource or
 #  port needs to be allocated prior to the user being changed.
 RUN_AS_USER="@user@"
+RUN_AS_GROUP="@group@"
 
 # Do not modify anything beyond this point
 #-----------------------------------------------------------------------------
@@ -279,7 +280,7 @@ checkUser() {
             if [ "X$1" != "X" ]
             then
                 # Resolve the primary group 
-                RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
+                RUN_AS_GROUP=`groups $RUN_AS_GROUP| awk '{print $3}' | tail -1`
                 if [ "X$RUN_AS_GROUP" = "X" ]
                 then
                     RUN_AS_GROUP=$RUN_AS_USER
