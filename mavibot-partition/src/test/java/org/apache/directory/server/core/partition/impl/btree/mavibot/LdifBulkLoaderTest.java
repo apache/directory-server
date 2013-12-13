@@ -26,7 +26,7 @@ import java.util.Iterator;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.mavibot.btree.Tuple;
-import org.apache.directory.mavibot.btree.managed.BulkDataSorter;
+import org.apache.directory.mavibot.btree.persisted.BulkDataSorter;
 import org.junit.Ignore;
 
 /**
