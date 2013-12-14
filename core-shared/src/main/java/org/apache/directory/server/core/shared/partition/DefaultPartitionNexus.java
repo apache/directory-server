@@ -640,7 +640,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         for ( Attribute attribute : rootDse )
         {
-            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getUpId() );
+            AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getId() );
 
             if ( realIds.contains( type.getOid() ) )
             {
