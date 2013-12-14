@@ -40,6 +40,7 @@ import static org.junit.Assert.fail;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
@@ -1251,4 +1252,90 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         userConnection.close();
         adminConnection.close();
     }
+    
+    
+    /**
+    * According to the <a href=
+    * "http://tools.ietf.org/html/draft-behera-ldap-password-policy-10#section-7.8"
+    * >rfc</a>:
+    * <pre>
+    * <b>7.8 Password Too Young Check</b>
+    * 
+    *   If the Section 7.2 check returned true then this check will return
+    *   false, to allow the password to be changed.
+    *   ...
+    * </pre>
+    * <pre>
+    * <b>7.2 Password Must be Changed Now Check</b>
+    * 
+    *   A status of true is returned to indicate that the password must be
+    *   changed if all of these conditions are met:
+    *   
+    *   o  The pwdMustChange attribute is set to TRUE.
+    *   o  The pwdReset attribute is set to TRUE.
+    *   
+    *   Otherwise a status of false is returned.
+    * </pre>
+    * 
+    * Therefore, if the admin sets the password, the user should be allowed
+    * to change it even if pwdMinAge has not expired.
+    */
+   @Test
+   public void testPwdMinAgeWithMustChange() throws Exception
+   {
+       policyConfig.setPwdMustChange( true );
+       policyConfig.setPwdMinAge( 1 );
+
+       LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+       Dn userDn = new Dn( "cn=userMinAgeMustChange,ou=system" );
+       Entry userEntry = new DefaultEntry(
+           userDn.toString(),
+           "ObjectClass: top",
+           "ObjectClass: person",
+           "cn: userMinAgeMustChange",
+           "sn: userMinAgeMustChange_sn",
+           "userPassword: 12345" );
+       adminConnection.add( userEntry );
+
+       LdapConnection userConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+       BindRequest bindRequest = new BindRequestImpl();
+       bindRequest.setDn( userDn );
+       bindRequest.setCredentials( "12345" );
+       bindRequest.addControl( PP_REQ_CTRL );
+       // successful bind but must require pwd reset as was set by admin
+       BindResponse bindResponse = userConnection.bind( bindRequest );
+       assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+       assertEquals( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET, 
+           getPwdRespCtrl( bindResponse ).getResponse().getPasswordPolicyError() );
+
+       ModifyRequest modifyRequest = new ModifyRequestImpl();
+       modifyRequest.setName( userDn );
+       modifyRequest.replace( "userPassword", "123456" );
+       modifyRequest.addControl( PP_REQ_CTRL );
+       // succeed because admin previously set password
+       ModifyResponse modifyResponse = userConnection.modify( modifyRequest );
+       assertEquals( ResultCodeEnum.SUCCESS, modifyResponse.getLdapResult().getResultCode() );
+
+       modifyRequest = new ModifyRequestImpl();
+       modifyRequest.setName( userDn );
+       modifyRequest.replace( "userPassword", "1234567" );
+       modifyRequest.addControl( PP_REQ_CTRL );
+       // fail cause password is too young
+       modifyResponse = userConnection.modify( modifyRequest );
+       assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, 
+           modifyResponse.getLdapResult().getResultCode() );
+       assertEquals( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG, 
+           getPwdRespCtrl( modifyResponse ).getResponse().getPasswordPolicyError() );
+
+       // Wait for the pwdMinAge delay to be over
+       Thread.sleep( 1000 );
+
+       // Now, we should be able to modify the password
+       modifyResponse = userConnection.modify( modifyRequest );
+       assertEquals( ResultCodeEnum.SUCCESS, modifyResponse.getLdapResult().getResultCode() );
+
+       userConnection.close();
+       adminConnection.close();
+   }    
 }

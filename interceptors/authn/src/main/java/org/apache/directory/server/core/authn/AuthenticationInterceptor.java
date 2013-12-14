@@ -1370,6 +1370,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return false;
         }
 
+        // see sections 7.8 and 7.2 of the ppolicy draft
+        if ( policyConfig.isPwdMustChange() && pwdResetSet.contains( userEntry.getDn().getNormName() ) ) 
+        {
+            return false;
+        }
+        
         Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
 
         if ( pwdChangedTimeAt != null )
