@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyRequest;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponseImpl;
@@ -35,6 +37,8 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
@@ -123,6 +127,13 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         // We can try to update the userPassword now
         ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
         modifyContext.setDn( userDn );
+
+        Control ppolicyControl = req.getControl( PasswordPolicy.OID );
+        if( ppolicyControl != null )
+        {
+            modifyContext.addRequestControl( ppolicyControl );
+        }
+        
         List<Modification> modifications = new ArrayList<Modification>();
         Modification modification = null;
 
@@ -165,6 +176,9 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
         modifyContext.setModItems( modifications );
 
+        ResultCodeEnum errorCode = null;
+        String errorMessage = null;
+        
         try
         {
             service.getOperationManager().modify( modifyContext );
@@ -172,19 +186,46 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.debug( "Password modified for user " + userDn );
 
             // Ok, all done
-            requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.SUCCESS ) );
+            PwdModifyResponseImpl pmrl = new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.SUCCESS );
+            
+            ppolicyControl = modifyContext.getResponseControl( PasswordPolicy.OID );
+            
+            if( ppolicyControl != null )
+            {
+                pmrl.addControl( ppolicyControl );
+            }
+            
+            requestor.getIoSession().write( pmrl );
+            
+            return;
+        }
+        catch ( LdapOperationException loe )
+        {
+            errorCode = loe.getResultCode();
+            errorMessage = loe.getMessage();
         }
         catch ( LdapException le )
         {
-            LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + le.getMessage() );
-            // We can't modify the password
-            requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS, "Cannot modify the password for user "
-                    + userDn + ", exception : " + le.getMessage() ) );
-
-            return;
+            // this exception means something else must be wrong
+            errorCode = ResultCodeEnum.OTHER;
+            errorMessage = le.getMessage();
         }
+        
+        // We can't modify the password
+        LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + errorMessage );
+        PwdModifyResponseImpl errorPmrl = new PwdModifyResponseImpl(
+            req.getMessageId(), errorCode, "Cannot modify the password for user "
+                + userDn + ", exception : " + errorMessage );
+        
+        ppolicyControl = modifyContext.getResponseControl( PasswordPolicy.OID );
+        
+        if( ppolicyControl != null )
+        {
+            errorPmrl.addControl( ppolicyControl );
+        }
+
+        requestor.getIoSession().write( errorPmrl );
     }
 
 
@@ -200,6 +241,13 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         // Try to update the userPassword
         ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
         modifyContext.setDn( principalDn );
+
+        Control ppolicyControl = req.getControl( PasswordPolicy.OID );
+        if( ppolicyControl != null )
+        {
+            modifyContext.addRequestControl( ppolicyControl );
+        }
+
         List<Modification> modifications = new ArrayList<Modification>();
         Modification modification = null;
 
@@ -228,6 +276,9 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
         modifyContext.setModItems( modifications );
 
+        ResultCodeEnum errorCode = null;
+        String errorMessage = null;
+        
         try
         {
             service.getOperationManager().modify( modifyContext );
@@ -235,20 +286,46 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.debug( "Password modified for user " + principalDn );
 
             // Ok, all done
-            requestor.getIoSession().write( new PwdModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.SUCCESS ) );
+            PwdModifyResponseImpl pmrl = new PwdModifyResponseImpl(
+                req.getMessageId(), ResultCodeEnum.SUCCESS );
+            
+            ppolicyControl = modifyContext.getResponseControl( PasswordPolicy.OID );
+            
+            if( ppolicyControl != null )
+            {
+                pmrl.addControl( ppolicyControl );
+            }
+            
+            requestor.getIoSession().write( pmrl );
+            return;
+        }
+        catch ( LdapOperationException loe )
+        {
+            errorCode = loe.getResultCode();
+            errorMessage = loe.getMessage();
         }
         catch ( LdapException le )
         {
-            LOG.error( "Cannot modify the password for user " + principalDn + ", exception : " + le.getMessage() );
-            // We can't modify the password
-            requestor.getIoSession().write(
-                new PwdModifyResponseImpl( req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS,
-                    "Cannot modify the password for user "
-                        + principalDn + ", exception : " + le.getMessage() ) );
-
-            return;
+            // this exception means something else must be wrong
+            errorCode = ResultCodeEnum.OTHER;
+            errorMessage = le.getMessage();
         }
+        
+        // We can't modify the password
+        LOG.error( "Cannot modify the password for user " + principalDn + ", exception : " + errorMessage );
+
+        PwdModifyResponseImpl errorPmrl = new PwdModifyResponseImpl( req.getMessageId(), errorCode,
+            "Cannot modify the password for user "
+                + principalDn + ", exception : " + errorMessage );
+
+        ppolicyControl = modifyContext.getResponseControl( PasswordPolicy.OID );
+        
+        if( ppolicyControl != null )
+        {
+            errorPmrl.addControl( ppolicyControl );
+        }
+
+        requestor.getIoSession().write( errorPmrl );
     }
 
 
@@ -289,7 +366,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         {
             Dn principalDn = requestor.getCoreSession().getEffectivePrincipal().getDn();
 
-            LOG.debug( "Trying to modify password for user " + principalDn );
+            LOG.debug( "User {} trying to modify password of user {}", principalDn, userDn );
 
             // First, check that the userDn is null : we can't change the password of someone else
             // except if we are admin
@@ -299,10 +376,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
                 if ( !requestor.getCoreSession().isAdministrator() )
                 {
                     // No : error
-                    LOG.error( "Cannot access to another user's password to modify it" );
+                    LOG.error( "Non-admin user cannot access another user's password to modify it" );
                     requestor.getIoSession().write( new PwdModifyResponseImpl(
                         req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS,
-                        "Cannot access to another user's password to modify it" ) );
+                        "Non-admin user cannot access another user's password to modify it" ) );
                 }
                 else
                 {

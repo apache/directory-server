@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNull;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyRequestImpl;
@@ -400,4 +401,61 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         adminConnection.close();
     }
+
+
+    /**
+     * Attempt to modify an existing user password and fail.  Then process the
+     * password policy control from the response.
+     */
+    @Test
+    public void testModifyUserPasswordWithPasswordPolicyControl() throws Exception
+    {
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_ACCEPT ); // allow the password if its quality can't be checked
+        policyConfig.setPwdMinLength( 5 );
+        policyConfig.setPwdMinAge( 5 );
+        
+        LdapConnection adminConnection = null;
+        LdapConnection userConnection = null;
+        try 
+        {
+            adminConnection = getAdminNetworkConnection( getLdapServer() );
+            adminConnection.setTimeOut( Long.MAX_VALUE );
+            addUser( adminConnection, "UserXY", "secret3" );
+            Dn userDn = new Dn( "cn=UserXY,ou=system" );
+            
+            userConnection = getNetworkConnectionAs( ldapServer, userDn.toString(), "secret3" );
+            PasswordPolicyDecorator passwordPolicyRequestControl =
+                    new PasswordPolicyDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyImpl() );
+            PwdModifyRequestImpl selfPwdModifyRequest = new PwdModifyRequestImpl();
+            selfPwdModifyRequest.setUserIdentity( Dn.getBytes( userDn ) );
+            selfPwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
+            selfPwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
+            selfPwdModifyRequest.addControl( passwordPolicyRequestControl );
+
+            // Send the request to update own password
+            PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( selfPwdModifyRequest );
+            // passwordTooShort is a contstraint violation
+            assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, pwdModifyResponse.getLdapResult().getResultCode() );
+            Control passwordPolicyResponseControl = pwdModifyResponse.getControl( passwordPolicyRequestControl.getOid() );
+            assertNotNull( passwordPolicyResponseControl );
+            assertEquals( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG,
+                ((PasswordPolicyDecorator)passwordPolicyResponseControl)
+                    .getDecorated().getResponse().getPasswordPolicyError() );
+            
+            addUser( adminConnection, "UserZZ", "secret4" );
+            Dn otherUserDn = new Dn( "cn=UserZZ,ou=system" );
+
+            PwdModifyRequestImpl pwdModifyRequest = new PwdModifyRequestImpl();
+            pwdModifyRequest.setUserIdentity( Dn.getBytes( otherUserDn ) );
+            pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret4" ) );
+            pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
+            pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+            assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, pwdModifyResponse.getLdapResult().getResultCode() );
+        }
+        finally 
+        {
+            adminConnection.close();
+            userConnection.close();
+        }
+    }    
 }
