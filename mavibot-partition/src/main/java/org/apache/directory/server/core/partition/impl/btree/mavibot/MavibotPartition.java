@@ -41,7 +41,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.MultiException;
-import org.apache.directory.mavibot.btree.persisted.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;

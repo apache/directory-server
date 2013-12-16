@@ -35,7 +35,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.mavibot.btree.persisted.RecordManager;
+import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
