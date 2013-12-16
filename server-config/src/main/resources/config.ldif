@@ -266,11 +266,6 @@ ads-partitioncachesize: 100
 ads-partitionsynconwrite: TRUE
 ads-partitionid: system
 ads-enabled: TRUE
-ads-contextEntry: dn: ou=system\n
- objectClass: top\n
- objectClass: organizationalUnit\n
- ou: system\n
- description: The System context entry
 
 dn: ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ou: indexes
