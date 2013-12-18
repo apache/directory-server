@@ -29,6 +29,7 @@ import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.mavibot.btree.BTree;
+import org.apache.directory.mavibot.btree.BTreeFactory;
 import org.apache.directory.mavibot.btree.PersistedBTree;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.TupleCursor;
@@ -81,7 +82,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         if ( bt == null )
         {
-            bt = new PersistedBTree<K, V>( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
+            bt = BTreeFactory.createPersistedBTree( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
 
             try
             {
