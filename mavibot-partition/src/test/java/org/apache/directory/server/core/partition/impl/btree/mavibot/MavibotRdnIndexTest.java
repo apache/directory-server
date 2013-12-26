@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
@@ -39,6 +39,7 @@ import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.exception.DuplicateValueNotAllowedException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -209,12 +210,22 @@ public class MavibotRdnIndexTest
         assertEquals( 2, idx.count() );
 
         //count shouldn't get affected cause of inserting the same key
-        idx.add( key, Strings.getUUID( 2L ) );
-        assertEquals( 3, idx.count() );
+        try
+        {
+            // We should not be able to add a new value to an existing key
+            idx.add( key, Strings.getUUID( 2L ) );
+            fail();
+        }
+        catch ( DuplicateValueNotAllowedException dvnae )
+        {
+            // expected
+        }
+
+        assertEquals( 2, idx.count() );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
         idx.add( key, Strings.getUUID( 3L ) );
-        assertEquals( 4, idx.count() );
+        assertEquals( 3, idx.count() );
     }
 
 

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A special index which stores DN objects.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class MavibotDnIndex extends MavibotIndex<Dn>
@@ -106,7 +106,7 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<Dn, String>( recordMan, schemaManager, forwardTableName, dnSerializer,
-            new StringSerializer(), false );
+            new StringSerializer(), true );
 
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
         reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, new StringSerializer(),

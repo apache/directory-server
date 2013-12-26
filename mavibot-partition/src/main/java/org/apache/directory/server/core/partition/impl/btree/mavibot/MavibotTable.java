@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
@@ -30,7 +30,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.mavibot.btree.BTree;
 import org.apache.directory.mavibot.btree.BTreeFactory;
-import org.apache.directory.mavibot.btree.PersistedBTree;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.TupleCursor;
 import org.apache.directory.mavibot.btree.ValueCursor;
@@ -96,7 +95,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         else
         {
-            // it is important to set the serializers cause serializers will contain default 
+            // it is important to set the serializers cause serializers will contain default
             // comparators when loaded from disk and we need schema aware comparators in certain indices
             bt.setKeySerializer( keySerializer );
             bt.setValueSerializer( valueSerializer );
@@ -328,13 +327,21 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
 
-            if ( !bt.contains( key, value ) )
+            boolean existing = false;
+
+            if ( bt.contains( key, value ) )
+            {
+                existing = true;
+            }
+
+            // Always insert the entry. If it already exists, it will replace the previous entry
+            bt.insert( key, value );
+
+            /// The entry has been added, increment the count if it wasn't existing before
+            if ( ! existing )
             {
                 count++;
             }
-            
-            // Always insert the entry. If it already exists, it will replace the previous entry
-            bt.insert( key, value );
         }
         catch ( Exception e )
         {
@@ -523,12 +530,12 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             try
             {
                 ValueCursor<V> dupHolder = bt.getValues( key );
-    
+
                 return dupHolder.size();
             }
             catch ( KeyNotFoundException knfe )
             {
-                // No key 
+                // No key
                 return 0;
             }
         }
