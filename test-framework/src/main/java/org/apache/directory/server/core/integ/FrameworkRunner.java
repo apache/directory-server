@@ -93,7 +93,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
                 "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
                 "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
-                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
+                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory," +
+                "org.apache.directory.api.ldap.codec.controls.sort.SortRequestFactory," +
+                "org.apache.directory.api.ldap.codec.controls.sort.SortResponseFactory");
 
         System.setProperty( StandaloneLdapApiService.EXTENDED_OPERATIONS_LIST,
             "org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
