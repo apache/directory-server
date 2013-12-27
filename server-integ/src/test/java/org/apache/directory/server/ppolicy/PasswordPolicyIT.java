@@ -107,8 +107,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
-    private static final PasswordPolicyDecorator PP_REQ_CTRL =
-        new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+    private static final PasswordPolicy PP_REQ_CTRL =
+        new PasswordPolicyImpl();
 
 
     /**
