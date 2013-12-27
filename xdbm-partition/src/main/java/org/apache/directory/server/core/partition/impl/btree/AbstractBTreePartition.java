@@ -118,7 +118,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
     /** The Entry cache size for this partition */
-    protected int cacheSize = -1;
+    protected int cacheSize = DEFAULT_CACHE_SIZE;
 
     /** The alias cache */
     protected Cache aliasCache;
