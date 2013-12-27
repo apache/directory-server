@@ -431,8 +431,13 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             count++;
         }
 
-        // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-        ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+        // check if the result code is not already set
+        // the result code might be set when sort control is present
+        if( ldapResult.getResultCode() == null )
+        {
+            // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+        }
 
         if ( ( count >= sizeLimit ) && ( cursor.next() ) )
         {

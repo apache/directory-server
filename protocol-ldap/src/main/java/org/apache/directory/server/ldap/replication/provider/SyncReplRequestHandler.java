@@ -81,6 +81,9 @@ import org.apache.directory.api.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
+import org.apache.directory.api.ldap.model.message.controls.SortKey;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
@@ -493,6 +496,26 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private void doInitialRefresh( LdapSession session, SearchRequest request ) throws Exception
     {
         PROVIDER_LOG.debug( "Starting an initial refresh" );
+
+        SortRequestControl ctrl = ( SortRequestControl ) request.getControl( SortRequestControl.OID );
+        
+        if( ctrl != null )
+        {
+            LOG.warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
+            request.removeControl( ctrl );
+        }
+        
+        LOG.debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
+        SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
+        // matchingrule for "entryDn"
+        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setReverseOrder( true );
+        
+        ctrl = new SortRequestControlImpl();
+        ctrl.addSortKey( sk );
+
+        request.addControl( ctrl );
+        
         String originalFilter = request.getFilter().toString();
         InetSocketAddress address = ( InetSocketAddress ) session.getIoSession().getRemoteAddress();
         String hostName = address.getAddress().getHostName();

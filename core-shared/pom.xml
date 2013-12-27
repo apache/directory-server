@@ -80,8 +80,12 @@
     <dependency>
        <groupId>net.sf.ehcache</groupId>
        <artifactId>ehcache-core</artifactId>
-   </dependency>
+    </dependency>
 
+    <dependency>
+       <groupId>org.apache.directory.mavibot</groupId>
+       <artifactId>mavibot</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
