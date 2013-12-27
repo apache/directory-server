@@ -22,7 +22,6 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DnFactory;
