@@ -853,6 +853,10 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             writeResults( session, req, ldapResult, cursor, sizeLimit );
         }
+        catch ( Exception e )
+        {
+            throw e;
+        }
         finally
         {
             if ( ( cursor != null ) && !cursor.isClosed() )
