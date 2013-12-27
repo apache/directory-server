@@ -94,7 +94,6 @@ import org.apache.directory.server.core.api.event.DirectoryListenerAdapter;
 import org.apache.directory.server.core.api.event.EventService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
@@ -156,7 +155,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * Create a SyncReplRequestHandler empty instance 
+     * Create a SyncReplRequestHandler empty instance
      */
     public SyncReplRequestHandler()
     {
@@ -168,7 +167,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     public void start( LdapServer server )
     {
-        // Check that the handler is not already started : we don't want to start it twice... 
+        // Check that the handler is not already started : we don't want to start it twice...
         if ( initialized )
         {
             LOG.warn( "syncrepl provider was already initialized" );
@@ -208,7 +207,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
             }
 
-            // Create the replication manager 
+            // Create the replication manager
             replicaUtil = new ReplConsumerManager( dirService );
 
             loadReplicaInfo();
@@ -289,7 +288,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     /**
      * Process the incoming search request sent by a remote server when trying to replicate.
-     * 
+     *
      * @param session The used LdapSession. Should be the dedicated user
      * @param request The search request
      */
@@ -429,7 +428,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * process the update of the consumer, starting from the given LastEntryCSN the consumer 
+     * process the update of the consumer, starting from the given LastEntryCSN the consumer
      * has sent with the sync request.
      */
     private void doContentUpdate( LdapSession session, SearchRequest req, ReplicaEventLog replicaLog, String consumerCsn )
@@ -439,9 +438,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             boolean refreshNPersist = isRefreshNPersist( req );
 
-            // if this method is called with refreshAndPersist  
+            // if this method is called with refreshAndPersist
             // means the client was offline after it initiated a persistent synch session
-            // we need to update the handler's session 
+            // we need to update the handler's session
             if ( refreshNPersist )
             {
                 SyncReplSearchListener handler = replicaLog.getPersistentListener();
@@ -491,31 +490,31 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * Process the initial refresh : we will send all the entries 
+     * Process the initial refresh : we will send all the entries
      */
     private void doInitialRefresh( LdapSession session, SearchRequest request ) throws Exception
     {
         PROVIDER_LOG.debug( "Starting an initial refresh" );
 
         SortRequestControl ctrl = ( SortRequestControl ) request.getControl( SortRequestControl.OID );
-        
+
         if( ctrl != null )
         {
             LOG.warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
             request.removeControl( ctrl );
         }
-        
+
         LOG.debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
         // matchingrule for "entryDn"
         sk.setMatchingRuleId( "2.5.13.1" );
         sk.setReverseOrder( true );
-        
+
         ctrl = new SortRequestControlImpl();
         ctrl.addSortKey( sk );
 
         request.addControl( ctrl );
-        
+
         String originalFilter = request.getFilter().toString();
         InetSocketAddress address = ( InetSocketAddress ) session.getIoSession().getRemoteAddress();
         String hostName = address.getAddress().getHostName();
@@ -548,8 +547,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         SyncReplSearchListener replicationListener = new SyncReplSearchListener( session, request, replicaLog, false );
         replicaLog.setPersistentListener( replicationListener );
 
-        // compose notification criteria and add the listener to the event 
-        // service using that notification criteria to determine which events 
+        // compose notification criteria and add the listener to the event
+        // service using that notification criteria to determine which events
         // are to be delivered to the persistent search issuing client
         NotificationCriteria criteria = new NotificationCriteria();
         criteria.setAliasDerefMode( request.getDerefAliases() );
@@ -583,7 +582,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 PROVIDER_LOG
                     .debug( "Refresh&Persist requested : send the data being modified since the initial refresh" );
-                // Now, send the modified entries since the search has started 
+                // Now, send the modified entries since the search has started
                 sendContentFromLog( session, request, replicaLog, contextCsn );
 
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
@@ -656,7 +655,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         LdapResult ldapResult = searchDoneResp.getLdapResult();
 
         // A normal search
-        // Check that we have a cursor or not. 
+        // Check that we have a cursor or not.
         // No cursor : do a search.
         Cursor<Entry> cursor = session.getCoreSession().search( req );
 
@@ -897,8 +896,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         /*
-         * Non administrator based searches are limited by time if the server 
-         * has been configured with unlimited time and the request specifies 
+         * Non administrator based searches are limited by time if the server
+         * has been configured with unlimited time and the request specifies
          * unlimited search time
          */
         if ( ldapServer.getMaxTimeLimit() == NO_TIME_LIMIT && req.getTimeLimit() == NO_TIME_LIMIT )
@@ -907,9 +906,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         /*
-         * If the non-administrator user specifies unlimited time but the server 
-         * is configured to limit the search time then we limit by the max time 
-         * allowed by the configuration 
+         * If the non-administrator user specifies unlimited time but the server
+         * is configured to limit the search time then we limit by the max time
+         * allowed by the configuration
          */
         if ( req.getTimeLimit() == 0 )
         {
@@ -918,8 +917,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         /*
-         * If the non-administrative user specifies a time limit equal to or 
-         * less than the maximum limit configured in the server then we 
+         * If the non-administrative user specifies a time limit equal to or
+         * less than the maximum limit configured in the server then we
          * constrain search by the amount specified in the request
          */
         if ( ldapServer.getMaxTimeLimit() >= req.getTimeLimit() )
@@ -929,7 +928,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
 
         /*
-         * Here the non-administrative user's requested time limit is greater 
+         * Here the non-administrative user's requested time limit is greater
          * than what the server's configured maximum limit allows so we limit
          * the search to the configured limit
          */
@@ -940,11 +939,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     public ExprNode modifyFilter( LdapSession session, SearchRequest req ) throws Exception
     {
         /*
-         * Most of the time the search filter is just (objectClass=*) and if 
+         * Most of the time the search filter is just (objectClass=*) and if
          * this is the case then there's no reason at all to OR this with an
-         * (objectClass=referral).  If we detect this case then we leave it 
+         * (objectClass=referral).  If we detect this case then we leave it
          * as is to represent the OR condition:
-         * 
+         *
          *  (| (objectClass=referral)(objectClass=*)) == (objectClass=*)
          */
         boolean isOcPresenceFilter = false;
@@ -1042,7 +1041,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     replicaLogMap.put( replica.getId(), replica );
                     eventLogNames.add( replica.getName() );
 
-                    // update the replicaCount's value to assign a correct value to the new replica(s) 
+                    // update the replicaCount's value to assign a correct value to the new replica(s)
                     if ( replicaCount.get() < replica.getId() )
                     {
                         replicaCount.set( replica.getId() );
@@ -1135,7 +1134,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * Get the Replica event log from the replica ID found in the cookie 
+     * Get the Replica event log from the replica ID found in the cookie
      */
     private ReplicaEventLog getReplicaEventLog( String cookieString ) throws Exception
     {
@@ -1169,7 +1168,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     /**
-     * Send an error response to he consue r: it has to send a SYNC_REFRESH request first. 
+     * Send an error response to he consue r: it has to send a SYNC_REFRESH request first.
      */
     private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
     {

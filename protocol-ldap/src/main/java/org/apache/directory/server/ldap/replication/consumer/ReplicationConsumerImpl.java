@@ -80,7 +80,6 @@ import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationManager;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -199,8 +198,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * Connect to the remote server. Note that a SyncRepl consumer will be connected to only
      * one remote server
-     * 
-     * @return true if the connections have been successful. 
+     *
+     * @return true if the connections have been successful.
      */
     public boolean connect()
     {
@@ -328,7 +327,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
 
     /**
-     * Process a SearchResultEntry received from a consumer. We have to handle all the 
+     * Process a SearchResultEntry received from a consumer. We have to handle all the
      * cases :
      * - Add
      * - Modify
@@ -607,7 +606,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     }
 
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public void setConfig( ReplicationConsumerConfig config )
@@ -870,17 +869,17 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 connection.unBind();
                 LOG.info( "Unbound from the server {}", config.getProducer() );
-                
+
                 if ( CONSUMER_LOG.isDebugEnabled() )
                 {
                     MDC.put( "Replica", Integer.toString( config.getReplicaId() ) );
                     CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
                 }
-                
+
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getProducer() );
                 CONSUMER_LOG.info( "Connection closed for the server {}", config.getProducer() );
-                
+
                 connection = null;
             }
         }
@@ -892,7 +891,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             // persist the cookie
             storeCookie();
-            
+
             // reset the cookie
             syncCookie = null;
         }

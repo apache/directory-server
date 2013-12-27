@@ -25,14 +25,13 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.AbandonListener;
 import org.apache.directory.api.ldap.model.message.AbandonableRequest;
 import org.apache.directory.server.core.api.event.DirectoryListener;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * An AbandonListener implementation which closes an associated cursor or 
+ * An AbandonListener implementation which closes an associated cursor or
  * removes a DirectoryListener.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
