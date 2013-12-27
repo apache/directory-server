@@ -50,6 +50,7 @@ import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValue
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -634,7 +635,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // A normal search
         // Check that we have a cursor or not. 
         // No cursor : do a search.
-        EntryFilteringCursor cursor = session.getCoreSession().search( req );
+        Cursor<Entry> cursor = session.getCoreSession().search( req );
 
         // Position the cursor at the beginning
         cursor.beforeFirst();
@@ -683,7 +684,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      * Process the results get from a search request. We will send them to the client.
      */
     private void readResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit, ReplicaEventLog replicaLog ) throws Exception
+        Cursor<Entry> cursor, long sizeLimit, ReplicaEventLog replicaLog ) throws Exception
     {
         long count = 0;
 
@@ -864,7 +865,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
 
     private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session,
-        final EntryFilteringCursor cursor )
+        final Cursor<Entry> cursor )
     {
         // Don't bother setting time limits for administrators
         if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == NO_TIME_LIMIT )

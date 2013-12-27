@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -50,7 +51,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,7 +275,7 @@ public class ReplConsumerManager
         searchRequest.setFilter( filter );
         searchRequest.addAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-        EntryFilteringCursor cursor = adminSession.search( searchRequest );
+        Cursor<Entry> cursor = adminSession.search( searchRequest );
 
         // Now loop on each consumer configuration
         while ( cursor.next() )

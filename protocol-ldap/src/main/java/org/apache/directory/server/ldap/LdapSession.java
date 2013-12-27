@@ -485,7 +485,7 @@ public class LdapSession
         if ( oldContext != null )
         {
             // ??? Very unlikely to happen ...
-            EntryFilteringCursor cursor = oldContext.getCursor();
+            Cursor<Entry> cursor = oldContext.getCursor();
 
             if ( cursor != null )
             {
@@ -525,7 +525,7 @@ public class LdapSession
         {
             PagedSearchContext context = pagedSearchContexts.get( contextId );
             
-            EntryFilteringCursor cursor = context.getCursor();
+            Cursor<Entry> cursor = context.getCursor();
             
             if ( cursor != null )
             {

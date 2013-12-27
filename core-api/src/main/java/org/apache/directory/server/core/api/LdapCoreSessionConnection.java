@@ -31,6 +31,7 @@ import org.apache.directory.api.asn1.util.Oid;
 import org.apache.directory.api.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
@@ -84,7 +85,6 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -998,7 +998,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
             searchRequest.setMessageId( newId );
 
-            EntryFilteringCursor entryCursor = session.search( searchRequest );
+            Cursor<Entry> entryCursor = session.search( searchRequest );
             entryCursor.beforeFirst();
 
             //TODO enforce the size and time limits, similar in the way SearchHandler does

@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
@@ -36,7 +38,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Ignore;
@@ -441,7 +442,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
             SearchScope scope = SearchScope.SUBTREE;
             ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-            EntryFilteringCursor cursor = getService().getAdminSession()
+            Cursor<Entry> cursor = getService().getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode );
 
             // advancing the cursor forward and backward must give the same result
@@ -488,7 +489,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
             SearchScope scope = SearchScope.SUBTREE;
             ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
             AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
-            EntryFilteringCursor cursor = getService().getAdminSession()
+            Cursor<Entry> cursor = getService().getAdminSession()
                 .search( base, scope, exprNode, aliasDerefMode );
 
             // advancing the cursor backward and forward must give the same result
@@ -583,7 +584,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
         List<String> nextResults = new ArrayList<String>();
 
         ExprNode exprNode = FilterParser.parse( getService().getSchemaManager(), filter );
-        EntryFilteringCursor cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
+        Cursor<Entry> cursor = getService().getAdminSession().search( new Dn( base ), scope, exprNode,
             aliasDerefMode );
         cursor.beforeFirst();
 

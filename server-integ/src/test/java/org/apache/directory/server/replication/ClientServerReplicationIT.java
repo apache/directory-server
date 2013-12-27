@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -128,7 +129,7 @@ public class ClientServerReplicationIT
             System.out.println( "-----------> Dumping the server <-----------" );
             System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
 
-            EntryFilteringCursor cursor = session.search( searchRequest );
+            Cursor<Entry> cursor = session.search( searchRequest );
 
             while ( cursor.next() )
             {

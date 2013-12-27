@@ -32,6 +32,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -307,7 +308,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * @param cursor the {@link EntryFilteringCursor} over the search results
      */
     private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session,
-        final EntryFilteringCursor cursor )
+        final Cursor<Entry> cursor )
     {
         // Don't bother setting time limits for administrators
         if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == NO_TIME_LIMIT )
@@ -387,7 +388,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
 
     private void writeResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit ) throws Exception
+        Cursor<Entry> cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
 
@@ -446,7 +447,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
 
     private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
+        Cursor<Entry> cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
         PagedResultsDecorator pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
@@ -567,7 +568,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             pagedSearchControl.setCritical( true );
 
             // Close the cursor
-            EntryFilteringCursor cursor = psCookie.getCursor();
+            Cursor<Entry> cursor = psCookie.getCursor();
 
             if ( cursor != null )
             {
@@ -622,7 +623,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         long sizeLimit = min( serverLimit, requestLimit );
 
         int pagedLimit = pagedSearchControl.getSize();
-        EntryFilteringCursor cursor = null;
+        Cursor<Entry> cursor = null;
         PagedSearchContext pagedContext = null;
 
         // We have the following cases :
@@ -815,7 +816,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // A normal search
         // Check that we have a cursor or not.
         // No cursor : do a search.
-        EntryFilteringCursor cursor = session.getCoreSession().search( req );
+        Cursor<Entry> cursor = session.getCoreSession().search( req );
 
         // register the request in the session
         session.registerSearchRequest( req, cursor );

@@ -25,6 +25,7 @@ import javax.security.sasl.AuthorizeCallback;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -36,7 +37,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslCallbackHandler;
 import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
@@ -83,7 +83,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 
             Dn baseDn = new Dn( bindDn );
 
-            EntryFilteringCursor cursor = adminSession.search(
+            Cursor<Entry> cursor = adminSession.search(
                 baseDn,
                 SearchScope.SUBTREE,
                 filter,

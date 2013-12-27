@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -66,7 +67,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
@@ -677,7 +677,7 @@ public class ApacheDsService
 
         ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
 
-        EntryFilteringCursor cursor = session.search( partition.getSuffixDn(), SearchScope.SUBTREE, filter,
+        Cursor<Entry> cursor = session.search( partition.getSuffixDn(), SearchScope.SUBTREE, filter,
             AliasDerefMode.NEVER_DEREF_ALIASES, MANDATORY_ENTRY_ATOP_AT );
         cursor.beforeFirst();
 

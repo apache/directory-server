@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
@@ -39,7 +40,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +93,7 @@ public class LdapClassLoader extends ClassLoader
         {
             for ( Dn base : searchContexts )
             {
-                EntryFilteringCursor cursor = null;
+                Cursor<Entry> cursor = null;
                 try
                 {
                     cursor = directoryService.getAdminSession()

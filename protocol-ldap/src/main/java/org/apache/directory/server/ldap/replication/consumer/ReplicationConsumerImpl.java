@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestVa
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -1031,7 +1032,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             searchRequest.setScope( SearchScope.SUBTREE );
             searchRequest.addAttributes( "entryUuid", "entryCsn", "*" );
 
-            EntryFilteringCursor cursor = session.search( searchRequest );
+            Cursor<Entry> cursor = session.search( searchRequest );
             cursor.beforeFirst();
 
             Entry localEntry = null;
@@ -1362,7 +1363,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         Dn dn = new Dn( schemaManager, config.getBaseDn() );
 
         LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
-        EntryFilteringCursor cursor = session.search( dn, SearchScope.SUBTREE, filter,
+        Cursor<Entry> cursor = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
         cursor.beforeFirst();
 
@@ -1418,16 +1419,16 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      * @param map a map to hold the Cursor related to a Dn
      * @throws Exception If the Dn is not valid or if the deletion failed
      */
-    private void deleteRecursive( Dn rootDn, Map<Dn, EntryFilteringCursor> cursorMap ) throws Exception
+    private void deleteRecursive( Dn rootDn, Map<Dn, Cursor<Entry>> cursorMap ) throws Exception
     {
         LOG.debug( "searching for {}", rootDn.getName() );
-        EntryFilteringCursor cursor = null;
+        Cursor<Entry> cursor = null;
 
         try
         {
             if ( cursorMap == null )
             {
-                cursorMap = new HashMap<Dn, EntryFilteringCursor>();
+                cursorMap = new HashMap<Dn, Cursor<Entry>>();
             }
 
             cursor = cursorMap.get( rootDn );

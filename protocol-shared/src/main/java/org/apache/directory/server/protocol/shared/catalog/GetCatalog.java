@@ -24,6 +24,7 @@ package org.apache.directory.server.protocol.shared.catalog;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
@@ -50,7 +51,7 @@ public class GetCatalog implements DirectoryServiceOperation
     {
         String filter = "(objectClass=" + ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC + ")";
 
-        EntryFilteringCursor list = session.search(
+        Cursor<Entry> list = session.search(
             Dn.ROOT_DSE,
             SearchScope.SUBTREE,
             FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ),

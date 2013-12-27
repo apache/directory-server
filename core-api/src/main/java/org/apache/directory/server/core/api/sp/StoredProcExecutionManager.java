@@ -25,6 +25,7 @@ import java.util.List;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -36,7 +37,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -88,7 +88,7 @@ public class StoredProcExecutionManager
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT,
             new StringValue( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );
-        EntryFilteringCursor results = session.search( dn, SearchScope.SUBTREE, filter,
+        Cursor<Entry> results = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.DEREF_ALWAYS );
         
         if ( results.first() )

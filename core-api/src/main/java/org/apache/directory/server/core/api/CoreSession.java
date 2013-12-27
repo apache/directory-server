@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -735,7 +736,7 @@ public interface CoreSession
      * @param filter the search filter
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, String filter ) throws LdapException;
+    Cursor<Entry> search( Dn dn, String filter ) throws LdapException;
 
 
     /**
@@ -748,7 +749,7 @@ public interface CoreSession
      * @param ignoreReferrals a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
+    Cursor<Entry> search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
 
 
     /**
@@ -761,11 +762,11 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    Cursor<Entry> search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException;
 
 
-    EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException;
+    Cursor<Entry> search( SearchRequest searchRequest ) throws LdapException;
 
 
     /**

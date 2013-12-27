@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -129,7 +130,7 @@ public class StoreUtils
     public static Entry findPrincipalEntry( CoreSession session, Dn searchBaseDn, String principal )
         throws Exception
     {
-        EntryFilteringCursor cursor = null;
+        Cursor<Entry> cursor = null;
 
         try
         {
