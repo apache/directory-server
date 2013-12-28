@@ -251,6 +251,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
+        addResponseControls( compareRequest, resp );
         return resp;
     }
 
