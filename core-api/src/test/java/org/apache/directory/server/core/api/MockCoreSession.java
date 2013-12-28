@@ -461,7 +461,7 @@ public class MockCoreSession implements CoreSession
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
+    public Cursor<Entry> list( Dn dn, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
