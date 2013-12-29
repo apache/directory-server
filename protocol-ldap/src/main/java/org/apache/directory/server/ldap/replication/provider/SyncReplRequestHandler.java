@@ -116,9 +116,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class SyncReplRequestHandler implements ReplicationRequestHandler
 {
-    /** The logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( SyncReplRequestHandler.class );
-
     /** A logger for the replication provider */
     private static final Logger PROVIDER_LOG = LoggerFactory.getLogger( Loggers.PROVIDER_LOG.getName() );
 
@@ -170,7 +167,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // Check that the handler is not already started : we don't want to start it twice...
         if ( initialized )
         {
-            LOG.warn( "syncrepl provider was already initialized" );
             PROVIDER_LOG.warn( "syncrepl provider was already initialized" );
 
             return;
@@ -178,7 +174,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         try
         {
-            LOG.info( "initializing the syncrepl provider" );
             PROVIDER_LOG.debug( "initializing the syncrepl provider" );
 
             this.ldapServer = server;
@@ -242,12 +237,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
 
             initialized = true;
-            LOG.info( "syncrepl provider initialized successfully" );
             PROVIDER_LOG.debug( "syncrepl provider initialized successfully" );
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to initialize the log files required by the syncrepl provider", e );
             PROVIDER_LOG.error( "Failed to initialize the log files required by the syncrepl provider", e );
             throw new RuntimeException( e );
         }
@@ -277,7 +270,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             catch ( Exception e )
             {
-                LOG.warn( "Failed to close the event log {}", log.getId(), e );
                 PROVIDER_LOG.error( "Failed to close the event log {}", log.getId(), e );
             }
         }
@@ -322,12 +314,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 String cookieString = Strings.utf8ToString( cookieBytes );
 
                 PROVIDER_LOG.debug( "Received a replication request {} with a cookie '{}'", request, cookieString );
-                LOG.debug( "search request received with the cookie {}", cookieString );
 
                 if ( !LdapProtocolUtils.isValidCookie( cookieString ) )
                 {
-                    LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString, session );
-                    PROVIDER_LOG.error( "received a invalid cookie {} from the consumer with session {}", cookieString,
+                    PROVIDER_LOG.error( "received an invalid cookie {} from the consumer with session {}", cookieString,
                         session );
                     sendESyncRefreshRequired( session, request );
                 }
@@ -337,8 +327,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                     if ( clientMsgLog == null )
                     {
-                        LOG.warn( "received a valid cookie {} but there is no event log associated with this replica",
-                            cookieString );
                         PROVIDER_LOG.debug(
                             "received a valid cookie {} but there is no event log associated with this replica",
                             cookieString );
@@ -354,7 +342,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to handle the syncrepl request", e );
             PROVIDER_LOG.error( "Failed to handle the syncrepl request", e );
 
             throw new LdapException( e.getMessage(), e );
@@ -382,7 +369,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 ReplicaEventMessage replicaEventMessage = cursor.get();
                 Entry entry = replicaEventMessage.getEntry();
-                LOG.debug( "Read message from the queue {}", entry );
                 PROVIDER_LOG.debug( "Read message from the queue {}", entry );
 
                 lastSentCsn = entry.get( CSN_AT ).getString();
@@ -500,11 +486,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         if( ctrl != null )
         {
-            LOG.warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
+            PROVIDER_LOG.warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
             request.removeControl( ctrl );
         }
 
-        LOG.debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
+        PROVIDER_LOG.debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
         // matchingrule for "entryDn"
         sk.setMatchingRuleId( "2.5.13.1" );
@@ -540,7 +526,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // now we process entries forever as they change
         // irrespective of the sync mode set the 'isRealtimePush' to false initially so that we can
         // store the modifications in the queue and later if it is a persist mode
-        LOG.info( "Starting the replicaLog {}", replicaLog );
         PROVIDER_LOG.debug( "Starting the replicaLog {}", replicaLog );
 
         // we push this queue's content and switch to realtime mode
@@ -622,8 +607,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         else
         // if not succeeded return
         {
-            LOG.warn( "initial content refresh didn't succeed due to {}", searchDoneResp.getLdapResult()
-                .getResultCode() );
             PROVIDER_LOG.warn( "initial content refresh didn't succeed due to {}", searchDoneResp.getLdapResult()
                 .getResultCode() );
             replicaLog.stop();
@@ -676,7 +659,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
-            LOG.debug( "using <{},{}> for size limit", requestLimit, serverLimit );
+            PROVIDER_LOG.debug( "search operation requested size limit {}, server size limit {}", requestLimit, serverLimit );
             long sizeLimit = min( requestLimit, serverLimit );
 
             readResults( session, req, ldapResult, cursor, sizeLimit, replicaLog );
@@ -691,7 +674,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    PROVIDER_LOG.error( I18n.err( I18n.ERR_168 ), e );
                 }
             }
         }
@@ -716,7 +699,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             if ( session.getIoSession().isClosing() )
             {
                 // The client has closed the connection
-                LOG.debug( "Request terminated for message {}, the client has closed the session", req.getMessageId() );
                 PROVIDER_LOG.debug( "Request terminated for message {}, the client has closed the session",
                     req.getMessageId() );
                 break;
@@ -725,7 +707,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             if ( req.isAbandoned() )
             {
                 // The cursor has been closed by an abandon request.
-                LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
                 PROVIDER_LOG.debug( "Request terminated by an AbandonRequest for message {}", req.getMessageId() );
                 break;
             }
@@ -782,7 +763,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         Response resp = generateResponse( session, req, entry );
         resp.addControl( syncStateControl );
 
-        LOG.debug( "Sending {}", entry.getDn() );
         PROVIDER_LOG.debug( "Sending the entry:\n {}", resp );
         session.getIoSession().write( resp );
     }
@@ -821,7 +801,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
+                    PROVIDER_LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
                 }
 
                 switch ( req.getScope() )
@@ -1007,7 +987,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 if ( replica.isDirty() )
                 {
-                    LOG.debug( "updating the details of replica {}", replica );
                     PROVIDER_LOG.debug( "updating the details of replica {}", replica );
                     replicaUtil.updateReplicaLastSentCsn( replica );
                     replica.setDirty( false );
@@ -1016,7 +995,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to store the replica information", e );
             PROVIDER_LOG.error( "Failed to store the replica information", e );
         }
     }
@@ -1036,7 +1014,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 for ( ReplicaEventLog replica : eventLogs )
                 {
-                    LOG.debug( "initializing the replica log from {}", replica.getId() );
                     PROVIDER_LOG.debug( "initializing the replica log from {}", replica.getId() );
                     replicaLogMap.put( replica.getId(), replica );
                     eventLogNames.add( replica.getName() );
@@ -1050,7 +1027,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             else
             {
-                LOG.debug( "no replica logs found to initialize" );
                 PROVIDER_LOG.debug( "no replica logs found to initialize" );
             }
 
@@ -1060,13 +1036,12 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 if ( !eventLogNames.contains( f.getName() ) )
                 {
                     f.delete();
-                    LOG.info( "removed unused replication event log {}", f );
+                    PROVIDER_LOG.info( "removed unused replication event log {}", f );
                 }
             }
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to load the replica information", e );
             PROVIDER_LOG.error( "Failed to load the replica information", e );
         }
     }
@@ -1083,7 +1058,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( log.getSearchCriteria() != null )
             {
-                LOG.debug( "registering persistent search for the replica {}", log.getId() );
                 PROVIDER_LOG.debug( "registering persistent search for the replica {}", log.getId() );
                 SyncReplSearchListener handler = new SyncReplSearchListener( null, null, log, false );
                 log.setPersistentListener( handler );
@@ -1092,8 +1066,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             else
             {
-                LOG.warn( "invalid persistent search criteria {} for the replica {}", log.getSearchCriteria(), log
-                    .getId() );
                 PROVIDER_LOG.warn( "invalid persistent search criteria {} for the replica {}", log.getSearchCriteria(),
                     log
                         .getId() );
@@ -1122,7 +1094,6 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     }
                     catch ( InterruptedException e )
                     {
-                        LOG.warn( "thread storing the replica information was interrupted", e );
                         PROVIDER_LOG.warn( "thread storing the replica information was interrupted", e );
                     }
                 }
@@ -1157,7 +1128,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         int replicaId = replicaCount.incrementAndGet();
 
-        LOG.debug( "creating a new event log for the replica with id {}", replicaId );
+        PROVIDER_LOG.debug( "creating a new event log for the replica with id {}", replicaId );
 
         ReplicaEventLog replicaLog = new ReplicaEventLog( dirService, replicaId );
         replicaLog.setHostName( hostName );
@@ -1281,7 +1252,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     }
                     catch ( LdapInvalidAttributeValueException e )
                     {
-                        LOG.warn( "Invalid attribute type", e );
+                        PROVIDER_LOG.warn( "Invalid attribute type", e );
                     }
                 }
             }

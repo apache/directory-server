@@ -101,9 +101,6 @@ import org.slf4j.MDC;
  */
 public class ReplicationConsumerImpl implements ConnectionClosedEventListener, ReplicationConsumer
 {
-    /** the logger */
-    private static final Logger LOG = LoggerFactory.getLogger( ReplicationConsumerImpl.class );
-
     /** A dedicated logger for the consumer */
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
@@ -240,8 +237,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 {
                     CONSUMER_LOG.warn( "Failed to bind to the producer {} with the given bind Dn {}",
                         config.getProducer(), config.getReplUserDn() );
-                    LOG.warn( "Failed to bind to the server with the given bind Dn {}", config.getReplUserDn() );
-                    LOG.warn( "", le );
+                    CONSUMER_LOG.warn( "", le );
                     disconnected = true;
                 }
             }
@@ -256,8 +252,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
         catch ( Exception e )
         {
-            CONSUMER_LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
-            LOG.error( "Failed to connect to the server {}, cause : {}", config.getProducer(), e.getMessage() );
+            CONSUMER_LOG.error( "Failed to connect to the producer {}, cause : {}", config.getProducer(), e.getMessage() );
             disconnected = true;
         }
 
@@ -302,18 +297,18 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     private ResultCodeEnum handleSearchResultDone( SearchResultDone searchDone )
     {
-        LOG.debug( "///////////////// handleSearchDone //////////////////" );
+        CONSUMER_LOG.debug( "///////////////// handleSearchDone //////////////////" );
 
         SyncDoneValue ctrl = ( SyncDoneValue ) searchDone.getControls().get( SyncDoneValue.OID );
 
         if ( ( ctrl != null ) && ( ctrl.getCookie() != null ) )
         {
             syncCookie = ctrl.getCookie();
-            LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString( syncCookie ) );
+            CONSUMER_LOG.debug( "assigning cookie from sync done value control: " + Strings.utf8ToString( syncCookie ) );
             storeCookie();
         }
 
-        LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
+        CONSUMER_LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
 
         return searchDone.getLdapResult().getResultCode();
     }
@@ -338,7 +333,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void handleSearchResultEntry( SearchResultEntry syncResult )
     {
-        LOG.debug( "------------- starting handleSearchResult ------------" );
+        CONSUMER_LOG.debug( "------------- starting handleSearchResult ------------" );
 
         SyncStateValue syncStateCtrl = ( SyncStateValue ) syncResult.getControl( SyncStateValue.OID );
 
@@ -358,18 +353,18 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 {
                     syncCookie = syncStateCtrl.getCookie();
                     rid = LdapProtocolUtils.getReplicaId( Strings.utf8ToString( syncCookie ) );
-                    LOG.debug( "assigning the cookie from sync state value control: {}",
+                    CONSUMER_LOG.debug( "assigning the cookie from sync state value control: {}",
                         Strings.utf8ToString( syncCookie ) );
                 }
 
                 SyncStateTypeEnum state = syncStateCtrl.getSyncStateType();
 
-                LOG.debug( "state name {}", state.name() );
 
                 // check to avoid conversion of UUID from byte[] to String
-                if ( LOG.isDebugEnabled() )
+                if ( CONSUMER_LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "entryUUID = {}", Strings.uuidToString( syncStateCtrl.getEntryUUID() ) );
+                    CONSUMER_LOG.debug( "state name {}", state.name() );
+                    CONSUMER_LOG.debug( "entryUUID = {}", Strings.uuidToString( syncStateCtrl.getEntryUUID() ) );
                 }
 
                 Dn remoteDn = remoteEntry.getDn();
@@ -390,8 +385,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
                         if ( !remoteDnExist )
                         {
-                            LOG.debug( "adding entry with dn {}", remoteDn );
-                            LOG.debug( remoteEntry.toString() );
+                            CONSUMER_LOG.debug( "adding entry with dn {}", remoteDn );
+                            CONSUMER_LOG.debug( remoteEntry.toString() );
                             AddOperationContext addContext = new AddOperationContext( session, remoteEntry );
                             addContext.setReplEvent( true );
                             addContext.setRid( rid );
@@ -401,14 +396,14 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                         }
                         else
                         {
-                            LOG.debug( "updating entry in refreshOnly mode {}", remoteDn );
+                            CONSUMER_LOG.debug( "updating entry in refreshOnly mode {}", remoteDn );
                             modify( remoteEntry, rid );
                         }
 
                         break;
 
                     case MODIFY:
-                        LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
+                        CONSUMER_LOG.debug( "modifying entry with dn {}", remoteEntry.getDn().getName() );
                         modify( remoteEntry, rid );
 
                         break;
@@ -420,11 +415,11 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                         break;
 
                     case DELETE:
-                        LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
+                        CONSUMER_LOG.debug( "deleting entry with dn {}", remoteEntry.getDn().getName() );
 
                         if ( !session.exists( remoteDn ) )
                         {
-                            LOG.debug(
+                            CONSUMER_LOG.debug(
                                 "looks like entry {} was already deleted in a prior update (possibly from another provider), skipping delete",
                                 remoteDn );
                         }
@@ -439,7 +434,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                         break;
 
                     case PRESENT:
-                        LOG.debug( "entry present {}", remoteEntry );
+                        CONSUMER_LOG.debug( "entry present {}", remoteEntry );
                         break;
                 }
 
@@ -452,10 +447,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
         catch ( Exception e )
         {
-            LOG.error( e.getMessage(), e );
+            CONSUMER_LOG.error( e.getMessage(), e );
         }
 
-        LOG.debug( "------------- Ending handleSearchResult ------------" );
+        CONSUMER_LOG.debug( "------------- Ending handleSearchResult ------------" );
     }
 
 
@@ -466,7 +461,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         try
         {
-            LOG.debug( "............... inside handleSyncInfo ..............." );
+            CONSUMER_LOG.debug( "............... inside handleSyncInfo ..............." );
 
             byte[] syncInfoBytes = syncInfoResp.getResponseValue();
 
@@ -490,7 +485,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             if ( cookie != null )
             {
-                LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
+                CONSUMER_LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
                 CONSUMER_LOG.debug( "setting the cookie from the sync info: " + Strings.utf8ToString( cookie ) );
                 syncCookie = cookie;
 
@@ -498,7 +493,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 replicaId = LdapProtocolUtils.getReplicaId( cookieString );
             }
 
-            LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
+            CONSUMER_LOG.info( "refreshDeletes: " + syncInfoValue.isRefreshDeletes() );
 
             List<byte[]> uuidList = syncInfoValue.getSyncUUIDs();
 
@@ -513,17 +508,16 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 deleteEntries( uuidList, true, replicaId );
             }
 
-            LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
+            CONSUMER_LOG.info( "refreshDone: " + syncInfoValue.isRefreshDone() );
 
             storeCookie();
         }
         catch ( Exception de )
         {
-            LOG.error( "Failed to handle syncinfo message", de );
             CONSUMER_LOG.error( "Failed to handle syncinfo message", de );
         }
 
-        LOG.debug( ".................... END handleSyncInfo ..............." );
+        CONSUMER_LOG.debug( ".................... END handleSyncInfo ..............." );
     }
 
 
@@ -557,13 +551,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             try
             {
-                LOG.debug( "==================== Refresh And Persist ==========" );
+                CONSUMER_LOG.debug( "==================== Refresh And Persist ==========" );
 
                 return doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
             }
             catch ( Exception e )
             {
-                LOG.error( "Failed to sync with refreshAndPersist mode", e );
+                CONSUMER_LOG.error( "Failed to sync with refreshAndPersist mode", e );
                 return ReplicationStatusEnum.DISCONNECTED;
             }
         }
@@ -578,26 +572,26 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         while ( !disconnected )
         {
-            LOG.debug( "==================== Refresh Only ==========" );
+            CONSUMER_LOG.debug( "==================== Refresh Only ==========" );
 
             try
             {
                 doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, false );
 
-                LOG.info( "--------------------- Sleep for a little while ------------------" );
+                CONSUMER_LOG.debug( "--------------------- Sleep for a little while ------------------" );
                 Thread.sleep( config.getRefreshInterval() );
-                LOG.debug( "--------------------- syncing again ------------------" );
+                CONSUMER_LOG.debug( "--------------------- syncing again ------------------" );
 
             }
             catch ( InterruptedException ie )
             {
-                LOG.warn( "refresher thread interrupted" );
+                CONSUMER_LOG.warn( "refresher thread interrupted" );
 
                 return ReplicationStatusEnum.DISCONNECTED;
             }
             catch ( Exception e )
             {
-                LOG.error( "Failed to sync with refresh only mode", e );
+                CONSUMER_LOG.error( "Failed to sync with refresh only mode", e );
                 return ReplicationStatusEnum.DISCONNECTED;
             }
         }
@@ -639,7 +633,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             }
             catch ( InterruptedException e )
             {
-                LOG.warn( "Consumer {} Interrupted while trying to reconnect to the provider {}",
+                CONSUMER_LOG.warn( "Consumer {} Interrupted while trying to reconnect to the provider {}",
                     config.getReplicaId(), config.getProducer() );
             }
 
@@ -805,26 +799,22 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             ResultCodeEnum resultCode = handleSearchResultDone( ( SearchResultDone ) resp );
 
-            CONSUMER_LOG.debug( "Response from {} : {}", config.getProducer(), resultCode );
-            LOG.debug( "sync operation returned result code {}", resultCode );
+            CONSUMER_LOG.debug( "Rsultcode of Sync operation from {} : {}", config.getProducer(), resultCode );
 
             if ( resultCode == ResultCodeEnum.NO_SUCH_OBJECT )
             {
                 // log the error and handle it appropriately
                 CONSUMER_LOG.warn( "The base Dn {} is not found on provider {}", config.getBaseDn(),
                     config.getProducer() );
-                LOG.warn( "The base Dn {} is not found on provider {}", config.getBaseDn(), config.getProducer() );
 
                 CONSUMER_LOG.warn( "Disconnecting the Refresh&Persist consumer from provider {}", config.getProducer() );
-                LOG.warn( "Disconnecting the Refresh&Persist consumer from provider {}", config.getProducer() );
                 disconnect();
 
                 return ReplicationStatusEnum.DISCONNECTED;
             }
             else if ( resultCode == ResultCodeEnum.E_SYNC_REFRESH_REQUIRED )
             {
-                CONSUMER_LOG.info( "Full SYNC_REFRESH required from {}", config.getProducer() );
-                LOG.info( "Full SYNC_REFRESH required from {}", config.getProducer() );
+                CONSUMER_LOG.warn( "Full SYNC_REFRESH required from {}", config.getProducer() );
 
                 try
                 {
@@ -833,7 +823,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 }
                 catch ( Exception e )
                 {
-                    LOG
+                    CONSUMER_LOG
                         .error(
                             "Failed to delete the replica base as part of handling E_SYNC_REFRESH_REQUIRED, disconnecting the consumer",
                             e );
@@ -868,7 +858,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( ( connection != null ) && connection.isConnected() )
             {
                 connection.unBind();
-                LOG.info( "Unbound from the server {}", config.getProducer() );
+                CONSUMER_LOG.info( "Unbound from the server {}", config.getProducer() );
 
                 if ( CONSUMER_LOG.isDebugEnabled() )
                 {
@@ -877,7 +867,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 }
 
                 connection.close();
-                LOG.info( "Connection closed for the server {}", config.getProducer() );
                 CONSUMER_LOG.info( "Connection closed for the server {}", config.getProducer() );
 
                 connection = null;
@@ -885,7 +874,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to close the connection", e );
+            CONSUMER_LOG.error( "Failed to close the connection", e );
         }
         finally
         {
@@ -937,11 +926,11 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
 
-            LOG.debug( "stored the cookie" );
+            CONSUMER_LOG.debug( "stored the cookie" );
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to store the cookie in consumer entry {}", config.getConfigEntryDn(), e );
+            CONSUMER_LOG.error( "Failed to store the cookie in consumer entry {}", config.getConfigEntryDn(), e );
         }
     }
 
@@ -964,8 +953,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     syncCookie = attr.getBytes();
                     lastSavedCookie = syncCookie;
                     String syncCookieString = Strings.utf8ToString( syncCookie );
-                    CONSUMER_LOG.debug( "Cookie for consumer {} : {}", config.getReplicaId(), syncCookieString );
-                    LOG.debug( "loaded cookie from DIT" );
+                    CONSUMER_LOG.debug( "Loaded cookie {} for consumer {}", syncCookieString, config.getReplicaId() );
                 }
                 else
                 {
@@ -982,9 +970,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             // can be ignored, most likely happens if there is no entry with the given Dn
             // log in debug mode
-            CONSUMER_LOG.debug( "Cannot find the  '{}' in the DIT for consumer {}", config.getConfigEntryDn(),
+            CONSUMER_LOG.debug( "Failed to read the cookie, cannot find the entry '{}' in the DIT for consumer {}", config.getConfigEntryDn(),
                 config.getReplicaId() );
-            LOG.debug( "Failed to read the cookie from the entry {}", config.getConfigEntryDn(), e );
         }
     }
 
@@ -1003,11 +990,11 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         }
         catch ( Exception e )
         {
-            LOG.warn( "Failed to delete the cookie from the entry with Dn {}", config.getConfigEntryDn() );
-            LOG.warn( "{}", e );
+            CONSUMER_LOG.warn( "Failed to delete the cookie from the consumer with config entry Dn {}", config.getConfigEntryDn() );
+            CONSUMER_LOG.warn( "{}", e );
         }
 
-        LOG.info( "resetting sync cookie" );
+        CONSUMER_LOG.info( "resetting sync cookie of the consumer with config entry Dn {}", config.getConfigEntryDn() );
 
         syncCookie = null;
         lastSavedCookie = null;
@@ -1016,7 +1003,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     private void applyModDnOperation( Entry remoteEntry, String entryUuid, int rid ) throws Exception
     {
-        LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
+        CONSUMER_LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
 
         // First, compute the MODDN type
         SyncModifyDnType modDnType = null;
@@ -1057,7 +1044,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 if ( localCsn.compareTo( remoteCsn ) >= 0 )
                 {
                     // just discard the received modified entry, that is old
-                    LOG.debug( "local modification is latest, discarding the modDn operation dn {}",
+                    CONSUMER_LOG.debug( "local modification is latest, discarding the modDn operation dn {}",
                         remoteEntry.getDn() );
                     return;
                 }
@@ -1095,7 +1082,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             switch ( modDnType )
             {
                 case MOVE:
-                    LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
+                    CONSUMER_LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
                     MoveOperationContext movCtx = new MoveOperationContext( session, localDn, remoteParentDn );
                     movCtx.setReplEvent( true );
                     movCtx.setRid( rid );
@@ -1104,7 +1091,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     break;
 
                 case RENAME:
-                    LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
+                    CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
                         { localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
 
                     RenameOperationContext renCtx = new RenameOperationContext( session, localDn, remoteRdn,
@@ -1116,7 +1103,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     break;
 
                 case MOVE_AND_RENAME:
-                    LOG.debug(
+                    CONSUMER_LOG.debug(
                         "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
                         new String[]
                             {
@@ -1160,7 +1147,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( localCsn.compareTo( remoteCsn ) >= 0 )
             {
                 // just discard the received modified entry, that is old
-                LOG.debug( "local modification is latest, discarding the modification of dn {}", remoteEntry.getDn() );
+                CONSUMER_LOG.debug( "local modification is latest, discarding the modification of dn {}", remoteEntry.getDn() );
                 return;
             }
         }
@@ -1268,17 +1255,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             return;
         }
 
-        for ( byte[] uuid : uuidList )
-        {
-            LOG.info( "uuid: {}", Strings.uuidToString( uuid ) );
-        }
-
         // if it is refreshPresent list then send all the UUIDs for
         // filtering, otherwise breaking the list will cause the
         // other present entries to be deleted from DIT
         if ( isRefreshPresent )
         {
-            LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
+            CONSUMER_LOG.debug( "refresh present syncinfo list has {} UUIDs", uuidList.size() );
             processDelete( uuidList, isRefreshPresent, replicaId );
             return;
         }
@@ -1323,6 +1305,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         if ( size == 1 )
         {
             String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
+            
             filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
                 new org.apache.directory.api.ldap.model.entry.StringValue( uuid ) );
             if ( isRefreshPresent )
@@ -1361,7 +1344,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         Dn dn = new Dn( schemaManager, config.getBaseDn() );
 
-        LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
+        CONSUMER_LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
         Cursor<Entry> cursor = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
         cursor.beforeFirst();
@@ -1420,7 +1403,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      */
     private void deleteRecursive( Dn rootDn, Map<Dn, Cursor<Entry>> cursorMap ) throws Exception
     {
-        LOG.debug( "searching for {}", rootDn.getName() );
+        CONSUMER_LOG.debug( "searching for Dn {} before deleting", rootDn.getName() );
         Cursor<Entry> cursor = null;
 
         try
@@ -1437,13 +1420,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 cursor = session.search( rootDn, SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER,
                     AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
                 cursor.beforeFirst();
-                LOG.debug( "putting cursor for {}", rootDn.getName() );
+                CONSUMER_LOG.debug( "(delete operation) storing cursor of Dn {}", rootDn.getName() );
                 cursorMap.put( rootDn, cursor );
             }
 
             if ( !cursor.next() ) // if this is a leaf entry's Dn
             {
-                LOG.debug( "deleting {}", rootDn.getName() );
+                CONSUMER_LOG.debug( "deleting {}", rootDn.getName() );
                 cursorMap.remove( rootDn );
                 cursor.close();
                 session.delete( rootDn );
@@ -1460,14 +1443,14 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
                 cursorMap.remove( rootDn );
                 cursor.close();
-                LOG.debug( "deleting {}", rootDn.getName() );
+                CONSUMER_LOG.debug( "deleting {}", rootDn.getName() );
                 session.delete( rootDn );
             }
         }
         catch ( Exception e )
         {
             String msg = "Failed to delete child entries under the Dn " + rootDn.getName();
-            LOG.error( msg, e );
+            CONSUMER_LOG.error( msg, e );
             throw e;
         }
     }
