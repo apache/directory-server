@@ -352,7 +352,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( entry );
+                sendDeletedEntry( moveContext.getOriginalEntry() );
                 return;
             }
 

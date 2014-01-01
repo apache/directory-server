@@ -68,6 +68,9 @@ import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchResultReference;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortKey;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -81,6 +84,7 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
@@ -142,6 +146,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /** the cookie that was saved last time */
     private byte[] lastSavedCookie;
 
+    private volatile boolean reload = false;
+    
     /** The (entrtyUuid=*) filter */
     private static final PresenceNode ENTRY_UUID_PRESENCE_FILTER = new PresenceNode( SchemaConstants.ENTRY_UUID_AT );
 
@@ -310,6 +316,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         CONSUMER_LOG.debug( "//////////////// END handleSearchDone//////////////////////" );
 
+        reload = false;
+        
         return searchDone.getLdapResult().getResultCode();
     }
 
@@ -428,7 +436,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                             // incase of a MODDN operation resulting in a branch to be moved out of scope
                             // ApacheDS replication provider sends a single delete event on the Dn of the moved branch
                             // so the branch needs to be recursively deleted here
-                            deleteRecursive( remoteEntry.getDn(), null );
+                            deleteRecursive( remoteEntry.getDn(), rid );
                         }
 
                         break;
@@ -553,7 +561,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 CONSUMER_LOG.debug( "==================== Refresh And Persist ==========" );
 
-                return doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, false );
+                return doSyncSearch( SynchronizationModeEnum.REFRESH_AND_PERSIST, reload );
             }
             catch ( Exception e )
             {
@@ -576,7 +584,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             try
             {
-                doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, false );
+                doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, reload );
 
                 CONSUMER_LOG.debug( "--------------------- Sleep for a little while ------------------" );
                 Thread.sleep( config.getRefreshInterval() );
@@ -816,10 +824,18 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 CONSUMER_LOG.warn( "Full SYNC_REFRESH required from {}", config.getProducer() );
 
+                reload = true;
+                
                 try
                 {
                     CONSUMER_LOG.debug( "Deleting baseDN {}", config.getBaseDn() );
-                    deleteRecursive( new Dn( config.getBaseDn() ), null );
+                    
+                    // FIXME taking a backup right before deleting might be a good thing, just to be safe.
+                    // the backup file can be deleted after reload completes successfully
+                    
+                    // the 'rid' value is not taken into consideration when 'reload' is set
+                    // so any dummy value is fine
+                    deleteRecursive( new Dn( config.getBaseDn() ), -1000 );
                 }
                 catch ( Exception e )
                 {
@@ -1345,14 +1361,42 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         Dn dn = new Dn( schemaManager, config.getBaseDn() );
 
         CONSUMER_LOG.debug( "selecting entries to be deleted using filter {}", filter.toString() );
-        Cursor<Entry> cursor = session.search( dn, SearchScope.SUBTREE, filter,
-            AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
+        
+        SearchRequest req = new SearchRequestImpl();
+        req.setBase( dn );
+        req.setFilter( filter );
+        req.setScope( SearchScope.SUBTREE );
+        req.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+        // the ENTRY_DN_AT must be in the attribute list, otherwise sorting fails
+        req.addAttributes( SchemaConstants.ENTRY_DN_AT );
+
+        SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
+        SortRequestControl ctrl = new SortRequestControlImpl();
+        ctrl.addSortKey( sk );
+        req.addControl( ctrl );
+
+        OperationManager operationManager = directoryService.getOperationManager();
+
+        Cursor<Entry> cursor = session.search( req );
         cursor.beforeFirst();
 
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
-            deleteRecursive( entry.getDn(), null );
+            
+            DeleteOperationContext ctx = new DeleteOperationContext( session );
+            ctx.setReplEvent( true );
+            ctx.setRid( replicaId );
+
+            // DO NOT generate replication event if this is being deleted as part of 
+            // e_sync_refresh_required
+            if( reload )
+            {
+                ctx.setGenerateNoReplEvt( true );
+            }
+
+            ctx.setDn( entry.getDn() );
+            operationManager.delete( ctx );
         }
 
         cursor.close();
@@ -1375,83 +1419,70 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     /**
      * removes all child entries present under the given Dn and finally the Dn itself
-     *
-     * Working:
-     *          This is a recursive function which maintains a Map<Dn,Cursor>.
-     *          The way the cascade delete works is by checking for children for a
-     *          given Dn(i.e opening a search cursor) and if the cursor is empty
-     *          then delete the Dn else for each entry's Dn present in cursor call
-     *          deleteChildren() with the Dn and the reference to the map.
-     *
-     *          The reason for opening a search cursor is based on an assumption
-     *          that an entry *might* contain children, consider the below DIT fragment
-     *
-     *          parent
-     *          /     \
-     *        child1   child2
-     *                 /     \
-     *               grand21  grand22
-     *
-     *           The below method works better in the case where the tree depth is >1
-     *
-     *   In the case of passing a non-null DeleteListener, the return value will always be null, cause the
-     *   operation is treated as asynchronous and response result will be sent using the listener callback
-     *
+     * 
      * @param rootDn the Dn which will be removed after removing its children
-     * @param map a map to hold the Cursor related to a Dn
+     * @param rid the replica ID
      * @throws Exception If the Dn is not valid or if the deletion failed
      */
-    private void deleteRecursive( Dn rootDn, Map<Dn, Cursor<Entry>> cursorMap ) throws Exception
+    private void deleteRecursive( Dn rootDn, int rid ) throws Exception
     {
-        CONSUMER_LOG.debug( "searching for Dn {} before deleting", rootDn.getName() );
+        CONSUMER_LOG.debug( "searching for Dn {} and its children before deleting", rootDn.getName() );
         Cursor<Entry> cursor = null;
 
         try
         {
-            if ( cursorMap == null )
-            {
-                cursorMap = new HashMap<Dn, Cursor<Entry>>();
-            }
+            SearchRequest req = new SearchRequestImpl();
+            req.setBase( rootDn );
+            req.setFilter( ENTRY_UUID_PRESENCE_FILTER );
+            req.setScope( SearchScope.SUBTREE );
+            req.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
+            // the ENTRY_DN_AT must be in the attribute list, otherwise sorting fails
+            req.addAttributes( SchemaConstants.ENTRY_DN_AT );
 
-            cursor = cursorMap.get( rootDn );
+            SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
 
-            if ( cursor == null )
-            {
-                cursor = session.search( rootDn, SearchScope.ONELEVEL, ENTRY_UUID_PRESENCE_FILTER,
-                    AliasDerefMode.NEVER_DEREF_ALIASES, SchemaConstants.ENTRY_UUID_AT );
-                cursor.beforeFirst();
-                CONSUMER_LOG.debug( "(delete operation) storing cursor of Dn {}", rootDn.getName() );
-                cursorMap.put( rootDn, cursor );
-            }
+            SortRequestControl ctrl = new SortRequestControlImpl();
+            ctrl.addSortKey( sk );
+            req.addControl( ctrl );
 
-            if ( !cursor.next() ) // if this is a leaf entry's Dn
+            cursor = session.search( req );
+            cursor.beforeFirst();
+            
+            
+            OperationManager operationManager = directoryService.getOperationManager();
+            
+            while( cursor.next() )
             {
-                CONSUMER_LOG.debug( "deleting {}", rootDn.getName() );
-                cursorMap.remove( rootDn );
-                cursor.close();
-                session.delete( rootDn );
-            }
-            else
-            {
-                do
+                Entry e = cursor.get();
+
+                DeleteOperationContext ctx = new DeleteOperationContext( session );
+                ctx.setReplEvent( true );
+                ctx.setRid( rid );
+                
+                // DO NOT generate replication event if this is being deleted as part of 
+                // e_sync_refresh_required
+                if( reload )
                 {
-                    Entry entry = cursor.get();
-
-                    deleteRecursive( entry.getDn(), cursorMap );
+                    ctx.setGenerateNoReplEvt( true );
                 }
-                while ( cursor.next() );
 
-                cursorMap.remove( rootDn );
-                cursor.close();
-                CONSUMER_LOG.debug( "deleting {}", rootDn.getName() );
-                session.delete( rootDn );
+                ctx.setDn( e.getDn() );
+                
+                operationManager.delete( ctx );
             }
         }
         catch ( Exception e )
         {
-            String msg = "Failed to delete child entries under the Dn " + rootDn.getName();
+            String msg = "Failed to delete the Dn " + rootDn.getName() + " and its children (if any present)";
             CONSUMER_LOG.error( msg, e );
             throw e;
+        }
+        finally
+        {
+            if( cursor != null )
+            {
+                cursor.close();
+            }
         }
     }
 
