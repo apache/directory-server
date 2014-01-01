@@ -60,6 +60,8 @@ public class MockDirectoryService implements DirectoryService
 {
     int count;
 
+    DnFactory dnFactory;
+    
     /** The schemaManager */
     SchemaManager schemaManager;
 
@@ -552,7 +554,7 @@ public class MockDirectoryService implements DirectoryService
      */
     public DnFactory getDnFactory()
     {
-        return null;
+        return dnFactory;
     }
 
 
@@ -561,6 +563,7 @@ public class MockDirectoryService implements DirectoryService
      */
     public void setDnFactory( DnFactory dnFactory )
     {
+        this.dnFactory = dnFactory;
     }
 
 

@@ -47,6 +47,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
@@ -301,6 +302,8 @@ public class ClientInitialRefreshIT
                     DirectoryService directoryService = new MockDirectoryService();
                     directoryService.setSchemaManager( schemaManager );
                     ( ( MockSyncReplConsumer ) syncreplClient ).init( directoryService );
+                    
+                    directoryService.setDnFactory( new DefaultDnFactory( schemaManager, null ) );
                     syncreplClient.connect( true );
                     syncreplClient.startSync();
                 }
