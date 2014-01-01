@@ -1303,6 +1303,20 @@ public class DefaultCoreSession implements CoreSession
     {
         unsortedEntries.beforeFirst();
         
+        Entry first = null;
+        
+        if( unsortedEntries.next() )
+        {
+            first = unsortedEntries.get();
+        }
+        
+        if( !unsortedEntries.next() )
+        {
+            unsortedEntries.beforeFirst();
+            
+            return unsortedEntries;
+        }
+        
         SortKey sk = control.getSortKeys().get( 0 );
         
         AttributeType at = schemaManager.getAttributeType( sk.getAttributeTypeDesc() );
@@ -1329,6 +1343,11 @@ public class DefaultCoreSession implements CoreSession
         {
             throw new LdapException( e );
         }
+        
+        btree.insert( first, null );
+        
+        // at this stage the cursor will be _on_ the next element, so read it
+        btree.insert( unsortedEntries.get(), null );
         
         while( unsortedEntries.next() )
         {
