@@ -48,6 +48,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -59,6 +60,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
+import org.apache.directory.server.core.factory.MavibotPartitionFactory;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
@@ -77,7 +79,10 @@ import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHand
  */
 public class MmrTester
 {
-    private static final String PARTITION_SUFFIX = "dc=example,dc=com";
+    // replicate a branch under partition instead of partition
+    // this will enable to us to test the case where a entry was
+    // moved out of replication area
+    private static final String REPL_AREA_SUFFIX = "ou=replicationarea,dc=example,dc=com";
 
     private static final String RDN_PREFIX = "p";
 
@@ -137,6 +142,7 @@ public class MmrTester
             }
             
             LdapNetworkConnection c = new LdapNetworkConnection( url.getHost(), url.getPort(), useSsl );
+            c.setTimeOut( Long.MAX_VALUE );
             c.connect();
             c.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
             System.out.println( "connected to the server " + url );
@@ -204,7 +210,7 @@ public class MmrTester
             LdapNetworkConnection nc = connections.get( connectionIndex );
             
             String cn = RDN_PREFIX + entryIndex;
-            Dn personDn = new Dn( "cn=" + cn + "," + PARTITION_SUFFIX );
+            Dn personDn = new Dn( "cn=" + cn + "," + REPL_AREA_SUFFIX );
 
             if ( verbose )
             {
@@ -250,7 +256,7 @@ public class MmrTester
             LdapNetworkConnection nc = connections.get( connectionIndex );
             
             String cn = RDN_PREFIX + i;
-            Dn personDn = new Dn( "cn=" + cn + "," + PARTITION_SUFFIX );
+            Dn personDn = new Dn( "cn=" + cn + "," + REPL_AREA_SUFFIX );
             
             if( verbose )
             {
@@ -362,6 +368,49 @@ public class MmrTester
     }
 
     
+    public void moveOutOfReplAreaAndCompare() throws Exception
+    {
+        Dn parentDn = new Dn( "ou=parent,ou=children,ou=grandchildren");
+        
+        Dn currentDn = new Dn( REPL_AREA_SUFFIX );
+        
+        LdapNetworkConnection nc = connections.get( 0 );
+        
+        for( Rdn rdn : parentDn.getRdns() )
+        {
+            currentDn = new Dn( rdn.getName() + "," + currentDn.getName() );
+            Entry e = new DefaultEntry( currentDn.getName(),
+            "objectclass: top",
+            "objectclass: organizationalUnit",
+            "ou: " + rdn.getAva().getValue().getString() );
+            nc.add( e );
+        }
+        
+        compareEntries( Collections.singletonList( currentDn ) );
+        
+        Dn ouDn = currentDn.getParent().getParent();
+        
+        if( verbose )
+        {
+            System.out.println( "moving " + ouDn + " on the server " + nc.getConfig().getLdapHost() + ":" + nc.getConfig().getLdapPort() + ":" + nc.getConfig().getLdapPort() );
+        }
+        
+        ModifyDnRequest modReq = new ModifyDnRequestImpl();
+        modReq.setName( ouDn );
+        modReq.setNewRdn( ouDn.getRdn() );
+        modReq.setNewSuperior( ouDn.getParent().getParent() );
+        
+        ModifyDnResponse resp = nc.modifyDn( modReq );
+        ResultCodeEnum rc = resp.getLdapResult().getResultCode();
+        if( rc != ResultCodeEnum.SUCCESS )
+        {
+            System.out.println( "Error moving " + ouDn + " on the server " + nc.getConfig().getLdapHost() + ":" + nc.getConfig().getLdapPort() + ":" + nc.getConfig().getLdapPort() + " with result code " + rc );
+        }
+
+        Thread.sleep( 2000 );
+        verifyDeleted( Collections.singletonList( ouDn ) );
+    }
+
     public void compareEntries( List<Dn> injected )
     {
         for( Dn dn : injected )
@@ -398,10 +447,11 @@ public class MmrTester
                 LdapNetworkConnection c = itr.next();
                 try
                 {
-                    for( int i = 1; i <= 10; )
+                    for( int i = 1; i <= 10; i++ )
                     {
                         if( !c.exists( dn ) )
                         {
+                            System.out.println( dn + " doesn't exist in the server " + c.getConfig().getLdapHost() + ":" + c.getConfig().getLdapPort() );
                             continue outer;
                         }
                         
@@ -483,7 +533,7 @@ public class MmrTester
         try
         {
             String cn = RDN_PREFIX + num;
-            Dn personDn = new Dn( "cn=" + cn + "," + PARTITION_SUFFIX );
+            Dn personDn = new Dn( "cn=" + cn + "," + REPL_AREA_SUFFIX );
             Entry person = new DefaultEntry(
                 personDn.toString(),
                 "ObjectClass: top",
@@ -518,6 +568,8 @@ public class MmrTester
     
     public static void main( String[] args )
     {
+        //System.setProperty( "apacheds.partition.factory", MavibotPartitionFactory.class.getName() );
+        
         MmrTester cc = new MmrTester( "ldap://localhost:16001", "ldap://localhost:16000" );
         
         if( TOTAL_ENTRY_COUNT < 150 )
@@ -578,7 +630,19 @@ public class MmrTester
                 "objectClass: top",
                 "dc: example" );
 
-            cc.injectAndWaitTillReplicates( ctxEntry );
+            for( LdapConnection lc : cc.connections )
+            {
+                lc.add( ctxEntry );
+            }
+
+            Entry replAreaEntry = new DefaultEntry( REPL_AREA_SUFFIX,
+                "objectClass: organizationalunit",
+                "ou: replicationarea" );
+
+            cc.injectAndWaitTillReplicates( replAreaEntry );
+            
+            cc.moveOutOfReplAreaAndCompare();
+            
             cc.addAndCompare();
             
             List<Dn> modified = cc.modify();
@@ -586,7 +650,7 @@ public class MmrTester
             
             cc.compareEntries( modified );
             
-            Entry groupEntry = new DefaultEntry( "ou=groups,dc=example,dc=com",
+            Entry groupEntry = new DefaultEntry( "ou=groups," + REPL_AREA_SUFFIX,
                 "objectClass: organizationalUnit",
                 "objectClass: top",
                 "ou: groups" );
@@ -635,7 +699,7 @@ public class MmrTester
         replUserDn = "uid=admin,ou=system",
         replUserPassword = "secret",
         useTls = false,
-        baseDn = "dc=example,dc=com",
+        baseDn = REPL_AREA_SUFFIX,
         replicaId = 1,
         refreshNPersist = true
     )
@@ -662,6 +726,7 @@ public class MmrTester
                 {
                     DirectoryService ds = peer1Server.getDirectoryService();
 
+                    System.out.println(ds.getInstanceLayout().getInstanceDirectory());
                     Dn configDn = new Dn( ds.getSchemaManager(), "ads-replConsumerId=localhost,ou=system" );
                     consumer.getConfig().setConfigEntryDn( configDn );
 
@@ -725,7 +790,7 @@ public class MmrTester
         replUserDn = "uid=admin,ou=system",
         replUserPassword = "secret",
         useTls = false,
-        baseDn = "dc=example,dc=com",
+        baseDn = REPL_AREA_SUFFIX,
         refreshNPersist = true,
         replicaId = 1
     )
