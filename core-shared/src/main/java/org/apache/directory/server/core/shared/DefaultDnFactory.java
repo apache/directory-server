@@ -114,8 +114,6 @@ public class DefaultDnFactory implements DnFactory
         }
         else
         {
-            cachedDn.apply( schemaManager );
-
             if ( enableStats )
             {
                 hitCount++;
@@ -126,8 +124,7 @@ public class DefaultDnFactory implements DnFactory
 
         if ( enableStats )
         {
-            System.out.println( "Dn cache hit - " + hitCount + ", miss - " + missCount + " and is normalized = "
-                + cachedDn.isSchemaAware() );
+            LOG.debug( "Dn cache hit - {} , miss - {} and is normalized = {}", hitCount, missCount, cachedDn.isSchemaAware() );
         }
 
         return cachedDn;
