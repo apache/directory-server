@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -188,6 +189,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /** A lock to protect the backend from concurrent reads/writes */
     private ReadWriteLock rwLock;
 
+    /** a cache to hold <entryUUID, Dn> pairs, this is used for speeding up the buildEntryDn() method */
+    private LRUMap entryDnCache = new LRUMap( 10000 );
+    
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -489,6 +493,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // don't reset initialized flag
         initialized = false;
 
+        entryDnCache.clear();
+        
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
         for ( Index<?, String> index : userIndices.values() )
@@ -1058,6 +1064,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 dumpRdnIdx();
 
+                entryDnCache.remove( id );
+                
                 master.remove( id );
             }
             finally
@@ -1827,6 +1835,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Remove the EntryDN
         modifiedEntry.removeAttributes( ENTRY_DN_AT );
 
+        entryDnCache.clear();
+        
         master.put( entryId, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
@@ -1928,6 +1938,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         rename( oldId, newRdn, deleteOldRdn, modifiedEntry );
         moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
 
+        entryDnCache.clear();
+        
         if ( isSyncOnWrite.get() )
         {
             sync();
@@ -2182,6 +2194,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         rdnIdx.add( parentIdAndRdn, oldId );
 
+        entryDnCache.clear();
+        
         if ( isSyncOnWrite.get() )
         {
             sync();
@@ -2262,10 +2276,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         Rdn[] rdnArray = new Rdn[10];
         int pos = 0;
 
+        Dn dn = null;
+        
         try
         {
             rwLock.readLock().lock();
 
+            dn = ( Dn ) entryDnCache.get( id );
+            
+            if ( dn != null )
+            {
+                return dn;
+            }
+            
             do
             {
                 ParentIdAndRdn cur = null;
@@ -2318,15 +2341,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 parentId = cur.getParentId();
             }
             while ( !parentId.equals( rootId ) );
+            
+            dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
+            
+            entryDnCache.put( id, dn );
+            return dn;
         }
         finally
         {
             rwLock.readLock().unlock();
         }
-
-        Dn dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
-
-        return dn;
     }
 
 
@@ -2928,7 +2952,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
              * Start droping index tuples with the first ancestor right above the
              * moved base.  This is the first ancestor effected by the move.
              */
-            Dn ancestorDn = new Dn( schemaManager, movedBase.getRdn( movedBase.size() - 1 ) );
+            Dn ancestorDn = movedBase.getParent();
             String ancestorId = getEntryId( ancestorDn );
 
             /*
@@ -2952,7 +2976,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             while ( !ancestorDn.equals( suffixDn ) )
             {
-                ancestorDn = new Dn( schemaManager, ancestorDn.getRdn( ancestorDn.size() - 1 ) );
+                ancestorDn = ancestorDn.getParent();
                 ancestorId = getEntryId( ancestorDn );
 
                 subAliasIdx.drop( ancestorId, targetId );

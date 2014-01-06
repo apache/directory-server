@@ -678,9 +678,9 @@ public class MavibotStoreTest
 
         Dn newDn = parentDn.add( childDn.getRdn() );
 
-        store.move( childDn, parentDn, newDn, childEntry );
+        store.move( childDn, parentDn, newDn, null );
 
-        assertEquals( 4, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count() );
     }
 
 

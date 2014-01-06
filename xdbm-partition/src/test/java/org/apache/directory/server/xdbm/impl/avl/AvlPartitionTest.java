@@ -501,9 +501,9 @@ public class AvlPartitionTest
         assertEquals( 3, partition.getSubAliasIndex().count() );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
-        partition.move( childDn, parentDn, newDn, childEntry );
+        partition.move( childDn, parentDn, newDn, null );
 
-        assertEquals( 4, partition.getSubAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count() );
     }
 
 
