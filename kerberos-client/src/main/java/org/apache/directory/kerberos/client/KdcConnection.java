@@ -595,13 +595,10 @@ public class KdcConnection
             }
             
             ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) reply;
-            ApRep chngApRep = chngPwdReply.getApplicationReply();
-            byte[] apRepData = cipherTextHandler.decrypt( tgt.getSessionKey(), chngApRep.getEncPart(), KeyUsage.AP_REP_ENC_PART_SESS_KEY );
-            
-            EncApRepPart encApRepPart = KerberosDecoder.decodeEncApRepPart( apRepData );
-            
+
             KrbPriv replyPriv = chngPwdReply.getPrivateMessage();
-            byte[] data = cipherTextHandler.decrypt( encApRepPart.getSubkey(), replyPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+            // the same subKey present in ApReq is used for encrypting the KrbPriv present in reply
+            byte[] data = cipherTextHandler.decrypt( subKey, replyPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
             part = KerberosDecoder.decodeEncKrbPrivPart( data );
             
             ChangePasswordResult result = new ChangePasswordResult( part.getUserData() );
