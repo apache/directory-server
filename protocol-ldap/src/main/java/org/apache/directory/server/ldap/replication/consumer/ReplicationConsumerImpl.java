@@ -586,7 +586,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             {
                 doSyncSearch( SynchronizationModeEnum.REFRESH_ONLY, reload );
 
-                CONSUMER_LOG.debug( "--------------------- Sleep for a little while ------------------" );
+                CONSUMER_LOG.debug( "--------------------- Sleep for {} seconds ------------------", ( config.getRefreshInterval() / 1000 ) );
                 Thread.sleep( config.getRefreshInterval() );
                 CONSUMER_LOG.debug( "--------------------- syncing again ------------------" );
 
@@ -941,8 +941,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
-
-            CONSUMER_LOG.debug( "stored the cookie" );
         }
         catch ( Exception e )
         {
@@ -1003,14 +1001,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                 cookieAttr );
             session.modify( config.getConfigEntryDn(), deleteCookieMod );
+            CONSUMER_LOG.info( "resetting sync cookie of the consumer with config entry Dn {}", config.getConfigEntryDn() );
         }
         catch ( Exception e )
         {
             CONSUMER_LOG.warn( "Failed to delete the cookie from the consumer with config entry Dn {}", config.getConfigEntryDn() );
             CONSUMER_LOG.warn( "{}", e );
         }
-
-        CONSUMER_LOG.info( "resetting sync cookie of the consumer with config entry Dn {}", config.getConfigEntryDn() );
 
         syncCookie = null;
         lastSavedCookie = null;
