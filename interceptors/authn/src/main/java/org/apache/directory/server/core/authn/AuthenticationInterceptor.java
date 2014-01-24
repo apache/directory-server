@@ -142,6 +142,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private AttributeType AT_PWD_LAST_SUCCESS;
 
     private AttributeType AT_PWD_GRACE_USE_TIME;
+    
+    private AttributeType AT_CREATE_TIMESTAMP;
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
@@ -1325,6 +1327,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
+    private AttributeType getCreateTimestampAttributeType() throws LdapException 
+    {
+        if ( AT_CREATE_TIMESTAMP == null ) 
+        {
+            AT_CREATE_TIMESTAMP = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
+        }
+        return AT_CREATE_TIMESTAMP;
+    }
+
+
     private int getPwdTimeBeforeExpiry( Entry userEntry, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
@@ -1341,6 +1353,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
+        if ( pwdChangedTimeAt == null ) 
+        {
+            pwdChangedTimeAt = userEntry.get( getCreateTimestampAttributeType() );
+        }
         long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
 
         long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
