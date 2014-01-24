@@ -24,8 +24,10 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNe
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAnonymousNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
@@ -35,6 +37,7 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -144,6 +147,21 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             catch ( LdapAuthenticationException le )
             {
                 assertEquals( expectedMessage, le.getMessage() );
+            }
+        }
+    }
+    
+    
+    private void safeCloseConnections( LdapConnection... connections ) 
+    {
+        for ( LdapConnection connection : connections ) {
+            if ( connection != null ) {
+                try {
+                    connection.close();
+                }
+                catch ( Exception e ) {
+                    // may wanna log a message or something
+                }
             }
         }
     }
@@ -402,7 +420,64 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         adminConnection.close();
     }
 
-
+    
+    /**
+     * Modify an existing user password with an admin account
+     */
+    @Test
+    public void testModifyPasswordTooSoon() throws Exception
+    {
+        LdapConnection adminConnection = null;
+        LdapConnection userConnection = null;
+        int minAge = policyConfig.getPwdMinAge();
+        try {
+            policyConfig.setPwdMinAge( 1000 );
+    
+            adminConnection = getAdminNetworkConnection( getLdapServer() );
+            addUser( adminConnection, "User7", "secret7" );
+            Entry userEntry = adminConnection.lookup( "cn=User7,ou=system", "*", "+" );
+            Attribute attribute = userEntry.get( "pwdHistory" );
+            assertEquals( 1, attribute.size() );
+    
+            PwdModifyRequestImpl pwdModifyRequest = null;
+            PwdModifyResponse pwdModifyResponse = null;
+    
+            // Fail modify user with user account
+            try {
+                userConnection = getNetworkConnectionAs( getLdapServer(), "cn=User7,ou=system", "secret7" );
+                pwdModifyRequest = new PwdModifyRequestImpl();
+                pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User7,ou=system" ) );
+                pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret4Bis" ) );
+                pwdModifyResponse = (PwdModifyResponse)userConnection.extended( pwdModifyRequest );
+                assertNotEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+            }
+            finally {
+                safeCloseConnections( userConnection );
+            }
+    
+            // Modify the user with the admin account
+            pwdModifyRequest = new PwdModifyRequestImpl();
+            pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User7,ou=system" ) );
+            pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret4Bis" ) );
+            pwdModifyResponse = (PwdModifyResponse)adminConnection.extended( pwdModifyRequest );
+            assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+            userEntry = adminConnection.lookup( "cn=User7,ou=system", "*", "+" );
+            attribute = userEntry.get( "pwdHistory" );
+            assertEquals( 2, attribute.size() );
+    
+            // Now try to bind with the new password
+            userConnection = getNetworkConnectionAs( ldapServer, "cn=User7,ou=system", "secret4Bis" );
+            Entry entry = userConnection.lookup( "cn=User7,ou=system" );
+       
+            assertNotNull( entry );
+        }
+        finally {
+            policyConfig.setPwdMinAge( minAge );
+            safeCloseConnections( userConnection, adminConnection );
+        }
+    }
+    
+    
     /**
      * Attempt to modify an existing user password and fail.  Then process the
      * password policy control from the response.

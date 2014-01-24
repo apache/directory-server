@@ -358,7 +358,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             try
             {
-                check( entry, userPassword.getValue(), policyConfig );
+                check( addContext, entry, userPassword.getValue(), policyConfig );
             }
             catch ( PasswordPolicyException e )
             {
@@ -917,7 +917,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( pwdModDetails.isAddOrReplace() )
             {
-                if ( isPwdTooYoung( entry, policyConfig ) )
+                if ( isPwdTooYoung( modifyContext, entry, policyConfig ) )
                 {
                     if ( isPPolicyReqCtrlPresent )
                     {
@@ -936,7 +936,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 try
                 {
-                    check( entry, newPassword, policyConfig );
+                    check( modifyContext, entry, newPassword, policyConfig );
                 }
                 catch ( PasswordPolicyException e )
                 {
@@ -1252,9 +1252,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     // ---------- private methods ----------------
-    private void check( Entry entry, byte[] password, PasswordPolicyConfiguration policyConfig )
+    private void check( OperationContext operationContext, Entry entry, 
+        byte[] password, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
+        // https://issues.apache.org/jira/browse/DIRSERVER-1928
+        if ( operationContext.getSession().isAnAdministrator() ) 
+        {
+            return;    
+        }
         final CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
 
         if ( qualityVal == CheckQualityEnum.NO_CHECK )
@@ -1363,9 +1369,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @return true if the password is young, false otherwise
      * @throws LdapException
      */
-    private boolean isPwdTooYoung( Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
+    private boolean isPwdTooYoung( OperationContext operationContext, 
+        Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
-        if ( policyConfig.getPwdMinAge() == 0 )
+       // https://issues.apache.org/jira/browse/DIRSERVER-1928
+       if ( operationContext.getSession().isAnAdministrator() ) 
+       {
+           return false;    
+       }
+       if ( policyConfig.getPwdMinAge() == 0 )
         {
             return false;
         }

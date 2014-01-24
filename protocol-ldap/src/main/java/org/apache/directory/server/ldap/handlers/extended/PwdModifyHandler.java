@@ -235,10 +235,9 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
         PwdModifyRequest req )
     {
         DirectoryService service = requestor.getLdapServer().getDirectoryService();
-        CoreSession adminSession = service.getAdminSession();
 
         // Try to update the userPassword
-        ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( requestor.getCoreSession() );
         modifyContext.setDn( principalDn );
 
         Control ppolicyControl = req.getControl( PasswordPolicy.OID );
@@ -416,7 +415,8 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
             // Ok, we were able to bind using the userIdentity and the password. Let's
             // modify the password now
-            ModifyOperationContext modifyContext = new ModifyOperationContext( adminSession );
+            ModifyOperationContext modifyContext = new ModifyOperationContext( 
+                service.getSession( userDn, oldPassword ) );
             modifyContext.setDn( userDn );
             List<Modification> modifications = new ArrayList<Modification>();
             Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,

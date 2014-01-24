@@ -37,8 +37,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+
+import java.nio.charset.Charset;
+
+
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
@@ -103,12 +105,11 @@ import org.junit.runner.RunWith;
 @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
 public class PasswordPolicyIT extends AbstractLdapTestUnit
 {
-    private PasswordPolicyConfiguration policyConfig;
-
-    private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
-
     private static final PasswordPolicy PP_REQ_CTRL =
         new PasswordPolicyImpl();
+
+
+    private PasswordPolicyConfiguration policyConfig;
 
 
     /**
@@ -187,6 +188,38 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
 
     /**
+     * Changes the password of the user in the users own context from the 
+     * old value to the new value.
+     * 
+     * @param userDn
+     * @param oldPassword
+     * @param newPassword
+     * @return The ModifyResponse from the attempt
+     * @throws Exception If unable to obtain the connection with the 
+     * provided user an oldPassword.
+     */
+    private ModifyResponse changePassword( Dn userDn, String oldPassword, byte[] newPassword ) throws Exception 
+    {
+        LdapConnection userConnection = null;
+        try {
+            userConnection = getNetworkConnectionAs( ldapServer, userDn.toString(), oldPassword );
+            ModifyRequest modifyRequest = new ModifyRequestImpl();
+            modifyRequest.setName( userDn );
+            modifyRequest.replace( "userPassword", newPassword );
+            return userConnection.modify( modifyRequest );
+        }
+        finally {
+            userConnection.close();
+        }
+    }
+    
+    private ModifyResponse changePassword( Dn userDn, String oldPassword, String newPassword ) throws Exception 
+    {
+        return changePassword( userDn, oldPassword, newPassword.getBytes( Charset.forName( "UTF-8" ) ) );
+    }
+
+
+    /**
      * Check we can bind a user with a given password
      */
     private void checkBindSuccess( Dn userDn, String password ) throws Exception
@@ -204,17 +237,22 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
      */
     private void checkBindFailure( Dn userDn, String password ) throws Exception
     {
+        LdapConnection userConnection = null;
         try
         {
-            LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+            userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
             assertNull( userConnection );
-            assertFalse( userConnection.isAuthenticated() );
-
-            userConnection.close();
         }
         catch ( LdapException le )
         {
             // Expected
+        }
+        finally 
+        {
+            if ( userConnection != null ) 
+            {
+                userConnection.close();
+            }
         }
     }
 
@@ -242,7 +280,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     /**
      * Test that we can't inject a hashed password when the ChekcQuality is CHECK_REJECT,
      * and that we can when the CheckQuality is CHECK_ACCEPT
+     * 
+     * Ignored because if an admin can avoid password policy anyway, and add's are 
+     * performed by an admin, then this case would not get caught.  If there is a case
+     * where a user adds another user then we should put that case here.
      */
+    @Ignore
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
@@ -284,6 +327,30 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=hashedpwd,ou=system", "12345" );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
+        adminConnection.close();
+    }
+
+    
+    @Test
+    public void testModifyUserWithHashedPwd() throws Exception
+    {
+        Dn userDn = new Dn( "cn=hashedpwdm,ou=system" );
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+        Entry userEntry = new DefaultEntry(
+            userDn.toString(),
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: hashedpwdm",
+            "sn: hashedpwdm_sn",
+            "userPassword", "set4now" );
+        adminConnection.add( userEntry );
+    
+        byte[] password = PasswordUtil.createStoragePassword( "12345", LdapSecurityConstants.HASH_METHOD_CRYPT );
+        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION,
+            changePassword( userDn, "set4now", password ).getLdapResult().getResultCode() );
+        
+        checkBindFailure( userDn, "12345" );
+    
         adminConnection.close();
     }
 
@@ -385,32 +452,21 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "cn: userMinAge",
             "sn: userMinAge_sn",
             "userPassword: 12345" );
-
         adminConnection.add( userEntry );
-        Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword",
-            "123456" );
 
         // We should not be able to modify the password : it's too recent
-        try
-        {
-            adminConnection.modify( userDn, modification );
-            fail();
-        }
-        catch ( LdapException LdapInvalidAttributeValueException )
-        {
-            // Expected
-        }
+        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION,
+            changePassword( userDn, "12345", "123456" ).getLdapResult().getResultCode() );
 
         // Wait for the pwdMinAge delay to be over
         Thread.sleep( 5000 );
 
         // Now, we should be able to modify the password
-        adminConnection.modify( userDn, modification );
+        assertEquals( ResultCodeEnum.SUCCESS,
+            changePassword( userDn, "12345", "123456" ).getLdapResult().getResultCode() );
 
-        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "123456" );
-        assertNotNull( userConnection );
-        assertTrue( userConnection.isAuthenticated() );
-        userConnection.close();
+        checkBindSuccess( userDn, "123456" );
+
         adminConnection.close();
     }
 
@@ -504,40 +560,25 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "ObjectClass: person",
             "cn: userLen",
             "sn: userLen_sn",
-            "userPassword: 1234" );
+            "userPassword: set4now" );
+        adminConnection.add( userEntry );
 
         // Try with a password below the minLength
-        try
-        {
-            adminConnection.add( userEntry );
-            fail();
-        }
-        catch ( LdapInvalidAttributeValueException liave )
-        {
-            // Expected
-        }
+        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION,
+            changePassword( userDn, "set4now", "1234" ).getLdapResult().getResultCode() );
 
         checkBindFailure( userDn, "1234" );
 
         // Try with a password above the maxLength
-        userEntry.put( "userPassword", "12345678" );
-
-        try
-        {
-            adminConnection.add( userEntry );
-            fail();
-        }
-        catch ( LdapInvalidAttributeValueException liave )
-        {
-            // Expected
-        }
+        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION,
+            changePassword( userDn, "set4now", "12345678" ).getLdapResult().getResultCode() );
 
         checkBindFailure( userDn, "12345678" );
 
         // And try with a correct password
-        userEntry.put( "userPassword", "123456" );
+        assertEquals( ResultCodeEnum.SUCCESS,
+            changePassword( userDn, "set4now", "123456" ).getLdapResult().getResultCode() );
 
-        adminConnection.add( userEntry );
         checkBindSuccess( userDn, "123456" );
 
         adminConnection.close();
