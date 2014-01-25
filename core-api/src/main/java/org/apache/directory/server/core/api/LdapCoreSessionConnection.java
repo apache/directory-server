@@ -134,7 +134,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean close() throws IOException
+    public void close() throws IOException
     {
         try
         {
@@ -146,8 +146,6 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             ioe.initCause( e );
             throw ioe;
         }
-
-        return true;
     }
 
 
