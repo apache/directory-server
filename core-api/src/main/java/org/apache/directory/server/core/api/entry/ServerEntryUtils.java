@@ -794,7 +794,11 @@ public class ServerEntryUtils
                 }
             }
 
-            entry.removeAttributes( entryDnType );
+            // DIRSERVER-1953
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
             
             return;
         }

@@ -100,8 +100,11 @@ public class SortedSearchIT extends AbstractLdapTestUnit
         req.setBase( baseDn );
         req.setFilter( filter );
         req.setScope( SearchScope.SUBTREE );
-        req.addAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
+        
+        // let the tests also test for DIRSERVER-1953
+        req.addAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        req.addAttributes( SchemaConstants.ENTRY_DN_AT );
+        
         // tests may overwrite the fields of the below SortKey instance
         sk = new SortKey( "entryDn" );
         ctrl = new SortRequestControlImpl();
