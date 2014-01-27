@@ -1104,8 +1104,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     break;
 
                 case RENAME:
-                    CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", new String[]
-                        { localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) } );
+                    CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}", localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) );
 
                     RenameOperationContext renCtx = new RenameOperationContext( session, localDn, remoteRdn,
                         deleteOldRdn );
@@ -1118,12 +1117,10 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 case MOVE_AND_RENAME:
                     CONSUMER_LOG.debug(
                         "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
-                        new String[]
-                            {
                                 localDn.getName(),
                                 remoteParentDn.getName(),
                                 remoteRdn.getName(),
-                                String.valueOf( deleteOldRdn ) } );
+                                String.valueOf( deleteOldRdn ) );
 
                     MoveAndRenameOperationContext movRenCtx = new MoveAndRenameOperationContext( session, localDn,
                         remoteParentDn, remoteRdn, deleteOldRdn );
