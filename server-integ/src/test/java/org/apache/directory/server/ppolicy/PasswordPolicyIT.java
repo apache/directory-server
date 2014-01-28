@@ -39,6 +39,7 @@ import static org.junit.Assert.fail;
 
 
 import java.nio.charset.Charset;
+import java.util.Date;
 
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -71,6 +72,7 @@ import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
+import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -1294,7 +1296,72 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         adminConnection.close();
     }
     
+
+    @Test
+    public void testPwdExpireWarningToo() throws Exception
+    {
+        policyConfig.setPwdGraceAuthNLimit( 0 );
+        policyConfig.setPwdMaxAge( 3600 ); // 1 hour
+        policyConfig.setPwdExpireWarning( 600 ); // 10 minutes
     
+        LdapConnection adminConnection = null;
+        LdapConnection userConnection = null;
+        LdapConnection userConnection2 = null;
+        try {
+            String userCn = "userExpireWarningToo";
+            Dn userDn = new Dn( "cn=" + userCn + ",ou=system" );
+            String password = "12345";
+            adminConnection = getAdminNetworkConnection( getLdapServer() );
+            userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            userConnection.setTimeOut( 0L );
+            userConnection2 = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            userConnection2.setTimeOut( 0L );
+
+            addUser( adminConnection, userCn, password );
+
+            BindRequest bindReq = new BindRequestImpl();
+            bindReq.setDn( userDn );
+            bindReq.setCredentials( "12345" );
+            bindReq.addControl( PP_REQ_CTRL );
+            BindResponse bindResponse = userConnection2.bind( bindReq );
+            PasswordPolicy respCtrl = getPwdRespCtrl( bindResponse );
+            assertNotNull( respCtrl );
+            assertNull( respCtrl.getResponse() );
+
+            // now modify change time
+            ModifyRequest modifyRequest = new ModifyRequestImpl();
+            modifyRequest.setName( userDn );
+            modifyRequest.replace( "pwdChangedTime", DateUtils.getGeneralizedTime( new Date().getTime() - 3100000 ) );
+            adminConnection.modify( modifyRequest );
+
+            BindRequest bindReq2 = new BindRequestImpl();
+            bindReq2.setDn( userDn );
+            bindReq2.setCredentials( "12345" );
+            bindReq2.addControl( new PasswordPolicyImpl() );
+            bindResponse = userConnection.bind( bindReq2 );
+            respCtrl = getPwdRespCtrl( bindResponse );
+            assertNotNull( respCtrl );
+            assertNotNull( respCtrl.getResponse() );
+            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+        }
+        finally {
+            safeCloseConnections( userConnection, userConnection2, adminConnection );
+        }
+    }   
+    
+    
+    private void safeCloseConnections( LdapConnection... connections ) {
+        for ( LdapConnection connection : connections ) {
+            try {
+                connection.close();
+            }
+            catch ( Exception e ) {
+                // might want to log here...
+            }
+        }
+    }
+
+
     /**
     * According to the <a href=
     * "http://tools.ietf.org/html/draft-behera-ldap-password-policy-10#section-7.8"

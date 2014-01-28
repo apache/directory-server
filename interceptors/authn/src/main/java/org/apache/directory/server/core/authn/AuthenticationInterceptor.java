@@ -1360,7 +1360,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
 
         long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
-        int pwdAge = ( int ) ( currentTime - changedTime ) / 1000;
+        long pwdAge = ( currentTime - changedTime ) / 1000;
 
         if ( pwdAge > policyConfig.getPwdMaxAge() )
         {
@@ -1371,7 +1371,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( pwdAge >= warningAge )
         {
-            return policyConfig.getPwdMaxAge() - pwdAge;
+            long timeBeforeExpiration = ((long)policyConfig.getPwdMaxAge()) - pwdAge;
+            return timeBeforeExpiration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)timeBeforeExpiration;
         }
 
         return 0;
