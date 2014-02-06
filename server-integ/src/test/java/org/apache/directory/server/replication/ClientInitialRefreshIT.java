@@ -46,7 +46,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
-import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
@@ -85,8 +84,6 @@ public class ClientInitialRefreshIT
     @BeforeClass
     public static void setUp() throws Exception
     {
-        Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
-
         startProvider();
 
         // Load 1000 entries
