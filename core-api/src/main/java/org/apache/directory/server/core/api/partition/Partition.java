@@ -289,4 +289,17 @@ public interface Partition
      * @param cacheService
      */
     void setCacheService( CacheService cacheService );
+
+    
+    /**
+     * @return the current highest committed CSN value
+     */
+    String getContextCsn();
+
+    
+    /**
+     * saves the context CSN value in the context entry of the partition
+     * @throws Exception
+     */
+    void saveContextCsn() throws Exception;
 }

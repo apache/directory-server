@@ -269,6 +269,12 @@ public class SingleFileLdifPartitionTest
             fetched.removeAttributes( "entryDn" );
         }
 
+        if ( !entry.containsAttribute( SchemaConstants.CONTEXT_CSN_AT ) )
+        {
+            // Removed the entryDn attribute to be able to compare the entries
+            fetched.removeAttributes( SchemaConstants.CONTEXT_CSN_AT );
+        }
+
         assertEquals( entry, fetched );
     }
 

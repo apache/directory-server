@@ -23,6 +23,7 @@ package org.apache.directory.server.core.operations.add;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -84,6 +85,13 @@ public class AddIT extends AbstractLdapTestUnit
             "cn: test" );
 
         connection.add( entry );
+        
+        entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Entry contextEntry = connection.lookup( "ou=system", SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        
+        String expectedCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+        String contextCsn = contextEntry.get( SchemaConstants.CONTEXT_CSN_AT ).getString();
+        assertEquals( expectedCsn, contextCsn );
     }
 
 

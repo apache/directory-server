@@ -97,6 +97,7 @@ import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -507,7 +508,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         ExprNode modifiedFilter = modifyFilter( session, request );
 
-        String contextCsn = dirService.getContextCsn();
+        Partition partition = dirService.getPartitionNexus().getPartition( request.getBase() );
+        String contextCsn = partition.getContextCsn();
 
         boolean refreshNPersist = isRefreshNPersist( request );
 

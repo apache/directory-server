@@ -512,6 +512,20 @@ public final class SchemaPartition extends AbstractPartition
     }
 
 
+    @Override
+    public String getContextCsn()
+    {
+        return wrapped.getContextCsn();
+    }
+
+
+    @Override
+    public void saveContextCsn() throws Exception
+    {
+        wrapped.saveContextCsn();
+    }
+
+
     /**
      * @see Object#toString()
      */

@@ -465,20 +465,9 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public String getContextCsn()
-    {
-        return null;
-    }
-
-
     public long getSyncPeriodMillis()
     {
         return 0;
-    }
-
-
-    public void setContextCsn( String lastCommittedCsnVal )
-    {
     }
 
 

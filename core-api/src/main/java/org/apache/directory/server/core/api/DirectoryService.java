@@ -545,20 +545,6 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * the highest committed CSN value
-     *
-     * @param lastCommittedCsnVal the CSN value
-     */
-    void setContextCsn( String lastCommittedCsnVal );
-
-
-    /**
-     * @return the current highest committed CSN value
-     */
-    String getContextCsn();
-
-
-    /**
      * the time interval at which the DirectoryService's data is flushed to disk
      * 
      * @param syncPeriodMillis the syncPeriodMillis to set

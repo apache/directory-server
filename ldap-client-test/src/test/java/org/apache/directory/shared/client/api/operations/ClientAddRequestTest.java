@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -45,6 +46,7 @@ import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
@@ -107,6 +109,18 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         connection.add( entry );
 
         assertTrue( session.exists( dn ) );
+        
+        EntryCursor cursor = connection.search( entry.getDn(), "(objectClass=*)", SearchScope.OBJECT, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        assertTrue( cursor.next() );
+        entry = cursor.get();
+        
+        cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        assertTrue( cursor.next() );
+        Entry contextEntry = cursor.get();
+        
+        String expectedCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+        String contextCsn = contextEntry.get( SchemaConstants.CONTEXT_CSN_AT ).getString();
+        assertEquals( expectedCsn, contextCsn );
     }
 
 

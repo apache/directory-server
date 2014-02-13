@@ -312,44 +312,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         MultiException error = null;
 
-        // store the contextCSN value in the entry ou=system
-        // note that this modification shouldn't change the entryCSN value of ou=system entry
-        try
-        {
-            String currentCtxCsn = directoryService.getContextCsn();
-            // update only if the CSN changes
-            if ( ( currentCtxCsn != null ) && !currentCtxCsn.equals( lastSyncedCtxCsn ) )
-            {
-                lastSyncedCtxCsn = currentCtxCsn;
-
-                Attribute contextCsnAt = mods.get( 0 ).getAttribute();
-                contextCsnAt.clear();
-                contextCsnAt.add( lastSyncedCtxCsn );
-
-                Attribute timeStampAt = mods.get( 1 ).getAttribute();
-                timeStampAt.clear();
-                timeStampAt.add( DateUtils.getGeneralizedTime() );
-
-                ModifyOperationContext csnModContext = new ModifyOperationContext( directoryService.getAdminSession(),
-                    directoryService.getSystemPartition().getSuffixDn(), mods );
-                directoryService.getSystemPartition().modify( csnModContext );
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Failed to save the contextCSN attribute value in ou=system entry.", e );
-            if ( error == null )
-            {
-                error = new MultiException( I18n.err( I18n.ERR_265 ) );
-            }
-
-            error.addThrowable( e );
-        }
-
         for ( Partition partition : this.partitions.values() )
         {
             try
             {
+                partition.saveContextCsn();
                 partition.sync();
             }
             catch ( Exception e )
@@ -383,9 +350,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( addContext.getDn() );
         partition.add( addContext );
-
-        Attribute at = addContext.getEntry().get( SchemaConstants.ENTRY_CSN_AT );
-        directoryService.setContextCsn( at.getString() );
     }
 
 
@@ -439,15 +403,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( deleteContext.getDn() );
         Entry deletedEntry = partition.delete( deleteContext );
-
-        Entry entry = deleteContext.getEntry();
-        Attribute csn = entry.get( ENTRY_CSN_AT );
-        // can be null while doing subentry deletion
-        //TODO verify if this gets in the way of replication
-        if ( csn != null )
-        {
-            directoryService.setContextCsn( csn.getString() );
-        }
 
         return deletedEntry;
     }
@@ -530,13 +485,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             directoryService.getInterceptor( InterceptorEnum.EVENT_INTERCEPTOR.getName() ).modify( modifyContext );
         }
-
-        Entry alteredEntry = modifyContext.getAlteredEntry();
-
-        if ( alteredEntry != null )
-        {
-            directoryService.setContextCsn( alteredEntry.get( ENTRY_CSN_AT ).getString() );
-        }
     }
 
 
@@ -549,9 +497,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         Partition partition = getPartition( moveContext.getDn() );
 
         partition.move( moveContext );
-
-        Entry entry = moveContext.getModifiedEntry();
-        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -562,9 +507,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( moveAndRenameContext.getDn() );
         partition.moveAndRename( moveAndRenameContext );
-
-        Entry entry = moveAndRenameContext.getModifiedEntry();
-        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -575,9 +517,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition partition = getPartition( renameContext.getDn() );
         partition.rename( renameContext );
-
-        Entry entry = renameContext.getModifiedEntry();
-        directoryService.setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
     }
 
 
@@ -933,6 +872,11 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     {
         Partition parent = null;
 
+        if ( !dn.isSchemaAware() )
+        {
+           dn.apply( schemaManager ); 
+        }
+        
         synchronized ( partitionLookupTree )
         {
             parent = partitionLookupTree.getElement( dn );
@@ -1068,5 +1012,19 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         timeStampMod.setAttribute( timeStampAt );
 
         mods.add( timeStampMod );
+    }
+
+
+    @Override
+    public String getContextCsn()
+    {
+        // nexus doesn't contain a contextCSN
+        return null;
+    }
+
+
+    @Override
+    public void saveContextCsn() throws Exception
+    {
     }
 }

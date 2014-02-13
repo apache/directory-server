@@ -67,6 +67,11 @@ public abstract class AbstractPartition implements Partition
     /** the cache service */
     protected CacheService cacheService;
 
+    /** the value of last successful add/update operation's CSN */
+    private String contextCsn;
+    
+    /** a flag to detect the change in context CSN */
+    protected volatile boolean ctxCsnChanged = false;
 
     /**
      * {@inheritDoc}
@@ -251,5 +256,31 @@ public abstract class AbstractPartition implements Partition
     public void setCacheService( CacheService cacheService )
     {
         this.cacheService = cacheService;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getContextCsn()
+    {
+        return contextCsn;
+    }
+
+    
+    /**
+     * Replaces the current context CSN with the given CSN value if they are not same and
+     * sets the ctxCsnChanged flag to true.
+     * 
+     * @param csn the CSN value
+     */
+    protected void setContextCsn( String csn )
+    {
+        if( !csn.equals( contextCsn ) )
+        {
+            contextCsn = csn;
+            ctxCsnChanged = true;
+        }
     }
 }

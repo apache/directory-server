@@ -179,6 +179,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected AttributeType ENTRY_UUID_AT;
     protected AttributeType ALIASED_OBJECT_NAME_AT;
     protected AttributeType ADMINISTRATIVE_ROLE_AT;
+    protected AttributeType CONTEXT_CSN_AT;
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
@@ -238,7 +239,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
         ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
-
+        CONTEXT_CSN_AT = schemaManager.getAttributeType( SchemaConstants.CONTEXT_CSN_AT );
     }
 
 
@@ -835,6 +836,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 // Remove the EntryDN attribute
                 entry.removeAttributes( ENTRY_DN_AT );
 
+                Attribute at = entry.get( SchemaConstants.ENTRY_CSN_AT );
+                setContextCsn( at.getString() );
+
                 // And finally add the entry into the master table
                 master.put( id, entry );
             }
@@ -1066,6 +1070,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 entryDnCache.remove( id );
                 
+                Attribute csn = entry.get( ENTRY_CSN_AT );
+                // can be null while doing subentry deletion
+                if ( csn != null )
+                {
+                    setContextCsn( csn.getString() );
+                }
+
                 master.remove( id );
             }
             finally
@@ -1099,6 +1110,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             setRWLock( searchContext );
 
+            if ( ctxCsnChanged && getSuffixDn().getNormName().equals( searchContext.getDn().getNormName() ) )
+            {
+                saveContextCsn();
+            }
+            
             PartitionSearchResult searchResult = searchEngine.computeResult( schemaManager, searchContext );
 
             Cursor<Entry> result = new EntryCursorAdaptor( this, searchResult );
@@ -1131,6 +1147,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         if ( id == null )
         {
             return null;
+        }
+
+        if ( ctxCsnChanged && getSuffixDn().getNormName().equals( lookupContext.getDn().getNormName() ) )
+        {
+            saveContextCsn();
         }
 
         Entry entry = fetch( id, lookupContext.getDn() );
@@ -1302,6 +1323,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Remove the EntryDN
         entry.removeAttributes( ENTRY_DN_AT );
 
+        setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
+        
         master.put( id, entry );
 
         if ( isSyncOnWrite.get() )
@@ -1837,6 +1860,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         entryDnCache.clear();
         
+        setContextCsn( modifiedEntry.get( ENTRY_CSN_AT ).getString() );
+
         master.put( entryId, modifiedEntry );
 
         if ( isSyncOnWrite.get() )
@@ -2158,6 +2183,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Remove the EntryDN
         entry.removeAttributes( ENTRY_DN_AT );
+
+        setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
 
         // And save the modified entry
         master.put( oldId, entry );
@@ -3202,5 +3229,106 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     public Cache getAliasCache()
     {
         return aliasCache;
+    }
+    
+    
+    @Override
+    public String getContextCsn()
+    {
+        if ( super.getContextCsn() == null )
+        {
+           loadContextCsn(); 
+        }
+        
+        return super.getContextCsn();
+    }
+
+
+    /**
+     * Loads the current context CSN present in the context entry of the partition
+     *
+     * @throws LdapException
+     */
+    protected void loadContextCsn()
+    {
+        try
+        {
+            if( rwLock == null )
+            {
+                // Create a ReadWrite lock from scratch
+                rwLock = new ReentrantReadWriteLock();
+            }
+
+            // load the last stored valid CSN value
+            String contextEntryId = getEntryId( getSuffixDn() );
+            
+            if( contextEntryId == null )
+            {
+                return;
+            }
+            
+            Entry entry = fetch( contextEntryId );
+            
+            Attribute ctxCsnAt = entry.get( CONTEXT_CSN_AT );
+            
+            if ( ctxCsnAt != null )
+            {
+                setContextCsn( ctxCsnAt.getString() );
+                ctxCsnChanged = false; // this is just loaded, not new
+            }
+        }
+        catch( LdapException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    // store the contextCSN value in the context entry 
+    // note that this modification shouldn't change the entryCSN value of the context entry
+    public void saveContextCsn() throws LdapException
+    {
+        if( !ctxCsnChanged )
+        {
+            return;
+        }
+        
+        String contextCsn = super.getContextCsn();
+        
+        if ( contextCsn == null )
+        {
+            return;
+        }
+        
+        if( rwLock == null )
+        {
+            // Create a ReadWrite lock from scratch
+            rwLock = new ReentrantReadWriteLock();
+        }
+        
+        try
+        {
+            String contextEntryId = getEntryId( getSuffixDn() );
+            Entry origEntry = fetch( contextEntryId );
+            
+            origEntry = ( ( ClonedServerEntry ) origEntry ).getOriginalEntry();
+            
+            origEntry.removeAttributes( CONTEXT_CSN_AT, ENTRY_DN_AT );
+            
+            origEntry.add( CONTEXT_CSN_AT, contextCsn );
+            
+            master.put( contextEntryId, origEntry );
+            
+            ctxCsnChanged = false;
+            
+            LOG.debug( "Saved context CSN {} for the partition {}", contextCsn, suffixDn );
+        }
+        catch ( Exception e )
+        {
+            throw new LdapOperationErrorException( e.getMessage(), e );
+        }
     }
 }

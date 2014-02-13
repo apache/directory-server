@@ -218,6 +218,18 @@ public class JdbmPartition extends AbstractBTreePartition
 
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
 
+            if ( cacheService != null )
+            {
+                entryCache = cacheService.getCache( getId() );
+
+                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                }
+            }
+
             // Initialization of the context entry
             if ( ( suffixDn != null ) && ( contextEntry != null ) )
             {
@@ -262,18 +274,6 @@ public class JdbmPartition extends AbstractBTreePartition
                         // And add this entry to the underlying partition
                         add( new AddOperationContext( null, contextEntry ) );
                     }
-                }
-            }
-
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId() );
-
-                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
-
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
                 }
             }
 

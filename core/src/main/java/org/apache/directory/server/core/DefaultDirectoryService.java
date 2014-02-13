@@ -263,9 +263,6 @@ public class DefaultDirectoryService implements DirectoryService
     /** The maximum size for an incoming PDU */
     private int maxPDUSize = Integer.MAX_VALUE;
 
-    /** the value of last successful add/update operation's CSN */
-    private String contextCsn;
-
     /** lock file for directory service's working directory */
     private RandomAccessFile lockFile = null;
 
@@ -1247,20 +1244,6 @@ public class DefaultDirectoryService implements DirectoryService
         initialize();
         showSecurityWarnings();
 
-        // load the last stored valid CSN value
-        LookupOperationContext loc = new LookupOperationContext( getAdminSession(), systemPartition.getSuffixDn(),
-            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
-        Entry entry = systemPartition.lookup( loc );
-
-        Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
-
-        if ( cntextCsnAt != null )
-        {
-            // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
-            contextCsn = cntextCsnAt.getString();
-        }
-
         started = true;
 
         if ( !testEntries.isEmpty() )
@@ -1295,7 +1278,10 @@ public class DefaultDirectoryService implements DirectoryService
         // Shutdown the sync thread
         // --------------------------------------------------------------------
         LOG.debug( "--- Syncing the nexus " );
+        LOG.debug( "--- Flushing everything before quitting" );
+        getOperationManager().lockWrite();
         partitionNexus.sync();
+        getOperationManager().unlockWrite();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog
@@ -1313,19 +1299,14 @@ public class DefaultDirectoryService implements DirectoryService
             journal.destroy();
         }
 
+        
         // --------------------------------------------------------------------
         // Shutdown the partition
         // --------------------------------------------------------------------
 
         LOG.debug( "--- Destroying the nexus" );
         partitionNexus.destroy();
-
-        // Last flush...
-        LOG.debug( "--- Flushing everything before quitting" );
-        getOperationManager().lockWrite();
-        partitionNexus.sync();
-        getOperationManager().unlockWrite();
-
+        
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
@@ -2155,24 +2136,6 @@ public class DefaultDirectoryService implements DirectoryService
     public void setSyncPeriodMillis( long syncPeriodMillis )
     {
         this.syncPeriodMillis = syncPeriodMillis;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getContextCsn()
-    {
-        return contextCsn;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setContextCsn( String lastKnownCsn )
-    {
-        this.contextCsn = lastKnownCsn;
     }
 
 
