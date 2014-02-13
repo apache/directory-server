@@ -102,18 +102,6 @@ public class MmrTester
 
     private static LdapServer peer2Server;
 
-    static
-    {
-        try
-        {
-            Class.forName( FrameworkRunner.class.getName() );
-        }
-        catch(Exception e)
-        {
-            throw new RuntimeException( e );
-        }
-    }
-    
     public MmrTester( String... ldapUrls )
     {
         if( ( ldapUrls == null ) || ( ldapUrls.length < 2 ) )
