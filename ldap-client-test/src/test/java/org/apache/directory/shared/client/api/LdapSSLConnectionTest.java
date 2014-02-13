@@ -163,8 +163,15 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             connection = new LdapNetworkConnection( tlsConfig );
             tlsConfig.setUseTls( true );
             connection.connect();
-            connection.bind( "uid=admin,ou=system", "secret" );
 
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isAuthenticated() );
+
+            // try multiple binds with startTLS DIRAPI-173
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isAuthenticated() );
+            
+            connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.isAuthenticated() );
 
             connection.unBind();
