@@ -30,6 +30,7 @@ import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
@@ -113,14 +114,17 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
             // check for modification on 'userPassword' AT
             if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( oid ) )
             {
+                if ( mod.getOperation() == ModificationOperation.REMOVE_ATTRIBUTE )
+                {
+                   continue; 
+                }
+                
                 Attribute newPwd = includeHashedPassword( mod.getAttribute() );
 
                 if ( newPwd != null )
                 {
                     mod.setAttribute( newPwd );
                 }
-
-                break;
             }
         }
 
