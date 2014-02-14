@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicy
 import org.apache.directory.api.ldap.extras.extended.PwdModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -60,6 +61,7 @@ import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
+import org.apache.directory.server.core.hash.Sha512PasswordHashingInterceptor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
@@ -81,7 +83,7 @@ import org.junit.runner.RunWith;
         { PwdModifyHandler.class },
     allowAnonymousAccess = true)
 //disable changelog, for more info see DIRSERVER-1528
-@CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
+@CreateDS(enableChangeLog = false, name = "PasswordPolicyTest", additionalInterceptors = { Sha512PasswordHashingInterceptor.class })
 public class PwdModifyIT extends AbstractLdapTestUnit
 {
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
@@ -564,11 +566,15 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Now try to bind with the new password
         userConnection = getNetworkConnectionAs( ldapServer, "cn=User11,ou=system", "secret1Bis" );
+        userConnection.loadSchema();
 
-        Entry entry = userConnection.lookup( "cn=User11,ou=system" );
+        Entry entry = userConnection.lookup( "cn=User11,ou=system", SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         assertNotNull( entry );
 
+        Attribute at = entry.get( SchemaConstants.USER_PASSWORD_AT );
+        assertEquals( LdapSecurityConstants.HASH_METHOD_SHA512, PasswordUtil.findAlgorithm( at.getBytes() ));
+        
         userConnection.close();
         adminConnection.close();
     }
