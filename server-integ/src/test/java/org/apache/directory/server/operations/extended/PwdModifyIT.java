@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -37,6 +36,7 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
+import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -49,6 +49,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -532,5 +533,43 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             adminConnection.close();
             userConnection.close();
         }
-    }    
+    }
+    
+    
+    /**
+     * Modify an existing user password while the user is connected and the password is stored as a hash
+     */
+    @Test
+    public void testModifyPasswordStoredAsHash() throws Exception
+    {
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        byte[] password = "secret1".getBytes();
+        byte[] credHash = PasswordUtil.createStoragePassword( password, LdapSecurityConstants.HASH_METHOD_SHA256 );
+        addUser( adminConnection, "User11", credHash );
+
+        // Bind as the user
+        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=user11,ou=system", "secret1" );
+        userConnection.setTimeOut( 0L );
+
+        // Now change the password
+        PwdModifyRequestImpl pwdModifyRequest = new PwdModifyRequestImpl();
+        pwdModifyRequest.setOldPassword( password );
+        pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret1Bis" ) );
+
+        // Send the request
+        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+
+        assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
+
+        // Now try to bind with the new password
+        userConnection = getNetworkConnectionAs( ldapServer, "cn=User11,ou=system", "secret1Bis" );
+
+        Entry entry = userConnection.lookup( "cn=User11,ou=system" );
+
+        assertNotNull( entry );
+
+        userConnection.close();
+        adminConnection.close();
+    }
 }
