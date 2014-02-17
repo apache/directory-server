@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -43,6 +44,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -53,9 +55,9 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
@@ -275,6 +277,12 @@ public class ClientServerReplicationIT
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
 
+        // to test replication of binary data
+        modReq.add( "objectClass", "inetOrgPerson" );
+        modReq.add( "uid", "uid" );
+        TlsKeyGenerator.addKeyPair( provUser );
+        modReq.add( "userCertificate", provUser.get( "userCertificate" ).getBytes() );
+        
         //System.out.println( ">--------------------------------------- Modifying " + modReq );
         providerSession.modify( modReq );
         //System.out.println( ">--------------------------------------- Modified " );
@@ -494,8 +502,8 @@ public class ClientServerReplicationIT
             provUser = restartConsumer( provUser );
         }
     }
-
-
+    
+    
     private void compareEntries( Dn dn ) throws Exception
     {
         String[] searchAttributes = new String[]

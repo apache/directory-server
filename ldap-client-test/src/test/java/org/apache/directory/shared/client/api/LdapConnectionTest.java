@@ -247,32 +247,6 @@ public void testLookup() throws Exception
 
 
     /**
-     * Test a connection which does not have any schemaManager loaded
-     */
-    @ApplyLdifs(
-        {
-            "dn: uid=kayyagari,ou=system",
-            "objectClass: extensibleObject",
-            "objectClass: uidObject",
-            "objectClass: referral",
-            "objectClass: top",
-            "uid: kayyagari",
-            "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
-    })
-@Test
-public void testNoSchemaConnection() throws Exception
-    {
-        LdapConnection ldapConnection = new LdapNetworkConnection( "localHost", ldapServer.getPort() );
-
-        ldapConnection.bind( "uid=admin,ou=system", "secret" );
-
-        // Try to retrieve a binary attribute : it should be seen as a String
-        Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
-        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
-    }
-
-
-    /**
      * Test a connection which does not have any schemaManager loaded but in which connection we
      * inject a BinaryAttributeDetector
      */
