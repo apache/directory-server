@@ -66,6 +66,10 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Ignore;
@@ -81,6 +85,23 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(partitions =
+{
+    @CreatePartition(
+        name = "example",
+        suffix = "dc=example,dc=com",
+        indexes =
+            {
+                @CreateIndex(attribute = "objectClass"),
+                @CreateIndex(attribute = "dc"),
+                @CreateIndex(attribute = "ou"),
+                @CreateIndex(attribute = "member")
+        },
+        contextEntry = @ContextEntry(entryLdif =
+            "dn: dc=example,dc=com\n" +
+                "objectClass: domain\n" +
+                "dc: example"))
+})
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
@@ -1813,5 +1834,78 @@ public class SearchIT extends AbstractLdapTestUnit
         sr = result.next();
         assertNotNull( sr );
         assertEquals( "Kim Wilde", sr.getAttributes().get( "cn" ).get() );
+    }
+
+    
+    /**
+     * Test for DIRSERVER-1873
+     */
+    @ApplyLdifs({
+        "dn: ou=users,dc=example,dc=com",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: users",
+
+        "dn: ou=groups,dc=example,dc=com",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: groups",
+
+        "dn: uid=1374604692150,ou=groups,dc=example,dc=com",
+        "objectClass: uidObject",
+        "objectClass: groupOfNames",
+        "objectClass: top",
+        "cn: Test1",
+        "member: uid=1374609919999,ou=users,dc=example,dc=com",
+        "uid: 1374604692150",
+        "description: Test1",
+
+        "dn: uid=1374604692151,ou=groups,dc=example,dc=com",
+        "objectClass: uidObject",
+        "objectClass: groupOfNames",
+        "objectClass: top",
+        "cn: Test2",
+        "member: uid=1374609919999,ou=users,dc=example,dc=com",
+        "member: uid=1374609910000,ou=users,dc=example,dc=com",
+        "uid: 1374604692151",
+        "description: Test2"   
+    })
+    @Test
+    public void testSearchMembers() throws Exception
+    {
+        LdapConnection connection = getAdminConnection( getLdapServer() );
+        SearchRequest req = new SearchRequestImpl();
+        req.setBase( new Dn( "dc=example,dc=com" ) );
+        req.setFilter( "(member=*)" );
+        req.setScope( SearchScope.SUBTREE );
+
+        Cursor<Response> cursor = connection.search( req );
+        int count = 0;
+        while( cursor.next() )
+        {
+            count++;
+        }
+        
+        assertEquals( 2, count );
+        
+        cursor.close();
+
+        req.setFilter( "(member=uid=1374609910000,ou=users,dc=example,dc=com)" );
+        cursor = connection.search( req );
+        assertTrue( cursor.next() );
+        cursor.close();
+
+        req.setFilter( "(member=uid=1374609919999,ou=users,dc=example,dc=com)" );
+        cursor = connection.search( req );
+        assertTrue( cursor.next() );
+        assertTrue( cursor.next() );
+        cursor.close();
+
+        req.setFilter( "(member=u*)" );
+        cursor = connection.search( req );
+        assertFalse( cursor.next() );
+        cursor.close();
+
+        connection.close();
     }
 }
