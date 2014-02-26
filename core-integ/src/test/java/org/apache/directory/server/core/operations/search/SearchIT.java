@@ -2089,10 +2089,29 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapConnection conn = getAdminConnection( service );
 
-        EntryCursor cursor = conn.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" );
+        EntryCursor cursor = conn.search( "ou=schema", "(|(objectClass=*)(cn=x))", SearchScope.OBJECT, "*" );
+
+        assertTrue( cursor.next() );
+        cursor.close();
+
+        cursor = conn.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" );
 
         assertFalse( cursor.next() );
+        cursor.close();
+
+        cursor = conn.search( "", "(objectClass=person)", SearchScope.ONELEVEL, "*" );
+
+        assertFalse( cursor.next() );
+        cursor.close();
         
+        cursor = conn.search( "", "(objectClass=person)", SearchScope.SUBTREE, "*" );
+        int count = 0;
+        while( cursor.next() )
+        {
+            count++;
+        }
+        
+        assertEquals(3, count);
         cursor.close();
     }
 }
