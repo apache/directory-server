@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.xdbm.search.impl;
 
@@ -47,7 +47,6 @@ import org.apache.directory.server.xdbm.search.Optimizer;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
 import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.apache.directory.server.xdbm.search.evaluator.BaseLevelScopeEvaluator;
-import org.apache.directory.server.xdbm.search.evaluator.EmptyEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Given a search filter and a scope the search engine identifies valid
  * candidate entries returning their ids.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DefaultSearchEngine implements SearchEngine
@@ -149,13 +148,13 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         Dn aliasedBase = null;
 
-        
+
         if ( db.getAliasCache() != null )
         {
             Element aliasBaseElement = db.getAliasCache().get( baseId );
-            
+
             if ( aliasBaseElement != null )
-            { 
+            {
                 aliasedBase = (Dn)(aliasBaseElement).getObjectValue();
             }
         }
@@ -163,7 +162,7 @@ public class DefaultSearchEngine implements SearchEngine
         {
             aliasedBase = db.getAliasIndex().reverseLookup( baseId );
         }
-        
+
         Dn effectiveBase = baseDn;
         String effectiveBaseId = baseId;
 
@@ -202,7 +201,7 @@ public class DefaultSearchEngine implements SearchEngine
                 evaluator = evaluatorBuilder.build( filter );
 
                 // Special case if the filter selects no candidate
-                if ( ( evaluator == null ) || ( evaluator instanceof EmptyEvaluator ) )
+                if ( evaluator == null ) //|| ( evaluator instanceof EmptyEvaluator ) )
                 {
                     ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
                     evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
@@ -265,7 +264,7 @@ public class DefaultSearchEngine implements SearchEngine
             {
                 IndexEntry<String, String> indexEntry = cursor.get();
 
-                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID> 
+                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID>
                 IndexEntry<String, String> forwardIndexEntry = new IndexEntry<String, String>();
                 forwardIndexEntry.setKey( indexEntry.getKey() );
                 forwardIndexEntry.setId( indexEntry.getKey() );

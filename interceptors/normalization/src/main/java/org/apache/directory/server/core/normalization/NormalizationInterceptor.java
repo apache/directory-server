@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.model.filter.NotNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.UndefinedNode;
 import org.apache.directory.api.ldap.model.name.Ava;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -305,11 +306,12 @@ public class NormalizationInterceptor extends BaseInterceptor
 
 
     /**
-     * Remove the (ObjectClass=*) node from brancheNode, if we have one.
+     * Remove the (ObjectClass=*) node from an AndNode, if we have one.
      */
-    private ExprNode handleBranchNode( ExprNode node, BranchNode newBranchNode )
+    private ExprNode handleAndNode( ExprNode node )
     {
         int nbNodes = 0;
+        AndNode newAndNode = new AndNode();
 
         for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
         {
@@ -317,31 +319,76 @@ public class NormalizationInterceptor extends BaseInterceptor
 
             if ( !( modifiedNode instanceof ObjectClassNode ) )
             {
-                newBranchNode.addNode( modifiedNode );
+                newAndNode.addNode( modifiedNode );
                 nbNodes++;
+            }
+
+            if ( modifiedNode instanceof UndefinedNode )
+            {
+                // We can just return an Undefined node as nothing will get selected
+                return UndefinedNode.UNDEFINED_NODE;
             }
         }
 
         switch ( nbNodes )
         {
             case 0:
-                // Unlikely... But (&(ObjectClass=*)) is still an option 
+                // Unlikely... But (&(ObjectClass=*)) or (|(ObjectClass=*)) are still an option
                 return ObjectClassNode.OBJECT_CLASS_NODE;
 
             case 1:
-                if ( newBranchNode instanceof NotNode )
-                {
-                    return newBranchNode;
-                }
-                else
-                {
-                    // We can safely remove the AND/OR node and replace it with its first child
-                    return newBranchNode.getFirstChild();
-                }
+                // We can safely remove the AND/OR node and replace it with its first child
+                return newAndNode.getFirstChild();
 
             default:
-                return newBranchNode;
+                return newAndNode;
         }
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from a NotNode, if we have one.
+     */
+    private ExprNode handleNotNode( ExprNode node )
+    {
+        for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
+        {
+            ExprNode modifiedNode = removeObjectClass( child );
+
+            if ( modifiedNode instanceof ObjectClassNode )
+            {
+                // We don't want any entry which has an ObjectClass, return an undefined node
+                return UndefinedNode.UNDEFINED_NODE;
+            }
+
+            if ( modifiedNode instanceof UndefinedNode )
+            {
+                // Here, we will select everything
+                return ObjectClassNode.OBJECT_CLASS_NODE;
+            }
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from an OrNode, if we have one.
+     */
+    private ExprNode handleOrNode( ExprNode node )
+    {
+        for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
+        {
+            ExprNode modifiedNode = removeObjectClass( child );
+
+            if ( modifiedNode instanceof ObjectClassNode )
+            {
+                // We can return immediately with an ObjectClass node
+                return ObjectClassNode.OBJECT_CLASS_NODE;
+            }
+        }
+
+        return node;
     }
 
 
@@ -352,18 +399,19 @@ public class NormalizationInterceptor extends BaseInterceptor
     {
         if ( node instanceof LeafNode )
         {
-            LeafNode ln = ( LeafNode ) node;
-            
-            if ( ln.getAttributeType() == OBJECT_CLASS_AT )
+            LeafNode leafNode = ( LeafNode ) node;
+
+            if ( leafNode.getAttributeType() == OBJECT_CLASS_AT )
             {
-                if ( ln instanceof PresenceNode )
+                if ( leafNode instanceof PresenceNode )
                 {
                     // We can safely remove the node and return an undefined node
                     return ObjectClassNode.OBJECT_CLASS_NODE;
                 }
-                else if ( ln instanceof EqualityNode )
+                else if ( leafNode instanceof EqualityNode )
                 {
-                    Value<String> v = ( ( EqualityNode<String> ) ln ).getValue();
+                    Value<String> v = ( ( EqualityNode<String> ) leafNode ).getValue();
+
                     if( v.getNormValue().equals( SchemaConstants.TOP_OC ) )
                     {
                         // Here too we can safely remove the node and return an undefined node
@@ -372,28 +420,22 @@ public class NormalizationInterceptor extends BaseInterceptor
                 }
             }
         }
-        
+
         // --------------------------------------------------------------------
-        //                 H A N D L E   B R A N C H   N O D E S       
+        //                 H A N D L E   B R A N C H   N O D E S
         // --------------------------------------------------------------------
-        
+
         if ( node instanceof AndNode )
         {
-            AndNode newAndNode = new AndNode();
-
-            return handleBranchNode( node, newAndNode );
+            return handleAndNode( node );
         }
         else if ( node instanceof OrNode )
         {
-            OrNode newOrNode = new OrNode();
-
-            return handleBranchNode( node, newOrNode );
+            return handleOrNode( node );
         }
         else if ( node instanceof NotNode )
         {
-            NotNode newNotNode = new NotNode();
-
-            return handleBranchNode( node, newNotNode );
+            return handleNotNode( node );
         }
         else
         {
