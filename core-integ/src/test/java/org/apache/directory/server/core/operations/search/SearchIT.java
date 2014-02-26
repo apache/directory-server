@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.operations.search;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
@@ -2075,5 +2076,23 @@ public class SearchIT extends AbstractLdapTestUnit
         cursor.close();
         
         assertEquals( 5, count );
+    }
+
+    
+    /**
+     * DIRSERVER-1961
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSearchRootDSEOneLevel() throws Exception
+    {
+        LdapConnection conn = getAdminConnection( service );
+
+        EntryCursor cursor = conn.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" );
+
+        assertFalse( cursor.next() );
+        
+        cursor.close();
     }
 }
