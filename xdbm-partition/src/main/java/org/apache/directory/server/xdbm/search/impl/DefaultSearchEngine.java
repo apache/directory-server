@@ -201,7 +201,7 @@ public class DefaultSearchEngine implements SearchEngine
                 evaluator = evaluatorBuilder.build( filter );
 
                 // Special case if the filter selects no candidate
-                if ( evaluator == null ) //|| ( evaluator instanceof EmptyEvaluator ) )
+                if ( evaluator == null )
                 {
                     ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
                     evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
