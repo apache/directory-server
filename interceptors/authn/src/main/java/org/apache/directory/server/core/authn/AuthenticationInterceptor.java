@@ -1320,7 +1320,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             if ( pwdLen < minLen )
             {
-                throw new PasswordPolicyException( "Password should have a minmum of " + minLen + " characters",
+                throw new PasswordPolicyException( "Password should have a minimum of " + minLen + " characters",
                     PASSWORD_TOO_SHORT.getValue() );
             }
         }
@@ -1371,8 +1371,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( pwdAge >= warningAge )
         {
-            long timeBeforeExpiration = ((long)policyConfig.getPwdMaxAge()) - pwdAge;
-            return timeBeforeExpiration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)timeBeforeExpiration;
+            long timeBeforeExpiration = ( ( long ) policyConfig.getPwdMaxAge() ) - pwdAge;
+            
+            if ( timeBeforeExpiration > Integer.MAX_VALUE )
+            {
+                timeBeforeExpiration = Integer.MAX_VALUE;
+            }
+            
+            return ( int ) timeBeforeExpiration;
         }
 
         return 0;
