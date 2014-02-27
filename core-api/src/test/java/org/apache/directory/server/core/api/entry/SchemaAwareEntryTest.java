@@ -3638,8 +3638,8 @@ public class SchemaAwareEntryTest
                 "    dn[n]: dc=example,dc=com\n" +
                 "    ObjectClass: top\n" +
                 "    ObjectClass: person\n\n" +
-                "    UserPassword: '0x61 0x62 '\n" +
-                "    UserPassword: '0x62 '\n" +
+                "    UserPassword: 0x61 0x62 \n" +
+                "    UserPassword: 0x62 \n" +
                 "    UserPassword: ''";
 
         assertEquals( expected, entry.toString() );
