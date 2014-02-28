@@ -70,8 +70,11 @@ public class KdcConfig
         encryptionTypes.add( AES256_CTS_HMAC_SHA1_96 );
         encryptionTypes.add( DES_CBC_MD5 );
         encryptionTypes.add( DES3_CBC_SHA1_KD );
-        encryptionTypes.add( RC4_HMAC );
-        //DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC_EXP );
+
+        //FIXME RC4 support is not completely supported
+        // disabling till DIRKRB-100 gets resolved
+        //encryptionTypes.add( RC4_HMAC );
+        //encryptionTypes.add( RC4_HMAC_EXP );
         
         encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
     }
