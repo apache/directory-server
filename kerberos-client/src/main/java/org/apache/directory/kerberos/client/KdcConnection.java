@@ -206,8 +206,7 @@ public class KdcConnection
         return tgt;
     }
     
-    private EncryptionType usedEType;
-    
+
     /* default protected */ TgTicket _getTgt( TgtRequest clientTgtReq ) throws KerberosException
     {
         String realm = clientTgtReq.getRealm();
@@ -260,7 +259,6 @@ public class KdcConnection
         }
         
         EncryptionType encryptionType = clientTgtReq.getETypes().iterator().next();
-        usedEType = encryptionType;
         EncryptionKey clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
 
         AsReq req = new AsReq();
@@ -313,6 +311,12 @@ public class KdcConnection
             if ( !realm.equals( rep.getCRealm() ) )
             {
                 throw new KerberosException( ErrorType.KRB_ERR_WRONG_REALM );
+            }
+            
+            if ( encryptionType != rep.getEncPart().getEType() )
+            {
+                encryptionType = rep.getEncPart().getEType();
+                clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
             }
             
             byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, rep.getEncPart(), KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
@@ -543,7 +547,7 @@ public class KdcConnection
             authenticator.setCusec( 0 );
             authenticator.setSeqNumber( nonceGenerator.nextInt() );
             
-            EncryptionKey subKey = RandomKeyFactory.getRandomKey( usedEType );
+            EncryptionKey subKey = RandomKeyFactory.getRandomKey( tgt.getEncKdcRepPart().getKey().getKeyType() );
             
             authenticator.setSubKey( subKey );
             

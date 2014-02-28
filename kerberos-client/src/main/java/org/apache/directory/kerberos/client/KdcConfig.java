@@ -58,29 +58,22 @@ public class KdcConfig
     /** the timeout of the connection to the Kerberos server */
     private int timeout = 60000; // default 1 min
 
-    /** the set of encryption types that the client can support */
+    /** the set of encryption types that the client can support, by default this includes all the encryption types supported by ApacheDS */
     private Set<EncryptionType> encryptionTypes;
-
-    /** the default encryption types, this includes <b>many</b> encryption types */
-    private static Set<EncryptionType> DEFAULT_ENCRYPTION_TYPES;
-
-    static
-    {
-        DEFAULT_ENCRYPTION_TYPES = new HashSet<EncryptionType>();
-
-        DEFAULT_ENCRYPTION_TYPES.add( AES128_CTS_HMAC_SHA1_96 );
-        DEFAULT_ENCRYPTION_TYPES.add( AES256_CTS_HMAC_SHA1_96 );
-        DEFAULT_ENCRYPTION_TYPES.add( DES_CBC_MD5 );
-        DEFAULT_ENCRYPTION_TYPES.add( DES3_CBC_SHA1_KD );
-        DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC );
-        //DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC_EXP );
-
-        DEFAULT_ENCRYPTION_TYPES = KerberosUtils.orderEtypesByStrength( DEFAULT_ENCRYPTION_TYPES );
-    }
 
 
     public KdcConfig()
     {
+        encryptionTypes = new HashSet<EncryptionType>();
+        
+        encryptionTypes.add( AES128_CTS_HMAC_SHA1_96 );
+        encryptionTypes.add( AES256_CTS_HMAC_SHA1_96 );
+        encryptionTypes.add( DES_CBC_MD5 );
+        encryptionTypes.add( DES3_CBC_SHA1_KD );
+        encryptionTypes.add( RC4_HMAC );
+        //DEFAULT_ENCRYPTION_TYPES.add( RC4_HMAC_EXP );
+        
+        encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
     }
 
 
