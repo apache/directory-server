@@ -34,30 +34,31 @@ public class KerberosEncoder
 {
     public static ByteBuffer encode( AbstractAsn1Object asn1Obj, boolean isTcp ) throws IOException
     {
-        ByteBuffer response = null;
         ByteBuffer kerberosMessage = null;
 
         int responseLength = asn1Obj.computeLength();
-        kerberosMessage = ByteBuffer.allocate( responseLength );
+        
+        int bufferLen = responseLength;
+        
+        if ( isTcp )
+        {
+            bufferLen += 4;
+        }
+        
+        kerberosMessage = ByteBuffer.allocate( bufferLen );
 
+        if( isTcp )
+        {
+            kerberosMessage.putInt( responseLength );
+        }
+        
         try
         {
             asn1Obj.encode( kerberosMessage );
 
-            if ( isTcp )
-            {
-                response = ByteBuffer.allocate( responseLength + 4 );
-                response.putInt( responseLength );
-                response.put( kerberosMessage.array() );
-            }
-            else
-            {
-                response = kerberosMessage;
-            }
+            kerberosMessage.flip();
 
-            response.flip();
-
-            return response;
+            return kerberosMessage;
         }
         catch ( EncoderException e )
         {
