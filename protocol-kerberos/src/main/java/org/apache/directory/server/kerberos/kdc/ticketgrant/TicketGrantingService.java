@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
@@ -83,7 +84,7 @@ public class TicketGrantingService
 {
 
     /** the log for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( TicketGrantingService.class );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
@@ -94,7 +95,7 @@ public class TicketGrantingService
 
     public static void execute( TicketGrantingContext tgsContext ) throws Exception
     {
-        if ( LOG.isDebugEnabled() )
+        if ( LOG_KRB.isDebugEnabled() )
         {
             monitorRequest( tgsContext );
         }
@@ -150,12 +151,12 @@ public class TicketGrantingService
             sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
             sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_153 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_153 ), e );
         }
     }
 
@@ -169,7 +170,7 @@ public class TicketGrantingService
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
-        LOG.debug( "Session will use encryption type {}.", bestType );
+        LOG_KRB.debug( "Session will use encryption type {}.", bestType );
 
         if ( bestType == null )
         {
@@ -320,7 +321,7 @@ public class TicketGrantingService
                     throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
                 }
 
-                LOG.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
+                LOG_KRB.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
                 checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
                     KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY );
@@ -460,7 +461,7 @@ public class TicketGrantingService
             encKdcRepPart.setRenewTill( newTicket.getEncTicketPart().getRenewTill() );
         }
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG_KRB.isDebugEnabled() )
         {
             monitorContext( tgsContext );
             monitorReply( reply, encKdcRepPart );
@@ -549,12 +550,12 @@ public class TicketGrantingService
             sb.append( "\n\t" + "Ticket key type        " + encryptionType );
             sb.append( "\n\t" + "Service key version    " + keyVersion );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_154 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
 
@@ -579,12 +580,12 @@ public class TicketGrantingService
             sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
             sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_155 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
 

@@ -345,7 +345,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         kdcReqBody.setTill( requestedEndTime );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getLocalHost() ) };
+            { new HostAddress( InetAddress.getByName( "127.0.0.1" ) ) };
         HostAddresses addresses = new HostAddresses( address );
         kdcReqBody.setAddresses( addresses );
 
