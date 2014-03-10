@@ -1103,6 +1103,11 @@ public class ServiceBuilder
 
         for ( ReplConsumerBean replBean : replConsumerBeans )
         {
+            if ( replBean.isDisabled() )
+            {
+                continue;
+            }
+            
             String className = replBean.getReplConsumerImpl();
 
             ReplicationConsumer consumer = null;
