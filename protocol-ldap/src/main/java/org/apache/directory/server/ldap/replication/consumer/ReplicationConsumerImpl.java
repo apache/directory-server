@@ -22,7 +22,6 @@ package org.apache.directory.server.ldap.replication.consumer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +139,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             SchemaConstants.CREATE_TIMESTAMP_AT,
             SchemaConstants.CREATORS_NAME_AT,
             SchemaConstants.ENTRY_PARENT_ID_AT,
-            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
+            SchemaConstants.CONTEXT_CSN_AT
     };
 
     /** the cookie that was saved last time */
