@@ -111,60 +111,124 @@ public abstract class DhcpOption
     /**
      * An array of concrete implementations of DhcpOption.
      */
-    private static Class OPTION_CLASSES[] =
-        { BootfileName.class, ClientIdentifier.class, DhcpMessageType.class, IpAddressLeaseTime.class,
-            MaximumDhcpMessageSize.class, org.apache.directory.server.dhcp.options.dhcp.Message.class,
-            OptionOverload.class, ParameterRequestList.class, RebindingTimeValue.class, RenewalTimeValue.class,
-            RequestedIpAddress.class, ServerIdentifier.class, TftpServerName.class, VendorClassIdentifier.class,
-            ClientIdentifier.class, DhcpMessageType.class, IpAddressLeaseTime.class, MaximumDhcpMessageSize.class,
-            OptionOverload.class, ParameterRequestList.class, RebindingTimeValue.class, RenewalTimeValue.class,
-            RequestedIpAddress.class, ServerIdentifier.class, TftpServerName.class, UnrecognizedOption.class,
-            VendorClassIdentifier.class, DefaultFingerServers.class, DefaultIrcServers.class, DefaultWwwServers.class,
-            MobileIpHomeAgents.class, NbddServers.class, NetbiosNameServers.class, NetbiosNodeType.class,
-            NetbiosScope.class, NisDomain.class, NisPlusDomain.class, NisPlusServers.class, NisServers.class,
-            NntpServers.class, NtpServers.class, Pop3Servers.class, SmtpServers.class, StdaServers.class,
-            StreetTalkServers.class, VendorSpecificInformation.class, XWindowDisplayManagers.class,
-            XWindowFontServers.class, DefaultIpTimeToLive.class, IpForwarding.class, MaximumDatagramSize.class,
-            NonLocalSourceRouting.class, PathMtuAgingTimeout.class, PathMtuPlateauTable.class, PolicyFilter.class,
-            AllSubnetsAreLocal.class, BroadcastAddress.class, InterfaceMtu.class, MaskSupplier.class,
-            PerformMaskDiscovery.class, PerformRouterDiscovery.class, RouterSolicitationAddress.class,
-            StaticRoute.class, TcpDefaultTimeToLive.class, TcpKeepaliveGarbage.class, TcpKeepaliveInterval.class,
-            BootFileSize.class, CookieServers.class, DomainName.class, DomainNameServers.class, ExtensionsPath.class,
-            HostName.class, ImpressServers.class, LogServers.class, LprServers.class, MeritDumpFile.class,
-            NameServers.class, ResourceLocationServers.class, RootPath.class, Routers.class, SubnetMask.class,
-            SwapServer.class, TimeOffset.class, TimeServers.class, };
+    private static Class<?> OPTION_CLASSES[] =
+        { 
+            BootfileName.class, 
+            ClientIdentifier.class, 
+            DhcpMessageType.class, 
+            IpAddressLeaseTime.class,
+            MaximumDhcpMessageSize.class, 
+            org.apache.directory.server.dhcp.options.dhcp.Message.class,
+            OptionOverload.class, 
+            ParameterRequestList.class, 
+            RebindingTimeValue.class, 
+            RenewalTimeValue.class,
+            RequestedIpAddress.class, 
+            ServerIdentifier.class, 
+            TftpServerName.class, 
+            VendorClassIdentifier.class,
+            ClientIdentifier.class, 
+            DhcpMessageType.class, 
+            IpAddressLeaseTime.class, 
+            MaximumDhcpMessageSize.class,
+            OptionOverload.class, 
+            ParameterRequestList.class, 
+            RebindingTimeValue.class, 
+            RenewalTimeValue.class,
+            RequestedIpAddress.class, 
+            ServerIdentifier.class, 
+            TftpServerName.class, 
+            UnrecognizedOption.class,
+            VendorClassIdentifier.class, 
+            DefaultFingerServers.class, 
+            DefaultIrcServers.class, 
+            DefaultWwwServers.class,
+            MobileIpHomeAgents.class, 
+            NbddServers.class, 
+            NetbiosNameServers.class, 
+            NetbiosNodeType.class,
+            NetbiosScope.class, 
+            NisDomain.class, 
+            NisPlusDomain.class, 
+            NisPlusServers.class, 
+            NisServers.class,
+            NntpServers.class, 
+            NtpServers.class, 
+            Pop3Servers.class, 
+            SmtpServers.class, 
+            StdaServers.class,
+            StreetTalkServers.class, 
+            VendorSpecificInformation.class, 
+            XWindowDisplayManagers.class,
+            XWindowFontServers.class, 
+            DefaultIpTimeToLive.class, 
+            IpForwarding.class, 
+            MaximumDatagramSize.class,
+            NonLocalSourceRouting.class, 
+            PathMtuAgingTimeout.class, 
+            PathMtuPlateauTable.class, 
+            PolicyFilter.class,
+            AllSubnetsAreLocal.class, 
+            BroadcastAddress.class, 
+            InterfaceMtu.class, 
+            MaskSupplier.class,
+            PerformMaskDiscovery.class, 
+            PerformRouterDiscovery.class, 
+            RouterSolicitationAddress.class,
+            StaticRoute.class, 
+            TcpDefaultTimeToLive.class, 
+            TcpKeepaliveGarbage.class, 
+            TcpKeepaliveInterval.class,
+            BootFileSize.class, 
+            CookieServers.class, 
+            DomainName.class, 
+            DomainNameServers.class, 
+            ExtensionsPath.class,
+            HostName.class, 
+            ImpressServers.class, 
+            LogServers.class, 
+            LprServers.class, 
+            MeritDumpFile.class,
+            NameServers.class, 
+            ResourceLocationServers.class, 
+            RootPath.class, Routers.class, 
+            SubnetMask.class,
+            SwapServer.class, 
+            TimeOffset.class, 
+            TimeServers.class, };
 
     /**
      * A map of concrete implementations of DhcpOption indexed by tag code.
      */
-    private static Map OPTION_CLASS_BY_CODE;
+    private static Map<Integer, Class<?>> OPTION_CLASS_BY_CODE;
 
     /**
      * A map of tag codes indexed by OptionClass subclass.
      */
-    private static Map CODE_BY_CLASS;
+    private static Map<Class<?>, Integer> CODE_BY_CLASS;
 
     static
     {
         try
         {
             // initialize the tag-to-class and class-to-tag map
-            Map classByCode = new HashMap();
-            Map codeByClass = new HashMap();
+            Map<Integer, Class<?>> classByCode = new HashMap<Integer, Class<?>>();
+            Map<Class<?>, Integer> codeByClass = new HashMap<Class<?>, Integer>();
+            
             for ( int i = 0; i < OPTION_CLASSES.length; i++ )
             {
-                Class c = OPTION_CLASSES[i];
+                Class<?> dhcpOptionClass = OPTION_CLASSES[i];
 
-                if ( !DhcpOption.class.isAssignableFrom( c ) )
+                if ( !DhcpOption.class.isAssignableFrom( dhcpOptionClass ) )
                 {
-                    throw new RuntimeException( I18n.err( I18n.ERR_639, c ) );
+                    throw new RuntimeException( I18n.err( I18n.ERR_639, dhcpOptionClass ) );
                 }
 
-                DhcpOption o = ( DhcpOption ) c.newInstance();
+                DhcpOption dhcpOption = ( DhcpOption ) dhcpOptionClass.newInstance();
 
-                Integer tagInt = Integer.valueOf( o.getTag() );
-                classByCode.put( tagInt, c );
-                codeByClass.put( c, tagInt );
+                int tagInt = dhcpOption.getTag();
+                classByCode.put( tagInt, dhcpOptionClass );
+                codeByClass.put( dhcpOptionClass, tagInt );
             }
 
             OPTION_CLASS_BY_CODE = Collections.unmodifiableMap( classByCode );
@@ -177,15 +241,15 @@ public abstract class DhcpOption
     }
 
 
-    public static Class getClassByTag( int tag )
+    public static Class<?> getClassByTag( int tag )
     {
-        return ( Class ) OPTION_CLASS_BY_CODE.get( Integer.valueOf( tag ) );
+        return OPTION_CLASS_BY_CODE.get( tag );
     }
 
 
-    public static int getTagByClass( Class c )
+    public static int getTagByClass( Class<?> c )
     {
-        return ( ( Integer ) CODE_BY_CLASS.get( c ) ).intValue();
+        return CODE_BY_CLASS.get( c );
     }
 
     /**
