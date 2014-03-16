@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A special index which stores Rdn objects.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
@@ -99,7 +99,7 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
 
     /**
      * Initializes the forward and reverse tables used by this Index.
-     * 
+     *
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
@@ -119,10 +119,10 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<ParentIdAndRdn, String>( recordMan, schemaManager, forwardTableName,
-            parentIdAndSerializer, new StringSerializer(), false );
+            parentIdAndSerializer, StringSerializer.INSTANCE, false );
 
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
         reverse = new MavibotTable<String, ParentIdAndRdn>( recordMan, schemaManager, reverseTableName,
-            new StringSerializer(), parentIdAndSerializer, false );
+            StringSerializer.INSTANCE, parentIdAndSerializer, false );
     }
 }

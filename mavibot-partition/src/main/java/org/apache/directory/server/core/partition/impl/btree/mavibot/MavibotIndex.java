@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
@@ -102,7 +102,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
     /**
      * Initialize the index for an Attribute, with a specific working directory (may be null).
-     * 
+     *
      * @param schemaManager The schemaManager to use to get back the Attribute
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
@@ -147,7 +147,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
     /**
      * Initializes the forward and reverse tables used by this Index.
-     * 
+     *
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
@@ -192,7 +192,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
-            new StringSerializer(), forwardDups, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
+            StringSerializer.INSTANCE, forwardDups, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -203,7 +203,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
         if ( withReverse )
         {
             String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-            reverse = new MavibotTable<String, K>( recordMan, schemaManager, reverseTableName, new StringSerializer(),
+            reverse = new MavibotTable<String, K>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
                 forwardKeySerializer, !attributeType.isSingleValued() );
         }
 
@@ -218,7 +218,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
     /**
      * Sets the RecordManager
-     * 
+     *
      * @param rm the RecordManager instance
      */
     public void setRecordManager( RecordManager rm )

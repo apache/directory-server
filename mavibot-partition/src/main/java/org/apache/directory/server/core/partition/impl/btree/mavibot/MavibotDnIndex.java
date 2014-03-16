@@ -106,10 +106,10 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
         forward = new MavibotTable<Dn, String>( recordMan, schemaManager, forwardTableName, dnSerializer,
-            new StringSerializer(), true );
+            StringSerializer.INSTANCE, true );
 
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-        reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, new StringSerializer(),
+        reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
             dnSerializer, !attributeType.isSingleValued() );
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
