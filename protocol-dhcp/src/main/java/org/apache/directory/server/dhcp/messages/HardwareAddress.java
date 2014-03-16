@@ -195,7 +195,7 @@ public final class HardwareAddress
     }
 
     private static final Pattern PARSE_PATTERN = Pattern
-        .compile( "(\\d+)\\s+(?:(\\p{XDigit}{1,2}):)*(\\p{XDigit}{1,2})?" );
+        .compile( "(\\d+)/(?:(\\p{XDigit}{1,2}):)*(\\p{XDigit}{1,2})?" );
 
 
     /**
