@@ -40,9 +40,9 @@ import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
-import org.apache.directory.api.ldap.model.message.controls.SortResponseControl;
+import org.apache.directory.api.ldap.model.message.controls.SortResponse;
 import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -80,7 +80,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
 
     private SortKey sk;
 
-    private SortRequestControl ctrl;
+    private SortRequest ctrl;
 
 
     @Before
@@ -138,7 +138,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
 
         cursor.close();
 
-        SortResponseControl resp = ( SortResponseControl ) sd.getControl( SortResponseControl.OID );
+        SortResponse resp = ( SortResponse ) sd.getControl( SortResponse.OID );
         assertNotNull( resp );
 
         assertEquals( SortResultCode.NOSUCHATTRIBUTE, resp.getSortResult() );
@@ -174,7 +174,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
 
         SearchResultDone sd = cursor.getSearchResultDone();
 
-        SortResponseControl resp = ( SortResponseControl ) sd.getControl( SortResponseControl.OID );
+        SortResponse resp = ( SortResponse ) sd.getControl( SortResponse.OID );
         assertNotNull( resp );
 
         assertEquals( SortResultCode.NOSUCHATTRIBUTE, resp.getSortResult() );
@@ -201,7 +201,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
 
         SearchResultDone sd = cursor.getSearchResultDone();
 
-        SortResponseControl resp = ( SortResponseControl ) sd.getControl( SortResponseControl.OID );
+        SortResponse resp = ( SortResponse ) sd.getControl( SortResponse.OID );
         assertNull( resp );
 
         assertEquals( ResultCodeEnum.SUCCESS, sd.getLdapResult().getResultCode() );

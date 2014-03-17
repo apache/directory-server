@@ -34,13 +34,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.model.constants.Loggers;

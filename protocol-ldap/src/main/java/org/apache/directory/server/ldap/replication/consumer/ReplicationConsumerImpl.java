@@ -28,13 +28,13 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -68,7 +68,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultReference;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -1366,7 +1366,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         req.addAttributes( SchemaConstants.ENTRY_DN_AT );
 
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
-        SortRequestControl ctrl = new SortRequestControlImpl();
+        SortRequest ctrl = new SortRequestControlImpl();
         ctrl.addSortKey( sk );
         req.addControl( ctrl );
 
@@ -1436,7 +1436,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
 
-            SortRequestControl ctrl = new SortRequestControlImpl();
+            SortRequest ctrl = new SortRequestControlImpl();
             ctrl.addSortKey( sk );
             req.addControl( ctrl );
 

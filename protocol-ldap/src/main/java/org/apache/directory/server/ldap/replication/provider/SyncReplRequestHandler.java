@@ -38,13 +38,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.SynchronizationInfoEnum;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SynchronizationInfoEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
@@ -82,7 +82,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -483,7 +483,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         PROVIDER_LOG.debug( "Starting an initial refresh" );
 
-        SortRequestControl ctrl = ( SortRequestControl ) request.getControl( SortRequestControl.OID );
+        SortRequest ctrl = ( SortRequest ) request.getControl( SortRequest.OID );
 
         if( ctrl != null )
         {

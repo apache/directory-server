@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.extended.CertGenerationRequest;
-import org.apache.directory.api.ldap.extras.extended.CertGenerationResponse;
+import org.apache.directory.api.ldap.extras.extended.certGeneration.CertGenerationRequest;
+import org.apache.directory.api.ldap.extras.extended.certGeneration.CertGenerationResponse;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;

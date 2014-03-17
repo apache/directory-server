@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.api.ldap.extras.extended.PwdModifyRequest;
-import org.apache.directory.api.ldap.extras.extended.PwdModifyResponse;
-import org.apache.directory.api.ldap.extras.extended.PwdModifyResponseImpl;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyRequest;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyResponse;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyResponseImpl;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -61,8 +61,8 @@ import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControl;
-import org.apache.directory.api.ldap.model.message.controls.SortResponseControl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequest;
+import org.apache.directory.api.ldap.model.message.controls.SortResponse;
 import org.apache.directory.api.ldap.model.message.controls.SortResponseControlImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -1097,9 +1097,9 @@ public class DefaultCoreSession implements CoreSession
         OperationManager operationManager = directoryService.getOperationManager();
 
         // Check if we received serverside sort Control
-        SortRequestControl sortControl = ( SortRequestControl ) searchRequest.getControls().get( SortRequestControl.OID );
+        SortRequest sortControl = ( SortRequest ) searchRequest.getControls().get( SortRequest.OID );
         
-        SortResponseControl sortRespCtrl = null;
+        SortResponse sortRespCtrl = null;
         
         SearchResultDone done = searchRequest.getResultResponse();
         
@@ -1199,9 +1199,9 @@ public class DefaultCoreSession implements CoreSession
      * @param session the current session
      * @return a sort response control
      */
-    private SortResponseControl canSort( SortRequestControl sortControl, LdapResult ldapResult, SchemaManager schemaManager )
+    private SortResponse canSort( SortRequest sortControl, LdapResult ldapResult, SchemaManager schemaManager )
     {
-        SortResponseControl resp = new SortResponseControlImpl();
+        SortResponse resp = new SortResponseControlImpl();
         
         List<SortKey> keys = sortControl.getSortKeys();
         
@@ -1299,7 +1299,7 @@ public class DefaultCoreSession implements CoreSession
      * @throws LdapException
      * @throws IOException
      */
-    private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequestControl control, SchemaManager schemaManager ) throws CursorException, LdapException, IOException
+    private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager ) throws CursorException, LdapException, IOException
     {
         unsortedEntries.beforeFirst();
         
