@@ -56,8 +56,8 @@ import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
-import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
@@ -1098,22 +1098,22 @@ public class DefaultCoreSession implements CoreSession
 
         // Check if we received serverside sort Control
         SortRequest sortControl = ( SortRequest ) searchRequest.getControls().get( SortRequest.OID );
-        
+
         SortResponse sortRespCtrl = null;
-        
-        SearchResultDone done = searchRequest.getResultResponse();
-        
+
+        ResultResponse done = searchRequest.getResultResponse();
+
         LdapResult ldapResult = done.getLdapResult();
-        
-        if( sortControl != null )
+
+        if ( sortControl != null )
         {
             sortRespCtrl = canSort( sortControl, ldapResult, getDirectoryService().getSchemaManager() );
-            
+
             if ( sortControl.isCritical() && ( sortRespCtrl.getSortResult() != SortResultCode.SUCCESS ) )
             {
                 ldapResult.setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
                 done.addControl( sortRespCtrl );
-                
+
                 return new EmptyCursor<Entry>();
             }
         }
@@ -1123,7 +1123,7 @@ public class DefaultCoreSession implements CoreSession
         try
         {
             cursor = operationManager.search( searchContext );
-            
+
             if ( ( sortRespCtrl != null ) && ( sortRespCtrl.getSortResult() == SortResultCode.SUCCESS ) )
             {
                 cursor = sortResults( cursor, sortControl, getDirectoryService().getSchemaManager() );
@@ -1133,8 +1133,8 @@ public class DefaultCoreSession implements CoreSession
             if ( sortRespCtrl != null )
             {
                 cursor.beforeFirst();
-                
-                if( !cursor.next() )
+
+                if ( !cursor.next() )
                 {
                     sortRespCtrl = null;
                 }
@@ -1150,13 +1150,13 @@ public class DefaultCoreSession implements CoreSession
             done.addAllControls( searchContext.getResponseControls() );
             throw e;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             done.addAllControls( searchContext.getResponseControls() );
             throw new LdapException( e );
         }
 
-        if( sortRespCtrl != null )
+        if ( sortRespCtrl != null )
         {
             done.addControl( sortRespCtrl );
         }
@@ -1202,46 +1202,48 @@ public class DefaultCoreSession implements CoreSession
     private SortResponse canSort( SortRequest sortControl, LdapResult ldapResult, SchemaManager schemaManager )
     {
         SortResponse resp = new SortResponseControlImpl();
-        
+
         List<SortKey> keys = sortControl.getSortKeys();
-        
+
         // only ONE key is supported by the server for now
-        if( keys.size() > 1 )
+        if ( keys.size() > 1 )
         {
             ldapResult.setDiagnosticMessage( "Cannot sort results based on more than one attribute" );
             resp.setSortResult( SortResultCode.UNWILLINGTOPERFORM );
             return resp;
         }
-        
+
         SortKey sk = keys.get( 0 );
-        
+
         AttributeType at = schemaManager.getAttributeType( sk.getAttributeTypeDesc() );
-        
+
         if ( at == null )
         {
-           ldapResult.setDiagnosticMessage( "No attribute with the name " + sk.getAttributeTypeDesc() + " exists in the server's schema" );
-           resp.setSortResult( SortResultCode.NOSUCHATTRIBUTE );
-           resp.setAttributeName( sk.getAttributeTypeDesc() );
-           return resp;
+            ldapResult.setDiagnosticMessage( "No attribute with the name " + sk.getAttributeTypeDesc()
+                + " exists in the server's schema" );
+            resp.setSortResult( SortResultCode.NOSUCHATTRIBUTE );
+            resp.setAttributeName( sk.getAttributeTypeDesc() );
+            return resp;
         }
-        
+
         String mrOid = sk.getMatchingRuleId();
-        
-        if( mrOid != null )
+
+        if ( mrOid != null )
         {
             MatchingRule mr = at.getOrdering();
-            
-            if( mr != null )
+
+            if ( mr != null )
             {
-                if( !mrOid.equals( mr.getOid() ) )
+                if ( !mrOid.equals( mr.getOid() ) )
                 {
-                    ldapResult.setDiagnosticMessage( "Given matchingrule " + mrOid + " is not applicable for the attribute " + sk.getAttributeTypeDesc() );
+                    ldapResult.setDiagnosticMessage( "Given matchingrule " + mrOid
+                        + " is not applicable for the attribute " + sk.getAttributeTypeDesc() );
                     resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
                     resp.setAttributeName( sk.getAttributeTypeDesc() );
-                    return resp;        
+                    return resp;
                 }
             }
-            
+
             try
             {
                 schemaManager.lookupComparatorRegistry( mrOid );
@@ -1251,43 +1253,44 @@ public class DefaultCoreSession implements CoreSession
                 ldapResult.setDiagnosticMessage( "Given matchingrule " + mrOid + " is not supported" );
                 resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
                 resp.setAttributeName( sk.getAttributeTypeDesc() );
-                return resp;        
+                return resp;
             }
         }
         else
         {
             MatchingRule mr = at.getOrdering();
-            
-            if( mr == null )
+
+            if ( mr == null )
             {
                 mr = at.getEquality();
             }
-            
-            ldapResult.setDiagnosticMessage( "Matchingrule is required for sorting by the attribute " + sk.getAttributeTypeDesc() );
+
+            ldapResult.setDiagnosticMessage( "Matchingrule is required for sorting by the attribute "
+                + sk.getAttributeTypeDesc() );
             resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
             resp.setAttributeName( sk.getAttributeTypeDesc() );
-            
-            if( mr == null )
+
+            if ( mr == null )
             {
                 return resp;
             }
-            
+
             try
             {
                 schemaManager.lookupComparatorRegistry( mr.getOid() );
             }
             catch ( LdapException e )
             {
-                return resp;        
+                return resp;
             }
         }
-        
+
         resp.setSortResult( SortResultCode.SUCCESS );
-        
+
         return resp;
     }
-    
-    
+
+
     /**
      * Sorts the entries based on the given sortkey and returns the cursor
      * 
@@ -1299,65 +1302,67 @@ public class DefaultCoreSession implements CoreSession
      * @throws LdapException
      * @throws IOException
      */
-    private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager ) throws CursorException, LdapException, IOException
+    private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager )
+        throws CursorException, LdapException, IOException
     {
         unsortedEntries.beforeFirst();
-        
+
         Entry first = null;
-        
-        if( unsortedEntries.next() )
+
+        if ( unsortedEntries.next() )
         {
             first = unsortedEntries.get();
         }
-        
-        if( !unsortedEntries.next() )
+
+        if ( !unsortedEntries.next() )
         {
             unsortedEntries.beforeFirst();
-            
+
             return unsortedEntries;
         }
-        
+
         SortKey sk = control.getSortKeys().get( 0 );
-        
+
         AttributeType at = schemaManager.getAttributeType( sk.getAttributeTypeDesc() );
-        
-        SortedEntryComparator comparator = new SortedEntryComparator( at, sk.getMatchingRuleId(), sk.isReverseOrder(), schemaManager );
-        
+
+        SortedEntryComparator comparator = new SortedEntryComparator( at, sk.getMatchingRuleId(), sk.isReverseOrder(),
+            schemaManager );
+
         SortedEntrySerializer keySerializer = new SortedEntrySerializer( comparator );
-        
+
         PersistedBTreeConfiguration<Entry, String> config = new PersistedBTreeConfiguration<Entry, String>();
         config.setName( UUID.randomUUID().toString() );
         config.setKeySerializer( keySerializer );
         config.setValueSerializer( new StringSerializer() );
-        
+
         BTree<Entry, String> btree = BTreeFactory.createPersistedBTree( config );
-        
+
         File file = File.createTempFile( btree.getName(), ".sorted-data" );
         RecordManager recMan = new RecordManager( file.getAbsolutePath() );
-        
+
         try
         {
             recMan.manage( btree );
         }
-        catch( BTreeAlreadyManagedException e )
+        catch ( BTreeAlreadyManagedException e )
         {
             throw new LdapException( e );
         }
-        
+
         btree.insert( first, null );
-        
+
         // at this stage the cursor will be _on_ the next element, so read it
         btree.insert( unsortedEntries.get(), null );
-        
-        while( unsortedEntries.next() )
+
+        while ( unsortedEntries.next() )
         {
             Entry entry = unsortedEntries.get();
             btree.insert( entry, null );
         }
-        
+
         unsortedEntries.close();
-        
+
         return new SortedEntryCursor( btree, recMan, file );
     }
-    
+
 }

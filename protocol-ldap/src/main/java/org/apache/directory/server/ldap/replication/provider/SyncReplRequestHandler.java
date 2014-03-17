@@ -318,7 +318,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 if ( !LdapProtocolUtils.isValidCookie( cookieString ) )
                 {
-                    PROVIDER_LOG.error( "received an invalid cookie {} from the consumer with session {}", cookieString,
+                    PROVIDER_LOG.error( "received an invalid cookie {} from the consumer with session {}",
+                        cookieString,
                         session );
                     sendESyncRefreshRequired( session, request );
                 }
@@ -460,7 +461,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             }
             else
             {
-                SearchResultDone searchDoneResp = req.getResultResponse();
+                SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
                 searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 SyncDoneValue syncDone = new SyncDoneValueDecorator(
                     ldapServer.getDirectoryService().getLdapCodecService() );
@@ -485,13 +486,15 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
         SortRequest ctrl = ( SortRequest ) request.getControl( SortRequest.OID );
 
-        if( ctrl != null )
+        if ( ctrl != null )
         {
-            PROVIDER_LOG.warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
+            PROVIDER_LOG
+                .warn( "Removing the received sort control from the syncrepl search request during initial refresh" );
             request.removeControl( ctrl );
         }
 
-        PROVIDER_LOG.debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
+        PROVIDER_LOG
+            .debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
         // matchingrule for "entryDn"
         sk.setMatchingRuleId( "2.5.13.1" );
@@ -636,7 +639,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         throws Exception
     {
         PROVIDER_LOG.debug( "Simple Search {} for {}", req, session );
-        SearchResultDone searchDoneResp = req.getResultResponse();
+        SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         LdapResult ldapResult = searchDoneResp.getLdapResult();
 
         // A normal search
@@ -661,7 +664,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
             setTimeLimitsOnCursor( req, session, cursor );
-            PROVIDER_LOG.debug( "search operation requested size limit {}, server size limit {}", requestLimit, serverLimit );
+            PROVIDER_LOG.debug( "search operation requested size limit {}, server size limit {}", requestLimit,
+                serverLimit );
             long sizeLimit = min( requestLimit, serverLimit );
 
             readResults( session, req, ldapResult, cursor, sizeLimit, replicaLog );
@@ -1145,7 +1149,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
     {
-        SearchResultDone searchDoneResp = req.getResultResponse();
+        SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
         SyncDoneValue syncDone = new SyncDoneValueDecorator(
             ldapServer.getDirectoryService().getLdapCodecService() );

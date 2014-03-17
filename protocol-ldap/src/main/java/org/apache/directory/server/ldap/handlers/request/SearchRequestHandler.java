@@ -433,7 +433,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         // check if the result code is not already set
         // the result code might be set when sort control is present
-        if( ldapResult.getResultCode() == null )
+        if ( ldapResult.getResultCode() == null )
         {
             // DO NOT WRITE THE RESPONSE - JUST RETURN IT
             ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
@@ -591,7 +591,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
         req.getResultResponse().addControl( pagedSearchControl );
-        return req.getResultResponse();
+
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 
@@ -690,7 +691,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
 
-                return req.getResultResponse();
+                return ( SearchResultDone ) req.getResultResponse();
             }
             else
             {
@@ -723,7 +724,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 ldapResult.setDiagnosticMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
 
-                return req.getResultResponse();
+                return ( SearchResultDone ) req.getResultResponse();
             }
 
             if ( pagedContext.hasSameRequest( req, session ) )
@@ -790,7 +791,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return req.getResultResponse();
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 
@@ -872,7 +873,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return req.getResultResponse();
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 

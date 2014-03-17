@@ -162,7 +162,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             if ( message instanceof ExtendedRequest )
             {
                 // Reject all extended operations except StartTls  
-                ExtendedRequest<?> req = ( ExtendedRequest<?> ) message;
+                ExtendedRequest req = ( ExtendedRequest ) message;
 
                 if ( !req.getRequestName().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
@@ -175,7 +175,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             else if ( message instanceof ResultResponseRequest )
             {
                 // Reject all other operations that have a result response  
-                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest<?> ) message )
+                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message )
                     .getResultResponse() );
                 return;
             }
@@ -210,7 +210,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
-            
+
             // Store the IoSession in the coreSession
             ( ( DefaultCoreSession ) coreSession ).setIoSession( ldapSession.getIoSession() );
 
@@ -238,7 +238,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     /**
      * Handles processing with referrals without ManageDsaIT decorator.
      */
-    public void handleException( LdapSession session, ResultResponseRequest<?> req, Exception e )
+    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
 

@@ -25,6 +25,7 @@ import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
@@ -35,14 +36,14 @@ import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedRequestHandler extends LdapRequestHandler<ExtendedRequest<ExtendedResponse>>
+public class ExtendedRequestHandler extends LdapRequestHandler<ExtendedRequest>
 {
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, ExtendedRequest<ExtendedResponse> req ) throws Exception
+    public void handle( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> handler = getLdapServer()
+        ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> handler = getLdapServer()
             .getExtendedOperationHandler( req.getRequestName() );
 
         if ( handler == null )
@@ -68,7 +69,7 @@ public class ExtendedRequestHandler extends LdapRequestHandler<ExtendedRequest<E
             result.setDiagnosticMessage( ResultCodeEnum.OTHER
                 + ": Extended operation handler for the specified EXTENSION_OID (" + req.getRequestName()
                 + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-            ExtendedResponse resp = req.getResultResponse();
+            ResultResponse resp = req.getResultResponse();
             session.getIoSession().write( resp );
         }
     }

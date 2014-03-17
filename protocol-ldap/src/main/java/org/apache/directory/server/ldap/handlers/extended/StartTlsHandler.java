@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://www.ietf.org/rfc/rfc2830.txt">RFC 2830</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>
+public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
 {
     public static final String EXTENSION_OID = "1.3.6.1.4.1.1466.20037";
 
@@ -64,7 +64,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsHandler.class );
 
     private SSLContext sslContext;
-    
+
     private List<String> cipherSuites;
 
     static
@@ -75,7 +75,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     }
 
 
-    public void handleExtendedOperation( LdapSession session, ExtendedRequest<ExtendedResponse> req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
 
@@ -85,7 +85,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         {
             sslFilter = new SslFilter( sslContext );
 
-            if( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
+            if ( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
             {
                 sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
             }
@@ -97,7 +97,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>( 
+        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
             LdapApiServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
@@ -146,7 +146,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         {
             throw new RuntimeException( I18n.err( I18n.ERR_682 ), e );
         }
-        
+
         this.cipherSuites = ldapServer.getEnabledCipherSuites();
     }
 }

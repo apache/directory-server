@@ -358,7 +358,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
-                BindResponse resp = bindRequest.getResultResponse();
+                BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
 
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
@@ -438,7 +438,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     private void sendBindSuccess( LdapSession ldapSession, BindRequest bindRequest, byte[] tokenBytes )
     {
         // Return the successful response
-        BindResponse response = bindRequest.getResultResponse();
+        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
         response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         response.setServerSaslCreds( tokenBytes );
 

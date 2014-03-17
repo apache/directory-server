@@ -865,10 +865,10 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse>
+    public ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
         getExtendedOperationHandler( String oid )
     {
-        for ( ExtendedOperationHandler<ExtendedRequest<ExtendedResponse>, ExtendedResponse> h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> h : extendedOperationHandlers )
         {
             if ( h.getOid().equals( oid ) )
             {
@@ -1308,7 +1308,7 @@ public class LdapServer extends DirectoryBackedService
     /**
      * @return The MessageReceived handler for the ExtendedRequest
      */
-    public LdapRequestHandler<ExtendedRequest<ExtendedResponse>> getExtendedRequestHandler()
+    public LdapRequestHandler<ExtendedRequest> getExtendedRequestHandler()
     {
         return extendedRequestHandler;
     }

@@ -182,14 +182,14 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest<?> req =
+            ExtendedRequest req =
                 LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest<?> req =
+            ExtendedRequest req =
                 LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
@@ -198,7 +198,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         if ( ( ( Request ) message ).getControls().size() > 0
             && message instanceof ResultResponseRequest )
         {
-            ResultResponseRequest<?> req = ( ResultResponseRequest<?> ) message;
+            ResultResponseRequest req = ( ResultResponseRequest ) message;
 
             for ( Control control : req.getControls().values() )
             {
