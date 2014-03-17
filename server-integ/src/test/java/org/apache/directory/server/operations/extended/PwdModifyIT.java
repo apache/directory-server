@@ -522,7 +522,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
             // Send the request to update own password
             PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( selfPwdModifyRequest );
-            // passwordTooShort is a contstraint violation
+            // passwordTooShort is a constraint violation
             assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, pwdModifyResponse.getLdapResult().getResultCode() );
             Control passwordPolicyResponseControl = pwdModifyResponse
                 .getControl( passwordPolicyRequestControl.getOid() );
