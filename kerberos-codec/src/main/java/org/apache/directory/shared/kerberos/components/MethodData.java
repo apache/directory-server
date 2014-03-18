@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MethodData extends AbstractAsn1Object
+public class MethodData implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( MethodData.class );

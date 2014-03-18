@@ -93,7 +93,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -117,7 +117,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PrincipalName extends AbstractAsn1Object
+public class PrincipalName implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( PrincipalName.class );
@@ -190,7 +190,7 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = nameType;
     }
 
-    
+
     /**
      * Creates a new instance of PrincipalName given a String[] and an 
      * principal type.
@@ -200,22 +200,22 @@ public class PrincipalName extends AbstractAsn1Object
      */
     public PrincipalName( String[] nameParts, int nameType )
     {
-    	if ( nameParts == null || nameParts.length == 0 )
-    	{
-    		throw new IllegalArgumentException("Empty name parts");
-    	}
-    	
-    	List<String> nameComponents = new ArrayList<String>();
-    	for ( String np : nameParts )
-    	{
-    		nameComponents.add( np );
-    	}
-    	
+        if ( nameParts == null || nameParts.length == 0 )
+        {
+            throw new IllegalArgumentException( "Empty name parts" );
+        }
+
+        List<String> nameComponents = new ArrayList<String>();
+        for ( String np : nameParts )
+        {
+            nameComponents.add( np );
+        }
+
         this.nameString = nameComponents;
         this.nameType = PrincipalNameType.getTypeByValue( nameType );;
     }
-    
-    
+
+
     /**
      * Creates a new instance of PrincipalName.
      *
@@ -267,24 +267,27 @@ public class PrincipalName extends AbstractAsn1Object
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
+
     /**
      * Set the realm for the principal
      * @param realm the realm of the principal
      */
     public void setRealm( String realm )
     {
-    	this.realm = realm;
+        this.realm = realm;
     }
-    
+
+
     /**
      * Get the realm for the principal
      * @return realm the realm of the principal
      */
     public String getRealm()
     {
-    	return realm;
+        return realm;
     }
-    
+
+
     /**
      * Returns the name components.
      *
@@ -535,11 +538,11 @@ public class PrincipalName extends AbstractAsn1Object
 
         if ( realm != null )
         {
-        	sb.append( "realm: " ).append( realm );
+            sb.append( "realm: " ).append( realm );
         }
-        
+
         sb.append( " }" );
-        
+
         return sb.toString();
     }
 

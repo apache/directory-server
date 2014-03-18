@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PaEncTsEnc extends AbstractAsn1Object
+public class PaEncTsEnc implements Asn1Object
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( PaEncTsEnc.class );
@@ -201,7 +201,7 @@ public class PaEncTsEnc extends AbstractAsn1Object
             buffer.put( ( byte ) KerberosConstants.PA_ENC_TS_ENC_PA_TIMESTAMP_TAG );
             buffer.put( ( byte ) 0x11 );
 
-            buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( patimestamp.getBytes() );
 

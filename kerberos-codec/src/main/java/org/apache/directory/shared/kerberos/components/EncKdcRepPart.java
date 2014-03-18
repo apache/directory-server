@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EncKdcRepPart extends AbstractAsn1Object
+public class EncKdcRepPart implements Asn1Object
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( EncKdcRepPart.class );
@@ -548,7 +548,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
                 buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_KEY_EXPIRATION_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
 
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( keyExpiration.getBytes() );
             }
@@ -561,7 +561,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The authtime
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_AUTH_TIME_TAG );
             buffer.put( TLV.getBytes( 0x11 ) );
-            buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( authTime.getBytes() );
 
@@ -570,7 +570,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             {
                 buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_START_TIME_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( startTime.getBytes() );
             }
@@ -578,7 +578,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             // The endtime
             buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_END_TIME_TAG );
             buffer.put( TLV.getBytes( 0x11 ) );
-            buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+            buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
             buffer.put( ( byte ) 0x0F );
             buffer.put( endTime.getBytes() );
 
@@ -587,7 +587,7 @@ public class EncKdcRepPart extends AbstractAsn1Object
             {
                 buffer.put( ( byte ) KerberosConstants.ENC_KDC_REP_PART_RENEW_TILL_TAG );
                 buffer.put( TLV.getBytes( 0x11 ) );
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( renewTill.getBytes() );
             }

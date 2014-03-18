@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
@@ -76,7 +76,7 @@ public class CipherTextHandler
      * @return The Kerberos EncryptedData.
      * @throws KerberosException
      */
-    public EncryptedData seal( EncryptionKey key, AbstractAsn1Object message, KeyUsage usage ) throws KerberosException
+    public EncryptedData seal( EncryptionKey key, Asn1Object message, KeyUsage usage ) throws KerberosException
     {
         try
         {

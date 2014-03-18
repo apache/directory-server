@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LastReq extends AbstractAsn1Object
+public class LastReq implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( LastReq.class );
@@ -247,7 +247,7 @@ public class LastReq extends AbstractAsn1Object
                 buffer.put( TLV.getBytes( lrValueTagLen[i] ) );
 
                 // the lrValue value
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( lre.getLrValue().getBytes() );
             }

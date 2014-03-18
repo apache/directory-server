@@ -24,7 +24,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TransitedEncoding extends AbstractAsn1Object
+public class TransitedEncoding implements Asn1Object
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( TransitedEncoding.class );
