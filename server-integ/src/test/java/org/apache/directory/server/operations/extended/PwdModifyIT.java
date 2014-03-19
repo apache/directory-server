@@ -34,9 +34,9 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyRequest;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyRequestImpl;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyResponse;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequestImpl;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -219,11 +219,11 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         userConnection.setTimeOut( 0L );
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret1Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
 
@@ -262,13 +262,13 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         anonymousConnection.setTimeOut( 0L );
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User2,ou=system" ) );
         pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret2" ) );
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret2Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
 
@@ -315,13 +315,13 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         anonymousConnection.setTimeOut( 0L );
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User3,ou=system" ) );
         pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret3Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) anonymousConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
 
@@ -355,12 +355,12 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         // Modify the user with the admin account
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User4,ou=system" ) );
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret4Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) adminConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) adminConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
 
@@ -389,12 +389,12 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         // Modify the user with the admin account
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=baduser,ou=system" ) );
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret5Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) adminConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) adminConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, pwdModifyResponse.getLdapResult().getResultCode() );
         assertEquals( "Cannot find an entry for DN cn=baduser,ou=system", pwdModifyResponse.getLdapResult()
@@ -417,11 +417,11 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         // Modify the user with the admin account
 
         // Now request a new password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User6,ou=system" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) adminConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) adminConnection.extended( pwdModifyRequest );
 
         // We should not be allowed to do that, as the operation is not yet implemented
         assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, pwdModifyResponse.getLdapResult().getResultCode() );
@@ -449,17 +449,17 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             Attribute attribute = userEntry.get( "pwdHistory" );
             assertEquals( 1, attribute.size() );
 
-            PwdModifyRequest pwdModifyRequest = null;
-            PwdModifyResponse pwdModifyResponse = null;
+            PasswordModifyRequest pwdModifyRequest = null;
+            PasswordModifyResponse pwdModifyResponse = null;
 
             // Fail modify user with user account
             try
             {
                 userConnection = getNetworkConnectionAs( getLdapServer(), "cn=User7,ou=system", "secret7" );
-                pwdModifyRequest = new PwdModifyRequestImpl();
+                pwdModifyRequest = new PasswordModifyRequestImpl();
                 pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User7,ou=system" ) );
                 pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret4Bis" ) );
-                pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+                pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( pwdModifyRequest );
                 assertNotEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
             }
             finally
@@ -468,10 +468,10 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             }
 
             // Modify the user with the admin account
-            pwdModifyRequest = new PwdModifyRequestImpl();
+            pwdModifyRequest = new PasswordModifyRequestImpl();
             pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( "cn=User7,ou=system" ) );
             pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret4Bis" ) );
-            pwdModifyResponse = ( PwdModifyResponse ) adminConnection.extended( pwdModifyRequest );
+            pwdModifyResponse = ( PasswordModifyResponse ) adminConnection.extended( pwdModifyRequest );
             assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
             userEntry = adminConnection.lookup( "cn=User7,ou=system", "*", "+" );
             attribute = userEntry.get( "pwdHistory" );
@@ -514,14 +514,14 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             userConnection = getNetworkConnectionAs( ldapServer, userDn.toString(), "secret3" );
             PasswordPolicyDecorator passwordPolicyRequestControl =
                 new PasswordPolicyDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyImpl() );
-            PwdModifyRequest selfPwdModifyRequest = new PwdModifyRequestImpl();
+            PasswordModifyRequest selfPwdModifyRequest = new PasswordModifyRequestImpl();
             selfPwdModifyRequest.setUserIdentity( Dn.getBytes( userDn ) );
             selfPwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
             selfPwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
             selfPwdModifyRequest.addControl( passwordPolicyRequestControl );
 
             // Send the request to update own password
-            PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( selfPwdModifyRequest );
+            PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( selfPwdModifyRequest );
             // passwordTooShort is a constraint violation
             assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, pwdModifyResponse.getLdapResult().getResultCode() );
             Control passwordPolicyResponseControl = pwdModifyResponse
@@ -534,11 +534,11 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             addUser( adminConnection, "UserZZ", "secret4" );
             Dn otherUserDn = new Dn( "cn=UserZZ,ou=system" );
 
-            PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+            PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
             pwdModifyRequest.setUserIdentity( Dn.getBytes( otherUserDn ) );
             pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret4" ) );
             pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
-            pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+            pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( pwdModifyRequest );
             assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, pwdModifyResponse.getLdapResult().getResultCode() );
         }
         finally
@@ -566,12 +566,12 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         userConnection.setTimeOut( 0L );
 
         // Now change the password
-        PwdModifyRequest pwdModifyRequest = new PwdModifyRequestImpl();
+        PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
         pwdModifyRequest.setOldPassword( password );
         pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "secret1Bis" ) );
 
         // Send the request
-        PwdModifyResponse pwdModifyResponse = ( PwdModifyResponse ) userConnection.extended( pwdModifyRequest );
+        PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.SUCCESS, pwdModifyResponse.getLdapResult().getResultCode() );
 

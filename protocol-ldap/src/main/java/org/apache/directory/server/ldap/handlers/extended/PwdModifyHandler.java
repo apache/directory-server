@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyRequest;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyResponse;
-import org.apache.directory.api.ldap.extras.extended.pwdModify.PwdModifyResponseImpl;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
+import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponseImpl;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyRequest, PwdModifyResponse>
+public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModifyRequest, PasswordModifyResponse>
 {
     private static final Logger LOG = LoggerFactory.getLogger( PwdModifyHandler.class );
     public static final Set<String> EXTENSION_OIDS;
@@ -74,8 +74,8 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
     static
     {
         Set<String> set = new HashSet<String>( 2 );
-        set.add( PwdModifyRequest.EXTENSION_OID );
-        set.add( PwdModifyResponse.EXTENSION_OID );
+        set.add( PasswordModifyRequest.EXTENSION_OID );
+        set.add( PasswordModifyResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
@@ -85,7 +85,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
      */
     public String getOid()
     {
-        return PwdModifyRequest.EXTENSION_OID;
+        return PasswordModifyRequest.EXTENSION_OID;
     }
 
 
@@ -93,7 +93,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
      * Modify the user's credentials.
      */
     private void modifyUserPassword( CoreSession userSession, IoSession ioPipe, Dn userDn, byte[] oldPassword, byte[] newPassword,
-        PwdModifyRequest req )
+        PasswordModifyRequest req )
     {
         // First, check that the user exists
         try
@@ -104,7 +104,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             {
                 LOG.error( "Cannot find an entry for DN " + userDn );
                 // We can't find the entry in the DIT
-                ioPipe.write( new PwdModifyResponseImpl(
+                ioPipe.write( new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
 
                 return;
@@ -128,7 +128,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.error( "Cannot find an entry for DN " + userDn + ", exception : " + le.getMessage() );
             // We can't find the entry in the DIT
             ioPipe.write(
-                new PwdModifyResponseImpl(
+                new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
 
             return;
@@ -176,7 +176,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.error( "Cannot create a new password for user " + userDn + ", exception : " + userDn );
 
             // We can't modify the password
-            ioPipe.write( new PwdModifyResponseImpl(
+            ioPipe.write( new PasswordModifyResponseImpl(
                 req.getMessageId(), ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot generate a new password for user "
                     + userDn ) );
 
@@ -193,7 +193,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             LOG.debug( "Password modified for user " + userDn );
 
             // Ok, all done
-            PwdModifyResponseImpl pmrl = new PwdModifyResponseImpl(
+            PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
                 req.getMessageId(), ResultCodeEnum.SUCCESS );
 
             ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
@@ -221,7 +221,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
 
         // We can't modify the password
         LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + errorMessage );
-        PwdModifyResponseImpl errorPmrl = new PwdModifyResponseImpl(
+        PasswordModifyResponseImpl errorPmrl = new PasswordModifyResponseImpl(
             req.getMessageId(), errorCode, "Cannot modify the password for user "
                 + userDn + ", exception : " + errorMessage );
 
@@ -239,7 +239,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
     /**
      * {@inheritDoc}
      */
-    public void handleExtendedOperation( LdapSession requestor, PwdModifyRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession requestor, PasswordModifyRequest req ) throws Exception
     {
         LOG.debug( "Password modification requested" );
 
@@ -259,7 +259,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             {
                 LOG.error( "The user DN is invalid : " + userDn );
                 // The userIdentity is not a DN : return with an error code.
-                requestor.getIoSession().write( new PwdModifyResponseImpl(
+                requestor.getIoSession().write( new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX, "The user DN is invalid : " + userDn ) );
                 return;
             }
@@ -284,7 +284,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
                 {
                     // No : error
                     LOG.error( "Non-admin user cannot access another user's password to modify it" );
-                    requestor.getIoSession().write( new PwdModifyResponseImpl(
+                    requestor.getIoSession().write( new PasswordModifyResponseImpl(
                         req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS,
                         "Non-admin user cannot access another user's password to modify it" ) );
                 }
@@ -316,7 +316,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
             {
                 // We can't bind with the provided information : we thus can't
                 // change the password...
-                requestor.getIoSession().write( new PwdModifyResponseImpl(
+                requestor.getIoSession().write( new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.INVALID_CREDENTIALS ) );
 
                 return;
@@ -332,10 +332,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PwdModifyReque
     /**
      * {@inheritDoc}
      */
-    public static PwdModifyResponse getPwdModifyResponse()
+    public static PasswordModifyResponse getPwdModifyResponse()
     {
         // build the PwdModifyResponse message with replicationContexts
-        return new PwdModifyResponseImpl();
+        return new PasswordModifyResponseImpl();
     }
 
 
