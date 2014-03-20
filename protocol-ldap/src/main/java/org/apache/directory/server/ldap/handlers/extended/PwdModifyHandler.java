@@ -60,9 +60,6 @@ import org.slf4j.LoggerFactory;
  * An handler to manage PwdModifyRequest. Users can send a pwdModify request
  * for their own passwords, or for another people password. Only admin can
  * change someone else password without having to provide the original password.
- * Here rae the different use cases : <br/>
- * <ul>
- * </ul>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
