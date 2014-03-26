@@ -329,16 +329,6 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
     /**
      * {@inheritDoc}
      */
-    public static PasswordModifyResponse getPwdModifyResponse()
-    {
-        // build the PwdModifyResponse message with replicationContexts
-        return new PasswordModifyResponseImpl();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;

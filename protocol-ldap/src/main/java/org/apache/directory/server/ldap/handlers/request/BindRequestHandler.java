@@ -90,7 +90,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * @throws Exception If the authentication cannot be done
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void handleSimpleAuth( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         DirectoryService directoryService = ldapServer.getDirectoryService();
