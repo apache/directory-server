@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -116,7 +116,7 @@ public class MockOperationManager implements OperationManager
     {
         MockCursor cursor = new MockCursor( count );
         cursor.setSchemaManager( searchContext.getSession().getDirectoryService().getSchemaManager() );
-        return new BaseEntryFilteringCursor( cursor, searchContext, cursor.schemaManager );
+        return new EntryFilteringCursorImpl( cursor, searchContext, cursor.schemaManager );
     }
 
 

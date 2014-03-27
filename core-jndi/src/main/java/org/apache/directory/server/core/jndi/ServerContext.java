@@ -105,7 +105,7 @@ import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -547,12 +547,12 @@ public abstract class ServerContext implements EventContext
             if ( result )
             {
                 Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), Dn.EMPTY_DN );
-                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), 
+                return new EntryFilteringCursorImpl( new SingletonCursor<Entry>( emptyEntry ), 
                     searchContext, schemaManager );
             }
             else
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
             }
         }
         else

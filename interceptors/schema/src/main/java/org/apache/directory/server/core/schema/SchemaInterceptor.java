@@ -80,7 +80,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -1301,7 +1301,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                    return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
 
                 AttributeType nodeAt = node.getAttributeType();
@@ -1315,12 +1315,12 @@ public class SchemaInterceptor extends BaseInterceptor
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                         searchContext );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext,
+                    return new EntryFilteringCursorImpl( new SingletonCursor<Entry>( serverEntry ), searchContext,
                         schemaManager );
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                    return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
             }
             else if ( filter instanceof ObjectClassNode )
@@ -1329,14 +1329,14 @@ public class SchemaInterceptor extends BaseInterceptor
                 Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                     searchContext );
                 serverEntry.setDn( base );
-                EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
+                EntryFilteringCursor cursor = new EntryFilteringCursorImpl(
                     new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
                 return cursor;
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+        return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
     }
 
 

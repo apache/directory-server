@@ -67,7 +67,7 @@ import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -1119,7 +1119,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             Cursor<Entry> result = new EntryCursorAdaptor( this, searchResult );
 
-            return new BaseEntryFilteringCursor( result, searchContext, schemaManager );
+            return new EntryFilteringCursorImpl( result, searchContext, schemaManager );
         }
         catch ( LdapException le )
         {

@@ -49,10 +49,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements EntryFilteringCursor
+public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements EntryFilteringCursor
 {
     /** the logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( BaseEntryFilteringCursor.class );
+    private static final Logger log = LoggerFactory.getLogger( EntryFilteringCursorImpl.class );
 
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
@@ -89,7 +89,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
+    public EntryFilteringCursorImpl( Cursor<Entry> wrapped,
         SearchOperationContext operationContext, SchemaManager schemaManager, EntryFilter filter )
     {
         this( wrapped, operationContext, schemaManager, Collections.singletonList( filter ) );
@@ -105,7 +105,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filter a single filter to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped, SearchOperationContext operationContext,
+    public EntryFilteringCursorImpl( Cursor<Entry> wrapped, SearchOperationContext operationContext,
         SchemaManager schemaManager )
     {
         if ( IS_DEBUG )
@@ -129,7 +129,7 @@ public class BaseEntryFilteringCursor extends AbstractCursor<Entry> implements E
      * @param invocation the search operation invocation creating this Cursor
      * @param filters a list of filters to be used
      */
-    public BaseEntryFilteringCursor( Cursor<Entry> wrapped,
+    public EntryFilteringCursorImpl( Cursor<Entry> wrapped,
         SearchOperationContext operationContext,
         SchemaManager schemaManager,
         List<EntryFilter> filters )

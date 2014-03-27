@@ -46,7 +46,7 @@ import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameCompon
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -283,7 +283,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
 
         // Normalize the filter
@@ -292,7 +292,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
 
         // We now have to remove the (ObjectClass=*) filter if it's present, and to add the scope filter

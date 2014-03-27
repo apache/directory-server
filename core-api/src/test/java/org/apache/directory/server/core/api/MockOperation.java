@@ -31,7 +31,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.ReferralHandlingMode;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
@@ -58,7 +58,7 @@ public class MockOperation implements OperationContext
 
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
-        return new BaseEntryFilteringCursor( new MockCursor( count ), searchContext, schemaManager );
+        return new EntryFilteringCursorImpl( new MockCursor( count ), searchContext, schemaManager );
     }
 
 
