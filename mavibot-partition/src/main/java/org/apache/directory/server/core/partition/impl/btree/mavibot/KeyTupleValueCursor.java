@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
+public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 {
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
@@ -61,7 +61,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param arrayTree the ArrayTree to build a Tuple returning Cursor over
      * @param key the constant key for which values are returned
      */
-    public KeyTupleArrayCursor( ValueCursor<V> cursor, K key )
+    public KeyTupleValueCursor( ValueCursor<V> cursor, K key )
     {
         this.key = key;
 

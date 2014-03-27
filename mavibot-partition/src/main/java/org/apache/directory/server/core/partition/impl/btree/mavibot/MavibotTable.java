@@ -463,7 +463,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             {
                 ValueCursor<V> dupHolder = bt.getValues( key );
 
-                return new KeyTupleArrayCursor<K, V>( dupHolder, key );
+                return new KeyTupleValueCursor<K, V>( dupHolder, key );
             }
         }
         catch ( KeyNotFoundException knfe )
