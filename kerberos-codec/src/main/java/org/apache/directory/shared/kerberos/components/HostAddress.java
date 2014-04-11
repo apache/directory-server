@@ -246,7 +246,7 @@ public class HostAddress implements Asn1Object
         hostAddressLength += 1 + TLV.getNbBytes( addressLength ) + addressLength;
 
         // Compute the whole sequence length
-        hostAddressSeqLength = 1 + BerValue.getNbBytes( hostAddressLength ) + hostAddressLength;
+        hostAddressSeqLength = 1 + TLV.getNbBytes( hostAddressLength ) + hostAddressLength;
 
         return hostAddressSeqLength;
     }

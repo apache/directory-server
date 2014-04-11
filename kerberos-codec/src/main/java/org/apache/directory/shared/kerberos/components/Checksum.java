@@ -211,7 +211,7 @@ public class Checksum implements Asn1Object
         checksumLength += 1 + TLV.getNbBytes( checksumBytesLength ) + checksumBytesLength;
 
         // Compute the whole sequence length
-        int checksumSeqLength = 1 + BerValue.getNbBytes( checksumLength ) + checksumLength;
+        int checksumSeqLength = 1 + TLV.getNbBytes( checksumLength ) + checksumLength;
 
         return checksumSeqLength;
 

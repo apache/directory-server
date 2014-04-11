@@ -168,7 +168,7 @@ public class TransitedEncoding implements Asn1Object
         transitedEncodingLength += 1 + TLV.getNbBytes( contentsLength ) + contentsLength;
 
         // Compute the whole sequence length
-        int transitedEncodingSeqLength = 1 + BerValue.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
+        int transitedEncodingSeqLength = 1 + TLV.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
 
         return transitedEncodingSeqLength;
     }
