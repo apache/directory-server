@@ -324,7 +324,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         int nbUsers = 10000;
         
         System.out.println( "Sleeping..." );
-        Thread.sleep( 10000 );
+        //Thread.sleep( 10000 );
 
         long tadd0 = System.currentTimeMillis();
         long tadd = tadd0;
