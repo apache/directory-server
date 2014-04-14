@@ -164,7 +164,7 @@ public class PaEncTsEnc implements Asn1Object
         }
 
         // Compute the whole sequence length
-        return 1 + BerValue.getNbBytes( paEncTsEncLength ) + paEncTsEncLength;
+        return 1 + TLV.getNbBytes( paEncTsEncLength ) + paEncTsEncLength;
     }
 
 
