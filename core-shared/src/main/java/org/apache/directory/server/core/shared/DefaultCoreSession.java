@@ -1333,7 +1333,7 @@ public class DefaultCoreSession implements CoreSession
         PersistedBTreeConfiguration<Entry, String> config = new PersistedBTreeConfiguration<Entry, String>();
         config.setName( UUID.randomUUID().toString() );
         config.setKeySerializer( keySerializer );
-        config.setValueSerializer( new StringSerializer() );
+        config.setValueSerializer( StringSerializer.INSTANCE );
 
         BTree<Entry, String> btree = BTreeFactory.createPersistedBTree( config );
 
