@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.ldap.StartTlsRequest;
 
+import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequestImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
-import org.apache.directory.api.ldap.model.message.ExtendedRequestImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -100,7 +100,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     {
         try
         {
-            ExtendedRequest extendedRequest = new ExtendedRequestImpl();
+            ExtendedRequest extendedRequest = new StartTlsRequestImpl();
             extendedRequest.setRequestName( StartTlsRequest.OID );
 
             ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );

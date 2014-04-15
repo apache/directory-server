@@ -33,9 +33,10 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.directory.api.ldap.codec.api.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequest;
+import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponseImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
-import org.apache.directory.api.ldap.model.message.ExtendedResponseImpl;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.util.Strings;
@@ -58,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
 {
-    public static final String EXTENSION_OID = "1.3.6.1.4.1.1466.20037";
+    public static final String EXTENSION_OID = StartTlsRequest.EXTENSION_OID;
 
     private static final Set<String> EXTENSION_OIDS;
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsHandler.class );
@@ -81,6 +82,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         IoFilterChain chain = session.getIoSession().getFilterChain();
         SslFilter sslFilter = ( SslFilter ) chain.get( "sslFilter" );
+        
         if ( sslFilter == null )
         {
             sslFilter = new SslFilter( sslContext );
@@ -98,7 +100,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         }
 
         ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
-            LdapApiServiceFactory.getSingleton(), new ExtendedResponseImpl( req.getMessageId() ) );
+            LdapApiServiceFactory.getSingleton(), new StartTlsResponseImpl( req.getMessageId() ) );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
