@@ -93,39 +93,39 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public void add( AttributeType attributeType, byte[]... values ) throws LdapException
+    public Entry add( AttributeType attributeType, byte[]... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, String... values ) throws LdapException
+    public Entry add( AttributeType attributeType, String... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Entry add( AttributeType attributeType, Value<?>... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
+    public Entry add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, String... values ) throws LdapException
+    public Entry add( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
-    public void add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Entry add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
     {
-        clonedEntry.add( attributeType, values );
+        return clonedEntry.add( attributeType, values );
     }
 
 
@@ -240,27 +240,27 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public void add( Attribute... attributes ) throws LdapException
+    public Entry add( Attribute... attributes ) throws LdapException
     {
-        clonedEntry.add( attributes );
+        return clonedEntry.add( attributes );
     }
 
 
-    public void add( String upId, String... values ) throws LdapException
+    public Entry add( String upId, String... values ) throws LdapException
     {
-        clonedEntry.add( upId, values );
+        return clonedEntry.add( upId, values );
     }
 
 
-    public void add( String upId, byte[]... values ) throws LdapException
+    public Entry add( String upId, byte[]... values ) throws LdapException
     {
-        clonedEntry.add( upId, values );
+        return clonedEntry.add( upId, values );
     }
 
 
-    public void add( String upId, Value<?>... values ) throws LdapException
+    public Entry add( String upId, Value<?>... values ) throws LdapException
     {
-        clonedEntry.add( upId, values );
+        return clonedEntry.add( upId, values );
     }
 
 
