@@ -31,11 +31,15 @@ import java.util.List;
 
 import org.apache.directory.api.ldap.model.cursor.CursorLdapReferralException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -112,91 +116,129 @@ import org.junit.runner.RunWith;
 })
 public class SearchWithReferralsTest extends AbstractLdapTestUnit
 {
-private LdapNetworkConnection connection;
-
-
-@Before
-public void setupReferrals() throws Exception
-{
-    String ldif =
-        "dn: c=europ,ou=Countries,ou=system\n" +
-            "objectClass: top\n" +
-            "objectClass: referral\n" +
-            "objectClass: extensibleObject\n" +
-            "c: europ\n" +
-            "ref: ldap://localhost:52489/c=france,ou=system\n\n" +
-
-            "dn: c=america,ou=Countries,ou=system\n" +
-            "objectClass: top\n" +
-            "objectClass: referral\n" +
-            "objectClass: extensibleObject\n" +
-            "c: america\n" +
-            "ref: ldap://localhost:52489/c=usa,ou=system\n\n";
-
-    LdifReader reader = new LdifReader( new StringReader( ldif ) );
-
-    while ( reader.hasNext() )
+    private LdapNetworkConnection connection;
+    
+    
+    @Before
+    public void setupReferrals() throws Exception
     {
-        LdifEntry entry = reader.next();
-        getLdapServer().getDirectoryService().getAdminSession().add(
-            new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
-    }
-
-    reader.close();
-
-    connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
-}
-
-
-@After
-public void shutdown() throws Exception
-{
-    LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
-}
-
-
-/**
- * Test of an search operation with a referral
- *
- * search for "cn=alex karasulu" on "c=america, ou=system"
- * we should get a referral URL thrown, which point to
- * "c=usa, ou=system", and ask for a subtree search
- */
-@Test
-public void testSearchWithReferralThrow() throws Exception
-{
-    EntryCursor cursor = connection.search( "ou=Countries,ou=system", "(objectClass=*)",
-        SearchScope.SUBTREE, "*", "+" );
-    int count = 0;
-    Entry entry = null;
-    List<String> refs = new ArrayList<String>();
-
-    while ( cursor.next() )
-    {
-        try
+        String ldif =
+            "dn: c=europ,ou=Countries,ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: referral\n" +
+                "objectClass: extensibleObject\n" +
+                "c: europ\n" +
+                "ref: ldap://localhost:52489/c=france,ou=system\n\n" +
+    
+                "dn: c=america,ou=Countries,ou=system\n" +
+                "objectClass: top\n" +
+                "objectClass: referral\n" +
+                "objectClass: extensibleObject\n" +
+                "c: america\n" +
+                "ref: ldap://localhost:52489/c=usa,ou=system\n\n";
+    
+        LdifReader reader = new LdifReader( new StringReader( ldif ) );
+    
+        while ( reader.hasNext() )
         {
-            entry = cursor.get();
+            LdifEntry entry = reader.next();
+            getLdapServer().getDirectoryService().getAdminSession().add(
+                new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
+        }
+    
+        reader.close();
+    
+        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+    }
+    
+    
+    @After
+    public void shutdown() throws Exception
+    {
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
+    }
+    
+    
+    /**
+     * Test of an search operation with a referral
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralThrow() throws Exception
+    {
+        EntryCursor cursor = connection.search( "ou=Countries,ou=system", "(objectClass=*)",
+            SearchScope.SUBTREE, "*", "+" );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+    
+        while ( cursor.next() )
+        {
+            try
+            {
+                entry = cursor.get();
+    
+                assertNotNull( entry );
+                count++;
+            }
+            catch ( CursorLdapReferralException clre )
+            {
+                count++;
+    
+                do
+                {
+                    String ref = clre.getReferralInfo();
+                    refs.add( ref );
+                }
+                while ( clre.skipReferral() );
+            }
+        }
+    
+        assertEquals( 3, count );
+        assertEquals( 2, refs.size() );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=usa,ou=system??sub" ) );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=france,ou=system??sub" ) );
+        cursor.close();
+    }
+    
+    
+    /**
+     * Test of an search operation with a referral and a follow
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralAsIs() throws Exception
+    {
+        // We will ask the referal to be returned as is
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new Dn( "ou=Countries,ou=system" ) );
+        searchRequest.setFilter( "(objectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "*", "+" );
+        
+        searchRequest.ignoreReferrals();
+        
+        SearchCursor cursor = connection.search( searchRequest );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+    
+        while ( cursor.next() )
+        {
+            entry = cursor.getEntry();
 
             assertNotNull( entry );
             count++;
         }
-        catch ( CursorLdapReferralException clre )
-        {
-            count++;
-
-            do
-            {
-                String ref = clre.getReferralInfo();
-                refs.add( ref );
-            }
-            while ( clre.skipReferral() );
-        }
+    
+        assertEquals( 3, count );
+        assertEquals( 0, refs.size() );
+        cursor.close();
     }
-
-    assertEquals( 3, count );
-    assertEquals( 2, refs.size() );
-    assertTrue( refs.contains( "ldap://localhost:52489/c=usa,ou=system??sub" ) );
-    assertTrue( refs.contains( "ldap://localhost:52489/c=france,ou=system??sub" ) );
-    cursor.close();
-}
 }
