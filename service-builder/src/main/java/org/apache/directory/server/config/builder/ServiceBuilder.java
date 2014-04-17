@@ -571,7 +571,6 @@ public class ServiceBuilder
     public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
         Set<Authenticator> authenticators = new HashSet<Authenticator>( list.size() );
-        int i = 0;
 
         for ( AuthenticatorBean authenticatorBean : list )
         {
@@ -1034,7 +1033,7 @@ public class ServiceBuilder
                 try
                 {
                     Class<?> extendedOpClass = Class.forName( extendedpHandlerBean.getExtendedOpHandlerClass() );
-                    ExtendedOperationHandler extOpHandler = ( ExtendedOperationHandler ) extendedOpClass.newInstance();
+                    ExtendedOperationHandler<?, ?> extOpHandler = ( ExtendedOperationHandler<?, ?> ) extendedOpClass.newInstance();
                     ldapServer.addExtendedOperationHandler( extOpHandler );
                 }
                 catch ( Exception e )
