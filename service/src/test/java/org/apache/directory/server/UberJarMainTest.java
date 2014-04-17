@@ -103,6 +103,8 @@ public class UberJarMainTest
         {
             public void run()
             {
+                LdapNetworkConnection connection = null;
+                
                 try
                 {
                     // Creating a connection on the created server
@@ -112,7 +114,7 @@ public class UberJarMainTest
                     configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
                     configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
                     configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector( null ) );
-                    LdapNetworkConnection connection = new LdapNetworkConnection( configuration );
+                    connection = new LdapNetworkConnection( configuration );
                     connection.loadSchema();
 
                     // Binding on the connection
@@ -131,6 +133,17 @@ public class UberJarMainTest
                 catch ( Exception e )
                 {
                     verified = false;
+                }
+                finally
+                {
+                    try
+                    {
+                        connection.close();
+                    }
+                    catch ( Exception e )
+                    {
+                        // nothing we can do
+                    }
                 }
             };
         };
