@@ -195,6 +195,8 @@ public void testLookup() throws Exception
         // Use the default list of binary Attributes
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+        
+        myConnection.close();
     }
 
 
@@ -265,5 +267,7 @@ public void testLookup() throws Exception
         // Try to retrieve a binary attribute : it should be seen as a byte[]
         Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+        
+        ldapConnection.close();
     }
 }
