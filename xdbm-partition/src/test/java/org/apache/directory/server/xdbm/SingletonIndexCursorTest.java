@@ -20,9 +20,9 @@
 package org.apache.directory.server.xdbm;
 
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -66,7 +66,7 @@ public class SingletonIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        Cursor cursor = new SingletonIndexCursor<String>( indexEntry );
+        Cursor<IndexEntry<String, String>> cursor = new SingletonIndexCursor<String>( indexEntry );
 
         cursor.close();
     }

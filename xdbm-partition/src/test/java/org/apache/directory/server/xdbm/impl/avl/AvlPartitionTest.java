@@ -74,7 +74,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("unchecked")
 public class AvlPartitionTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class );
@@ -143,8 +142,8 @@ public class AvlPartitionTest
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
-        partition.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        partition.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.UID_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
         partition.initialize();
