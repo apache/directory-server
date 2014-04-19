@@ -136,8 +136,8 @@ public class OrCursorTest extends AbstractCursorTest
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ( ( Partition ) store ).initialize();
 
@@ -377,7 +377,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         try
         {
-            cursor.after( new IndexEntry() );
+            cursor.after( new IndexEntry<String, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -386,7 +386,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         try
         {
-            cursor.before( new IndexEntry() );
+            cursor.before( new IndexEntry<String, Long>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

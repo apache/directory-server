@@ -127,8 +127,8 @@ public class SubstringTest
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
 
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         ( ( Partition ) store ).setSuffixDn( suffixDn );
