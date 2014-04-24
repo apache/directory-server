@@ -1435,10 +1435,13 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                 break;
 
                             case REPLACE_ATTRIBUTE:
-                                // Not supported
-                                String msg = "Cannot replace an administrative role, the opertion is not supported";
-                                LOG.error( msg );
-                                throw new LdapUnwillingToPerformException( msg );
+                                if( ! ( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() ) )
+                                {
+                                    // Not supported in non-replication related operations
+                                    String msg = "Cannot replace an administrative role, the opertion is not supported";
+                                    LOG.error( msg );
+                                    throw new LdapUnwillingToPerformException( msg );
+                                }
                         }
                     }
                 }

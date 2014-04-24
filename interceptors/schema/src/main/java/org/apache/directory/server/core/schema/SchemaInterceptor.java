@@ -694,8 +694,12 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( Dn dn, Entry currentEntry, List<Modification> mods ) throws LdapException
+    private void checkModifyEntry( ModifyOperationContext modifyContext ) throws LdapException
     {
+        Dn dn = modifyContext.getDn();
+        Entry currentEntry = modifyContext.getEntry();
+        List<Modification> mods = modifyContext.getModItems();
+
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
         // - The value is syntaxically correct
@@ -710,15 +714,21 @@ public class SchemaInterceptor extends BaseInterceptor
             AttributeType attributeType = attribute.getAttributeType();
 
             // We don't allow modification of operational attributes
-            if ( !attributeType.isUserModifiable()
-                && ( !attributeType.equals( MODIFIERS_NAME_AT )
+            if ( !attributeType.isUserModifiable() )
+            {
+                if( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() )
+                {
+                    // this is a replication related modification, allow the operation
+                }
+                else if( ( !attributeType.equals( MODIFIERS_NAME_AT )
                     && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
                     && ( !attributeType.equals( ENTRY_CSN_AT ) )
                     && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
-            {
-                String msg = I18n.err( I18n.ERR_52, attributeType );
-                LOG.error( msg );
-                throw new LdapNoPermissionException( msg );
+                {
+                    String msg = I18n.err( I18n.ERR_52, attributeType );
+                    LOG.error( msg );
+                    throw new LdapNoPermissionException( msg );
+                }
             }
 
             switch ( mod.getOperation() )
@@ -1181,9 +1191,7 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        Entry entry = modifyContext.getEntry();
-        List<Modification> modifications = modifyContext.getModItems();
-        checkModifyEntry( dn, entry, modifications );
+        checkModifyEntry( modifyContext );
 
         next( modifyContext );
     }
