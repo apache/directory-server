@@ -33,7 +33,7 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class KeytabEncoder
+public class KeytabEncoder
 {
     /**
      * Tells if the keytabCersion is 0x0501 or 0x0502
@@ -66,7 +66,7 @@ class KeytabEncoder
      * @param entries
      * @return The ByteBuffer.
      */
-    ByteBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
+    public ByteBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
     {
         List<ByteBuffer> keytabEntryBuffers = new ArrayList<ByteBuffer>();;
         short version = getKeytabVersion( keytabVersion );

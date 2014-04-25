@@ -82,7 +82,7 @@ class KeytabDecoder
     {
         String principalName = getPrincipalName( buffer );
 
-        long principalType = buffer.getInt();
+        int principalType = buffer.getInt();
 
         long time = buffer.getInt();
         KerberosTime timeStamp = new KerberosTime( time * 1000 );

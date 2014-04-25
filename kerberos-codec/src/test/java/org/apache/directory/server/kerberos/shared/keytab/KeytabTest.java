@@ -163,7 +163,7 @@ public class KeytabTest
     private KeytabEntry getEntry1() throws ParseException
     {
         String principalName = "HTTP/www.verisign.com@EXAMPLE.COM";
-        long principalType = 1;
+        int principalType = 1;
 
         String zuluTime = "20070217235745Z";
         Date date = null;

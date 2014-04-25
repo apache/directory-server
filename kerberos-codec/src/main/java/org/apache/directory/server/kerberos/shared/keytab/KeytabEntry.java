@@ -33,7 +33,7 @@ public class KeytabEntry
 {
     private String principalName;
 
-    private long principalType;
+    private int principalType;
 
     private KerberosTime timeStamp;
 
@@ -51,7 +51,7 @@ public class KeytabEntry
      * @param keyVersion
      * @param key
      */
-    public KeytabEntry( String principalName, long principalType, KerberosTime timeStamp, byte keyVersion,
+    public KeytabEntry( String principalName, int principalType, KerberosTime timeStamp, byte keyVersion,
         EncryptionKey key )
     {
         this.principalName = principalName;
@@ -92,7 +92,7 @@ public class KeytabEntry
     /**
      * @return The principalType.
      */
-    public long getPrincipalType()
+    public int getPrincipalType()
     {
         return principalType;
     }
