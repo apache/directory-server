@@ -535,9 +535,10 @@ public class AuthenticationService
 
             ticketFlags.setFlag( TicketFlag.POSTDATED );
             ticketFlags.setFlag( TicketFlag.INVALID );
-            encTicketPart.setStartTime( startTime );
         }
 
+        encTicketPart.setStartTime( startTime );
+        
         long till = 0;
 
         if ( request.getKdcReqBody().getTill().getTime() == 0 )
