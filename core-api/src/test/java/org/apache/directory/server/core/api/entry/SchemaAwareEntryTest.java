@@ -3637,7 +3637,7 @@ public class SchemaAwareEntryTest
             "Entry\n" +
                 "    dn[n]: dc=example,dc=com\n" +
                 "    ObjectClass: top\n" +
-                "    ObjectClass: person\n\n" +
+                "    ObjectClass: person\n" +
                 "    UserPassword: 0x61 0x62 \n" +
                 "    UserPassword: 0x62 \n" +
                 "    UserPassword: ''";
