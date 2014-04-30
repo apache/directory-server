@@ -24,6 +24,7 @@ package org.apache.directory.server.dns.io.decoder;
 import java.net.InetAddress;
 import java.util.Map;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Before;
@@ -61,6 +62,6 @@ public class IPv6RecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) address.getAddress().length );
-        assertEquals( address, attributes.get( DnsAttribute.IP_ADDRESS ) );
+        assertEquals( address, attributes.get( Strings.toLowerCase( DnsAttribute.IP_ADDRESS ) ) );
     }
 }

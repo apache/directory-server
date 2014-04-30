@@ -23,10 +23,12 @@ package org.apache.directory.server.dns.io.decoder;
 
 import java.util.Map;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -69,7 +71,7 @@ public class MailExchangeRecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );
-        assertEquals( preference, attributes.get( DnsAttribute.MX_PREFERENCE ) );
-        assertEquals( domainName, attributes.get( DnsAttribute.DOMAIN_NAME ) );
+        assertEquals( preference, attributes.get( Strings.toLowerCase( DnsAttribute.MX_PREFERENCE ) ) );
+        assertEquals( domainName, attributes.get( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ) ) );
     }
 }
