@@ -47,6 +47,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +70,11 @@ import org.junit.runner.RunWith;
         "objectClass: inetorgPerson",
         "cn: modDn",
         "employeeNumber: test",
-        "sn: snModDn"
+        "sn: snModDn",
+        "",
+        "dn: ou=container,ou=system", 
+        "objectClass: organizationalUnit", 
+        "ou: container"
     })
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
@@ -77,6 +82,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=modDn,ou=system";
     private static final String DN_EMPLOYEE = "employeeNumber=test,ou=system";
+    private static final String DN_CONTAINER = "ou=container,ou=system";
     private LdapNetworkConnection connection;
     private CoreSession session;
 
@@ -193,5 +199,46 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         assertTrue( session.exists( newDn ) );
 
         assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
+    }
+
+
+    @Ignore
+    @Test
+    public void testMoveAndRenameShouldDeleteOldRdn() throws Exception
+    {
+        Dn newDn = new Dn( "cn=modifiedDn", DN_CONTAINER );
+        connection.moveAndRename( new Dn( DN ), newDn );
+
+        assertTrue( session.exists( newDn ) );
+        Entry entry = session.lookup( newDn, "*" );
+        assertTrue( entry.contains( "cn", "modifiedDn" ) );
+        assertFalse( entry.contains( "cn", "modDn" ) );
+    }
+
+
+    @Ignore
+    @Test
+    public void testMoveAndRenameWithDeleteOldRdnShouldDeleteOldRdn() throws Exception
+    {
+        Dn newDn = new Dn( "cn=modifiedDn", DN_CONTAINER );
+        connection.moveAndRename( new Dn( DN ), newDn, true );
+
+        assertTrue( session.exists( newDn ) );
+        Entry entry = session.lookup( newDn, "*" );
+        assertTrue( entry.contains( "cn", "modifiedDn" ) );
+        assertFalse( entry.contains( "cn", "modDn" ) );
+    }
+
+
+    @Test
+    public void testMoveAndRenameWithoutDeleteOldRdnShouldNotDeleteOldRdn() throws Exception
+    {
+        Dn newDn = new Dn( "cn=modifiedDn", DN_CONTAINER );
+        connection.moveAndRename( new Dn( DN ), newDn, false );
+
+        assertTrue( session.exists( newDn ) );
+        Entry entry = session.lookup( newDn, "*" );
+        assertTrue( entry.contains( "cn", "modifiedDn" ) );
+        assertTrue( entry.contains( "cn", "modDn" ) );
     }
 }
