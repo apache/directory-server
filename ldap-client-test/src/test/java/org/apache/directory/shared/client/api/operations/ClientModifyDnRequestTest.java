@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequestImpl;
 import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
@@ -57,12 +58,25 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @ApplyLdifs(
-    { "dn: cn=modDn,ou=system", "objectClass: person", "cn: modDn", "sn: snModDn" })
+    { 
+        "dn: cn=modDn,ou=system", 
+        "objectClass: person", 
+        "cn: modDn", 
+        "sn: snModDn",
+        "",
+        "dn: employeeNumber=test,ou=system", 
+        "objectClass: person", 
+        "objectClass: inetorgPerson",
+        "cn: modDn",
+        "employeeNumber: test",
+        "sn: snModDn"
+    })
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
 {
     private static final String DN = "cn=modDn,ou=system";
+    private static final String DN_EMPLOYEE = "employeeNumber=test,ou=system";
     private LdapNetworkConnection connection;
     private CoreSession session;
 
@@ -86,7 +100,23 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     public void testRename() throws Exception
     {
         connection.rename( DN, "cn=modifyDnWithString" );
+        Entry entry = session.lookup( new Dn( "cn=modifyDnWithString,ou=system" ), "*" );
         assertTrue( session.exists( new Dn( "cn=modifyDnWithString,ou=system" ) ) );
+        assertTrue( entry.contains( "cn", "modifyDnWithString" ) );
+        assertFalse( entry.contains( "cn", "modDn" ) );
+    }
+
+
+    /**
+     * Check that if we try to modify the RDN which contains a single-value attribute,
+     * and if we set the deleteOldRdn to false (leading to the injection of a new single-value
+     * attribute while we keep the old one), then we get a failure.
+     * @throws Exception
+     */
+    @Test(expected=LdapInvalidAttributeValueException.class)
+    public void testRenameSingleValue() throws Exception
+    {
+        connection.rename( DN_EMPLOYEE, "employeeNumber=newValue", false );
     }
 
 
