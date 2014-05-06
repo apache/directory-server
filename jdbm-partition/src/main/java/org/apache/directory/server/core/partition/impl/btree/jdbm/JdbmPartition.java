@@ -150,6 +150,34 @@ public class JdbmPartition extends AbstractBTreePartition
                 throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
             }
 
+            // get all index db files first
+            File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
+
+            // get the names of the db files also
+            List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
+
+            // then add all index objects to a list
+            List<String> allIndices = new ArrayList<String>();
+
+            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
+            
+            for ( Index<?, String> index : getIndexedAttributes() )
+            {
+                // Index won't be initialized at this time, so lookup AT registry to get the OID
+                String oid = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ).getOid();
+                allIndices.add( oid );
+                
+                // take the part after removing .db from the
+                String name = oid + JDBM_DB_FILE_EXTN;
+                
+                // if the name doesn't exist in the list of index DB files
+                // this is a new index and we need to build it
+                if ( !indexDbFileNameList.contains( name ) )
+                {
+                    indexToBuild.add( index );
+                }
+            }
+
             // Initialize the indexes
             super.doInit();
 
@@ -174,42 +202,6 @@ public class JdbmPartition extends AbstractBTreePartition
 
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable( recMan, schemaManager );
-
-            // get all index db files first
-            File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
-
-            // get the names of the db files also
-            List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
-
-            // then add all index objects to a list
-            List<String> allIndices = new ArrayList<String>();
-
-            for ( Index<?, String> index : systemIndices.values() )
-            {
-                allIndices.add( index.getAttribute().getOid() );
-            }
-
-            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
-
-            // this loop is used for two purposes
-            // one for collecting all user indices
-            // two for finding a new index to be built
-            // just to avoid another iteration for determining which is the new index
-            for ( Index<?, String> index : userIndices.values() )
-            {
-                String indexOid = index.getAttribute().getOid();
-                allIndices.add( indexOid );
-
-                // take the part after removing .db from the
-                String name = indexOid + JDBM_DB_FILE_EXTN;
-
-                // if the name doesn't exist in the list of index DB files
-                // this is a new index and we need to build it
-                if ( !indexDbFileNameList.contains( name ) )
-                {
-                    indexToBuild.add( index );
-                }
-            }
 
             if ( indexToBuild.size() > 0 )
             {
@@ -363,7 +355,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 {
                     for ( Value<?> value : entryAttr )
                     {
-                        index.add( value.getValue(), id );
+                        index.add( value.getNormValue(), id );
                     }
 
                     // Adds only those attributes that are indexed
