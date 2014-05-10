@@ -45,12 +45,15 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Tests the CreateLdapServerRule.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 @CreateDS(name = "classDS",
     enableChangeLog = true,
     partitions =
@@ -88,19 +91,12 @@ import org.slf4j.LoggerFactory;
 public class TestCreateLdapServerRule
 {
     private static Logger LOG = LoggerFactory.getLogger( TestCreateLdapServerRule.class );
-    public static CreateDsRule classCreateDsRule = new CreateDsRule();
-    public static CreateLdapServerRule classCreateLdapServerRule = new CreateLdapServerRule(
-        classCreateDsRule );
     @ClassRule
-    public static TestRule classRuleChain = RuleChain.outerRule( classCreateDsRule )
-        .around( classCreateLdapServerRule );
+    public static CreateLdapServerRule classCreateLdapServerRule = new CreateLdapServerRule();
     
-    public CreateDsRule createDsRule = new CreateDsRule( classCreateDsRule );
-    public CreateLdapServerRule createLdapServerRule = new CreateLdapServerRule(
-        createDsRule, classCreateLdapServerRule );
     @Rule
-    public TestRule ruleChain = RuleChain.outerRule( createDsRule )
-        .around( createLdapServerRule );
+    public CreateLdapServerRule createLdapServerRule = new CreateLdapServerRule(
+        classCreateLdapServerRule );
     
     
     @Test
@@ -213,11 +209,11 @@ public class TestCreateLdapServerRule
     @Test
     public void testNetworkConnection()
     {
-        assertEquals( classCreateDsRule.getDirectoryService(), createDsRule.getDirectoryService() );
+        assertEquals( classCreateLdapServerRule.getDirectoryService(), createLdapServerRule.getDirectoryService() );
         assertEquals( classCreateLdapServerRule.getLdapServer(), createLdapServerRule.getLdapServer() );
         LdapServer ldapServer = createLdapServerRule.getLdapServer();
         DirectoryService directoryService = ldapServer.getDirectoryService();
-        assertEquals( classCreateDsRule.getDirectoryService(), directoryService );
+        assertEquals( classCreateLdapServerRule.getDirectoryService(), directoryService );
     
         LdapConnection ldapConnection = null;
         try

@@ -41,6 +41,11 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 
+/**
+ * Tests the CreateDsRule.
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
 @CreateDS(name = "classDS",
     enableChangeLog = true,
     partitions =

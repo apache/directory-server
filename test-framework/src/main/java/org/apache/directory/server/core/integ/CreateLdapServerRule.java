@@ -36,50 +36,48 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class CreateLdapServerRule implements TestRule
+public class CreateLdapServerRule extends CreateDsRule
 {
     private static Logger LOG = LoggerFactory.getLogger( CreateLdapServerRule.class );
 
-    private CreateDsRule createDsRule;
+    private CreateLdapServerRule classCreateLdapServerRule;
     private LdapServer ldapServer;
-    private CreateLdapServerRule outerCreateLdapServerRule;
 
 
-    public CreateLdapServerRule( CreateDsRule createDsRule )
+    public CreateLdapServerRule()
     {
-        this( createDsRule, null );
+        this( null );
     }
 
 
-    public CreateLdapServerRule( CreateDsRule createDsRule, CreateLdapServerRule createLdapServerRule )
+    public CreateLdapServerRule( CreateLdapServerRule classCreateLdapServerRule )
     {
-        this.createDsRule = createDsRule;
-        this.outerCreateLdapServerRule = createLdapServerRule;
-    }
-
-
-    public LdapServer getLdapServer()
-    {
-        return ldapServer == null
-            ? ( outerCreateLdapServerRule == null ? null : outerCreateLdapServerRule.getLdapServer() )
-            : ldapServer;
+        super( classCreateLdapServerRule );
+        this.classCreateLdapServerRule = classCreateLdapServerRule;
     }
 
 
     @Override
     public Statement apply( final Statement base, final Description description )
     {
+        return super.apply( buildStatement( base, description ), description );
+    }
+
+
+    private Statement buildStatement( final Statement base, final Description description )
+    {
         final CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
         if ( createLdapServer == null )
         {
-            return new Statement() 
+            return new Statement()
             {
                 @Override
                 public void evaluate() throws Throwable
                 {
                     LdapServer ldapServer = getLdapServer();
-                    DirectoryService directoryService = createDsRule.getDirectoryService();
-                    if ( ldapServer != null && directoryService != ldapServer.getDirectoryService() ) {
+                    DirectoryService directoryService = getDirectoryService();
+                    if ( ldapServer != null && directoryService != ldapServer.getDirectoryService() )
+                    {
                         LOG.trace( "Changing to new directory service" );
                         DirectoryService oldDirectoryService = ldapServer.getDirectoryService();
                         ldapServer.setDirectoryService( directoryService );
@@ -93,9 +91,10 @@ public class CreateLdapServerRule implements TestRule
                             LOG.trace( "Reverting to old directory service" );
                             ldapServer.setDirectoryService( oldDirectoryService );
                         }
-                   
+
                     }
-                    else {
+                    else
+                    {
                         LOG.trace( "no @CreateLdapServer on: {}", description );
                         base.evaluate();
                     }
@@ -110,8 +109,8 @@ public class CreateLdapServerRule implements TestRule
                 public void evaluate() throws Throwable
                 {
                     LOG.trace( "Creating ldap server" );
-                    ldapServer = ServerAnnotationProcessor.createLdapServer( description, 
-                        createDsRule.getDirectoryService() );
+                    ldapServer = ServerAnnotationProcessor.createLdapServer( description,
+                        getDirectoryService() );
 
                     try
                     {
@@ -125,5 +124,13 @@ public class CreateLdapServerRule implements TestRule
                 }
             };
         }
+    }
+
+
+    public LdapServer getLdapServer()
+    {
+        return ldapServer == null
+            ? ( classCreateLdapServerRule == null ? null : classCreateLdapServerRule.getLdapServer() )
+            : ldapServer;
     }
 }

@@ -1,0 +1,103 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+#   EXAMPLE.COM is reserved for testing according to this RFC:
+#
+#   http://www.rfc-editor.org/rfc/rfc2606.txt
+#
+
+version: 1
+
+## people
+dn: ou=people, dc=example, dc=com
+objectclass: organizationalUnit
+objectclass: top
+ou: people
+
+dn: uid=kermitthefrog, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Kermit The Frog
+sn: The Frog
+givenName: Kermit
+mail: kermitthefrog@muppets.com
+uid: kermitthefrog
+userPassword: set4now
+
+dn: uid=misspiggy, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Miss Piggy
+sn: Piggy
+givenName: Miss
+mail: misspiggy@muppets.com
+uid: misspiggy
+userPassword: set4now
+
+dn: uid=fozziebear, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Fozzie Bear
+sn: Bear
+givenName: Fozzie
+mail: fozziebear@muppets.com
+uid: fozziebear
+userPassword: set4now
+
+dn: uid=gonzothegreat, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Gonzo The Great
+sn: The Great
+givenName: Gonzo
+mail: gonzothegreat@muppets.com
+uid: gonzothegreat
+userPassword: set4now
+
+dn: uid=animal, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Animal
+sn: Just Animal
+givenName: Animal
+mail: animal@muppets.com
+uid: animal
+userPassword: set4now
+
+dn: uid=walter, ou=people, dc=example, dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: Walter
+sn: No Name
+givenName: Walter
+mail: walter@muppets.com
+uid: walter
+userPassword: set4now
+
