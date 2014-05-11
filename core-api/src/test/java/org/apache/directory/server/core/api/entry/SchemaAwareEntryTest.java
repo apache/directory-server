@@ -3640,7 +3640,7 @@ public class SchemaAwareEntryTest
                 "    ObjectClass: person\n" +
                 "    UserPassword: 0x61 0x62 \n" +
                 "    UserPassword: 0x62 \n" +
-                "    UserPassword: ''";
+                "    UserPassword: ''\n";
 
         assertEquals( expected, entry.toString() );
     }
