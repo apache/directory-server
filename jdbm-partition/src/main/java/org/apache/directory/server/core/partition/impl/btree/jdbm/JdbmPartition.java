@@ -65,6 +65,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -161,6 +162,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
             List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
             
+            // Iterate on the declared indexes
             for ( Index<?, String> index : getIndexedAttributes() )
             {
                 // Index won't be initialized at this time, so lookup AT registry to get the OID
@@ -175,6 +177,22 @@ public class JdbmPartition extends AbstractBTreePartition
                 if ( !indexDbFileNameList.contains( name ) )
                 {
                     indexToBuild.add( index );
+                }
+            }
+            
+            // Don't forget to add the system indexes
+            for ( String systemIndex : Store.SYS_INDEX_OIDS )
+            {
+                allIndices.add( systemIndex );
+                
+                // take the part after removing .db from the
+                String name = systemIndex + JDBM_DB_FILE_EXTN;
+                
+                // if the name doesn't exist in the list of index DB files
+                // this is a new index and we need to build it
+                if ( !indexDbFileNameList.contains( name ) )
+                {
+                    indexToBuild.add( systemIndices.get( systemIndex ) );
                 }
             }
 
