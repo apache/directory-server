@@ -250,6 +250,15 @@ ads-interceptorclassname: org.apache.directory.server.core.journal.JournalInterc
 ads-interceptorid: journalInterceptor
 ads-enabled: TRUE
 
+dn: ads-interceptorId=numberInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 17
+ads-interceptorclassname: org.apache.directory.server.core.number.NumberIncrementingInterceptor
+ads-interceptorId: numberInterceptor
+ads-enabled: FALSE
+
 dn: ou=partitions,ads-directoryServiceId=default,ou=config
 ou: partitions
 objectclass: organizationalUnit

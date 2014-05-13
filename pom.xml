@@ -603,6 +603,12 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-number</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-interceptors-authn</artifactId>
         <version>${project.version}</version>
       </dependency>

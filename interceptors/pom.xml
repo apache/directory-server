@@ -52,6 +52,7 @@
     <module>hash</module>
     <module>schema</module>
     <module>trigger</module>
+    <module>number</module>
   </modules>
 
 </project>
