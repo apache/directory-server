@@ -179,22 +179,6 @@ public class JdbmPartition extends AbstractBTreePartition
                     indexToBuild.add( index );
                 }
             }
-            
-            // Don't forget to add the system indexes
-            for ( String systemIndex : Store.SYS_INDEX_OIDS )
-            {
-                allIndices.add( systemIndex );
-                
-                // take the part after removing .db from the
-                String name = systemIndex + JDBM_DB_FILE_EXTN;
-                
-                // if the name doesn't exist in the list of index DB files
-                // this is a new index and we need to build it
-                if ( !indexDbFileNameList.contains( name ) )
-                {
-                    indexToBuild.add( systemIndices.get( systemIndex ) );
-                }
-            }
 
             // Initialize the indexes
             super.doInit();
@@ -344,22 +328,32 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Builds user defined indexes on a attributes by browsing all the entries present in master db
      * 
-     * @param userIndexes then user defined indexes to create
+     * Note: if the given list of indices contains any system index that will be skipped.
+     * 
+     * WARN: MUST be called after calling super.doInit()
+     * 
+     * @param indices then selected indexes that need to be built
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, String>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, String>> indices ) throws Exception
     {
         Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
 
         while ( cursor.next() )
         {
-            for ( Index index : userIndexes )
+            for ( Index index : indices )
             {
                 AttributeType atType = index.getAttribute();
 
                 String attributeOid = index.getAttribute().getOid();
 
+                if( systemIndices.get( attributeOid ) != null )
+                {
+                    // skipping building of the system index
+                    continue;
+                }
+                
                 LOG.info( "building the index for attribute type {}", atType );
 
                 Tuple<String, Entry> tuple = cursor.get();
@@ -397,6 +391,12 @@ public class JdbmPartition extends AbstractBTreePartition
             String name = file.getName();
             // take the part after removing .db from the
             name = name.substring( 0, name.lastIndexOf( JDBM_DB_FILE_EXTN ) );
+
+            if( systemIndices.get( name ) != null )
+            {
+                // do not delete the system index file
+                continue;
+            }
 
             // remove the file if not found in the list of names of indices
             if ( !allIndices.contains( name ) )
