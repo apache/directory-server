@@ -24,6 +24,9 @@ package org.apache.directory.ldap.client.template;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.util.List;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -32,10 +35,9 @@ import org.apache.directory.api.ldap.model.message.DeleteResponse;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.ldap.client.template.EntryMapper;
-import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
-import org.apache.directory.ldap.client.template.RequestBuilder;
+import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -136,6 +138,49 @@ public class LdapConnectionTemplateTest
         assertEquals( uid, foundUid );
     }
     
+    
+    @Test
+    public void testAuthenticate() 
+    {
+        try
+        {
+            PasswordWarning warning = ldapConnectionTemplate.authenticate( 
+                "ou=people,dc=example,dc=com",
+                "(mail=kermitthefrog@muppets.com)",
+                SearchScope.ONELEVEL,
+                "set4now".toCharArray() );
+            assertNull( warning );
+        }
+        catch ( PasswordException e )
+        {
+            fail( "authenticate failed unexpectedly" );
+        }
+
+        try
+        {
+            PasswordWarning warning = ldapConnectionTemplate.authenticate( 
+                ldapConnectionTemplate.newDn( "uid=kermitthefrog, ou=people, dc=example, dc=com" ),
+                "set4now".toCharArray() );
+            assertNull( warning );
+        }
+        catch ( PasswordException e )
+        {
+            fail( "authenticate failed unexpectedly" );
+        }
+
+        try
+        {
+            ldapConnectionTemplate.authenticate( 
+                ldapConnectionTemplate.newDn( "uid=kermitthefrog, ou=people, dc=example, dc=com" ),
+                "set4later".toCharArray() );
+            fail( "authenticate failed unexpectedly" );
+        }
+        catch ( PasswordException e )
+        {
+            assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, e.getResultCode() );
+        }
+    }
+    
 
     @Test
     public void testDelete()
@@ -201,6 +246,72 @@ public class LdapConnectionTemplateTest
         assertEquals( uid, found.getUid() );
         assertEquals( "The Frog", found.getSn() );
         assertEquals( "Miss The Frog", found.getCn() );
+    }
+    
+    
+    @Test
+    public void testModifyPassword() 
+    {
+        Dn userDn = ldapConnectionTemplate.newDn( "uid=kermitthefrog, ou=people, dc=example, dc=com" );
+        try
+        {
+            ldapConnectionTemplate.modifyPassword( 
+                userDn, "set4later".toCharArray() );
+            ldapConnectionTemplate.authenticate( userDn, "set4later".toCharArray() );
+        }
+        catch ( PasswordException e )
+        {
+            fail( "failed to change password" );
+        }
+
+        try
+        {
+            ldapConnectionTemplate.modifyPassword( 
+                userDn,
+                "set4now".toCharArray(),
+                "set4notnow".toCharArray() );
+            fail( "should not have been allowed to change password" );
+        }
+        catch ( PasswordException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            ldapConnectionTemplate.modifyPassword( 
+                userDn,
+                "set4later".toCharArray(),
+                "set4now".toCharArray(),
+                false );
+            ldapConnectionTemplate.authenticate( userDn, "set4now".toCharArray() );
+        }
+        catch ( PasswordException e )
+        {
+            fail( "failed to change password" );
+        }
+    }
+
+    
+    @Test
+    public void testSearch() 
+    {
+        List<Muppet> muppets = ldapConnectionTemplate.search( 
+            "ou=people,dc=example,dc=com", 
+            "(objectClass=inetOrgPerson)", 
+            SearchScope.ONELEVEL,
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 6, muppets.size() );
+
+        ldapConnectionTemplate.search( 
+            ldapConnectionTemplate.newSearchRequest( 
+                "ou=people,dc=example,dc=com", 
+                "(objectClass=inetOrgPerson)", 
+                SearchScope.ONELEVEL ),
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 6, muppets.size() );
     }
     
 
