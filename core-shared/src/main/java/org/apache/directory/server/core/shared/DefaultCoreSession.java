@@ -76,6 +76,7 @@ import org.apache.directory.mavibot.btree.BTreeFactory;
 import org.apache.directory.mavibot.btree.PersistedBTreeConfiguration;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
+import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -1301,9 +1302,10 @@ public class DefaultCoreSession implements CoreSession
      * @throws CursorException
      * @throws LdapException
      * @throws IOException
+     * @throws KeyNotFoundException 
      */
     private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager )
-        throws CursorException, LdapException, IOException
+        throws CursorException, LdapException, IOException, KeyNotFoundException
     {
         unsortedEntries.beforeFirst();
 

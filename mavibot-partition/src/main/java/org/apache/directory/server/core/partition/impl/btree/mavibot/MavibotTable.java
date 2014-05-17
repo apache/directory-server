@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 import java.io.IOException;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -121,11 +122,23 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
     /**
      * {@inheritDoc}
+     * @throws  
      */
     @Override
-    public boolean has( K key ) throws IOException
+    public boolean has( K key ) throws LdapException
     {
-        return bt.hasKey( key );
+        try
+        {
+            return bt.hasKey( key );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe );
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            throw new LdapException( knfe );
+        }
     }
 
 

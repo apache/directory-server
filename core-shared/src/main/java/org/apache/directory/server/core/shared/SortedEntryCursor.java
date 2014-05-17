@@ -34,6 +34,7 @@ import org.apache.directory.mavibot.btree.BTree;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.Tuple;
 import org.apache.directory.mavibot.btree.TupleCursor;
+import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -59,7 +60,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
 
     private File dataFile;
     
-    public SortedEntryCursor( BTree<Entry,String> btree, RecordManager recMan, File dataFile ) throws IOException
+    public SortedEntryCursor( BTree<Entry,String> btree, RecordManager recMan, File dataFile ) throws IOException, KeyNotFoundException
     {
         this.recMan = recMan;
         this.dataFile = dataFile;

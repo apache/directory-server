@@ -27,6 +27,7 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.mavibot.btree.TupleCursor;
+import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,6 +219,10 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             throw new CursorException( e );
         }
+        catch ( KeyNotFoundException knfe )
+        {
+            throw new CursorException( knfe );
+        }
     }
 
 
@@ -241,6 +246,10 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         catch ( IOException e )
         {
             throw new CursorException( e );
+        }
+        catch ( KeyNotFoundException knfe )
+        {
+            throw new CursorException( knfe );
         }
     }
 
