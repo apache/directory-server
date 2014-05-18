@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -518,4 +520,17 @@ public class MavibotPartition extends AbstractBTreePartition
             LOG.warn( "Failed to update entry cache", e );
         }
     }
+
+    
+    /**
+     * @return The set of system and user indexes
+     */
+    public Set<Index<?, String>> getAllIndices()
+    {
+        Set<Index<?, String>> all = new HashSet<Index<?,String>>( systemIndices.values() );
+        all.addAll( userIndices.values() );
+        
+        return all;
+    }
+
 }
