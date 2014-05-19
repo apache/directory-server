@@ -136,13 +136,14 @@ public class MavibotPartitionBuilder
     {
         PersistedBTree btree = ( PersistedBTree ) rm.getManagedTree( name );
 
-        btree.setRevision( btree.getRevision() + 1 );
+        long newRevision = btree.getRevision() + 1;
+        btree.setRevision( newRevision );
         
         List<Page> lstLeaves = new ArrayList<Page>();
 
         int totalTupleCount = 0;
 
-        Page leaf1 = BTreeFactory.createLeaf( btree, 0, numKeysInNode );
+        Page leaf1 = BTreeFactory.createLeaf( btree, newRevision, numKeysInNode );
         lstLeaves.add( leaf1 );
 
         int leafIndex = 0;
@@ -176,9 +177,9 @@ public class MavibotPartitionBuilder
             {
                 leafIndex = 0;
 
-                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, leaf1, 1 );
+                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, leaf1, newRevision );
 
-                leaf1 = createLeaf( btree, 0, numKeysInNode );
+                leaf1 = createLeaf( btree, newRevision, numKeysInNode );
                 lstLeaves.add( leaf1 );
             }
 
@@ -207,7 +208,7 @@ public class MavibotPartitionBuilder
                 lastLeaf.values = ( ValueHolder[] ) Array.newInstance( ValueHolder.class, n );
                 System.arraycopy( values, 0, lastLeaf.values, 0, n );
 
-                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, lastLeaf, 1 );
+                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, lastLeaf, newRevision );
 
                 break;
             }
@@ -217,6 +218,8 @@ public class MavibotPartitionBuilder
         // there is already a root page created
         Page rootPage = attachNodes( lstLeaves, btree );
 
+        Page oldRoot = btree.getRootPage();
+        
         //System.out.println("built rootpage : " + rootPage);
         btree.setNbElems( totalTupleCount );
 
@@ -237,9 +240,7 @@ public class MavibotPartitionBuilder
         // Store the new revision
         btree.storeRevision( header );
 
-        //rm.updateBtreeHeader( btree, newBtreeHeaderOffset );
-
-        rm.freePages( ( BTree ) btree, btree.getRevision(), ( List ) Arrays.asList( btree.getRootPage() ) );
+        rm.freePages( ( BTree ) btree, btree.getRevision(), ( List ) Arrays.asList( oldRoot ) );
 
         return btree;
     }
@@ -257,7 +258,7 @@ public class MavibotPartitionBuilder
 
         int numChildren = numKeysInNode + 1;
 
-        PersistedNode node = ( PersistedNode ) createNode( btree, 0, numKeysInNode );
+        PersistedNode node = ( PersistedNode ) createNode( btree, btree.getRevision(), numKeysInNode );
         lstNodes.add( node );
         int i = 0;
         int totalNodes = 0;
@@ -280,7 +281,7 @@ public class MavibotPartitionBuilder
 
                 PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, node, 1 );
 
-                node = ( PersistedNode ) createNode( btree, 0, numKeysInNode );
+                node = ( PersistedNode ) createNode( btree, btree.getRevision(), numKeysInNode );
                 lstNodes.add( node );
             }
         }
@@ -456,11 +457,11 @@ public class MavibotPartitionBuilder
 
         idSortedSet.addAll( sortedDnSet );
 
-        System.out.println( "Sorted on ID" );
-        for ( DnTuple dt : idSortedSet )
-        {
-            System.out.println( dt );
-        }
+//        System.out.println( "Sorted on ID" );
+//        for ( DnTuple dt : idSortedSet )
+//        {
+//            System.out.println( dt );
+//        }
 
         Iterator<Tuple> entryItr = new Iterator<Tuple>()
         {
@@ -568,11 +569,11 @@ public class MavibotPartitionBuilder
 
         parentIdRdnSortedSet.addAll( sortedDnSet );
 
-        System.out.println( "Sorted on ParentID and RDNs" );
-        for ( DnTuple dt : parentIdRdnSortedSet )
-        {
-            System.out.println( dt );
-        }
+//        System.out.println( "Sorted on ParentID and RDNs" );
+//        for ( DnTuple dt : parentIdRdnSortedSet )
+//        {
+//            System.out.println( dt );
+//        }
 
         Iterator<Tuple> parentIdAndRdnFwdItr = new Iterator<Tuple>()
         {
@@ -717,8 +718,9 @@ public class MavibotPartitionBuilder
             
             try
             {
-                //System.out.println("Building index " + id.getAttribute().getName() );
-                //buildIndex( id );
+                System.out.println("Building index " + id.getAttribute().getName() );
+                // TODO the presence index needs a special treatment
+                buildIndex( id );
             }
             catch( Exception e )
             {
@@ -876,27 +878,27 @@ public class MavibotPartitionBuilder
     }
     
     
-    public void testBTree()
+    public void testBTree( String name )
     {
         try
         {
-            BTree tree = partition.getRecordMan().getManagedTree( masterTableName );
-            System.out.println( "The number of elements in master btree " + tree.getNbElems() );
-            TupleCursor<String, Entry> cursor = tree.browse();
+            BTree tree = partition.getRecordMan().getManagedTree( name );
+            System.out.println( "The number of elements in the btree " + tree.getNbElems() );
+            TupleCursor cursor = tree.browse();
             while ( cursor.hasNext() )
             {
                 System.out.println( cursor.next() );
             }
             cursor.close();
             
-            Index idx = partition.getRdnIndex();
-            org.apache.directory.api.ldap.model.cursor.Cursor idxCur = idx.forwardCursor();
-            while( idxCur.next() )
-            {
-                System.out.println( idxCur.get() );
-            }
-            
-            idxCur.close();
+//            Index idx = partition.getRdnIndex();
+//            org.apache.directory.api.ldap.model.cursor.Cursor idxCur = idx.forwardCursor();
+//            while( idxCur.next() )
+//            {
+//                System.out.println( idxCur.get() );
+//            }
+//            
+//            idxCur.close();
         }
         catch( Exception e )
         {
@@ -911,7 +913,7 @@ public class MavibotPartitionBuilder
         
         createPartition();
         
-        testBTree();
+        testBTree( masterTableName );
         
         SearchRequest req = new SearchRequestImpl();
         req.setBase( new Dn( schemaManager, suffixDn ) );
@@ -956,8 +958,16 @@ public class MavibotPartitionBuilder
         MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), "ou=builder",
             outDir.getAbsolutePath() );
         builder.buildPartition();
-        //builder.testBTree();
+        
+        
+        String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
+        builder.testBTree( fwdRdnTree );
+        
+        String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
+        builder.testBTree( fwdRdnTree );
         builder.testPartition();
+        
+        //builder.testBTree( builder.masterTableName );
         //*/
        /* 
         MavibotPartitionBuilder builder = new MavibotPartitionBuilder( "/tmp/builder-test.ldif", "ou=builder",
