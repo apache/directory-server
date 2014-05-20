@@ -26,6 +26,7 @@ import static org.apache.directory.mavibot.btree.BTreeFactory.setKey;
 import static org.apache.directory.mavibot.btree.BTreeFactory.setValue;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -93,7 +94,7 @@ public class MavibotPartitionBuilder
 {
     private int numKeysInNode = BTree.DEFAULT_PAGE_SIZE; // default size
 
-    private String suffixDn = "ou=builder";
+    private Dn suffixDn;
 
     private String outputDir = "/tmp/builder";
 
@@ -116,16 +117,15 @@ public class MavibotPartitionBuilder
     private static final Logger LOG = LoggerFactory.getLogger( MavibotPartitionBuilder.class );
 
 
-    public MavibotPartitionBuilder( String ldifFile, String suffixDn, String outputDir )
+    public MavibotPartitionBuilder( String ldifFile, String outputDir )
     {
-        this( ldifFile, suffixDn, outputDir, BTree.DEFAULT_PAGE_SIZE, 1 );
+        this( ldifFile, outputDir, BTree.DEFAULT_PAGE_SIZE, 1 );
     }
 
 
-    public MavibotPartitionBuilder( String ldifFile, String suffixDn, String outputDir, int numKeysInNode, int rid )
+    public MavibotPartitionBuilder( String ldifFile, String outputDir, int numKeysInNode, int rid )
     {
         this.ldifFile = ldifFile;
-        this.suffixDn = suffixDn;
         this.outputDir = outputDir;
         this.numKeysInNode = numKeysInNode;
         this.csnFactory = new CsnFactory( rid );
@@ -346,14 +346,11 @@ public class MavibotPartitionBuilder
 
     private void createPartition() throws Exception
     {
-        JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
-        schemaManager = new DefaultSchemaManager( loader );
-        schemaManager.loadAllEnabled();
         DnFactory dnFactory = new DefaultDnFactory( schemaManager, null );
 
         partition = new MavibotPartition( schemaManager, dnFactory );
         partition.setId( "builder" );
-        partition.setSuffixDn( new Dn( schemaManager, suffixDn ) );
+        partition.setSuffixDn( suffixDn );
 
         File dir = new File( outputDir );
         partition.setPartitionPath( dir.toURI() );
@@ -398,9 +395,23 @@ public class MavibotPartitionBuilder
         }
 
         Iterator<DnTuple> itr = sortedDnSet.iterator();
+        
+        FileWriter fw = new FileWriter( "/tmp/dntuples.txt" );
+        while( itr.hasNext() )
+        {
+            fw.write( itr.next().getDn().getName() + "\n" );
+        }
+        
+        fw.close();
+        
+        itr = sortedDnSet.iterator();
         DnTuple root = itr.next();
         root.setParent( null );
 
+        suffixDn = root.getDn();
+        
+        System.out.println( "Using " + suffixDn.getName() + " as the partition's root DN" );
+        
         Map<String, DnTuple> parentDnIdMap = new HashMap<String, DnTuple>();
         parentDnIdMap.put( root.getDn().getNormName(), root );
 
@@ -426,11 +437,20 @@ public class MavibotPartitionBuilder
                         + " not found." );
                 }
             }
-
+            else
+            {
+                // load certain siblings
+                if( !dt.getDn().isDescendantOf( prevTuple.getDn() ) )
+                {
+                    //System.out.println( "adding dn " + prevTuple.getDn().getName() + " to the map");
+                    parentDnIdMap.put( prevTuple.getDn().getNormName(), root );
+                }
+            }
+            
             dt.setParent( parent );
             parent.addChild();
             parent.addDecendent();
-
+            
             prevTuple = dt;
         }
 
@@ -659,6 +679,40 @@ public class MavibotPartitionBuilder
     {
         try
         {
+            System.out.println( "Loading schema using JarLdifSchemaLoader" );
+            JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
+            schemaManager = new DefaultSchemaManager( loader );
+            schemaManager.loadAllEnabled();
+        }
+        catch ( Exception e )
+        {
+            LOG.warn( "Failed to initialize the schema manager", e );
+            return;
+        }
+
+        Set<DnTuple> sortedDnSet = null;
+        try
+        {
+            System.out.println( "Sorting the LDIF data." );
+            sortedDnSet = getDnTuples();
+            System.out.println( "Completed sorting, total number of entries " + sortedDnSet.size() );
+        }
+        catch ( Exception e )
+        {
+            LOG.warn( "Failed to parse the given LDIF file ", e );
+            e.printStackTrace();
+        }
+        
+        if ( ( sortedDnSet == null ) || ( sortedDnSet.isEmpty() ) )
+        {
+            String message = "No entries found in the given LDIF file, aborting bulk load";
+            System.out.println( message );
+            LOG.info( message );
+        }
+
+        try
+        {
+            System.out.println( "Creating partition." );
             createPartition();
         }
         catch ( Exception e )
@@ -667,25 +721,9 @@ public class MavibotPartitionBuilder
             return;
         }
 
-        Set<DnTuple> sortedDnSet = null;
         try
         {
-            sortedDnSet = getDnTuples();
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Failed to parse the given LDIF file ", e );
-        }
-
-        if ( ( sortedDnSet == null ) || ( sortedDnSet.isEmpty() ) )
-        {
-            String message = "No entries found in the given LDIF file, aborting bulk load";
-            System.out.println( message );
-            LOG.info( message );
-        }
-        
-        try
-        {
+            System.out.println( "Building master table." );
             buildMasterTable( sortedDnSet );
         }
         catch( Exception e )
@@ -696,6 +734,7 @@ public class MavibotPartitionBuilder
         
         try
         {
+            System.out.println( "Building RDN index." );
             buildRdnIndex( sortedDnSet );
         }
         catch( Exception e )
@@ -705,21 +744,23 @@ public class MavibotPartitionBuilder
         }
         
         // not needed anymore
+        System.out.println( "Clearing the sorted DN set." );
         sortedDnSet.clear();
-        
         
         for( Index<?, String> id : partition.getAllIndices() )
         {
-            // RDN index is built separately
-            if( ApacheSchemaConstants.APACHE_RDN_AT_OID.equals( id.getAttribute().getOid() ) )
+            // RDN and presence indices are built separately
+            String oid = id.getAttribute().getOid();
+            if( ApacheSchemaConstants.APACHE_RDN_AT_OID.equals( oid ) 
+                || ApacheSchemaConstants.APACHE_PRESENCE_AT_OID.equals( oid ) )
             {
                 continue;
             }
             
+            
             try
             {
                 System.out.println("Building index " + id.getAttribute().getName() );
-                // TODO the presence index needs a special treatment
                 buildIndex( id );
             }
             catch( Exception e )
@@ -729,8 +770,104 @@ public class MavibotPartitionBuilder
                 return;
             }
         }
+        
+        try
+        {
+            System.out.println( "Building presence index." );
+            buildPresenceIndex();
+        }
+        catch( Exception e )
+        {
+            LOG.warn( "Failed to build the presence index." );
+            LOG.warn( "", e );
+            return;
+        }
+        
+        System.out.println( "Patition building complete." );
     }
 
+    
+    private void buildPresenceIndex() throws Exception
+    {
+        Set<String> idxOids = new HashSet<String>();
+        Iterator<String> itr = partition.getUserIndices();
+        
+        while( itr.hasNext() )
+        {
+            idxOids.add( itr.next() );
+        }
+
+        BTree masterTree = rm.getManagedTree( masterTableName );
+
+        BTree fwdTree = rm.getManagedTree( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID + MavibotIndex.FORWARD_BTREE );
+        boolean fwdDupsAllowed = fwdTree.isAllowDuplicates();
+        
+        Comparator fwdKeyComparator = fwdTree.getKeySerializer().getComparator();
+        
+        final Map<String, Set> fwdMap = new TreeMap<String, Set>();
+
+        TupleCursor<String, Entry> cursor = masterTree.browse();
+        
+        while ( cursor.hasNext() )
+        {
+            Tuple<String, Entry> t = cursor.next();
+            
+            Entry e = t.getValue();
+            
+            for( String oid : idxOids )
+            {
+                Attribute at = e.get( oid );
+                if( at == null )
+                {
+                    continue;
+                }
+                
+                Set<String> idSet = fwdMap.get( oid );
+                
+                if( idSet == null )
+                {
+                    idSet = new TreeSet<String>();
+                    idSet.add( t.getKey() );
+
+                    fwdMap.put( oid, idSet );
+                }
+            }
+        }
+        
+        cursor.close();
+        
+        Iterator<Tuple> tupleItr = new Iterator<Tuple>()
+        {
+            Iterator<java.util.Map.Entry<String, Set>> itr = fwdMap.entrySet().iterator();
+            
+            @Override
+            public Tuple next()
+            {
+                java.util.Map.Entry<String, Set> e = itr.next();
+                
+                Tuple t = new Tuple();
+                t.setKey( e.getKey() );
+                t.setValue( e.getValue() );
+                
+                return t;
+            }
+            
+            
+            @Override
+            public boolean hasNext()
+            {
+                return itr.hasNext();
+            }
+            
+            @Override
+            public void remove()
+            {
+            }
+        };
+        
+        build( tupleItr, fwdTree.getName() );
+    }
+    
     
     private void buildIndex( Index<?, String> idx ) throws Exception
     {
@@ -778,20 +915,6 @@ public class MavibotPartitionBuilder
                 continue;
             }
             
-//            if( !fwdDupsAllowed )
-//            {
-//                Tuple it = new Tuple( at.get().getNormValue(), t.getKey() );
-//                fwdSet.add( it );
-//            }
-//            else
-//            {
-//                for( Value v : at )
-//                {
-//                    Tuple it = new Tuple( v.getNormValue(), t.getKey() );
-//                    fwdSet.add( it );
-//                }
-//            }
-
             if( singleValued )
             {
                 Value v = at.get();
@@ -883,7 +1006,6 @@ public class MavibotPartitionBuilder
         try
         {
             BTree tree = partition.getRecordMan().getManagedTree( name );
-            System.out.println( "The number of elements in the btree " + tree.getNbElems() );
             TupleCursor cursor = tree.browse();
             while ( cursor.hasNext() )
             {
@@ -891,6 +1013,7 @@ public class MavibotPartitionBuilder
             }
             cursor.close();
             
+            System.out.println( "The number of elements in the btree " + name + " " + tree.getNbElems() );
 //            Index idx = partition.getRdnIndex();
 //            org.apache.directory.api.ldap.model.cursor.Cursor idxCur = idx.forwardCursor();
 //            while( idxCur.next() )
@@ -916,7 +1039,7 @@ public class MavibotPartitionBuilder
         testBTree( masterTableName );
         
         SearchRequest req = new SearchRequestImpl();
-        req.setBase( new Dn( schemaManager, suffixDn ) );
+        req.setBase( suffixDn );
         
         ExprNode filter = new PresenceNode( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
         
@@ -941,7 +1064,6 @@ public class MavibotPartitionBuilder
 
     public static void main( String[] args ) throws Exception
     {
-       // /*
         File outDir = new File( "/tmp/builder" );
         
         if( outDir.exists() )
@@ -949,50 +1071,29 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        File file = new File( "/tmp/builder-test.ldif" );
+        
+       File file;// = new File( "/tmp/30k-users.ldif" );
 
+        file = new File( "/tmp/builder-test.ldif" );
         InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
         FileUtils.copyInputStreamToFile( in, file );
         in.close();
         
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), "ou=builder",
-            outDir.getAbsolutePath() );
+        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
+        
+        long start = System.currentTimeMillis();
+        
         builder.buildPartition();
         
+        long end = System.currentTimeMillis();
         
-        String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
-        builder.testBTree( fwdRdnTree );
+        System.out.println( "Total time taken: " + ( end - start ) + " msec" );
+        //String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
+        //builder.testBTree( fwdRdnTree );
         
-        String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
-        builder.testBTree( fwdRdnTree );
-        builder.testPartition();
+        //String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
+        //builder.testBTree( revRdnTree );
+        //builder.testPartition();
         
-        //builder.testBTree( builder.masterTableName );
-        //*/
-       /* 
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( "/tmp/builder-test.ldif", "ou=builder",
-            "/tmp/xyz" );
-        RecordManager rm = new RecordManager( "/tmp" );
-        
-        builder.rm = rm;
-        
-        rm.addBTree( "test", LongSerializer.INSTANCE, StringSerializer.INSTANCE, false );
-        
-        List<Tuple> set = new ArrayList<Tuple>();
-        for( long i=1; i < 11; i++ )
-        {
-            set.add( new Tuple(i, "V"+i) );
-        }
-        
-        builder.build( set.iterator(), "test" );
-        BTree tree = rm.getManagedTree( "test" );
-        System.out.println( "Before reload" + tree.getNbElems() );
-        
-        rm.close();
-        
-        rm = new RecordManager( "/tmp" );
-        tree = rm.getManagedTree( "test" );
-        System.out.println( "After reload" + tree.getNbElems() );
-        */ 
     }
 }
