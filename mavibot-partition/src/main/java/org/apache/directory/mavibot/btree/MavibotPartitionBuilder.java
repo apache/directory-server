@@ -693,9 +693,14 @@ public class MavibotPartitionBuilder
         Set<DnTuple> sortedDnSet = null;
         try
         {
-            System.out.println( "Sorting the LDIF data." );
+            long sortT0 = System.currentTimeMillis();
+            System.out.println( "Sorting the LDIF data..." );
+            
             sortedDnSet = getDnTuples();
-            System.out.println( "Completed sorting, total number of entries " + sortedDnSet.size() );
+            long sortT1 = System.currentTimeMillis();
+
+            System.out.println( "Completed sorting, total number of entries " + sortedDnSet.size() + 
+                ", time taken : " + ( sortT1 - sortT0 ) + "ms" );
         }
         catch ( Exception e )
         {
@@ -709,11 +714,14 @@ public class MavibotPartitionBuilder
             System.out.println( message );
             LOG.info( message );
         }
-
+        
         try
         {
-            System.out.println( "Creating partition." );
+            long partT0 = System.currentTimeMillis();
+            System.out.print( "Creating partition..." );
             createPartition();
+            long partT1 = System.currentTimeMillis();
+            System.out.println( ", time taken : " + ( partT1 - partT0 ) + "ms" );
         }
         catch ( Exception e )
         {
@@ -723,8 +731,11 @@ public class MavibotPartitionBuilder
 
         try
         {
-            System.out.println( "Building master table." );
+            long masterT0 = System.currentTimeMillis();
+            System.out.print( "Building master table..." );
             buildMasterTable( sortedDnSet );
+            long masterT1 = System.currentTimeMillis();
+            System.out.println( ", time taken : " + ( masterT1 - masterT0 ) + "ms" );
         }
         catch( Exception e )
         {
@@ -734,8 +745,11 @@ public class MavibotPartitionBuilder
         
         try
         {
-            System.out.println( "Building RDN index." );
+            long rdnT0 = System.currentTimeMillis();
+            System.out.print( "Building RDN index." );
             buildRdnIndex( sortedDnSet );
+            long rdnT1 = System.currentTimeMillis();
+            System.out.println( ", time taken : " + ( rdnT1 - rdnT0 ) + "ms" );
         }
         catch( Exception e )
         {
@@ -751,17 +765,20 @@ public class MavibotPartitionBuilder
         {
             // RDN and presence indices are built separately
             String oid = id.getAttribute().getOid();
+            
             if( ApacheSchemaConstants.APACHE_RDN_AT_OID.equals( oid ) 
                 || ApacheSchemaConstants.APACHE_PRESENCE_AT_OID.equals( oid ) )
             {
                 continue;
             }
             
-            
             try
             {
-                System.out.println("Building index " + id.getAttribute().getName() );
+                long indexT0 = System.currentTimeMillis();
+                System.out.print("Building index " + id.getAttribute().getName() );
                 buildIndex( id );
+                long indexT1 = System.currentTimeMillis();
+                System.out.println( ", time taken : " + ( indexT1 - indexT0 ) + "ms" );
             }
             catch( Exception e )
             {
@@ -773,8 +790,11 @@ public class MavibotPartitionBuilder
         
         try
         {
-            System.out.println( "Building presence index." );
+            System.out.print( "Building presence index..." );
+            long presenceT0 = System.currentTimeMillis();
             buildPresenceIndex();
+            long presenceT1 = System.currentTimeMillis();
+            System.out.println( ", time taken : " + ( presenceT1 - presenceT0 ) + "ms" );
         }
         catch( Exception e )
         {
@@ -1081,13 +1101,8 @@ public class MavibotPartitionBuilder
         
         MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
         
-        long start = System.currentTimeMillis();
-        
         builder.buildPartition();
         
-        long end = System.currentTimeMillis();
-        
-        System.out.println( "Total time taken: " + ( end - start ) + " msec" );
         //String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
         //builder.testBTree( fwdRdnTree );
         
@@ -1096,4 +1111,23 @@ public class MavibotPartitionBuilder
         //builder.testPartition();
         
     }
+    
+    /*
+    public static void main( String[] args ) throws Exception
+    {
+        File outDir = new File( "/tmp/builder" );
+        
+        if( outDir.exists() )
+        {
+            FileUtils.deleteDirectory( outDir );
+        }
+        
+        
+        File file = new File( "/tmp/30k.ldif" );
+
+        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
+        
+        builder.buildPartition();
+    }
+    */
 }
