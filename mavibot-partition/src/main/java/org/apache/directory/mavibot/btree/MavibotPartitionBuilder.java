@@ -395,7 +395,7 @@ public class MavibotPartitionBuilder
         }
 
         Iterator<DnTuple> itr = sortedDnSet.iterator();
-        
+        /*
         FileWriter fw = new FileWriter( "/tmp/dntuples.txt" );
         while( itr.hasNext() )
         {
@@ -403,8 +403,8 @@ public class MavibotPartitionBuilder
         }
         
         fw.close();
-        
         itr = sortedDnSet.iterator();
+        */
         DnTuple root = itr.next();
         root.setParent( null );
 
@@ -772,11 +772,19 @@ public class MavibotPartitionBuilder
                 continue;
             }
             
+            String ignoreVal = null;
+            
+            if( SchemaConstants.OBJECT_CLASS_AT_OID.equals( oid ) )
+            {
+                // should be a normalized val
+                ignoreVal = "top";
+            }
+            
             try
             {
                 long indexT0 = System.currentTimeMillis();
                 System.out.print("Building index " + id.getAttribute().getName() );
-                buildIndex( id );
+                buildIndex( id, ignoreVal );
                 long indexT1 = System.currentTimeMillis();
                 System.out.println( ", time taken : " + ( indexT1 - indexT0 ) + "ms" );
             }
@@ -889,7 +897,7 @@ public class MavibotPartitionBuilder
     }
     
     
-    private void buildIndex( Index<?, String> idx ) throws Exception
+    private void buildIndex( Index<?, String> idx, String ignoreVal ) throws Exception
     {
         BTree masterTree = rm.getManagedTree( masterTableName );
         
@@ -911,6 +919,7 @@ public class MavibotPartitionBuilder
         Set<Tuple> revSet = null;
         Map<String,Tuple> revMap = null;
         Comparator revValComparator = null;
+        
         if( idx.hasReverse() )
         {
             revTree = rm.getManagedTree( type.getOid() + MavibotIndex.REVERSE_BTREE );
@@ -938,7 +947,17 @@ public class MavibotPartitionBuilder
             if( singleValued )
             {
                 Value v = at.get();
-                Tuple fwdTuple = new Tuple( v.getNormValue(), t.getKey() );
+                Object normVal = v.getNormValue();
+                
+                if( ignoreVal != null )
+                {
+                    if( normVal.equals( ignoreVal ) )
+                    {
+                        continue;
+                    }
+                }
+                
+                Tuple fwdTuple = new Tuple( normVal, t.getKey() );
                 fwdSet.add( fwdTuple );
                 
                 if( revTree != null )
@@ -952,6 +971,15 @@ public class MavibotPartitionBuilder
                 for( Value v : at )
                 {
                     Object val = v.getNormValue();
+                    
+                    if( ignoreVal != null )
+                    {
+                        if( val.equals( ignoreVal ) )
+                        {
+                            continue;
+                        }
+                    }
+                    
                     Tuple fwdTuple = ( Tuple ) fwdMap.get( val );
                     
                     if( fwdTuple == null )
@@ -1091,17 +1119,22 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        
-       File file;// = new File( "/tmp/30k-users.ldif" );
+        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/30k-users.ldif" );
 
-        file = new File( "/tmp/builder-test.ldif" );
-        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
-        FileUtils.copyInputStreamToFile( in, file );
-        in.close();
+        //file = new File( "/tmp/builder-test.ldif" );
+//        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
+//        FileUtils.copyInputStreamToFile( in, file );
+//        in.close();
         
         MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
         
+        long start = System.currentTimeMillis();
+        
         builder.buildPartition();
+        
+        long end = System.currentTimeMillis();
+        
+        System.out.println( "Total time taken " + ( end - start ) + "msec" );
         
         //String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
         //builder.testBTree( fwdRdnTree );
