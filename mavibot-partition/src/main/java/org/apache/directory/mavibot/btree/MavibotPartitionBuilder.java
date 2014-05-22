@@ -376,15 +376,19 @@ public class MavibotPartitionBuilder
 
         raf = new RandomAccessFile( file, "r" );
 
-        LdifReader reader = new LdifReader( file );
+        FastLdifReader reader = new FastLdifReader( file );
 
         Set<DnTuple> sortedDnSet = new TreeSet<DnTuple>();
 
         while ( reader.hasNext() )
         {
+            // FastLdifReader will always return NULL LdifEntry
+            // call getDnTuple() after next() to get a DnTuple
             LdifEntry entry = reader.next();
-            entry.getDn().apply( schemaManager );
-            DnTuple dt = new DnTuple( entry.getDn(), entry.getOffset(), entry.getLengthBeforeParsing() );
+            
+            DnTuple dt = reader.getDnTuple();
+            
+            dt.getDn().apply( schemaManager );
             sortedDnSet.add( dt );
         }
 
