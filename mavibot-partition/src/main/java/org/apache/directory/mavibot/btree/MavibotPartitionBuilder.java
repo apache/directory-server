@@ -114,6 +114,7 @@ public class MavibotPartitionBuilder
     
     private List<String> indexAttributes = new ArrayList<String>();
     
+    private int totalEntries = 0;
     private static final Logger LOG = LoggerFactory.getLogger( MavibotPartitionBuilder.class );
 
 
@@ -699,7 +700,9 @@ public class MavibotPartitionBuilder
             sortedDnSet = getDnTuples();
             long sortT1 = System.currentTimeMillis();
 
-            System.out.println( "Completed sorting, total number of entries " + sortedDnSet.size() + 
+            totalEntries = sortedDnSet.size();
+            
+            System.out.println( "Completed sorting, total number of entries " + totalEntries + 
                 ", time taken : " + ( sortT1 - sortT0 ) + "ms" );
         }
         catch ( Exception e )
@@ -1109,6 +1112,43 @@ public class MavibotPartitionBuilder
         
         System.out.println( "Total search results " + count );
     }
+
+    
+    /** no qualifier */ int getTotalEntries()
+    {
+        return totalEntries;
+    }
+
+
+    /** no qualifier */ int getNumKeysInNode()
+    {
+        return numKeysInNode;
+    }
+
+
+    /** no qualifier */ RecordManager getRm()
+    {
+        return rm;
+    }
+
+
+    /** no qualifier */ MavibotPartition getPartition()
+    {
+        return partition;
+    }
+
+
+    /** no qualifier */ SchemaManager getSchemaManager()
+    {
+        return schemaManager;
+    }
+
+
+    /** no qualifier */ String getMasterTableName()
+    {
+        return masterTableName;
+    }
+
 
     public static void main( String[] args ) throws Exception
     {
