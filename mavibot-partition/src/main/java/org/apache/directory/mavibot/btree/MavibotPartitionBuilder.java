@@ -239,7 +239,7 @@ public class MavibotPartitionBuilder
         rm.addInBtreeOfBtrees( name, btree.getRevision(), newBtreeHeaderOffset );
 
         // Store the new revision
-        btree.storeRevision( header );
+        btree.storeRevision( header, rm.isKeepRevisions() );
 
         rm.freePages( ( BTree ) btree, btree.getRevision(), ( List ) Arrays.asList( oldRoot ) );
 
@@ -493,6 +493,7 @@ public class MavibotPartitionBuilder
 
             private Iterator<DnTuple> itr = idSortedSet.iterator();
 
+            final String createTime = DateUtils.getGeneralizedTime();
 
             @Override
             public boolean hasNext()
@@ -514,17 +515,15 @@ public class MavibotPartitionBuilder
                     raf.seek( dt.getOffset() );
                     raf.readFully( data, 0, data.length );
 
-                    LdifReader lar = new LdifReader();
+                    SchemaAwareLdifReader lar = new SchemaAwareLdifReader( schemaManager );
 
                     Entry entry = lar.parseLdif( Strings.utf8ToString( data ) ).get( 0 ).getEntry();
 
-                    // make it schema aware
-                    entry = new DefaultEntry( schemaManager, entry );
                     entry.add( SchemaConstants.ENTRY_UUID_AT, dt.getId() );
                     entry.add( SchemaConstants.ENTRY_PARENT_ID_AT, dt.getParentId() );
                     entry.add( SchemaConstants.ENTRY_CSN_AT, csnFactory.newInstance().toString() );
                     entry.add( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, createTime );
 
                     t.setValue( entry );
                 }
@@ -797,6 +796,7 @@ public class MavibotPartitionBuilder
             }
             catch( Exception e )
             {
+                e.printStackTrace();
                 LOG.warn( "Failed to build the index " + id.getAttribute().getName() );
                 LOG.warn( "", e );
                 return;
@@ -1064,7 +1064,7 @@ public class MavibotPartitionBuilder
             TupleCursor cursor = tree.browse();
             while ( cursor.hasNext() )
             {
-                System.out.println( cursor.next() );
+                //System.out.println( cursor.next() );
             }
             cursor.close();
             
@@ -1184,9 +1184,8 @@ public class MavibotPartitionBuilder
         //builder.testBTree( fwdRdnTree );
         
         //String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
-        //builder.testBTree( revRdnTree );
+        //builder.testBTree( "2.5.4.0_forward" );
         //builder.testPartition();
-        
     }
     
     /*
