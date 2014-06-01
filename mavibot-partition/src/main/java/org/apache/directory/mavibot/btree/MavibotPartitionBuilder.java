@@ -48,6 +48,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -493,8 +494,17 @@ public class MavibotPartitionBuilder
 
             private Iterator<DnTuple> itr = idSortedSet.iterator();
 
-            final String createTime = DateUtils.getGeneralizedTime();
+            final SchemaAwareLdifReader lar = new SchemaAwareLdifReader( schemaManager );
 
+            final AttributeType atEntryUUID = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+            final AttributeType atEntryParentID = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_PARENT_ID_AT );
+            final AttributeType atCsn = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+            final AttributeType atCreator = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT );
+            final AttributeType atCreatedTime = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
+            
+            final Attribute creatorsName = new DefaultAttribute( atCreator, ServerDNConstants.ADMIN_SYSTEM_DN );
+            final Attribute createdTime = new DefaultAttribute( atCreatedTime, DateUtils.getGeneralizedTime() );
+            
             @Override
             public boolean hasNext()
             {
@@ -515,15 +525,13 @@ public class MavibotPartitionBuilder
                     raf.seek( dt.getOffset() );
                     raf.readFully( data, 0, data.length );
 
-                    SchemaAwareLdifReader lar = new SchemaAwareLdifReader( schemaManager );
-
                     Entry entry = lar.parseLdif( Strings.utf8ToString( data ) ).get( 0 ).getEntry();
 
-                    entry.add( SchemaConstants.ENTRY_UUID_AT, dt.getId() );
-                    entry.add( SchemaConstants.ENTRY_PARENT_ID_AT, dt.getParentId() );
-                    entry.add( SchemaConstants.ENTRY_CSN_AT, csnFactory.newInstance().toString() );
-                    entry.add( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, createTime );
+                    entry.add( atEntryUUID, dt.getId() );
+                    entry.add( atEntryParentID, dt.getParentId() );
+                    entry.add( atCsn, csnFactory.newInstance().toString() );
+                    entry.add( creatorsName );
+                    entry.add( createdTime );
 
                     t.setValue( entry );
                 }
