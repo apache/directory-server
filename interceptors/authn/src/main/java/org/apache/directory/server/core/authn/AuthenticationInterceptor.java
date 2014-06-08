@@ -1100,8 +1100,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
             }
 
+            String csnVal = directoryService.getCSN().toString();
+            Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, ENTRY_CSN_AT, csnVal );
+            mods.add( csnMod );
+
             ModifyOperationContext internalModifyCtx = new ModifyOperationContext( adminSession );
+            internalModifyCtx.setPushToEvtInterceptor( true );
             internalModifyCtx.setDn( modifyContext.getDn() );
+            internalModifyCtx.setEntry( entry );
             internalModifyCtx.setModItems( mods );
 
             directoryService.getPartitionNexus().modify( internalModifyCtx );
