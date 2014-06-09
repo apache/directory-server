@@ -45,6 +45,8 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ModifyResponse;
@@ -1424,6 +1426,26 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         assertEquals( false, at.isCollective() );
         assertEquals( false, at.isObsolete() );
         assertEquals( true, at.isSingleValued() );
+    }
+
+
+    /**
+     * Tests the addition of a new attributeType with some
+     * underscores via a modify ADD on the SSSE to enabled schema.
+     *
+     * @throws Exception on error
+     */
+    @Test( expected=LdapInvalidAttributeValueException.class )
+    public void testAddAttributeTypeWithUnderscoresOnEnabledSchema() throws Exception
+    {
+        enableSchema( "nis" );
+        Dn dn = new Dn( subschemaSubentryDn );
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogus_microsoft_name' ) "
+            + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        Modification mod = new DefaultModification(
+            ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "attributeTypes", substrate ) );
+
+        connection.modify( dn, mod );
     }
 
 
