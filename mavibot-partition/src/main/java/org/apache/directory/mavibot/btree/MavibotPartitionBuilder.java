@@ -137,11 +137,12 @@ public class MavibotPartitionBuilder
     private BTree build( Iterator<Tuple> sortedTupleItr, String name ) throws Exception
     {
         PersistedBTree btree = ( PersistedBTree ) rm.getManagedTree( name );
-
+        
         long newRevision = btree.getRevision() + 1;
         btree.setRevision( newRevision );
         
         List<Page> lstLeaves = new ArrayList<Page>();
+        List<Page> lstNodes = new ArrayList<Page>();
 
         int totalTupleCount = 0;
 
@@ -175,8 +176,20 @@ public class MavibotPartitionBuilder
 
             leafIndex++;
             totalTupleCount++;
+
+            //TODO build the whole tree in chunks rather than processing *all* leaves at first
+            
             if ( ( totalTupleCount % numKeysInNode ) == 0 )
             {
+                if( ( lstLeaves.size() % numKeysInNode ) == 0 )
+                {
+                    System.out.println( "Processed tuples " + totalTupleCount );
+                    cleanLastLeaf( lstLeaves, btree, newRevision );
+                    Page node = attachNodes( lstLeaves, btree );
+                    lstNodes.add( node );
+                    lstLeaves.clear();
+                }
+                
                 leafIndex = 0;
 
                 PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, leaf1, newRevision );
@@ -184,41 +197,24 @@ public class MavibotPartitionBuilder
                 leaf1 = createLeaf( btree, newRevision, numKeysInNode );
                 lstLeaves.add( leaf1 );
             }
-
-            //TODO build the whole tree in chunks rather than processing *all* leaves at first
         }
 
-        if ( lstLeaves.isEmpty() )
+        if( !lstLeaves.isEmpty() )
+        {
+            cleanLastLeaf( lstLeaves, btree, newRevision );
+            Page node = attachNodes( lstLeaves, btree );
+            lstNodes.add( node );
+            lstLeaves.clear();
+        }
+        
+        if ( lstNodes.isEmpty() )
         {
             return btree;
         }
-
-        // remove null keys and values from the last leaf and resize
-        PersistedLeaf lastLeaf = ( PersistedLeaf ) lstLeaves.get( lstLeaves.size() - 1 );
-        for ( int i = 0; i < lastLeaf.nbElems; i++ )
-        {
-            if ( lastLeaf.keys[i] == null )
-            {
-                int n = i;
-                lastLeaf.nbElems = n;
-                KeyHolder[] keys = lastLeaf.keys;
-
-                lastLeaf.keys = ( KeyHolder[] ) Array.newInstance( KeyHolder.class, n );
-                System.arraycopy( keys, 0, lastLeaf.keys, 0, n );
-
-                ValueHolder[] values = lastLeaf.values;
-                lastLeaf.values = ( ValueHolder[] ) Array.newInstance( ValueHolder.class, n );
-                System.arraycopy( values, 0, lastLeaf.values, 0, n );
-
-                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, lastLeaf, newRevision );
-
-                break;
-            }
-        }
-
+        
         // make sure either one of the root pages is reclaimed, cause when we call rm.manage()
         // there is already a root page created
-        Page rootPage = attachNodes( lstLeaves, btree );
+        Page rootPage = attachNodes( lstNodes, btree );
 
         Page oldRoot = btree.getRootPage();
         
@@ -247,6 +243,37 @@ public class MavibotPartitionBuilder
         return btree;
     }
 
+    
+    private void cleanLastLeaf( List<Page> lstLeaves, BTree btree, long newRevision ) throws IOException
+    {
+        if( lstLeaves.isEmpty() )
+        {
+            return;
+        }
+        
+        // remove null keys and values from the last leaf and resize
+        PersistedLeaf lastLeaf = ( PersistedLeaf ) lstLeaves.get( lstLeaves.size() - 1 );
+        for ( int i = 0; i < lastLeaf.nbElems; i++ )
+        {
+            if ( lastLeaf.keys[i] == null )
+            {
+                int n = i;
+                lastLeaf.nbElems = n;
+                KeyHolder[] keys = lastLeaf.keys;
+
+                lastLeaf.keys = ( KeyHolder[] ) Array.newInstance( KeyHolder.class, n );
+                System.arraycopy( keys, 0, lastLeaf.keys, 0, n );
+
+                ValueHolder[] values = lastLeaf.values;
+                lastLeaf.values = ( ValueHolder[] ) Array.newInstance( ValueHolder.class, n );
+                System.arraycopy( values, 0, lastLeaf.values, 0, n );
+
+                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, lastLeaf, newRevision );
+
+                break;
+            }
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private Page attachNodes( List<Page> children, BTree btree ) throws IOException
@@ -504,6 +531,7 @@ public class MavibotPartitionBuilder
             
             final Attribute creatorsName = new DefaultAttribute( atCreator, ServerDNConstants.ADMIN_SYSTEM_DN );
             final Attribute createdTime = new DefaultAttribute( atCreatedTime, DateUtils.getGeneralizedTime() );
+            final Attribute entryCsn = new DefaultAttribute( atCsn, csnFactory.newInstance().toString() );
             
             @Override
             public boolean hasNext()
@@ -525,11 +553,11 @@ public class MavibotPartitionBuilder
                     raf.seek( dt.getOffset() );
                     raf.readFully( data, 0, data.length );
 
-                    Entry entry = lar.parseLdif( Strings.utf8ToString( data ) ).get( 0 ).getEntry();
+                    Entry entry = lar.parseLdifEntry( Strings.utf8ToString( data ) ).getEntry();
 
                     entry.add( atEntryUUID, dt.getId() );
                     entry.add( atEntryParentID, dt.getParentId() );
-                    entry.add( atCsn, csnFactory.newInstance().toString() );
+                    entry.add( entryCsn );
                     entry.add( creatorsName );
                     entry.add( createdTime );
 
@@ -1070,13 +1098,23 @@ public class MavibotPartitionBuilder
         {
             BTree tree = partition.getRecordMan().getManagedTree( name );
             TupleCursor cursor = tree.browse();
+            long fetched = 0;
             while ( cursor.hasNext() )
             {
-                //System.out.println( cursor.next() );
+                fetched++;
+                Tuple t = cursor.next();
+                //System.out.println( t );
             }
             cursor.close();
             
-            System.out.println( "The number of elements in the btree " + name + " " + tree.getNbElems() );
+            if( fetched != tree.getNbElems() )
+            {
+                System.err.println( "The number of elements fetched from the btree did not match with the stored count " + name + " ( fetched = " + fetched + ", stored count = " + tree.getNbElems() + " )" );
+            }
+            else
+            {
+                System.out.println( "The number of elements in the btree " + name + " " + fetched );
+            }
 //            Index idx = partition.getRdnIndex();
 //            org.apache.directory.api.ldap.model.cursor.Cursor idxCur = idx.forwardCursor();
 //            while( idxCur.next() )
@@ -1171,7 +1209,7 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/30k-users.ldif" );
+        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/50k-users.ldif" );
 
         //file = new File( "/tmp/builder-test.ldif" );
 //        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
@@ -1189,7 +1227,7 @@ public class MavibotPartitionBuilder
         System.out.println( "Total time taken " + ( end - start ) + "msec" );
         
         //String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
-        //builder.testBTree( fwdRdnTree );
+        builder.testBTree( "master" );
         
         //String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
         //builder.testBTree( "2.5.4.0_forward" );
