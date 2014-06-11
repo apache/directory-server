@@ -935,6 +935,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         while ( parent != null )
         {
+            rdnIdx.drop( parentId );
+            
             if ( isFirst )
             {
                 if ( addRemove == ADD_CHILD )

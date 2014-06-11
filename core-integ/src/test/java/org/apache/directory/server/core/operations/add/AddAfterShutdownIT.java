@@ -31,22 +31,14 @@ import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -119,50 +111,30 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
      * Add a child
      */
     @Test
-    @Ignore
     public void testAddChild() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
         
-        // Add the child
-        /*
-        Entry child1 = new DefaultEntry(
-            "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com",
-            "objectClass: top",
-            "objectClass: groupOfUniqueNames",
-            "cn: child1",
-            "uniqueMember: uid=dummy2",
-            "description: child1" );
-
-        System.out.println( "Adding child1 : " + child1.getDn() );
-        
-        connection.add( child1 );
-
-        assertTrue( connection.exists( "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" ) );
-        Entry found = connection.lookup( "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
-        System.out.println( "Child1 exists :\n" + found);
-        
-        */
         Map<String, Entry> results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
-        System.out.println( "Entries found :");
-        System.out.println( "--------------");
-        
-        for ( String dn : results.keySet() )
-        {
-            System.out.println( dn );
-        }
+//        System.out.println( "Entries found :");
+//        System.out.println( "--------------");
+//        
+//        for ( String dn : results.keySet() )
+//        {
+//            System.out.println( dn );
+//        }
+//
+//        connection.close();
 
-        connection.close();
-
-        System.out.println( "Stopping the service---------------------------------");
-        System.out.println();
+//        System.out.println( "Stopping the service---------------------------------");
+//        System.out.println();
         
         // Shutdown the DirectoryService
         getService().shutdown();
         assertFalse( getService().isStarted() );
 
-        System.out.println( "Starting the service---------------------------------");
+//        System.out.println( "Starting the service---------------------------------");
 
         // And restart it
         getService().startup();
@@ -179,43 +151,43 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
             "uniqueMember: uid=dummy2",
             "description: child2" );
 
-        SchemaManager schemaManager = getService().getSchemaManager();
-        Dn contextDn = new Dn( schemaManager, "dc=example,dc=com" );
-        JdbmPartition partition = ( JdbmPartition ) getService().getPartitionNexus().getPartition( contextDn );
-        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
+//        SchemaManager schemaManager = getService().getSchemaManager();
+//        Dn contextDn = new Dn( schemaManager, "dc=example,dc=com" );
+//        MavibotPartition partition = ( MavibotPartition ) getService().getPartitionNexus().getPartition( contextDn );
+//        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
         
-        System.out.println( "Adding child2 : " + child2.getDn() );
+//        System.out.println( "Adding child2 : " + child2.getDn() );
         connection.add( child2 );
 
-        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
+//        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
         
-        Entry found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
-        System.out.println( "Child2 exists :\n" + found);
+//        Entry found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
+//        System.out.println( "Child2 exists :\n" + found);
         
         assertTrue( connection.exists( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" ) );
         results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
-        System.out.println( "Entries found :");
-        System.out.println( "--------------");
-        
-        for ( String dn : results.keySet() )
-        {
-            System.out.println( dn );
-        }
+//        System.out.println( "Entries found :");
+//        System.out.println( "--------------");
+//        
+//        for ( String dn : results.keySet() )
+//        {
+//            System.out.println( dn );
+//        }
         
         // --------------------------------------------------------------------
         // Make sure entries not selected by subentryA do not have the mark
         // --------------------------------------------------------------------
         connection.close();
         
-        System.out.println( "Stopping the service---------------------------------");
+//        System.out.println( "Stopping the service---------------------------------");
         System.out.println();
 
         // Now shutdown the DirectoryService
         getService().shutdown();
         assertFalse( getService().isStarted() );
 
-        System.out.println( "Starting the service---------------------------------");
+//        System.out.println( "Starting the service---------------------------------");
 
         // And restart it
         getService().startup();
@@ -224,8 +196,8 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         // Fetch the entries again
         connection = IntegrationUtils.getAdminConnection( getService() );
 
-        found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
-        System.out.println( "Child2 STILL exists :\n" + found);
+        Entry found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
+//        System.out.println( "Child2 STILL exists :\n" + found);
         
 
         // Check the resulting modifications
@@ -233,15 +205,15 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
 
         System.out.println();
 
-        System.out.println( "Entries found :");
-        System.out.println( "--------------");
+//        System.out.println( "Entries found :");
+//        System.out.println( "--------------");
         
         int count = 0;
         
         for ( String dn : results.keySet() )
         {
             count++;
-            System.out.println( dn );
+//            System.out.println( dn );
         }
 
         connection.close();
