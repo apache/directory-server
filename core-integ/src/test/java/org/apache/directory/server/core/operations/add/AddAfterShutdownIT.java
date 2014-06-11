@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.operations.add;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -30,12 +31,21 @@ import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.server.annotations.CreateLdapServer;
+import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,23 +57,36 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "SubentryServiceIT-class")
+@CreateDS(
+    name = "AddAfterShutdownIT",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"))
+    }, enableChangeLog = false)
 @ApplyLdifs(
     {
         // A test branch
-        "dn: dc=test,ou=system",
+        "dn: dc=test,dc=example,dc=com",
         "objectClass: top",
         "objectClass: domain",
         "dc: test",
         "",
         // The first level
-        "dn: ou=groups,dc=test,ou=system",
+        "dn: ou=groups,dc=test,dc=example,dc=com",
         "objectClass: top",
         "objectClass: organizationalUnit",
         "ou: groups",
         "",
         // entry child
-        "dn: cn=imadmin,ou=groups,dc=test,ou=system",
+        "dn: cn=imadmin,ou=groups,dc=test,dc=example,dc=com",
         "objectClass: top",
         "objectClass: groupOfUniqueNames",
         "uniqueMember: uid=dummy",
@@ -104,7 +127,7 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         // Add the child
         /*
         Entry child1 = new DefaultEntry(
-            "cn=child1,cn=imadmin,ou=groups,dc=test,ou=system",
+            "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com",
             "objectClass: top",
             "objectClass: groupOfUniqueNames",
             "cn: child1",
@@ -115,12 +138,12 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         
         connection.add( child1 );
 
-        assertTrue( connection.exists( "cn=child1,cn=imadmin,ou=groups,dc=test,ou=system" ) );
-        Entry found = connection.lookup( "cn=child1,cn=imadmin,ou=groups,dc=test,ou=system" );
+        assertTrue( connection.exists( "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" ) );
+        Entry found = connection.lookup( "cn=child1,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
         System.out.println( "Child1 exists :\n" + found);
         
         */
-        Map<String, Entry> results = getAllEntries( connection, "dc=test,ou=system" );
+        Map<String, Entry> results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
         System.out.println( "Entries found :");
         System.out.println( "--------------");
@@ -149,21 +172,28 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
 
         // Add the child
         Entry child2 = new DefaultEntry(
-            "cn=child2,cn=imadmin,ou=groups,dc=test,ou=system",
+            "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com",
             "objectClass: top",
             "objectClass: groupOfUniqueNames",
             "cn: child2",
             "uniqueMember: uid=dummy2",
             "description: child2" );
 
+        SchemaManager schemaManager = getService().getSchemaManager();
+        Dn contextDn = new Dn( schemaManager, "dc=example,dc=com" );
+        JdbmPartition partition = ( JdbmPartition ) getService().getPartitionNexus().getPartition( contextDn );
+        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
+        
         System.out.println( "Adding child2 : " + child2.getDn() );
         connection.add( child2 );
 
-        Entry found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,ou=system" );
+        partition.dumpRdnIdx( Partition.ROOT_ID, "" );
+        
+        Entry found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
         System.out.println( "Child2 exists :\n" + found);
         
-        assertTrue( connection.exists( "cn=child2,cn=imadmin,ou=groups,dc=test,ou=system" ) );
-        results = getAllEntries( connection, "dc=test,ou=system" );
+        assertTrue( connection.exists( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" ) );
+        results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
         System.out.println( "Entries found :");
         System.out.println( "--------------");
@@ -194,23 +224,28 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         // Fetch the entries again
         connection = IntegrationUtils.getAdminConnection( getService() );
 
-        found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,ou=system" );
+        found = connection.lookup( "cn=child2,cn=imadmin,ou=groups,dc=test,dc=example,dc=com" );
         System.out.println( "Child2 STILL exists :\n" + found);
         
 
         // Check the resulting modifications
-        results = getAllEntries( connection, "dc=test,ou=system" );
+        results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
         System.out.println();
 
         System.out.println( "Entries found :");
         System.out.println( "--------------");
         
+        int count = 0;
+        
         for ( String dn : results.keySet() )
         {
+            count++;
             System.out.println( dn );
         }
 
         connection.close();
+        
+        assertEquals( 4, count );
     }
 }
