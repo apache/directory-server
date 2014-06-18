@@ -181,13 +181,16 @@ public class MavibotPartitionBuilder
             
             if ( ( totalTupleCount % numKeysInNode ) == 0 )
             {
-                if( ( lstLeaves.size() % numKeysInNode ) == 0 )
+                if( ( lstLeaves.size() % ( numKeysInNode + 1 ) ) == 0 )
                 {
-                    System.out.println( "Processed tuples " + totalTupleCount );
+                    //System.out.println( "Processed tuples " + totalTupleCount );
                     cleanLastLeaf( lstLeaves, btree, newRevision );
-                    Page node = attachNodes( lstLeaves, btree );
-                    lstNodes.add( node );
-                    lstLeaves.clear();
+                    if( !lstLeaves.isEmpty() )
+                    {
+                        Page node = attachNodes( lstLeaves, btree );
+                        lstNodes.add( node );
+                        lstLeaves.clear();
+                    }
                 }
                 
                 leafIndex = 0;
@@ -202,9 +205,12 @@ public class MavibotPartitionBuilder
         if( !lstLeaves.isEmpty() )
         {
             cleanLastLeaf( lstLeaves, btree, newRevision );
-            Page node = attachNodes( lstLeaves, btree );
-            lstNodes.add( node );
-            lstLeaves.clear();
+            if( !lstLeaves.isEmpty() )
+            {
+                Page node = attachNodes( lstLeaves, btree );
+                lstNodes.add( node );
+                lstLeaves.clear();
+            }
         }
         
         if ( lstNodes.isEmpty() )
@@ -215,7 +221,8 @@ public class MavibotPartitionBuilder
         // make sure either one of the root pages is reclaimed, cause when we call rm.manage()
         // there is already a root page created
         Page rootPage = attachNodes( lstNodes, btree );
-
+        lstNodes.clear();
+        
         Page oldRoot = btree.getRootPage();
         
         //System.out.println("built rootpage : " + rootPage);
@@ -253,6 +260,14 @@ public class MavibotPartitionBuilder
         
         // remove null keys and values from the last leaf and resize
         PersistedLeaf lastLeaf = ( PersistedLeaf ) lstLeaves.get( lstLeaves.size() - 1 );
+        
+        if ( lastLeaf.keys[0] == null )
+        {
+            lstLeaves.remove( lastLeaf );
+            System.out.println( "removed last leaf" );
+            return;
+        }
+        
         for ( int i = 0; i < lastLeaf.nbElems; i++ )
         {
             if ( lastLeaf.keys[i] == null )
@@ -318,6 +333,13 @@ public class MavibotPartitionBuilder
         // remove null keys and values from the last node and resize
         AbstractPage lastNode = ( AbstractPage ) lstNodes.get( lstNodes.size() - 1 );
 
+        if ( lastNode.keys[0] == null )
+        {
+            lstNodes.remove( lastNode );
+            System.out.println( "removed last node" );
+            return attachNodes( lstNodes, btree );
+        }
+
         for ( int j = 0; j < lastNode.nbElems; j++ )
         {
             if ( lastNode.keys[j] == null )
@@ -339,13 +361,9 @@ public class MavibotPartitionBuilder
     }
 
 
-    public void calcLevels()
+    private static void calcLevels( int totalKeys, int numKeysPerPage )
     {
         int numLevels = 0;
-
-        int numKeysPerPage = 16;
-
-        int totalKeys = 10000000;
 
         while ( totalKeys > 1 )
         {
@@ -364,7 +382,14 @@ public class MavibotPartitionBuilder
                 totalKeys += 1;
             }
 
-            System.out.println( "Total keys " + totalKeys );
+            if ( numLevels == 0 )
+            {
+                System.out.println( "Total Leaves " + totalKeys );
+            }
+            else
+            {
+                System.out.println( "Total Nodes " + totalKeys );
+            }
 
             numLevels++;
         }
@@ -533,6 +558,8 @@ public class MavibotPartitionBuilder
             final Attribute createdTime = new DefaultAttribute( atCreatedTime, DateUtils.getGeneralizedTime() );
             final Attribute entryCsn = new DefaultAttribute( atCsn, csnFactory.newInstance().toString() );
             
+            final Tuple t = new Tuple();
+            
             @Override
             public boolean hasNext()
             {
@@ -544,7 +571,6 @@ public class MavibotPartitionBuilder
             public Tuple<String, Entry> next()
             {
                 DnTuple dt = itr.next();
-                Tuple t = new Tuple();
                 t.setKey( dt.getId() );
 
                 try
@@ -554,6 +580,7 @@ public class MavibotPartitionBuilder
                     raf.readFully( data, 0, data.length );
 
                     Entry entry = lar.parseLdifEntry( Strings.utf8ToString( data ) ).getEntry();
+                    data = null;
 
                     entry.add( atEntryUUID, dt.getId() );
                     entry.add( atEntryParentID, dt.getParentId() );
@@ -1202,6 +1229,8 @@ public class MavibotPartitionBuilder
 
     public static void main( String[] args ) throws Exception
     {
+        calcLevels( 50002, 16 );
+        
         File outDir = new File( "/tmp/builder" );
         
         if( outDir.exists() )
@@ -1209,7 +1238,7 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/50k-users.ldif" );
+        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/30k-users.ldif" );
 
         //file = new File( "/tmp/builder-test.ldif" );
 //        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
