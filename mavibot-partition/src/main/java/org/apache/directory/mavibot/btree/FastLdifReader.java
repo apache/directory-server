@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
     public FastLdifReader( File file ) throws LdapLdifException
     {
         super( file );
+        validateDn = false;
     }
 
 
@@ -291,5 +292,4 @@ import org.slf4j.LoggerFactory;
 
         return tuple;
     }
-
 }

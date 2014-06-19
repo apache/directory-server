@@ -49,6 +49,7 @@ public class SchemaAwareLdifReader extends LdifReader
     public SchemaAwareLdifReader( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
+        validateDn = false;
     }
 
     @Override
