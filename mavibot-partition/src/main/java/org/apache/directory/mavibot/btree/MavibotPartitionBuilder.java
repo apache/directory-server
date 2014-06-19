@@ -144,8 +144,9 @@ public class MavibotPartitionBuilder
         List<Page> lstLeaves = new ArrayList<Page>();
         List<Page> lstNodes = new ArrayList<Page>();
 
-        int totalTupleCount = 0;
-
+        int totalLeaves = 1;
+        int totalTuples = 0;
+        
         Page leaf1 = BTreeFactory.createLeaf( btree, newRevision, numKeysInNode );
         lstLeaves.add( leaf1 );
 
@@ -175,15 +176,17 @@ public class MavibotPartitionBuilder
             setValue( btree, leaf1, leafIndex, eh );
 
             leafIndex++;
-            totalTupleCount++;
-
-            //TODO build the whole tree in chunks rather than processing *all* leaves at first
+            totalTuples++;
             
-            if ( ( totalTupleCount % numKeysInNode ) == 0 )
+            if ( leafIndex == numKeysInNode )
             {
-                if( ( lstLeaves.size() % ( numKeysInNode + 1 ) ) == 0 )
+                leafIndex = 0;
+                
+                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, leaf1, newRevision );
+
+                if( ( totalLeaves % ( numKeysInNode + 1 ) ) == 0 )
                 {
-                    //System.out.println( "Processed tuples " + totalTupleCount );
+                    //System.out.println( "Processed tuples " + totalTuples );
                     cleanLastLeaf( lstLeaves, btree, newRevision );
                     if( !lstLeaves.isEmpty() )
                     {
@@ -192,12 +195,11 @@ public class MavibotPartitionBuilder
                         lstLeaves.clear();
                     }
                 }
+
+                ( ( PersistedLeaf ) leaf1 )._clearValues_();
                 
-                leafIndex = 0;
-
-                PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, leaf1, newRevision );
-
                 leaf1 = createLeaf( btree, newRevision, numKeysInNode );
+                totalLeaves++;
                 lstLeaves.add( leaf1 );
             }
         }
@@ -226,7 +228,7 @@ public class MavibotPartitionBuilder
         Page oldRoot = btree.getRootPage();
         
         //System.out.println("built rootpage : " + rootPage);
-        btree.setNbElems( totalTupleCount );
+        btree.setNbElems( totalTuples );
 
         long newRootPageOffset = ( ( AbstractPage ) rootPage ).getOffset();
         System.out.println( "replacing old offset " + btree.getRootPageOffset() + " of the BTree " + name + " with " + newRootPageOffset );
@@ -264,7 +266,7 @@ public class MavibotPartitionBuilder
         if ( lastLeaf.keys[0] == null )
         {
             lstLeaves.remove( lastLeaf );
-            System.out.println( "removed last leaf" );
+            //System.out.println( "removed last leaf" );
             return;
         }
         
@@ -305,7 +307,7 @@ public class MavibotPartitionBuilder
         PersistedNode node = ( PersistedNode ) createNode( btree, btree.getRevision(), numKeysInNode );
         lstNodes.add( node );
         int i = 0;
-        int totalNodes = 0;
+        int attachedChildren = 0;
 
         for ( Page p : children )
         {
@@ -317,14 +319,19 @@ public class MavibotPartitionBuilder
             node.children[i] = new PersistedPageHolder( btree, p );
 
             i++;
-            totalNodes++;
+            attachedChildren++;
 
-            if ( ( totalNodes % numChildren ) == 0 )
+            if ( ( attachedChildren % numChildren ) == 0 )
             {
-                i = 0;
-
                 PageHolder pageHolder = ( PageHolder ) rm.writePage( btree, node, 1 );
 
+                if( children.size() == attachedChildren )
+                {
+                    break;
+                }
+
+                i = 0;
+                
                 node = ( PersistedNode ) createNode( btree, btree.getRevision(), numKeysInNode );
                 lstNodes.add( node );
             }
@@ -336,7 +343,7 @@ public class MavibotPartitionBuilder
         if ( lastNode.keys[0] == null )
         {
             lstNodes.remove( lastNode );
-            System.out.println( "removed last node" );
+            //System.out.println( "removed last node" );
             return attachNodes( lstNodes, btree );
         }
 
@@ -570,17 +577,18 @@ public class MavibotPartitionBuilder
             @Override
             public Tuple<String, Entry> next()
             {
+
                 DnTuple dt = itr.next();
                 t.setKey( dt.getId() );
 
                 try
                 {
+                    
                     byte[] data = new byte[dt.getLen()];
                     raf.seek( dt.getOffset() );
                     raf.readFully( data, 0, data.length );
 
                     Entry entry = lar.parseLdifEntry( Strings.utf8ToString( data ) ).getEntry();
-                    data = null;
 
                     entry.add( atEntryUUID, dt.getId() );
                     entry.add( atEntryParentID, dt.getParentId() );
@@ -774,7 +782,7 @@ public class MavibotPartitionBuilder
         catch ( Exception e )
         {
             LOG.warn( "Failed to parse the given LDIF file ", e );
-            e.printStackTrace();
+            return;
         }
         
         if ( ( sortedDnSet == null ) || ( sortedDnSet.isEmpty() ) )
@@ -809,11 +817,20 @@ public class MavibotPartitionBuilder
         catch( Exception e )
         {
             LOG.warn( "Failed to build master table", e );
+            e.printStackTrace();
             return;
         }
         
+        
         try
         {
+            // the partition must be re-initialized cause we are
+            // setting the "values" of leaves to null while building
+            // the tree to avoid OOM errors
+            partition.destroy();
+            partition.initialize();
+            rm = partition.getRecordMan();
+            
             long rdnT0 = System.currentTimeMillis();
             System.out.print( "Building RDN index." );
             buildRdnIndex( sortedDnSet );
@@ -1123,7 +1140,7 @@ public class MavibotPartitionBuilder
     {
         try
         {
-            BTree tree = partition.getRecordMan().getManagedTree( name );
+            BTree tree = rm.getManagedTree( name );
             TupleCursor cursor = tree.browse();
             long fetched = 0;
             while ( cursor.hasNext() )
@@ -1229,7 +1246,7 @@ public class MavibotPartitionBuilder
 
     public static void main( String[] args ) throws Exception
     {
-        calcLevels( 50002, 16 );
+        calcLevels( 502, 16 );
         
         File outDir = new File( "/tmp/builder" );
         
@@ -1238,7 +1255,7 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/30k-users.ldif" );
+        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/100k-users.ldif" );
 
         //file = new File( "/tmp/builder-test.ldif" );
 //        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
