@@ -101,7 +101,7 @@ public class MavibotPartitionBuilder
 
     private RecordManager rm;
 
-    private MavibotPartition partition;
+    //private MavibotPartition partition;
 
     private SchemaManager schemaManager;
 
@@ -402,31 +402,6 @@ public class MavibotPartitionBuilder
         }
 
         System.out.println( numLevels );
-    }
-
-
-    private void createPartition() throws Exception
-    {
-        DnFactory dnFactory = new DefaultDnFactory( schemaManager, null );
-
-        partition = new MavibotPartition( schemaManager, dnFactory );
-        partition.setId( "builder" );
-        partition.setSuffixDn( suffixDn );
-
-        File dir = new File( outputDir );
-        partition.setPartitionPath( dir.toURI() );
-
-        for( String atName : indexAttributes )
-        {
-            schemaManager.lookupAttributeTypeRegistry( atName );
-            partition.addIndex( new MavibotIndex( atName, false ) );
-        }
-        
-        partition.initialize();
-
-        masterTableName = partition.getMasterTable().getName();
-        
-        rm = partition.getRecordMan();
     }
 
 
@@ -792,11 +767,33 @@ public class MavibotPartitionBuilder
             LOG.info( message );
         }
         
+        MavibotPartition partition = null;
         try
         {
             long partT0 = System.currentTimeMillis();
             System.out.print( "Creating partition..." );
-            createPartition();
+            
+            DnFactory dnFactory = new DefaultDnFactory( schemaManager, null );
+
+            partition = new MavibotPartition( schemaManager, dnFactory );
+            partition.setId( "builder" );
+            partition.setSuffixDn( suffixDn );
+
+            File dir = new File( outputDir );
+            partition.setPartitionPath( dir.toURI() );
+
+            for( String atName : indexAttributes )
+            {
+                schemaManager.lookupAttributeTypeRegistry( atName );
+                partition.addIndex( new MavibotIndex( atName, false ) );
+            }
+            
+            partition.initialize();
+
+            masterTableName = partition.getMasterTable().getName();
+            
+            rm = partition.getRecordMan();
+
             long partT1 = System.currentTimeMillis();
             System.out.println( ", time taken : " + ( partT1 - partT0 ) + "ms" );
         }
@@ -821,15 +818,16 @@ public class MavibotPartitionBuilder
             return;
         }
         
+        Iterator<String> userIndexItr = partition.getUserIndices();
         
         try
         {
-            // the partition must be re-initialized cause we are
+            // the RecordManager must be re-initialized cause we are
             // setting the "values" of leaves to null while building
             // the tree to avoid OOM errors
             partition.destroy();
-            partition.initialize();
-            rm = partition.getRecordMan();
+            
+            rm = new RecordManager( new File( partition.getPartitionPath() ).getAbsolutePath() );
             
             long rdnT0 = System.currentTimeMillis();
             System.out.print( "Building RDN index." );
@@ -887,7 +885,7 @@ public class MavibotPartitionBuilder
         {
             System.out.print( "Building presence index..." );
             long presenceT0 = System.currentTimeMillis();
-            buildPresenceIndex();
+            buildPresenceIndex( userIndexItr );
             long presenceT1 = System.currentTimeMillis();
             System.out.println( ", time taken : " + ( presenceT1 - presenceT0 ) + "ms" );
         }
@@ -902,10 +900,9 @@ public class MavibotPartitionBuilder
     }
 
     
-    private void buildPresenceIndex() throws Exception
+    private void buildPresenceIndex( Iterator<String> itr ) throws Exception
     {
         Set<String> idxOids = new HashSet<String>();
-        Iterator<String> itr = partition.getUserIndices();
         
         while( itr.hasNext() )
         {
@@ -1173,39 +1170,6 @@ public class MavibotPartitionBuilder
             e.printStackTrace();
         }
     }
-    
-    public void testPartition() throws Exception
-    {
-        partition.sync();
-        partition.destroy();
-        
-        createPartition();
-        
-        testBTree( masterTableName );
-        
-        SearchRequest req = new SearchRequestImpl();
-        req.setBase( suffixDn );
-        
-        ExprNode filter = new PresenceNode( schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT ) );
-        
-        req.setFilter( filter );
-        req.setScope( SearchScope.SUBTREE );
-        
-        SearchOperationContext searchCtx = new SearchOperationContext( null, req );
-        
-        EntryFilteringCursor cur = partition.search( searchCtx );
-        
-        int count = 0;
-        while( cur.next() )
-        {
-            count++;
-            System.out.println( cur.get() );
-        }
-        
-        cur.close();
-        
-        System.out.println( "Total search results " + count );
-    }
 
     
     /** no qualifier */ int getTotalEntries()
@@ -1226,12 +1190,6 @@ public class MavibotPartitionBuilder
     }
 
 
-    /** no qualifier */ MavibotPartition getPartition()
-    {
-        return partition;
-    }
-
-
     /** no qualifier */ SchemaManager getSchemaManager()
     {
         return schemaManager;
@@ -1244,25 +1202,120 @@ public class MavibotPartitionBuilder
     }
 
 
+    public static void help()
+    {
+        System.out.println( "Usage" );
+        System.out.println( "java -jar bulkloader.jar <options>" );
+        System.out.println( "Available options are:" );
+        
+        Option[] options = Option.values();
+        
+        for( Option o : options )
+        {
+            if( o == Option.UNKNOWN )
+            {
+                continue;
+            }
+            
+            System.out.println( o.getText() + "    " + o.getDesc() );
+        }
+    }
+    
+    private static String getArgAt( int position, Option opt, String[] args )
+    {
+        if( position >= args.length )
+        {
+            System.out.println( "No value was provided for the option " + opt.getText() );
+            System.exit( 1 );
+        }
+        
+        return args[position];
+    }
+    
     public static void main( String[] args ) throws Exception
     {
-        calcLevels( 502, 16 );
+        String inFile = null;
+        String outDirPath = null;
+        int numKeysInNode = 16;
+        int rid = 1;
+        boolean cleanOutDir = false;
+        boolean verifyMasterTable = false;
+
+        if ( args.length < 2 )
+        {
+           help();
+           System.exit( 0 );
+        }
         
-        File outDir = new File( "/tmp/builder" );
+        for( int i =0; i < args.length; i++ )
+        {
+            Option opt = Option.getOpt( args[i] );
+            
+            switch( opt )
+            {
+                case HELP:
+                    help();
+                    System.exit( 0 );
+                    break;
+                    
+                case INPUT_FILE:
+                    inFile = getArgAt( ++i, opt, args );
+                    break;
+
+                case OUT_DIR:
+                    outDirPath = getArgAt( ++i, opt, args );
+                    break;
+
+                case CLEAN_OUT_DIR:
+                    cleanOutDir = true;
+                    break;
+
+                case VERIFY_MASTER_TABLE:
+                    verifyMasterTable = true;
+                    break;
+
+                case NUM_KEYS_PER_NODE:
+                    numKeysInNode = Integer.parseInt( getArgAt( ++i, opt, args ) );
+                    break;
+
+                case DS_RID:
+                    rid = Integer.parseInt( getArgAt( ++i, opt, args ) );
+                    break;
+
+                case UNKNOWN:
+                    System.out.println( "Unknown option " + args[i] );
+                    continue;
+            }
+        }
+        
+        if( ( inFile == null ) || ( inFile.trim().length() == 0 ) )
+        {
+            System.out.println( "Invalid input file" );
+            return;
+        }
+        
+        if( !new File( inFile ).exists() )
+        {
+            System.out.println( "The input file " + inFile + " doesn't exist" );
+            return;
+        }
+        
+        //calcLevels( 502, 16 );
+        
+        File outDir = new File( outDirPath );
         
         if( outDir.exists() )
         {
+            if( !cleanOutDir )
+            {
+                System.out.println( "The output directory is not empty, pass " + Option.CLEAN_OUT_DIR.getText() + " to force delete the contents or specify a different directory"  );
+                return;
+            }
+            
             FileUtils.deleteDirectory( outDir );
         }
         
-        File file = new File( "/Users/dbugger/other-projects/slamd~svn/trunk/slamd/package/slamd/tools/MakeLDIF/100k-users.ldif" );
-
-        //file = new File( "/tmp/builder-test.ldif" );
-//        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
-//        FileUtils.copyInputStreamToFile( in, file );
-//        in.close();
-        
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
+        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( inFile, outDirPath, numKeysInNode, rid );
         
         long start = System.currentTimeMillis();
         
@@ -1272,30 +1325,10 @@ public class MavibotPartitionBuilder
         
         System.out.println( "Total time taken " + ( end - start ) + "msec" );
         
-        //String fwdRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.FORWARD_BTREE;
-        builder.testBTree( "master" );
-        
-        //String revRdnTree = ApacheSchemaConstants.APACHE_RDN_AT_OID + MavibotRdnIndex.REVERSE_BTREE;
-        //builder.testBTree( "2.5.4.0_forward" );
-        //builder.testPartition();
-    }
-    
-    /*
-    public static void main( String[] args ) throws Exception
-    {
-        File outDir = new File( "/tmp/builder" );
-        
-        if( outDir.exists() )
+        if ( verifyMasterTable )
         {
-            FileUtils.deleteDirectory( outDir );
+            System.out.println( "Verifying the contents of master table" );
+            builder.testBTree( "master" );
         }
-        
-        
-        File file = new File( "/tmp/30k.ldif" );
-
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
-        
-        builder.buildPartition();
     }
-    */
 }
