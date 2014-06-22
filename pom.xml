@@ -140,6 +140,7 @@
     -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
+    <module>bulkloader</module>
     <!--Uncomment to build OSGi-related bundles-->
     <!--<module>apache-felix</module>-->
     <!--<module>dependencies</module>-->
