@@ -259,7 +259,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             LOG.error( I18n.err( I18n.ERR_6, cause.getLocalizedMessage() ) );
             LdapAuthenticationException e = new LdapAuthenticationException( cause.getLocalizedMessage() );
-            e.initCause( e );
+            e.initCause( cause );
             throw e;
         }
 
