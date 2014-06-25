@@ -39,7 +39,7 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     private int delegatePort;
 
     /** Tells if we use SSL to connect */
-    @ConfigurationElement(attributeType = "ads-delegateSsl")
+    @ConfigurationElement(attributeType = "ads-delegateSsl", isOptional = true)
     private boolean delegateSsl;
 
     /** The base DN which will be the starting point from which we use the delegator authenticator */
