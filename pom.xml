@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>31</version>
+    <version>32</version>
     <relativePath />
   </parent>
 
@@ -45,15 +45,15 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M23-SNAPSHOT</org.apache.directory.api.version>
-    <org.apache.directory.mavibot.version>1.0.0-M5-SNAPSHOT</org.apache.directory.mavibot.version>
+    <org.apache.directory.api.version>1.0.0-M23</org.apache.directory.api.version>
+    <org.apache.directory.mavibot.version>1.0.0-M5</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M2</org.apache.directory.jdbm.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.9.1</ant.version>
+    <ant.version>1.9.4</ant.version>
     <bcprov.version>140</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
@@ -70,8 +70,8 @@
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
     <maven.archiver.version>2.5</maven.archiver.version>
-    <maven.artifact.version>3.0.5</maven.artifact.version>
-    <maven.plugin.api.version>3.0.5</maven.plugin.api.version>
+    <maven.artifact.version>3.2.2</maven.artifact.version>
+    <maven.plugin.api.version>3.2.2</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.7</mina.core.version>
     <plexus.utils.version>3.0.10</plexus.utils.version>
