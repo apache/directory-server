@@ -586,9 +586,22 @@ public class CursorBuilder
 
             // Position the index on the element we should start from
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
-            indexEntry.setKey( node.getInitial() );
-
-            cursor.before( indexEntry );
+            String initial = node.getInitial();
+            
+            boolean fullIndexScan = false;
+            
+            if ( initial == null )
+            {
+                fullIndexScan = true;
+                cursor.beforeFirst();
+            }
+            else
+            {
+                indexEntry.setKey( initial );
+                
+                cursor.before( indexEntry );
+            }
+            
             int nbResults = 0;
 
             MatchingRule rule = attributeType.getSubstring();
@@ -630,13 +643,20 @@ public class CursorBuilder
 
                 String key = indexEntry.getKey();
 
-                if ( !regexp.matcher( key ).matches() )
+                boolean matched = regexp.matcher( key ).matches();
+                
+                if ( !fullIndexScan & !matched )
                 {
                     cursor.close();
 
                     return nbResults;
                 }
 
+                if ( !matched )
+                {
+                    continue;
+                }
+                
                 String uuid = indexEntry.getId();
 
                 if ( !uuidSet.contains( uuid ) )
