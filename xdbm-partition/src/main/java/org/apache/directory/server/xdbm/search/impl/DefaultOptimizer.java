@@ -396,8 +396,8 @@ public class DefaultOptimizer<E> implements Optimizer
 
             if ( Strings.isEmpty( initial ) )
             {
-                // Not a (attr=ABC*) filter : full scan
-                return Long.MAX_VALUE;
+                // Not a (attr=ABC*) filter : full index scan
+                return idx.count();
             }
             else
             {
