@@ -20,15 +20,19 @@
 package org.apache.directory.shared.client.api;
 
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
+import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -148,5 +152,48 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
+    }
+    
+    
+    @Test
+    public void testRebind() throws Exception
+    {
+        for ( int i = 0; i < 300; i++ ) {
+            LdapConnection connection = pool.getConnection();
+            try 
+            {
+                // uncomment next line to test the unBind()
+                // bind() race condition described here:
+                // http://mail-archives.apache.org/mod_mbox/directory-dev/201407.mbox/%3CEE6ADC61AF2D71408E4FA7F9517DB7710A9C07E5%40IMCMBX03.MITRE.ORG%3E
+                //connection.unBind();
+                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            }
+            finally
+            {
+                assertNotNull( connection );
+                pool.releaseConnection( connection );
+            }
+        }
+    }
+    
+    
+    @Test
+    public void testSmallPool() throws Exception
+    {
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localHost" );
+        config.setLdapPort( getLdapServer().getPort() );
+        config.setName( DEFAULT_ADMIN );
+        config.setCredentials( DEFAULT_PASSWORD );
+        PoolableLdapConnectionFactory factory = new PoolableLdapConnectionFactory( config );
+        LdapConnectionPool pool = new LdapConnectionPool( factory );
+        pool.setMaxActive( 1 );
+        pool.setTestOnBorrow( true );
+        pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_FAIL );
+
+        for ( int i = 0; i < 100; i++ ) {
+            LdapConnection connection = pool.getConnection();
+            pool.releaseConnection( connection );
+        }
     }
 }

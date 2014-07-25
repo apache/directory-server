@@ -26,7 +26,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+
 import java.util.List;
+
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -41,6 +43,7 @@ import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -90,7 +93,9 @@ import org.junit.Test;
         "ldif/muppets.ldif"
     }
 )
-@CreateLdapConnectionPool
+@CreateLdapConnectionPool(
+        maxActive = 1,
+        maxWait = 5000 )
 public class LdapConnectionTemplateTest
 {
     @ClassRule
@@ -289,6 +294,18 @@ public class LdapConnectionTemplateTest
         catch ( PasswordException e )
         {
             fail( "failed to change password" );
+        }
+    }
+    
+    
+    @Test
+    public void testReauthenticate() throws PasswordException
+    {
+        for ( int i = 0; i < 100; i++ ) {
+            ldapConnectionTemplate.authenticate( 
+                    ldapConnectionTemplate.newDn( 
+                            ServerDNConstants.ADMIN_SYSTEM_DN ),
+                    "secret".toCharArray() );
         }
     }
 
