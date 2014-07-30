@@ -48,16 +48,25 @@ echo "Installing..."
 # Filtering apacheds script file
 sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
+
 sed -e "s;@instances.directory@;${INSTANCES_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
+
 sed -e "s;@user@;${RUN_AS_USER};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
+mv ../server/bin/apacheds.tmp ../server/bin/apacheds
+verifyExitCode
+
 sed -e "s;@group@;${RUN_AS_GROUP};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
 
