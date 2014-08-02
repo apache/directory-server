@@ -589,7 +589,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             entryDnCache = cacheService.getCache( "entryDn" );
             entryDnCache.setMemoryStoreEvictionPolicy( new LruPolicy() );
-            entryDnCache.getCacheConfiguration().setMaxElementsInMemory( 100 );
+            entryDnCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
         }
     }
 
