@@ -106,7 +106,8 @@ public class JdbmStoreTest
 
     /** The SN AttributeType instance */
     private static AttributeType SN_AT;
-
+    
+    private static CacheService cacheService;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -140,7 +141,7 @@ public class JdbmStoreTest
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -172,6 +173,7 @@ public class JdbmStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
+        store.setCacheService( cacheService );
         store.initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -226,6 +228,7 @@ public class JdbmStoreTest
         store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
+        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry
@@ -808,6 +811,7 @@ public class JdbmStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
         // init the store to call deleteUnusedIndexFiles() method
+        store.setCacheService( cacheService );
         store.initialize();
 
         assertFalse( ouIndexDbFile.exists() );

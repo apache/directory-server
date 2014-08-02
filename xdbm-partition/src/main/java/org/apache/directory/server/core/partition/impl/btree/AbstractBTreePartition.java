@@ -29,14 +29,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.LruPolicy;
 
-import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -67,8 +69,8 @@ import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
@@ -191,7 +193,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private ReadWriteLock rwLock;
 
     /** a cache to hold <entryUUID, Dn> pairs, this is used for speeding up the buildEntryDn() method */
-    private LRUMap entryDnCache = new LRUMap( 10000 );
+    private Cache entryDnCache;
+    
+    /** a semaphore to serialize the writes on context entry while updating contextCSN attribute */
+    private Semaphore ctxCsnSemaphore = new Semaphore( 1 );
     
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -494,7 +499,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // don't reset initialized flag
         initialized = false;
 
-        entryDnCache.clear();
+        entryDnCache.removeAll();
         
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
@@ -581,6 +586,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 piarCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize * 3 );
             }
+            
+            entryDnCache = cacheService.getCache( "entryDn" );
+            entryDnCache.setMemoryStoreEvictionPolicy( new LruPolicy() );
+            entryDnCache.getCacheConfiguration().setMaxElementsInMemory( 100 );
         }
     }
 
@@ -1114,7 +1123,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( ctxCsnChanged && getSuffixDn().getNormName().equals( searchContext.getDn().getNormName() ) )
             {
-                saveContextCsn();
+                try
+                {
+                    ctxCsnSemaphore.acquire();
+                    saveContextCsn();
+                }
+                catch ( Exception e )
+                {
+                    throw new LdapOperationErrorException( e.getMessage(), e );
+                }
+                finally
+                {
+                    ctxCsnSemaphore.release();
+                }
             }
             
             PartitionSearchResult searchResult = searchEngine.computeResult( schemaManager, searchContext );
@@ -1153,7 +1174,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( ctxCsnChanged && getSuffixDn().getNormName().equals( lookupContext.getDn().getNormName() ) )
         {
-            saveContextCsn();
+            try
+            {
+                ctxCsnSemaphore.acquire();
+                saveContextCsn();
+            }
+            catch ( Exception e )
+            {
+                throw new LdapOperationErrorException( e.getMessage(), e );
+            }
+            finally
+            {
+                ctxCsnSemaphore.release();
+            }
         }
 
         Entry entry = fetch( id, lookupContext.getDn() );
@@ -1860,7 +1893,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Remove the EntryDN
         modifiedEntry.removeAttributes( ENTRY_DN_AT );
 
-        entryDnCache.clear();
+        entryDnCache.removeAll();
         
         setContextCsn( modifiedEntry.get( ENTRY_CSN_AT ).getString() );
 
@@ -1965,7 +1998,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         rename( oldId, newRdn, deleteOldRdn, modifiedEntry );
         moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
 
-        entryDnCache.clear();
+        entryDnCache.removeAll();
         
         if ( isSyncOnWrite.get() )
         {
@@ -2223,7 +2256,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         rdnIdx.add( parentIdAndRdn, oldId );
 
-        entryDnCache.clear();
+        entryDnCache.removeAll();
         
         if ( isSyncOnWrite.get() )
         {
@@ -2311,11 +2344,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             rwLock.readLock().lock();
 
-            dn = ( Dn ) entryDnCache.get( id );
+            Element el = entryDnCache.get( id );
             
-            if ( dn != null )
+            if ( el != null )
             {
-                return dn;
+                return ( Dn ) el.getValue();
             }
             
             do
@@ -2373,7 +2406,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
             
-            entryDnCache.put( id, dn );
+            entryDnCache.put( new Element( id, dn ) );
             return dn;
         }
         finally
@@ -3305,14 +3338,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return;
         }
         
-        if( rwLock == null )
-        {
-            // Create a ReadWrite lock from scratch
-            rwLock = new ReentrantReadWriteLock();
-        }
-        
         try
         {
+            // we don't need to use the ctxCsnSemaphore here cause
+            // the only other place this is called is from PartitionNexus.sync()
+            // but that is protected by write lock in DefaultDirectoryService.shutdown()
+            
             String contextEntryId = getEntryId( getSuffixDn() );
             Entry origEntry = fetch( contextEntryId );
             

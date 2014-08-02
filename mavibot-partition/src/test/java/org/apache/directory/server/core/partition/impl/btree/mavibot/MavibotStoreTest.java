@@ -115,6 +115,8 @@ public class MavibotStoreTest
 
     private RecordManager recordMan;
 
+    private static CacheService cacheService;
+    
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
@@ -151,7 +153,7 @@ public class MavibotStoreTest
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -181,6 +183,7 @@ public class MavibotStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
+        store.setCacheService( cacheService );
         store.initialize();
 
         recordMan = store.getRecordMan();
@@ -698,7 +701,7 @@ public class MavibotStoreTest
 
         Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
-        store.modify( dn, add );
+        lookedup = store.modify( dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
     }
 

@@ -117,6 +117,7 @@ public class SingleFileLdifPartitionTest
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
+    private static CacheService cacheService;
 
     @BeforeClass
     public static void init() throws Exception
@@ -164,7 +165,7 @@ public class SingleFileLdifPartitionTest
 
         contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -236,6 +237,7 @@ public class SingleFileLdifPartitionTest
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         return partition;

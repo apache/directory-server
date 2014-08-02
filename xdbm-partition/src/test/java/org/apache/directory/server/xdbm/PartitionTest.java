@@ -51,6 +51,7 @@ import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtra
 import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -85,6 +86,7 @@ public class PartitionTest
     /** The CN AttributType instance */
     private static AttributeType CN_AT;
 
+    private static CacheService cacheService;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -103,6 +105,8 @@ public class PartitionTest
         extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
+        cacheService = new CacheService();
+        cacheService.initialize( null );
         schemaManager = new DefaultSchemaManager( loader );
 
         boolean loaded = schemaManager.loadAllEnabled();
@@ -132,6 +136,7 @@ public class PartitionTest
         partition.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         StoreUtils.loadExampleData( partition, schemaManager );

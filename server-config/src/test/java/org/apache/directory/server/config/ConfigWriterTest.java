@@ -67,7 +67,8 @@ public class ConfigWriterTest
 {
     private static SchemaManager schemaManager;
     private static DnFactory dnFactory;
-
+    private static CacheService cacheService;
+    
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
 
@@ -104,7 +105,7 @@ public class ConfigWriterTest
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -123,6 +124,7 @@ public class ConfigWriterTest
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
+        configPartition.setCacheService( cacheService );
         configPartition.initialize();
 
         // Reading the config partition

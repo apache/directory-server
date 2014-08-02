@@ -239,6 +239,7 @@ public class DSAnnotationProcessor
                 if ( partition instanceof AbstractBTreePartition )
                 {
                     AbstractBTreePartition btreePartition = ( AbstractBTreePartition ) partition;
+                    btreePartition.setCacheService( service.getCacheService() );
                     btreePartition.setCacheSize( createPartition.cacheSize() );
                     btreePartition.setPartitionPath( new File( service
                         .getInstanceLayout().getPartitionsDirectory(),

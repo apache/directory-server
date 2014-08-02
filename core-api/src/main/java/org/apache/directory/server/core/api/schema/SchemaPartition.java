@@ -44,6 +44,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SchemaUtils;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -523,6 +524,14 @@ public final class SchemaPartition extends AbstractPartition
     public void saveContextCsn() throws Exception
     {
         wrapped.saveContextCsn();
+    }
+
+
+    @Override
+    public void setCacheService( CacheService cacheService )
+    {
+        super.setCacheService( cacheService );
+        wrapped.setCacheService( cacheService );
     }
 
 

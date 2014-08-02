@@ -75,7 +75,7 @@ public class PresenceTest
     Store store;
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
-
+    private static CacheService cacheService;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -109,7 +109,7 @@ public class PresenceTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -134,6 +134,7 @@ public class PresenceTest
         store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         ( ( Partition ) store ).initialize();

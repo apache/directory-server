@@ -92,7 +92,8 @@ public class LdifPartitionTest
     private static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
     private static CsnFactory defaultCSNFactory;
-
+    private static CacheService cacheService;
+    
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
@@ -124,7 +125,7 @@ public class LdifPartitionTest
 
         defaultCSNFactory = new CsnFactory( 0 );
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -145,6 +146,7 @@ public class LdifPartitionTest
         partition.setSchemaManager( schemaManager );
         partition.setPartitionPath( wkdir.toURI() );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         Entry entry = createEntry( "ou=test, ou=system" );

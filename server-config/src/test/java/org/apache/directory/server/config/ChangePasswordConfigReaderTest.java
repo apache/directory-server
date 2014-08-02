@@ -63,6 +63,7 @@ public class ChangePasswordConfigReaderTest
 
     private static SchemaManager schemaManager;
     private static DnFactory dnFactory;
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -100,7 +101,7 @@ public class ChangePasswordConfigReaderTest
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -125,6 +126,7 @@ public class ChangePasswordConfigReaderTest
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
+        configPartition.setCacheService( cacheService );
         configPartition.initialize();
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
 

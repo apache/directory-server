@@ -60,7 +60,8 @@ public class ConfigPartitionReaderTest
 {
     private static SchemaManager schemaManager;
     private static DnFactory dnFactory;
-
+    private static CacheService cacheService;
+    
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
 
@@ -98,7 +99,7 @@ public class ConfigPartitionReaderTest
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
@@ -117,6 +118,7 @@ public class ConfigPartitionReaderTest
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
+        configPartition.setCacheService( cacheService );
         configPartition.initialize();
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );

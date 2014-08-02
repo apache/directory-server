@@ -95,7 +95,8 @@ public class AvlPartitionTest
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
 
-
+    private static CacheService cacheService;
+    
     @BeforeClass
     public static void setup() throws Exception
     {
@@ -114,7 +115,7 @@ public class AvlPartitionTest
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
         schemaManager = new DefaultSchemaManager( loader );
-        CacheService cacheService = new CacheService();
+        cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
@@ -146,6 +147,7 @@ public class AvlPartitionTest
         partition.addIndex( new AvlIndex<String>( SchemaConstants.UID_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         StoreUtils.loadExampleData( partition, schemaManager );
