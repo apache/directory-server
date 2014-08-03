@@ -210,17 +210,8 @@ public class MavibotRdnIndexTest
         assertEquals( 2, idx.count() );
 
         //count shouldn't get affected cause of inserting the same key
-        try
-        {
-            // We should not be able to add a new value to an existing key
-            idx.add( key, Strings.getUUID( 2L ) );
-            fail();
-        }
-        catch ( DuplicateValueNotAllowedException dvnae )
-        {
-            // expected
-        }
-
+        // the value will be replaced instead
+        idx.add( key, Strings.getUUID( 2L ) );
         assertEquals( 2, idx.count() );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );

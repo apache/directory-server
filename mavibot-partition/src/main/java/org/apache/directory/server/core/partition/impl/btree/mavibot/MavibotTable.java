@@ -340,18 +340,10 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
 
-            boolean existing = false;
 
-            if ( bt.contains( key, value ) )
-            {
-                existing = true;
-            }
-
-            // Always insert the entry. If it already exists, it will replace the previous entry
-            bt.insert( key, value );
-
-            /// The entry has been added, increment the count if it wasn't existing before
-            if ( ! existing )
+            V existingVal = bt.insert( key, value );
+            
+            if ( existingVal == null )
             {
                 count++;
             }
