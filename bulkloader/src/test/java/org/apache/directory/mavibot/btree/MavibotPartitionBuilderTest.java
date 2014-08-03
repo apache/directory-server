@@ -24,10 +24,12 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.config.LdifConfigExtractor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import static org.junit.Assert.*;
 
 /**
@@ -40,24 +42,34 @@ public class MavibotPartitionBuilderTest
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     
-    private File outDir;
+    /** The configuration file */
+    String configFile;
     
+    private File outDir;
+
+    private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
+
     @Before
     public void init() throws Exception
     {
         outDir = folder.newFolder( "MavibotPartitionBuilderTest" );
+        workDir.mkdir();
+        File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
+
+        configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
     }
     
     @Test
     public void testBulkLoad() throws Exception
     {
-
-        File file = new File( outDir, "builder-test.ldif" );
-        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
+        //File file = new File( outDir, "builder-test.ldif" );
+        File file = new File( outDir, "30k.ldif" );
+        //InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
+        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "30k.ldif" );
         FileUtils.copyInputStreamToFile( in, file );
         in.close();
 
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( file.getAbsolutePath(), outDir.getAbsolutePath() );
+        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( configFile, file.getAbsolutePath(), outDir.getAbsolutePath() );
         
         builder.buildPartition();
         

@@ -52,6 +52,8 @@ import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
@@ -69,14 +71,20 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.mavibot.btree.serializer.LongSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.apache.directory.mavibot.btree.util.Strings;
+import org.apache.directory.server.config.ConfigPartitionReader;
+import org.apache.directory.server.config.LdifConfigExtractor;
+import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotRdnIndex;
+import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -104,35 +112,94 @@ public class MavibotPartitionBuilder
     //private MavibotPartition partition;
 
     private SchemaManager schemaManager;
+    
+    /** The CacheService used internally by the partition */
+    private CacheService cacheService;
 
     private CsnFactory csnFactory;
 
     private RandomAccessFile raf;
 
+    /** The LDIF file to extract */
     private String ldifFile;
+    
+    /** The file containing teh configuration */
+    private String configFile;
 
     private String masterTableName = "master";
     
     private List<String> indexAttributes = new ArrayList<String>();
     
     private int totalEntries = 0;
+    
+    /** The DN factory, used to check DN */ 
+    private DnFactory dnFactory;
+
     private static final Logger LOG = LoggerFactory.getLogger( MavibotPartitionBuilder.class );
 
 
-    public MavibotPartitionBuilder( String ldifFile, String outputDir )
+    /**
+     * Creates a new instance of MavibotPartitionBuilder.
+     *
+     * @param configFile The file containing the configuration partition
+     * @param ldifFile The ldif file to load
+     * @param outputDir The directory in which we want the resulting partition file to be stored
+     */
+    public MavibotPartitionBuilder( String configFile, String ldifFile, String outputDir )
     {
-        this( ldifFile, outputDir, BTree.DEFAULT_PAGE_SIZE, 1 );
+        this( configFile, ldifFile, outputDir, BTree.DEFAULT_PAGE_SIZE, 1 );
     }
 
 
-    public MavibotPartitionBuilder( String ldifFile, String outputDir, int numKeysInNode, int rid )
+    /**
+     * 
+     * Creates a new instance of MavibotPartitionBuilder.
+     *
+     * @param configFile The file containing the configuration partition
+     * @param ldifFile The ldif file to load
+     * @param outputDir The directory in which we want the resulting partition file to be stored
+     * @param numKeysInNode The number of keys we can store in a node
+     * @param rid The replica ID
+     */
+    public MavibotPartitionBuilder( String configFile, String ldifFile, String outputDir, int numKeysInNode, int rid )
     {
+        this.configFile = configFile;
         this.ldifFile = ldifFile;
         this.outputDir = outputDir;
         this.numKeysInNode = numKeysInNode;
         this.csnFactory = new CsnFactory( rid );
     }
 
+    
+    /**
+     * Load the configuration. This is a needed step, as we have to know which indexes
+     * have to be created
+     *
+     * @param workDir The directory in which the configuration partition will be found
+     * @return A ConfigBean instance, containing the configuration
+     * @throws LdapException If we can't read teh configuration
+     */
+    private ConfigBean readConfig( String workDir ) throws LdapException
+    {
+        File configDir = new File( workDir, "config" ); // could be any directory, cause the config is now in a single file
+
+        String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "config.ldif", true );
+
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
+        configPartition.setId( "config" );
+        configPartition.setPartitionPath( new File( configFile ).toURI() );
+        configPartition.setSuffixDn( new Dn( "ou=config" ) );
+        configPartition.setSchemaManager( schemaManager );
+
+        configPartition.initialize();
+
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
+
+        ConfigBean configBean = cpReader.readConfig( "ou=config" );
+        
+        return configBean;
+    }
+    
 
     private BTree build( Iterator<Tuple> sortedTupleItr, String name ) throws Exception
     {
@@ -411,7 +478,7 @@ public class MavibotPartitionBuilder
 
         raf = new RandomAccessFile( file, "r" );
 
-        FastLdifReader reader = new FastLdifReader( file );
+        FastLdifReader reader = new FastLdifReader( file, dnFactory );
 
         Set<DnTuple> sortedDnSet = new TreeSet<DnTuple>();
 
@@ -419,12 +486,17 @@ public class MavibotPartitionBuilder
         {
             // FastLdifReader will always return NULL LdifEntry
             // call getDnTuple() after next() to get a DnTuple
-            LdifEntry entry = reader.next();
+            reader.next();
             
             DnTuple dt = reader.getDnTuple();
             
             dt.getDn().apply( schemaManager );
             sortedDnSet.add( dt );
+
+            if ( dt.getDn().toString().equals( "uid=user.29998,ou=People,dc=example,dc=com" ) )
+            {
+                System.out.println( dt );
+            }
         }
 
         reader.close();
@@ -725,22 +797,37 @@ public class MavibotPartitionBuilder
     }
 
 
+    /**
+     * Import a LDIF file and create a fully working Mavibot partition.
+     * TODO buildPartition.
+     *
+     */
     public void buildPartition()
     {
+        // First, we load the Schema, as we will check the entries before
+        // injecting them into the partition
         try
         {
             System.out.println( "Loading schema using JarLdifSchemaLoader" );
             JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
             schemaManager = new DefaultSchemaManager( loader );
             schemaManager.loadAllEnabled();
+            dnFactory = new DefaultDnFactory( schemaManager, null );
+            cacheService = new CacheService();
+            InstanceLayout instanceLayout = new InstanceLayout( outputDir );
+            cacheService.initialize( instanceLayout );
+
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to initialize the schema manager", e );
             return;
         }
 
+        // Now, read all the DNs, and sort them
         Set<DnTuple> sortedDnSet = null;
+        
         try
         {
             long sortT0 = System.currentTimeMillis();
@@ -756,6 +843,7 @@ public class MavibotPartitionBuilder
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to parse the given LDIF file ", e );
             return;
         }
@@ -768,19 +856,19 @@ public class MavibotPartitionBuilder
         }
         
         MavibotPartition partition = null;
+        
         try
         {
             long partT0 = System.currentTimeMillis();
             System.out.print( "Creating partition..." );
             
-            DnFactory dnFactory = new DefaultDnFactory( schemaManager, null );
-
             partition = new MavibotPartition( schemaManager, dnFactory );
             partition.setId( "builder" );
             partition.setSuffixDn( suffixDn );
 
             File dir = new File( outputDir );
             partition.setPartitionPath( dir.toURI() );
+            partition.setCacheService( cacheService );
 
             for( String atName : indexAttributes )
             {
@@ -799,6 +887,7 @@ public class MavibotPartitionBuilder
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to initialize the partition", e );
             return;
         }
@@ -813,6 +902,7 @@ public class MavibotPartitionBuilder
         }
         catch( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to build master table", e );
             e.printStackTrace();
             return;
@@ -837,6 +927,7 @@ public class MavibotPartitionBuilder
         }
         catch( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to build the RDN index", e );
             return;
         }
@@ -891,6 +982,7 @@ public class MavibotPartitionBuilder
         }
         catch( Exception e )
         {
+            e.printStackTrace();
             LOG.warn( "Failed to build the presence index." );
             LOG.warn( "", e );
             return;
@@ -1232,9 +1324,11 @@ public class MavibotPartitionBuilder
         return args[position];
     }
     
+    
     public static void main( String[] args ) throws Exception
     {
         String inFile = null;
+        String configDir = null;
         String outDirPath = null;
         int numKeysInNode = 16;
         int rid = 1;
@@ -1253,36 +1347,40 @@ public class MavibotPartitionBuilder
             
             switch( opt )
             {
-                case HELP:
+                case HELP :
                     help();
                     System.exit( 0 );
                     break;
                     
-                case INPUT_FILE:
+                case INPUT_FILE :
                     inFile = getArgAt( ++i, opt, args );
                     break;
 
-                case OUT_DIR:
+                case OUT_DIR :
                     outDirPath = getArgAt( ++i, opt, args );
                     break;
 
-                case CLEAN_OUT_DIR:
+                case CLEAN_OUT_DIR :
                     cleanOutDir = true;
                     break;
 
-                case VERIFY_MASTER_TABLE:
+                case VERIFY_MASTER_TABLE :
                     verifyMasterTable = true;
                     break;
 
-                case NUM_KEYS_PER_NODE:
+                case NUM_KEYS_PER_NODE :
                     numKeysInNode = Integer.parseInt( getArgAt( ++i, opt, args ) );
                     break;
 
-                case DS_RID:
+                case DS_RID :
                     rid = Integer.parseInt( getArgAt( ++i, opt, args ) );
                     break;
+                    
+                case CONFIG_DIR :
+                    configDir = getArgAt( ++i, opt, args );
+                    break;
 
-                case UNKNOWN:
+                case UNKNOWN :
                     System.out.println( "Unknown option " + args[i] );
                     continue;
             }
@@ -1315,7 +1413,7 @@ public class MavibotPartitionBuilder
             FileUtils.deleteDirectory( outDir );
         }
         
-        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( inFile, outDirPath, numKeysInNode, rid );
+        MavibotPartitionBuilder builder = new MavibotPartitionBuilder( configDir, inFile, outDirPath, numKeysInNode, rid );
         
         long start = System.currentTimeMillis();
         

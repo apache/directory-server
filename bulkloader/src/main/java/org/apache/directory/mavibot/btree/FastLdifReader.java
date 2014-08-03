@@ -20,19 +20,21 @@
 package org.apache.directory.mavibot.btree;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.directory.api.i18n.I18n;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.ldif.ChangeType;
 import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.core.api.DnFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 /** no qualifier */ class FastLdifReader extends LdifReader
 {
-
+    /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( FastLdifReader.class );
 
     /** the pre-fetched DnTuple */
@@ -55,33 +57,79 @@ import org.slf4j.LoggerFactory;
 
     /** the next tuple */
     private DnTuple nextTuple;
+    
+    /** The DnFactory */
+    private DnFactory dnFactory;
+    
 
     /**
      * 
      * Creates a new instance of FastLdifReader.
      *
      * @param file the LDIF file
-     * @throws LdapLdifException
+     * @throws LdapException 
+     * @throws FileNotFoundException 
      */
-    public FastLdifReader( File file ) throws LdapLdifException
+    public FastLdifReader( File file, DnFactory dnFactory ) throws LdapException, FileNotFoundException
     {
-        super( file );
+        super();
+        reader = new PositionBufferedReader( new FileReader( file ) );
+        this.dnFactory = dnFactory;
         validateDn = false;
+        
+        init();
     }
 
 
     @Override
-    protected void init() throws LdapException
+    public void init() throws LdapException
     {
         lines = new ArrayList<String>();
         position = 0;
         version = DEFAULT_VERSION;
         containsChanges = false;
         containsEntries = false;
+        
+        // No need to validate the Dn while we are parsing it from the LDIF file
+        validateDn = false;
 
         // First get the version - if any -
-        version = parseVersion();
+        fastParseVersion();
         firstFetchedTuple = parseDnAlone();
+    }
+    
+    
+    /**
+     * Parse the version from the ldif input.
+     *
+     * @return A number representing the version (default to 1)
+     * @throws LdapLdifException If the version is incorrect or if the input is incorrect
+     */
+    private void fastParseVersion() throws LdapLdifException
+    {
+        // First, read a list of lines
+        fastReadLines();
+
+        if ( lines.size() == 0 )
+        {
+            LOG.warn( "The ldif file is empty" );
+            return;
+        }
+
+        // get the first line
+        String line = lines.get( 0 );
+
+        // <ldif-file> ::= "version:" <fill> <number>
+        if ( line.startsWith( "version:" ) )
+        {
+            // Ok, skip the line
+            position += "version:".length();
+
+            // We have found the version, just discard the line from the list
+            lines.remove( 0 );
+        }
+
+        return;
     }
 
 
@@ -107,7 +155,8 @@ import org.slf4j.LoggerFactory;
 
             nextTuple = firstFetchedTuple;
             
-            readLines();
+            // Read all the lines for one single entry
+            fastReadLines();
 
             try
             {
@@ -123,12 +172,14 @@ import org.slf4j.LoggerFactory;
                 throw new NoSuchElementException( le.getMessage() );
             }
 
+            //System.out.println( nextTuple );
             LOG.debug( "next(): -- saving DnTuple {}\n", nextTuple );
 
             return null;
         }
         catch ( LdapLdifException ne )
         {
+            ne.printStackTrace();
             LOG.error( I18n.err( I18n.ERR_12071 ) );
             error = ne;
             return null;
@@ -136,6 +187,9 @@ import org.slf4j.LoggerFactory;
     }
 
 
+    /**
+     * Get teh DN from an entry, ignoring the remaining data
+     */
     private DnTuple parseDnAlone() throws LdapException
     {
         if ( ( lines == null ) || ( lines.size() == 0 ) )
@@ -151,145 +205,114 @@ import org.slf4j.LoggerFactory;
 
         String name = parseDn( line );
 
-        Dn dn = new Dn( name );
+        Dn dn = dnFactory.create( name );
 
-        DnTuple tuple = new DnTuple( dn, entryOffset, entryLen );
-
-        // Ok, we have found a Dn
-        //LdifEntry entry = new LdifEntry( entryLen, entryOffset );
-
-        //entry.setDn( dn );
-
-        // We remove this dn from the lines
-        lines.remove( 0 );
-
-        // Now, let's iterate through the other lines
-        Iterator<String> iter = lines.iterator();
-
-        // This flag is used to distinguish between an entry and a change
-        int type = LDIF_ENTRY;
-
-        // The following boolean is used to check that a control is *not*
-        // found elswhere than just after the dn
-        boolean controlSeen = false;
-
-        // We use this boolean to check that we do not have AttributeValues
-        // after a change operation
-        boolean changeTypeSeen = false;
-
-        ChangeType operation = ChangeType.Add;
-        String lowerLine;
-
-        while ( iter.hasNext() )
-        {
-            lineNumber++;
-
-            // Each line could start either with an OID, an attribute type, with
-            // "control:" or with "changetype:"
-            line = iter.next();
-            lowerLine = Strings.toLowerCase( line );
-
-            // We have three cases :
-            // 1) The first line after the Dn is a "control:"
-            // 2) The first line after the Dn is a "changeType:"
-            // 3) The first line after the Dn is anything else
-            if ( lowerLine.startsWith( "control:" ) )
-            {
-                if ( containsEntries )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12004_CHANGE_NOT_ALLOWED ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12005_NO_CHANGE ) );
-                }
-
-                containsChanges = true;
-
-                if ( controlSeen )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12050 ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12051 ) );
-                }
-
-                // Parse the control
-                // SKIP it
-            }
-            else if ( lowerLine.startsWith( "changetype:" ) )
-            {
-                if ( containsEntries )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12004_CHANGE_NOT_ALLOWED ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12005_NO_CHANGE ) );
-                }
-
-                containsChanges = true;
-
-                if ( changeTypeSeen )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12052 ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12053 ) );
-                }
-
-                // A change request
-                type = CHANGE;
-                controlSeen = true;
-
-                operation = parseChangeType( line );
-
-                if ( operation != ChangeType.Add )
-                {
-                    throw new IllegalArgumentException( "ChangeType " + operation + " is not allowed during bulk load" );
-                }
-                // Parse the change operation in a separate function
-                // SKIP it
-                while ( iter.hasNext() )
-                {
-                    iter.next();
-                }
-
-                changeTypeSeen = true;
-            }
-            else if ( line.indexOf( ':' ) > 0 )
-            {
-                if ( containsChanges )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12004_CHANGE_NOT_ALLOWED ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12005_NO_CHANGE ) );
-                }
-
-                containsEntries = true;
-
-                if ( controlSeen || changeTypeSeen )
-                {
-                    LOG.error( I18n.err( I18n.ERR_12054 ) );
-                    throw new LdapLdifException( I18n.err( I18n.ERR_12055 ) );
-                }
-
-                // SKIP it
-                //parseAttributeValue( entry, line, lowerLine );
-                type = LDIF_ENTRY;
-            }
-            else
-            {
-                // Invalid attribute Value
-                LOG.error( I18n.err( I18n.ERR_12056 ) );
-                throw new LdapLdifException( I18n.err( I18n.ERR_12057_BAD_ATTRIBUTE ) );
-            }
-        }
-
-        if ( type == LDIF_ENTRY )
-        {
-            LOG.debug( "Read an entry : {}", tuple );
-        }
-        else if ( type == CHANGE )
-        {
-            //entry.setChangeType( operation );
-            LOG.debug( "Read a modification : {}", tuple );
-        }
-        else
-        {
-            LOG.error( I18n.err( I18n.ERR_12058_UNKNOWN_ENTRY_TYPE ) );
-            throw new LdapLdifException( I18n.err( I18n.ERR_12059_UNKNOWN_ENTRY ) );
-        }
+        DnTuple tuple = new DnTuple( dn, entryOffset, (int)(offset - entryOffset) );
 
         return tuple;
+    }
+
+    protected String getLine() throws IOException
+    {
+        return ( ( PositionBufferedReader ) reader ).readLine();
+    }
+
+
+    /**
+     * Reads an entry in a ldif buffer, and returns the resulting lines, without
+     * comments, and unfolded.
+     *
+     * The lines represent *one* entry.
+     *
+     * @throws LdapLdifException If something went wrong
+     */
+    private void fastReadLines() throws LdapLdifException
+    {
+        String line;
+        boolean insideComment = true;
+        boolean isFirstLine = true;
+
+        lines.clear();
+        entryOffset = offset;
+
+        StringBuffer sb = new StringBuffer();
+
+        try
+        {
+            while ( ( line = getLine() ) != null )
+            {
+                lineNumber++;
+
+                if ( line.length() == 0 )
+                {
+                    if ( isFirstLine )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // The line is empty, we have read an entry
+                        insideComment = false;
+                        offset = ((PositionBufferedReader)reader).getFilePos();
+
+                        break;
+                    }
+                }
+
+                // We will read the first line which is not a comment
+                switch ( line.charAt( 0 ) )
+                {
+                    case '#':
+                        insideComment = true;
+                        break;
+
+                    case ' ':
+                        isFirstLine = false;
+
+                        if ( insideComment )
+                        {
+                            continue;
+                        }
+                        else if ( sb.length() == 0 )
+                        {
+                            LOG.error( I18n.err( I18n.ERR_12062_EMPTY_CONTINUATION_LINE ) );
+                            throw new LdapLdifException( I18n.err( I18n.ERR_12061_LDIF_PARSING_ERROR ) );
+                        }
+                        else
+                        {
+                            sb.append( line.substring( 1 ) );
+                        }
+
+                        insideComment = false;
+                        break;
+
+                    default:
+                        isFirstLine = false;
+
+                        // We have found a new entry
+                        // First, stores the previous one if any.
+                        if ( sb.length() != 0 )
+                        {
+                            lines.add( sb.toString() );
+                        }
+
+                        sb = new StringBuffer( line );
+                        insideComment = false;
+                        break;
+                }
+
+                offset = ((PositionBufferedReader)reader).getFilePos();
+            }
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapLdifException( I18n.err( I18n.ERR_12063_ERROR_WHILE_READING_LDIF_LINE ), ioe );
+        }
+
+        // Stores the current line if necessary.
+        if ( sb.length() != 0 )
+        {
+            lines.add( sb.toString() );
+        }
     }
 }

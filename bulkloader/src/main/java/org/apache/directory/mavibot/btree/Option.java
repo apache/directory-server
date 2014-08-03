@@ -21,7 +21,19 @@ package org.apache.directory.mavibot.btree;
 
 
 /**
- * Command line options for bulk loader
+ * Command line options for bulk loader.
+ * 
+ * Here are the various options :
+ * <ul>
+ * <li>-c : The configuration directory</li>
+ * <li>-clean : delete the content of the output directory</li>
+ * <li>-h : gives the list of possible options</li>
+ * <li>-i : the LDIF file to be loaded</li>
+ * <li>-n : the number of keys stored in each node</li>
+ * <li>-o : the directory where the resulting partition will be stored</li>
+ * <li>-rid : the replica ID</li>
+ * <li>-verify : check that we have loaded all the entries in the MAsterTable</li>
+ * </ul>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -38,6 +50,8 @@ public enum Option
     NUM_KEYS_PER_NODE("-n", "(optional) The number of keys to be present in each node, default is 16"),
 
     DS_RID("-rid", "(optional) The RID value to be used in the entryCSN values, default is 1"),
+
+    CONFIG_DIR("-c", "The configuration partition directory"),
 
     VERIFY_MASTER_TABLE("-verify", "(optional) Verifies the master table by just browsing (entries are not verified)"),
     
@@ -103,6 +117,11 @@ public enum Option
         if ( opt.equalsIgnoreCase( NUM_KEYS_PER_NODE.text ) )
         {
             return NUM_KEYS_PER_NODE;
+        }
+
+        if ( opt.equalsIgnoreCase( CONFIG_DIR.text ) )
+        {
+            return CONFIG_DIR;
         }
 
         return UNKNOWN;

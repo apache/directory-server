@@ -34,12 +34,16 @@ import org.apache.directory.server.core.api.partition.Partition;
  */
 public class DnTuple implements Comparable<DnTuple>
 {
+    /** The DN */
     private Dn dn;
 
+    /** The DN length */
     private int len;
 
+    /** The offset if the LDIF file */
     private long offset;
 
+    /** The DN ID */
     private String id;
 
     private DnTuple parent;
