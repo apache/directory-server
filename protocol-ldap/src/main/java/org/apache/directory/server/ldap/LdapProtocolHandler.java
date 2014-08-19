@@ -124,7 +124,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     {
         if ( ldapSession == null )
         {
-            LOG.warn( "Null LdapSession given to cleanUpSession." );
+            LOG.debug( "Null LdapSession given to cleanUpSession." );
             return;
         }
 
