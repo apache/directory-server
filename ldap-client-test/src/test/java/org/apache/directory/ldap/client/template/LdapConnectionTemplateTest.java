@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AddResponse;
@@ -39,6 +40,10 @@ import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
+import org.apache.directory.ldap.client.api.LdapConnectionPool;
+import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -331,7 +336,59 @@ public class LdapConnectionTemplateTest
         assertEquals( 6, muppets.size() );
     }
     
+    
+    @Test
+    public void testDIRAPI_202() {
+        // test requested by https://issues.apache.org/jira/browse/DIRAPI-202
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "localhost" );
+        config.setLdapPort( createLdapConnectionPoolRule.getLdapServer().getPort() );
+        config.setName( "uid=admin,ou=system" );
+        config.setCredentials( "secret" );
 
+        DefaultLdapConnectionFactory factory = new DefaultLdapConnectionFactory( config );
+        factory.setTimeOut( 30000 );
+
+        // optional, values below are defaults
+        GenericObjectPool.Config poolConfig = new GenericObjectPool.Config();
+        poolConfig.lifo = true;
+        poolConfig.maxActive = 8;
+        poolConfig.maxIdle = 8;
+        poolConfig.maxWait = -1L;
+        poolConfig.minEvictableIdleTimeMillis = 1000L * 60L * 30L;
+        poolConfig.minIdle = 0;
+        poolConfig.numTestsPerEvictionRun = 3;
+        poolConfig.softMinEvictableIdleTimeMillis = -1L;
+        poolConfig.testOnBorrow = false;
+        poolConfig.testOnReturn = false;
+        poolConfig.testWhileIdle = false;
+        poolConfig.timeBetweenEvictionRunsMillis = -1L;
+        poolConfig.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+
+        LdapConnectionTemplate ldapConnectionTemplate = 
+            new LdapConnectionTemplate( new LdapConnectionPool(
+                new PoolableLdapConnectionFactory( factory ), poolConfig ) );
+        assertNotNull( ldapConnectionTemplate );
+
+        List<Muppet> muppets = ldapConnectionTemplate.search( 
+                "ou=people,dc=example,dc=com", 
+                "(objectClass=inetOrgPerson)", 
+                SearchScope.ONELEVEL,
+                Muppet.getEntryMapper() );
+            assertNotNull( muppets );
+            assertEquals( 6, muppets.size() );
+
+            ldapConnectionTemplate.search( 
+                ldapConnectionTemplate.newSearchRequest( 
+                    "ou=people,dc=example,dc=com", 
+                    "(objectClass=inetOrgPerson)", 
+                    SearchScope.ONELEVEL ),
+                Muppet.getEntryMapper() );
+            assertNotNull( muppets );
+            assertEquals( 6, muppets.size() );
+    }
+
+    
     public static class Muppet 
     {
         private static final EntryMapper<Muppet> entryMapper = 
