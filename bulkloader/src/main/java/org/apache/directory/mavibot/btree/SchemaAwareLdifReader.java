@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO SchemaAwareLdifReader.
+ * A Ldif Reader that is schema aware
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -52,7 +52,6 @@ public class SchemaAwareLdifReader extends LdifReader
         validateDn = false;
     }
 
-    @Override
     protected LdifEntry createLdifEntry()
     {
         Entry entry = new DefaultEntry( schemaManager );
