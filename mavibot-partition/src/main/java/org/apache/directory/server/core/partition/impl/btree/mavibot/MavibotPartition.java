@@ -160,7 +160,8 @@ public class MavibotPartition extends AbstractBTreePartition
             // First, check if the file storing the data exists
 
             // Create the master table (the table containing all the entries)
-            master = new MavibotMasterTable( recordMan, schemaManager, "master", cacheSize );
+            Cache masterTableCache = cacheService.getCache( suffixDn.getName() );
+            master = new MavibotMasterTable( recordMan, schemaManager, "master", masterTableCache.getCacheConfiguration().getMaxElementsInMemory() );
 
             // get all index db files first
             File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
