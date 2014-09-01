@@ -232,6 +232,7 @@ public class MavibotStoreTest
         store2.addIndex( new MavibotIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new MavibotIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
+        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry
