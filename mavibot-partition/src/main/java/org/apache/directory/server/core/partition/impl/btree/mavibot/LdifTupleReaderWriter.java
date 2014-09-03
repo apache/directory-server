@@ -23,10 +23,15 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.List;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.mavibot.btree.Tuple;
 import org.apache.directory.mavibot.btree.util.TupleReaderWriter;
 import org.slf4j.Logger;
@@ -38,24 +43,63 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdifTupleReaderWriter implements TupleReaderWriter<Dn, String>
+public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
 {
 
     private LdifReader reader = null;
 
     private static final Logger LOG = LoggerFactory.getLogger( LdifTupleReaderWriter.class );
 
+    private String ldifFile;
+    
+    private RandomAccessFile raf;
+    
+    private SchemaManager schemaManager;
+    
+    public LdifTupleReaderWriter( String ldifFile, SchemaManager schemaManager )
+    {
+        this.ldifFile = ldifFile;
+        this.schemaManager = schemaManager;
+        
+        try
+        {
+            raf = new RandomAccessFile( ldifFile, "r" );
+        }
+        catch( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+    
 
     @Override
-    public Tuple<Dn, String> readSortedTuple( DataInputStream in )
+    public Tuple<Dn, E> readSortedTuple( DataInputStream in )
     {
         try
         {
             if( in.available() > 0 )
             {
-                Tuple<Dn, String> t = new Tuple<Dn, String>();
+                Tuple<Dn, E> t = new Tuple<Dn, E>();
                 t.setKey( new Dn( in.readUTF() ) );
-                t.setValue( in.readUTF() );
+                
+                String[] tokens = in.readUTF().split( ":" );
+                
+                long offset = Long.valueOf( tokens[0] );
+                
+                int length = Integer.valueOf( tokens[1] );
+                
+                raf.seek( offset );
+                
+                byte[] data = new byte[length];
+                
+                raf.read( data, 0, length );
+                
+                LdifReader reader = new LdifReader();
+                
+                LdifEntry ldifEntry = reader.parseLdif( new String( data ) ).get( 0 );
+                Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+
+                t.setValue( ( E ) entry );
                 
                 return t;
             }
@@ -70,7 +114,7 @@ public class LdifTupleReaderWriter implements TupleReaderWriter<Dn, String>
 
 
     @Override
-    public Tuple<Dn, String> readUnsortedTuple( DataInputStream in )
+    public Tuple<Dn, E> readUnsortedTuple( DataInputStream in )
     {
         try
         {
@@ -87,7 +131,7 @@ public class LdifTupleReaderWriter implements TupleReaderWriter<Dn, String>
             throw new RuntimeException( msg, e );
         }
 
-        Tuple<Dn, String> t = null;
+        Tuple<Dn, E> t = null;
 
         if ( reader.hasNext() )
         {
@@ -99,10 +143,10 @@ public class LdifTupleReaderWriter implements TupleReaderWriter<Dn, String>
                     "Received null entry while parsing, check the LDIF file for possible incorrect/corrupted entries" );
             }
 
-            t = new Tuple<Dn, String>();
+            t = new Tuple<Dn, E>();
 
             t.setKey( ldifEntry.getDn() );
-            t.setValue( ldifEntry.getOffset() + ":" + ldifEntry.getLengthBeforeParsing() );
+            t.setValue( ( E ) ( ldifEntry.getOffset() + ":" + ldifEntry.getLengthBeforeParsing() ) );
         }
 
         return t;
@@ -110,10 +154,10 @@ public class LdifTupleReaderWriter implements TupleReaderWriter<Dn, String>
 
 
     @Override
-    public void storeSortedTuple( Tuple<Dn, String> t, DataOutputStream out ) throws IOException
+    public void storeSortedTuple( Tuple<Dn, E> t, DataOutputStream out ) throws IOException
     {
         out.writeUTF( t.getKey().getName() );
-        out.writeUTF( t.getValue() );
+        out.writeUTF( ( String ) t.getValue() );
     }
 
 }
