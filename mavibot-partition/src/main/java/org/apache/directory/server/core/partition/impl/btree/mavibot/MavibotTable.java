@@ -373,6 +373,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             if ( bt.isAllowDuplicates() )
             {
                 ValueCursor<V> valueCursor = bt.getValues( key );
+                int size = valueCursor.size();
+                valueCursor.close();
                 org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
 
                 if ( null == returned )
@@ -380,7 +382,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                     return;
                 }
 
-                count -= valueCursor.size();
+                count -= size;
             }
             else
             {
@@ -535,8 +537,10 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             try
             {
                 ValueCursor<V> dupHolder = bt.getValues( key );
-
-                return dupHolder.size();
+                int size = dupHolder.size();
+                dupHolder.close();
+                
+                return size;
             }
             catch ( KeyNotFoundException knfe )
             {
