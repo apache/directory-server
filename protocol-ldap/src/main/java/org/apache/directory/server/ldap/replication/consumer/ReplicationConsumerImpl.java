@@ -217,13 +217,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 connection = new LdapNetworkConnection( providerHost, port );
                 connection.setTimeOut( -1L );
                 connection.setSchemaManager( schemaManager );
-                
+
                 if ( config.isUseTls() )
                 {
                     connection.getConfig().setTrustManagers( config.getTrustManager() );
-                    connection.startTls();
                 }
-
+                
                 connection.addConnectionClosedEventListener( this );
             }
 
@@ -235,6 +234,11 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 // Do a bind
                 try
                 {
+                    if ( config.isUseTls() )
+                    {
+                        connection.startTls();
+                    }
+
                     connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
                     disconnected = false;
 
