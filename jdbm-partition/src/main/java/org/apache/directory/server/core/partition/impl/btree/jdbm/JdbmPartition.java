@@ -200,7 +200,15 @@ public class JdbmPartition extends AbstractBTreePartition
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
 
-            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+            // prevent the OOM when more than 50k users are loaded at a stretch
+            // adding this system property to make it configurable till JDBM gets replaced by Mavibot
+            String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "2000" );
+            
+            int recCacheSize = Integer.parseInt( cacheSizeVal );
+            
+            LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
+            
+            recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
 
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable( recMan, schemaManager );
