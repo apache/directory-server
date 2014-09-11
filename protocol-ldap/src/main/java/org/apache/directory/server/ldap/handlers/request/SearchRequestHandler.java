@@ -95,6 +95,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( SearchRequestHandler.class );
 
+    private static final Logger SEARCH_TIME_LOG = LoggerFactory.getLogger( "org.apache.directory.server.ldap.handlers.request.SEARCH_TIME_LOG" );
+    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
@@ -1163,11 +1165,25 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             // Handle regular search requests from here down
             // ===============================================================
 
-            //long t0 = System.nanoTime();
+            boolean isLogSearchTime = SEARCH_TIME_LOG.isDebugEnabled();
+            
+            long t0 = 0;
+            String filter = null;
+            
+            if ( isLogSearchTime )
+            {
+                t0 = System.nanoTime();
+                filter = req.getFilter().toString();
+            }
+            
             SearchResultDone done = doSimpleSearch( session, req );
-            //long t1 = System.nanoTime();
             session.getIoSession().write( done );
-            //.print( "Handler;" + ((t1-t0)/1000) + ";" );
+            
+            if ( isLogSearchTime )
+            {
+                long t1 = System.nanoTime();
+                SEARCH_TIME_LOG.debug( "Search with filter {} took {}ms. Filter with assigned counts is {}", filter, ((t1-t0)/1000000), req.getFilter() );
+            }
         }
         catch ( Exception e )
         {
