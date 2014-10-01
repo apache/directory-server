@@ -56,12 +56,12 @@ public class LdifBulkLoaderTest
     
     private void sort() throws Exception
     {
-        LdifTupleReaderWriter readerWriter = new LdifTupleReaderWriter();
+        File file = createLdif();
+        
+        LdifTupleReaderWriter readerWriter = new LdifTupleReaderWriter( file.getAbsolutePath(), null );
         LdifTupleComparator tupleComparator = new LdifTupleComparator();
         
         BulkDataSorter bs = new BulkDataSorter<Dn, String>( readerWriter, tupleComparator, 2 );
-        
-        File file = createLdif();
         
         bs.sort( file );
         
@@ -116,3 +116,4 @@ public class LdifBulkLoaderTest
         bl.sort();
     }
 }
+
