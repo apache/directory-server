@@ -274,19 +274,20 @@ public class LdifFileLoader
         }
         else
         {
-            if ( loader != null && ( in = loader.getResourceAsStream( ldif.getName() ) ) != null )
+            // use ldif.getPath() to resolve the relative paths
+            if ( loader != null && ( in = loader.getResourceAsStream( ldif.getPath() ) ) != null )
             {
                 return in;
             }
 
             // if file not on system see if something is bundled with the jar ...
-            in = getClass().getResourceAsStream( ldif.getName() );
+            in = getClass().getResourceAsStream( ldif.getPath() );
             if ( in != null )
             {
                 return in;
             }
 
-            in = ClassLoader.getSystemResourceAsStream( ldif.getName() );
+            in = ClassLoader.getSystemResourceAsStream( ldif.getPath() );
             if ( in != null )
             {
                 return in;
