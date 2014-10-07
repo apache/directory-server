@@ -1333,12 +1333,12 @@ public class DefaultCoreSession implements CoreSession
         SortedEntrySerializer keySerializer = new SortedEntrySerializer( comparator );
 
         PersistedBTreeConfiguration<Entry, String> config = new PersistedBTreeConfiguration<Entry, String>();
-        config.setName( UUID.randomUUID().toString() );
+        config.setName( "replica" ); // see DIRSERVER-2007
         config.setKeySerializer( keySerializer );
         config.setValueSerializer( StringSerializer.INSTANCE );
 
         BTree<Entry, String> btree = BTreeFactory.createPersistedBTree( config );
-
+        
         File file = File.createTempFile( btree.getName(), ".sorted-data" );
         RecordManager recMan = new RecordManager( file.getAbsolutePath() );
 
