@@ -221,6 +221,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 if ( config.isUseTls() )
                 {
                     connection.getConfig().setTrustManagers( config.getTrustManager() );
+                    connection.getConfig().setUseTls( true );
                 }
                 
                 connection.addConnectionClosedEventListener( this );
@@ -234,11 +235,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 // Do a bind
                 try
                 {
-                    if ( config.isUseTls() )
-                    {
-                        connection.startTls();
-                    }
-
                     connection.bind( config.getReplUserDn(), Strings.utf8ToString( config.getReplUserPassword() ) );
                     disconnected = false;
 
