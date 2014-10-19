@@ -977,7 +977,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         recMan.commit();
 
         // And flush the journal
-        if ( ( commitNumber.get() % 4000 ) == 0 )
+        if ( ( commitNumber.get() % 2000 ) == 0 )
         {
             BaseRecordManager baseRecordManager = null;
 
