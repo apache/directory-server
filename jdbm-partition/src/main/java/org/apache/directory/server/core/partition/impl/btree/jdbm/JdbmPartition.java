@@ -202,7 +202,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
             // prevent the OOM when more than 50k users are loaded at a stretch
             // adding this system property to make it configurable till JDBM gets replaced by Mavibot
-            String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "2000" );
+            String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
             
             int recCacheSize = Integer.parseInt( cacheSizeVal );
             

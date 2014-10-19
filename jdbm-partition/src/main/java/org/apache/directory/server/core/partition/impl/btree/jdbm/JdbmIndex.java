@@ -164,7 +164,15 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         transactionManager.setMaximumTransactionsInLog( 2000 );
 
         // see DIRSERVER-2002
-        recMan = new CacheRecordManager( base, new MRU( 2000 ) );
+        // prevent the OOM when more than 50k users are loaded at a stretch
+        // adding this system property to make it configurable till JDBM gets replaced by Mavibot
+        String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
+        
+        int recCacheSize = Integer.parseInt( cacheSizeVal );
+        
+        LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
+
+        recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
 
         try
         {
