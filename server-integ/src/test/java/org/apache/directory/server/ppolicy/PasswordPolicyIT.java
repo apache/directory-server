@@ -332,6 +332,45 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         adminConnection.close();
     }
 
+
+    /**
+     * Test that we can add a user with a pwdChangedTime as would be the case 
+     * when importing from an ldif that already contained ppolicy information.
+     * 
+     * Tests the resolution to 
+     * <a href="https://issues.apache.org/jira/browse/DIRSERVER-1978">DIRSERVER-1978</a>
+     */
+    @Test
+    public void testAddUserWithPwdChangedTime() throws Exception
+    {
+        LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
+
+        String userDn = "cn=hashedpwd,ou=system";
+        String pwdChangedTime = "20130913012307.296Z";
+        Entry userEntry = new DefaultEntry(
+            "cn=hashedpwd,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "cn: hashedpwd",
+            "sn: hashedpwd_sn",
+            "userPassword: set4now",
+            PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT, pwdChangedTime );
+
+        AddRequest addRequest = new AddRequestImpl();
+        addRequest.setEntry( userEntry );
+        addRequest.addControl( PP_REQ_CTRL );
+
+        AddResponse addResp = adminConnection.add( addRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
+
+        userEntry = adminConnection.lookup( userDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        Attribute pwdChangedTimeAt = userEntry.get( PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT );
+        assertNotNull( pwdChangedTimeAt );
+        assertEquals( pwdChangedTime, pwdChangedTimeAt.getString() );
+
+        adminConnection.close();
+    }
+
     
     @Test
     public void testModifyUserWithHashedPwd() throws Exception

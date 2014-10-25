@@ -381,9 +381,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
             {
-                Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
-                pwdChangedTimeAt.add( pwdChangedTime );
-                entry.add( pwdChangedTimeAt );
+                // https://issues.apache.org/jira/browse/DIRSERVER-1978
+                if ( !addContext.getSession().isAnAdministrator()
+                        || entry.get( AT_PWD_CHANGED_TIME ) == null ) 
+                {
+                    Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
+                    pwdChangedTimeAt.add( pwdChangedTime );
+                    entry.add( pwdChangedTimeAt );
+                }
             }
 
             if ( policyConfig.isPwdMustChange() && addContext.getSession().isAnAdministrator() )
