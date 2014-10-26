@@ -663,35 +663,24 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         boolean connected = !disconnected;
 
+        boolean restartSync = false;
+        
         if ( disconnected )
         {
             connected = connect();
+            restartSync = connected;
         }
 
         if ( connected )
         {
             CONSUMER_LOG.debug( "PING : The consumer {} is alive", config.getReplicaId() );
 
-            try
+            // DIRSERVER-2014
+            if ( restartSync )
             {
-                Entry baseDn = connection.lookup( config.getBaseDn(), "1.1" );
-
-                if ( baseDn == null )
-                {
-                    // Cannot get the entry : this is bad, but possible
-                    CONSUMER_LOG.debug( "Cannot fetch '{}' from provider for consumer {}", config.getBaseDn(),
-                        config.getReplicaId() );
-                }
-                else
-                {
-                    CONSUMER_LOG.debug( "Fetched '{}' from provider for consumer {}", config.getBaseDn(),
-                        config.getReplicaId() );
-                }
-            }
-            catch ( LdapException le )
-            {
-                // Error : we must disconnect
-                disconnect();
+                CONSUMER_LOG.warn( "Restarting the disconnected consumer {}", config.getReplicaId() );
+                disconnected = false;
+                startSync();
             }
         }
         else
