@@ -22,7 +22,7 @@
 ADS_HOME="`dirname \"$0\"`"
 ADS_HOME="`(cd \"$ADS_HOME/..\" && pwd)`"
 if [ -z "$ADS_HOME" ]; then
-    exit 1;
+    exit 1
 fi
 
 # OS sepecific support
@@ -56,22 +56,35 @@ fi
 if $cygwin; then
     [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
     [ -n "$ADS_HOME" ] && ADS_HOME=`cygpath --unix "$ADS_HOME"`
+    [ -n "$ADS_INSTANCES" ] && ADS_INSTANCES=`cygpath --unix "$ADS_INSTANCES"`
 fi
 
-RUN_JAVA="$JAVA_HOME"/bin/java
+RUN_JAVA=
+if [ -z "$JAVA_HOME" ]; then
+    RUN_JAVA=$(which java)
+else 
+    RUN_JAVA=$JAVA_HOME/bin/java
+fi
 
 # Build the classpath (http://stackoverflow.com/a/4729899/516433)
 CLASSPATH=$(JARS=("$ADS_HOME"/lib/*.jar); IFS=:; echo "${JARS[*]}")
 
-mkdir -p "$ADS_HOME/instances/$ADS_INSTANCE_NAME/log"
-mkdir -p "$ADS_HOME/instances/$ADS_INSTANCE_NAME/run"
-ADS_OUT="$ADS_HOME/instances/$ADS_INSTANCE_NAME/log/apacheds.out"
-ADS_PID="$ADS_HOME/instances/$ADS_INSTANCE_NAME/run/apacheds.pid"
+ADS_INSTANCE=
+if [ -z "$ADS_INSTANCES" ]; then
+    ADS_INSTANCE="$ADS_HOME/instances/$ADS_INSTANCE_NAME"
+else
+    ADS_INSTANCE="$ADS_INSTANCES/$ADS_INSTANCE_NAME"
+fi
+
+ADS_OUT="$ADS_INSTANCE/log/apacheds.out"
+ADS_PID="$ADS_INSTANCE/run/apacheds.pid"
 
 # For cygwin, switch to windows paths before running
 if $cygwin; then
     JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
     ADS_HOME=`cygpath --absolute --windows "$ADS_HOME"`
+    ADS_INSTANCES=`cygpath --absolute --windows "$ADS_INSTANCES"`
+    ADS_INSTANCE=`cygpath --absolute --windows "$ADS_INSTANCE"`
     CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
@@ -83,35 +96,28 @@ if [ "$ADS_ACTION" = "start" ]; then
     # Printing instance information
     echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
-    if [ -f "$ADS_PID" ]; then
-        PID=`cat "$ADS_PID"`
-        ps -p $PID > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            echo "ApacheDS appears to still be running with PID $PID. Start aborted."
-            exit 1;
-        fi
-    fi
+    # Launching ApacheDS
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+        -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+        -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
+        -classpath "\"$CLASSPATH\"" \
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" \
+        > "$ADS_OUT" 2>&1 "&"
+    echo $! > "$ADS_PID"
+elif [ "$ADS_ACTION" = "run" ]; then
+    # Printing instance information
+    echo "Running ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
     # Launching ApacheDS
     eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
-        -Dlog4j.configuration="\"file:$ADS_HOME/instances/$ADS_INSTANCE_NAME/conf/log4j.properties\"" \
-        -Dapacheds.log.dir="\"$ADS_HOME/instances/$ADS_INSTANCE_NAME/log\"" \
+        -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+        -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -classpath "\"$CLASSPATH\"" \
-        org.apache.directory.server.UberjarMain "\"$ADS_HOME/instances/$ADS_INSTANCE_NAME\"" \
-        > "$ADS_OUT" 2>&1 "&"
-    echo $! > "$ADS_PID"
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\""
 elif [ "$ADS_ACTION" = "stop" ]; then
     # Printing instance information
-    echo "Stopping ApacheDS instance '$ADS_INSTANCE_NAME'..."
+    PID=`cat $ADS_PID`
+    echo "Stoping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
-    if [ -f "$ADS_PID" ]; then
-        PID=`cat "$ADS_PID"`
-        kill -0 $PID > /dev/null 2>&1
-        if [ $? = 0 ]; then
-            kill $PID
-        fi
-        rm -f $ADS_PID > /dev/null 2>&1
-    else
-        echo "$ADS_PID not found"
-    fi
+    kill $PID
 fi
