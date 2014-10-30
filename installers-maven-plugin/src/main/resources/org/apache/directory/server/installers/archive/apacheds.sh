@@ -18,11 +18,42 @@
 #  under the License.
 #
 
+# -----------------------------------------------------------------------------
+# Control Script for the ApacheDS Server
+#
+# Environment Variable Prerequisites
+#
+#   Do not set the variables in this script. Instead put them into a script
+#   setenv.sh in CATALINA_BASE/bin to keep your customizations separate.
+#
+#   ADS_HOME        (Optional) The directory that contains your apacheds 
+#                   install.  Defaults to the parent directory of the
+#                   directory containing this script.
+#
+#   ADS_INSTANCES   (Optional) The parent directory for the instances.
+#                   Defaults to $ADS_HOME/instances.
+#
+#   ADS_CONTROLS    Controls to register.
+#
+#   ADS_EXTENDED_OPERATIONS
+#                   Extended operations to register.
+#
+#   JAVA_HOME       (Optional) The java installation directory.  If not
+#                   not specified, the java from $PATH will be used.
+#
+#   JAVA_OPTS       (Optional) Any additional java options (ex: -Xms:256m)
+
 # Detect ads home (http://stackoverflow.com/a/630387/516433)
-ADS_HOME="`dirname \"$0\"`"
-ADS_HOME="`(cd \"$ADS_HOME/..\" && pwd)`"
+PROGRAM_DIR="`dirname \"$0\"`"
+[ -z "$ADS_HOME" ] && ADS_HOME="`(cd \"$PROGRAM_DIR/..\" && pwd)`"
 if [ -z "$ADS_HOME" ]; then
+    echo "Unable to detect ADS_HOME, and not specified"
     exit 1
+fi
+
+HAVE_TTY=0
+if [ "`tty`" != "not a tty" ]; then
+    HAVE_TTY=1
 fi
 
 # OS sepecific support
@@ -52,12 +83,16 @@ else
     exit 1
 fi
 
+[ -r "$ADS_HOME/bin/setenv.sh" ] && . "$ADS_HOME/bin/setenv.sh"
+
 # For cygwin, ensure paths or in unix format before touched
 if $cygwin; then
     [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
     [ -n "$ADS_HOME" ] && ADS_HOME=`cygpath --unix "$ADS_HOME"`
     [ -n "$ADS_INSTANCES" ] && ADS_INSTANCES=`cygpath --unix "$ADS_INSTANCES"`
 fi
+
+[ -z "$ADS_INSTANCES" ] && ADS_INSTANCES="$ADS_HOME/instances"
 
 RUN_JAVA=
 if [ -z "$JAVA_HOME" ]; then
@@ -69,12 +104,7 @@ fi
 # Build the classpath (http://stackoverflow.com/a/4729899/516433)
 CLASSPATH=$(JARS=("$ADS_HOME"/lib/*.jar); IFS=:; echo "${JARS[*]}")
 
-ADS_INSTANCE=
-if [ -z "$ADS_INSTANCES" ]; then
-    ADS_INSTANCE="$ADS_HOME/instances/$ADS_INSTANCE_NAME"
-else
-    ADS_INSTANCE="$ADS_INSTANCES/$ADS_INSTANCE_NAME"
-fi
+ADS_INSTANCE="$ADS_INSTANCES/$ADS_INSTANCE_NAME"
 
 ADS_OUT="$ADS_INSTANCE/log/apacheds.out"
 ADS_PID="$ADS_INSTANCE/run/apacheds.pid"
@@ -88,13 +118,27 @@ if $cygwin; then
     CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-ADS_CONTROLS="-Dapacheds.controls=org.apache.directory.api.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory,org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
+[ -z "$ADS_CONTROLS" ] && ADS_CONTROLS="-Dapacheds.controls=org.apache.directory.api.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory,org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
 
-ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations=org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory"
+[ -z "$ADS_EXTENDED_OPERATIONS" ] && ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations=org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory"
+
+if [ $HAVE_TTY -eq 1 ]; then
+    echo "Using ADS_HOME:    $ADS_HOME"
+    echo "Using JAVA_HOME:   $JAVA_HOME"
+    echo ""
+fi
 
 if [ "$ADS_ACTION" = "start" ]; then
     # Printing instance information
-    echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
+    [ $HAVE_TTY -eq 1 ] && echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
+
+    if [ -f $ADS_PID ]; then
+        PID=`cat $ADS_PID`
+        if kill -0 $PID > /dev/null 2>&1; then
+            echo "ApacheDS is already running as $PID"
+            exit 0
+        fi
+    fi
 
     # Launching ApacheDS
     eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
@@ -106,7 +150,7 @@ if [ "$ADS_ACTION" = "start" ]; then
     echo $! > "$ADS_PID"
 elif [ "$ADS_ACTION" = "run" ]; then
     # Printing instance information
-    echo "Running ApacheDS instance '$ADS_INSTANCE_NAME'..."
+    [ $HAVE_TTY -eq 1 ] && echo "Running ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
     # Launching ApacheDS
     eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
@@ -114,10 +158,37 @@ elif [ "$ADS_ACTION" = "run" ]; then
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -classpath "\"$CLASSPATH\"" \
         org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\""
+elif [ "$ADS_ACTION" = "status" ]; then
+    if [ -f $ADS_PID ]; then
+        PID=`cat $ADS_PID`
+        if kill -0 $PID > /dev/null 2>&1; then
+            echo "ApacheDS is running as $PID"
+        else
+            echo "ApacheDS is not running"
+        fi
+    else
+        [ $HAVE_TTY -eq 1 ] && echo "ApacheDS is not running"
+    fi
 elif [ "$ADS_ACTION" = "stop" ]; then
     # Printing instance information
-    PID=`cat $ADS_PID`
-    echo "Stoping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
+    if [ -f $ADS_PID ]; then
+        PID=`cat $ADS_PID`
+        [ $HAVE_TTY -eq 1 ] && echo "Stoping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
-    kill $PID
+        kill -15 $PID > /dev/null 2>&1
+
+        ATTEMPTS_REMAINING=10
+        while [ $ATTEMPTS_REMAINING > 0 ]; do
+            kill -0 $PID > /dev/null 2>&1 -gt 0
+            if [ $? > 0 ]; then
+                rm -f $ADS_PID > /dev/null 2>&1
+                [ $HAVE_TTY -eq 1 ] && echo "ApacheDS instance '$ADS_INSTANCE_NAME' stopped successfully"
+                break
+            fi
+            sleep 1
+            ATTEMPTS_REMAINING=`expr $ATTEMPTS_REMAINING - 1`
+        done
+    else
+        [ $HAVE_TTY -eq 1 ] && echo "ApacheDS is not running, $ADS_PID does not exist"
+    fi
 fi
