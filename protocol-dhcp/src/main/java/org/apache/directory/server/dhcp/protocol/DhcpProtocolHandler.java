@@ -217,4 +217,8 @@ public class DhcpProtocolHandler implements IoHandler
                 session.getLocalAddress() );
         }
     }
+    
+    public void inputClosed( IoSession session )
+    {
+    }
 }

@@ -331,4 +331,9 @@ public class KerberosProtocolHandler implements IoHandler
             LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
+
+    
+    public void inputClosed( IoSession session )
+    {
+    }
 }

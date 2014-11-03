@@ -223,4 +223,9 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
         return byteBuffer.array();
     }
+
+    
+    public void inputClosed( IoSession session )
+    {
+    }
 }
