@@ -26,13 +26,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
-import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -40,6 +39,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -153,30 +153,127 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
 
         System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
     }
-    
-    
+
+
     @Test
+    @Ignore
     public void testRebind() throws Exception
     {
-        for ( int i = 0; i < 300; i++ ) {
-            LdapConnection connection = pool.getConnection();
-            try 
+        LdapConnection connection = pool.getConnection();
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        for ( int i = 0; i < 30000; i++ )
+        {
+            // First, unbind
+            try
             {
-                // uncomment next line to test the unBind()
-                // bind() race condition described here:
-                // http://mail-archives.apache.org/mod_mbox/directory-dev/201407.mbox/%3CEE6ADC61AF2D71408E4FA7F9517DB7710A9C07E5%40IMCMBX03.MITRE.ORG%3E
-                //connection.unBind();
-                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+                if ( i % 100 == 0 )
+                {
+                    System.out.println( "Iteration #" + i );
+                }
+
+                connection.unBind();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw e;
             }
             finally
             {
                 assertNotNull( connection );
                 pool.releaseConnection( connection );
             }
+
+            // Then bind again
+            try
+            {
+                connection = pool.getConnection();
+                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw e;
+            }
+            finally
+            {
+                assertNotNull( connection );
+            }
+        }
+
+        // terminate with an unbind
+        try
+        {
+            connection.unBind();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
+        }
+        finally
+        {
+            assertNotNull( connection );
+            pool.releaseConnection( connection );
         }
     }
-    
-    
+
+
+    @Test
+    @Ignore
+    public void testRebindNoPool() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( DEFAULT_HOST, getLdapServer().getPort() );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        for ( int i = 0; i < 30000; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                System.out.println( "Iteration # " + i );
+            }
+            // First, unbind
+            try
+            {
+                connection.unBind();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw e;
+            }
+
+            //Thread.sleep( 5 );
+
+            // Don't close the connection, we want to reuse it
+            // Then bind again
+            try
+            {
+                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            }
+            catch ( Exception e )
+            {
+                System.out.println( "Failure after " + i + " iterations" );
+                e.printStackTrace();
+                throw e;
+            }
+        }
+
+        // terminate with an unbind
+        try
+        {
+            connection.unBind();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        connection.close();
+    }
+
+
     @Test
     public void testSmallPool() throws Exception
     {
@@ -191,7 +288,8 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         pool.setTestOnBorrow( true );
         pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_FAIL );
 
-        for ( int i = 0; i < 100; i++ ) {
+        for ( int i = 0; i < 100; i++ )
+        {
             LdapConnection connection = pool.getConnection();
             pool.releaseConnection( connection );
         }
