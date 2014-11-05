@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
-public class LdapConnectionPoolTest extends AbstractLdapTestUnit
+public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 {
     /** The connection pool */
     private LdapConnectionPool pool;
@@ -117,7 +117,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        PoolableObjectFactory<LdapConnection> factory = new ValidatingPoolableLdapConnectionFactory( config );
+        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         pool = new LdapConnectionPool( factory );
         pool.setTestOnBorrow( true );
         pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
@@ -237,6 +237,8 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         LdapConnection connection = new LdapNetworkConnection( DEFAULT_HOST, getLdapServer().getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
+        long t0 = System.currentTimeMillis();
+
         for ( int i = 0; i < 10000; i++ )
         {
             if ( i % 100 == 0 )
@@ -270,6 +272,10 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
             }
         }
 
+        long t1 = System.currentTimeMillis();
+
+        System.out.println( "Time needed to bind/uinbind 10 000 connections : " + ( t1 - t0 ) );
+
         // terminate with an unbind
         try
         {
@@ -292,7 +298,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        ValidatingPoolableLdapConnectionFactory factory = new ValidatingPoolableLdapConnectionFactory( config );
+        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool pool = new LdapConnectionPool( factory );
         pool.setMaxActive( 1 );
         pool.setTestOnBorrow( true );

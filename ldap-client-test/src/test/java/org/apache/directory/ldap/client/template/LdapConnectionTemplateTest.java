@@ -43,7 +43,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
-import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
+import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -367,7 +367,7 @@ public class LdapConnectionTemplateTest
 
         LdapConnectionTemplate ldapConnectionTemplate = 
             new LdapConnectionTemplate( new LdapConnectionPool(
-                new PoolableLdapConnectionFactory( factory ), poolConfig ) );
+                new ValidatingPoolableLdapConnectionFactory( factory ), poolConfig ) );
         assertNotNull( ldapConnectionTemplate );
 
         List<Muppet> muppets = ldapConnectionTemplate.search( 
