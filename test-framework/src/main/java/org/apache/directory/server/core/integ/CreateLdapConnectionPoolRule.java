@@ -22,9 +22,9 @@ package org.apache.directory.server.core.integ;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
-import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
+import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.ldap.LdapServer;
@@ -181,7 +181,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
             .whenExhaustedAction();
 
         return new LdapConnectionPool(
-            new DefaultPoolableLdapConnectionFactory( factory ), poolConfig );
+            new ValidatingPoolableLdapConnectionFactory( factory ), poolConfig );
     }
 
 
