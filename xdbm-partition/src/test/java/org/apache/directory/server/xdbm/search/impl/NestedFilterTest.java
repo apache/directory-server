@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -79,6 +81,7 @@ public class NestedFilterTest extends AbstractCursorTest
     static FilterNormalizingVisitor visitor;
     private static CacheService cacheService;
 
+
     @BeforeClass
     static public void setup() throws Exception
     {
@@ -114,7 +117,7 @@ public class NestedFilterTest extends AbstractCursorTest
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
-        
+
         cacheService = new CacheService();
         cacheService.initialize( null );
     }
@@ -187,23 +190,33 @@ public class NestedFilterTest extends AbstractCursorTest
 
         Cursor<Entry> cursor = buildCursor( exprNode );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 7 ) );
+        expectedUuid.add( Strings.getUUID( 9 ) );
+
+        Map<String, String> expectedCn = new HashMap<String, String>();
+        expectedCn.put( Strings.getUUID( 5 ), "JOhnny WAlkeR" );
+        expectedCn.put( Strings.getUUID( 7 ), "Apache" );
+        expectedCn.put( Strings.getUUID( 9 ), "Jim Bean" );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 7 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Apache", entry.get( "ou" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "ou" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 9 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         cursor.close();
