@@ -110,6 +110,60 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
+    public void testRebindNoPool() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( DEFAULT_HOST, getLdapServer().getPort() );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        for ( int i = 0; i < 10000; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                System.out.println( "Iteration # " + i );
+            }
+            // First, unbind
+            try
+            {
+                connection.unBind();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw e;
+            }
+
+            //Thread.sleep( 5 );
+
+            // Don't close the connection, we want to reuse it
+            // Then bind again
+            try
+            {
+                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            }
+            catch ( Exception e )
+            {
+                System.out.println( "Failure after " + i + " iterations" );
+                e.printStackTrace();
+                throw e;
+            }
+        }
+
+        // terminate with an unbind
+        try
+        {
+            connection.unBind();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        connection.close();
+    }
+
+
+    @Test
     public void testGetSupportedControls() throws Exception
     {
         List<String> controlList = connection.getSupportedControls();

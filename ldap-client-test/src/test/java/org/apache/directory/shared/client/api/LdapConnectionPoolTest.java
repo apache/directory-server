@@ -166,12 +166,12 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         long t0 = System.currentTimeMillis();
         long t00 = t0;
 
-        for ( int i = 0; i < 1000000; i++ )
+        for ( int i = 0; i < 10000; i++ )
         {
             // First, unbind
             try
             {
-                if ( i % 10000 == 0 )
+                if ( i % 100 == 0 )
                 {
                     long t01 = t00;
                     t00 = System.currentTimeMillis();
@@ -199,6 +199,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
             }
             catch ( Exception e )
             {
+                System.out.println( "Failure after " + i + " iterations" );
                 e.printStackTrace();
                 throw e;
             }
@@ -227,60 +228,6 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
             assertNotNull( connection );
             pool.releaseConnection( connection );
         }
-    }
-
-
-    @Test
-    @Ignore
-    public void testRebindNoPool() throws Exception
-    {
-        LdapConnection connection = new LdapNetworkConnection( DEFAULT_HOST, getLdapServer().getPort() );
-        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-
-        for ( int i = 0; i < 10000; i++ )
-        {
-            if ( i % 100 == 0 )
-            {
-                System.out.println( "Iteration # " + i );
-            }
-            // First, unbind
-            try
-            {
-                connection.unBind();
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-                throw e;
-            }
-
-            //Thread.sleep( 5 );
-
-            // Don't close the connection, we want to reuse it
-            // Then bind again
-            try
-            {
-                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-            }
-            catch ( Exception e )
-            {
-                System.out.println( "Failure after " + i + " iterations" );
-                e.printStackTrace();
-                throw e;
-            }
-        }
-
-        // terminate with an unbind
-        try
-        {
-            connection.unBind();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-
-        connection.close();
     }
 
 
