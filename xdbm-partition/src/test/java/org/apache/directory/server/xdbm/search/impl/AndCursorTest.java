@@ -20,12 +20,13 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -69,6 +70,7 @@ public class AndCursorTest extends AbstractCursorTest
 
     File wkdir;
     private static CacheService cacheService;
+
 
     @BeforeClass
     public static void setup() throws Exception
@@ -173,6 +175,11 @@ public class AndCursorTest extends AbstractCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 6 ) );
+        expectedUuid.add( Strings.getUUID( 8 ) );
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
@@ -180,20 +187,17 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -208,6 +212,11 @@ public class AndCursorTest extends AbstractCursorTest
     {
         ExprNode exprNode = FilterParser.parse( schemaManager, "(&(cn=J*)(sn=*))" );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 6 ) );
+        expectedUuid.add( Strings.getUUID( 8 ) );
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
@@ -215,22 +224,19 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -240,22 +246,19 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
