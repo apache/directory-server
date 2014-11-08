@@ -26,9 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -182,6 +180,10 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedAndnOr() throws Exception
     {
+        // This filter will get back 3 entries :
+        // ou=Apache,ou=Board of Directors,o=Good Times Co.
+        // cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.
+        // commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.
         String filter = "(|(&(cn=J*)(sn=w*))(ou=apache))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
@@ -195,28 +197,20 @@ public class NestedFilterTest extends AbstractCursorTest
         expectedUuid.add( Strings.getUUID( 7 ) );
         expectedUuid.add( Strings.getUUID( 9 ) );
 
-        Map<String, String> expectedCn = new HashMap<String, String>();
-        expectedCn.put( Strings.getUUID( 5 ), "JOhnny WAlkeR" );
-        expectedCn.put( Strings.getUUID( 7 ), "Apache" );
-        expectedCn.put( Strings.getUUID( 9 ), "Jim Bean" );
-
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
         assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
-        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "cn" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
         assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
-        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "ou" ).getString() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
         assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
-        assertEquals( expectedCn.get( entry.get( "entryUUID" ).getString() ), entry.get( "cn" ).getString() );
 
         assertFalse( cursor.next() );
         cursor.close();
