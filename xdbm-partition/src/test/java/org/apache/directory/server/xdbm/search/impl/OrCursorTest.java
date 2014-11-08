@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -193,6 +192,8 @@ public class OrCursorTest extends AbstractCursorTest
         expectedUuid.add( Strings.getUUID( 10 ) );
         expectedUuid.add( Strings.getUUID( 11 ) );
 
+        Set<String> foundUuid = new HashSet<String>();
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.afterLast();
@@ -200,31 +201,50 @@ public class OrCursorTest extends AbstractCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        String uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -234,32 +254,44 @@ public class OrCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -276,7 +308,7 @@ public class OrCursorTest extends AbstractCursorTest
         List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
         List<Cursor<IndexEntry<?, String>>> cursors = new ArrayList<Cursor<IndexEntry<?, String>>>();
         Evaluator<? extends ExprNode> eval;
-        Cursor<IndexEntry<?, Long>> cursor;
+        Cursor<IndexEntry<?, String>> cursor;
 
         OrNode orNode = new OrNode();
 
@@ -302,6 +334,16 @@ public class OrCursorTest extends AbstractCursorTest
 
         orNode.addNode( exprNode );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 6 ) );
+        expectedUuid.add( Strings.getUUID( 8 ) );
+        expectedUuid.add( Strings.getUUID( 9 ) );
+        expectedUuid.add( Strings.getUUID( 10 ) );
+        expectedUuid.add( Strings.getUUID( 11 ) );
+
+        Set<String> foundUuid = new HashSet<String>();
+
         cursor = new OrCursor( cursors, evaluators );
 
         cursor.beforeFirst();
@@ -310,33 +352,45 @@ public class OrCursorTest extends AbstractCursorTest
         // from first
         assertTrue( cursor.first() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        String uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -347,40 +401,46 @@ public class OrCursorTest extends AbstractCursorTest
 
         assertTrue( cursor.last() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        uuid = cursor.get().getId();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
 
         try
         {
-            cursor.after( new IndexEntry<String, Long>() );
+            cursor.after( new IndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )
@@ -389,7 +449,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         try
         {
-            cursor.before( new IndexEntry<String, Long>() );
+            cursor.before( new IndexEntry<String, String>() );
             fail( "should fail with UnsupportedOperationException " );
         }
         catch ( UnsupportedOperationException uoe )

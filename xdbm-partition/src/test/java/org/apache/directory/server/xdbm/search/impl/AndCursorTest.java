@@ -187,17 +187,23 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        String uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -217,6 +223,8 @@ public class AndCursorTest extends AbstractCursorTest
         expectedUuid.add( Strings.getUUID( 6 ) );
         expectedUuid.add( Strings.getUUID( 8 ) );
 
+        Set<String> foundUuid = new HashSet<String>();
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
@@ -224,19 +232,28 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        String uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -246,19 +263,25 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
