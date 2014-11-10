@@ -50,6 +50,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,6 +65,8 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
+    /** The Constant DEFAULT_HOST. */
+    private static final String DEFAULT_HOST = "localhost";
 
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
@@ -249,7 +252,7 @@ public void testLookup() throws Exception
         // Use the default list of binary Attributes
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
-        
+
         myConnection.close();
     }
 
@@ -321,7 +324,7 @@ public void testLookup() throws Exception
         // Try to retrieve a binary attribute : it should be seen as a byte[]
         Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
-        
+
         ldapConnection.close();
     }
 }
