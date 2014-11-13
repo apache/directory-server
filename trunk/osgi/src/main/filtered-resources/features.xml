@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+    <!--
+    Install with:
+    features/addUrl mvn:org.apache.directory.server/apacheds-osgi/${apache.directory.version}/xml/features
+    -->
+
+<features>
+    <feature name="apache-directory" version="${apache.directory.version}">
+      <!--<bundle>mvn:org.slf4j/slf4j-api/1.5.6</bundle>-->
+      <!--<bundle>mvn:org.slf4j/slf4j-nop/1.5.6</bundle>-->
+      <bundle>mvn:http://repository.springsource.com/maven/bundles/external!org.bouncycastle/com.springsource.org.bouncycastle.jce/1.39.0</bundle>
+      <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_2-SNAPSHOT</bundle>
+      <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+      <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr/3.0.1_2-SNAPSHOT</bundle>
+      <bundle>mvn:org.apache.mina/mina-core/2.0.1</bundle>
+      <bundle>mvn:org.apache.xbean/xbean-spring/${xbean.version}</bundle>
+      <bundle>mvn:org.apache.directory.server/apacheds-osgi/${apache.directory.version}</bundle>
+    </feature>
+</features>

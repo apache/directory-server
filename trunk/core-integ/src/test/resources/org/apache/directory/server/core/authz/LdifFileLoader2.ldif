@@ -1,0 +1,25 @@
+dn: cn=enableSearchForAllUsers,ou=system
+objectClass: top
+objectClass: subentry
+objectClass: accessControlSubentry
+subtreeSpecification: {}
+cn: enableSearchForAllUsers
+prescriptiveACI: { identificationTag "enableSearchForAllUsers", precedence 14, 
+ authenticationLevel simple, itemOrUserFirst userFirst: { userClasses { allUsers 
+ }, userPermissions { { protectedItems {entry, allUserAttributeTypesAndValues}, 
+ grantsAndDenials { grantRead, grantReturnDN, grantBrowse } } } } }
+
+# User account
+dn: uid=READER ,ou=users,ou=system
+cn: READER
+sn: Reader
+uid: READER
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/READER
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: posixAccount
+objectClass: person
+userPassword: secret

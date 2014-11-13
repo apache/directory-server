@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>2.0.0-M18</version>
+  </parent>
+  
+  <artifactId>apacheds-server-integ</artifactId>
+  <name>ApacheDS Server Integration</name>
+  <packaging>bundle</packaging>
+
+  <description>Integration testing framework for Apache Directory Server.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-integ</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-core-jndi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-codec</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-protocol-ldap</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-server-annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-test-framework</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-test</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ldapsdk</groupId>
+      <artifactId>ldapsdk</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-asn1-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-extras-sp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-codec-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-extras-codec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-util</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.junit</groupId>
+      <artifactId>junit-addons</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-codec-standalone</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-client-api</artifactId>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-dsml-engine</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.directory.api</groupId>
+                  <artifactId>api-ldap-extras-codec</artifactId>
+                  <outputDirectory>${codec.plugin.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <manifestLocation>META-INF</manifestLocation>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+              {local-packages};version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <properties>
+    <codec.plugin.directory>${project.build.directory}/pluginDirectory</codec.plugin.directory>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>integration</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <felix.cache.rootdir>
+                  ${project.build.directory}
+                </felix.cache.rootdir>
+                <felix.cache.locking>
+                  false
+                </felix.cache.locking>
+                <org.osgi.framework.storage.clean>
+                  onFirstInit
+                </org.osgi.framework.storage.clean>
+                <org.osgi.framework.storage>
+                  ${project.build.directory}/osgi-cache
+                </org.osgi.framework.storage>
+                <codec.plugin.directory>
+                  ${codec.plugin.directory}
+                </codec.plugin.directory>
+              </systemPropertyVariables>
+              <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+              <includes>
+                <include>**/*IT.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/*PerfIT.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Runs tests three times: with JDBM partition, AVL partition, LDIF partition -->
+    <profile>
+      <id>integration-all-partitions</id>
+      <activation>
+        <property><name>test-all-partitions</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <!-- default/JDBM execution -->
+            <configuration>
+              <includes>
+                <include>**/*ISuite.java</include>
+                <include>**/*IndexedNegationSearchIT.java</include>
+                <!-- commenting this test makes running the test suite with -Dintegration pass
+                     so far no clue why is this test despite having it own instance of LdapServer
+                     causes the StartTlsIT tests fail
+                 <include>**/*LdapsIT.java</include> -->
+                <include>**/*MiscBindIT.java</include>
+                <include>**/*SaslBindIT.java</include>
+                <include>**/*KeyDerivationServiceIT.java</include>
+                <include>**/*PasswordPolicyServiceIT.java</include>
+                <include>**/*StoredProcedureIT.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
+                <felix.cache.rootdir>
+                  ${project.build.directory}
+                </felix.cache.rootdir>
+                <felix.cache.locking>
+                  false
+                </felix.cache.locking>
+                <org.osgi.framework.storage.clean>
+                  onFirstInit
+                </org.osgi.framework.storage.clean>
+                <org.osgi.framework.storage>
+                  ${project.build.directory}/osgi-cache
+                </org.osgi.framework.storage>
+                <codec.plugin.directory>
+                  ${codec.plugin.directory}
+                </codec.plugin.directory>
+              </systemPropertyVariables>              
+            </configuration>
+            <executions>
+              <!-- AVL execution -->
+       		  <execution>
+       		    <id>avl</id>
+       		    <goals>
+       		      <goal>test</goal>
+       		    </goals>
+                <configuration>
+                  <systemPropertyVariables>
+                    <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
+	                <felix.cache.rootdir>
+	                  ${project.build.directory}
+	                </felix.cache.rootdir>
+	                <felix.cache.locking>
+	                  false
+	                </felix.cache.locking>
+	                <org.osgi.framework.storage.clean>
+	                  onFirstInit
+	                </org.osgi.framework.storage.clean>
+	                <org.osgi.framework.storage>
+	                  ${project.build.directory}/osgi-cache
+	                </org.osgi.framework.storage>
+                        <codec.plugin.directory>
+                          ${codec.plugin.directory}
+                        </codec.plugin.directory>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+              <!-- LDIF execution -->
+       		  <execution>
+       		    <id>ldif</id>
+       		    <goals>
+       		      <goal>test</goal>
+       		    </goals>
+                <configuration>
+                  <systemPropertyVariables>
+                    <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
+	                <felix.cache.rootdir>
+	                  ${project.build.directory}
+	                </felix.cache.rootdir>
+	                <felix.cache.locking>
+	                  false
+	                </felix.cache.locking>
+	                <org.osgi.framework.storage.clean>
+	                  onFirstInit
+	                </org.osgi.framework.storage.clean>
+	                <org.osgi.framework.storage>
+	                  ${project.build.directory}/osgi-cache
+	                </org.osgi.framework.storage>
+                        <codec.plugin.directory>
+                          ${codec.plugin.directory}
+                        </codec.plugin.directory>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

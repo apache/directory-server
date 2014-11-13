@@ -1,0 +1,233 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+#   EXAMPLE.COM is reserved for testing according to this RFC:
+#
+#   http://www.rfc-editor.org/rfc/rfc2606.txt
+#
+
+dn: dc=example,dc=com
+objectClass: domain
+objectClass: top
+dc: example
+
+dn: ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: ou=engineering,ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: engineering
+
+dn: uid=user3,ou=engineering,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: user3
+cn: User 3
+sn: 3
+givenName: User
+
+dn: ou=sales,ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: sales
+
+dn: uid=user1,ou=sales,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: user1
+cn: User 1
+sn: 1
+givenName: User
+
+dn: ou=subscriptions,uid=user1,ou=sales,ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: subscriptions
+
+dn: uid=user2,ou=sales,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: user2
+cn: User 2
+sn: 2
+givenName: User
+
+dn: ou=subscriptions,uid=user2,ou=sales,ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: subscriptions
+
+dn: ou=managers,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: managers
+
+
+dn: ou=newsfeeds,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: bookmarks
+
+dn: cn=feed1,ou=newsfeeds,dc=example,dc=com
+objectClass: document
+objectClass: top
+cn: feed1
+documentIdentifier: http://www.heise.de/newsticker/heise-atom.xml
+
+dn: cn=feed2,ou=newsfeeds,dc=example,dc=com
+objectClass: document
+objectClass: top
+cn: feed2
+documentIdentifier: http://www.heise.de/newsticker/heise-atom.xml
+
+dn: cn=feed3,ou=newsfeeds,dc=example,dc=com
+objectClass: document
+objectClass: top
+cn: feed3
+documentIdentifier: http://www.heise.de/newsticker/heise-atom.xml
+
+
+dn: ou=people,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+ou: people
+aliasedObjectName: ou=users,dc=example,dc=com
+description: alias to sibling (branch)
+
+#dn: ou=all,ou=users,dc=example,dc=com
+#objectClass: extensibleObject
+#objectClass: alias
+#ou: all
+#aliasedObjectName: dc=example,dc=com
+#description: alias to context entry, extends search base to all + loop!
+
+dn: uid=foobar,ou=engineering,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+uid: foobar
+aliasedObjectName: uid=user3,ou=engineering,ou=users,dc=example,dc=com
+description: alias to sibling (leaf)
+
+dn: uid=user1,ou=engineering,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+uid: user1
+aliasedObjectName: uid=user1,ou=sales,ou=users,dc=example,dc=com
+description: alias to cousin
+
+dn: cn=feed1,ou=subscriptions,uid=user1,ou=sales,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+cn: feed1
+aliasedObjectName: cn=feed1,ou=newsfeeds,dc=example,dc=com
+description: alias to parent
+
+dn: cn=feed1,ou=subscriptions,uid=user2,ou=sales,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+cn: feed1
+aliasedObjectName: cn=feed1,ou=newsfeeds,dc=example,dc=com
+description: alias to parent
+
+dn: cn=feed2,ou=subscriptions,uid=user2,ou=sales,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+cn: feed2
+aliasedObjectName: cn=feed2,ou=newsfeeds,dc=example,dc=com
+description: alias to parent
+
+dn: uid=user1,ou=managers,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+uid: user1
+aliasedObjectName: uid=user1,ou=sales,ou=users,dc=example,dc=com
+description: alias
+#aliasedObjectName: uid=user1,ou=engineering,ou=users,dc=example,dc=com
+#description: chained alias
+
+dn: cn=deputy,uid=user1,ou=sales,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+cn: deputy
+aliasedObjectName: uid=user2,ou=sales,ou=users,dc=example,dc=com
+description: alias to parent's sibling, builds an indirect loop!
+
+#dn: cn=deputy,uid=user3,ou=engineering,ou=users,dc=example,dc=com
+#objectClass: extensibleObject
+#objectClass: alias
+#cn: deputy
+#aliasedObjectName: uid=user3,ou=engineering,ou=users,dc=example,dc=com
+#description: alias to parent, builds a direct loop!
+
+dn: cn=deputy,uid=user2,ou=sales,ou=users,dc=example,dc=com
+objectClass: extensibleObject
+objectClass: alias
+cn: deputy
+aliasedObjectName: uid=user1,ou=sales,ou=users,dc=example,dc=com
+description: alias to parent's sibling, builds an indirect loop!
+
+#dn: ou=hr,ou=users,dc=example,dc=com
+#objectClass: extensibleObject
+#objectClass: alias
+#ou: hr
+#aliasedObjectName: ou=human resources,ou=users,o=acme
+#description: alias to another partition
+
+#dn: o=acme
+#objectClass: organization
+#objectClass: top
+#o: acme
+
+#dn: ou=users,o=acme
+#objectClass: organizationalUnit
+#objectClass: top
+#ou: users
+
+#dn: ou=human resources,ou=users,o=acme
+#objectClass: organizationalUnit
+#objectClass: top
+#ou: human resources
+
+#dn: uid=userA,ou=human resources,ou=users,o=acme
+#objectClass: inetOrgPerson
+#objectClass: organizationalPerson
+#objectClass: person
+#objectClass: top
+#uid: userA
+#cn: User A
+#sn: A
+#givenName: User
+
+#dn: uid=userB,ou=human resources,ou=users,o=acme
+#objectClass: inetOrgPerson
+#objectClass: organizationalPerson
+#objectClass: person
+#objectClass: top
+#uid: userB
+#cn: User B
+#sn: B
+#givenName: User

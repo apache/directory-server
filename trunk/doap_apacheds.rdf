@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:asfext="http://projects.apache.org/ns/asfext#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+   
+         http://www.apache.org/licenses/LICENSE-2.0
+   
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  <Project rdf:about="http://directory.apache.org">
+    <created>2007-04-17</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <name>Apache Directory Server</name>
+    <homepage rdf:resource="http://directory.apache.org/apacheds/1.5" />
+    <asfext:pmc rdf:resource="http://directory.apache.org" />
+    <shortdesc>An extensible, embeddable LDAP and Kerberos server, entirely in Java</shortdesc>
+    <description>ApacheDS is an extensible and embeddable directory server entirely written in Java, which has been certified LDAPv3 compatible by the Open Group. Besides LDAP it supports Kerberos 5 and the Change Password Protocol. It has been designed to introduce triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.</description>
+    <bug-database rdf:resource="http://issues.apache.org/jira/browse/DIRSERVER" />
+    <mailing-list rdf:resource="http://directory.apache.org/community%26resources/mailing-lists-and-irc.html" />
+    <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/directory/apacheds/" />
+    <programming-language>Java</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/network-server" />
+
+    <release>
+      <Version>
+        <name>Feature release</name>
+        <created>2010-04-24</created>
+        <revision>1.5.7</revision>
+      </Version>
+    </release>
+
+    <release>
+      <Version>
+        <name>Stable release</name>
+        <created>2007-05-26</created>
+        <revision>1.0.2</revision>
+      </Version>
+    </release>
+    
+    <release>
+      <Version>
+        <name>Latest 2.x milestone release</name>
+        <created>2012-02-29</created>
+        <revision>2.0.0-M6</revision>
+      </Version>
+    </release>
+
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="http://svn.apache.org/repos/asf/directory/apacheds/"/>
+        <browse rdf:resource="http://svn.apache.org/viewvc/directory/apacheds/"/>
+      </SVNRepository>
+    </repository>
+
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Stefan Zoerner</foaf:name>
+          <foaf:mbox rdf:resource="mailto:szoerner@apache.org"/>
+      </foaf:Person>
+    </maintainer>
+
+    <asfext:implements><asfext:Standard>
+      <asfext:title>Lightweight Directory Access Protocol (LDAP): The Protocol</asfext:title>
+      <asfext:body>IETF</asfext:body>
+      <asfext:id>RFC 4511</asfext:id>
+      <asfext:url rdf:resource="http://www.ietf.org/rfc/rfc4511.txt"/>
+    </asfext:Standard></asfext:implements>
+
+    <asfext:implements><asfext:Standard>
+      <asfext:title>The Kerberos Network Authentication Service (V5)</asfext:title>
+      <asfext:body>IETF</asfext:body>
+      <asfext:id>RFC 4120</asfext:id>
+      <asfext:url rdf:resource="http://www.ietf.org/rfc/rfc4120.txt"/>
+    </asfext:Standard></asfext:implements>
+
+  </Project>
+</rdf:RDF>

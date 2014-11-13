@@ -1,0 +1,174 @@
+version: 1
+dn: ou=config
+ou: config
+objectclass: top
+objectclass: organizationalUnit
+
+dn: ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-directoryService
+ads-directoryserviceid: default
+ads-dsreplicaid: 1
+ads-dssyncperiodmillis: 15000
+ads-dsallowanonymousaccess: true
+ads-dsaccesscontrolenabled: false
+ads-dsdenormalizeopattrsenabled: false
+ads-enabled: true
+
+dn: ou=servers,ads-directoryServiceId=default,ou=config
+ou: servers
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: ads-server
+objectclass: ads-ldapServer
+objectclass: ads-dsBasedServer
+objectclass: top
+ads-serverId: ldapServer
+description: a LDAP server instance
+ads-confidentialityRequired: false
+ads-maxSizeLimit: 1000
+ads-maxTimeLimit: 15000
+ads-maxpdusize: 2000000
+ads-saslHost: ldap.example.com
+ads-saslPrincipal: ldap/ldap.example.com@EXAMPLE.COM
+ads-saslRealms: example.com
+ads-saslRealms: apache.org
+ads-keystoreFile: keystore.file
+ads-certificatePassword: secret
+ads-searchBaseDN: ou=users,ou=system
+ads-enabled: true
+ads-replEnabled: true
+ads-replPingerSleep: 5
+
+dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: transports
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-transportid=ldap1,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-systemport: 10389
+ads-transportenablessl: false
+ads-transportbacklog: 50
+ads-transportnbthreads: 8
+ads-transportaddress: 0.0.0.0
+ads-transportid: ldap1
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+objectclass: top
+ads-enabled: true
+
+dn: ads-transportid=ldaps,ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-systemport: 10636
+ads-transportenablessl: true
+ads-transportaddress: localhost
+ads-transportid: ldaps
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+objectclass: top
+ads-enabled: true
+
+dn: ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: extendedophandlers
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-extendedOpId=gracefulShutdownHandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: gracefulShutdownHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.GracefulShutdownHandler
+objectclass: ads-extendedOpHandler
+objectclass: top
+ads-enabled: true
+
+dn: ads-extendedOpId=starttlshandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: starttlshandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTlsHandler
+objectclass: ads-extendedOpHandler
+objectclass: top
+ads-enabled: true
+
+dn: ads-extendedOpId=storedprochandler,ou=extendedophandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-enabled: false
+ads-extendedOpId: storedprochandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler
+objectclass: ads-extendedOpHandler
+objectclass: top
+
+dn: ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: saslmechhandlers
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-saslMechName=cram-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: CRAM-MD5
+ads-enabled: true
+
+dn: ads-saslMechName=digest-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: DIGEST-MD5
+ads-enabled: true
+
+dn: ads-saslMechName=gss-spnego,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: GSS-SPNEGO
+ads-ntlmMechProvider: com.foo.Bar
+ads-enabled: true
+
+dn: ads-saslMechName=gssapi,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: GSSAPI
+ads-enabled: true
+
+dn: ads-saslMechName=ntlm,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: NTLM
+ads-ntlmMechProvider: com.foo.Bar
+ads-enabled: true
+
+dn: ads-saslMechName=simple,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: SIMPLE
+ads-enabled: true
+
+dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectClass: organizationalUnit
+objectClass: top
+ou: replConsumers
+
+dn: ads-replConsumerId=test,ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-replConsumer
+ads-replConsumerId: test
+ads-replAttributes: acme
+ads-replAliasDerefMode: NEVER
+ads-searchBaseDN: ads-directoryServiceId=default,ou=config
+ads-replLastSentCsn: 20100509111949.005000Z#000000#000#000000
+ads-replProvHostName: localhost
+ads-replSearchScope: SUB
+ads-replSearchFilter: (&(objectClass=top)(ou=test))
+ads-replProvPort: 12345
+ads-replRefreshNPersist: TRUE
+ads-replUseTls: TRUE
+ads-replStrictCertValidation: TRUE
+ads-replAliasDerefMode: NEVER
+ads-replRefreshInterval: 100
+ads-replUserPassword: secret
+ads-replCookie: abcdef
+ads-replUserDn: ou=config
+ads-replSearchSizeLimit: 100
+ads-replSearchTimeOut: 100

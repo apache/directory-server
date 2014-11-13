@@ -1,0 +1,13 @@
+Package: apacheds
+Version: ${version.debian}
+Section: devel
+Priority: optional
+Architecture: ${arch}
+Installed-Size: 11504
+Maintainer: Apache Directory Project <dev@directory.apache.org>
+Description: LDAP Server
+ ApacheDS is an embeddable directory server entirely written in Java, which 
+ has been certified LDAPv3 compatible by the Open Group. Besides LDAP it 
+ supports Kerberos 5 and the Change Password Protocol. It has been designed 
+ to introduce triggers, stored procedures, queues and views to the world of 
+ LDAP which has lacked these rich constructs.

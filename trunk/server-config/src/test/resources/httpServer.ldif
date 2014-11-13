@@ -1,0 +1,81 @@
+version: 1
+dn: ou=config
+ou: config
+objectclass: top
+objectclass: organizationalUnit
+
+dn: ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-directoryService
+ads-directoryserviceid: default
+ads-dsreplicaid: 1
+ads-dssyncperiodmillis: 15000
+ads-dsallowanonymousaccess: true
+ads-dsaccesscontrolenabled: false
+ads-dsdenormalizeopattrsenabled: false
+ads-enabled: true
+
+dn: ou=servers,ads-directoryServiceId=default,ou=config
+ou: servers
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-server
+objectclass: ads-httpServer
+ads-serverId: httpServer
+description: HTTP server
+ads-httpConfFile: test.conf
+
+dn: ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: httpWebApps
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-id=webApp1,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp1
+ads-httpWarFile: war file 1
+ads-httpAppCtxPath: /home/app1
+
+dn: ads-id=webApp2,ou=httpWebApps,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-httpWebApp
+ads-Id: webApp2
+ads-httpWarFile: war file 2
+ads-httpAppCtxPath: /home/app2
+
+dn: ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+ou: transports
+objectclass: organizationalUnit
+objectclass: top
+
+dn: ads-transportid=http,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-tcpTransport
+ads-transportid: http
+ads-systemport: 123
+ads-transportenablessl: false
+ads-transportbacklog: 50
+ads-transportnbthreads: 8
+ads-transportaddress: 0.0.0.0
+ads-enabled: true
+
+dn: ads-transportid=https,ou=transports,ads-serverId=httpServer,ou=servers,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-transport
+objectclass: ads-udpTransport
+ads-transportid: https
+ads-transportaddress: localhost
+ads-systemport: 456
+ads-transportenablessl: true
+ads-enabled: true
