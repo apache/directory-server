@@ -162,7 +162,13 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setDiagnosticMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
+
+                // Reset the session now
+                ldapSession.setAnonymous();
+
+                // Write the response
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+
                 return;
             }
 
@@ -246,6 +252,11 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
             result.setDiagnosticMessage( msg );
             bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
+
+            // Before writing the response, be sure the session is set to anonymous
+            ldapSession.setAnonymous();
+
+            // Write the response
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
         finally
