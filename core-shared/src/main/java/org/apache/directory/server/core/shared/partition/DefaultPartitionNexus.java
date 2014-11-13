@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -57,15 +58,14 @@ import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.UsageEnum;
 import org.apache.directory.api.ldap.util.tree.DnNode;
-import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.CursorList;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -715,12 +715,33 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 {
                     searchContext.setDn( contextDn );
                     EntryFilteringCursor cursor = partition.search( searchContext );
-                    cursors.add( cursor );
+
+                    try
+                    {
+                        if ( cursor.first() )
+                        {
+                            cursor.beforeFirst();
+                            cursors.add( cursor );
+                        }
+                    }
+                    catch ( CursorException e )
+                    {
+                        // Do nothing
+                    }
                 }
             }
 
             // don't feed the above Cursors' list to a BaseEntryFilteringCursor it is skipping the naming context entry of each partition
-            return new CursorList( cursors, searchContext );
+            if ( cursors.size() == 0 )
+            {
+                // No candidate, return an emtpy cursor
+                return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext,
+                    directoryService.getSchemaManager() );
+            }
+            else
+            {
+                return new CursorList( cursors, searchContext );
+            }
         }
     }
 
@@ -874,9 +895,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( !dn.isSchemaAware() )
         {
-           dn.apply( schemaManager ); 
+            dn.apply( schemaManager );
         }
-        
+
         synchronized ( partitionLookupTree )
         {
             parent = partitionLookupTree.getElement( dn );
