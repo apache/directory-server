@@ -63,13 +63,13 @@ import org.junit.runner.RunWith;
 @CreateLdapServer(
     transports =
         {
-            @CreateTransport(protocol = "LDAP" )
+            @CreateTransport(protocol = "LDAP")
     })
 @CreateKdcServer(
     transports =
         {
-            @CreateTransport(protocol = "TCP", port = 6087),
-            @CreateTransport(protocol = "UDP", port = 6087)
+            @CreateTransport(protocol = "TCP", address = "127.0.0.1", port = 6087),
+            @CreateTransport(protocol = "UDP", address = "127.0.0.1", port = 6087)
     })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosUdpITest extends AbstractKerberosITest

@@ -69,7 +69,7 @@ Project</a>
 @CreateKdcServer(
     transports =
         {
-            @CreateTransport(protocol = "TCP", port = 6086)
+            @CreateTransport(protocol = "TCP", address = "127.0.0.1", port = 6086)
     })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosTcpITest extends AbstractKerberosITest
@@ -82,6 +82,12 @@ public class KerberosTcpITest extends AbstractKerberosITest
     @Test
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
+        if ( System.getProperty( "java.version" ).startsWith( "1.8" ) )
+        {
+            // Java 8 does not support anymore dec-cbc-md5
+            return;
+        }
+
         // TODO: rsa-md5-des
         // RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
         ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
