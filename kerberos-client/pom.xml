@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M19-SNAPSHOT</version>
+    <version>2.0.0-M18-SNAPSHOT</version>
   </parent>
   <artifactId>kerberos-client</artifactId>
   <name>kerberos-client</name>
