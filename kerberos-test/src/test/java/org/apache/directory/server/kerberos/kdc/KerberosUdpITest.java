@@ -82,6 +82,12 @@ public class KerberosUdpITest extends AbstractKerberosITest
     @Test
     public void testObtainTickets_DES_CBC_MD5() throws Exception
     {
+        if ( System.getProperty( "java.version" ).startsWith( "1.8" ) )
+        {
+            // Java 8 does not support anymore dec-cbc-md5
+            return;
+        }
+
         // TODO: RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
         ObtainTicketParameters parameters = new ObtainTicketParameters( UdpTransport.class,
             EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
