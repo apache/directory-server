@@ -82,7 +82,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         IoFilterChain chain = session.getIoSession().getFilterChain();
         SslFilter sslFilter = ( SslFilter ) chain.get( "sslFilter" );
-        
+
         if ( sslFilter == null )
         {
             sslFilter = new SslFilter( sslContext );
@@ -92,10 +92,16 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
                 sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
             }
 
+            // Be sure we disable SSLV3
+            sslFilter.setEnabledProtocols( new String[]
+                { "TLSv1", "TLSv1.1", "TLSv1.2" } );
             chain.addFirst( "sslFilter", sslFilter );
         }
         else
         {
+            // Be sure we disable SSLV3
+            sslFilter.setEnabledProtocols( new String[]
+                { "TLSv1", "TLSv1.1", "TLSv1.2" } );
             sslFilter.startSsl( session.getIoSession() );
         }
 

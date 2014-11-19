@@ -63,11 +63,16 @@ public class LdapsInitializer
         SslFilter sslFilter = new SslFilter( sslCtx );
 
         List<String> cipherSuites = server.getEnabledCipherSuites();
-        if( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
+
+        if ( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
         {
             sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
         }
-        
+
+        // Be sure we disable SSLV3
+        sslFilter.setEnabledProtocols( new String[]
+            { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+
         sslFilter.setWantClientAuth( true );
         chain.addLast( "sslFilter", sslFilter );
         return chain;
