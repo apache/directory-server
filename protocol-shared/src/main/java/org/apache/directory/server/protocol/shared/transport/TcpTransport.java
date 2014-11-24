@@ -20,6 +20,7 @@ package org.apache.directory.server.protocol.shared.transport;
 
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.SocketAcceptor;
@@ -35,6 +36,18 @@ import org.slf4j.LoggerFactory;
  */
 public class TcpTransport extends AbstractTransport
 {
+    /** The SSL 'needClientAuth' flag */
+    private boolean needClientAuth;
+
+    /** The SSL 'wantClientAuth' flag */
+    private boolean wantClientAuth;
+
+    /** The list of enabled protocols */
+    private List<String> enabledProtocols;
+
+    /** The list of enabled ciphers */
+    private List<String> cipherSuite;
+
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TcpTransport.class );
 
@@ -172,6 +185,86 @@ public class TcpTransport extends AbstractTransport
         }
 
         return acceptor == null ? null : ( SocketAcceptor ) acceptor;
+    }
+
+
+    /**
+     * Set the needClientAuth SSL flag
+     *
+     * @param needClientAuth the flag to set
+     */
+    public void setNeedClientAuth( boolean needClientAuth )
+    {
+        this.needClientAuth = needClientAuth;
+    }
+
+
+    /**
+     * @return <code>true</code> if the NeedClientAuth SSL flag is set
+     */
+    public boolean isNeedClientAuth()
+    {
+        return needClientAuth;
+    }
+
+
+    /**
+     * Set the wantClientAuth SSL flag
+     *
+     * @param wantClientAuth the flag to set
+     */
+    public void setWantClientAuth( boolean wantClientAuth )
+    {
+        this.wantClientAuth = wantClientAuth;
+    }
+
+
+    /**
+     * @return <code>true</code> if the WantClientAuth SSL flag is set
+     */
+    public boolean isWantClientAuth()
+    {
+        return wantClientAuth;
+    }
+
+
+    /**
+     * @return The list of enabled protocols
+     */
+    public List<String> getEnabledProtocols()
+    {
+        return enabledProtocols;
+    }
+
+
+    /**
+     * Set the list of enabled protocols
+     *
+     * @param enabledProtocols The list of enabled protocols
+     */
+    public void setEnabledProtocols( List<String> enabledProtocols )
+    {
+        this.enabledProtocols = enabledProtocols;
+    }
+
+
+    /**
+     * @return The list of enabled ciphers
+     */
+    public List<String> getCipherSuite()
+    {
+        return cipherSuite;
+    }
+
+
+    /**
+     * Set the list of enabled ciphers
+     *
+     * @param enabledCiphers The list of enabled ciphers
+     */
+    public void setEnabledCiphers( List<String> cipherSuite )
+    {
+        this.cipherSuite = cipherSuite;
     }
 
 

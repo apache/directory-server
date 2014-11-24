@@ -127,8 +127,6 @@ import org.slf4j.MDC;
  */
 public class LdapServer extends DirectoryBackedService
 {
-    private static final long serialVersionUID = 3757127143811666817L;
-
     /** logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( LdapServer.class );
 
@@ -184,7 +182,8 @@ public class LdapServer extends DirectoryBackedService
     private String certificatePassword;
 
     /** The extended operation handlers. */
-    private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
+    private final Collection<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>> extendedOperationHandlers =
+        new ArrayList<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>>();
 
     /** The supported authentication mechanisms. */
     private Map<String, MechanismHandler> saslMechanismHandlers = new HashMap<String, MechanismHandler>();
@@ -260,6 +259,7 @@ public class LdapServer extends DirectoryBackedService
     private int pingerSleepTime;
 
     /** the list of cipher suites to be used in LDAPS and StartTLS */
+    @Deprecated
     private List<String> enabledCipherSuites = new ArrayList<String>();
 
 
@@ -357,8 +357,6 @@ public class LdapServer extends DirectoryBackedService
     /**
      * loads the digital certificate either from a keystore file or from the admin entry in DIT
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void loadKeyStore() throws Exception
     {
         if ( Strings.isEmpty( keystoreFile ) )
@@ -436,19 +434,34 @@ public class LdapServer extends DirectoryBackedService
         loadKeyStore();
 
         String sslFilterName = "sslFilter";
+
         for ( IoFilterChainBuilder chainBuilder : chainBuilders )
         {
             DefaultIoFilterChainBuilder dfcb = ( ( DefaultIoFilterChainBuilder ) chainBuilder );
+
             if ( dfcb.contains( sslFilterName ) )
             {
+                // Get the TcpTransport
+                TcpTransport tcpTransport = null;
+
+                for ( Transport transport : getTransports() )
+                {
+                    if ( transport instanceof TcpTransport )
+                    {
+                        tcpTransport = ( TcpTransport ) transport;
+                        break;
+                    }
+                }
+
                 DefaultIoFilterChainBuilder newChain = ( DefaultIoFilterChainBuilder ) LdapsInitializer
-                    .init( this );
+                    .init( this, tcpTransport );
                 dfcb.replace( sslFilterName, newChain.get( sslFilterName ) );
                 newChain = null;
             }
         }
 
         StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
+
         if ( handler != null )
         {
             handler.setLdapServer( this );
@@ -480,7 +493,7 @@ public class LdapServer extends DirectoryBackedService
 
         PartitionNexus nexus = getDirectoryService().getPartitionNexus();
 
-        for ( ExtendedOperationHandler h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> h : extendedOperationHandlers )
         {
             LOG.info( "Added Extended Request Handler: " + h.getOid() );
             h.setLdapServer( this );
@@ -504,7 +517,7 @@ public class LdapServer extends DirectoryBackedService
 
             if ( transport.isSSLEnabled() )
             {
-                chain = LdapsInitializer.init( this );
+                chain = LdapsInitializer.init( this, ( TcpTransport ) transport );
             }
             else
             {
@@ -816,7 +829,9 @@ public class LdapServer extends DirectoryBackedService
      * @param eoh an extended operation handler
      * @throws Exception on failure to add the handler
      */
-    public void addExtendedOperationHandler( ExtendedOperationHandler eoh ) throws Exception
+    public void addExtendedOperationHandler(
+        ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> eoh )
+        throws Exception
     {
         if ( started )
         {
@@ -844,15 +859,17 @@ public class LdapServer extends DirectoryBackedService
         //            DefaultPartitionNexus nexus = getDirectoryService().getPartitionNexus();
         //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
 
-        ExtendedOperationHandler handler = null;
-        for ( ExtendedOperationHandler h : extendedOperationHandlers )
+        ExtendedOperationHandler<?, ?> handler = null;
+
+        for ( ExtendedOperationHandler<?, ?> extendedOperationHandler : extendedOperationHandlers )
         {
-            if ( h.getOid().equals( oid ) )
+            if ( extendedOperationHandler.getOid().equals( oid ) )
             {
-                handler = h;
+                handler = extendedOperationHandler;
                 break;
             }
         }
+
         extendedOperationHandlers.remove( handler );
     }
 
@@ -865,14 +882,14 @@ public class LdapServer extends DirectoryBackedService
      * request handler
      * @return the exnteded operation handler
      */
-    public ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
-        getExtendedOperationHandler( String oid )
+    public ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> getExtendedOperationHandler(
+        String oid )
     {
-        for ( ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> h : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> extendedOperationHandler : extendedOperationHandlers )
         {
-            if ( h.getOid().equals( oid ) )
+            if ( extendedOperationHandler.getOid().equals( oid ) )
             {
-                return h;
+                return extendedOperationHandler;
             }
         }
 
@@ -965,9 +982,10 @@ public class LdapServer extends DirectoryBackedService
      *
      * @return A collection of {@link ExtendedOperationHandler}s.
      */
-    public Collection<ExtendedOperationHandler> getExtendedOperationHandlers()
+    public Collection<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>> getExtendedOperationHandlers()
     {
-        return new ArrayList<ExtendedOperationHandler>( extendedOperationHandlers );
+        return new ArrayList<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>>(
+            extendedOperationHandlers );
     }
 
 
@@ -976,7 +994,8 @@ public class LdapServer extends DirectoryBackedService
      *
      * @param handlers A collection of {@link ExtendedOperationHandler}s.
      */
-    public void setExtendedOperationHandlers( Collection<ExtendedOperationHandler> handlers )
+    public void setExtendedOperationHandlers(
+        Collection<ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>> handlers )
     {
         this.extendedOperationHandlers.clear();
         this.extendedOperationHandlers.addAll( handlers );
@@ -1725,9 +1744,13 @@ public class LdapServer extends DirectoryBackedService
 
     /**
      * Gives the list of enabled cipher suites
+     * <br>
+     * This method has been deprecated, please set this list in the TcpTransport class
+     * </br>
      * 
-     * @return
+     * @return The list of ciphers that can be used
      */
+    @Deprecated
     public List<String> getEnabledCipherSuites()
     {
         return enabledCipherSuites;
@@ -1736,9 +1759,13 @@ public class LdapServer extends DirectoryBackedService
 
     /**
      * Sets the list of cipher suites to be used in LDAPS and StartTLS
+     * <br>
+     * This method has been deprecated, please set this list in the TcpTransport class
+     * </br>
      * 
      * @param enabledCipherSuites if null the default cipher suites will be used
      */
+    @Deprecated
     public void setEnabledCipherSuites( List<String> enabledCipherSuites )
     {
         this.enabledCipherSuites = enabledCipherSuites;

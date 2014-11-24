@@ -20,6 +20,9 @@
 package org.apache.directory.server.config.beans;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.directory.server.config.ConfigurationElement;
 
 
@@ -59,6 +62,22 @@ public class TransportBean extends AdsBaseBean
     /** The backlog for the transport services */
     @ConfigurationElement(attributeType = "ads-transportBackLog", isOptional = true, defaultValue = "50")
     private int transportBackLog = DEFAULT_BACKLOG_NB;
+
+    /** The transport list of enabled ciphers */
+    @ConfigurationElement(attributeType = "ads-enabledCipher", isOptional = true)
+    private List<String> enabledCiphers;
+
+    /** The transport list of enabled protocols */
+    @ConfigurationElement(attributeType = "ads-enabledProtocol", isOptional = true)
+    private List<String> enabledProtocols;
+
+    /** The transport 'need client auth' flag */
+    @ConfigurationElement(attributeType = "ads-needClientAuth", isOptional = true, defaultValue = "false")
+    private boolean needClientAuth;
+
+    /** The transport 'want client auth' flag */
+    @ConfigurationElement(attributeType = "ads-wantClientAuth", isOptional = true, defaultValue = "false")
+    private boolean wantClientAuth;
 
 
     /**
@@ -184,6 +203,112 @@ public class TransportBean extends AdsBaseBean
 
 
     /**
+     * @param needClientAuth The flag to set when the client authentication is needed
+     */
+    public void setNeedClientAuth( boolean needClientAuth )
+    {
+        this.needClientAuth = needClientAuth;
+    }
+
+
+    /**
+     * @return the needClientAuth flag
+     */
+    public boolean getNeedClientAuth()
+    {
+        return needClientAuth;
+    }
+
+
+    /**
+     * @param wantClientAuth The flag to set when the client authentication is wanted
+     */
+    public void setWantClientAuth( boolean wantClientAuth )
+    {
+        this.wantClientAuth = wantClientAuth;
+    }
+
+
+    /**
+     * @return the wantClientAuth flag
+     */
+    public boolean getWantClientAuth()
+    {
+        return wantClientAuth;
+    }
+
+
+    /**
+     * @return the EnabledCiphers list
+     */
+    public List<String> getEnabledCiphers()
+    {
+        return enabledCiphers;
+    }
+
+
+    /**
+     * @param enabledCiphers the enabledCiphers to set
+     */
+    public void setEnabledCiphers( List<String> enabledCiphers )
+    {
+        this.enabledCiphers = enabledCiphers;
+    }
+
+
+    /**
+     * @param enabledCiphers the enabledCiphers to add
+     */
+    public void addEnabledCiphers( String... enabledCiphers )
+    {
+        if ( this.enabledCiphers == null )
+        {
+            this.enabledCiphers = new ArrayList<String>();
+        }
+
+        for ( String enabledCipher : enabledCiphers )
+        {
+            this.enabledCiphers.add( enabledCipher );
+        }
+    }
+
+
+    /**
+     * @return the enabledProtocols list
+     */
+    public List<String> getEnabledProtocols()
+    {
+        return enabledProtocols;
+    }
+
+
+    /**
+     * @param enabledProtocols the enabledProtocols to set
+     */
+    public void setEnabledProtocols( List<String> enabledProtocols )
+    {
+        this.enabledProtocols = enabledProtocols;
+    }
+
+
+    /**
+     * @param enabledProtocols the enabledProtocols to add
+     */
+    public void addEnabledProtocols( String... enabledProtocols )
+    {
+        if ( this.enabledProtocols == null )
+        {
+            this.enabledProtocols = new ArrayList<String>();
+        }
+
+        for ( String enabledProtocol : enabledProtocols )
+        {
+            this.enabledProtocols.add( enabledProtocol );
+        }
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )
@@ -206,6 +331,28 @@ public class TransportBean extends AdsBaseBean
         sb.append( tabs ).append( "transport backlog : " ).append( transportBackLog ).append( '\n' );
         sb.append( tabs ).append( "transport nb threads : " ).append( transportNbThreads ).append( '\n' );
         sb.append( toString( tabs, "SSL enabled", transportEnableSsl ) );
+        sb.append( toString( tabs, "Need Client Auth", needClientAuth ) );
+        sb.append( toString( tabs, "Want Client Auth", wantClientAuth ) );
+
+        if ( ( enabledCiphers != null ) && ( enabledCiphers.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "Enabled Ciphers :\n" );
+
+            for ( String enabledCipher : enabledCiphers )
+            {
+                sb.append( tabs ).append( "    " ).append( enabledCipher ).append( "\n" );
+            }
+        }
+
+        if ( ( enabledProtocols != null ) && ( enabledProtocols.size() > 0 ) )
+        {
+            sb.append( tabs ).append( "  Enabled Protocols :\n" );
+
+            for ( String enabledProtocol : enabledProtocols )
+            {
+                sb.append( tabs ).append( "    " ).append( enabledProtocol ).append( "\n" );
+            }
+        }
 
         return sb.toString();
     }

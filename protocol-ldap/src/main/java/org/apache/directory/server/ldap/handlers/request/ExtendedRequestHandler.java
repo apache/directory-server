@@ -36,15 +36,16 @@ import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ExtendedRequestHandler extends LdapRequestHandler<ExtendedRequest>
+public class ExtendedRequestHandler<R extends ExtendedRequest> extends LdapRequestHandler<ExtendedRequest>
 {
     /**
      * {@inheritDoc}
      */
     public void handle( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> handler = getLdapServer()
-            .getExtendedOperationHandler( req.getRequestName() );
+        ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> handler =
+            ( ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> ) getLdapServer()
+                .getExtendedOperationHandler( req.getRequestName() );
 
         if ( handler == null )
         {

@@ -64,6 +64,15 @@ ads-systemport: 10636
 ads-transportenablessl: true
 ads-transportaddress: localhost
 ads-transportid: ldaps
+ads-needClientAuth: false
+ads-wantClientAuth: true
+ads-enabledCipher: AAA
+ads-enabledCipher: BBB
+ads-enabledCipher: CCC
+ads-enabledCipher: DDD
+ads-enabledProtocol: TLSv1
+ads-enabledProtocol: TLSv1.1
+ads-enabledProtocol: TLSv1.2
 objectclass: ads-transport
 objectclass: ads-tcpTransport
 objectclass: top

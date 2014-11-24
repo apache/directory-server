@@ -38,6 +38,8 @@ import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -555,8 +557,31 @@ public class ServiceBuilder
         transport.setPort( transportBean.getSystemPort() );
         transport.setAddress( transportBean.getTransportAddress() );
         transport.setBackLog( transportBean.getTransportBackLog() );
-        transport.setEnableSSL( transportBean.isTransportEnableSSL() );
         transport.setNbThreads( transportBean.getTransportNbThreads() );
+
+        if ( transport instanceof TcpTransport )
+        {
+            ( ( TcpTransport ) transport ).setEnableSSL( transportBean.isTransportEnableSSL() );
+
+            if ( ( ( TcpTransport ) transport ).isSSLEnabled() )
+            {
+                ( ( TcpTransport ) transport ).setNeedClientAuth( transportBean.getNeedClientAuth() );
+                ( ( TcpTransport ) transport ).setWantClientAuth( transportBean.getWantClientAuth() );
+                List<String> enabledProtocols = transportBean.getEnabledProtocols();
+
+                if ( ( enabledProtocols != null ) && ( enabledProtocols.size() != 0 ) )
+                {
+                    ( ( TcpTransport ) transport ).setEnabledProtocols( enabledProtocols );
+                }
+
+                List<String> enabledCiphers = transportBean.getEnabledCiphers();
+
+                if ( ( enabledCiphers != null ) && ( enabledCiphers.size() != 0 ) )
+                {
+                    ( ( TcpTransport ) transport ).setEnabledCiphers( enabledCiphers );
+                }
+            }
+        }
 
         return transport;
     }
@@ -1005,12 +1030,6 @@ public class ServiceBuilder
         // Relplication pinger thread sleep time
         ldapServer.setReplPingerSleepTime( ldapServerBean.getReplPingerSleep() );
 
-        // Enabled cipher suites
-        if ( ldapServerBean.getEnabledCipherSuites() != null )
-        {
-            ldapServer.setEnabledCipherSuites( ldapServerBean.getEnabledCipherSuites() );
-        }
-
         // The transports
         Transport[] transports = createTransports( ldapServerBean.getTransports() );
         ldapServer.setTransports( transports );
@@ -1033,7 +1052,8 @@ public class ServiceBuilder
                 try
                 {
                     Class<?> extendedOpClass = Class.forName( extendedpHandlerBean.getExtendedOpHandlerClass() );
-                    ExtendedOperationHandler<?, ?> extOpHandler = ( ExtendedOperationHandler<?, ?> ) extendedOpClass.newInstance();
+                    ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> extOpHandler =
+                        ( ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> ) extendedOpClass.newInstance();
                     ldapServer.addExtendedOperationHandler( extOpHandler );
                 }
                 catch ( Exception e )
@@ -1106,7 +1126,7 @@ public class ServiceBuilder
             {
                 continue;
             }
-            
+
             String className = replBean.getReplConsumerImpl();
 
             ReplicationConsumer consumer = null;
@@ -1153,7 +1173,7 @@ public class ServiceBuilder
                 config.setReplUserDn( replBean.getReplUserDn() );
                 config.setReplUserPassword( replBean.getReplUserPassword() );
                 config.setSearchSizeLimit( replBean.getReplSearchSizeLimit() );
-                
+
                 config.setUseTls( replBean.isReplUseTls() );
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
 

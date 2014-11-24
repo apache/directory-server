@@ -45,6 +45,8 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.slf4j.Logger;
@@ -64,9 +66,20 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     private static final Set<String> EXTENSION_OIDS;
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsHandler.class );
 
+    /** The SSL Context instance */
     private SSLContext sslContext;
 
-    private List<String> cipherSuites;
+    /** The list of enabled ciphers */
+    private List<String> cipherSuite;
+
+    /** The list of enabled protocols */
+    private List<String> enabledProtocols;
+
+    /** The 'needClientAuth' SSL flag */
+    private boolean needClientAuth;
+
+    /** The 'wantClientAuth' SSL flag */
+    private boolean wantClientAuth;
 
     static
     {
@@ -76,6 +89,9 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.info( "Handling StartTLS request." );
@@ -87,14 +103,28 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         {
             sslFilter = new SslFilter( sslContext );
 
-            if ( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
+            // Set the cipher suite
+            if ( ( cipherSuite != null ) && !cipherSuite.isEmpty() )
             {
-                sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
+                sslFilter.setEnabledCipherSuites( cipherSuite.toArray( new String[cipherSuite.size()] ) );
             }
 
-            // Be sure we disable SSLV3
-            sslFilter.setEnabledProtocols( new String[]
-                { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+            // Set the enabled protocols, default to no SSLV3
+            if ( ( enabledProtocols != null ) && !enabledProtocols.isEmpty() )
+            {
+                sslFilter.setEnabledProtocols( enabledProtocols.toArray( new String[enabledProtocols.size()] ) );
+            }
+            else
+            {
+                // Default to a lost without SSLV3
+                sslFilter.setEnabledProtocols( new String[]
+                    { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+            }
+
+            // Set the remaining SSL flags
+            sslFilter.setNeedClientAuth( needClientAuth );
+            sslFilter.setWantClientAuth( wantClientAuth );
+
             chain.addFirst( "sslFilter", sslFilter );
         }
         else
@@ -118,18 +148,27 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public final String getOid()
     {
         return EXTENSION_OID;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public void setLdapServer( LdapServer ldapServer )
     {
         LOG.debug( "Setting LDAP Service" );
@@ -155,6 +194,23 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             throw new RuntimeException( I18n.err( I18n.ERR_682 ), e );
         }
 
-        this.cipherSuites = ldapServer.getEnabledCipherSuites();
+        // Get the transport
+        Transport[] transports = ldapServer.getTransports();
+
+        // Check for any SSL parameter
+        for ( Transport transport : transports )
+        {
+            if ( transport instanceof TcpTransport )
+            {
+                TcpTransport tcpTransport = ( TcpTransport ) transport;
+
+                cipherSuite = tcpTransport.getCipherSuite();
+                enabledProtocols = tcpTransport.getEnabledProtocols();
+                needClientAuth = tcpTransport.isNeedClientAuth();
+                wantClientAuth = tcpTransport.isWantClientAuth();
+
+                break;
+            }
+        }
     }
 }
