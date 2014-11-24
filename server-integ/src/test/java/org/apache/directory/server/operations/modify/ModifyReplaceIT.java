@@ -323,4 +323,28 @@ public class ModifyReplaceIT extends AbstractLdapTestUnit
             assertTrue( true );
         }
     }
+
+
+    /**
+     * Create a person entry, replace an attribute not present in the ObjectClasses
+     */
+    @Test
+    public void testReplaceAttributeValueWithNonAsciiChars() throws Exception
+    {
+        DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+        String rdn = "cn=Kate Bush";
+
+        // Replace sn
+        String newValue = "test \u00DF test";
+        Attributes attrs = new BasicAttributes( "sn", newValue, false );
+
+        ctx.modifyAttributes( rdn, DirContext.REPLACE_ATTRIBUTE, attrs );
+
+        attrs = ctx.getAttributes( rdn );
+        Attribute attr = attrs.get( "sn" );
+        assertNotNull( attr );
+        assertEquals( "sn", attr.getID() );
+        assertTrue( attr.contains( newValue ) );
+        assertEquals( 1, attr.size() );
+    }
 }
