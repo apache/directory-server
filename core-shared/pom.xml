@@ -83,8 +83,8 @@
     </dependency>
 
     <dependency>
-       <groupId>org.apache.directory.mavibot</groupId>
-       <artifactId>mavibot</artifactId>
+       <groupId>org.apache.directory.jdbm</groupId>
+       <artifactId>apacheds-jdbm1</artifactId>
     </dependency>
   </dependencies>
 

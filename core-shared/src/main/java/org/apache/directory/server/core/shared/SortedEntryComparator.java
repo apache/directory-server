@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared;
 
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -37,14 +38,14 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class SortedEntryComparator implements Comparator<Entry>
+class SortedEntryComparator implements Comparator<Entry>, Serializable
 {
 
     /** the attribute's type */
-    private AttributeType type;
+    private transient AttributeType type;
 
     /** comparator used for comparing the values of the given attribute type */
-    private Comparator comparator;
+    private transient LdapComparator comparator;
 
     /** flag to indicate if the attribute type is multivalued */
     private boolean multivalued;

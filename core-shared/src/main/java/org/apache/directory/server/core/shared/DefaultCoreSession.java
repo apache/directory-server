@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+
+import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -71,13 +72,6 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.mavibot.btree.BTree;
-import org.apache.directory.mavibot.btree.BTreeFactory;
-import org.apache.directory.mavibot.btree.PersistedBTreeConfiguration;
-import org.apache.directory.mavibot.btree.RecordManager;
-import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
-import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
-import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -1305,7 +1299,7 @@ public class DefaultCoreSession implements CoreSession
      * @throws KeyNotFoundException 
      */
     private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager )
-        throws CursorException, LdapException, IOException, KeyNotFoundException
+        throws CursorException, LdapException, IOException
     {
         unsortedEntries.beforeFirst();
 
@@ -1330,36 +1324,24 @@ public class DefaultCoreSession implements CoreSession
         SortedEntryComparator comparator = new SortedEntryComparator( at, sk.getMatchingRuleId(), sk.isReverseOrder(),
             schemaManager );
 
-        SortedEntrySerializer keySerializer = new SortedEntrySerializer( comparator );
-
-        PersistedBTreeConfiguration<Entry, String> config = new PersistedBTreeConfiguration<Entry, String>();
-        config.setName( "replica" ); // see DIRSERVER-2007
-        config.setKeySerializer( keySerializer );
-        config.setValueSerializer( StringSerializer.INSTANCE );
-
-        BTree<Entry, String> btree = BTreeFactory.createPersistedBTree( config );
+        SortedEntrySerializer keySerializer = new SortedEntrySerializer();
+        SortedEntrySerializer.setSchemaManager( schemaManager );
         
-        File file = File.createTempFile( btree.getName(), ".sorted-data" );
-        RecordManager recMan = new RecordManager( file.getAbsolutePath() );
+        File file = File.createTempFile( "replica", ".sorted-data" );// see DIRSERVER-2007
+        BaseRecordManager recMan = new BaseRecordManager( file.getAbsolutePath() );
 
-        try
-        {
-            recMan.manage( btree );
-        }
-        catch ( BTreeAlreadyManagedException e )
-        {
-            throw new LdapException( e );
-        }
+        jdbm.btree.BTree<Entry, String> btree = new jdbm.btree.BTree<Entry, String>( recMan, comparator, keySerializer, NullStringSerializer.INSTANCE );
+        
 
-        btree.insert( first, null );
+        btree.insert( first, "", false );
 
         // at this stage the cursor will be _on_ the next element, so read it
-        btree.insert( unsortedEntries.get(), null );
+        btree.insert( unsortedEntries.get(), "", false );
 
         while ( unsortedEntries.next() )
         {
             Entry entry = unsortedEntries.get();
-            btree.insert( entry, null );
+            btree.insert( entry, "", false );
         }
 
         unsortedEntries.close();

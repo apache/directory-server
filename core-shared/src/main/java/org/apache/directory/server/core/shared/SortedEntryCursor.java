@@ -25,16 +25,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import jdbm.RecordManager;
+import jdbm.btree.BTree;
+import jdbm.helper.Tuple;
+import jdbm.helper.TupleBrowser;
+
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.mavibot.btree.BTree;
-import org.apache.directory.mavibot.btree.RecordManager;
-import org.apache.directory.mavibot.btree.Tuple;
-import org.apache.directory.mavibot.btree.TupleCursor;
-import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -43,7 +43,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * TODO SortedEntryCursor.
+ * Cursor for sorted entries.
+ * 
+ * Note: This currently uses JDBM, but will be migrated to use Mavibot
+ *       when ready.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -52,26 +55,29 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
 
     private static final Logger LOG = LoggerFactory.getLogger( SortedEntryCursor.class );
     
-    private TupleCursor<Entry, String> wrapped;
+    private TupleBrowser browser;
 
-    private Tuple<Entry, String> tuple;
+    private final Tuple tuple = new Tuple();
 
     private RecordManager recMan;
 
     private File dataFile;
     
-    public SortedEntryCursor( BTree<Entry,String> btree, RecordManager recMan, File dataFile ) throws IOException, KeyNotFoundException
+    private BTree<Entry, String> btree;
+    
+    public SortedEntryCursor( BTree<Entry,String> btree, RecordManager recMan, File dataFile ) throws IOException
     {
         this.recMan = recMan;
         this.dataFile = dataFile;
-        wrapped = btree.browse();
+        this.btree = btree;
+        browser = btree.browse();
     }
 
 
     @Override
     public boolean available()
     {
-        return ( tuple != null );
+        return ( tuple.getKey() != null );
     }
 
 
@@ -94,8 +100,8 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     {
         try
         {
-            tuple = null;
-            wrapped.beforeFirst();
+            clearValue();
+            browser = btree.browse();
         }
         catch ( IOException e )
         {
@@ -109,8 +115,8 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     {
         try
         {
-            tuple = null;
-            wrapped.afterLast();
+            clearValue();
+            browser = btree.browse( null );
         }
         catch ( IOException e )
         {
@@ -123,32 +129,16 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     @Override
     public boolean first() throws LdapException, CursorException
     {
-        try
-        {
-            wrapped.beforeFirst();
-            return next();
-        }
-        catch ( IOException e )
-        {
-            throw new CursorException( e );
-        }
-
+        beforeFirst();
+        return next();
     }
 
 
     @Override
     public boolean last() throws LdapException, CursorException
     {
-        try
-        {
-            wrapped.afterLast();
-            return previous();
-        }
-        catch ( IOException e )
-        {
-            throw new CursorException( e );
-        }
-
+        afterLast();
+        return previous();
     }
 
 
@@ -157,8 +147,16 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     {
         try
         {
-            tuple = wrapped.prev();
-            return true;
+
+            if ( browser == null )
+            {
+                browser = btree.browse( null );
+            }
+            
+            if ( browser.getPrevious( tuple ) )
+            {
+                return true;
+            }
         }
         catch ( IOException e )
         {
@@ -170,7 +168,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
             // instead of doing a check like if(wrapped.hasPrev())
         }
 
-        tuple = null;
+        clearValue();
         return false;
     }
 
@@ -180,8 +178,15 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     {
         try
         {
-            tuple = wrapped.next();
-            return true;
+            if ( browser == null )
+            {
+                browser = btree.browse();
+            }
+            
+            if ( browser.getNext( tuple ) )
+            {
+                return true;
+            }
         }
         catch ( IOException e )
         {
@@ -193,7 +198,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
             // instead of doing a check like if(wrapped.hasNext())
         }
 
-        tuple = null;
+        clearValue();
         return false;
     }
 
@@ -201,19 +206,18 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     @Override
     public Entry get() throws CursorException
     {
-        if ( tuple == null )
+        if ( tuple.getKey() == null )
         {
             throw new InvalidCursorPositionException();
         }
 
-        return tuple.getKey();
+        return ( Entry ) tuple.getKey();
     }
 
 
     @Override
     public void close()
     {
-        wrapped.close();
         deleteFile();
         super.close();
     }
@@ -222,7 +226,6 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     @Override
     public void close( Exception cause )
     {
-        wrapped.close();
         deleteFile();
         super.close( cause );
     }
@@ -248,6 +251,14 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
         return null;
     }
 
+    
+    private void clearValue()
+    {
+        tuple.setKey( null );
+        tuple.setValue( null );
+    }
+
+    
     private void deleteFile()
     {
         if( recMan == null )

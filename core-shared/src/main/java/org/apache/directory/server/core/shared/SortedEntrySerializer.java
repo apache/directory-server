@@ -26,21 +26,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.util.Comparator;
+
+import jdbm.helper.Serializer;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
-import org.apache.directory.mavibot.btree.serializer.BufferHandler;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +50,12 @@ import org.slf4j.LoggerFactory;
  * 
  * <b>This class must *not* be used anywhere else other than for storing sorted entries in server.</b>
  *  
+ *  Note: this was initially used by Mavibot tree, but changed to use in JDBM later.
+ *        This will again be ported to Mavibot as soon as it gets ready.
+ *        
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SortedEntrySerializer extends AbstractElementSerializer<Entry>
+public class SortedEntrySerializer implements Serializer
 {
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
@@ -72,25 +71,74 @@ public class SortedEntrySerializer extends AbstractElementSerializer<Entry>
     /** The schemaManager reference */
     private static SchemaManager schemaManager;
 
-    private SortedEntryComparator comparator;
-
 
     /**
      * Creates a new instance of ServerEntrySerializer.
      * The schemaManager MUST be set explicitly set using the static {@link #setSchemaManager(SchemaManager)}
      */
-    public SortedEntrySerializer( SortedEntryComparator comparator )
+    public SortedEntrySerializer()
     {
-        super( comparator );
-        this.comparator = comparator;
     }
 
 
     @Override
-    public Comparator<Entry> getComparator()
+    public byte[] serialize( Object obj ) throws IOException
     {
-        return comparator;
+        return serialize( ( Entry ) obj );
     }
+
+
+
+    @Override
+    public Object deserialize( byte[] serialized ) throws IOException
+    {
+        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( serialized ) );
+
+        try
+        {
+            Entry entry = new DefaultEntry( schemaManager );
+
+            Dn dn = new Dn( schemaManager );
+            dn.readExternal( in );
+            entry.setDn( dn );
+
+            // Read the number of attributes
+            int nbAttributes = in.readInt();
+
+            // Read the attributes
+            for ( int i = 0; i < nbAttributes; i++ )
+            {
+                // Read the attribute's OID
+                String oid = in.readUTF();
+
+                try
+                {
+                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
+
+                    // Create the attribute we will read
+                    Attribute attribute = new DefaultAttribute( attributeType );
+
+                    // Read the attribute
+                    attribute.readExternal( in );
+
+                    entry.add( attribute );
+                }
+                catch ( LdapException ne )
+                {
+                    // We weren't able to find the OID. The attribute will not be added
+                    throw new ClassNotFoundException( ne.getMessage(), ne );
+                }
+            }
+
+            return entry;
+        }
+        catch ( ClassNotFoundException cnfe )
+        {
+            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
+            throw new IOException( cnfe.getLocalizedMessage() );
+        }
+    }
+
 
 
     /**
@@ -171,175 +219,9 @@ public class SortedEntrySerializer extends AbstractElementSerializer<Entry>
     }
 
 
-    /**
-     *  Deserialize a Entry.
-     *  
-     *  @param bytes the byte array containing the serialized entry
-     *  @return An instance of a Entry object 
-     *  @throws IOException if we can't deserialize the Entry
-     */
-    public Entry deserialize( ByteBuffer buffer ) throws IOException
-    {
-        // read the length
-        int len = buffer.limit();
-
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer.array(), buffer.position(), len ) );
-
-        try
-        {
-            Entry entry = new DefaultEntry( schemaManager );
-
-            // Read the Dn
-            Dn dn = new Dn( schemaManager );
-            dn.readExternal( in );
-            entry.setDn( dn );
-
-            // Read the number of attributes
-            int nbAttributes = in.readInt();
-
-            // Read the attributes
-            for ( int i = 0; i < nbAttributes; i++ )
-            {
-                // Read the attribute's OID
-                String oid = in.readUTF();
-
-                try
-                {
-                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-
-                    // Create the attribute we will read
-                    Attribute attribute = new DefaultAttribute( attributeType );
-
-                    // Read the attribute
-                    attribute.readExternal( in );
-
-                    entry.add( attribute );
-                }
-                catch ( LdapException ne )
-                {
-                    // We weren't able to find the OID. The attribute will not be added
-                    throw new ClassNotFoundException( ne.getMessage(), ne );
-                }
-            }
-
-            buffer.position( buffer.position() + len ); // previous position + length
-
-            return entry;
-        }
-        catch ( ClassNotFoundException cnfe )
-        {
-            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
-            throw new IOException( cnfe.getLocalizedMessage() );
-        }
-    }
-
-
-    @Override
-    public Entry deserialize( BufferHandler bufferHandler ) throws IOException
-    {
-        return deserialize( ByteBuffer.wrap( bufferHandler.getBuffer() ) );
-    }
-
-
     public static void setSchemaManager( SchemaManager schemaManager )
     {
         SortedEntrySerializer.schemaManager = schemaManager;
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Entry fromBytes( byte[] buffer ) throws IOException
-    {
-        return fromBytes( buffer, 0 );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Entry fromBytes( byte[] buffer, int pos ) throws IOException
-    {
-        // read the length
-        int len = buffer.length - pos;
-
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( buffer, pos, len ) );
-
-        try
-        {
-            Entry entry = new DefaultEntry( schemaManager );
-
-            // Read the Dn, if any
-            byte hasDn = in.readByte();
-
-            if ( hasDn == 1 )
-            {
-                Rdn rdn = new Rdn( schemaManager );
-                rdn.readExternal( in );
-
-                try
-                {
-                    entry.setDn( new Dn( schemaManager, rdn ) );
-                }
-                catch ( LdapInvalidDnException lide )
-                {
-                    IOException ioe = new IOException( lide.getMessage() );
-                    ioe.initCause( lide );
-                    throw ioe;
-                }
-            }
-            else
-            {
-                entry.setDn( Dn.EMPTY_DN );
-            }
-
-            // Read the number of attributes
-            int nbAttributes = in.readInt();
-
-            // Read the attributes
-            for ( int i = 0; i < nbAttributes; i++ )
-            {
-                // Read the attribute's OID
-                String oid = in.readUTF();
-
-                try
-                {
-                    AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( oid );
-
-                    // Create the attribute we will read
-                    Attribute attribute = new DefaultAttribute( attributeType );
-
-                    // Read the attribute
-                    attribute.readExternal( in );
-
-                    entry.add( attribute );
-                }
-                catch ( LdapException ne )
-                {
-                    // We weren't able to find the OID. The attribute will not be added
-                    throw new ClassNotFoundException( ne.getMessage(), ne );
-                }
-            }
-
-            return entry;
-        }
-        catch ( ClassNotFoundException cnfe )
-        {
-            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
-            throw new IOException( cnfe.getLocalizedMessage() );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<?> getType()
-    {
-        return Entry.class;
-    }
 }
