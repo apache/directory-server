@@ -893,7 +893,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
-        Attribute ref = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute ref = entry.get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )
