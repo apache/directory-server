@@ -59,7 +59,7 @@ public class ReplayCacheImpl implements ReplayCache
     /**
      * A structure to hold an entry
      */
-    public class ReplayCacheEntry implements Serializable
+    public static class ReplayCacheEntry implements Serializable
     {
         private static final long serialVersionUID = 1L;
 

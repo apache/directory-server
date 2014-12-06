@@ -35,8 +35,13 @@ import org.apache.directory.api.util.Strings;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosTime implements Comparable<KerberosTime>
+public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializable
 {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7541256140193748103L;
+
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
 
