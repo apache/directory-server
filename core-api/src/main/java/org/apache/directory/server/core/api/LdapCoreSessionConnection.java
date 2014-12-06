@@ -1001,14 +1001,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             entryCursor.beforeFirst();
 
             //TODO enforce the size and time limits, similar in the way SearchHandler does
-            return new EntryToResponseCursor( newId, entryCursor );
+            return new EntryToResponseCursor( searchRequest, newId, entryCursor );
         }
         catch ( Exception e )
         {
             LOG.warn( e.getMessage(), e );
         }
 
-        return new EntryToResponseCursor( -1, new EmptyCursor<Entry>() );
+        return new EntryToResponseCursor( searchRequest, -1, new EmptyCursor<Entry>() );
     }
 
 

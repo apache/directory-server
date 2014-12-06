@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api;
 
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
@@ -31,10 +32,14 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.IntermediateResponse;
+import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.Referral;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponse;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchResultDoneImpl;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
@@ -69,14 +74,17 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /** The messsage ID */
     private int messageId;
 
+    /** The search request */
+    private SearchRequest searchRequest;
 
-    public EntryToResponseCursor( int messageId, Cursor<Entry> wrapped )
+    public EntryToResponseCursor( SearchRequest searchRequest, int messageId, Cursor<Entry> wrapped )
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating EntryToResponseCursor {}", this );
         }
 
+        this.searchRequest = searchRequest;
         this.wrapped = wrapped;
         this.messageId = messageId;
     }
@@ -222,7 +230,30 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
         if ( !next )
         {
             searchDoneResp = new SearchResultDoneImpl( messageId );
-            searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+            
+            ResultCodeEnum re = ResultCodeEnum.SUCCESS;
+            
+            ResultResponse processedResp = searchRequest.getResultResponse();
+            LdapResult filledResult = processedResp.getLdapResult();
+            
+            if ( filledResult.getResultCode() != re )
+            {
+                re = filledResult.getResultCode();
+            }
+            
+            searchDoneResp.getLdapResult().setResultCode( re );
+            
+            Map<String,Control> ctrls = processedResp.getControls();
+            
+            if ( ctrls != null )
+            {
+                Iterator<Control> itr = ctrls.values().iterator();
+                while ( itr.hasNext() )
+                {
+                    searchDoneResp.addControl( itr.next() );
+                }
+            }
+            
             done = true;
         }
 

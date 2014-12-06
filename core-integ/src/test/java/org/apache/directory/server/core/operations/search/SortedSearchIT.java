@@ -54,7 +54,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -124,7 +123,6 @@ public class SortedSearchIT extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testWithInvalidAttributeAndCriticality() throws Exception
     {
         sk.setAttributeTypeDesc( "Non-existing-At" );
@@ -152,7 +150,6 @@ public class SortedSearchIT extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testWithInvalidAttributeAndNoCriticality() throws Exception
     {
         sk.setAttributeTypeDesc( "Non-existing-At" );
