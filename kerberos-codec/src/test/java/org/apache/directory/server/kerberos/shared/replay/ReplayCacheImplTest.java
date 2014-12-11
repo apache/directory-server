@@ -74,7 +74,7 @@ public class ReplayCacheImplTest
 
             cacheManager.addCache( "kdcReplayCache" );
             Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
-            ehCache.getCacheConfiguration().setMaxElementsInMemory( 2 );
+            ehCache.getCacheConfiguration().setMaxElementsInMemory( 4 );
             ehCache.getCacheConfiguration().setTimeToLiveSeconds( 1 );
             ehCache.getCacheConfiguration().setTimeToIdleSeconds( 1 );
             ehCache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds( 1 );
