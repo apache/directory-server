@@ -46,7 +46,7 @@
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.api.version>1.0.0-M27-SNAPSHOT</org.apache.directory.api.version>
-    <org.apache.directory.mavibot.version>1.0.0-M6</org.apache.directory.mavibot.version>
+    <org.apache.directory.mavibot.version>1.0.0-M7-SNAPSHOT</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
@@ -54,7 +54,7 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.9.4</ant.version>
-    <bcprov.version>140</bcprov.version>
+    <bcprov.version>1.51</bcprov.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
@@ -1148,8 +1148,8 @@
       </dependency>
 
       <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>bcprov-jdk15</artifactId>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
 

@@ -163,7 +163,7 @@
               <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
               <filters>
                 <filter>
-                  <artifact>bouncycastle:bcprov-jdk15</artifact>
+                  <artifact>org.bouncycastle:bcprov-jdk15on</artifact>
                   <excludes>
                     <exclude>META-INF/BCKEY.SF</exclude>
                     <exclude>META-INF/BCKEY.DSA</exclude>
