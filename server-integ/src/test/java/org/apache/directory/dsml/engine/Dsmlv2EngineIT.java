@@ -29,8 +29,8 @@ import java.io.InputStream;
 
 import org.apache.directory.api.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
-import org.apache.directory.api.dsmlv2.reponse.BatchResponseDsml;
-import org.apache.directory.api.dsmlv2.reponse.SearchResponse;
+import org.apache.directory.api.dsmlv2.response.BatchResponseDsml;
+import org.apache.directory.api.dsmlv2.response.SearchResponse;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -96,26 +96,26 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
         assertNotNull( batchResp );
 
         assertEquals( 101, batchResp.getRequestID() );
-        
+
         SearchResponse searchResp = ( SearchResponse ) batchResp.getCurrentResponse().getDecorated();
 
         assertEquals( 5, searchResp.getSearchResultEntryList().size() );
     }
-    
-    
+
+
     @Test
     public void testEngineWithSearchResponseInSoapEnvelope() throws Exception
     {
         InputStream dsmlIn = getClass().getClassLoader().getResourceAsStream( "dsml-search-req.xml" );
 
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        
+
         engine.setGenerateSoapResp( true );
-        
+
         engine.processDSML( dsmlIn, byteOut );
 
         engine.setGenerateSoapResp( false );
-        
+
         String resp = byteOut.toString();
 
         Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapApiServiceFactory.getSingleton() );
@@ -126,9 +126,9 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
         BatchResponseDsml batchResp = respParser.getBatchResponse();
 
         assertNotNull( batchResp );
-        
+
         assertEquals( 101, batchResp.getRequestID() );
-        
+
         SearchResponse searchResp = ( SearchResponse ) batchResp.getCurrentResponse().getDecorated();
 
         assertEquals( 5, searchResp.getSearchResultEntryList().size() );
