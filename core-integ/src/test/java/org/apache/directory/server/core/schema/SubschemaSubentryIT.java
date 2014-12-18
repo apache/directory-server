@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -45,7 +47,6 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
@@ -71,7 +72,7 @@ import org.apache.directory.api.ldap.model.schema.parsers.ObjectClassDescription
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -1435,7 +1436,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapInvalidAttributeValueException.class )
+    @Test(expected = LdapInvalidAttributeValueException.class)
     public void testAddAttributeTypeWithUnderscoresOnEnabledSchema() throws Exception
     {
         enableSchema( "nis" );

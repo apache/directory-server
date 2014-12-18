@@ -33,10 +33,10 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.filter.SubstringNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.CacheService;
@@ -72,6 +72,7 @@ public class SubstringTest
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
     private static CacheService cacheService;
+
 
     @BeforeClass
     public static void setup() throws Exception

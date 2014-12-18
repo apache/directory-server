@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.LdapPrincipalSerializer;
 import org.junit.BeforeClass;

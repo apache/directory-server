@@ -43,9 +43,9 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.ResourceMap;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.ResourceMap;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -215,7 +215,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
                     if ( first )
                     {
                         ldifEntry = ldifReader.next();
-    
+
                         if ( ldifEntry.get( SchemaConstants.ENTRY_UUID_AT ) == null )
                         {
                             // No UUID, let's create one
@@ -228,7 +228,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
                             Csn csn = csnFactory.newInstance();
                             ldifEntry.addAttribute( SchemaConstants.ENTRY_CSN_AT, csn.toString() );
                         }
-    
+
                         first = false;
                     }
                     else

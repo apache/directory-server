@@ -44,7 +44,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SchemaObject;
 import org.apache.directory.api.ldap.model.schema.SchemaObjectWrapper;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;

@@ -58,10 +58,10 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.CacheService;
@@ -118,6 +118,7 @@ public class SingleFileLdifPartitionTest
     public TemporaryFolder folder = new TemporaryFolder();
 
     private static CacheService cacheService;
+
 
     @BeforeClass
     public static void init() throws Exception
@@ -318,12 +319,12 @@ public class SingleFileLdifPartitionTest
 
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        
+
         Entry fetched = partition.fetch( id );
-        
+
         //remove the entryDn cause it is not present in the above hand made contextEntry
         fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
-        
+
         assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
@@ -905,10 +906,10 @@ public class SingleFileLdifPartitionTest
         assertNotNull( id );
 
         Entry fetched = partition.fetch( id );
-        
+
         //remove the entryDn cause it is not present in the above hand made contextEntry
         fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
-        
+
         assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );

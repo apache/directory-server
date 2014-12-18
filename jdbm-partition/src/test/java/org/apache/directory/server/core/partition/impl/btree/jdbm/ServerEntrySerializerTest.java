@@ -36,10 +36,10 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.OidNormalizer;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.junit.BeforeClass;
@@ -161,9 +161,9 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager,
             "",
-            "objectClass: top", 
-            "objectClass: person", 
-            "objectClass: inetOrgPerson", 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: inetOrgPerson",
             "objectClass: organizationalPerson" );
 
         EntrySerializer ses = new EntrySerializer( schemaManager );
@@ -181,11 +181,11 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager,
             "",
-            "objectClass: top", 
-            "objectClass: person", 
-            "objectClass: inetOrgPerson", 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: inetOrgPerson",
             "objectClass: organizationalPerson",
-            "cn: text", 
+            "cn: text",
             "cn: test",
             "SN: Test",
             "userPassword", Strings.getBytesUtf8( "password" ) );
@@ -205,11 +205,11 @@ public class ServerEntrySerializerTest
     {
         Entry entry = new DefaultEntry( schemaManager,
             "",
-            "objectClass: top", 
-            "objectClass: person", 
-            "objectClass: inetOrgPerson", 
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: inetOrgPerson",
             "objectClass: organizationalPerson",
-            "cn: text", 
+            "cn: text",
             "cn: test",
             "SN: Test",
             "userPassword", Strings.getBytesUtf8( "password" ) );

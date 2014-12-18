@@ -42,7 +42,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
