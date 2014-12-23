@@ -78,6 +78,10 @@
     <slf4j.api.version>1.7.7</slf4j.api.version>
     <slf4j.log4j12.version>1.7.7</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
+    <pax-exam.version>3.5.0</pax-exam.version>
+    <pax-url.version>2.2.0</pax-url.version>
+    <org.apache.felix.version>4.4.1</org.apache.felix.version>
+    <logback.version>1.1.2</logback.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -146,6 +150,7 @@
     <!--<module>dependencies</module>-->
     <!--<module>service-osgi</module>-->
     <!--<module>component-hub</module>-->
+    <module>osgi-integ</module>
   </modules>
 
   <build>
@@ -573,6 +578,12 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-default-config</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-http-directory-bridge</artifactId>
         <version>${project.version}</version>
       </dependency>
       
@@ -1063,6 +1074,42 @@
         <groupId>org.apache.directory.junit</groupId>
         <artifactId>junit-addons</artifactId>
         <version>${org.apache.directory.junit.junit-addons.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-container-forked</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-junit4</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-link-mvn</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.url</groupId>
+        <artifactId>pax-url-aether</artifactId>
+        <version>${pax-url.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.framework</artifactId>
+        <version>${org.apache.felix.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->
