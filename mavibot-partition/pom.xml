@@ -24,6 +24,7 @@
   </parent>
   <artifactId>apacheds-mavibot-partition</artifactId>
   <name>ApacheDS Mavibot Partition</name>
+  <packaging>bundle</packaging>
 
   <dependencies>
     <dependency>
@@ -101,4 +102,49 @@
       <artifactId>api-util</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
+          </archive>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <manifestLocation>META-INF</manifestLocation>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.mavibot.partition</Bundle-SymbolicName>
+            <Export-Package>
+                org.apache.directory.server.core.partition.impl.btree.mavibot;version=${project.version};-noimport:=true
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
