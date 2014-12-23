@@ -155,7 +155,7 @@ public class KeytabTest
         writer.setEntries( entries );
         ByteBuffer buffer = writer.write();
 
-        System.out.println( Strings.dumpBytes( buffer.array() ) );
+        //System.out.println( Strings.dumpBytes( buffer.array() ) );
         assertEquals( "Expected file size.", 130, buffer.limit() );
     }
 

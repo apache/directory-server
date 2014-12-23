@@ -192,7 +192,7 @@ public class StaleEventLogDetectionIT
      */
     private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
     {
-        System.out.println( "\nNbAdded every 100ms : " );
+//        System.out.println( "\nNbAdded every 100ms : " );
         boolean isFirst = true;
 
         for ( int i = 0; i < 50; i++ )
@@ -205,10 +205,10 @@ public class StaleEventLogDetectionIT
             }
             else
             {
-                System.out.print( ", " );
+//                System.out.print( ", " );
             }
 
-            System.out.print( nbAdded );
+//            System.out.print( nbAdded );
 
             if ( nbAdded == expected )
             {

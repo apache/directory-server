@@ -181,7 +181,7 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         connection.close();
         
 //        System.out.println( "Stopping the service---------------------------------");
-        System.out.println();
+//        System.out.println();
 
         // Now shutdown the DirectoryService
         getService().shutdown();
@@ -203,7 +203,7 @@ public class AddAfterShutdownIT extends AbstractLdapTestUnit
         // Check the resulting modifications
         results = getAllEntries( connection, "dc=test,dc=example,dc=com" );
 
-        System.out.println();
+//        System.out.println();
 
 //        System.out.println( "Entries found :");
 //        System.out.println( "--------------");

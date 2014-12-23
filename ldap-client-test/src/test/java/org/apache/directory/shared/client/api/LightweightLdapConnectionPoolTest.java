@@ -152,7 +152,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
         long t1 = System.currentTimeMillis();
 
-        System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
+//        System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
     }
 
 

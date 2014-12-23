@@ -415,8 +415,8 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             new DefaultAttribute( "collectiveExclusions", "c-ou" ) );
         connection.modify( "ou=services,ou=configuration, ou=system", modification );
 
-        System.out.println( "----- Checking exclusions" );
-        entries = getAllEntries( connection, true );
+//        System.out.println( "----- Checking exclusions" );
+        entries = getAllEntries( connection, false );
 
         // entry should not show the c-ou collective attribute anymore
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
@@ -427,7 +427,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
             assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
         }
 
-        System.out.println( "----- Exclusions OK" );
+//        System.out.println( "----- Exclusions OK" );
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
         connection.add( getTestSubentry2( "cn=testsubentry2,ou=system" ) );
