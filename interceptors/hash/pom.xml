@@ -126,8 +126,8 @@
     </dependency-->
     
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.ehcache</artifactId>
     </dependency>
 
     <dependency>

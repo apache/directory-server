@@ -63,7 +63,7 @@
     <commons.net.version>3.3</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
     <dnsjava.version>2.1.6</dnsjava.version>
-    <ehcache.version>2.4.4</ehcache.version>
+    <ehcache.version>2.4.3</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>6.1.14</jetty.version>
     <junit.version>4.11</junit.version>
@@ -1178,9 +1178,9 @@
       </dependency>
       
       <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-core</artifactId>
-        <version>${ehcache.version}</version>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.ehcache</artifactId>
+        <version>${ehcache.version}_1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
