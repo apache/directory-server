@@ -32,7 +32,7 @@
   <packaging>bundle</packaging>
 
   <description>
-    Numeric attribute value incrementing  interceptor
+    Numeric attribute value incrementing interceptor
   </description>
 
   <dependencies>
@@ -109,7 +109,7 @@
         <configuration>
           <manifestLocation>META-INF</manifestLocation>
           <instructions>
-            <Bundle-SymbolicName>${project.groupId}.interceptors.admin</Bundle-SymbolicName>
+            <Bundle-SymbolicName>${project.groupId}.interceptors.number</Bundle-SymbolicName>
             <Export-Package>
                 {local-packages};version=${project.version};-noimport:=true
             </Export-Package>
