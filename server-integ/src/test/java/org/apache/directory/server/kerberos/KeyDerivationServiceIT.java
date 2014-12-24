@@ -55,7 +55,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
@@ -63,6 +62,7 @@ import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;

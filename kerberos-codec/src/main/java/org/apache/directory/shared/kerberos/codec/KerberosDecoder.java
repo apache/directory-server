@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.protocol.codec;
+package org.apache.directory.shared.kerberos.codec;
 
 
 import java.nio.ByteBuffer;
@@ -28,7 +28,6 @@ import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.asn1.ber.tlv.TLVStateEnum;
-import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
 import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
 import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;

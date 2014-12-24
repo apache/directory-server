@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.protocol.codec;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.Asn1Object;
+import org.apache.directory.shared.kerberos.codec.KerberosEncoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;

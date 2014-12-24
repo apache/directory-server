@@ -40,13 +40,13 @@ import org.apache.directory.server.kerberos.changepwd.messages.AbstractPasswordM
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordError;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordReply;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordRequest;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosEncoder;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
+import org.apache.directory.shared.kerberos.codec.KerberosEncoder;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;

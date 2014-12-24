@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.directory.server.kerberos.protocol.codec.KerberosEncoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.KerberosEncoder;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;

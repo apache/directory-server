@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;

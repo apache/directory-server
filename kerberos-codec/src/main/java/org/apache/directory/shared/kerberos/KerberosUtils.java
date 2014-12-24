@@ -51,12 +51,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncTicketPart;

@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.protocol.codec;
+package org.apache.directory.shared.kerberos.codec;
 
 
 import java.io.IOException;

@@ -34,13 +34,13 @@ import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordE
 import org.apache.directory.server.kerberos.changepwd.messages.AbstractPasswordMessage;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordReply;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordRequest;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosUtils;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.codec.changePwdData.ChangePasswdDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;

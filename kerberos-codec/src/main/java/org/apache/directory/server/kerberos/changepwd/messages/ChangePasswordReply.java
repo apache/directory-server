@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
