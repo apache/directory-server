@@ -74,21 +74,26 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     {
         int threadNumber;
         CountDownLatch counter;
+        int nbIterations;
+        boolean success = true;
 
 
-        public ConnectionThread( int threadNumber, CountDownLatch counter )
+        public ConnectionThread( int threadNumber, int nbIterations, CountDownLatch counter )
         {
             this.threadNumber = threadNumber;
             this.counter = counter;
+            this.nbIterations = nbIterations;
         }
 
 
         @Override
         public void run()
         {
-            try
+            int i = 0;
+            long t0 = System.currentTimeMillis();
+            for ( i = 0; i < nbIterations; i++ )
             {
-                for ( int i = 0; i < 100; i++ )
+                try
                 {
                     LdapConnection connection = pool.getConnection();
 
@@ -98,10 +103,23 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
                     counter.countDown();
                 }
+                catch ( Exception e )
+                {
+                    System.out.println( "Failure to get a connection on iteration " + i + " : " + e.getMessage() );
+                    e.printStackTrace();
+                    success = false;
+                    break;
+                }
             }
-            catch ( Exception e )
+            long t1 = System.currentTimeMillis();
+
+            if ( !success )
             {
-                // Do nothing
+                //System.out.println( "Thread " + this + " completed in " + ( t1 - t0 ) + "ms" );
+                //}
+                //else
+                //{
+                System.out.println( "Thread " + this + " failed after " + i + " iterations  in " + ( t1 - t0 ) + "ms" );
             }
         }
     }
@@ -137,22 +155,31 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     @Test
     public void testManyConnections() throws Exception
     {
-        CountDownLatch counter = new CountDownLatch( 10000 );
-
-        long t0 = System.currentTimeMillis();
-
-        for ( int i = 0; i < 100; i++ )
+        for ( int j = 0; j < 10; j++ )
         {
-            ConnectionThread thread = new ConnectionThread( i, counter );
+            System.out.println( "-------------------" );
+            System.out.println( "Iteration " + j );
+            int nbIterations = 10000;
+            int nbThreads = 100;
+            CountDownLatch counter = new CountDownLatch( nbIterations * nbThreads );
 
-            thread.start();
+            long t0 = System.currentTimeMillis();
+
+            for ( int i = 0; i < nbThreads; i++ )
+            {
+                ConnectionThread thread = new ConnectionThread( i, nbIterations, counter );
+
+                thread.start();
+            }
+
+            boolean result = counter.await( nbThreads * nbIterations, TimeUnit.SECONDS );
+
+            long t1 = System.currentTimeMillis();
+
+            System.out.println( "Time to create and use " + nbIterations + " connections with " + nbThreads
+                + "  threads = "
+                + ( t1 - t0 ) );
         }
-
-        boolean result = counter.await( 100, TimeUnit.SECONDS );
-
-        long t1 = System.currentTimeMillis();
-
-//        System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
     }
 
 
