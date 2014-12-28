@@ -385,13 +385,17 @@ public class ClientInitialRefreshIT
         Entry addedEntry = createEntry();
         providerSession.add( addedEntry );
 
-        // Now check that the entry has been copied in the consumer
-        assertTrue( waitForSyncReplClient( consumer, 1 ) );
-
-        // Removed the added entry
-        providerSession.delete( addedEntry.getDn() );
-        consumer.stop();
-
+        try 
+        {
+            // Now check that the entry has been copied in the consumer
+            assertTrue( waitForSyncReplClient( consumer, 1 ) );
+        }
+        finally
+        {
+            // Removed the added entry
+            providerSession.delete( addedEntry.getDn() );
+            consumer.stop();
+        }
         //System.out.println( "\n<-- Done" );
     }
 
@@ -408,8 +412,10 @@ public class ClientInitialRefreshIT
         ReplicationConsumer consumer = createConsumer();
 
         // Load all the entries
-        waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer );
+        assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer ) );
 
+        Thread.sleep( 500 );
+        
         // Stop the consumer
         consumer.stop();
 
@@ -426,13 +432,19 @@ public class ClientInitialRefreshIT
         // Start it again
         runConsumer( consumer );
 
-        // We should get only the additional values cause consumer sends a cookie now
-        assertTrue( waitForSyncReplClient( consumer, additionalCount ) );
-        consumer.stop();
-
-        for ( Dn dn : newEntries )
+        try
         {
-            providerSession.delete( dn );
+            // We should get only the additional values cause consumer sends a cookie now
+            assertTrue( waitForSyncReplClient( consumer, additionalCount ) );
+        }
+        finally
+        {
+            for ( Dn dn : newEntries )
+            {
+                providerSession.delete( dn );
+            }
+            
+            consumer.stop();
         }
 
         //System.out.println( "\n<-- Done" );
