@@ -87,7 +87,7 @@ public class InstanceLayout extends AbstractLayout
     private static final String PARTITIONS_NAME = "partitions";
     private static final String REPL_NAME = "syncrepl-data";
     private static final String CACHE_NAME = "cache";
-    
+
     /** Static file names */
     private static final String LOG4J_PROPERTIES = "log4j.properties";
     private static final String WRAPPER_CONF = "wrapper.conf";
@@ -110,6 +110,7 @@ public class InstanceLayout extends AbstractLayout
 
     /** The cache directory */
     private File cacheDir;
+
 
     /**
      * Creates a new instance of InstanceLayout.
@@ -149,8 +150,8 @@ public class InstanceLayout extends AbstractLayout
                 getPartitionsDirectory(),
                 getRunDirectory(),
                 getCacheDirectory()
-            };
-        
+        };
+
         setRequiredDirectories( requiredDirectories );
 
         // The required files
@@ -159,14 +160,14 @@ public class InstanceLayout extends AbstractLayout
                 getWrapperConfigurationFile(),
                 getLogConfigurationFile() /*,
                                           getApacheDsConfigurationLdifFile() */// TODO re-activate this when possible.
-            };
-        
+        };
+
         setRequiredFiles( requiredFiles );
     }
 
 
     /**
-     * Gets the 'conf' directory.
+     * Gets the 'conf' directory ('&lt;instance&gt;/conf').
      *
      * @return the 'conf' directory
      */
@@ -189,10 +190,9 @@ public class InstanceLayout extends AbstractLayout
         this.confDir = confDir;
     }
 
-    
-    
+
     /**
-     * Gets the 'cache' directory.
+     * Gets the 'cache' directory ('&lt;instance&gt;/cache').
      *
      * @return the 'cache' directory
      */
@@ -202,11 +202,11 @@ public class InstanceLayout extends AbstractLayout
         {
             cacheDir = new File( getInstanceDirectory(), CACHE_NAME );
         }
-        
+
         return cacheDir;
     }
-    
-    
+
+
     /**
      * @param cacheDir the confDir to set
      */
@@ -215,8 +215,9 @@ public class InstanceLayout extends AbstractLayout
         this.cacheDir = cacheDir;
     }
 
+
     /**
-     * Gets the 'log' directory.
+     * Gets the 'log' directory ('&lt;instance&gt;/log').
      *
      * @return the 'log' directory
      */
@@ -250,7 +251,7 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the 'partitions' directory.
+     * Gets the 'partitions' directory ('&lt;instance&gt;/partitions')
      *
      * @return the 'partitions' directory
      */
@@ -275,7 +276,7 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the 'run' directory in the installation directory.
+     * Gets the 'run' directory in the installation directory ('&lt;instance&gt;/run').
      *
      * @return the 'run' directory
      */
@@ -320,7 +321,7 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the log configuration file (<em>'/conf/log4j.properties'</em>).
+     * Gets the log configuration file (<em>'&lt;instance&gt;/conf/log4j.properties'</em>).
      *
      * @return the log configuration file
      */
@@ -331,7 +332,7 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the wrapper configuration file (<em>'/conf/wrapper.conf'</em>).
+     * Gets the wrapper configuration file (<em>'&lt;instance&gt;/conf/wrapper.conf'</em>).
      *
      * @return the wrapper configuration file
      */
@@ -342,7 +343,7 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the apacheds configuration ldif file (<em>'/conf/wrapper.conf'</em>).
+     * Gets the apacheds configuration ldif file (<em>'&lt;instance&gt;/conf/config.ldif'</em>).
      *
      * @return the apacheds configuration ldif file
      */
@@ -353,7 +354,8 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * Gets the 'replication' directory where replication journals are stored.
+     * Gets the 'replication' directory where replication journals are stored
+     * (<em>'&lt;instance&gt;/syncrepl-data'</em>).
      *
      * @return the 'replication' directory
      */
@@ -369,6 +371,8 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
+     * Sets the directory where the replication data are stored
+     * 
      * @param replDir the replication journal data directory
      */
     public void setReplDirectory( File replDir )
@@ -377,6 +381,9 @@ public class InstanceLayout extends AbstractLayout
     }
 
 
+    /**
+     * @see String#toString()
+     */
     public String toString()
     {
         return "Instance Layout: \n" +

@@ -45,15 +45,14 @@ public abstract class AbstractLayout
     /** The required files */
     private File[] requiredFiles = new File[0];
 
-    /** The directory */
+    /** The base directory */
     private File directory;
 
 
     /**
      * Creates a new instance of AbstractLayout.
      *
-     * @param directory
-     *      the directory
+     * @param directory the base directory
      */
     protected AbstractLayout( File directory )
     {
@@ -64,8 +63,7 @@ public abstract class AbstractLayout
     /**
      * Creates a new instance of AbstractLayout.
      *
-     * @param directoryPath
-     *      the path to the directory
+     * @param directoryPath the path to the base directory
      */
     protected AbstractLayout( String directoryPath )
     {
@@ -74,10 +72,9 @@ public abstract class AbstractLayout
 
 
     /**
-     * Gets the installation directory.
+     * Gets the base directory.
      *
-     * @return
-     *      the installation directory
+     * @return the base directory
      */
     protected File getDirectory()
     {
@@ -88,8 +85,7 @@ public abstract class AbstractLayout
     /**
      * Gets the required directories.
      *
-     * @return
-     *      the required directories
+     * @return the required directories
      */
     public File[] getRequiredDirectories()
     {
@@ -100,8 +96,7 @@ public abstract class AbstractLayout
     /**
      * Gets the required files.
      *
-     * @return
-     *      the required files
+     * @return the required files
      */
     public File[] getRequiredFiles()
     {
@@ -130,8 +125,7 @@ public abstract class AbstractLayout
     /**
      * Sets the required directories.
      *
-     * @param requiredDirectories
-     *      an array of required directories
+     * @param requiredDirectories an array of required directories
      */
     protected void setRequiredDirectories( File[] requiredDirectories )
     {
@@ -142,8 +136,7 @@ public abstract class AbstractLayout
     /**
      * Sets the required files.
      *
-     * @param requiredFiles
-     *      an array of required files
+     * @param requiredFiles an array of required files
      */
     protected void setRequiredFiles( File[] requiredFiles )
     {
