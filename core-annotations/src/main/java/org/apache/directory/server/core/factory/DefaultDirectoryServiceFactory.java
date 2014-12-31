@@ -248,7 +248,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         buildInstanceDirectory( name );
 
         CacheService cacheService = new CacheService();
-        cacheService.initialize( directoryService.getInstanceLayout() );
+        cacheService.initialize( directoryService.getInstanceLayout(), name );
 
         directoryService.setCacheService( cacheService );
 

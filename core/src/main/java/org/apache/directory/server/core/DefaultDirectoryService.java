@@ -1777,7 +1777,7 @@ public class DefaultDirectoryService implements DirectoryService
             cacheService = new CacheService();
         }
 
-        cacheService.initialize( instanceLayout );
+        cacheService.initialize( instanceLayout, instanceId );
 
         // Initialize the AP caches
         accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();

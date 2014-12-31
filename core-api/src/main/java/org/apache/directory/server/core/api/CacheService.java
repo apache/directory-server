@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api;
 
 
 import java.io.File;
+import java.util.UUID;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheService
 {
-
+    
     private static final String DIRECTORY_CACHESERVICE_XML = "directory-cacheservice.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger( CacheService.class );
@@ -79,6 +80,11 @@ public class CacheService
 
     public void initialize( InstanceLayout layout )
     {
+        initialize( layout, null );
+    }
+        
+    public void initialize( InstanceLayout layout, String instanceId )
+    {
         if ( initialized )
         {
             LOG.debug( "CacheService was already initialized, returning" );
@@ -91,7 +97,6 @@ public class CacheService
             initialized = true;
             return;
         }
-
         Configuration cc;
         String cachePath = null;
 
@@ -123,7 +128,16 @@ public class CacheService
             cachePath = FileUtils.getTempDirectoryPath();
         }
 
+        String confName = UUID.randomUUID().toString();
+        cc.setName( confName );
+        
+        if ( cachePath == null )
+        {
+            cachePath = FileUtils.getTempDirectoryPath();
+        }
+        cachePath += File.separator + confName;
         cc.getDiskStoreConfiguration().setPath( cachePath );
+
         cacheManager = new CacheManager( cc );
 
         initialized = true;
@@ -138,9 +152,9 @@ public class CacheService
         }
 
         LOG.info( "clearing all the caches" );
-
+        
         initialized = false;
-
+        
         cacheManager.clearAll();
         cacheManager.shutdown();
     }
@@ -175,7 +189,7 @@ public class CacheService
 
     public void attach( Cache cache )
     {
-        cacheManager.addCache( cache );
+        cacheManager.addCacheIfAbsent( cache );
     }
 
 }
