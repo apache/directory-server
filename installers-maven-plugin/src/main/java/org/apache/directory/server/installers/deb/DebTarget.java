@@ -24,7 +24,7 @@ import org.apache.directory.server.installers.Target;
 
 
 /**
- * A Deb package for the Debian platform.
+ * A Deb package for the Debian platform. The default OsName parameter is Linux.
  * 
  * To create a Deb package we use the dpkg utility that is bundled in the 
  * Debian operating system.
@@ -34,7 +34,7 @@ import org.apache.directory.server.installers.Target;
 public class DebTarget extends Target
 {
     /**
-     * Creates a new instance of DebTarget.
+     * Creates a new instance of DebTarget, default to X86_64.
      */
     public DebTarget()
     {

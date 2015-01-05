@@ -26,7 +26,7 @@
     !define UninstallerIcon "uninstaller.ico"
     !define WelcomeImage "welcome.bmp"
     !define HeaderImage "header.bmp"
-    !define OutFile "${finalname}"
+    !define OutFile "${finalName}"
     !define InstallationFiles "${installationFiles}"
     !define InstancesFiles "${instancesFiles}"
     !define JREVersion "1.5.0"
@@ -215,7 +215,7 @@
         # Replacing installation directory in config file
         GetFunctionAddress $R0 ReplaceInstallationDirectory # handle to callback fn
         Push $R0
-        Push "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" # file to replace in
+        Push "$INSTANCES_HOME_DIR\default\conf\wrapper-instance.conf" # file to replace in
         Call ReplaceInFile
         
         # Registering the server instance
@@ -285,7 +285,7 @@
     #
 
     Function RegisterInstance
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -i "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -i "$INSTANCES_HOME_DIR\default\conf\wrapper-instance.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -297,7 +297,7 @@
     #
 
     Function un.RegisterInstance
-        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -r "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+        nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -r "$INSTANCES_HOME_DIR\default\conf\wrapper-instance.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
     FunctionEnd
     
     #
@@ -312,7 +312,7 @@
         # Start the server
         MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default server instance?" IDYES startService IDNO End
         startService:  
-            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -t "$INSTANCES_HOME_DIR\default\conf\wrapper.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
+            nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\wrapper.exe" -t "$INSTANCES_HOME_DIR\default\conf\wrapper-instance.conf" set.INSTANCE_DIRECTORY="$INSTANCES_HOME_DIR\default" set.INSTANCE="default"'
   
         End:
     FunctionEnd

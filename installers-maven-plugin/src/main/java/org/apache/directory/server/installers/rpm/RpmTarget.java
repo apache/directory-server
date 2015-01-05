@@ -24,7 +24,7 @@ import org.apache.directory.server.installers.Target;
 
 
 /**
- * An Rpm package target.
+ * An Rpm package target. The default OsName parameter is Linux.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

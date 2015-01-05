@@ -80,6 +80,10 @@ verifyExitCode
 mkdir -p $INSTANCES_HOME_DIRECTORY
 verifyExitCode
 
+# Creating initd directory if needed
+mkdir -p $STARTUP_SCRIPT_DIRECTORY
+verifyExitCode
+
 # Creating the default instance home directory
 DEFAULT_INSTANCE_HOME_DIRECTORY=$INSTANCES_HOME_DIRECTORY/$DEFAULT_INSTANCE_NAME
 verifyExitCode
@@ -95,9 +99,9 @@ mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/run
 verifyExitCode
 
 # Filtering default instance wrapper.conf file
-sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper.conf > ../instance/wrapper.conf.tmp
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper-instance.conf > ../instance/wrapper-instance.conf.tmp
 verifyExitCode
-mv ../instance/wrapper.conf.tmp ../instance/wrapper.conf
+mv ../instance/wrapper-instance.conf.tmp ../instance/wrapper-instance.conf
 verifyExitCode
 
 # Copying the default instance files
@@ -105,7 +109,7 @@ cp ../instance/config.ldif $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 cp ../instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
-cp ../instance/wrapper.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+cp ../instance/wrapper-instance.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 
 # Filtering and copying the init.d script

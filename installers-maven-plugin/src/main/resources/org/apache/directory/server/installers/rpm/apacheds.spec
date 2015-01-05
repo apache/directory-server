@@ -26,6 +26,7 @@ Group: System Environment/Daemons
 URL: http://directory.apache.org
 Source: apacheds-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+%define debug_package %{nil}
 
 %description
 ApacheDS ${version}
@@ -60,7 +61,7 @@ ${install.libs}
 # Instance files
 install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/config.ldif $RPM_BUILD_ROOT%{adsdata}/default/conf/config.ldif
 install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/log4j.properties $RPM_BUILD_ROOT%{adsdata}/default/conf/log4j.properties
-install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/wrapper.conf $RPM_BUILD_ROOT%{adsdata}/default/conf/wrapper.conf
+install -m 644 ${build.dir}/%{name}-%{version}/instances/default/conf/wrapper-instance.conf $RPM_BUILD_ROOT%{adsdata}/default/conf/wrapper-instance.conf
 
 # Init script
 install -m 755 ${build.dir}/%{name}-%{version}/etc-initd-script $RPM_BUILD_ROOT/etc/init.d/apacheds-%{version}-default
@@ -96,4 +97,4 @@ ${files.libs}
 %{adsdata}/default/run
 %config %{adsdata}/default/conf/config.ldif
 %config %{adsdata}/default/conf/log4j.properties
-%config %{adsdata}/default/conf/wrapper.conf
+%config %{adsdata}/default/conf/wrapper-instance.conf

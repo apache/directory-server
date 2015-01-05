@@ -119,7 +119,7 @@ public class GenerateMojo extends AbstractMojo
      * 
      * @parameter
      */
-    private Set excludes;
+    private Set<String> excludes;
 
     /**
      *  The dpkg utility executable.
@@ -173,12 +173,14 @@ public class GenerateMojo extends AbstractMojo
         if ( allTargets.isEmpty() )
         {
             getLog().info( "No installers to generate." );
+
             return;
         }
 
         getLog().info( "-------------------------------------------------------" );
 
         // Creating the output directory
+        getLog().info( "Creating the putput directory : " + outputDirectory.getAbsolutePath() );
         FileUtils.mkdir( outputDirectory.getAbsolutePath() );
 
         // Generating installers for all targets
@@ -238,26 +240,37 @@ public class GenerateMojo extends AbstractMojo
 
 
     /**
-     * Collects all targets.
+     * Collects all targets. A target is a plugin configuration element
+     * where we declare a tuple with the target's ID, the target
+     * name, architecture, os name and archive typelike in :
+     * <pre>
+     * &lt;nsisTargets&gt;
+     *   &lt;nsisTarget&gt;
+     *     &lt;id&gt;apacheds-win32&lt;/id&gt;
+     *     &lt;finalName&gt;apacheds-${project.version}.exe&lt;/finalName&gt;
+     *   &lt;/nsisTarget&gt;
+     * &lt;/nsisTargets&gt;
+     * </pre>
+     * We have targets for windows, RPM, Deb, macOSX, binary and archive,
+     * and we may have more than one, depending on the compression scheme (zip, 
+     * gz, bz2).
      */
     private void collectAllTargets()
     {
-        addAllTargets( allTargets, nsisTargets );
-        addAllTargets( allTargets, rpmTargets );
-        addAllTargets( allTargets, debTargets );
-        addAllTargets( allTargets, macOsXPkgTargets );
-        addAllTargets( allTargets, binTargets );
-        addAllTargets( allTargets, archiveTargets );
+        addAllTargets( allTargets, nsisTargets ); // For Windows
+        addAllTargets( allTargets, rpmTargets ); // For RPM base linux
+        addAllTargets( allTargets, debTargets ); // For Debian based Linux
+        addAllTargets( allTargets, macOsXPkgTargets ); // For Mac OSX
+        addAllTargets( allTargets, binTargets ); // Pure linux 
+        addAllTargets( allTargets, archiveTargets ); // tar
     }
 
 
     /**
      * Adds an array of targets to the given list.
      *
-     * @param list
-     *      the list of targets
-     * @param array
-     *      an array of targets
+     * @param list the list of targets
+     * @param array an array of targets
      */
     private void addAllTargets( List<Target> list, Target[] array )
     {
@@ -271,8 +284,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the output directory.
      *
-     * @return
-     *      the output directory
+     * @return the output directory
      */
     public File getOutputDirectory()
     {
@@ -283,8 +295,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the associated Maven project.
      *
-     * @return
-     *      the associated Maven project
+     * @return the associated Maven project
      */
     public MavenProject getProject()
     {
@@ -295,10 +306,9 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the excluded artifacts.
      *
-     * @return
-     *      the excluded artifacts
+     * @return the excluded artifacts
      */
-    public Set getExcludes()
+    public Set<String> getExcludes()
     {
         return excludes;
     }
@@ -307,8 +317,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the dpkg utility.
      *
-     * @return
-     *      the dpkg utility
+     * @return the dpkg utility
      */
     public File getDpkgUtility()
     {
@@ -319,8 +328,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the dpkg utility.
      *
-     * @return
-     *      the dpkg utility
+     * @return the dpkg utility
      */
     public File getPackageMakerUtility()
     {

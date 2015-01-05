@@ -173,7 +173,7 @@ elif [ "$ADS_ACTION" = "stop" ]; then
     # Printing instance information
     if [ -f $ADS_PID ]; then
         PID=`cat $ADS_PID`
-        [ $HAVE_TTY -eq 1 ] && echo "Stoping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
+        [ $HAVE_TTY -eq 1 ] && echo "Stopping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
         kill -15 $PID > /dev/null 2>&1
 
