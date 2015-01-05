@@ -81,10 +81,10 @@ public class InstanceLayout extends AbstractLayout
     private static final String RUN_DIR = "apacheds.run.dir";
 
     /** Static directory names */
-    private static final String LOG_NAME = "log";
-    private static final String RUN_NAME = "run";
-    private static final String CONF_NAME = "conf";
-    private static final String PARTITIONS_NAME = "partitions";
+    public static final String LOG_NAME = "log";
+    public static final String RUN_NAME = "run";
+    public static final String CONF_NAME = "conf";
+    public static final String PARTITIONS_NAME = "partitions";
     private static final String REPL_NAME = "syncrepl-data";
     private static final String CACHE_NAME = "cache";
 
