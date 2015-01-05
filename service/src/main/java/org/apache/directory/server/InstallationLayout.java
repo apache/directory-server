@@ -200,4 +200,27 @@ public class InstallationLayout extends AbstractLayout
     {
         return new File( getBinDirectory(), "wrapper" );
     }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Installation layout\n" );
+        sb.append( "  Root dir          : " ).append( getDirectory() ).append( '\n' );
+        sb.append( "  Installation dir  : " ).append( getInstallationDirectory() ).append( '\n' );
+        sb.append( "  bin dir           : " ).append( getBinDirectory() ).append( '\n' );
+        sb.append( "  conf dir          : " ).append( getConfDirectory() ).append( '\n' );
+        sb.append( "Copied files\n" );
+        sb.append( "  License file      : " ).append( getLicenseFile() ).append( '\n' );
+        sb.append( "  Notice file       : " ).append( getNoticeFile() ).append( '\n' );
+        sb.append( "  Script file       : " ).append( getScriptFile() ).append( '\n' );
+        sb.append( "  Wrapper file      : " ).append( getWrapperFile() ).append( '\n' );
+        sb.append( "  Wrapper Conf file : " ).append( getWrapperConfigurationFile() ).append( '\n' );
+
+        return sb.toString();
+    }
 }
