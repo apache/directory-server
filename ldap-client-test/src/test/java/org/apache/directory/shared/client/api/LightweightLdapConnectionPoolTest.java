@@ -20,6 +20,7 @@
 package org.apache.directory.shared.client.api;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.concurrent.CountDownLatch;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -52,7 +54,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP") })
+    { @CreateTransport(protocol = "LDAP", address = "127.0.0.1", port = 10389) })
 public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 {
     /** The connection pool */
@@ -68,19 +70,80 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     private static final String DEFAULT_PASSWORD = "secret";
 
     /**
-     * A thread used to test the connection
+     * A thread used to test the connection taken from a pool
      */
-    private class ConnectionThread extends Thread
+    private class ConnectionThreadPool extends Thread
     {
-        int threadNumber;
+        CountDownLatch counter;
+        int nbIterations;
+        boolean success = true;
+        LdapConnectionPool poolNoIdle;
+
+
+        public ConnectionThreadPool( LdapConnectionPool poolNoIdle, int nbIterations, CountDownLatch counter )
+        {
+            this.counter = counter;
+            this.nbIterations = nbIterations;
+            this.poolNoIdle = poolNoIdle;
+        }
+
+
+        @Override
+        public void run()
+        {
+            int i = 0;
+            long t0 = System.currentTimeMillis();
+
+            for ( i = 0; i < nbIterations; i++ )
+            {
+                try
+                {
+                    long count = counter.getCount();
+
+                    if ( i % 10000 == 0 )
+                    {
+                        System.out.println( "iteration # " + count );
+                    }
+
+                    LdapConnection connection = poolNoIdle.getConnection();
+
+                    //connection.bind( DEFAULT_ADMIN, DEFAULT_PASSWORD );
+                    Entry entry = connection.lookup( "uid=admin,ou=system", "*" );
+
+                    poolNoIdle.releaseConnection( connection );
+
+                    counter.countDown();
+                }
+                catch ( Exception e )
+                {
+                    System.out
+                        .println( this + " failed to get a connection on iteration " + i + " : " + e.getMessage() );
+                    e.printStackTrace();
+                    success = false;
+                    break;
+                }
+            }
+            long t1 = System.currentTimeMillis();
+
+            if ( success )
+            {
+                System.out.println( "Thread " + this + " completed in " + ( t1 - t0 ) + "ms" );
+            }
+        }
+    }
+
+    /**
+     * A thread used to test the connection, using no pool
+     */
+    private class ConnectionThreadNoPool extends Thread
+    {
         CountDownLatch counter;
         int nbIterations;
         boolean success = true;
 
 
-        public ConnectionThread( int threadNumber, int nbIterations, CountDownLatch counter )
+        public ConnectionThreadNoPool( int nbIterations, CountDownLatch counter )
         {
-            this.threadNumber = threadNumber;
             this.counter = counter;
             this.nbIterations = nbIterations;
         }
@@ -90,36 +153,54 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         public void run()
         {
             int i = 0;
+            LdapConnectionConfig config = new LdapConnectionConfig();
+            config.setLdapHost( "127.0.0.1" );
+            config.setLdapPort( 10389 );
+            config.setName( DEFAULT_ADMIN );
+            config.setCredentials( DEFAULT_PASSWORD );
+            config.setTimeout( 30000 );
+
             long t0 = System.currentTimeMillis();
+
             for ( i = 0; i < nbIterations; i++ )
             {
                 try
                 {
-                    LdapConnection connection = pool.getConnection();
+                    if ( i % 10000 == 0 )
+                    {
+                        System.out.println( "iteration # " + i + " for thread " + this + " in "
+                            + ( System.currentTimeMillis() - t0 ) );
+                    }
 
-                    connection.lookup( Dn.ROOT_DSE, "1.1 " );
+                    //this.sleep( 1 );
 
-                    pool.releaseConnection( connection );
+                    LdapConnection connection = new LdapNetworkConnection( config );
+                    connection.bind();
+
+                    Entry entry = connection.lookup( Dn.ROOT_DSE, "1.1 " );
+
+                    connection.unBind();
+                    //connection.close();
 
                     counter.countDown();
                 }
                 catch ( Exception e )
                 {
-                    System.out.println( "Failure to get a connection on iteration " + i + " : " + e.getMessage() );
+                    System.out
+                        .println( this + " failed to get a connection on iteration " + i + " : " + e.getMessage()
+                            + " in " + ( System.currentTimeMillis() - t0 ) );
                     e.printStackTrace();
                     success = false;
-                    break;
                 }
             }
             long t1 = System.currentTimeMillis();
 
-            if ( !success )
+            if ( success )
             {
-                //System.out.println( "Thread " + this + " completed in " + ( t1 - t0 ) + "ms" );
+                System.out.println( "Thread " + this + " completed in " + ( t1 - t0 ) + "ms" );
                 //}
                 //else
                 //{
-                System.out.println( "Thread " + this + " failed after " + i + " iterations  in " + ( t1 - t0 ) + "ms" );
             }
         }
     }
@@ -131,14 +212,18 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localHost" );
+        config.setLdapHost( "127.0.0.1" );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
+        config.setTimeout( 30000 );
         PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         pool = new LdapConnectionPool( factory );
         pool.setTestOnBorrow( true );
         pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        pool.setMaxIdle( 0 );
+
+        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
     }
 
 
@@ -150,16 +235,82 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
 
     /**
-     * Test the creation of many connections
+     * Test the creation of many connections, using a pool that does not let 
+     * connections becoming idle
      */
     @Test
-    public void testManyConnections() throws Exception
+    @Ignore
+    public void testManyConnectionsPoolNoIdle() throws Exception
     {
-        for ( int j = 0; j < 10; j++ )
+        int port = getLdapServer().getPort();
+
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "127.0.0.1" );
+        config.setLdapPort( port );
+        config.setName( DEFAULT_ADMIN );
+        config.setCredentials( DEFAULT_PASSWORD );
+        config.setTimeout( 30000 );
+        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        LdapConnectionPool poolNoIdle = new LdapConnectionPool( factory );
+        poolNoIdle.setTestOnBorrow( true );
+        poolNoIdle.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        poolNoIdle.setMaxIdle( 0 );
+
+        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
+
+        for ( int j = 0; j < 1; j++ )
         {
             System.out.println( "-------------------" );
             System.out.println( "Iteration " + j );
-            int nbIterations = 10000;
+            int nbIterations = 20000;
+            int nbThreads = 10;
+            CountDownLatch counter = new CountDownLatch( nbIterations * nbThreads );
+
+            long t0 = System.currentTimeMillis();
+
+            for ( int i = 0; i < nbThreads; i++ )
+            {
+                ConnectionThreadPool thread = new ConnectionThreadPool( poolNoIdle, nbIterations, counter );
+
+                thread.start();
+            }
+
+            boolean result = counter.await( 300, TimeUnit.SECONDS );
+
+            long t1 = System.currentTimeMillis();
+
+            System.out.println( "Time to create and use " + nbIterations + " connections with " + nbThreads
+                + "  threads = "
+                + ( t1 - t0 ) );
+        }
+    }
+
+
+    /**
+     * Test the creation of many connections, using a standard pool
+     */
+    @Test
+    @Ignore
+    public void testManyConnectionsPool() throws Exception
+    {
+        int port = getLdapServer().getPort();
+
+        LdapConnectionConfig config = new LdapConnectionConfig();
+        config.setLdapHost( "127.0.0.1" );
+        config.setLdapPort( port );
+        config.setName( DEFAULT_ADMIN );
+        config.setCredentials( DEFAULT_PASSWORD );
+        config.setTimeout( 30000 );
+        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        LdapConnectionPool poolWithIdle = new LdapConnectionPool( factory );
+        poolWithIdle.setTestOnBorrow( true );
+        poolWithIdle.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+
+        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
+
+        for ( int j = 0; j < 1; j++ )
+        {
+            int nbIterations = 20000;
             int nbThreads = 100;
             CountDownLatch counter = new CountDownLatch( nbIterations * nbThreads );
 
@@ -167,12 +318,60 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
             for ( int i = 0; i < nbThreads; i++ )
             {
-                ConnectionThread thread = new ConnectionThread( i, nbIterations, counter );
+                ConnectionThreadPool thread = new ConnectionThreadPool( poolWithIdle, nbIterations, counter );
 
                 thread.start();
             }
 
-            boolean result = counter.await( nbThreads * nbIterations, TimeUnit.SECONDS );
+            boolean result = counter.await( 300, TimeUnit.SECONDS );
+
+            long t1 = System.currentTimeMillis();
+
+            System.out.println( "Time to create and use " + nbIterations * nbThreads + " connections with " + nbThreads
+                + "  threads = "
+                + ( t1 - t0 ) );
+        }
+    }
+
+
+    /**
+     * Test the creation of many connections, not using a pool.
+     * This test is very dependent on the TIME_WAIT duration, which can
+     * be set by changing the net.inet.tcp.msl parameter :
+     * <pre>
+     * on Mac OSX :
+     * $ sudo sysctl -w net.inet.tcp.msl=500
+     * on LINUX :
+     * $ sudo echo "1" > /proc/sys/net/ipv4/tcp_fin_timeout
+     * </pre>
+     * Note that this parameter is *not* to be made permanent. There is no
+     * reason for creating ten of thousands of client connections, except for
+     * a benchmark.
+     */
+    @Test
+    @Ignore
+    public void testManyConnectionsNoPool() throws Exception
+    {
+        for ( int j = 0; j < 1; j++ )
+        {
+            System.out.println( "-------------------" );
+            System.out.println( "Iteration " + j );
+            int nbIterations = 20000;
+            int nbThreads = 1;
+            CountDownLatch counter = new CountDownLatch( nbIterations * nbThreads );
+
+            long t0 = System.currentTimeMillis();
+
+            for ( int i = 0; i < nbThreads; i++ )
+            {
+                ConnectionThreadNoPool thread = new ConnectionThreadNoPool( nbIterations, counter );
+
+                thread.start();
+            }
+
+            boolean result = counter.await( 3000, TimeUnit.SECONDS );
+
+            assertEquals( 0, counter.getCount() );
 
             long t1 = System.currentTimeMillis();
 
