@@ -36,7 +36,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
@@ -135,8 +134,10 @@ public class StoreUtils
         try
         {
             SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-            cursor = session.search( searchBaseDn, SearchScope.SUBTREE,
-                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, "*" );
+            cursor = session
+                .search( searchBaseDn, SearchScope.SUBTREE,
+                    getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS,
+                    SchemaConstants.ALL_USER_ATTRIBUTES );
 
             cursor.beforeFirst();
 

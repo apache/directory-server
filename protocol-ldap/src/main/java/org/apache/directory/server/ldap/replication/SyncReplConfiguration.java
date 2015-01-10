@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.directory.api.ldap.model.constants.LdapConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
@@ -68,7 +69,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
     /** port number of the syncrepl provider server, default is 10389 */
     private int remotePort = 10389;
-    
+
     /** The producer, as <host>:<port> */
     private String producer = remoteHost + ":" + remotePort;
 
@@ -88,7 +89,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     private String baseDn;
 
     /** the ldap filter for fetching the entries, default value is (objectClass=*) */
-    private String filter = "(objectClass=*)";
+    private String filter = LdapConstants.OBJECT_CLASS_STAR;
 
     /** names of attributes to be replicated, default value is all user attributes */
     private Set<String> attributes;

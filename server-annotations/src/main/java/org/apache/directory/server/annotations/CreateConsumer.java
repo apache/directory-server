@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.directory.api.ldap.model.constants.LdapConstants;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
@@ -94,7 +95,7 @@ public @interface CreateConsumer
 
 
     /** the ldap filter for fetching the entries, default value is (objectClass=*) */
-    String filter() default "(objectClass=*)";
+    String filter() default LdapConstants.OBJECT_CLASS_STAR;
 
 
     /** names of attributes to be replicated, default value is all user attributes */

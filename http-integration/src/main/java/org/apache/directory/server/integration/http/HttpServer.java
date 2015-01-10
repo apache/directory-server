@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.bridge.http.HttpDirectoryService;
@@ -178,7 +179,8 @@ public class HttpServer
             {
                 // load the admin entry to get the private key and certificate
                 Dn adminDn = dirService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-                Entry adminEntry = dirService.getAdminSession().lookup( adminDn, "*", "+" );
+                Entry adminEntry = dirService.getAdminSession().lookup( adminDn, SchemaConstants.ALL_USER_ATTRIBUTES,
+                    SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
 
                 File confDir = dirService.getInstanceLayout().getConfDirectory();
                 File ksFile = new File( confDir, "httpserver.generated.ks" );
