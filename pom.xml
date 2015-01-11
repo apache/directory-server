@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>33</version>
+    <version>34</version>
     <relativePath />
   </parent>
 
@@ -75,8 +75,8 @@
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.9</mina.core.version>
     <plexus.utils.version>3.0.21</plexus.utils.version>
-    <slf4j.api.version>1.7.9</slf4j.api.version>
-    <slf4j.log4j12.version>1.7.9</slf4j.log4j12.version>
+    <slf4j.api.version>1.7.10</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.10</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
     <pax-exam.version>4.4.0</pax-exam.version>
     <pax-url.version>2.3.0</pax-url.version>
