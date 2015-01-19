@@ -25,11 +25,11 @@ import java.util.Map;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
 
@@ -138,7 +138,7 @@ public class LdapApiIntegrationUtils
             config.setLdapPort( port );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
-            ValidatingPoolableLdapConnectionFactory factory = new ValidatingPoolableLdapConnectionFactory( config );
+            DefaultPoolableLdapConnectionFactory factory = new DefaultPoolableLdapConnectionFactory( config );
             LdapConnectionPool pool = new LdapConnectionPool( factory );
             pool.setTestOnBorrow( true );
             pools.put( port, pool );

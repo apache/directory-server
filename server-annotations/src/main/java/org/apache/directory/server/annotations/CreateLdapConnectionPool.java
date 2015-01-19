@@ -27,6 +27,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
+import org.apache.directory.ldap.client.api.DefaultLdapConnectionValidator;
+import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionFactory;
+import org.apache.directory.ldap.client.api.LdapConnectionValidator;
+
 
 /**
  * A annotation used to define a LdapConnection configuration. 
@@ -46,12 +54,18 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateLdapConnectionPool
 {
-    /** The connection timeout in millis, default 30000 */
-    long timeout() default 30000L;
-
-
     /** Attributes names to be added to the list of default binary attributes */
     String[] additionalBinaryAttributes() default {};
+    
+    
+    /** LdapConnection factory implementation class */
+    Class<? extends LdapConnectionFactory> connectionFactoryClass() default 
+            DefaultLdapConnectionFactory.class;
+    
+    
+    /** LdapConnection pool factory implementation class */
+    Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass() default 
+            DefaultPoolableLdapConnectionFactory.class;
     
     
     /** Connections borrowed in LIFO order, default true */
@@ -102,6 +116,15 @@ public @interface CreateLdapConnectionPool
     long timeBetweenEvictionRunsMillis() default -1L;
     
     
+    /** The connection timeout in millis, default 30000 */
+    long timeout() default 30000L;
+    
+    
+    /** The class to use for validation */
+    Class<? extends LdapConnectionValidator> validatorClass() default 
+        DefaultLdapConnectionValidator.class;
+
+
     /** The default action when connections are exhausted, default 1 (block) */
     byte whenExhaustedAction() default 1;
 }
