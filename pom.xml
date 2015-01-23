@@ -138,10 +138,6 @@
     <module>kerberos-client</module>
     <module>service</module>
     <module>wrapper</module>
-    <!--
-    <module>hbase-partition</module>
-    <module>hbase-partition-test</module>
-    -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
     <!--module>bulkloader</module-->
