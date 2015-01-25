@@ -196,7 +196,10 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
-        policyContainer.setDefaultPolicy( policyConfig );
+        Dn defaultPolicyDn = new Dn( ldapServer.getDirectoryService().getSchemaManager(), "cn=default" );
+        policyContainer.addPolicy( defaultPolicyDn, policyConfig );
+        policyContainer.setDefaultPolicyDn( defaultPolicyDn );
+        
         AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getService()
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
 

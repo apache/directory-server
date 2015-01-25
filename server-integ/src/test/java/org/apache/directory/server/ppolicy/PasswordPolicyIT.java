@@ -113,6 +113,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
     private PasswordPolicyConfiguration policyConfig;
 
+    private Dn customPolicyDn;
 
     /**
      * Set a default PaswordPolicy configuration
@@ -134,7 +135,13 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
 
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
-        policyContainer.setDefaultPolicy( policyConfig );
+        Dn defaultPolicyDn = new Dn( ldapServer.getDirectoryService().getSchemaManager(), "cn=default" );
+        policyContainer.addPolicy( defaultPolicyDn, policyConfig );
+        policyContainer.setDefaultPolicyDn( defaultPolicyDn );
+
+        customPolicyDn = new Dn( ldapServer.getDirectoryService().getSchemaManager(), "cn=custom" );
+        policyContainer.addPolicy( customPolicyDn, policyConfig );
+
         AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getService()
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
 
@@ -869,7 +876,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "cn: ppolicySubentry",
             "sn: ppolicySubentry_sn",
             "userPassword: " + password,
-            "pwdPolicySubEntry:" + userDn.getName() );
+            "pwdPolicySubEntry:" + customPolicyDn.getName() );
 
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( userEntry );
@@ -879,7 +886,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
 
         userEntry = adminConnection.lookup( userDn, "*", "+" );
-        assertEquals( userDn.getName(), userEntry.get( "pwdPolicySubEntry" ).getString() );
+        assertEquals( customPolicyDn.getName(), userEntry.get( "pwdPolicySubEntry" ).getString() );
 
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( userDn );

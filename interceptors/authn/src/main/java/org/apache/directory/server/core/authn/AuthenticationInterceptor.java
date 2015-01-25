@@ -1623,6 +1623,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return null;
         }
 
+        if ( userEntry == null )
+        {
+            return pwdPolicyContainer.getDefaultPolicy();
+        }
+        
         if ( pwdPolicyContainer.hasCustomConfigs() )
         {
             Attribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
@@ -1631,7 +1636,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 Dn configDn = dnFactory.create( pwdPolicySubentry.getString() );
 
-                return pwdPolicyContainer.getPolicyConfig( configDn );
+                PasswordPolicyConfiguration custom = pwdPolicyContainer.getPolicyConfig( configDn );
+                if ( custom != null )
+                {
+                    return custom;
+                }
+                else
+                {
+                    LOG.warn( "The custom password policy for the user entry {} is not found, returning default policy configuration", userEntry.getDn() );
+                }
             }
         }
 

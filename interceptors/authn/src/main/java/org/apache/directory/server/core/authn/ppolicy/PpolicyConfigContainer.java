@@ -39,8 +39,8 @@ public class PpolicyConfigContainer
     /** a map holding the entry specific password policies */
     private Map<Dn, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<Dn, PasswordPolicyConfiguration>();
 
-    /** the default password policy */
-    private PasswordPolicyConfiguration defaultPolicy;
+    /** the default password policy Dn */
+    private Dn defaultPolicyDn;
 
 
     /**
@@ -86,18 +86,18 @@ public class PpolicyConfigContainer
      */
     public PasswordPolicyConfiguration getDefaultPolicy()
     {
-        return defaultPolicy;
+        return getPolicyConfig( defaultPolicyDn );
     }
 
 
     /**
-     * Set the default password policy configuration
+     * Set the default password policy configuration's Dn
      * 
-     * @param defaultPolicy the password policy configuration instance
+     * @param defaultPolicyDn the default password policy configuration's Dn 
      */
-    public void setDefaultPolicy( PasswordPolicyConfiguration defaultPolicy )
+    public void setDefaultPolicyDn( Dn defaultPolicyDn )
     {
-        this.defaultPolicy = defaultPolicy;
+        this.defaultPolicyDn = defaultPolicyDn;
     }
 
 

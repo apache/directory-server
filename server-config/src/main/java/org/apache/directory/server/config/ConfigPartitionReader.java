@@ -478,7 +478,7 @@ public class ConfigPartitionReader
     /**
      * Read some configuration element from the DIT using its name
      */
-    private List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
+    public List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
     {
         LOG.debug( "Reading from '{}', objectClass '{}'", baseDn, name );
@@ -532,100 +532,9 @@ public class ConfigPartitionReader
                 Entry entry = configPartition.fetch( forwardEntry.getId() );
                 LOG.debug( "Entry read : {}", entry );
 
-                // Let's instantiate the bean we need. The upper ObjectClass's name
-                // will be used to do that
-                ObjectClass objectClass = findObjectClass( entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
-
-                // Instantiating the bean
-                AdsBaseBean bean = createBean( objectClass );
-
-                // Setting its DN
-                bean.setDn( entry.getDn() );
-
+                AdsBaseBean bean = readConfig( entry );
                 // Adding the bean to the list
                 beansList.add( bean );
-
-                // Getting the class of the bean
-                Class<?> beanClass = bean.getClass();
-
-                // A flag to know when we reached the 'AdsBaseBean' class when 
-                // looping on the class hierarchy of the bean
-                boolean adsBaseBeanClassFound = false;
-
-                // Looping until the 'AdsBaseBean' class has been found
-                while ( !adsBaseBeanClassFound )
-                {
-                    // Checking if we reached the 'AdsBaseBean' class
-                    if ( beanClass == AdsBaseBean.class )
-                    {
-                        adsBaseBeanClassFound = true;
-                    }
-
-                    // Looping on all fields of the bean
-                    Field[] fields = beanClass.getDeclaredFields();
-                    for ( Field field : fields )
-                    {
-                        // Making the field accessible (we get an exception if we don't do that)
-                        field.setAccessible( true );
-
-                        // Getting the class of the field
-                        Class<?> fieldClass = field.getType();
-
-                        // Looking for the @ConfigurationElement annotation
-                        ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
-                        if ( configurationElement != null )
-                        {
-                            // Getting the annotation's values
-                            String fieldAttributeType = configurationElement.attributeType();
-                            String fieldObjectClass = configurationElement.objectClass();
-                            String container = configurationElement.container();
-                            boolean isOptional = configurationElement.isOptional();
-
-                            // Checking if we have a value for the attribute type
-                            if ( ( fieldAttributeType != null ) && ( !"".equals( fieldAttributeType ) ) )
-                            {
-                                readFieldValue( bean, field, entry, fieldAttributeType, !isOptional );
-                            }
-                            // Checking if we have a value for the object class
-                            else if ( ( fieldObjectClass != null ) && ( !"".equals( fieldObjectClass ) ) )
-                            {
-                                // Checking if this is a multi-valued field (which values are stored in a container)
-                                if ( isMultiple( fieldClass ) && ( container != null )
-                                    && ( !"".equals( container ) ) )
-                                {
-                                    // Creating the DN of the container
-                                    Dn newBase = entry.getDn().add( "ou=" + container );
-
-                                    // Looking for the field values
-                                    Collection<AdsBaseBean> fieldValues = read( newBase, fieldObjectClass,
-                                        SearchScope.ONELEVEL, !isOptional );
-
-                                    // Setting the values to the field
-                                    if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
-                                    {
-                                        field.set( bean, fieldValues );
-                                    }
-                                }
-                                // This is a single-value field
-                                else
-                                {
-                                    // Looking for the field values
-                                    List<AdsBaseBean> fieldValues = read( entry.getDn(), fieldObjectClass,
-                                        SearchScope.ONELEVEL, !isOptional );
-
-                                    // Setting the value to the field
-                                    if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
-                                    {
-                                        field.set( bean, fieldValues.get( 0 ) );
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Moving to the upper class in the class hierarchy
-                    beanClass = beanClass.getSuperclass();
-                }
             }
             while ( cursor.next() );
         }
@@ -661,6 +570,111 @@ public class ConfigPartitionReader
     }
 
 
+    /**
+     * Creates a configuration bean from the given entry.
+     * 
+     * @param entry any configuration entry of thetype "ads-base"
+     * @return
+     * @throws Exception
+     */
+    public AdsBaseBean readConfig( Entry entry ) throws Exception
+    {
+        // Let's instantiate the bean we need. The upper ObjectClass's name
+        // will be used to do that
+        ObjectClass objectClass = findObjectClass( entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
+
+        // Instantiating the bean
+        AdsBaseBean bean = createBean( objectClass );
+
+        // Setting its DN
+        bean.setDn( entry.getDn() );
+
+        // Getting the class of the bean
+        Class<?> beanClass = bean.getClass();
+
+        // A flag to know when we reached the 'AdsBaseBean' class when 
+        // looping on the class hierarchy of the bean
+        boolean adsBaseBeanClassFound = false;
+
+        // Looping until the 'AdsBaseBean' class has been found
+        while ( !adsBaseBeanClassFound )
+        {
+            // Checking if we reached the 'AdsBaseBean' class
+            if ( beanClass == AdsBaseBean.class )
+            {
+                adsBaseBeanClassFound = true;
+            }
+
+            // Looping on all fields of the bean
+            Field[] fields = beanClass.getDeclaredFields();
+            for ( Field field : fields )
+            {
+                // Making the field accessible (we get an exception if we don't do that)
+                field.setAccessible( true );
+
+                // Getting the class of the field
+                Class<?> fieldClass = field.getType();
+
+                // Looking for the @ConfigurationElement annotation
+                ConfigurationElement configurationElement = field.getAnnotation( ConfigurationElement.class );
+                if ( configurationElement != null )
+                {
+                    // Getting the annotation's values
+                    String fieldAttributeType = configurationElement.attributeType();
+                    String fieldObjectClass = configurationElement.objectClass();
+                    String container = configurationElement.container();
+                    boolean isOptional = configurationElement.isOptional();
+
+                    // Checking if we have a value for the attribute type
+                    if ( ( fieldAttributeType != null ) && ( !"".equals( fieldAttributeType ) ) )
+                    {
+                        readFieldValue( bean, field, entry, fieldAttributeType, !isOptional );
+                    }
+                    // Checking if we have a value for the object class
+                    else if ( ( fieldObjectClass != null ) && ( !"".equals( fieldObjectClass ) ) )
+                    {
+                        // Checking if this is a multi-valued field (which values are stored in a container)
+                        if ( isMultiple( fieldClass ) && ( container != null )
+                            && ( !"".equals( container ) ) )
+                        {
+                            // Creating the DN of the container
+                            Dn newBase = entry.getDn().add( "ou=" + container );
+
+                            // Looking for the field values
+                            Collection<AdsBaseBean> fieldValues = read( newBase, fieldObjectClass,
+                                SearchScope.ONELEVEL, !isOptional );
+
+                            // Setting the values to the field
+                            if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                            {
+                                field.set( bean, fieldValues );
+                            }
+                        }
+                        // This is a single-value field
+                        else
+                        {
+                            // Looking for the field values
+                            List<AdsBaseBean> fieldValues = read( entry.getDn(), fieldObjectClass,
+                                SearchScope.ONELEVEL, !isOptional );
+
+                            // Setting the value to the field
+                            if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                            {
+                                field.set( bean, fieldValues.get( 0 ) );
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Moving to the upper class in the class hierarchy
+            beanClass = beanClass.getSuperclass();
+        }
+        
+        return bean;
+    }
+    
+    
     /**
      * Indicates the given type is multiple.
      *

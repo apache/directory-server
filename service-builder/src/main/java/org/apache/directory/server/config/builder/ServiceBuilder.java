@@ -202,14 +202,12 @@ public class ServiceBuilder
 
                         if ( ppolicyConfig != null )
                         {
+                            ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+
                             // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
                             if ( ppolicyBean.getPwdId().equalsIgnoreCase( "default" ) )
                             {
-                                ppolicyContainer.setDefaultPolicy( ppolicyConfig );
-                            }
-                            else
-                            {
-                                ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+                                ppolicyContainer.setDefaultPolicyDn( ppolicyBean.getDn() );
                             }
                         }
                     }

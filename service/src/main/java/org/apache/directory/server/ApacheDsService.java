@@ -62,11 +62,14 @@ import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
+import org.apache.directory.server.config.listener.ConfigChangeListener;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.event.EventType;
+import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
@@ -202,6 +205,19 @@ public class ApacheDsService
 
         // start the jetty http server
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
+        
+        LOG.info( "Registering config change listener" );
+        ConfigChangeListener configListener = new ConfigChangeListener( cpReader, directoryService );
+
+        NotificationCriteria criteria = new NotificationCriteria();
+        criteria.setBase( configPartition.getSuffixDn() );
+        criteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
+        
+        PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
+        criteria.setFilter( filter );
+        criteria.setScope( SearchScope.SUBTREE );
+        
+        directoryService.getEventService().addListener( configListener, criteria );
     }
 
 
