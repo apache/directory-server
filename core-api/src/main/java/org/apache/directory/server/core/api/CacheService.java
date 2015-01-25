@@ -47,17 +47,22 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheService
 {
-    
+    /** The cache configuration file */
     private static final String DIRECTORY_CACHESERVICE_XML = "directory-cacheservice.xml";
 
+    /** The associated logger */
     private static final Logger LOG = LoggerFactory.getLogger( CacheService.class );
 
     /** the ehcache cache manager */
     private CacheManager cacheManager;
 
+    /** A flag telling if the cache Service has been intialized */
     private boolean initialized;
 
 
+    /**
+     * Creates a new instance of CacheService.
+     */
     public CacheService()
     {
     }
@@ -66,11 +71,12 @@ public class CacheService
     /**
      * Creates a new instance of CacheService with the given cache manager.
      *
-     * @param cachemanager
+     * @param cachemanager The provided CaxcheManager instance
      */
     public CacheService( CacheManager cachemanager )
     {
         this.cacheManager = cachemanager;
+
         if ( cachemanager != null )
         {
             initialized = true;
@@ -78,11 +84,23 @@ public class CacheService
     }
 
 
+    /**
+     * Initialize the CacheService
+     *
+     * @param layout The place on disk where the cache configuration will be stored
+     */
     public void initialize( InstanceLayout layout )
     {
         initialize( layout, null );
     }
-        
+
+
+    /**
+     * Initialize the CacheService
+     *
+     * @param layout The place on disk where the cache configuration will be stored
+     * @param instanceId The Instance identifier
+     */
     public void initialize( InstanceLayout layout, String instanceId )
     {
         if ( initialized )
@@ -91,12 +109,16 @@ public class CacheService
             return;
         }
 
+        LOG.debug( "CacheService initialization, for instance {}", instanceId );
+
         if ( ( cacheManager != null ) && ( cacheManager.getStatus() == Status.STATUS_ALIVE ) )
         {
             LOG.warn( "cache service was already initialized and is alive" );
             initialized = true;
+
             return;
         }
+
         Configuration cc;
         String cachePath = null;
 
@@ -130,11 +152,12 @@ public class CacheService
 
         String confName = UUID.randomUUID().toString();
         cc.setName( confName );
-        
+
         if ( cachePath == null )
         {
             cachePath = FileUtils.getTempDirectoryPath();
         }
+
         cachePath += File.separator + confName;
         cc.getDiskStoreConfiguration().setPath( cachePath );
 
@@ -144,6 +167,9 @@ public class CacheService
     }
 
 
+    /**
+     * Clear the cache and shutdown it
+     */
     public void destroy()
     {
         if ( !initialized )
@@ -152,18 +178,25 @@ public class CacheService
         }
 
         LOG.info( "clearing all the caches" );
-        
+
         initialized = false;
-        
+
         cacheManager.clearAll();
         cacheManager.shutdown();
     }
 
 
+    /**
+     * Get a specific cache from its name, or create a new one
+     *
+     * @param name The Cache name we want to retreive
+     * @return The found cache. If we don't find it, we create a new one.
+     */
     public Cache getCache( String name )
     {
         if ( !initialized )
         {
+            LOG.error( "Cannot fetch the cache named {}, the CacheServcie is not initialized", name );
             throw new IllegalStateException( "CacheService was not initialized" );
         }
 
@@ -173,6 +206,7 @@ public class CacheService
 
         if ( cache == null )
         {
+            LOG.warn( "No cache with name {} exists, creating one", name );
             cacheManager.addCache( name );
             cache = cacheManager.getCache( name );
         }
@@ -181,15 +215,22 @@ public class CacheService
     }
 
 
+    /**
+     * Remove a cache if it exists.
+     * 
+     * @param name The Cache's name we want to remove
+     */
     public void remove( String name )
     {
-        cacheManager.removeCache( name );
+        if ( cacheManager.cacheExists( name ) )
+        {
+            LOG.info( "Removing the cache named {}", name );
+
+            cacheManager.removeCache( name );
+        }
+        else
+        {
+            LOG.info( "Cannot removing the cache named {}, it does not exist", name );
+        }
     }
-
-
-    public void attach( Cache cache )
-    {
-        cacheManager.addCacheIfAbsent( cache );
-    }
-
 }
