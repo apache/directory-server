@@ -152,6 +152,11 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     // wrapper or the raw normalized value
     private boolean evaluate( Attribute attribute ) throws LdapException
     {
+        if ( attribute.contains( node.getValue() ) )
+        {
+            return true;
+        }
+
         /*
          * Cycle through the attribute values testing normalized version
          * obtained from using the ordering or equality matching rule's

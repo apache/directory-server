@@ -20,8 +20,7 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -78,8 +77,6 @@ public class SearchWithIndexedMVAttributeIT extends AbstractLdapTestUnit
         addGroupOfNames( "testGroup2", 2 );
         addGroupOfNames( "testGroup4", 4 );
         addGroupOfNames( "testGroup5", 5 );
-
-        // now, add thousands of members in some of those entries 
     }
 
 
@@ -109,48 +106,24 @@ public class SearchWithIndexedMVAttributeIT extends AbstractLdapTestUnit
     }
 
 
-    /**
-     *  Convenience method that performs a one level search using the
-     *  specified filter returning their DNs as Strings in a set.
-     *
-     * @param controls the search controls
-     * @param filter the filter expression
-     * @return the set of groups
-     * @throws Exception if there are problems conducting the search
-     */
-    public Set<String> searchGroups( String filter ) throws Exception
-    {
-        Set<String> results = new HashSet<String>();
-
-        EntryCursor cursor = connection.search( "ou=groups,ou=system", filter, SearchScope.SUBTREE, "1.1" );
-
-        while ( cursor.next() )
-        {
-            results.add( cursor.get().getDn().getName() );
-        }
-
-        cursor.close();
-
-        return results;
-    }
-
-
     @Test
     public void testSearch() throws Exception
     {
-        long t0 = System.currentTimeMillis();
+        //long t0 = System.currentTimeMillis();
         EntryCursor cursor = connection.search( "ou=system",
             "(&(member=cn=test74,ou=users,ou=system)(objectClass=groupOfNames))",
             SearchScope.SUBTREE,
             "member" );
+        int nbFound = 0;
 
         while ( cursor.next() )
         {
-            System.out.println( cursor.get().getDn() );
+            nbFound++;
         }
 
         cursor.close();
-        long t1 = System.currentTimeMillis();
-        System.out.println( "Search done in " + ( t1 - t0 ) + "msec" );
+        //long t1 = System.currentTimeMillis();
+        //System.out.println( "Search done in " + ( t1 - t0 ) + "msec" );
+        assertEquals( 4, nbFound );
     }
 }
