@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
@@ -38,6 +39,7 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -63,6 +65,7 @@ import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.config.listener.ConfigChangeListener;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -70,11 +73,11 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
@@ -120,7 +123,7 @@ public class ApacheDsService
     private SchemaManager schemaManager;
 
     /** The configuration partition */
-    private SingleFileLdifPartition configPartition;
+    private LdifPartition configPartition;
 
     /** The configuration reader instance */
     private ConfigPartitionReader cpReader;
@@ -137,8 +140,6 @@ public class ApacheDsService
 
     private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
     private static String[] MANDATORY_ENTRY_ATOP_AT;
-
-    private boolean isConfigPartitionFirstExtraction = false;
 
     private boolean isSchemaPartitionFirstExtraction = false;
 
@@ -287,27 +288,117 @@ public class ApacheDsService
     private void initConfigPartition( InstanceLayout instanceLayout, DnFactory dnFactory, CacheService cacheService )
         throws Exception
     {
-        File confFile = new File( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE );
 
-        if ( confFile.exists() )
-        {
-            LOG.info( "config partition already exists, skipping default config extraction" );
-        }
-        else
-        {
-            LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(),
-                LdifConfigExtractor.LDIF_CONFIG_FILE, true );
-            isConfigPartitionFirstExtraction = true;
-        }
-
-        configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
+        configPartition = new LdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
-        configPartition.setPartitionPath( confFile.toURI() );
+        configPartition.setPartitionPath( instanceLayout.getConfDirectory().toURI() );
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.setCacheService( cacheService );
 
-        configPartition.initialize();
+
+        File newConfigDir = new File( instanceLayout.getConfDirectory(), configPartition.getSuffixDn().getName());
+        
+        File oldConfFile = new File( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE );
+
+        boolean migrate = false;
+        
+        File tempConfFile = null;
+        
+        if ( oldConfFile.exists() )
+        {
+            if ( newConfigDir.exists() )
+            {
+                // conflict, which one to choose
+                String msg = "Conflict in selecting configuration source, both " + LdifConfigExtractor.LDIF_CONFIG_FILE + " and " + newConfigDir.getName() + " exist"
+                    + " delete either one of them and restart the server";
+                LOG.warn( msg );
+                throw new IllegalStateException( msg );
+            }
+            
+            migrate = true;
+        }
+        else if ( !newConfigDir.exists() )
+        {
+            String file = LdifConfigExtractor.extractSingleFileConfig( instanceLayout.getConfDirectory(), LdifConfigExtractor.LDIF_CONFIG_FILE, true );
+            tempConfFile = new File( file );
+        }
+
+        LdifReader reader = null;
+        
+        if ( migrate )
+        {
+            LOG.info( "Old config partition detected, converting to multiple LDIF file configuration model" );
+            reader = new LdifReader( oldConfFile, schemaManager );
+        }
+        else if ( tempConfFile != null )
+        {
+            LOG.info( "Creating default configuration" );
+            reader = new LdifReader( tempConfFile, schemaManager );
+        }
+        
+        if ( reader != null )
+        {
+            // sometimes user may have forgotten to delete ou=config.ldif after deleting ou=config folder
+            File residue = new File( instanceLayout.getConfDirectory(), "ou=config.ldif" );
+            if ( residue.exists() )
+            {
+               residue.delete(); 
+            }
+
+            // just for the sake of above check the initialization part is kept here
+            // and in the below else block
+            configPartition.initialize();
+            
+            CsnFactory csnFactory = new CsnFactory( 0 );
+            
+            while ( reader.hasNext() )
+            {
+                Entry entry = reader.next().getEntry();
+                
+                // add the mandatory attributes
+                if ( !entry.containsAttribute( SchemaConstants.ENTRY_UUID_AT ) )
+                {
+                    String uuid = UUID.randomUUID().toString();
+                    entry.add( SchemaConstants.ENTRY_UUID_AT, uuid );
+                }
+                
+                if ( !entry.containsAttribute( SchemaConstants.ENTRY_CSN_AT ) )
+                {
+                    entry.removeAttributes( SchemaConstants.ENTRY_CSN_AT );
+                    entry.add( SchemaConstants.ENTRY_CSN_AT, csnFactory.newInstance().toString() );
+                }
+                
+                if ( !entry.containsAttribute( SchemaConstants.CREATORS_NAME_AT ) )
+                {
+                    entry.add( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
+                }
+                
+                if ( !entry.containsAttribute( SchemaConstants.CREATE_TIMESTAMP_AT ) )
+                {
+                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                }
+                
+                AddOperationContext addContext = new AddOperationContext( null, entry );
+                configPartition.add( addContext );
+            }
+            
+
+            reader.close();
+            
+            if ( migrate )
+            {
+                oldConfFile.renameTo( new File( oldConfFile.getAbsolutePath() + "_migrated" ) );
+            }
+            else
+            {
+                tempConfFile.delete();
+            }
+        }
+        else
+        {
+            configPartition.initialize();
+        }
     }
 
 
@@ -360,22 +451,6 @@ public class ApacheDsService
         for ( AttributeTypeOptions attributeTypeOptions : MANDATORY_ENTRY_ATOP_MAP.values() )
         {
             MANDATORY_ENTRY_ATOP_AT[pos++] = attributeTypeOptions.getAttributeType().getName();
-        }
-
-        if ( isConfigPartitionFirstExtraction )
-        {
-            LOG.info( "begining to update config partition LDIF files after modifying manadatory attributes" );
-
-            // disable writes to the disk upon every modification to improve performance
-            configPartition.setEnableRewriting( false );
-
-            // perform updates
-            updateMandatoryOpAttributes( configPartition, directoryService );
-
-            // enable writes to disk, this will save the partition data first if found dirty
-            configPartition.setEnableRewriting( true );
-
-            LOG.info( "config partition data was successfully updated" );
         }
 
         if ( isSchemaPartitionFirstExtraction )
