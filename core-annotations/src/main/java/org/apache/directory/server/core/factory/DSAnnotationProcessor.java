@@ -52,6 +52,7 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.i18n.I18n;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -211,7 +212,7 @@ public class DSAnnotationProcessor
                     createPartition.suffix(),
                     createPartition.cacheSize(),
                     new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
-                
+
                 partition.setCacheService( service.getCacheService() );
 
                 CreateIndex[] indexes = createPartition.indexes();
@@ -250,12 +251,29 @@ public class DSAnnotationProcessor
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        // The annotation does not specify a specific index
-                        // type.
-                        // We use the generic index implementation.
-                        JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
+                        if ( createIndex.type() == JdbmIndex.class )
+                        {
+                            // JDBM index
+                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
 
-                        btreePartition.addIndexedAttributes( index );
+                            btreePartition.addIndexedAttributes( index );
+                        }
+                        else if ( createIndex.type() == MavibotIndex.class )
+                        {
+                            // Mavibot index
+                            MavibotIndex index = new MavibotIndex( createIndex.attribute(), false );
+
+                            btreePartition.addIndexedAttributes( index );
+                        }
+                        else
+                        {
+                            // The annotation does not specify a specific index
+                            // type.
+                            // We use the generic index implementation.
+                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
+
+                            btreePartition.addIndexedAttributes( index );
+                        }
                     }
                 }
             }
