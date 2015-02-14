@@ -26,6 +26,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import static org.apache.directory.ldap.client.api.search.FilterBuilder.and;
+import static org.apache.directory.ldap.client.api.search.FilterBuilder.equal;
+import static org.apache.directory.ldap.client.api.search.FilterBuilder.endsWith;
+import static org.apache.directory.ldap.client.api.search.FilterBuilder.startsWith;
+
 
 import java.util.List;
 
@@ -326,7 +331,7 @@ public class LdapConnectionTemplateTest
         assertNotNull( muppets );
         assertEquals( 6, muppets.size() );
 
-        ldapConnectionTemplate.search( 
+        muppets = ldapConnectionTemplate.search( 
             ldapConnectionTemplate.newSearchRequest( 
                 "ou=people,dc=example,dc=com", 
                 "(objectClass=inetOrgPerson)", 
@@ -334,6 +339,23 @@ public class LdapConnectionTemplateTest
             Muppet.getEntryMapper() );
         assertNotNull( muppets );
         assertEquals( 6, muppets.size() );
+
+        muppets = ldapConnectionTemplate.search( 
+            ldapConnectionTemplate.newSearchRequest( 
+                "ou=people,dc=example,dc=com", 
+                endsWith( "mail", "@muppets.com" ),
+                SearchScope.ONELEVEL ),
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 6, muppets.size() );
+
+        muppets = ldapConnectionTemplate.search( 
+            "ou=people,dc=example,dc=com", 
+            and( startsWith( "mail", "kermit" ), endsWith( "mail", "@muppets.com" ) ),
+            SearchScope.ONELEVEL,
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 1, muppets.size() );
     }
     
     
@@ -371,21 +393,20 @@ public class LdapConnectionTemplateTest
         assertNotNull( ldapConnectionTemplate );
 
         List<Muppet> muppets = ldapConnectionTemplate.search( 
-                "ou=people,dc=example,dc=com", 
-                "(objectClass=inetOrgPerson)", 
-                SearchScope.ONELEVEL,
-                Muppet.getEntryMapper() );
-            assertNotNull( muppets );
-            assertEquals( 6, muppets.size() );
+            "ou=people,dc=example,dc=com", 
+            "(objectClass=inetOrgPerson)", 
+            SearchScope.ONELEVEL,
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 6, muppets.size() );
 
-            ldapConnectionTemplate.search( 
-                ldapConnectionTemplate.newSearchRequest( 
-                    "ou=people,dc=example,dc=com", 
-                    "(objectClass=inetOrgPerson)", 
-                    SearchScope.ONELEVEL ),
-                Muppet.getEntryMapper() );
-            assertNotNull( muppets );
-            assertEquals( 6, muppets.size() );
+        muppets = ldapConnectionTemplate.search( 
+            "ou=people,dc=example,dc=com", 
+            equal( "objectClass", "inetOrgPerson" ),
+            SearchScope.ONELEVEL,
+            Muppet.getEntryMapper() );
+        assertNotNull( muppets );
+        assertEquals( 6, muppets.size() );
     }
 
     
