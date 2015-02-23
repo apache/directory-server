@@ -50,14 +50,12 @@ public class CredentialsCache
     
     public static CredentialsCache load( InputStream is ) throws IOException 
     {
-        CacheInputStream cis = new CacheInputStream(is);
-        
-        CredentialsCache credCache = new CredentialsCache();
-        cis.read(credCache);
-        
-        cis.close();
-        
-        return credCache;
+        try ( CacheInputStream cis = new CacheInputStream(is) )
+        {
+            CredentialsCache credCache = new CredentialsCache();
+            cis.read(credCache);
+            return credCache;
+        }
     }
     
     public static void store( File fileName, CredentialsCache credCache ) throws IOException 

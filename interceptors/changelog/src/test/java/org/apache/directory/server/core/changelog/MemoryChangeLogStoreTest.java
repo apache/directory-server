@@ -125,12 +125,14 @@ public class MemoryChangeLogStoreTest
             Strings.getBytesUtf8( "secret" ) );
         ChangeLogEvent event = new ChangeLogEvent( revision, zuluTime, principal, forward, reverse );
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        byte[] data = null;
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
+        {
+            ChangeLogEventSerializer.serialize( event, out );
+            data = baos.toByteArray();
+        }
 
-        ChangeLogEventSerializer.serialize( event, out );
-
-        byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
         ChangeLogEvent read = ChangeLogEventSerializer.deserialize( schemaManager, in );

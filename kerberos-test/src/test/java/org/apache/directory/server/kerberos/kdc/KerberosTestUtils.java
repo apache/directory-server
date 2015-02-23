@@ -67,11 +67,9 @@ public class KerberosTestUtils
     {
         InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream( resource );
 
-        Reader reader = new InputStreamReader( new BufferedInputStream( is ) );
-
         CharArrayWriter writer = new CharArrayWriter();
 
-        try
+        try ( Reader reader = new InputStreamReader( new BufferedInputStream( is ) ) )
         {
             char[] buf = new char[2048];
             int len = 0;
@@ -84,16 +82,6 @@ public class KerberosTestUtils
                 }
             }
         }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch ( IOException ioe )
-            {
-            }
-        }
 
         char[] isca = writer.toCharArray();
         return isca;
@@ -104,12 +92,13 @@ public class KerberosTestUtils
     {
         InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream( resource );
 
-        BufferedInputStream stream = new BufferedInputStream( is );
-        int len = stream.available();
-        byte[] bytes = new byte[len];
-        stream.read( bytes, 0, len );
-
-        return bytes;
+        try ( BufferedInputStream stream = new BufferedInputStream( is ) )
+        {
+            int len = stream.available();
+            byte[] bytes = new byte[len];
+            stream.read( bytes, 0, len );
+            return bytes;
+        }
     }
 
 

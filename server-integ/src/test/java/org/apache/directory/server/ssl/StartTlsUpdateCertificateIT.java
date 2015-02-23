@@ -115,14 +115,16 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
 
-        ByteArrayInputStream in = new ByteArrayInputStream( userCertificate );
-        CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-        Certificate cert = factory.generateCertificate( in );
-        KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-        ks.load( null, null );
-        ks.setCertificateEntry( "apacheds", cert );
-        ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-        LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        try ( ByteArrayInputStream in = new ByteArrayInputStream( userCertificate ) )
+        {
+            CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
+            Certificate cert = factory.generateCertificate( in );
+            KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+            ks.load( null, null );
+            ks.setCertificateEntry( "apacheds", cert );
+            ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
+            LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        }
 
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }

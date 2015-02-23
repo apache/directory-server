@@ -224,39 +224,37 @@ public class Keytab
      */
     protected static byte[] getBytesFromFile( File file ) throws IOException
     {
-        InputStream is = new FileInputStream( file );
-
-        long length = file.length();
-
-        // Check to ensure that file is not larger than Integer.MAX_VALUE.
-        if ( length > Integer.MAX_VALUE )
+        try ( InputStream is = new FileInputStream( file ) )
         {
-            is.close();
-            throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
+
+            long length = file.length();
+
+            // Check to ensure that file is not larger than Integer.MAX_VALUE.
+            if ( length > Integer.MAX_VALUE )
+            {
+                throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
+            }
+
+            // Create the byte array to hold the data.
+            byte[] bytes = new byte[( int ) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
+            {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in.
+            if ( offset < bytes.length )
+            {
+                throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
+            }
+
+
+            return bytes;
         }
-
-        // Create the byte array to hold the data.
-        byte[] bytes = new byte[( int ) length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
-        {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in.
-        if ( offset < bytes.length )
-        {
-            is.close();
-            throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
-        }
-
-        // Close the input stream and return bytes.
-        is.close();
-
-        return bytes;
     }
 
 
@@ -270,11 +268,10 @@ public class Keytab
     protected void writeFile( ByteBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        FileChannel wChannel = new FileOutputStream( file, false ).getChannel();
-
-        // Write the bytes between the position and limit.
-        wChannel.write( buffer );
-
-        wChannel.close();
+        try ( FileChannel wChannel = new FileOutputStream( file, false ).getChannel() )
+        {
+            // Write the bytes between the position and limit.
+            wChannel.write( buffer );
+        }
     }
 }

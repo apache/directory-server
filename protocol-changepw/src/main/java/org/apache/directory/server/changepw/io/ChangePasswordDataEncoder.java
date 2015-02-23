@@ -46,15 +46,17 @@ public class ChangePasswordDataEncoder
      */
     public byte[] encode( ChangePasswordData data ) throws IOException
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASN1OutputStream aos = new ASN1OutputStream( baos );
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ASN1OutputStream aos = new ASN1OutputStream( baos ) )
+        {
 
-        DERSequence dataSequence = encodeDataSequence( data );
-        aos.writeObject( dataSequence );
+            DERSequence dataSequence = encodeDataSequence( data );
+            aos.writeObject( dataSequence );
+       
+            aos.close();
 
-        aos.close();
-
-        return baos.toByteArray();
+            return baos.toByteArray();
+        }
     }
 
 
@@ -67,12 +69,12 @@ public class ChangePasswordDataEncoder
      */
     public void encode( ChangePasswordData data, ByteBuffer out ) throws IOException
     {
-        ASN1OutputStream aos = new ASN1OutputStream( out );
+        try ( ASN1OutputStream aos = new ASN1OutputStream( out ) )
+        {
 
-        DERSequence sequence = encodeDataSequence( data );
-        aos.writeObject( sequence );
-
-        aos.close();
+            DERSequence sequence = encodeDataSequence( data );
+            aos.writeObject( sequence );
+        }
     }
 
 

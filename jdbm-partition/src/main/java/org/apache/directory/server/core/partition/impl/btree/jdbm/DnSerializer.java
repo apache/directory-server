@@ -81,21 +81,23 @@ public class DnSerializer implements Serializer
     {
         Dn dn = ( Dn ) object;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream( baos );
-
-        // First, the Dn
-        dn.writeExternal( out );
-
-        out.flush();
-
-        if ( IS_DEBUG )
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream( baos ) )
         {
-            LOG.debug( ">------------------------------------------------" );
-            LOG.debug( "Serialized " + dn );
-        }
 
-        return baos.toByteArray();
+            // First, the Dn
+            dn.writeExternal( out );
+
+            out.flush();
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( ">------------------------------------------------" );
+                LOG.debug( "Serialized " + dn );
+            }
+
+            return baos.toByteArray();
+        }
     }
 
 

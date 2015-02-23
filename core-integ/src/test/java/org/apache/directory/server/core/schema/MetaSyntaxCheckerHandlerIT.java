@@ -159,12 +159,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerWithByteCodeOnEnabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummySyntaxChecker.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummySyntaxChecker.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
@@ -193,12 +195,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerWithByteCodeOnDisabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummySyntaxChecker.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummySyntaxChecker.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );

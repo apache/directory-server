@@ -127,16 +127,16 @@ public class MavibotEntrySerializationTest
 
         entry1.writeExternal( out );
 
-        ObjectInputStream in = null;
 
         byte[] data = baos.toByteArray();
-        in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+        try ( ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) ) )
+        {
+            Entry entry2 = new DefaultEntry();
+            entry2.readExternal( in );
 
-        Entry entry2 = new DefaultEntry();
-        entry2.readExternal( in );
-
-        assertEquals( entry1, entry2 );
-        assertTrue( entry2.contains( "ObjectClass", "top", "domain" ) );
+            assertEquals( entry1, entry2 );
+            assertTrue( entry2.contains( "ObjectClass", "top", "domain" ) );
+        }
     }
 
 }

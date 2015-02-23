@@ -55,19 +55,15 @@ public class MojoHelperUtils
     public static void copyBinaryFile( GenerateMojo mojo, String fileName, InputStream from, File to )
         throws IOException
     {
-        FileOutputStream out = null;
-
         mojo.getLog().info( "Copying " + fileName + " to " + to );
 
-        try
+        try (FileOutputStream out = new FileOutputStream( to ))
         {
-            out = new FileOutputStream( to );
             IOUtil.copy( from, out );
         }
         finally
         {
             IOUtil.close( from );
-            IOUtil.close( out );
         }
     }
 
@@ -76,13 +72,9 @@ public class MojoHelperUtils
         InputStream from, File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
-        Reader fileReader = null;
-        Writer fileWriter = null;
-        try
+        try (Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
+            Writer fileWriter = new OutputStreamWriter( new FileOutputStream( to ) ) )
         {
-            fileReader = new BufferedReader( new InputStreamReader( from ) );
-            fileWriter = new OutputStreamWriter( new FileOutputStream( to ) );
-
             Reader reader = null;
             if ( filtering )
             {
@@ -106,11 +98,6 @@ public class MojoHelperUtils
                 reader = fileReader;
             }
             IOUtil.copy( reader, fileWriter );
-        }
-        finally
-        {
-            IOUtil.close( fileReader );
-            IOUtil.close( fileWriter );
         }
     }
 

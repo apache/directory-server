@@ -76,20 +76,20 @@ public abstract class AbstractDnsTestCase
 
     protected IoBuffer getByteBufferFromFile( String file ) throws IOException
     {
-        InputStream is = getClass().getResourceAsStream( file );
-
-        byte[] bytes = new byte[MINIMUM_DNS_DATAGRAM_SIZE];
-
-        int offset = 0;
-        int numRead = 0;
-        while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
+        try ( InputStream is = getClass().getResourceAsStream( file ) )
         {
-            offset += numRead;
+            byte[] bytes = new byte[MINIMUM_DNS_DATAGRAM_SIZE];
+
+            int offset = 0;
+            int numRead = 0;
+            while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
+            {
+                offset += numRead;
+            }
+
+            is.close();
+            return IoBuffer.wrap( bytes );
         }
-
-        is.close();
-
-        return IoBuffer.wrap( bytes );
     }
 
 

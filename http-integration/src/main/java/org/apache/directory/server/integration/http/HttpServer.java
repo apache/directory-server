@@ -203,9 +203,10 @@ public class HttpServer
                 ks.setKeyEntry( "privatekey", keyPair.getPrivate(), password.toCharArray(), new Certificate[]
                     { cert } );
 
-                OutputStream stream = new FileOutputStream( ksFile );
-                ks.store( stream, password.toCharArray() );
-                stream.close();
+                try ( OutputStream stream = new FileOutputStream( ksFile ) )
+                {
+                    ks.store( stream, password.toCharArray() );
+                }
 
                 SslSocketConnector httpsConnector = new SslSocketConnector();
                 httpsConnector.setPort( httpsTransport.getPort() );

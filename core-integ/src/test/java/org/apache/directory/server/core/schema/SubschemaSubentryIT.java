@@ -1992,15 +1992,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
     private String getByteCode( String resource ) throws IOException
     {
-        InputStream in = getClass().getResourceAsStream( resource );
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( resource );
+            ByteArrayOutputStream out = new ByteArrayOutputStream() )
         {
-            out.write( in.read() );
-        }
 
-        return new String( Base64.encode( out.toByteArray() ) );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
+
+            return new String( Base64.encode( out.toByteArray() ) );
+        }
     }
 
 

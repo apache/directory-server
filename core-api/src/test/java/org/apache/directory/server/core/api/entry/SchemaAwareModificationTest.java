@@ -116,12 +116,10 @@ public class SchemaAwareModificationTest
     private DefaultModification deserializeValue( ByteArrayOutputStream out ) throws IOException,
         ClassNotFoundException, LdapException
     {
-        ObjectInputStream oIn = null;
-        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
 
-        try
+        try ( ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+            ObjectInputStream oIn = new ObjectInputStream( in ) )
         {
-            oIn = new ObjectInputStream( in );
 
             DefaultModification value = new DefaultModification();
             value.readExternal( oIn );
@@ -131,20 +129,6 @@ public class SchemaAwareModificationTest
         catch ( IOException ioe )
         {
             throw ioe;
-        }
-        finally
-        {
-            try
-            {
-                if ( oIn != null )
-                {
-                    oIn.close();
-                }
-            }
-            catch ( IOException ioe )
-            {
-                throw ioe;
-            }
         }
     }
 

@@ -82,45 +82,47 @@ public class ParentIdAndRdnSerializer implements Serializer
     {
         ParentIdAndRdn parentIdAndRdn = ( ParentIdAndRdn ) object;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream( baos );
-
-        // First, the Dn
-        Rdn[] rdns = parentIdAndRdn.getRdns();
-
-        // Write the Rdn of the Dn
-        if ( ( rdns == null ) || ( rdns.length == 0 ) )
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream( baos ) )
         {
-            out.writeByte( 0 );
-        }
-        else
-        {
-            out.writeByte( rdns.length );
 
-            for ( Rdn rdn : rdns )
+            // First, the Dn
+            Rdn[] rdns = parentIdAndRdn.getRdns();
+
+            // Write the Rdn of the Dn
+            if ( ( rdns == null ) || ( rdns.length == 0 ) )
             {
-                rdn.writeExternal( out );
+                out.writeByte( 0 );
             }
+            else
+            {
+                out.writeByte( rdns.length );
+
+                for ( Rdn rdn : rdns )
+                {
+                    rdn.writeExternal( out );
+                }
+            }
+
+            // Then the parentId.
+            out.writeUTF( parentIdAndRdn.getParentId() );
+
+            // The number of children
+            out.writeInt( parentIdAndRdn.getNbChildren() );
+
+            // The number of descendants
+            out.writeInt( parentIdAndRdn.getNbDescendants() );
+
+            out.flush();
+
+            if ( IS_DEBUG )
+            {
+                LOG.debug( ">------------------------------------------------" );
+                LOG.debug( "Serialize " + parentIdAndRdn );
+            }
+
+            return baos.toByteArray();
         }
-
-        // Then the parentId.
-        out.writeUTF( parentIdAndRdn.getParentId() );
-
-        // The number of children
-        out.writeInt( parentIdAndRdn.getNbChildren() );
-
-        // The number of descendants
-        out.writeInt( parentIdAndRdn.getNbDescendants() );
-
-        out.flush();
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( ">------------------------------------------------" );
-            LOG.debug( "Serialize " + parentIdAndRdn );
-        }
-
-        return baos.toByteArray();
     }
 
 

@@ -380,18 +380,9 @@ public class LdapServer extends DirectoryBackedService
         else
         {
             keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-            FileInputStream fis = null;
-            try
+            try ( FileInputStream fis = new FileInputStream( keystoreFile ) )
             {
-                fis = new FileInputStream( keystoreFile );
                 keyStore.load( fis, null );
-            }
-            finally
-            {
-                if ( fis != null )
-                {
-                    fis.close();
-                }
             }
         }
 

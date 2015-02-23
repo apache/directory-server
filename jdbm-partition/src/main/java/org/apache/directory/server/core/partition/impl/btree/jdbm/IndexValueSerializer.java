@@ -90,25 +90,27 @@ public class IndexValueSerializer implements Serializer
      */
     private byte[] serialize( Long value ) throws IOException
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
-
-        // First, write the type
-        out.write( LONG_VALUE );
-
-        // Now, flush the Long 
-        out.writeLong( value );
-
-        // And return the result
-        out.flush();
-
-        if ( LOG.isDebugEnabled() )
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
         {
-            LOG.debug( ">------------------------------------------------" );
-            LOG.debug( "Serializes a LONG value" );
-        }
 
-        return baos.toByteArray();
+            // First, write the type
+            out.write( LONG_VALUE );
+
+            // Now, flush the Long 
+            out.writeLong( value );
+
+            // And return the result
+            out.flush();
+
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( ">------------------------------------------------" );
+                LOG.debug( "Serializes a LONG value" );
+            }
+
+            return baos.toByteArray();
+        }
     }
 
 

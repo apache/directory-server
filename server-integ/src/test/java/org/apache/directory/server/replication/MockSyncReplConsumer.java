@@ -809,10 +809,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                     syncCookie ) ) ) );
             }
 
-            FileOutputStream fout = new FileOutputStream( cookieFile );
-            fout.write( syncCookie.length );
-            fout.write( syncCookie );
-            fout.close();
+            try ( FileOutputStream fout = new FileOutputStream( cookieFile ) )
+            {
+                fout.write( syncCookie.length );
+                fout.write( syncCookie );
+            }
 
             lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
@@ -835,10 +836,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             if ( ( cookieFile != null ) && cookieFile.exists() && ( cookieFile.length() > 0 ) )
             {
-                FileInputStream fin = new FileInputStream( cookieFile );
-                syncCookie = new byte[fin.read()];
-                fin.read( syncCookie );
-                fin.close();
+                try ( FileInputStream fin = new FileInputStream( cookieFile ) )
+                {
+                    syncCookie = new byte[fin.read()];
+                    fin.read( syncCookie );
+                }
 
                 lastSavedCookie = new byte[syncCookie.length];
                 System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );

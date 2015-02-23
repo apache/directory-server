@@ -65,9 +65,10 @@ public class MavibotPartitionBuilderTest
         //File file = new File( outDir, "builder-test.ldif" );
         File file = new File( outDir, "30k.ldif" );
         //InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "builder-test.ldif" );
-        InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "30k.ldif" );
-        FileUtils.copyInputStreamToFile( in, file );
-        in.close();
+        try ( InputStream in = MavibotPartitionBuilder.class.getClassLoader().getResourceAsStream( "30k.ldif" ) )
+        {
+            FileUtils.copyInputStreamToFile( in, file );
+        }
 
         MavibotPartitionBuilder builder = new MavibotPartitionBuilder( configFile, file.getAbsolutePath(), outDir.getAbsolutePath() );
         

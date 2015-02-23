@@ -43,11 +43,10 @@ public class CredentialsCacheTest
     public void testReadMITCredCache()
     {
     	byte[] sampleCache = SampleCredentialsCacheResource.getCacheContent();
-    	ByteArrayInputStream bais = new ByteArrayInputStream(sampleCache);
     	    	
-        try
+        try ( ByteArrayInputStream bais = new ByteArrayInputStream(sampleCache) )
         {
-        	CredentialsCache cc = CredentialsCache.load(bais);
+            CredentialsCache cc = CredentialsCache.load(bais);
         	
             PrincipalName principal = cc.getPrimaryPrincipalName();
             assertTrue( principal.getNameString().equals( SampleCredentialsCacheResource.getSamplePrincipal() ) );

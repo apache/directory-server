@@ -164,10 +164,9 @@ public class LdifConfigExtractor
     private static void extractFromJar( File outputDirectory, String resource ) throws IOException
     {
         byte[] buf = new byte[512];
-        InputStream in = DefaultSchemaLdifExtractor.getUniqueResourceAsStream( resource,
-            "LDIF file in config repository" );
 
-        try
+        try ( InputStream in = DefaultSchemaLdifExtractor.getUniqueResourceAsStream( resource,
+            "LDIF file in config repository" ) ) 
         {
             File destination = new File( outputDirectory, resource );
 
@@ -188,8 +187,7 @@ public class LdifConfigExtractor
                 }
             }
 
-            FileOutputStream out = new FileOutputStream( destination );
-            try
+            try ( FileOutputStream out = new FileOutputStream( destination ) )
             {
                 while ( in.available() > 0 )
                 {
@@ -198,14 +196,6 @@ public class LdifConfigExtractor
                 }
                 out.flush();
             }
-            finally
-            {
-                out.close();
-            }
-        }
-        finally
-        {
-            in.close();
         }
     }
 
@@ -309,26 +299,24 @@ public class LdifConfigExtractor
 
             LOG.debug( "URL of the config ldif file {}", configUrl );
 
-            InputStream in = configUrl.openStream();
             byte[] buf = new byte[1024 * 1024];
 
-            FileWriter fw = new FileWriter( configFile );
-
-            while ( true )
+            try ( InputStream in = configUrl.openStream();
+                FileWriter fw = new FileWriter( configFile ) )
             {
-                int read = in.read( buf );
-
-                if ( read <= 0 )
+                while ( true )
                 {
-                    break;
+                    int read = in.read( buf );
+
+                    if ( read <= 0 )
+                    {
+                        break;
+                    }
+
+                    String s = Strings.utf8ToString( buf, 0, read );
+                    fw.write( s );
                 }
-
-                String s = Strings.utf8ToString( buf, 0, read );
-                fw.write( s );
             }
-
-            fw.close();
-            in.close();
 
             LOG.info( "successfully extracted the config file {}", configFile.getAbsoluteFile() );
 
