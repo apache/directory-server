@@ -23,7 +23,6 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 import java.io.IOException;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -47,30 +46,57 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
+ * A Mavibot Table. It extends the default Apache DS Table, when Mavibot is the
+ * underlying database.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class MavibotTable<K, V> extends AbstractTable<K, V>
 {
-
+    /** the underlying B-tree */
     private BTree<K, V> bt;
 
+    /** The marshaller that will be used to read the values when we have more than one */
     private ArrayMarshaller<V> arrayMarshaller;
 
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( MavibotTable.class );
 
+    /** The used recordManager */
     protected RecordManager recordMan;
 
 
+    /**
+     * Creates a new instance of MavibotTable.
+     *
+     * @param recordMan The associated RecordManager
+     * @param schemaManager The SchemaManager
+     * @param name The Table name
+     * @param keySerializer The Key serializer
+     * @param valueSerializer The Value serializer
+     * @param allowDuplicates If the table allows duplicate values
+     * @throws IOException If the instance creation failed
+     */
     public MavibotTable( RecordManager recordMan, SchemaManager schemaManager, String name,
         ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates )
         throws IOException
     {
-        this( recordMan, schemaManager, name, keySerializer, valueSerializer, allowDuplicates, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
+        this( recordMan, schemaManager, name, keySerializer, valueSerializer, allowDuplicates,
+            AbstractBTreePartition.DEFAULT_CACHE_SIZE );
     }
 
 
+    /**
+     * Creates a new instance of MavibotTable.
+     *
+     * @param recordMan The associated RecordManager
+     * @param schemaManager The SchemaManager
+     * @param name The Table name
+     * @param keySerializer The Key serializer
+     * @param valueSerializer The Value serializer
+     * @param allowDuplicates If the table allows duplicate values
+     * @param cacheSize The cache size to use
+     * @throws IOException If the instance creation failed
+     */
     public MavibotTable( RecordManager recordMan, SchemaManager schemaManager, String name,
         ElementSerializer<K> keySerializer, ElementSerializer<V> valueSerializer, boolean allowDuplicates, int cacheSize )
         throws IOException
@@ -183,6 +209,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasLessOrEqual( K key ) throws Exception
     {
@@ -340,9 +369,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
 
-
             V existingVal = bt.insert( key, value );
-            
+
             if ( existingVal == null )
             {
                 count++;
@@ -539,7 +567,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 ValueCursor<V> dupHolder = bt.getValues( key );
                 int size = dupHolder.size();
                 dupHolder.close();
-                
+
                 return size;
             }
             catch ( KeyNotFoundException knfe )
@@ -597,6 +625,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     public ArrayTree<V> getDupsContainer( byte[] serialized ) throws IOException
     {
         if ( serialized == null )
@@ -608,6 +639,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     }
 
 
+    /**
+     * @return the underlying B-tree
+     */
     protected BTree<K, V> getBTree()
     {
         return bt;
@@ -621,5 +655,18 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      */
     public synchronized void sync() throws IOException
     {
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Mavibot table :\n" ).append( super.toString() );
+
+        return sb.toString();
     }
 }

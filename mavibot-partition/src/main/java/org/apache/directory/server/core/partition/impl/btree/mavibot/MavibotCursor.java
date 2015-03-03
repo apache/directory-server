@@ -49,7 +49,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     /** The tuple which will be returned */
     private Tuple<K, V> returnedTuple = new Tuple<K, V>();
-    
+
     /** A flag set when there is a Tuple available */
     private boolean valueAvailable = false;
 
@@ -260,7 +260,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
-        
+
         return next();
     }
 

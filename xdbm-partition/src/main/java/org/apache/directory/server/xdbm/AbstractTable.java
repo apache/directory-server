@@ -29,7 +29,7 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * A Abstract Table implementation aggregating the methods comon with all the 
+ * A Abstract Table implementation aggregating the methods common with all the 
  * different Table implementation.
  *
  * @param <K> The key
@@ -122,5 +122,22 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     public long count() throws IOException
     {
         return count;
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Name    : " ).append( name ).append( '\n' );
+        sb.append( "NbElems : " ).append( count ).append( '\n' );
+        sb.append( "Dups    : " ).append( allowsDuplicates ).append( '\n' );
+        sb.append( "Key     : " ).append( keyComparator.getClass().getName() ).append( '\n' );
+        sb.append( "Value   : " ).append( valueComparator.getClass().getName() ).append( '\n' );
+
+        return sb.toString();
     }
 }
