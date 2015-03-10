@@ -547,7 +547,7 @@ public class ConfigPartitionReader
             String message = "An error occured while reading the configuration DN '"
                 + baseDn + "' for the objectClass '" + name + "':\n" + e.getMessage();
             LOG.error( message );
-            throw new ConfigurationException( message );
+            throw new ConfigurationException( message, e );
         }
         finally
         {
