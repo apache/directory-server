@@ -249,7 +249,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     }
 
 
-    protected void setReturningAttributes( String... attributeIds )
+    public void setReturningAttributes( String... attributeIds )
     {
         if ( ( attributeIds != null ) && ( attributeIds.length != 0 ) && ( attributeIds[0] != null ) )
         {
