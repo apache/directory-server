@@ -20,6 +20,12 @@
 package org.apache.directory.server.osgi.integ;
 
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.codec.protocol.mina.LdapProtocolCodecFactory;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -33,6 +39,7 @@ import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandle
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
 import org.apache.mina.core.session.DummySession;
+import org.junit.Test;
 
 
 public class ServerProtocolLdapOsgiTest extends ServerOsgiTestBase
@@ -60,6 +67,25 @@ public class ServerProtocolLdapOsgiTest extends ServerOsgiTestBase
         new GssapiMechanismHandler();
         new ReplicationConsumerImpl();
         new SyncReplRequestHandler();
+    }
+
+
+    @Test
+    public void testLdapApiServiceFactoryIsInitializedByOsgi()
+    {
+        assertTrue( LdapApiServiceFactory.isInitialized() );;
+        assertFalse( LdapApiServiceFactory.isUsingStandaloneImplementation() );
+        assertNotNull( LdapApiServiceFactory.getSingleton() );
+        assertNotNull( LdapApiServiceFactory.getSingleton().getProtocolCodecFactory() );
+    }
+
+
+    @Test
+    public void testLdapServerHasProtocolCodecFactoryInitializedByOsgi()
+    {
+        LdapServer ldapServer = new LdapServer();
+        assertNotNull( ldapServer.getProtocolCodecFactory() );
+        assertTrue( ldapServer.getProtocolCodecFactory() instanceof LdapProtocolCodecFactory );
     }
 
 }

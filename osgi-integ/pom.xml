@@ -199,7 +199,11 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-net-mina</artifactId>
+      <version>${org.apache.directory.api.version}</version>
+    </dependency>
 
     <!-- Test and PAX dependencies -->
     <dependency>
