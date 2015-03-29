@@ -483,7 +483,7 @@ public class DSAnnotationProcessor
         {
             LOG.debug( "Applying {} to {}", applyLdifFiles.value(),
                 desc.getDisplayName() );
-            injectLdifFiles( desc.getClass(), service, applyLdifFiles.value() );
+            injectLdifFiles( applyLdifFiles.clazz(), service, applyLdifFiles.value() );
         }
 
         ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class );
