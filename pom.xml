@@ -45,8 +45,8 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M29-SNAPSHOT</org.apache.directory.api.version>
-    <org.apache.directory.mavibot.version>1.0.0-M7</org.apache.directory.mavibot.version>
+    <org.apache.directory.api.version>1.0.0-M30-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.mavibot.version>1.0.0-M8-SNAPSHOT</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
