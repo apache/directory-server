@@ -36,12 +36,14 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -326,5 +328,25 @@ public void testLookup() throws Exception
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
         ldapConnection.close();
+    }
+
+
+    @Test(expected = InvalidConnectionException.class)
+    public void testConnectionWrongHost() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( "notexisting", 1234 );
+        connection.connect();
+
+        connection.close();
+    }
+
+
+    @Test(expected = InvalidConnectionException.class)
+    public void testConnectionWrongPort() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( "localhost", 123 );
+        connection.connect();
+
+        connection.close();
     }
 }
