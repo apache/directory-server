@@ -272,7 +272,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 {
                     if ( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() )
                     {
-                        throw new PasswordPolicyException( "paasword expired and max grace logins were used",
+                        throw new PasswordPolicyException( "password expired and max grace logins were used",
                             PASSWORD_EXPIRED.getValue() );
                     }
                 }
@@ -290,7 +290,7 @@ public abstract class AbstractAuthenticator implements Authenticator
 
                     if ( expired )
                     {
-                        throw new PasswordPolicyException( "paasword expired", PASSWORD_EXPIRED.getValue() );
+                        throw new PasswordPolicyException( "password expired", PASSWORD_EXPIRED.getValue() );
                     }
                 }
             }
