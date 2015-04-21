@@ -229,6 +229,14 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
 
+        // First, check that the Bind DN is under the delegateBaseDn
+        Dn bindDn = bindContext.getDn();
+
+        if ( ( delegateBaseDn != null ) && ( !bindDn.isDescendantOf( delegateBaseDn ) ) )
+        {
+            return null;
+        }
+
         LdapConnectionConfig connectionConfig;
         LdapNetworkConnection ldapConnection;
 
@@ -272,21 +280,20 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             // Try to bind
             try
             {
-                ldapConnection.bind( bindContext.getDn(),
-                    Strings.utf8ToString( bindContext.getCredentials() ) );
+                ldapConnection.bind( bindDn, Strings.utf8ToString( bindContext.getCredentials() ) );
 
                 // no need to remain bound to delegate host
                 ldapConnection.unBind();
             }
             catch ( LdapException le )
             {
-                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+                String message = I18n.err( I18n.ERR_230, bindDn.getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
 
             // Create the new principal
-            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindDn,
                 AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
 
@@ -306,7 +313,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         catch ( LdapException e )
         {
             // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+            String message = I18n.err( I18n.ERR_230, bindDn.getName() );
             LOG.info( message );
             throw new LdapAuthenticationException( message );
         }
