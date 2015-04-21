@@ -232,7 +232,9 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         // First, check that the Bind DN is under the delegateBaseDn
         Dn bindDn = bindContext.getDn();
 
-        if ( ( delegateBaseDn != null ) && ( !bindDn.isDescendantOf( delegateBaseDn ) ) )
+        // Don't authenticate using this authenticator if the Bind ND is not a descendant of the
+        // configured delegate base DN (or if it's null)
+        if ( ( delegateBaseDn == null ) || ( !bindDn.isDescendantOf( delegateBaseDn ) ) )
         {
             return null;
         }
