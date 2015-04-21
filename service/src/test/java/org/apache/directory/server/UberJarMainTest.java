@@ -133,6 +133,7 @@ public class UberJarMainTest
                 catch ( Exception e )
                 {
                     verified = false;
+                    e.printStackTrace();
                 }
                 finally
                 {
