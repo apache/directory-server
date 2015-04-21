@@ -142,7 +142,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private AttributeType AT_PWD_LAST_SUCCESS;
 
     private AttributeType AT_PWD_GRACE_USE_TIME;
-    
+
     private AttributeType AT_CREATE_TIMESTAMP;
 
     /** a container to hold all the ppolicies */
@@ -383,7 +383,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 // https://issues.apache.org/jira/browse/DIRSERVER-1978
                 if ( !addContext.getSession().isAnAdministrator()
-                        || entry.get( AT_PWD_CHANGED_TIME ) == null ) 
+                    || entry.get( AT_PWD_CHANGED_TIME ) == null )
                 {
                     Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
                     pwdChangedTimeAt.add( pwdChangedTime );
@@ -464,20 +464,23 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     // perform the authentication
                     LdapPrincipal principal = authenticator.authenticate( bindContext );
 
-                    LdapPrincipal clonedPrincipal = ( LdapPrincipal ) ( principal.clone() );
+                    if ( principal != null )
+                    {
+                        LdapPrincipal clonedPrincipal = ( LdapPrincipal ) ( principal.clone() );
 
-                    // remove creds so there is no security risk
-                    bindContext.setCredentials( null );
-                    clonedPrincipal.setUserPassword( StringConstants.EMPTY_BYTES );
+                        // remove creds so there is no security risk
+                        bindContext.setCredentials( null );
+                        clonedPrincipal.setUserPassword( StringConstants.EMPTY_BYTES );
 
-                    // authentication was successful
-                    CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
-                    bindContext.setSession( session );
+                        // authentication was successful
+                        CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
+                        bindContext.setSession( session );
 
-                    authenticated = true;
+                        authenticated = true;
 
-                    // break out of the loop if the authentication succeeded
-                    break;
+                        // break out of the loop if the authentication succeeded
+                        break;
+                    }
                 }
                 catch ( PasswordPolicyException e )
                 {
@@ -1265,14 +1268,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     // ---------- private methods ----------------
-    private void check( OperationContext operationContext, Entry entry, 
+    private void check( OperationContext operationContext, Entry entry,
         byte[] password, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
         // https://issues.apache.org/jira/browse/DIRSERVER-1928
-        if ( operationContext.getSession().isAnAdministrator() ) 
+        if ( operationContext.getSession().isAnAdministrator() )
         {
-            return;    
+            return;
         }
         final CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
 
@@ -1338,9 +1341,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private AttributeType getCreateTimestampAttributeType() throws LdapException 
+    private AttributeType getCreateTimestampAttributeType() throws LdapException
     {
-        if ( AT_CREATE_TIMESTAMP == null ) 
+        if ( AT_CREATE_TIMESTAMP == null )
         {
             AT_CREATE_TIMESTAMP = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
         }
@@ -1364,7 +1367,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
-        if ( pwdChangedTimeAt == null ) 
+        if ( pwdChangedTimeAt == null )
         {
             pwdChangedTimeAt = userEntry.get( getCreateTimestampAttributeType() );
         }
@@ -1383,12 +1386,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( pwdAge >= warningAge )
         {
             long timeBeforeExpiration = ( ( long ) policyConfig.getPwdMaxAge() ) - pwdAge;
-            
+
             if ( timeBeforeExpiration > Integer.MAX_VALUE )
             {
                 timeBeforeExpiration = Integer.MAX_VALUE;
             }
-            
+
             return ( int ) timeBeforeExpiration;
         }
 
@@ -1403,25 +1406,25 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * @return true if the password is young, false otherwise
      * @throws LdapException
      */
-    private boolean isPwdTooYoung( OperationContext operationContext, 
+    private boolean isPwdTooYoung( OperationContext operationContext,
         Entry userEntry, PasswordPolicyConfiguration policyConfig ) throws LdapException
     {
-       // https://issues.apache.org/jira/browse/DIRSERVER-1928
-       if ( operationContext.getSession().isAnAdministrator() ) 
-       {
-           return false;    
-       }
-       if ( policyConfig.getPwdMinAge() == 0 )
+        // https://issues.apache.org/jira/browse/DIRSERVER-1928
+        if ( operationContext.getSession().isAnAdministrator() )
+        {
+            return false;
+        }
+        if ( policyConfig.getPwdMinAge() == 0 )
         {
             return false;
         }
 
         // see sections 7.8 and 7.2 of the ppolicy draft
-        if ( policyConfig.isPwdMustChange() && pwdResetSet.contains( userEntry.getDn().getNormName() ) ) 
+        if ( policyConfig.isPwdMustChange() && pwdResetSet.contains( userEntry.getDn().getNormName() ) )
         {
             return false;
         }
-        
+
         Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
 
         if ( pwdChangedTimeAt != null )
@@ -1627,7 +1630,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             return pwdPolicyContainer.getDefaultPolicy();
         }
-        
+
         if ( pwdPolicyContainer.hasCustomConfigs() )
         {
             Attribute pwdPolicySubentry = userEntry.get( pwdPolicySubentryAT );
@@ -1643,7 +1646,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    LOG.warn( "The custom password policy for the user entry {} is not found, returning default policy configuration", userEntry.getDn() );
+                    LOG.warn(
+                        "The custom password policy for the user entry {} is not found, returning default policy configuration",
+                        userEntry.getDn() );
                 }
             }
         }
