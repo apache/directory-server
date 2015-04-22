@@ -206,7 +206,7 @@ public class CacheService
 
         if ( cache == null )
         {
-            LOG.warn( "No cache with name {} exists, creating one", name );
+            LOG.info( "No cache with name {} exists, creating one", name );
             cacheManager.addCache( name );
             cache = cacheManager.getCache( name );
         }
