@@ -280,6 +280,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private void register( Authenticator authenticator, DirectoryService directoryService ) throws LdapException
     {
         authenticator.init( directoryService );
+        authenticators.add( authenticator );
 
         Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
 
@@ -287,7 +288,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             authenticatorList = new ArrayList<Authenticator>();
             authenticatorsMapByType.put( authenticator.getAuthenticatorType(), authenticatorList );
-            authenticators.add( authenticator );
         }
 
         if ( !authenticatorList.contains( authenticator ) )
