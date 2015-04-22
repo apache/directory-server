@@ -122,7 +122,6 @@
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
-    <!-- <module>protocol-changepw</module> -->
     <module>server-integ</module>
     <module>server-config</module>
     <module>service-builder</module>
