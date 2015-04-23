@@ -47,6 +47,7 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPUrl;
 
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -485,7 +486,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
         authInterceptor.destroy();
         authInterceptor.setAuthenticators( new Authenticator[]
-            { new StrongAuthenticator() } );
+            { new StrongAuthenticator( Dn.ROOT_DSE ) } );
 
         try
         {
@@ -514,6 +515,9 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         // Reset the authenticators
         authInterceptor.destroy();
         authInterceptor.setAuthenticators( new Authenticator[]
-            { new StrongAuthenticator(), new SimpleAuthenticator(), new AnonymousAuthenticator() } );
+            {
+                new StrongAuthenticator( Dn.ROOT_DSE ),
+                new SimpleAuthenticator( Dn.ROOT_DSE ),
+                new AnonymousAuthenticator( Dn.ROOT_DSE ) } );
     }
 }

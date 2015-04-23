@@ -57,8 +57,8 @@ public @interface CreateAuthenticator
     int delegatePort() default -1;
 
 
-    /** The base DN from which we will delegate authentication */
-    String delegateBaseDn() default "";
+    /** The base DN from which we will do authentication */
+    String baseDn() default "";
 
 
     /** Tells if we use SSL to connect */

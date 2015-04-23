@@ -128,7 +128,7 @@ public class DSAnnotationProcessor
                     dauth.setDelegatePort( createAuthenticator.delegatePort() );
                     dauth.setDelegateSsl( createAuthenticator.delegateSsl() );
                     dauth.setDelegateTls( createAuthenticator.delegateTls() );
-                    dauth.setDelegateBaseDn( createAuthenticator.delegateBaseDn() );
+                    dauth.setBaseDn( service.getDnFactory().create( createAuthenticator.baseDn() ) );
                     dauth.setDelegateSslTrustManagerFQCN( createAuthenticator.delegateSslTrustManagerFQCN() );
                     dauth.setDelegateTlsTrustManagerFQCN( createAuthenticator.delegateTlsTrustManagerFQCN() );
                 }

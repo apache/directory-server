@@ -67,6 +67,9 @@ public abstract class AbstractAuthenticator implements Authenticator
     /** authenticator type */
     private final AuthenticationLevel authenticatorType;
 
+    /** The base DN which will be the starting point from which we use the authenticator */
+    private Dn baseDn;
+
 
     /**
      * Creates a new instance.
@@ -76,6 +79,20 @@ public abstract class AbstractAuthenticator implements Authenticator
     protected AbstractAuthenticator( AuthenticationLevel type )
     {
         this.authenticatorType = type;
+        this.baseDn = Dn.ROOT_DSE;
+    }
+
+
+    /**
+     * Creates a new instance.
+     *
+     * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
+     * @param baseDn The base DN for this authenticator
+     */
+    protected AbstractAuthenticator( AuthenticationLevel type, Dn baseDn )
+    {
+        this.authenticatorType = type;
+        this.baseDn = baseDn;
     }
 
 
@@ -150,6 +167,34 @@ public abstract class AbstractAuthenticator implements Authenticator
      */
     public void invalidateCache( Dn bindDn )
     {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isValid( Dn bindDn )
+    {
+        // The authenticator is valid if the baseDn is null or if it's a parent of the bindDn
+        return ( baseDn == null ) || ( baseDn.isAncestorOf( bindDn ) );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Dn getBaseDn()
+    {
+        return baseDn;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setBaseDn( Dn baseDn )
+    {
+        this.baseDn = baseDn;
     }
 
 

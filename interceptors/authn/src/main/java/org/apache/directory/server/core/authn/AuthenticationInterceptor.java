@@ -198,9 +198,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         authenticators.clear();
-        authenticators.add( new AnonymousAuthenticator() );
-        authenticators.add( new SimpleAuthenticator() );
-        authenticators.add( new StrongAuthenticator() );
+        authenticators.add( new AnonymousAuthenticator( Dn.ROOT_DSE ) );
+        authenticators.add( new SimpleAuthenticator( Dn.ROOT_DSE ) );
+        authenticators.add( new StrongAuthenticator( Dn.ROOT_DSE ) );
     }
 
 
@@ -412,6 +412,63 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
 
     /**
+     * Return the selected authenticator given the DN and the level required.
+     */
+    private Authenticator selectAuthenticator( Dn bindDn, AuthenticationLevel level )
+        throws LdapUnwillingToPerformException, LdapAuthenticationException
+    {
+        Authenticator selectedAuthenticator = null;
+        Collection<Authenticator> authenticators = authenticatorsMapByType.get( level );
+
+        if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
+        {
+            // No authenticators associated with this level : get out
+            throw new LdapAuthenticationException( "Cannot Bind for Dn "
+                + bindDn.getName() + ", no authenticator for the requested level " + level );
+        }
+
+        if ( authenticators.size() == 1 )
+        {
+            // Just pick the existing one
+            for ( Authenticator authenticator : authenticators )
+            {
+                // Check that the bindDN fits
+                if ( authenticator.isValid( bindDn ) )
+                {
+                    return authenticator;
+                }
+                else
+                {
+                    throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                        "Cannot Bind for Dn "
+                            + bindDn.getName() + ", its not a descendant of the authenticator base DN '"
+                            + authenticator.getBaseDn() + "'" );
+                }
+            }
+        }
+
+        // We have more than one authenticator. Let's loop on all of them and
+        // select the one that fits the bindDN
+        Dn innerDn = Dn.ROOT_DSE;
+
+        for ( Authenticator authenticator : authenticators )
+        {
+            if ( authenticator.isValid( bindDn ) )
+            {
+                // We have found a valid authenticator, let's check if it's the inner one
+                if ( innerDn.isAncestorOf( authenticator.getBaseDn() ) )
+                {
+                    innerDn = authenticator.getBaseDn();
+                    selectedAuthenticator = authenticator;
+                }
+            }
+        }
+
+        return selectedAuthenticator;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public void bind( BindOperationContext bindContext ) throws LdapException
@@ -421,10 +478,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Operation Context: {}", bindContext );
         }
 
-        if ( ( bindContext.getSession() != null ) &&
-            ( bindContext.getSession().getEffectivePrincipal() != null ) &&
-            ( !bindContext.getSession().isAnonymous() ) &&
-            ( !bindContext.getSession().isAdministrator() ) )
+        CoreSession session = bindContext.getSession();
+        Dn bindDn = bindContext.getDn();
+
+        if ( ( session != null ) &&
+            ( session.getEffectivePrincipal() != null ) &&
+            ( !session.isAnonymous() ) &&
+            ( !session.isAdministrator() ) )
         {
             // null out the credentials
             bindContext.setCredentials( null );
@@ -439,65 +499,50 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // We don't check the Dn, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for Dn "
-                + bindContext.getDn().getName() );
+                + bindDn.getName() );
         }
 
-        Collection<Authenticator> authenticators = getAuthenticators( level );
         PasswordPolicyException ppe = null;
         boolean isPPolicyReqCtrlPresent = bindContext.hasRequestControl( PasswordPolicy.OID );
         PasswordPolicyDecorator pwdRespCtrl =
             new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
         boolean authenticated = false;
 
-        if ( authenticators == null )
+        Authenticator authenticator = selectAuthenticator( bindDn, level );
+
+        try
         {
-            LOG.warn( "Cannot find any authenticator for level {} : {}", level );
-        }
-        else
-        {
-            // TODO : we should refactor that.
-            // try each authenticator
-            for ( Authenticator authenticator : authenticators )
+            // perform the authentication
+            LdapPrincipal principal = authenticator.authenticate( bindContext );
+
+            if ( principal != null )
             {
-                try
-                {
-                    // perform the authentication
-                    LdapPrincipal principal = authenticator.authenticate( bindContext );
+                LdapPrincipal clonedPrincipal = ( LdapPrincipal ) ( principal.clone() );
 
-                    if ( principal != null )
-                    {
-                        LdapPrincipal clonedPrincipal = ( LdapPrincipal ) ( principal.clone() );
+                // remove creds so there is no security risk
+                bindContext.setCredentials( null );
+                clonedPrincipal.setUserPassword( StringConstants.EMPTY_BYTES );
 
-                        // remove creds so there is no security risk
-                        bindContext.setCredentials( null );
-                        clonedPrincipal.setUserPassword( StringConstants.EMPTY_BYTES );
+                // authentication was successful
+                CoreSession newSession = new DefaultCoreSession( clonedPrincipal, directoryService );
+                bindContext.setSession( newSession );
 
-                        // authentication was successful
-                        CoreSession session = new DefaultCoreSession( clonedPrincipal, directoryService );
-                        bindContext.setSession( session );
-
-                        authenticated = true;
-
-                        // break out of the loop if the authentication succeeded
-                        break;
-                    }
-                }
-                catch ( PasswordPolicyException e )
-                {
-                    ppe = e;
-                    break;
-                }
-                catch ( LdapAuthenticationException e )
-                {
-                    // authentication failed, try the next authenticator
-                    LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, bindContext );
-                }
-                catch ( Exception e )
-                {
-                    // Log other exceptions than LdapAuthenticationException
-                    LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, bindContext );
-                }
+                authenticated = true;
             }
+        }
+        catch ( PasswordPolicyException e )
+        {
+            ppe = e;
+        }
+        catch ( LdapAuthenticationException e )
+        {
+            // authentication failed, try the next authenticator
+            LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, bindContext );
+        }
+        catch ( Exception e )
+        {
+            // Log other exceptions than LdapAuthenticationException
+            LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, bindContext );
         }
 
         if ( ppe != null )
@@ -511,7 +556,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
             throw ppe;
         }
 
-        Dn dn = bindContext.getDn();
         Entry userEntry = bindContext.getEntry();
 
         PasswordPolicyConfiguration policyConfig = getPwdPolicy( userEntry );
@@ -519,7 +563,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // load the user entry again if ppolicy is enabled, cause the authenticator might have modified the entry
         if ( policyConfig != null )
         {
-            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindContext.getDn(),
+            LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
             userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
@@ -603,7 +647,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         LOG.warn(
                             "Interrupted while delaying to send the failed authentication response for the user {}",
-                            dn, e );
+                            bindDn, e );
                     }
                 }
 
@@ -614,7 +658,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     mods.add( csnMod );
 
                     ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                    bindModCtx.setDn( dn );
+                    bindModCtx.setDn( bindDn );
                     bindModCtx.setEntry( userEntry );
                     bindModCtx.setModItems( mods );
                     bindModCtx.setPushToEvtInterceptor( true );
@@ -623,7 +667,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
             }
 
-            String upDn = ( dn == null ? "" : dn.getName() );
+            String upDn = ( bindDn == null ? "" : bindDn.getName() );
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
         }
         else if ( policyConfig != null )
@@ -695,7 +739,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 mods.add( csnMod );
 
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
-                bindModCtx.setDn( dn );
+                bindModCtx.setDn( bindDn );
                 bindModCtx.setEntry( userEntry );
                 bindModCtx.setModItems( mods );
                 bindModCtx.setPushToEvtInterceptor( true );
@@ -715,7 +759,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( isPwdMustReset( userEntry ) )
                 {
                     pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
-                    pwdResetSet.add( dn.getNormName() );
+                    pwdResetSet.add( bindDn.getNormName() );
                 }
 
                 bindContext.addResponseControl( pwdRespCtrl );

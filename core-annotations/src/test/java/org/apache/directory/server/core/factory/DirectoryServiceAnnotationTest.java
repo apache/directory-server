@@ -223,7 +223,7 @@ public class DirectoryServiceAnnotationTest
     {
         protected DummyAuthenticator()
         {
-            super( AuthenticationLevel.SIMPLE );
+            super( AuthenticationLevel.SIMPLE, Dn.ROOT_DSE );
         }
 
 

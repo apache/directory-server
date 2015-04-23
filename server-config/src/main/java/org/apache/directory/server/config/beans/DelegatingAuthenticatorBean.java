@@ -42,10 +42,6 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     @ConfigurationElement(attributeType = "ads-delegateSsl", isOptional = true)
     private boolean delegateSsl;
 
-    /** The base DN which will be the starting point from which we use the delegator authenticator */
-    @ConfigurationElement(attributeType = "ads-delegateBaseDn")
-    private String delegateBaseDn;
-
 
     /**
      * @return the delegateHost
@@ -95,7 +91,7 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
 
         sb.append( tabs ).append( "  delegate host : " ).append( delegateHost ).append( '\n' );
         sb.append( tabs ).append( "  delegate port : " ).append( delegatePort ).append( '\n' );
-        sb.append( tabs ).append( "  delegate base DN : " ).append( delegateBaseDn ).append( '\n' );
+        sb.append( tabs ).append( "  delegate base DN : " ).append( baseDn ).append( '\n' );
         sb.append( tabs ).append( "  delegate SSL : " ).append( delegateSsl ).append( '\n' );
 
         return sb.toString();

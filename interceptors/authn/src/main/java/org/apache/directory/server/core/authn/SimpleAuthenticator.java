@@ -91,11 +91,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
-     * @see AbstractAuthenticator
      */
     public SimpleAuthenticator()
     {
         super( AuthenticationLevel.SIMPLE );
+        credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
+    }
+
+
+    /**
+     * Creates a new instance.
+     * @see AbstractAuthenticator
+     */
+    public SimpleAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
@@ -106,7 +116,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     public SimpleAuthenticator( int cacheSize )
     {
-        super( AuthenticationLevel.SIMPLE );
+        super( AuthenticationLevel.SIMPLE, Dn.ROOT_DSE );
+
+        credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
+    }
+
+
+    /**
+     * Creates a new instance, with an initial cache size
+     * @param cacheSize the size of the credential cache
+     */
+    public SimpleAuthenticator( int cacheSize, Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
 
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }

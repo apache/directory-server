@@ -24,6 +24,7 @@ import java.net.SocketAddress;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -44,6 +45,15 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
     public AnonymousAuthenticator()
     {
         super( AuthenticationLevel.NONE );
+    }
+
+
+    /**
+     * Creates a new instance.
+     */
+    public AnonymousAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.NONE, baseDn );
     }
 
 

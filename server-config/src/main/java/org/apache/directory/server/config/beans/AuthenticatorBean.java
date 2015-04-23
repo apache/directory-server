@@ -34,6 +34,10 @@ public abstract class AuthenticatorBean extends AdsBaseBean
     @ConfigurationElement(attributeType = "ads-authenticatorId", isRdn = true)
     private String authenticatorId;
 
+    /** The base DN which will be the starting point from which we use the authenticator */
+    @ConfigurationElement(attributeType = "ads-baseDn")
+    protected String baseDn;
+
 
     /**
      * @return the authenticatorId
@@ -50,5 +54,23 @@ public abstract class AuthenticatorBean extends AdsBaseBean
     public void setAuthenticatorId( String authenticatorId )
     {
         this.authenticatorId = authenticatorId;
+    }
+
+
+    /**
+     * @return the baseDn
+     */
+    public String getBaseDn()
+    {
+        return baseDn;
+    }
+
+
+    /**
+     * @param baseDn the baseDn to set
+     */
+    public void setBaseDn( String baseDn )
+    {
+        this.baseDn = baseDn;
     }
 }

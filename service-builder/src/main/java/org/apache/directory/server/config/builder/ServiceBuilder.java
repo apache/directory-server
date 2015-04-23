@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
@@ -500,7 +501,20 @@ public class ServiceBuilder
 
         if ( authenticatorBean instanceof DelegatingAuthenticatorBean )
         {
-            authenticator = new DelegatingAuthenticator();
+            try
+            {
+                authenticator = new DelegatingAuthenticator(
+                    new Dn(
+                        ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getBaseDn() ) );
+            }
+            catch ( LdapInvalidDnException e )
+            {
+                String errorMsg = "Failed to instantiate the configured authenticator "
+                    + authenticatorBean.getAuthenticatorId();
+                LOG.warn( errorMsg );
+                throw new ConfigurationException( errorMsg, e );
+            }
+
             ( ( DelegatingAuthenticator ) authenticator )
                 .setDelegateHost( ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getDelegateHost() );
             ( ( DelegatingAuthenticator ) authenticator )

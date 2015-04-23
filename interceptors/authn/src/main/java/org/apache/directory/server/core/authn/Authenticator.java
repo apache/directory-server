@@ -28,8 +28,8 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 
 
@@ -98,6 +98,30 @@ public interface Authenticator
      * @throws PasswordPolicyException
      */
     void checkPwdPolicy( Entry userEntry ) throws LdapException;
+
+
+    /**
+     * Check that this selector is a valid one. The DN we want to authenticate has to be 
+     * part of the DIT selection associated with teh Authenticator
+     *
+     * @param bindDn The DN we want to authenticate
+     * @return <code>true</code> if the Auhenticator is supporting the DN
+     */
+    boolean isValid( Dn bindDn );
+
+
+    /**
+     * @return The Authenticator base DN
+     */
+    Dn getBaseDn();
+
+
+    /**
+     * Set the baseDN into the Authenticator
+     * 
+     * @param baseDn The Base DN to set
+     */
+    public void setBaseDn( Dn baseDn );
 
     /**
      * Performs an unbind on the given context

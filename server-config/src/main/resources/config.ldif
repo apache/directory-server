@@ -71,6 +71,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.AnonymousAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
 
 dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -80,6 +81,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.SimpleAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
 
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -89,6 +91,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.StrongAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
 
 dn: ads-authenticatorid=delegatingauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -98,6 +101,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.DelegatingAuthenticator
+ads-baseDn: 
 ads-enabled: FALSE
 
 dn: ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config

@@ -59,9 +59,6 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /** Tells if we use StartTLS to connect */
     private boolean delegateTls;
 
-    /** The base DN which will be the starting point from which we use the delegator authenticator */
-    private String delegateBaseDn;
-
     /** The SSL TrustManager FQCN to use */
     private String delegateSslTrustManagerFQCN;
 
@@ -71,7 +68,6 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
-     * @see AbstractAuthenticator
      */
     public DelegatingAuthenticator()
     {
@@ -80,13 +76,23 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
 
     /**
+     * Creates a new instance.
+     * @see AbstractAuthenticator
+     */
+    public DelegatingAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
+    }
+
+
+    /**
      * Creates a new instance, for a specific authentication level.
      * @see AbstractAuthenticator
      * @param type The relevant AuthenticationLevel
      */
-    protected DelegatingAuthenticator( AuthenticationLevel type )
+    protected DelegatingAuthenticator( AuthenticationLevel type, Dn baseDn )
     {
-        super( type );
+        super( type, baseDn );
     }
 
 
@@ -149,16 +155,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
      */
     public String getDelegateBaseDn()
     {
-        return delegateBaseDn;
-    }
-
-
-    /**
-     * @param delegateBaseDn the delegateBaseDn to set
-     */
-    public void setDelegateBaseDn( String delegateBaseDn )
-    {
-        this.delegateBaseDn = delegateBaseDn;
+        return getBaseDn().toString();
     }
 
 
@@ -234,7 +231,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
         // Don't authenticate using this authenticator if the Bind ND is not a descendant of the
         // configured delegate base DN (or if it's null)
-        if ( ( delegateBaseDn == null ) || ( !bindDn.isDescendantOf( delegateBaseDn ) ) )
+        if ( ( getBaseDn() == null ) || ( !bindDn.isDescendantOf( getBaseDn() ) ) )
         {
             return null;
         }

@@ -23,13 +23,14 @@ package org.apache.directory.server.core.authn;
 
 import static org.junit.Assert.assertEquals;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -48,7 +49,7 @@ public class SimpleAuthenticatorOneWayEncryptedTest
     public static void setUp() throws Exception
     {
 
-        auth = new SimpleAuthenticator();
+        auth = new SimpleAuthenticator( Dn.ROOT_DSE );
     }
 
 
