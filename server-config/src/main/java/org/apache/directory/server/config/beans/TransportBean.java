@@ -64,11 +64,11 @@ public class TransportBean extends AdsBaseBean
     private int transportBackLog = DEFAULT_BACKLOG_NB;
 
     /** The transport list of enabled ciphers */
-    @ConfigurationElement(attributeType = "ads-enabledCipher", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-enabledCiphers", isOptional = true)
     private List<String> enabledCiphers;
 
     /** The transport list of enabled protocols */
-    @ConfigurationElement(attributeType = "ads-enabledProtocol", isOptional = true)
+    @ConfigurationElement(attributeType = "ads-enabledProtocols", isOptional = true)
     private List<String> enabledProtocols;
 
     /** The transport 'need client auth' flag */
