@@ -84,7 +84,7 @@ then
     echo
     echo
     echo "Testing tar.gz archive with official Java image (Debian 8, OpenJDK 8, 64bit)"
-    docker run -it --rm \
+    docker run -i --rm \
       -v ${TGZ}:/apacheds.tar.gz \
       -v ${project.build.directory}/docker/archive.test:/archive.test \
       java:8 bash /archive.test
@@ -98,7 +98,7 @@ then
     echo
     echo
     echo "Testing zip archive with 'dockerfile' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
-    docker run -it --rm \
+    docker run -i --rm \
       -v ${ZIP}:/apacheds.zip \
       -v ${project.build.directory}/docker/archive.test:/archive.test \
       dockerfile/java:oracle-java7 bash /archive.test
