@@ -34,6 +34,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.BZip2;
 import org.apache.tools.ant.taskdefs.GZip;
 import org.apache.tools.ant.taskdefs.Tar;
+import org.apache.tools.ant.taskdefs.Tar.TarFileSet;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.codehaus.plexus.util.FileUtils;
 
@@ -306,8 +307,17 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
         Tar tarTask = new Tar();
         tarTask.setProject( project );
         tarTask.setDestFile( tarFile );
-        tarTask.setBasedir( getTargetDirectory() );
-        tarTask.setIncludes( getArchiveDirectory().getName() + ALL_FILES );
+
+        TarFileSet nonExecutables = tarTask.createTarFileSet();
+        nonExecutables.setDir( getTargetDirectory() );
+        nonExecutables.setIncludes( getArchiveDirectory().getName() + ALL_FILES );
+        nonExecutables.setExcludes( getArchiveDirectory().getName() + "/**/*.sh" );
+
+        TarFileSet executables = tarTask.createTarFileSet();
+        executables.setDir( getTargetDirectory() );
+        executables.setIncludes( getArchiveDirectory().getName() + "/**/*.sh" );
+        executables.setFileMode( "755" );
+
         tarTask.execute();
     }
 
