@@ -23,10 +23,12 @@
 
 NAME="apacheds-${project.version}"
 DIRNAME="${NAME}"
-SERVICE_NAME="${NAME}-default"
 
-wait_for_apacheds() {
+wait_for_apacheds_up() {
     timeout 15  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+}
+wait_for_apacheds_down() {
+    timeout 15  sh -c "while nc -z localhost 10389; do sleep 1; done"
 }
 
 # stop execution if any command fails (i.e. exits with status code > 0)
@@ -36,29 +38,39 @@ set -e
 set -x
 
 # install
-dpkg -i /apacheds.deb
-
-# assert installed
-dpkg -l | grep apacheds
+cd /opt
+if [ -f /apacheds.tar.gz ]
+then
+    tar -xzvf /apacheds.tar.gz
+elif [ -f /apacheds.zip ]
+then
+    unzip /apacheds.zip
+    # exec permission in zip not set
+    chmod +x /opt/${DIRNAME}/bin/apacheds.sh
+else
+    exit 1
+fi
 
 # assert files and directories exist
 test -f /opt/${DIRNAME}/LICENSE
 test -f /opt/${DIRNAME}/NOTICE
-test -d /var/lib/${DIRNAME}/default
+test -f /opt/${DIRNAME}/bin/apacheds.sh
+test -x /opt/${DIRNAME}/bin/apacheds.sh
+test -d /opt/${DIRNAME}/instances/default
 
 # assert not running
-service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+/opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
 
 # install required tools
 apt-get -qq update
 apt-get -qq -y install ldap-utils netcat
 
 # start
-service ${SERVICE_NAME} start 
-wait_for_apacheds
+/opt/${DIRNAME}/bin/apacheds.sh start
+wait_for_apacheds_up
 
 # assert running
-service ${SERVICE_NAME} status | grep "ApacheDS - default is running"
+/opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is running"
 
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
@@ -66,32 +78,24 @@ ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -
 # restart and search a few times
 for i in 1 2 3
 do
-    service ${SERVICE_NAME} restart 
-    wait_for_apacheds
+    /opt/${DIRNAME}/bin/apacheds.sh stop
+    wait_for_apacheds_down
+    /opt/${DIRNAME}/bin/apacheds.sh start
+    wait_for_apacheds_up
     ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
 done
 
 # stop
-service ${SERVICE_NAME} stop
+/opt/${DIRNAME}/bin/apacheds.sh stop
+wait_for_apacheds_down
 
 # assert not running
-service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+/opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
 
 # assert password warning in log
-grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+grep ".*WARN.*admin password.*security breach.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
 # assert no error in log
-! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
-
-# uninstall
-dpkg -P apacheds
-
-# assert the backup file was created
-test -f /var/lib/${DIRNAME}*.tgz
-tar -tf /var/lib/${DIRNAME}*.tgz >> /dev/null
-
-# assert files and directory no more exist
-test ! -e /opt/${DIRNAME}
-test ! -e /var/lib/${DIRNAME}/default
+! grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
 
 # SUCCESS
 echo "SUCCESS"
