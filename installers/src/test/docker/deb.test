@@ -85,8 +85,13 @@ grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log
 # uninstall
 dpkg -P apacheds
 
+# assert the backup file was created
+test -f /var/lib/${DIRNAME}*.tgz
+tar -tf /var/lib/${DIRNAME}*.tgz >> /dev/null
+
 # assert files and directory no more exist
 test ! -e /opt/${DIRNAME}
+test ! -e /var/lib/${DIRNAME}/default
  
 # SUCCESS
 echo "SUCCESS"
