@@ -27,41 +27,45 @@ import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@RunWith( FrameworkRunner.class )
-@CreateLdapServer( transports = {
-        @CreateTransport( protocol = "LDAP" ) } )
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports =
+    {
+        @CreateTransport(protocol = "LDAP") })
 // disable changelog, for more info see DIRSERVER-1528
-@CreateDS( enableChangeLog = false, name = "LdapCoreSessionConnectionTest" )
+@CreateDS(enableChangeLog = false, name = "LdapCoreSessionConnectionTest")
 @ApplyLdifs(
-{
+    {
         // Add a non admin user
         "dn: cn=user,ou=system",
         "objectClass: top",
         "objectClass: person",
         "cn: user",
         "userPassword: secret",
-        "sn: user" } )
-public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit {
+        "sn: user" })
+public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
+{
     private static Logger logger = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
     private static final PasswordPolicyDecorator passwordPolicyRequestControl =
-            new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+        new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+
 
     @Before
-    public void setPwdPolicy() throws LdapException {
+    public void setPwdPolicy() throws LdapException
+    {
         PasswordPolicyConfiguration policyConfig = new PasswordPolicyConfiguration();
         policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
 
-        Dn policyDn = new Dn( "ads-pwdId=test,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
+        Dn policyDn = new Dn(
+            "ads-pwdId=test,ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
         PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
-        policyContainer.addPolicy(policyDn, policyConfig);
+        policyContainer.addPolicy( policyDn, policyConfig );
         policyContainer.setDefaultPolicyDn( policyDn );
 
         AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) getService()
@@ -69,10 +73,13 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit {
         authenticationInterceptor.setPwdPolicies( policyContainer );
     }
 
+
     @Test
-    public void testBindWithLdapNetworkConnection() throws LdapException {
+    public void testBindWithLdapNetworkConnection() throws LdapException
+    {
         LdapNetworkConnection connection = null;
-        try {
+        try
+        {
             connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
 
             BindRequest bindRequest = new BindRequestImpl();
@@ -83,19 +90,23 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit {
             BindResponse bindResponse = connection.bind( bindRequest );
             Control responseControl = bindResponse.getControls().get( passwordPolicyRequestControl.getOid() );
             assertNotNull( responseControl );
-            PasswordPolicy passwordPolicy = ((PasswordPolicyDecorator) responseControl).getDecorated();
+            PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
         }
-        finally {
+        finally
+        {
             safeClose( connection );
         }
     }
 
-    @Ignore
+
+    //@Ignore
     @Test
-    public void testBindWithLdapCoreSessionConnection() throws LdapException {
+    public void testBindWithLdapCoreSessionConnection() throws LdapException
+    {
         LdapCoreSessionConnection connection = null;
-        try {
+        try
+        {
             connection = new LdapCoreSessionConnection();
             connection.setDirectoryService( getService() );
 
@@ -107,20 +118,26 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit {
             BindResponse bindResponse = connection.bind( bindRequest );
             Control responseControl = bindResponse.getControls().get( passwordPolicyRequestControl.getOid() );
             assertNotNull( responseControl );
-            PasswordPolicy passwordPolicy = ((PasswordPolicyDecorator) responseControl).getDecorated();
+            PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
         }
-        finally {
+        finally
+        {
             safeClose( connection );
         }
     }
 
-    private static void safeClose( LdapConnection... connections ) {
-        for ( LdapConnection connection : connections ) {
-            try {
+
+    private static void safeClose( LdapConnection... connections )
+    {
+        for ( LdapConnection connection : connections )
+        {
+            try
+            {
                 connection.close();
             }
-            catch ( Exception e ) {
+            catch ( Exception e )
+            {
                 logger.warn( "close failed, possible connection leak: {}", e.getMessage() );
                 logger.debug( "close failed, possible connection leak: ", e );
             }

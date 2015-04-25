@@ -1193,6 +1193,11 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         bindContext.setDn( bindRequest.getDn().apply( directoryService.getSchemaManager() ) );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
+        for ( Control control : bindRequest.getControls().values() )
+        {
+            bindContext.addRequestControl( control );
+        }
+
         OperationManager operationManager = directoryService.getOperationManager();
 
         BindResponse bindResp = new BindResponseImpl( newId );
