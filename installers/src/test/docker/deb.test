@@ -18,22 +18,15 @@
 # under the License. 
 
 # 
-# Script to test RPM installer within Docker container.
-#
-# Run with Java image (CentOS 7, OpenJDK 8)
-#
-#     cat rpm.test | docker run -i --rm -e URL="<URL to .deb>" -e VERSION="<ApacheDS version>" centos:7
-#
-# Please note to replace dashes '-' by underscores '_' in VERSION.
+# Script to test Debian installer within Docker container.
 #
 
-
-NAME="apacheds-${VERSION}"
+NAME="apacheds-${project.version}"
 DIRNAME="${NAME}"
 SERVICE_NAME="${NAME}-default"
 
 wait_for_apacheds() {
-    timeout 15  sh -c "while ! nmap -Pn -p 10389 localhost | grep "10389.*open"; do sleep 1; done"
+    timeout 15  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
 }
 
 # stop execution if any command fails (i.e. exits with status code > 0)
@@ -42,18 +35,11 @@ set -e
 # trace commands
 set -x
 
-# install packages
-yum -y -q update
-yum -y -q install wget java-1.8.0-openjdk openldap-clients nmap
-
-# download
-wget -q -O apacheds.rpm ${URL}
-
 # install
-rpm -Uvh apacheds.rpm
+dpkg -i /apacheds.deb
 
 # assert installed
-rpm -q apacheds | grep apacheds
+dpkg -l | grep apacheds
 
 # assert files and directories exist
 test -f /opt/${DIRNAME}/LICENSE
@@ -61,14 +47,18 @@ test -f /opt/${DIRNAME}/NOTICE
 test -d /var/lib/${DIRNAME}/default
 
 # assert not running
-/etc/init.d/${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+
+# install required tools
+apt-get -qq update
+apt-get -qq -y install ldap-utils netcat
 
 # start
-/etc/init.d/${SERVICE_NAME} start 
+service ${SERVICE_NAME} start 
 wait_for_apacheds
 
 # assert running
-/etc/init.d/${SERVICE_NAME} status | grep "ApacheDS - default is running"
+service ${SERVICE_NAME} status | grep "ApacheDS - default is running"
 
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
@@ -76,16 +66,16 @@ ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -
 # restart and search a few times
 for i in 1 2 3
 do
-    /etc/init.d/${SERVICE_NAME} restart 
+    service ${SERVICE_NAME} restart 
     wait_for_apacheds
     ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
 done
 
 # stop
-/etc/init.d/${SERVICE_NAME} stop
+service ${SERVICE_NAME} stop
 
 # assert not running
-/etc/init.d/${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
 
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
@@ -93,7 +83,7 @@ grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log
 ! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 
 # uninstall
-rpm -e apacheds
+dpkg -P apacheds
 
 # assert files and directory no more exist
 test ! -e /opt/${DIRNAME}

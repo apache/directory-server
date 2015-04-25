@@ -448,6 +448,35 @@
       </build>
     </profile>
 
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/test/docker</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+              <outputDirectory>${project.build.directory}/docker</outputDirectory>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
   
   <build>

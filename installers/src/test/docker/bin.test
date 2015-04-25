@@ -20,14 +20,8 @@
 # 
 # Script to test binary installer within Docker container.
 #
-#
-# Run with official Java image (Debian 8, OpenJDK 8):
-#
-#     cat bin.test | docker run -i --rm -e URL="<URL to .bin>" -e VERSION="<ApacheDS version>" java:8
-#
 
-
-NAME="apacheds-${VERSION}"
+NAME="apacheds-${project.version}"
 DIRNAME="${NAME}"
 SERVICE_NAME="${NAME}-default"
 
@@ -41,17 +35,11 @@ set -e
 # trace commands
 set -x
 
-# install ldapsearch and tools
-apt-get -qq update && apt-get -qq -y install ldap-utils netcat
-
-# download
-wget -q -O apacheds.bin ${URL}
-
 # install
-chmod +x apacheds.bin
+chmod +x /apacheds.bin
 # skip license text
-export MORE="\+10000"
-# agreee to license terms and accept default install options
+#export MORE="-10000"
+# agree to license terms and accept default install options
 ./apacheds.bin << END_OF_RESPONSES
 yes
 
@@ -69,6 +57,10 @@ test -d /var/lib/${DIRNAME}/default
 
 # assert not running
 service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+
+# install ldapsearch and tools
+apt-get -qq update
+apt-get -qq -y install ldap-utils netcat
 
 # start
 service ${SERVICE_NAME} start 
