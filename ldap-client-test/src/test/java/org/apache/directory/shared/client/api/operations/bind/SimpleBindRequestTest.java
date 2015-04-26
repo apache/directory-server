@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -36,6 +37,7 @@ import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
@@ -53,6 +55,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -619,5 +622,27 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         connection.bind( "uid=admin,ou=system", "secret" );
         assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * DIRAPI-236
+     *
+     * @throws Exception
+     */
+    @Test
+    @Ignore
+    public void testUnbindDuringSearch() throws Exception
+    {
+        connection.bind( "uid=admin, ou=system", "secret" );
+
+        assertTrue( connection.isAuthenticated() );
+
+        EntryCursor cursor = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.SUBTREE, "*" );
+
+        connection.unBind();
+
+        // this call hangs forever
+        cursor.next();
     }
 }
