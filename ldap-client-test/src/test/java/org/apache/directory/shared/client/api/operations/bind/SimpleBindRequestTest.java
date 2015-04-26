@@ -55,7 +55,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -93,8 +92,7 @@ import org.junit.runner.RunWith;
         "displayName: Directory Superuser",
         "uid: superuser2",
         "userPassword: test1",
-        "userPassword: test2"
-    })
+        "userPassword: test2" })
 public class SimpleBindRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
@@ -631,18 +629,21 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testUnbindDuringSearch() throws Exception
     {
         connection.bind( "uid=admin, ou=system", "secret" );
 
         assertTrue( connection.isAuthenticated() );
 
-        EntryCursor cursor = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor1 = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor2 = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.ONELEVEL, "*" );
+        EntryCursor cursor3 = connection.search( new Dn( "ou=system" ), "(ObjectClass=*)", SearchScope.OBJECT, "*" );
 
         connection.unBind();
 
         // this call hangs forever
-        cursor.next();
+        assertFalse( cursor1.next() );
+        assertFalse( cursor2.next() );
+        assertFalse( cursor3.next() );
     }
 }
