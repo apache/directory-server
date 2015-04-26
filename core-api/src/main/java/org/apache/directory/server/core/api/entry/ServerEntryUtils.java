@@ -754,18 +754,26 @@ public class ServerEntryUtils
         Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
 
         AttributeType entryDnType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_DN_AT_OID );
-        
-        // First, remove all the attributes if we have the NoAtribute flag set to true
+        AttributeType refType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.REF_AT_OID );
+
+        // First, remove all the attributes if we have the NoAttribute flag set to true
         if ( operationContext.isNoAttributes() )
         {
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
+                {
+                    continue;
+                }
+
                 entry.remove( entry.get( attributeType ) );
             }
 
             entry.removeAttributes( entryDnType );
-            
+
             return;
         }
 
@@ -776,6 +784,12 @@ public class ServerEntryUtils
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
+                {
+                    continue;
+                }
 
                 if ( attributeType.isOperational() )
                 {
@@ -799,7 +813,7 @@ public class ServerEntryUtils
             {
                 entry.removeAttributes( entryDnType );
             }
-            
+
             return;
         }
 
@@ -845,12 +859,20 @@ public class ServerEntryUtils
         {
             for ( Attribute attribute : originalEntry )
             {
-                if ( !operationContext.contains( schemaManager, attribute.getAttributeType() ) )
+                AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
                 {
-                    entry.removeAttributes( attribute.getAttributeType() );
                     continue;
                 }
-                AttributeType attributeType = attribute.getAttributeType();
+
+                if ( !operationContext.contains( schemaManager, attributeType ) )
+                {
+                    entry.removeAttributes( attributeType );
+                    continue;
+                }
+
                 boolean isNotRequested = true;
 
                 for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
@@ -872,7 +894,7 @@ public class ServerEntryUtils
                     entry.get( attributeType ).clear();
                 }
             }
-            
+
             if ( !operationContext.contains( schemaManager, entryDnType ) )
             {
                 entry.removeAttributes( entryDnType );
