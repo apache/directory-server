@@ -5,7 +5,7 @@ objectclass: ads-partition
 objectclass: ads-mavibotPartition
 ads-partitionSuffix: dc=apache,dc=org
 ads-partitionsynconwrite: TRUE
-ads-partitionid: example
+ads-partitionid: apache
 ads-enabled: TRUE
 
 dn: ou=indexes,ads-partitionId=apache,ou=partitions,ads-directoryServiceId=default,ou=config
