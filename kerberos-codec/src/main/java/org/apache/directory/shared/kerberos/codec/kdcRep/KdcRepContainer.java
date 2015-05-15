@@ -44,7 +44,7 @@ public class KdcRepContainer extends AbstractContainer
     public KdcRepContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = KdcRepGrammar.getInstance();
+        setGrammar( KdcRepGrammar.getInstance() );
         setTransition( KdcRepStatesEnum.START_STATE );
     }
 

@@ -41,7 +41,7 @@ public class EncryptionKeyContainer extends AbstractContainer
     public EncryptionKeyContainer()
     {
         super();
-        this.grammar = EncryptionKeyGrammar.getInstance();
+        setGrammar( EncryptionKeyGrammar.getInstance() );
         setTransition( EncryptionKeyStatesEnum.START_STATE );
     }
 

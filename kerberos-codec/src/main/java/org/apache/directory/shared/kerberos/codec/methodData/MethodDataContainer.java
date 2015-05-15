@@ -42,7 +42,7 @@ public class MethodDataContainer extends AbstractContainer
     public MethodDataContainer()
     {
         super();
-        this.grammar = MethodDataGrammar.getInstance();
+        setGrammar( MethodDataGrammar.getInstance() );
         setTransition( MethodDataStatesEnum.START_STATE );
     }
 

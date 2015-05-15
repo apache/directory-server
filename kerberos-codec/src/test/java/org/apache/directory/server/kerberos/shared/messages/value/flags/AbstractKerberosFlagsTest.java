@@ -52,7 +52,6 @@ public class AbstractKerberosFlagsTest
                 + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) )
         {
-            private static final long serialVersionUID = 1L;
         };
 
         // unset flag 4
@@ -84,13 +83,11 @@ public class AbstractKerberosFlagsTest
                 + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ) )
         {
-            private static final long serialVersionUID = 1L;
         };
 
         // No flags set
         AbstractKerberosFlags akfEmptyConstructor = new AbstractKerberosFlags()
         {
-            private static final long serialVersionUID = 1L;
         };
 
         assertEquals( "intValue", 0, akfEmptyConstructor.getIntValue() );
@@ -108,7 +105,6 @@ public class AbstractKerberosFlagsTest
     {
         AbstractKerberosFlags akf = new AbstractKerberosFlags()
         {
-            private static final long serialVersionUID = 1L;
         };
 
         // MAX_VALUE is not a real ticket flag and will cause an IndexOutOfBoundsException,

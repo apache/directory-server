@@ -44,7 +44,7 @@ public class EncApRepPartContainer extends AbstractContainer
     public EncApRepPartContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = EncApRepPartGrammar.getInstance();
+        setGrammar( EncApRepPartGrammar.getInstance() );
         setTransition( EncApRepPartStatesEnum.START_STATE );
     }
 

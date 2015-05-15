@@ -44,7 +44,7 @@ public class KrbCredContainer extends AbstractContainer
     public KrbCredContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = KrbCredGrammar.getInstance();
+        setGrammar( KrbCredGrammar.getInstance() );
         setTransition( KrbCredStatesEnum.START_STATE );
     }
 

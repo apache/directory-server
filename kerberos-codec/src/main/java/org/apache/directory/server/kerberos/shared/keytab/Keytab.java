@@ -224,7 +224,7 @@ public class Keytab
      */
     protected static byte[] getBytesFromFile( File file ) throws IOException
     {
-        try ( InputStream is = new FileInputStream( file ) )
+        try (InputStream is = new FileInputStream( file ))
         {
 
             long length = file.length();
@@ -252,7 +252,6 @@ public class Keytab
                 throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
             }
 
-
             return bytes;
         }
     }
@@ -268,10 +267,16 @@ public class Keytab
     protected void writeFile( ByteBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        try ( FileChannel wChannel = new FileOutputStream( file, false ).getChannel() )
+        FileOutputStream fout = new FileOutputStream( file, false );
+
+        try (FileChannel wChannel = fout.getChannel())
         {
             // Write the bytes between the position and limit.
             wChannel.write( buffer );
+        }
+        finally
+        {
+            fout.close();
         }
     }
 }

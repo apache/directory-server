@@ -55,7 +55,7 @@ public class KerberosMessageContainer extends AbstractContainer
     public KerberosMessageContainer()
     {
         super();
-        this.grammar = KerberosMessageGrammar.getInstance();
+        setGrammar( KerberosMessageGrammar.getInstance() );
         setTransition( KerberosMessageStatesEnum.START_STATE );
     }
 

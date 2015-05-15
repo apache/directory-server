@@ -35,7 +35,6 @@ import java.util.Map;
 
 import javax.crypto.spec.DESKeySpec;
 
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;

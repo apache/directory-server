@@ -23,7 +23,6 @@ package org.apache.directory.shared.kerberos.codec.options;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("serial")
 public class ApOptions extends Options
 {
     /**

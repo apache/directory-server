@@ -44,7 +44,7 @@ public class AsRepContainer extends KdcRepContainer
     public AsRepContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = AsRepGrammar.getInstance();
+        setGrammar( AsRepGrammar.getInstance() );
         setTransition( AsRepStatesEnum.START_STATE );
     }
 

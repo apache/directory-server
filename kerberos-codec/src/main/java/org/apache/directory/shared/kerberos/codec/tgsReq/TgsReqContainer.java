@@ -44,7 +44,7 @@ public class TgsReqContainer extends KdcReqContainer
     public TgsReqContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = TgsReqGrammar.getInstance();
+        setGrammar( TgsReqGrammar.getInstance() );
         setTransition( TgsReqStatesEnum.START_STATE );
     }
 

@@ -41,7 +41,7 @@ public class TransitedEncodingContainer extends AbstractContainer
     public TransitedEncodingContainer()
     {
         super();
-        this.grammar = TransitedEncodingGrammar.getInstance();
+        setGrammar( TransitedEncodingGrammar.getInstance() );
         setTransition( TransitedEncodingStatesEnum.START_STATE );
     }
 

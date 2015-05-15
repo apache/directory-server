@@ -41,7 +41,7 @@ public class TypedDataContainer extends AbstractContainer
     public TypedDataContainer()
     {
         super();
-        this.grammar = TypedDataGrammar.getInstance();
+        setGrammar( TypedDataGrammar.getInstance() );
         setTransition( TypedDataStatesEnum.START_STATE );
     }
 

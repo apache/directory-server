@@ -44,7 +44,7 @@ public class AsReqContainer extends KdcReqContainer
     public AsReqContainer( ByteBuffer stream )
     {
         super( stream );
-        this.grammar = AsReqGrammar.getInstance();
+        setGrammar( AsReqGrammar.getInstance() );
         setTransition( AsReqStatesEnum.START_STATE );
     }
 

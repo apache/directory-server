@@ -23,9 +23,9 @@ package org.apache.directory.server.kerberos.changepwd.messages;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
-import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.ApReq;
@@ -44,12 +44,13 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     private short privateMessageLen;
     private short messageLength;
 
+
     public ChangePasswordRequest( ApReq authHeader, KrbPriv privateMessage )
     {
         this( PVNO, authHeader, privateMessage );
     }
-    
-    
+
+
     /**
      * Creates a new instance of ChangePasswordRequest.
      *
@@ -87,15 +88,15 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
         return privateMessage;
     }
 
-    
+
     @Override
     public short computeLength()
     {
         authHeaderLen = ( short ) authHeader.computeLength();
         privateMessageLen = ( short ) privateMessage.computeLength();
-        
+
         messageLength = ( short ) ( HEADER_LENGTH + authHeaderLen + privateMessageLen );
-        
+
         return messageLength;
     }
 
@@ -105,16 +106,17 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     {
         buf.putShort( messageLength );
         buf.putShort( getVersionNumber() );
-        
+
         // Build application request bytes
         buf.putShort( authHeaderLen );
         authHeader.encode( buf );
-        
+
         privateMessage.encode( buf );
-        
+
         return buf;
     }
-    
+
+
     /**
      * Decodes a {@link ByteBuffer} into a {@link ChangePasswordRequest}.
      *
@@ -126,25 +128,25 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     {
         try
         {
-            short msgLen = buf.getShort(); // message length
-            
+            buf.getShort(); // message length
+
             short pvno = buf.getShort();
-            
+
             short authHeaderLength = buf.getShort();
-            
+
             byte[] undecodedAuthHeader = new byte[authHeaderLength];
             buf.get( undecodedAuthHeader, 0, authHeaderLength );
-            
+
             ApReq authHeader = KerberosDecoder.decodeApReq( undecodedAuthHeader );
-            
+
             byte[] encodedPrivate = new byte[buf.remaining()];
             buf.get( encodedPrivate, 0, buf.remaining() );
-            
+
             KrbPriv privMessage = KerberosDecoder.decodeKrbPriv( encodedPrivate );
-            
+
             return new ChangePasswordRequest( pvno, authHeader, privMessage );
         }
-        catch( KerberosException e )
+        catch ( KerberosException e )
         {
             throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED, e );
         }

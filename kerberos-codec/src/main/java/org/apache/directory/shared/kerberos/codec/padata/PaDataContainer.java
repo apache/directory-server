@@ -41,7 +41,7 @@ public class PaDataContainer extends AbstractContainer
     public PaDataContainer()
     {
         super();
-        this.grammar = PaDataGrammar.getInstance();
+        setGrammar( PaDataGrammar.getInstance() );
         setTransition( PaDataStatesEnum.START_STATE );
     }
 
