@@ -33,11 +33,11 @@ then
 
     echo
     echo
-    echo "Testing debian package with 'dockerfile' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
+    echo "Testing debian package with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
     docker run -i --rm \
       -v ${DEB64}:/apacheds.deb \
       -v ${project.build.directory}/docker/deb.test:/deb.test \
-      dockerfile/java:oracle-java7 bash /deb.test
+      nimmis/java:oracle-7-jdk bash /deb.test
 fi
 
 
@@ -97,9 +97,9 @@ if [ -f ${ZIP} ]
 then
     echo
     echo
-    echo "Testing zip archive with 'dockerfile' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
+    echo "Testing zip archive with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
     docker run -i --rm \
       -v ${ZIP}:/apacheds.zip \
       -v ${project.build.directory}/docker/archive.test:/archive.test \
-      dockerfile/java:oracle-java7 bash /archive.test
+      nimmis/java:oracle-7-jdk bash /archive.test
 fi
