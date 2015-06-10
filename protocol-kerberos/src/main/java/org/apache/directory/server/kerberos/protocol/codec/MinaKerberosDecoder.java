@@ -106,6 +106,8 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
                     
                     out.write( kerberosMessageContainer.getMessage() );
                     
+                    session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
+                    
                     return true;
                 }
             }
@@ -115,10 +117,6 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
                 buf.clear();
                 kerberosMessageContainer.clean();
                 throw de;
-            }
-            finally
-            {
-                session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
             }
        }
         
