@@ -178,9 +178,9 @@ elif [ "$ADS_ACTION" = "stop" ]; then
         kill -15 $PID > /dev/null 2>&1
 
         ATTEMPTS_REMAINING=10
-        while [ $ATTEMPTS_REMAINING > 0 ]; do
+        while [ $ATTEMPTS_REMAINING -gt 0 ]; do
             kill -0 $PID > /dev/null 2>&1 -gt 0
-            if [ $? > 0 ]; then
+            if [ $? -gt 0 ]; then
                 rm -f $ADS_PID > /dev/null 2>&1
                 [ $HAVE_TTY -eq 1 ] && echo "ApacheDS instance '$ADS_INSTANCE_NAME' stopped successfully"
                 break
