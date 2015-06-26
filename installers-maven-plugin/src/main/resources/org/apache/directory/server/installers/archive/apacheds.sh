@@ -175,11 +175,12 @@ elif [ "$ADS_ACTION" = "stop" ]; then
         PID=`cat $ADS_PID`
         [ $HAVE_TTY -eq 1 ] && echo "Stopping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
+        # Terminate the process
         kill -15 $PID > /dev/null 2>&1
 
         ATTEMPTS_REMAINING=10
         while [ $ATTEMPTS_REMAINING -gt 0 ]; do
-            kill -0 $PID > /dev/null 2>&1 -gt 0
+            kill -0 $PID > /dev/null 2>&1
             if [ $? -gt 0 ]; then
                 rm -f $ADS_PID > /dev/null 2>&1
                 [ $HAVE_TTY -eq 1 ] && echo "ApacheDS instance '$ADS_INSTANCE_NAME' stopped successfully"
