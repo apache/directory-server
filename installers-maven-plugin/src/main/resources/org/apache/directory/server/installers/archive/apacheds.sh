@@ -39,8 +39,9 @@
 #                   Extended operations to register.
 #   ADS_SHUTDOWN_PORT
 #                   (Optional) If specified, it must be a valid port number
-#                   on which ApacheDS will listen for a connection to trigger
-#                   a polite shutdown.  Defaults to 10390.
+#                   between 1024 and 65536 on which ApacheDS will listen for 
+#                   a connection to trigger a polite shutdown.  Defaults to 0
+#                   indicating a dynamic port allocation.
 #
 #   JAVA_HOME       (Optional) The java installation directory.  If not
 #                   not specified, the java from $PATH will be used.
@@ -48,7 +49,7 @@
 #   JAVA_OPTS       (Optional) Any additional java options (ex: -Xms:256m)
 
 # Defaults
-ADS_SHUTDOWN_PORT=10390
+ADS_SHUTDOWN_PORT=0
 
 # Detect ads home (http://stackoverflow.com/a/630387/516433)
 PROGRAM_DIR="`dirname \"$0\"`"
@@ -185,7 +186,7 @@ elif [ "$ADS_ACTION" = "stop" ]; then
         [ $HAVE_TTY -eq 1 ] && echo "Stopping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
         # Terminate the process
-        if [ $ADS_SHUTDOWN_PORT -gt 0 ]; then
+        if [ $ADS_SHUTDOWN_PORT -ge 0 ]; then
             eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
                 -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
                 -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \

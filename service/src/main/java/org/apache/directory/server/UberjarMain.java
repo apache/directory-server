@@ -88,8 +88,10 @@ public class UberjarMain
                             {
                                 writeShutdownPort( instanceDirectory, shutdownSocket.getLocalPort() );
 
+                                LOG.info( "Start the shutdown listener on port [{}]", 
+                                        shutdownSocket.getLocalPort() );
+
                                 Socket socket;
-                                LOG.info( "Start the shutdown listener on port [{}]", shutdownPort );
                                 while ( (socket = shutdownSocket.accept()) != null )
                                 {
                                     if ( shutdownPassword == null || shutdownPassword.isEmpty() ) {
@@ -147,7 +149,7 @@ public class UberjarMain
     private static int getShutdownPort()
     {
         int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "0" ) );
-        if ( shutdownPort < 1024 || shutdownPort > 65536 )
+        if ( shutdownPort < 0 || (shutdownPort > 0 && shutdownPort < 1024) || shutdownPort > 65536 )
         {
             throw new IllegalArgumentException( "Shutdown port [" + shutdownPort + "] is an illegal port number" );
         }
