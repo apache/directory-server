@@ -23,8 +23,8 @@
 #
 # Environment Variable Prerequisites
 #
-#   Do not set the variables in this script. Instead put them into a script
-#   setenv.sh in CATALINA_BASE/bin to keep your customizations separate.
+#   Do not set the variables in this script. Instead put them into 
+#   $ADS_HOME/bin/setenv.sh to keep your customizations separate.
 #
 #   ADS_HOME        (Optional) The directory that contains your apacheds 
 #                   install.  Defaults to the parent directory of the
@@ -37,11 +37,18 @@
 #
 #   ADS_EXTENDED_OPERATIONS
 #                   Extended operations to register.
+#   ADS_SHUTDOWN_PORT
+#                   (Optional) If specified, it must be a valid port number
+#                   on which ApacheDS will listen for a connection to trigger
+#                   a polite shutdown.  Defaults to 10390.
 #
 #   JAVA_HOME       (Optional) The java installation directory.  If not
 #                   not specified, the java from $PATH will be used.
 #
 #   JAVA_OPTS       (Optional) Any additional java options (ex: -Xms:256m)
+
+# Defaults
+ADS_SHUTDOWN_PORT=10390
 
 # Detect ads home (http://stackoverflow.com/a/630387/516433)
 PROGRAM_DIR="`dirname \"$0\"`"
@@ -143,6 +150,7 @@ if [ "$ADS_ACTION" = "start" ]; then
     # Launching ApacheDS
     eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+        -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -classpath "\"$CLASSPATH\"" \
         org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" \
@@ -156,6 +164,7 @@ elif [ "$ADS_ACTION" = "run" ]; then
     eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
+        -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -classpath "\"$CLASSPATH\"" \
         org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\""
 elif [ "$ADS_ACTION" = "status" ]; then
@@ -176,7 +185,17 @@ elif [ "$ADS_ACTION" = "stop" ]; then
         [ $HAVE_TTY -eq 1 ] && echo "Stopping ApacheDS instance '$ADS_INSTANCE_NAME' running as $PID"
 
         # Terminate the process
-        kill -15 $PID > /dev/null 2>&1
+        if [ $ADS_SHUTDOWN_PORT -gt 0 ]; then
+            eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+                -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+                -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
+                -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
+                -classpath "\"$CLASSPATH\"" \
+                org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" stop
+        else
+            # No port specified so try term signal instead
+            kill -15 $PID > /dev/null 2>&1
+        fi
 
         ATTEMPTS_REMAINING=10
         while [ $ATTEMPTS_REMAINING -gt 0 ]; do
