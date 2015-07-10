@@ -133,7 +133,10 @@ public class UberjarMain
                     LOG.error( "Failed to start the service.", e );
                     System.exit( 1 );
                 }
+
                 instance.start( instanceDirectory );
+
+                LOG.debug( "Runtime stopped" );
                 break;
             case STOP:
                 LOG.debug( "Stopping runtime" );
@@ -144,6 +147,8 @@ public class UberjarMain
                 }
                 break;
         }
+
+        LOG.trace( "Exiting main" );
     }
 
     private static int getShutdownPort()
@@ -177,14 +182,11 @@ public class UberjarMain
         // Creating ApacheDS service
         service = new ApacheDsService();
 
-        // Creating instance layouts from the argument
-        InstanceLayout instanceLayout = new InstanceLayout( args[0] );
-
         // Initializing the service
         try
         {
             LOG.info( "Starting the service." );
-            service.start( instanceLayout );
+            service.start( new InstanceLayout( args[0] ) );
         }
         catch ( Exception e )
         {
@@ -202,6 +204,7 @@ public class UberjarMain
             {
                 LOG.info( "Stopping the service." );
                 service.stop();
+                LOG.info( "Service stopped successfully." );
             }
             catch ( Exception e )
             {

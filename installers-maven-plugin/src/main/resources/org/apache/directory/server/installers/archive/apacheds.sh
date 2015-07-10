@@ -198,17 +198,20 @@ elif [ "$ADS_ACTION" = "stop" ]; then
             kill -15 $PID > /dev/null 2>&1
         fi
 
-        ATTEMPTS_REMAINING=10
+        ATTEMPTS_REMAINING=60
         while [ $ATTEMPTS_REMAINING -gt 0 ]; do
             kill -0 $PID > /dev/null 2>&1
-            if [ $? -gt 0 ]; then
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -gt 0 ]; then
                 rm -f $ADS_PID > /dev/null 2>&1
                 [ $HAVE_TTY -eq 1 ] && echo "ApacheDS instance '$ADS_INSTANCE_NAME' stopped successfully"
-                break
+                exit 0
             fi
             sleep 1
+            [ $HAVE_TTY -eq 1 ] && echo "ApacheDS stopping $PID: $EXIT_CODE, $ATTEMPTS_REMAINING attempts remaining"
             ATTEMPTS_REMAINING=`expr $ATTEMPTS_REMAINING - 1`
         done
+        exit 1 # failed to exit successfully
     else
         [ $HAVE_TTY -eq 1 ] && echo "ApacheDS is not running, $ADS_PID does not exist"
     fi
