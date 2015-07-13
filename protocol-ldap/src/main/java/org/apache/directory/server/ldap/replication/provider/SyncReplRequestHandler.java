@@ -151,6 +151,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private AttributeType REPL_LOG_PURGE_THRESHOLD_COUNT_AT;
 
+    /** thread used for updating consumer infor */
+    private Thread consumerInfoUpdateThread;
 
     /**
      * Create a SyncReplRequestHandler empty instance
@@ -222,7 +224,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             CountDownLatch latch = new CountDownLatch( 1 );
 
-            Thread consumerInfoUpdateThread = new Thread( createConsumerInfoUpdateTask( latch ) );
+            consumerInfoUpdateThread = new Thread( createConsumerInfoUpdateTask( latch ) );
             consumerInfoUpdateThread.setDaemon( true );
             consumerInfoUpdateThread.start();
 
@@ -261,6 +263,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         //then interrupt the janitor
         logJanitor.interrupt();
 
+        //then stop the consumerInfoUpdateThread
+        consumerInfoUpdateThread.interrupt();
+        
         for ( ReplicaEventLog log : replicaLogMap.values() )
         {
             try
@@ -274,6 +279,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 PROVIDER_LOG.error( "Failed to close the event log {}", log.getId(), e );
             }
         }
+
+        // flush the dirty repos
+        storeReplicaInfo();
 
         initialized = false;
     }
@@ -1089,19 +1097,20 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             public void run()
             {
-                while ( true )
+                try
                 {
-                    storeReplicaInfo();
-
-                    try
+                    while ( true )
                     {
+                        storeReplicaInfo();
+                        
                         latch.countDown();
                         Thread.sleep( 10000 );
                     }
-                    catch ( InterruptedException e )
-                    {
-                        PROVIDER_LOG.warn( "thread storing the replica information was interrupted", e );
-                    }
+                }
+                catch ( InterruptedException e )
+                {
+                    // log at debug level, this will be interrupted during stop
+                    PROVIDER_LOG.debug( "thread storing the replica information was interrupted", e );
                 }
             }
         };
