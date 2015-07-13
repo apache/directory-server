@@ -20,16 +20,14 @@ package org.apache.directory.server;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-
 
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
@@ -39,13 +37,13 @@ import org.slf4j.LoggerFactory;
 /**
  * The command line main for the server.
  *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory
- *         Project</a>
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class UberjarMain
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( UberjarMain.class );
+    
     /** The key of the property use to specify the shutdown port */
     private static final String PROPERTY_SHUTDOWN_PORT = "apacheds.shutdown.port";
 
@@ -63,87 +61,29 @@ public class UberjarMain
     {
         if ( (args == null) || (args.length < 1) )
         {
-            throw new IllegalArgumentException(
-                    "Instance directory argument is missing" );
+            throw new IllegalArgumentException( "Instance directory argument is missing" );
         }
 
-        final String instanceDirectory = args[0];
+        String instanceDirectory = args[0];
         Action action = (args.length == 2) ? Action.fromString( args[1] ) : Action.START;
 
-        final UberjarMain instance = new UberjarMain();
-        final int shutdownPort = getShutdownPort();
+        UberjarMain instance = new UberjarMain();
+        
         switch ( action )
         {
             case START:
                 LOG.debug( "Staring runtime" );
-                final String shutdownPassword = writeShutdownPassword( instanceDirectory,
-                        UUID.randomUUID().toString() );
-                try {
-                    new Thread( new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            try (ServerSocket shutdownSocket = new ServerSocket( shutdownPort ))
-                            {
-                                writeShutdownPort( instanceDirectory, shutdownSocket.getLocalPort() );
-
-                                LOG.info( "Start the shutdown listener on port [{}]", 
-                                        shutdownSocket.getLocalPort() );
-
-                                Socket socket;
-                                while ( (socket = shutdownSocket.accept()) != null )
-                                {
-                                    if ( shutdownPassword == null || shutdownPassword.isEmpty() ) {
-                                        instance.stop();
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        try (InputStreamReader reader = new InputStreamReader( socket.getInputStream() ))
-                                        {
-                                            CharBuffer buffer = CharBuffer.allocate( 2048 );
-                                            while ( reader.read( buffer ) >= 0 );
-                                            buffer.flip();
-                                            String password = buffer.toString();
-                                            if ( shutdownPassword.equals( password ) )
-                                            {
-                                                instance.stop();
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                LOG.warn( "Illegal attempt to shutdown, incorrect password [{}]", password );
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            catch ( IOException e )
-                            {
-                                e.printStackTrace();
-                                LOG.error( "Failed to start the shutdown listener.", e );
-                            }
-
-                        }
-                    } ).start();
-                }
-                catch ( Exception e ) {
-                    e.printStackTrace();
-                    LOG.error( "Failed to start the service.", e );
-                    System.exit( 1 );
-                }
-
                 instance.start( instanceDirectory );
 
-                LOG.debug( "Runtime stopped" );
                 break;
+                
             case STOP:
                 LOG.debug( "Stopping runtime" );
-                try (Socket socket = new Socket( "localhost", readShutdownPort( instanceDirectory ) );
+                InstanceLayout layout = new InstanceLayout( instanceDirectory );
+                try (Socket socket = new Socket( "localhost", readShutdownPort( layout ) );
                         PrintWriter writer = new PrintWriter( socket.getOutputStream() ))
                 {
-                    writer.print( readShutdownPassword( instanceDirectory ) );
+                    writer.print( readShutdownPassword( layout ) );
                 }
                 break;
         }
@@ -151,9 +91,10 @@ public class UberjarMain
         LOG.trace( "Exiting main" );
     }
 
-    private static int getShutdownPort()
+    
+    private int getShutdownPort()
     {
-        int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "0" ) );
+        int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "10390" ) );
         if ( shutdownPort < 0 || (shutdownPort > 0 && shutdownPort < 1024) || shutdownPort > 65536 )
         {
             throw new IllegalArgumentException( "Shutdown port [" + shutdownPort + "] is an illegal port number" );
@@ -161,24 +102,27 @@ public class UberjarMain
         return shutdownPort;
     }
 
-    private static int readShutdownPort( String instanceDirectory ) throws IOException 
+    
+    private static int readShutdownPort( InstanceLayout layout ) throws IOException 
     {
         return Integer.parseInt( new String( Files.readAllBytes( 
-                Paths.get( new InstanceLayout( instanceDirectory ).getRunDirectory().getAbsolutePath(), 
-                        ".shutdown.port" ) ),
+                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.port" ) ),
                 Charset.forName( "utf-8" ) ) );
     }
+    
 
-    private static String readShutdownPassword( String instanceDirectory ) throws IOException 
+    private static String readShutdownPassword( InstanceLayout layout ) throws IOException 
     {
         return new String( Files.readAllBytes( 
-                Paths.get( new InstanceLayout( instanceDirectory ).getRunDirectory().getAbsolutePath(),
-                        ".shutdown.pwd" ) ),
+                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.pwd" ) ),
                 Charset.forName( "utf-8" ) );
     }
 
+    
     public void start( String... args )
     {
+        InstanceLayout layout = new InstanceLayout( args[0] );
+        
         // Creating ApacheDS service
         service = new ApacheDsService();
 
@@ -186,11 +130,12 @@ public class UberjarMain
         try
         {
             LOG.info( "Starting the service." );
-            service.start( new InstanceLayout( args[0] ) );
+            service.start( layout );
+            
+            startShutdownListener( layout );
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             LOG.error( "Failed to start the service.", e );
             System.exit( 1 );
         }
@@ -208,49 +153,113 @@ public class UberjarMain
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
                 LOG.error( "Failed to start the service.", e );
                 System.exit( 1 );
             }
         }
     }
     
-    private static String writeShutdownPassword( String instanceDirectory, String password ) throws IOException 
+    
+    /**
+     * Starts a thread that creates a ServerSocket which listens for shutdown command.
+     *
+     * @param layout the InstanceLayout
+     * @throws IOException
+     */
+    private void startShutdownListener( final InstanceLayout layout ) throws IOException
+    {
+        final int shutdownPort = getShutdownPort();
+        final String shutdownPassword = writeShutdownPassword( layout, UUID.randomUUID().toString() );
+        
+        try {
+            new Thread( new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    // bind to localhost only to prevent connections from outside the box
+                    try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getByName( "localhost" ) ) )
+                    {
+                        writeShutdownPort( layout, shutdownSocket.getLocalPort() );
+                        
+                        LOG.info( "Start the shutdown listener on port [{}]", shutdownSocket.getLocalPort() );
+                        
+                        Socket socket;
+                        while ( (socket = shutdownSocket.accept()) != null )
+                        {
+                            if ( shutdownPassword == null || shutdownPassword.isEmpty() ) 
+                            {
+                                stop();
+                                break;
+                            }
+                            else
+                            {
+                                try ( InputStreamReader reader = new InputStreamReader( socket.getInputStream() ) )
+                                {
+                                    CharBuffer buffer = CharBuffer.allocate( 2048 );
+                                    while ( reader.read( buffer ) >= 0 );
+                                    buffer.flip();
+                                    String password = buffer.toString();
+                                    if ( shutdownPassword.equals( password ) )
+                                    {
+                                        stop();
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        LOG.warn( "Illegal attempt to shutdown, incorrect password [{}]", password );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch ( IOException e )
+                    {
+                        LOG.error( "Failed to start the shutdown listener.", e );
+                    }
+                    
+                }
+            } ).start();
+        }
+        catch ( Exception e ) {
+            LOG.error( "Failed to start the service.", e );
+            System.exit( 1 );
+        }
+    }
+    
+    private static String writeShutdownPassword( InstanceLayout layout, String password ) throws IOException 
     {
         Files.write(
-                Paths.get( new InstanceLayout( instanceDirectory ).getRunDirectory().getAbsolutePath(), 
-                        ".shutdown.pwd" ),
+                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.pwd" ),
                 password.getBytes( Charset.forName( "utf-8" ) ) );
         return password;
     }
     
-    private static int writeShutdownPort( String instanceDirectory, int portNumber ) throws IOException 
+    
+    private static int writeShutdownPort( InstanceLayout layout, int portNumber ) throws IOException 
     {
         Files.write(
-                Paths.get( new InstanceLayout( instanceDirectory ).getRunDirectory().getAbsolutePath(), 
-                        ".shutdown.port" ),
+                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.port" ),
                 Integer.toString( portNumber ).getBytes( Charset.forName( "utf-8" ) ) );
         return portNumber;
     }
 
+    
     private static enum Action
     {
         START, STOP;
 
-        private static Map<String, Action> lookup;
-
-        static
-        {
-            lookup = new HashMap<String, Action>();
-            for ( Action action : values() )
-            {
-                lookup.put( action.name(), action );
-            }
-        }
-
         public static Action fromString( String actionString )
         {
-            return lookup.get( actionString.toUpperCase() );
+            for ( Action action : values() )
+            {
+                if ( action.name().equalsIgnoreCase( actionString ) )
+                {
+                    return action;
+                }
+            }
+            
+            throw new IllegalArgumentException( "Unknown action " + actionString );
         }
     }
 }

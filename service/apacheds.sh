@@ -35,6 +35,11 @@ cp log4j.properties target/instance/conf/log4j.properties
 mkdir -p target/instance/partitions
 mkdir -p target/instance/log
 
+if [ "$1" = stop ] ; then
+ java -Dlog4j.configuration=file:./target/instance/conf/log4j.properties -Dapacheds.log.dir=./target/instance/log -jar $JAR ./target/instance $1
+ exit
+fi
+
 if [ "$1" = -debug ] ; then
   echo 'remote debugging enabled in suspension mode, attach a debugger to continue execution'
   JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8008 -Xnoagent -Djava.compiler=NONE"
@@ -44,4 +49,5 @@ ADS_CONTROLS="-Dapacheds.controls="
 
 ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations="
 
-java $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS -Dlog4j.configuration=file:./target/instance/conf/log4j.properties -Dapacheds.log.dir=./target/instance/log -jar $JAR ./target/instance
+# default is start
+java -Xms1024m -Xmx2048m $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS -Dlog4j.configuration=file:./target/instance/conf/log4j.properties -Dapacheds.log.dir=./target/instance/log -jar $JAR ./target/instance
