@@ -222,7 +222,7 @@ public class UberjarMain
             } ).start();
         }
         catch ( Exception e ) {
-            LOG.error( "Failed to start the service.", e );
+            LOG.error( "Failed to start the shutdown listener.", e );
             System.exit( 1 );
         }
     }
