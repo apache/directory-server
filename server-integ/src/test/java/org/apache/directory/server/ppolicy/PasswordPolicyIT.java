@@ -1426,6 +1426,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
        assertEquals( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET, 
            getPwdRespCtrl( bindResponse ).getResponse().getPasswordPolicyError() );
 
+       // in this case all other operations must be disallowed
+       // see section #8.1.2.2.  Password must be changed now
+       Entry mustbeNull = userConnection.lookup( "ou=system" );
+       assertNull(mustbeNull);
+       
        ModifyRequest modifyRequest = new ModifyRequestImpl();
        modifyRequest.setName( userDn );
        modifyRequest.replace( "userPassword", "123456" );

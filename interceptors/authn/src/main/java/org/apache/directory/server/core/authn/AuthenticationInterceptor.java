@@ -126,8 +126,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
     private CoreSession adminSession;
 
-    private Set<String> pwdResetSet = new HashSet<String>();
-
     // pwdpolicy state attribute types
     private AttributeType AT_PWD_RESET;
 
@@ -759,7 +757,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( isPwdMustReset( userEntry ) )
                 {
                     pwdRespCtrl.getResponse().setPasswordPolicyError( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
-                    pwdResetSet.add( bindDn.getNormName() );
+                    bindContext.getSession().setPwdMustChange( true );
                 }
 
                 bindContext.addResponseControl( pwdRespCtrl );
@@ -909,9 +907,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
 
+        CoreSession userSession = modifyContext.getSession();
+        
         if ( pwdModDetails.isPwdModPresent() )
         {
-            if ( pwdResetSet.contains( userDn.getNormName() ) && !pwdModDetails.isDelete() )
+            if ( userSession.isPwdMustChange() && !pwdModDetails.isDelete() )
             {
                 if ( pwdModDetails.isOtherModExists() )
                 {
@@ -965,7 +965,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             Entry entry = modifyContext.getEntry();
 
-            boolean removeFromPwdResetSet = false;
+            boolean removePwdReset = false;
 
             List<Modification> mods = new ArrayList<Modification>();
 
@@ -1103,7 +1103,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     else
                     {
                         pwdMustChangeMod = new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt );
-                        removeFromPwdResetSet = true;
+                        removePwdReset = true;
                     }
 
                     mods.add( pwdMustChangeMod );
@@ -1164,9 +1164,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             directoryService.getPartitionNexus().modify( internalModifyCtx );
 
-            if ( removeFromPwdResetSet || pwdModDetails.isDelete() )
+            if ( removePwdReset || pwdModDetails.isDelete() )
             {
-                pwdResetSet.remove( userDn.getNormName() );
+                userSession.setPwdMustChange( false );
             }
         }
         else
@@ -1250,14 +1250,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         next( unbindContext );
-
-        // remove the Dn from the password reset Set
-        // we do not perform a check to see if the reset flag in the associated ppolicy is enabled
-        // cause that requires fetching the ppolicy first, which requires a lookup for user entry
-        if ( !directoryService.isPwdPolicyEnabled() )
-        {
-            pwdResetSet.remove( unbindContext.getDn().getNormName() );
-        }
     }
 
 
@@ -1463,8 +1455,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return false;
         }
 
+        CoreSession userSession = operationContext.getSession();
+        
         // see sections 7.8 and 7.2 of the ppolicy draft
-        if ( policyConfig.isPwdMustChange() && pwdResetSet.contains( userEntry.getDn().getNormName() ) )
+        if ( policyConfig.isPwdMustChange() && userSession.isPwdMustChange() )
         {
             return false;
         }
@@ -1555,13 +1549,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void checkPwdReset( OperationContext opContext ) throws LdapException
     {
-        if ( !directoryService.isPwdPolicyEnabled() )
+        if ( directoryService.isPwdPolicyEnabled() )
         {
             CoreSession session = opContext.getSession();
 
-            Dn userDn = session.getAuthenticatedPrincipal().getDn();
-
-            if ( pwdResetSet.contains( userDn.getNormName() ) )
+            if ( session.isPwdMustChange() )
             {
                 boolean isPPolicyReqCtrlPresent = opContext
                     .hasRequestControl( PasswordPolicy.OID );

@@ -96,6 +96,8 @@ public class MockCoreSession implements CoreSession
     /** A reference to the ObjectClass AT */
     protected AttributeType OBJECT_CLASS_AT;
 
+    /** flag to indicate if the password must be changed */
+    private boolean pwdMustChange;
 
     public MockCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
@@ -962,4 +964,23 @@ public class MockCoreSession implements CoreSession
     {
         this.directoryService = directoryService;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdMustChange() 
+    {
+        return pwdMustChange;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdMustChange( boolean pwdMustChange ) 
+    {
+        this.pwdMustChange = pwdMustChange;
+    }
+
 }

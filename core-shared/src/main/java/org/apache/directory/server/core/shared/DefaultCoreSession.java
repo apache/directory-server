@@ -123,6 +123,8 @@ public class DefaultCoreSession implements CoreSession
     /** The associated IoSession */
     private IoSession ioSession;
 
+    /** flag to indicate if the password must be changed */
+    private boolean pwdMustChange;
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -1349,4 +1351,21 @@ public class DefaultCoreSession implements CoreSession
         return new SortedEntryCursor( btree, recMan, file );
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdMustChange() 
+    {
+        return pwdMustChange;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdMustChange( boolean pwdMustChange ) 
+    {
+        this.pwdMustChange = pwdMustChange;
+    }
 }

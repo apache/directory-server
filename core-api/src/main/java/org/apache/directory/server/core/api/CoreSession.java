@@ -783,4 +783,21 @@ public interface CoreSession
      * @throws LdapException If the operation failed
      */
     void unbind( UnbindRequest unbindRequest ) throws LdapException;
+    
+    
+    /**
+     * @return true if the password must be changed
+     */
+    boolean isPwdMustChange();
+
+    
+    /**
+     * Sets if the passwords must be changed. If set to true then this session is
+     * only allowed to perform modify password, bind, unbind, abandon and StartTLS
+     * extended operation only as specified in section #8.1.2.2 of the password policy
+     * <a href="http://tools.ietf.org/id/draft-behera-ldap-password-policy-10.txt">spec</a> 
+     * 
+     * @param pwdMustChange
+     */
+    void setPwdMustChange( boolean pwdMustChange );
 }
