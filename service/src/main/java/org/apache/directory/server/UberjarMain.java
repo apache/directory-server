@@ -94,7 +94,7 @@ public class UberjarMain
     
     private int getShutdownPort()
     {
-        int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "10390" ) );
+        int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "0" ) );
         if ( shutdownPort < 0 || (shutdownPort > 0 && shutdownPort < 1024) || shutdownPort > 65536 )
         {
             throw new IllegalArgumentException( "Shutdown port [" + shutdownPort + "] is an illegal port number" );
