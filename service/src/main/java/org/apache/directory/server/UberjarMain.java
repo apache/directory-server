@@ -137,6 +137,7 @@ public class UberjarMain
         catch ( Exception e )
         {
             LOG.error( "Failed to start the service.", e );
+            stop();
             System.exit( 1 );
         }
     }
@@ -171,61 +172,66 @@ public class UberjarMain
         final int shutdownPort = getShutdownPort();
         final String shutdownPassword = writeShutdownPassword( layout, UUID.randomUUID().toString() );
         
-        try {
-            new Thread( new Runnable()
+        new Thread( new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                // bind to localhost only to prevent connections from outside the box
+                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getByName( "localhost" ) ) )
                 {
-                    // bind to localhost only to prevent connections from outside the box
-                    try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getByName( "localhost" ) ) )
+                    writeShutdownPort( layout, shutdownSocket.getLocalPort() );
+                    
+                    LOG.info( "Start the shutdown listener on port {}", shutdownSocket.getLocalPort() );
+                    
+                    Socket socket;
+                    while ( (socket = shutdownSocket.accept()) != null )
                     {
-                        writeShutdownPort( layout, shutdownSocket.getLocalPort() );
-                        
-                        LOG.info( "Start the shutdown listener on port [{}]", shutdownSocket.getLocalPort() );
-                        
-                        Socket socket;
-                        while ( (socket = shutdownSocket.accept()) != null )
+                        if ( shutdownPassword == null || shutdownPassword.isEmpty() ) 
                         {
-                            if ( shutdownPassword == null || shutdownPassword.isEmpty() ) 
+                            stop();
+                            break;
+                        }
+                        else
+                        {
+                            try
                             {
-                                stop();
-                                break;
-                            }
-                            else
-                            {
-                                try ( InputStreamReader reader = new InputStreamReader( socket.getInputStream() ) )
+                                InputStreamReader reader = new InputStreamReader( socket.getInputStream() );
+                                
+                                CharBuffer buffer = CharBuffer.allocate( 2048 );
+                                while ( reader.read( buffer ) >= 0 );
+                                buffer.flip();
+                                String password = buffer.toString();
+                                
+                                reader.close();
+                                
+                                if ( shutdownPassword.equals( password ) )
                                 {
-                                    CharBuffer buffer = CharBuffer.allocate( 2048 );
-                                    while ( reader.read( buffer ) >= 0 );
-                                    buffer.flip();
-                                    String password = buffer.toString();
-                                    if ( shutdownPassword.equals( password ) )
-                                    {
-                                        stop();
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        LOG.warn( "Illegal attempt to shutdown, incorrect password [{}]", password );
-                                    }
+                                    stop();
+                                    break;
                                 }
+                                else
+                                {
+                                    LOG.warn( "Illegal attempt to shutdown, incorrect password {}", password );
+                                }
+                            }
+                            catch ( IOException e )
+                            {
+                                LOG.warn( "Failed to handle the shutdown request", e );
                             }
                         }
                     }
-                    catch ( IOException e )
-                    {
-                        LOG.error( "Failed to start the shutdown listener.", e );
-                    }
-                    
                 }
-            } ).start();
-        }
-        catch ( Exception e ) {
-            LOG.error( "Failed to start the shutdown listener.", e );
-            System.exit( 1 );
-        }
+                catch ( IOException e )
+                {
+                    LOG.error( "Failed to start the shutdown listener, stopping the server", e );
+                    stop();
+                }
+                
+            }
+        } ).start();
     }
+    
     
     private static String writeShutdownPassword( InstanceLayout layout, String password ) throws IOException 
     {
