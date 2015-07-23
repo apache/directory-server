@@ -901,7 +901,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getEntry() );
 
         boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
-        Dn userDn = modifyContext.getSession().getAuthenticatedPrincipal().getDn();
 
         PwdModDetailsHolder pwdModDetails = null;
 
@@ -1027,21 +1026,26 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     {
                         PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
 
-                        boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
-
-                        if ( matched )
+                        // Admin user is exempt from history check
+                        // https://issues.apache.org/jira/browse/DIRSERVER-2084 
+                        if ( !modifyContext.getSession().isAnAdministrator() )
                         {
-                            if ( isPPolicyReqCtrlPresent )
+                            boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
+    
+                            if ( matched )
                             {
-                                PasswordPolicyDecorator responseControl =
-                                    new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                                responseControl.getResponse().setPasswordPolicyError(
-                                    PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
-                                modifyContext.addResponseControl( responseControl );
+                                if ( isPPolicyReqCtrlPresent )
+                                {
+                                    PasswordPolicyDecorator responseControl =
+                                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                                    responseControl.getResponse().setPasswordPolicyError(
+                                        PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
+                                    modifyContext.addResponseControl( responseControl );
+                                }
+    
+                                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
+                                    "invalid reuse of password present in password history" );
                             }
-
-                            throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
-                                "invalid reuse of password present in password history" );
                         }
 
                         pwdHistLst.add( pwdh );
