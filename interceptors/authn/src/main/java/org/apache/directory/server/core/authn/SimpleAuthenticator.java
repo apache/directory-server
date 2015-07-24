@@ -304,8 +304,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw e;
         }
 
-        //checkPwdPolicy( userEntry );
-
         DirectoryService directoryService = getDirectoryService();
         String userPasswordAttribute = SchemaConstants.USER_PASSWORD_AT;
 
