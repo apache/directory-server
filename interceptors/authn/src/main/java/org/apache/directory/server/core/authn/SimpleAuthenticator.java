@@ -25,7 +25,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+
 import javax.naming.Context;
+
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -45,6 +47,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -222,11 +225,27 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // Get the stored password, either from cache or from backend
         byte[][] storedPasswords = principal.getUserPasswords();
 
+        PasswordPolicyException ppe = null;
+        try 
+        {
+            checkPwdPolicy( bindContext.getEntry() );
+        }
+        catch ( PasswordPolicyException e )
+        {
+            ppe = e;
+        }
+
         // Now, compare the passwords.
         for ( byte[] storedPassword : storedPasswords )
         {
             if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
             {
+                if ( ppe != null ) 
+                {
+                    LOG.debug( "{} Authentication failed: {}", bindContext.getDn(), ppe.getMessage() );
+                    throw ppe;
+                }
+
                 if ( IS_DEBUG )
                 {
                     LOG.debug( "{} Authenticated", bindContext.getDn() );
@@ -285,7 +304,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             throw e;
         }
 
-        checkPwdPolicy( userEntry );
+        //checkPwdPolicy( userEntry );
 
         DirectoryService directoryService = getDirectoryService();
         String userPasswordAttribute = SchemaConstants.USER_PASSWORD_AT;

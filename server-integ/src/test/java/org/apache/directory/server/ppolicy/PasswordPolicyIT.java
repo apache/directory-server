@@ -1131,7 +1131,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         checkBind( userConnection, userDn, "badPassword", 3,
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
 
-        checkBind( userConnection, userDn, "badPassword", 1,
+        checkBind( userConnection, userDn, "12345", 1,
             "INVALID_CREDENTIALS: Bind failed: account was permanently locked" );
 
         userConnection.close();
