@@ -866,7 +866,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
     }
 
-
+    
     /**
      * {@inheritDoc}
      */
@@ -881,86 +881,67 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( !directoryService.isPwdPolicyEnabled() || modifyContext.isReplEvent() )
         {
-            next( modifyContext );
-
-            List<Modification> modifications = modifyContext.getModItems();
-
-            for ( Modification modification : modifications )
-            {
-                if ( USER_PASSWORD_AT.equals( modification.getAttribute().getAttributeType() ) )
-                {
-                    invalidateAuthenticatorCaches( modifyContext.getDn() );
-                    break;
-                }
-            }
-
+            processStandardModify( modifyContext );
             return;
         }
+        else
+        {
+            processPasswordPolicydModify( modifyContext );
+        }
+    }
 
-        // handle the case where pwdPolicySubentry AT is about to be deleted in thid modify()
+    
+    /**
+     * Proceed with the Modification operation when the PasswordPolicy is not activated.
+     */
+    private void processStandardModify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        next( modifyContext );
+
+        List<Modification> modifications = modifyContext.getModItems();
+
+        for ( Modification modification : modifications )
+        {
+            if ( USER_PASSWORD_AT.equals( modification.getAttribute().getAttributeType() ) )
+            {
+                invalidateAuthenticatorCaches( modifyContext.getDn() );
+                break;
+            }
+        }
+
+        return;
+    }
+
+    
+    /**
+     * Proceed with the Modification operation when the PasswordPolicy is activated.
+     */
+    private void processPasswordPolicydModify( ModifyOperationContext modifyContext ) throws LdapException
+    {
+        // handle the case where pwdPolicySubentry AT is about to be deleted in this modify()
         PasswordPolicyConfiguration policyConfig = getPwdPolicy( modifyContext.getEntry() );
 
-        boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
+        PwdModDetailsHolder pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
 
-        PwdModDetailsHolder pwdModDetails = null;
-
-        pwdModDetails = getPwdModDetails( modifyContext, policyConfig );
-
-        CoreSession userSession = modifyContext.getSession();
-        
-        if ( pwdModDetails.isPwdModPresent() )
+        if ( !pwdModDetails.isPwdModPresent() )
         {
-            if ( userSession.isPwdMustChange() && !pwdModDetails.isDelete() )
-            {
-                if ( pwdModDetails.isOtherModExists() )
-                {
-                    if ( isPPolicyReqCtrlPresent )
-                    {
-                        PasswordPolicyDecorator responseControl =
-                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError(
-                            PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
-                        modifyContext.addResponseControl( responseControl );
-                    }
+            // We can going on, the password attribute is not present in the Modifications.
+            next( modifyContext );
+        }
+        else
+        {
+            // The password is present in the modifications. Deal with the various use cases.
+            CoreSession userSession = modifyContext.getSession();
+            boolean isPPolicyReqCtrlPresent = modifyContext.hasRequestControl( PasswordPolicy.OID );
+            
+            // First, check if the password must be changed, and if the operation allows it
+            checkPwdMustChange( modifyContext, userSession, pwdModDetails, isPPolicyReqCtrlPresent );
 
-                    throw new LdapNoPermissionException(
-                        "Password should be reset before making any changes to this entry" );
-                }
-            }
+            // Check the the old password is present if it's required by the PP config
+            checkOldPwdRequired( modifyContext, policyConfig, pwdModDetails, isPPolicyReqCtrlPresent );
 
-            if ( policyConfig.isPwdSafeModify() && !pwdModDetails.isDelete() )
-            {
-                if ( pwdModDetails.isAddOrReplace() && !pwdModDetails.isDelete() )
-                {
-                    String msg = "trying to update password attribute without the supplying the old password";
-                    LOG.debug( msg );
-
-                    if ( isPPolicyReqCtrlPresent )
-                    {
-                        PasswordPolicyDecorator responseControl =
-                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                        responseControl.getResponse().setPasswordPolicyError(
-                            PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
-                        modifyContext.addResponseControl( responseControl );
-                    }
-
-                    throw new LdapNoPermissionException( msg );
-                }
-            }
-
-            if ( !policyConfig.isPwdAllowUserChange() && !modifyContext.getSession().isAnAdministrator() )
-            {
-                if ( isPPolicyReqCtrlPresent )
-                {
-                    PasswordPolicyDecorator responseControl =
-                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                    responseControl.getResponse().setPasswordPolicyError(
-                        PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
-                    modifyContext.addResponseControl( responseControl );
-                }
-
-                throw new LdapNoPermissionException();
-            }
+            // Check that we can't update the password if it's not allowed
+            checkChangePwdAllowed( modifyContext, policyConfig, isPPolicyReqCtrlPresent );
 
             Entry entry = modifyContext.getEntry();
 
@@ -1173,13 +1154,86 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 userSession.setPwdMustChange( false );
             }
         }
-        else
+    }
+
+    
+    /**
+     * Check if the password has to be changed, but can't.
+     */
+    private void checkPwdMustChange( ModifyOperationContext modifyContext, CoreSession userSession, 
+        PwdModDetailsHolder pwdModDetails, boolean isPPolicyReqCtrlPresent ) throws LdapNoPermissionException
+    {
+        if ( userSession.isPwdMustChange() && 
+            !pwdModDetails.isDelete() &&
+            pwdModDetails.isOtherModExists() )
+       {
+           if ( isPPolicyReqCtrlPresent )
+           {
+               PasswordPolicyDecorator responseControl =
+                   new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+               responseControl.getResponse().setPasswordPolicyError(
+                   PasswordPolicyErrorEnum.CHANGE_AFTER_RESET );
+               modifyContext.addResponseControl( responseControl );
+           }
+
+           throw new LdapNoPermissionException(
+               "Password should be reset before making any changes to this entry" );
+       }
+    }
+    
+    
+    /**
+     * If the PP config request it, the old password must be supplied in the modifications. Check that it 
+     * is present.
+     */
+    private void checkOldPwdRequired( ModifyOperationContext modifyContext, PasswordPolicyConfiguration policyConfig,
+        PwdModDetailsHolder pwdModDetails, boolean isPPolicyReqCtrlPresent ) throws LdapNoPermissionException
+    {
+        if ( policyConfig.isPwdSafeModify() && 
+             !pwdModDetails.isDelete() &&
+             pwdModDetails.isAddOrReplace() ) 
         {
-            next( modifyContext );
+            String msg = "trying to update password attribute without the supplying the old password";
+            LOG.debug( msg );
+
+            if ( isPPolicyReqCtrlPresent )
+            {
+                PasswordPolicyDecorator responseControl =
+                    new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                responseControl.getResponse().setPasswordPolicyError(
+                    PasswordPolicyErrorEnum.MUST_SUPPLY_OLD_PASSWORD );
+                modifyContext.addResponseControl( responseControl );
+            }
+
+            throw new LdapNoPermissionException( msg );
+        }
+    }
+    
+    
+    /**
+     * check that if the password modification is allowed by the PP config, or if the session is 
+     * the admin. 
+     */
+    private void checkChangePwdAllowed( ModifyOperationContext modifyContext, PasswordPolicyConfiguration policyConfig,
+        boolean isPPolicyReqCtrlPresent ) throws LdapNoPermissionException
+    {
+        if ( !policyConfig.isPwdAllowUserChange() && !modifyContext.getSession().isAnAdministrator() )
+             
+        {
+            if ( isPPolicyReqCtrlPresent )
+            {
+                PasswordPolicyDecorator responseControl =
+                    new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                responseControl.getResponse().setPasswordPolicyError(
+                    PasswordPolicyErrorEnum.PASSWORD_MOD_NOT_ALLOWED );
+                modifyContext.addResponseControl( responseControl );
+            }
+
+            throw new LdapNoPermissionException();
         }
     }
 
-
+    
     /**
      * {@inheritDoc}
      */
@@ -1680,6 +1734,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 Dn configDn = dnFactory.create( pwdPolicySubentry.getString() );
 
                 PasswordPolicyConfiguration custom = pwdPolicyContainer.getPolicyConfig( configDn );
+                
                 if ( custom != null )
                 {
                     return custom;
