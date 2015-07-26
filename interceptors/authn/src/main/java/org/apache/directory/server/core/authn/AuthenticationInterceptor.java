@@ -882,7 +882,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( !directoryService.isPwdPolicyEnabled() || modifyContext.isReplEvent() )
         {
             processStandardModify( modifyContext );
-            return;
         }
         else
         {
@@ -1095,47 +1094,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
             }
 
-            // these two attributes will be removed irrespective  of add or delete
-            Attribute pwdFailureTimeAt = entry.get( AT_PWD_FAILURE_TIME );
-
-            if ( pwdFailureTimeAt != null )
-            {
-                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
-            }
-
-            Attribute pwdGraceUseTimeAt = entry.get( AT_PWD_GRACE_USE_TIME );
-
-            if ( pwdGraceUseTimeAt != null )
-            {
-                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdGraceUseTimeAt ) );
-            }
-
-            if ( pwdModDetails.isDelete() )
-            {
-                Attribute pwdHistory = entry.get( AT_PWD_HISTORY );
-                if ( pwdHistory != null )
-                {
-                    mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdHistory ) );
-                }
-
-                Attribute pwdChangedTimeAt = entry.get( AT_PWD_CHANGED_TIME );
-                if ( pwdChangedTimeAt != null )
-                {
-                    mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdChangedTimeAt ) );
-                }
-
-                Attribute pwdMustChangeAt = entry.get( AT_PWD_RESET );
-                if ( pwdMustChangeAt != null )
-                {
-                    mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt ) );
-                }
-
-                Attribute pwdAccountLockedTimeAt = entry.get( AT_PWD_ACCOUNT_LOCKED_TIME );
-                if ( pwdAccountLockedTimeAt != null )
-                {
-                    mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdAccountLockedTimeAt ) );
-                }
-            }
+            // Add the attributes that have been modified following a Add/Replace password
+            processModifyAddPwdAttributes( entry, mods, pwdModDetails );
 
             String csnVal = directoryService.getCSN().toString();
             Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, ENTRY_CSN_AT, csnVal );
@@ -1152,6 +1112,58 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( removePwdReset || pwdModDetails.isDelete() )
             {
                 userSession.setPwdMustChange( false );
+            }
+        }
+    }
+    
+    
+    /**
+     * Add the passwordPolicy related Attributes from the modified entry
+     */
+    private void processModifyAddPwdAttributes( Entry entry, List<Modification> mods, PwdModDetailsHolder pwdModDetails )
+    {
+        Attribute pwdFailureTimeAt = entry.get( AT_PWD_FAILURE_TIME );
+    
+        if ( pwdFailureTimeAt != null )
+        {
+            mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
+        }
+    
+        Attribute pwdGraceUseTimeAt = entry.get( AT_PWD_GRACE_USE_TIME );
+    
+        if ( pwdGraceUseTimeAt != null )
+        {
+            mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdGraceUseTimeAt ) );
+        }
+    
+        if ( pwdModDetails.isDelete() )
+        {
+            Attribute pwdHistory = entry.get( AT_PWD_HISTORY );
+            
+            if ( pwdHistory != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdHistory ) );
+            }
+    
+            Attribute pwdChangedTimeAt = entry.get( AT_PWD_CHANGED_TIME );
+            
+            if ( pwdChangedTimeAt != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdChangedTimeAt ) );
+            }
+    
+            Attribute pwdMustChangeAt = entry.get( AT_PWD_RESET );
+            
+            if ( pwdMustChangeAt != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt ) );
+            }
+    
+            Attribute pwdAccountLockedTimeAt = entry.get( AT_PWD_ACCOUNT_LOCKED_TIME );
+            
+            if ( pwdAccountLockedTimeAt != null )
+            {
+                mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdAccountLockedTimeAt ) );
             }
         }
     }
