@@ -1000,48 +1000,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
                         pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
                     }
 
-                    List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
-
-                    for ( Value<?> value : pwdHistoryAt )
-                    {
-                        PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
-
-                        // Admin user is exempt from history check
-                        // https://issues.apache.org/jira/browse/DIRSERVER-2084 
-                        if ( !modifyContext.getSession().isAnAdministrator() )
-                        {
-                            boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
-    
-                            if ( matched )
-                            {
-                                if ( isPPolicyReqCtrlPresent )
-                                {
-                                    PasswordPolicyDecorator responseControl =
-                                        new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
-                                    responseControl.getResponse().setPasswordPolicyError(
-                                        PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
-                                    modifyContext.addResponseControl( responseControl );
-                                }
-    
-                                throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
-                                    "invalid reuse of password present in password history" );
-                            }
-                        }
-
-                        pwdHistLst.add( pwdh );
-                    }
-
-                    if ( pwdHistLst.size() >= histSize )
-                    {
-                        // see the javadoc of PasswordHistory
-                        Collections.sort( pwdHistLst );
-
-                        // remove the oldest value
-                        PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
-                        Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
-                        tempAt.add( remPwdHist.getHistoryValue() );
-                        pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
-                    }
+                    // Build the Modification containing the password history
+                    pwdRemHistMod = buildPwdHistory( modifyContext, pwdHistoryAt, histSize, 
+                        newPassword, isPPolicyReqCtrlPresent );
 
                     PasswordHistory newPwdHist = new PasswordHistory( pwdChangedTime, newPassword );
                     pwdHistoryAt.add( newPwdHist.getHistoryValue() );
@@ -1114,6 +1075,61 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 userSession.setPwdMustChange( false );
             }
         }
+    }
+    
+    
+    /**
+     * Build the list of passwordHistory
+     */
+    Modification buildPwdHistory( ModifyOperationContext modifyContext, Attribute pwdHistoryAt, 
+        int histSize, byte[] newPassword, boolean isPPolicyReqCtrlPresent ) throws LdapOperationException
+    {
+        List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
+
+        for ( Value<?> value : pwdHistoryAt )
+        {
+            PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
+
+            // Admin user is exempt from history check
+            // https://issues.apache.org/jira/browse/DIRSERVER-2084 
+            if ( !modifyContext.getSession().isAnAdministrator() )
+            {
+                boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
+
+                if ( matched )
+                {
+                    if ( isPPolicyReqCtrlPresent )
+                    {
+                        PasswordPolicyDecorator responseControl =
+                            new PasswordPolicyDecorator( directoryService.getLdapCodecService(), true );
+                        responseControl.getResponse().setPasswordPolicyError(
+                            PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY );
+                        modifyContext.addResponseControl( responseControl );
+                    }
+
+                    throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION,
+                        "invalid reuse of password present in password history" );
+                }
+            }
+
+            pwdHistLst.add( pwdh );
+        }
+ 
+        Modification pwdRemHistMod = null;
+        
+        if ( pwdHistLst.size() >= histSize )
+        {
+            // see the javadoc of PasswordHistory
+            Collections.sort( pwdHistLst );
+
+            // remove the oldest value
+            PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
+            Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
+            tempAt.add( remPwdHist.getHistoryValue() );
+            pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
+        }
+
+        return pwdRemHistMod;
     }
     
     
