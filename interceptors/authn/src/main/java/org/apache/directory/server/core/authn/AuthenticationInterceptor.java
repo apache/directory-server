@@ -1600,8 +1600,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         for ( Modification m : mods )
         {
             Attribute at = m.getAttribute();
+            AttributeType passwordAttribute = schemaManager.lookupAttributeTypeRegistry( policyConfig.getPwdAttribute() );
 
-            if ( at.getUpId().equalsIgnoreCase( policyConfig.getPwdAttribute() ) )
+            if ( at.getAttributeType().equals( passwordAttribute ) )
             {
                 pwdModDetails.setPwdModPresent( true );
                 ModificationOperation op = m.getOperation();
