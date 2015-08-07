@@ -30,6 +30,8 @@ import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchema
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_POLICY_SUBENTRY_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_RESET_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.ADD_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
@@ -142,6 +144,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private AttributeType AT_PWD_GRACE_USE_TIME;
 
     private AttributeType AT_CREATE_TIMESTAMP;
+
+    private AttributeType AT_PWD_POLICY_SUBENTRY;
+
+    private AttributeType AT_PWD_START_TIME;
+
+    private AttributeType AT_PWD_END_TIME;
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
@@ -1385,7 +1393,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
         AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
         PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
 
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT ) );
+        AT_PWD_POLICY_SUBENTRY = schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_POLICY_SUBENTRY );
+
+        AT_PWD_START_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_START_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_START_TIME );
+
+        AT_PWD_END_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_END_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_END_TIME );
     }
 
 
