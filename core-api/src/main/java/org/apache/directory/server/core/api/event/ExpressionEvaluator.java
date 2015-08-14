@@ -30,7 +30,6 @@ import org.apache.directory.api.ldap.model.filter.NotNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 
 

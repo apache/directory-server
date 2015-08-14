@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
-import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 
 

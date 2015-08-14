@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractLayout
 {
     /** The logger*/
-    private static final Logger log = LoggerFactory.getLogger( AbstractLayout.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractLayout.class );
 
     /** The required directories */
     private File[] requiredDirectories = new File[0];
@@ -149,7 +149,7 @@ public abstract class AbstractLayout
      */
     public void verifyInstallation()
     {
-        log.debug( "Verifying required directories" );
+        LOG.debug( "Verifying required directories" );
 
         // Verifying required directories
         for ( File requiredDirectory : requiredDirectories )
@@ -158,7 +158,7 @@ public abstract class AbstractLayout
             if ( !requiredDirectory.exists() )
             {
                 String message = "The required '" + requiredDirectory + " directory does not exist!";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
 
@@ -166,7 +166,7 @@ public abstract class AbstractLayout
             if ( requiredDirectory.isFile() )
             {
                 String message = "'" + requiredDirectory + "' is a file when it should be a directory.";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
 
@@ -176,14 +176,14 @@ public abstract class AbstractLayout
                 String message = "'" + requiredDirectory
                     + "' is write protected from the current user '"
                     + System.getProperty( "user.name" ) + "'";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
         }
 
-        log.debug( "Required directories verification finished successfully." );
+        LOG.debug( "Required directories verification finished successfully." );
 
-        log.debug( "Verifying required files" );
+        LOG.debug( "Verifying required files" );
 
         // Verifying required files
         for ( File requiredFile : requiredFiles )
@@ -192,7 +192,7 @@ public abstract class AbstractLayout
             if ( !requiredFile.exists() )
             {
                 String message = "The required'" + requiredFile + "' file does not exist!";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
 
@@ -200,7 +200,7 @@ public abstract class AbstractLayout
             if ( requiredFile.isDirectory() )
             {
                 String message = "'" + requiredFile + "' is a directory when it should be a file.";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
 
@@ -209,11 +209,11 @@ public abstract class AbstractLayout
             {
                 String message = "'" + requiredFile + "' is not readable by the current user '"
                     + System.getProperty( "user.name" ) + "'.";
-                log.error( message );
+                LOG.error( message );
                 throw new IllegalStateException( message );
             }
         }
 
-        log.debug( "Required files verification finished successfully." );
+        LOG.debug( "Required files verification finished successfully." );
     }
 }

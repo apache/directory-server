@@ -42,7 +42,6 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.changelog.LogChange;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 

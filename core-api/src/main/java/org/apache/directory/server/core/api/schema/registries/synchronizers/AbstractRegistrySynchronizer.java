@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -65,7 +63,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected final SchemaManager schemaManager;
 
     /** The m-oid AttributeType */
-    protected final AttributeType m_oidAT;
+    protected final AttributeType moidAT;
 
     /** The Schema objetc factory */
     protected final SchemaEntityFactory factory;
@@ -96,7 +94,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
-        m_oidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
+        moidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
     }
 
@@ -345,7 +343,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected String getOid( Entry entry ) throws LdapException
     {
-        Attribute oid = entry.get( m_oidAT );
+        Attribute oid = entry.get( moidAT );
 
         if ( oid == null )
         {

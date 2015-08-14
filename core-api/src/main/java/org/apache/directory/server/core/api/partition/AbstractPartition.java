@@ -277,7 +277,7 @@ public abstract class AbstractPartition implements Partition
      */
     protected void setContextCsn( String csn )
     {
-        if( !csn.equals( contextCsn ) )
+        if ( !csn.equals( contextCsn ) )
         {
             contextCsn = csn;
             ctxCsnChanged = true;

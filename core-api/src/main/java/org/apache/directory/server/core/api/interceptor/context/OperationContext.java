@@ -28,7 +28,6 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 
 
 /**

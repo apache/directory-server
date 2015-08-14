@@ -31,7 +31,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
@@ -62,8 +61,13 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerEntryUtils
+public final class ServerEntryUtils
 {
+    private ServerEntryUtils()
+    {
+    }
+
+
     /**
      * Convert a ServerAttribute into a BasicAttribute. The Dn is lost
      * during this conversion, as the Attributes object does not store
@@ -551,7 +555,7 @@ public class ServerEntryUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public static final Modification getModificationItem( List<Modification> mods, AttributeType type )
+    public static Modification getModificationItem( List<Modification> mods, AttributeType type )
     {
         for ( Modification modification : mods )
         {
@@ -877,8 +881,8 @@ public class ServerEntryUtils
 
                 for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    if ( attrOptions.getAttributeType().equals( attributeType )
+                        || attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;

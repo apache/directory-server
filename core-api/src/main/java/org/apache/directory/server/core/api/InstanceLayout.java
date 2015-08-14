@@ -386,13 +386,13 @@ public class InstanceLayout extends AbstractLayout
      */
     public String toString()
     {
-        return "Instance Layout: \n" +
-            "  Instance dir                  : " + getInstanceDirectory() + "\n" +
-            "  Instance conf dir             : " + getConfDirectory() + "\n" +
-            "  Instance log dir              : " + getLogDirectory() + "\n" +
-            "  Instance run dir              : " + getRunDirectory() + "\n" +
-            "  Instance partitions dir       : " + getPartitionsDirectory() + "\n" +
-            "  Instance replication data dir : " + getReplDirectory() + "\n" +
-            "  Instance cache dir            : " + getCacheDirectory() + "\n";
+        return "Instance Layout: \n"
+            + "  Instance dir                  : " + getInstanceDirectory() + "\n"
+            + "  Instance conf dir             : " + getConfDirectory() + "\n"
+            + "  Instance log dir              : " + getLogDirectory() + "\n"
+            + "  Instance run dir              : " + getRunDirectory() + "\n"
+            + "  Instance partitions dir       : " + getPartitionsDirectory() + "\n"
+            + "  Instance replication data dir : " + getReplDirectory() + "\n"
+            + "  Instance cache dir            : " + getCacheDirectory() + "\n";
     }
 }

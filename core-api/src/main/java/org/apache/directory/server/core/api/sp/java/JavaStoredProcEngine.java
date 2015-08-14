@@ -129,6 +129,6 @@ public class JavaStoredProcEngine implements StoredProcEngine
         return types.toArray( EMPTY_CLASS_ARRAY );
     }
 
-    private static Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 
 }

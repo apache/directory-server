@@ -243,7 +243,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
             
             searchDoneResp.getLdapResult().setResultCode( re );
             
-            Map<String,Control> ctrls = processedResp.getControls();
+            Map<String, Control> ctrls = processedResp.getControls();
             
             if ( ctrls != null )
             {

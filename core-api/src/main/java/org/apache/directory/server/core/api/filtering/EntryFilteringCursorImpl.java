@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements EntryFilteringCursor
 {
     /** the logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( EntryFilteringCursorImpl.class );
+    private static final Logger LOG = LoggerFactory.getLogger( EntryFilteringCursorImpl.class );
 
     /** A dedicated log for cursors */
     private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
@@ -169,7 +169,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
 
         if ( abandoned )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
         }
     }
 
@@ -306,7 +306,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     {
         if ( operationContext.isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
@@ -347,7 +347,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     {
         if ( operationContext.isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
@@ -365,7 +365,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     {
         if ( operationContext.isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }
@@ -450,7 +450,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     {
         if ( operationContext.isAbandoned() )
         {
-            log.info( "Cursor has been abandoned." );
+            LOG.info( "Cursor has been abandoned." );
             close();
             throw new OperationAbandonedException();
         }

@@ -96,8 +96,8 @@ public class SubtreeEvaluator
          */
         int entryRelativeDnSize = entryDn.size() - subentryBaseDn.size();
 
-        if ( ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX ) &&
-            ( entryRelativeDnSize > subtree.getMaxBaseDistance() ) )
+        if ( ( subtree.getMaxBaseDistance() != SubtreeSpecification.UNBOUNDED_MAX )
+            && ( entryRelativeDnSize > subtree.getMaxBaseDistance() ) )
         {
             return false;
         }
@@ -116,8 +116,7 @@ public class SubtreeEvaluator
          */
         // Now, get the entry's relative part
 
-        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) ||
-            ( subtree.getChopAfterExclusions().size() != 0 ) )
+        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || ( subtree.getChopAfterExclusions().size() != 0 ) )
         {
             Dn entryRelativeDn = entryDn.getDescendantOf( apDn ).getDescendantOf( subtree.getBase() );
 

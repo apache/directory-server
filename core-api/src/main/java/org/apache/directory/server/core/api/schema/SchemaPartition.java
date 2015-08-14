@@ -286,7 +286,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public final int getChildCount( DeleteOperationContext deleteContext ) throws LdapException
+    public int getChildCount( DeleteOperationContext deleteContext ) throws LdapException
     {
         try
         {

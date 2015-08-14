@@ -238,8 +238,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
         for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
         {
-            if ( attributeTypeOptions.getAttributeType().equals( attributeType ) ||
-                attributeTypeOptions.getAttributeType().isAncestorOf( attributeType ) )
+            if ( attributeTypeOptions.getAttributeType().equals( attributeType )
+                || attributeTypeOptions.getAttributeType().isAncestorOf( attributeType ) )
             {
                 return true;
             }

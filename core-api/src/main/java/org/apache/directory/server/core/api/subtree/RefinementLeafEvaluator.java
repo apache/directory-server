@@ -45,7 +45,7 @@ public class RefinementLeafEvaluator
     private final SchemaManager schemaManager;
 
     /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
 
     /**
@@ -56,7 +56,7 @@ public class RefinementLeafEvaluator
     public RefinementLeafEvaluator( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -84,13 +84,13 @@ public class RefinementLeafEvaluator
 
         if ( node.isSchemaAware() )
         {
-            if ( !node.getAttributeType().equals( OBJECT_CLASS_AT ) )
+            if ( !node.getAttributeType().equals( objectClassAT ) )
             {
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
             }
         }
-        else if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) &&
-            !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+        else if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+            && !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
         }
@@ -100,7 +100,7 @@ public class RefinementLeafEvaluator
             throw new IllegalArgumentException( I18n.err( I18n.ERR_303 ) );
         }
 
-        if ( !( objectClasses.isInstanceOf( OBJECT_CLASS_AT ) ) )
+        if ( !( objectClasses.isInstanceOf( objectClassAT ) ) )
         {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
         }

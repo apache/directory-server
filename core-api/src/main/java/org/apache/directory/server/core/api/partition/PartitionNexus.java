@@ -43,12 +43,12 @@ import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperat
 public interface PartitionNexus extends Partition
 {
     /** the admin super user uid */
-    static final String ADMIN_UID = "admin";
+    String ADMIN_UID = "admin";
 
     /** the initial admin passwd set on startup */
-    static final String ADMIN_PASSWORD_STRING = "secret";
+    String ADMIN_PASSWORD_STRING = "secret";
 
-    static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
+    byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
 
 
     /**

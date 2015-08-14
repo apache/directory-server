@@ -86,7 +86,7 @@ public class DefaultPasswordValidator implements PasswordValidator
 
             if ( password.matches( "(?i).*" + token + ".*" ) )
             {
-                throw new PasswordPolicyException( "Password shouldn't contain parts of the username", 5 );// 5 == PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY
+                throw new PasswordPolicyException( "Password shouldn't contain parts of the username", 5 ); // 5 == PasswordPolicyErrorEnum.INSUFFICIENT_PASSWORD_QUALITY
             }
         }
     }

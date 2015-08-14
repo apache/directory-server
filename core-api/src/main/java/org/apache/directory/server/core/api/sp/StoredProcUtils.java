@@ -26,24 +26,29 @@ package org.apache.directory.server.core.api.sp;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoredProcUtils
+public final class StoredProcUtils
 {
 
     /** The delimiter used to tokenize a full SP name into the unit and SP name */
-    public static final String SPUnitDelimiter = ":";
+    public static final String SP_UNIT_DELIMITER = ":";
+
+
+    private StoredProcUtils()
+    {
+    }
 
 
     public static String extractStoredProcName( String fullSPName )
     {
-        int delimiter = fullSPName.lastIndexOf( SPUnitDelimiter );
-        String spName = fullSPName.substring( delimiter + SPUnitDelimiter.length() );
+        int delimiter = fullSPName.lastIndexOf( SP_UNIT_DELIMITER );
+        String spName = fullSPName.substring( delimiter + SP_UNIT_DELIMITER.length() );
         return spName;
     }
 
 
     public static String extractStoredProcUnitName( String fullSPName )
     {
-        int delimiter = fullSPName.lastIndexOf( SPUnitDelimiter );
+        int delimiter = fullSPName.lastIndexOf( SP_UNIT_DELIMITER );
         String className = fullSPName.substring( 0, delimiter );
         return className;
     }
