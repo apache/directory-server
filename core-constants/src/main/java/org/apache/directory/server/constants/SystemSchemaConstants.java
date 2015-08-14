@@ -26,7 +26,7 @@ package org.apache.directory.server.constants;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SystemSchemaConstants
+public final class SystemSchemaConstants
 {
     /**
      *  Ensures no construction of this class, also ensures there is no need for final keyword above
