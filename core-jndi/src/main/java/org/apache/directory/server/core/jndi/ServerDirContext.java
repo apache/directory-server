@@ -688,7 +688,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
-            PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            PresenceNode filter = new PresenceNode( objectClassAT );
             AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
             try
             {

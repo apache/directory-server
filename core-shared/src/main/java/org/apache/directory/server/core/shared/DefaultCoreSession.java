@@ -118,7 +118,7 @@ public class DefaultCoreSession implements CoreSession
     private LdapPrincipal authorizedPrincipal;
 
     /** A reference to the ObjectClass AT */
-    protected AttributeType OBJECT_CLASS_AT;
+    protected AttributeType objectClassAT;
 
     /** The associated IoSession */
     private IoSession ioSession;
@@ -146,7 +146,7 @@ public class DefaultCoreSession implements CoreSession
         }
 
         // setup attribute type value
-        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -540,7 +540,7 @@ public class DefaultCoreSession implements CoreSession
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( objectClassAT );
         SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter,
             returningAttributes );
         searchContext.setAliasDerefMode( aliasDerefMode );

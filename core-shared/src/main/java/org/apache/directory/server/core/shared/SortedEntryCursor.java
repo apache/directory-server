@@ -65,7 +65,8 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     
     private BTree<Entry, String> btree;
     
-    public SortedEntryCursor( BTree<Entry,String> btree, RecordManager recMan, File dataFile ) throws IOException
+
+    public SortedEntryCursor( BTree<Entry, String> btree, RecordManager recMan, File dataFile ) throws IOException
     {
         this.recMan = recMan;
         this.dataFile = dataFile;
@@ -261,17 +262,17 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     
     private void deleteFile()
     {
-        if( recMan == null )
+        if ( recMan == null )
         {
             return;
         }
-        
+
         try
         {
             recMan.close();
             dataFile.delete();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             LOG.warn( "Failed to delete the sorted entry data file {}", dataFile, e );
         }

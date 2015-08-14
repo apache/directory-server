@@ -47,8 +47,12 @@ import org.apache.directory.server.i18n.I18n;
  * @see <a href="http://www.faqs.org/rfcs/rfc2713.html">RFC 2713</a>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class JavaLdapSupport
+final class JavaLdapSupport
 {
+    private JavaLdapSupport()
+    {
+    }
+
     // ------------------------------------------------------------------------
     // Attribute Id Constants Used By The Java LDAP BootstrapSchema
     // ------------------------------------------------------------------------

@@ -120,18 +120,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /** A structure to hold all the partitions */
     private DnNode<Partition> partitionLookupTree = new DnNode<Partition>();
 
-    /** the system partition */
-    //private Partition system;
-
-    /** A reference to the EntryCSN attributeType */
-    private static AttributeType ENTRY_CSN_AT;
-
-    /** A reference to the ObjectClass attributeType */
-    private static AttributeType OBJECT_CLASS_AT;
-
     private final List<Modification> mods = new ArrayList<Modification>( 2 );
-
-    private String lastSyncedCtxCsn = null;
 
     /** The cn=schema Dn */
     private Dn subschemSubentryDn;
@@ -202,8 +191,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
 
             schemaManager = directoryService.getSchemaManager();
-            ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
-            OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
 
             // Initialize and normalize the localy used DNs
             Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );

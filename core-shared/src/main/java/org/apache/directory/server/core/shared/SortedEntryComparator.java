@@ -77,7 +77,7 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
 
         hr = at.getSyntax().isHumanReadable();
 
-        if( mrule != null )
+        if ( mrule != null )
         {
             comparator = schemaManager.lookupComparatorRegistry( mrule );
         }
@@ -85,7 +85,7 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         {
             MatchingRule mr = at.getOrdering();
             
-            if( mr == null )
+            if ( mr == null )
             {
                 mr = at.getEquality();
             }
@@ -143,10 +143,6 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
             }
         }
 
-        if( o1 == null || o2 == null )
-        {
-            System.out.println("");
-        }
         int c = 1;
 
         if ( reverse )

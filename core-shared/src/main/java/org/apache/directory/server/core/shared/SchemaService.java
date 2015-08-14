@@ -54,13 +54,18 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaService
+public final class SchemaService
 {
     /** cached version of the schema subentry with all attributes in it */
     private static Entry schemaSubentry;
 
     /** A lock to avid concurrent generation of the SubschemaSubentry */
     private static Object schemaSubentrLock = new Object();
+
+
+    private SchemaService()
+    {
+    }
 
 
     /**

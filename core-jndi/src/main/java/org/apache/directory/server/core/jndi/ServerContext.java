@@ -144,7 +144,7 @@ public abstract class ServerContext implements EventContext
     protected SchemaManager schemaManager;
 
     /** A reference to the ObjectClass AT */
-    protected AttributeType OBJECT_CLASS_AT;
+    protected AttributeType objectClassAT;
 
     /** The cloned environment used by this Context */
     private final Hashtable<String, Object> env;
@@ -231,7 +231,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -266,7 +266,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -290,7 +290,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -450,6 +450,9 @@ public abstract class ServerContext implements EventContext
                 control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
 
                 break;
+
+            default:
+                throw new IllegalArgumentException( "Unsupported control " + controlIDStr );
         }
 
         control.setCritical( jndiControl.isCritical() );
@@ -587,7 +590,7 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( objectClassAT );
         SearchOperationContext searchContext = new SearchOperationContext( session, target, SearchScope.ONELEVEL, filter, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         searchContext.addRequestControls( convertControls( true, requestControls ) );
 
@@ -656,9 +659,10 @@ public abstract class ServerContext implements EventContext
             lookupContext.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
-        if ( ( lookupContext.getReturningAttributes() != null ) && ( lookupContext.getReturningAttributes().size() != 0 ) &&
-            ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
-            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
+        if ( ( lookupContext.getReturningAttributes() != null )
+            && ( lookupContext.getReturningAttributes().size() != 0 )
+            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
+            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
         {
             serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
         }
@@ -1536,7 +1540,7 @@ public abstract class ServerContext implements EventContext
     {
         // Conduct a special one level search at base for all objects
         Dn base = buildTarget( JndiUtils.fromName( name ) );
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( objectClassAT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -1608,7 +1612,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
-        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        ExprNode filter = new PresenceNode( objectClassAT );
 
         try
         {
