@@ -64,10 +64,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DSAnnotationProcessor
+public final class DSAnnotationProcessor
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
+
+
+    private DSAnnotationProcessor()
+    {
+    }
 
 
     /**
@@ -229,7 +234,7 @@ public class DSAnnotationProcessor
             {
                 // The annotation contains a specific partition type, we use
                 // that type.
-                Class<?> partypes[] = new Class[]
+                Class<?>[] partypes = new Class[]
                     { SchemaManager.class, DnFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
                 partition = ( Partition ) constructor.newInstance( new Object[]
@@ -492,14 +497,14 @@ public class DSAnnotationProcessor
         {
             String[] ldifs = applyLdifs.value();
 
-            String DN_START = "dn:";
+            String dnStart = "dn:";
 
             StringBuilder sb = new StringBuilder();
 
             for ( int i = 0; i < ldifs.length; )
             {
                 String s = ldifs[i++].trim();
-                if ( s.startsWith( DN_START ) )
+                if ( s.startsWith( dnStart ) )
                 {
                     sb.append( s ).append( '\n' );
 
@@ -507,7 +512,7 @@ public class DSAnnotationProcessor
                     while ( i < ldifs.length )
                     {
                         s = ldifs[i++];
-                        if ( !s.startsWith( DN_START ) )
+                        if ( !s.startsWith( dnStart ) )
                         {
                             sb.append( s ).append( '\n' );
                         }

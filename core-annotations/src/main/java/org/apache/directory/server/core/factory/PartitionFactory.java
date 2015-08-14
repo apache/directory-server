@@ -24,7 +24,6 @@ import java.io.File;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.apache.directory.server.xdbm.Index;
 
 
 /**
