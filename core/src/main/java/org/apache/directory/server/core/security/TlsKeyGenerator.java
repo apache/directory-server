@@ -58,8 +58,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TlsKeyGenerator
+public final class TlsKeyGenerator
 {
+    private TlsKeyGenerator()
+    {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger( TlsKeyGenerator.class );
 
     public static final String TLS_KEY_INFO_OC = "tlsKeyInfo";

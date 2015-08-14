@@ -42,8 +42,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -189,10 +187,10 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
-        "WARNING: the changelog is only partially operational and will revert\n" +
-            "state without consideration of who made the original change.  All reverting " +
-            "changes are made by the admin user.\n Furthermore the used controls are not at " +
-            "all taken into account";
+        "WARNING: the changelog is only partially operational and will revert\n"
+            + "state without consideration of who made the original change.  All reverting "
+            + "changes are made by the admin user.\n Furthermore the used controls are not at "
+            + "all taken into account";
 
     /** The delay to wait between each sync on disk */
     private long syncPeriodMillis;

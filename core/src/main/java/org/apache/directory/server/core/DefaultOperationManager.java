@@ -299,6 +299,9 @@ public class DefaultOperationManager implements OperationManager
                     case ONELEVEL:
                         urlString.append( "one" );
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected scope " + scope );
                 }
 
                 urls.add( urlString.toString() );
@@ -1376,16 +1379,10 @@ public class DefaultOperationManager implements OperationManager
 
         ensureStarted();
 
-        try
-        {
-            // Call the Unbind method
-            Interceptor head = directoryService.getInterceptor( unbindContext.getNextInterceptor() );
+        // Call the Unbind method
+        Interceptor head = directoryService.getInterceptor( unbindContext.getNextInterceptor() );
 
-            head.unbind( unbindContext );
-        }
-        finally
-        {
-        }
+        head.unbind( unbindContext );
 
         if ( IS_DEBUG )
         {
