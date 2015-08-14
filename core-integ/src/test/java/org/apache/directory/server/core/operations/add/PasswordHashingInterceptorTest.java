@@ -25,9 +25,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -42,8 +44,10 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.config.beans.HashInterceptorBean;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.hash.ConfigurableHashingInterceptor;
 import org.apache.directory.server.core.hash.CryptPasswordHashingInterceptor;
 import org.apache.directory.server.core.hash.Md5PasswordHashingInterceptor;
 import org.apache.directory.server.core.hash.Pkcs5s2PasswordHashingInterceptor;
@@ -89,6 +93,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         allMechanism.add( Ssha512PasswordHashingInterceptor.class );
         allMechanism.add( SshaPasswordHashingInterceptor.class );
         allMechanism.add( Pkcs5s2PasswordHashingInterceptor.class );
+        allMechanism.add( ConfigurableHashingInterceptor.class );
 
         Entry entry = new DefaultEntry( service.getSchemaManager(), "cn=test,ou=system",
             "objectClass: person",
@@ -102,7 +107,21 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         for ( int i = 0; i < allMechanism.size(); i++ )
         {
-            Interceptor hashMech = ( Interceptor ) allMechanism.get( i ).newInstance();
+            Class<?> clazz = allMechanism.get( i );
+            Interceptor hashMech = null;
+            if ( clazz == ConfigurableHashingInterceptor.class ) 
+            { 
+                HashInterceptorBean config = new HashInterceptorBean();
+                config.setHashAlgorithm( "SSHA-256" );
+                List<String> hashAttributes = new ArrayList<>();
+                hashAttributes.add( "userPassword" );
+                config.setHashAttributes( hashAttributes );
+                hashMech = new ConfigurableHashingInterceptor( config );
+            }
+            else 
+            {
+                hashMech = ( Interceptor ) clazz.newInstance();
+            }
             hashMech.init( service );
 
             // make sure to remove the last added mechanism

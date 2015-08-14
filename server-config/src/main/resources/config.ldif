@@ -195,6 +195,7 @@ dn: ads-interceptorId=passwordHashingInterceptor,ou=interceptors,ads-directorySe
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
+objectclass: ads-hashInterceptor
 ads-enabled: TRUE
 ads-interceptororder: 9
 ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor

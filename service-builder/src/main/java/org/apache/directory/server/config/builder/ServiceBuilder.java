@@ -24,6 +24,7 @@ package org.apache.directory.server.config.builder;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -182,8 +184,16 @@ public class ServiceBuilder
             {
                 LOG.debug( "loading the interceptor class {} and instantiating",
                     interceptorBean.getInterceptorClassName() );
-                Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
-                    .newInstance();
+                Class<?> clazz = Class.forName( interceptorBean.getInterceptorClassName() );
+                Interceptor interceptor = null;
+                try {
+                    Constructor<?> constructor = clazz.getDeclaredConstructor( interceptorBean.getClass() );
+                    interceptor = (Interceptor) constructor.newInstance( interceptorBean );
+                }
+                catch ( NoSuchMethodException e ) {
+                    interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
+                        .newInstance();
+                }
 
                 if ( interceptorBean instanceof AuthenticationInterceptorBean )
                 {

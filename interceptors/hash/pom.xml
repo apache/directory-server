@@ -75,6 +75,11 @@
     </dependency>
     
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-config</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-client-api</artifactId>
     </dependency>
