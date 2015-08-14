@@ -131,7 +131,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private final AvlNode<T> newNode( AvlNode<T> parent, T value )
+    private AvlNode<T> newNode( AvlNode<T> parent, T value )
     {
         if ( !useFreeList || freeList.isEmpty() )
         {
@@ -146,7 +146,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private final void recycleNode( AvlNode<T> node )
+    private void recycleNode( AvlNode<T> node )
     {
         if ( !useFreeList )
         {
@@ -222,32 +222,32 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
         }
 
         // find a replacement node (if needed)
-        final int LEFT = -1;
-        final int RIGHT = 1;
-        final int NONE = 0;
-        int replaceFrom = NONE;
+        final int left = -1;
+        final int right = 1;
+        final int none = 0;
+        int replaceFrom = none;
 
         if ( node.left != null && node.right == null )
         {
-            replaceFrom = LEFT;
+            replaceFrom = left;
         }
         else if ( node.right != null && node.left == null )
         {
-            replaceFrom = RIGHT;
+            replaceFrom = right;
         }
         else if ( node.right != null && node.left != null )
         {
             if ( node.balance < 0 )
             {
-                replaceFrom = LEFT;
+                replaceFrom = left;
             }
             else if ( node.balance > 0 )
             {
-                replaceFrom = RIGHT;
+                replaceFrom = right;
             }
             else
             {
-                replaceFrom = LEFT; // TODO: asymmetry
+                replaceFrom = left; // TODO: asymmetry
             }
         }
         else
@@ -276,15 +276,15 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
                 // update heights/rebalance from node's parents up (the bottom of this method)
                 node = node.parent;
                 recycleNode( dead );
-                replaceFrom = NONE;
+                replaceFrom = none;
             }
         }
 
-        if ( replaceFrom != NONE )
+        if ( replaceFrom != none )
         {
             AvlNode<T> leaf = null;
 
-            if ( replaceFrom == LEFT )
+            if ( replaceFrom == left )
             {
                 leaf = node.left;
 
@@ -301,7 +301,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
                     }
                 }
             }
-            else if ( replaceFrom == RIGHT )
+            else if ( replaceFrom == right )
             {
                 leaf = node.right;
 
@@ -381,7 +381,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private static final <T extends Comparable<T>> void updateHeight( AvlNode<T> node )
+    private static <T extends Comparable<T>> void updateHeight( AvlNode<T> node )
     {
         int leftHeight = ( node.left == null ) ? -1 : node.left.height;
         int rightHeight = ( node.right == null ) ? -1 : node.right.height;
@@ -390,7 +390,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> smallLeftRotation( AvlNode<T> node )
+    private static <T extends Comparable<T>> AvlNode<T> smallLeftRotation( AvlNode<T> node )
     {
         assert node.balance > 0 : "null right child in smallLeft";
 
@@ -428,7 +428,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> smallRightRotation( AvlNode<T> node )
+    private static <T extends Comparable<T>> AvlNode<T> smallRightRotation( AvlNode<T> node )
     {
         assert node.balance < 0 : "null left child in smallRight";
 
@@ -466,7 +466,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> bigLeftRotation( AvlNode<T> node )
+    private static <T extends Comparable<T>> AvlNode<T> bigLeftRotation( AvlNode<T> node )
     {
         assert node.right != null : "null right child in bigLeft";
 
@@ -481,7 +481,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     }
 
 
-    private static final <T extends Comparable<T>> AvlNode<T> bigRightRotation( AvlNode<T> node )
+    private static <T extends Comparable<T>> AvlNode<T> bigRightRotation( AvlNode<T> node )
     {
         assert node.left != null : "null right child in bigRight";
 

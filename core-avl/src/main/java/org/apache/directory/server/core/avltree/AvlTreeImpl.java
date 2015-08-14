@@ -116,7 +116,8 @@ public class AvlTreeImpl<K> implements AvlTree<K>
             }
         }
 
-        if ( ( c = comparator.compare( key, parent.getKey() ) ) < 0 )
+        c = comparator.compare( key, parent.getKey() );
+        if ( c < 0 )
         {
             parent.setLeft( node );
         }
@@ -139,7 +140,8 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     {
         if ( node.next == null && node.previous == null ) // should happen in case of tree having single node
         {
-            first = last = null;
+            first = null;
+            last = null;
         }
         else if ( node.next == null ) // last node
         {

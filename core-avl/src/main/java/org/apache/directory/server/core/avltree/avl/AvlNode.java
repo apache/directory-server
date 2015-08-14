@@ -28,13 +28,13 @@ package org.apache.directory.server.core.avltree.avl;
  */
 final class AvlNode<T extends Comparable<T>>
 {
-    public AvlNode<T> parent = null;
-    public AvlNode<T> left = null;
-    public AvlNode<T> right = null;
+    AvlNode<T> parent = null;
+    AvlNode<T> left = null;
+    AvlNode<T> right = null;
 
-    public int height = 0;
-    public int balance = 0;
-    public T value = null;
+    int height = 0;
+    int balance = 0;
+    T value = null;
 
 
     public AvlNode( AvlNode<T> parent, T value )

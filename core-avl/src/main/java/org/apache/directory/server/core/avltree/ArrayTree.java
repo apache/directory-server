@@ -418,10 +418,11 @@ public class ArrayTree<K>
                         }
 
                         return array[start];
+
+                    default:
+                        return null;
                 }
         }
-
-        return null;
     }
 
 
@@ -536,10 +537,11 @@ public class ArrayTree<K>
                         }
 
                         return array[start];
+
+                    default:
+                        return null;
                 }
         }
-
-        return null;
     }
 
 
@@ -674,10 +676,11 @@ public class ArrayTree<K>
                         {
                             return array[start + 1];
                         }
+
+                    default:
+                        return null;
                 }
         }
-
-        return null;
     }
 
 
@@ -827,10 +830,11 @@ public class ArrayTree<K>
                         {
                             return array[start + 1];
                         }
+
+                    default:
+                        return null;
                 }
         }
-
-        return null;
     }
 
 
@@ -927,10 +931,11 @@ public class ArrayTree<K>
                         {
                             return null;
                         }
+
+                    default:
+                        return null;
                 }
         }
-
-        return null;
     }
 
 
@@ -1027,10 +1032,11 @@ public class ArrayTree<K>
                         {
                             return -1;
                         }
+
+                    default:
+                        return -1;
                 }
         }
-
-        return -1;
     }
 
 
@@ -1136,10 +1142,11 @@ public class ArrayTree<K>
                         {
                             return -1;
                         }
+
+                    default:
+                        return -1;
                 }
         }
-
-        return -1;
     }
 
 
@@ -1245,10 +1252,11 @@ public class ArrayTree<K>
                         {
                             return -1;
                         }
+
+                    default:
+                        return -1;
                 }
         }
-
-        return -1;
     }
 
 

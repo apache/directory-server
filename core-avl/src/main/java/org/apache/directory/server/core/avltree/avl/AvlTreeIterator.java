@@ -39,7 +39,7 @@ final class AvlTreeIterator<T extends Comparable<T>> implements Iterator<T>
     public AvlTreeIterator( AvlNode<T> root )
     {
         this.root = root;
-        find_next();
+        findNext();
     }
 
 
@@ -54,12 +54,12 @@ final class AvlTreeIterator<T extends Comparable<T>> implements Iterator<T>
     public T next()
     {
         T value = next == null ? null : next.value;
-        find_next();
+        findNext();
         return value;
     }
 
 
-    public void find_next()
+    public void findNext()
     {
         if ( next == null )
         {
