@@ -68,7 +68,7 @@ public class IntegrationUtils
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
-    private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
+    private static final List<LdapConnection> OPEN_CONNECTIONS = new ArrayList<LdapConnection>();
 
 
     /**
@@ -427,7 +427,7 @@ public class IntegrationUtils
         LdapConnection connection = new LdapNetworkConnection( host, port );
 
         connection.bind( dn, password );
-        openConnections.add( connection );
+        OPEN_CONNECTIONS.add( connection );
         return connection;
     }
 
@@ -459,7 +459,7 @@ public class IntegrationUtils
         LdapConnection connection = new LdapNetworkConnection( host, port );
         connection.bind();
 
-        openConnections.add( connection );
+        OPEN_CONNECTIONS.add( connection );
 
         return connection;
     }
@@ -479,7 +479,7 @@ public class IntegrationUtils
         connection.setTimeOut( 0 );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
-        openConnections.add( connection );
+        OPEN_CONNECTIONS.add( connection );
 
         return connection;
     }
@@ -505,7 +505,7 @@ public class IntegrationUtils
     public static void closeConnections()
     {
 
-        for ( LdapConnection con : openConnections )
+        for ( LdapConnection con : OPEN_CONNECTIONS )
         {
             if ( con == null )
             {
@@ -526,6 +526,6 @@ public class IntegrationUtils
             }
         }
 
-        openConnections.clear();
+        OPEN_CONNECTIONS.clear();
     }
 }
