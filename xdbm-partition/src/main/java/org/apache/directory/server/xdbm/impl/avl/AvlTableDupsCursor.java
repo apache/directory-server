@@ -492,7 +492,8 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
 
-        return valueAvailable = true;
+        valueAvailable = true;
+        return true;
     }
 
 
@@ -552,7 +553,8 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
 
-        return valueAvailable = true;
+        valueAvailable = true;
+        return true;
     }
 
 

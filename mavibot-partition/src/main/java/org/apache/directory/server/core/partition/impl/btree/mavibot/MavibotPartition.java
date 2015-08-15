@@ -315,8 +315,8 @@ public class MavibotPartition extends AbstractBTreePartition
     @Override
     protected Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws Exception
     {
-        LOG.debug( "Supplied index {} is not a MavibotIndex.  " +
-            "Will create new MavibotIndex using copied configuration parameters." );
+        LOG.debug( "Supplied index {} is not a MavibotIndex.  "
+            + "Will create new MavibotIndex using copied configuration parameters." );
         MavibotIndex<?> mavibotIndex;
 
         if ( indexOid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
@@ -502,9 +502,8 @@ public class MavibotPartition extends AbstractBTreePartition
 
                 entryCache.replace( new Element( id, entry ) );
             }
-            else if ( ( opCtx instanceof MoveOperationContext ) ||
-                ( opCtx instanceof MoveAndRenameOperationContext ) ||
-                ( opCtx instanceof RenameOperationContext ) )
+            else if ( ( opCtx instanceof MoveOperationContext ) || ( opCtx instanceof MoveAndRenameOperationContext )
+                || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
                 entryCache.removeAll();
@@ -528,7 +527,7 @@ public class MavibotPartition extends AbstractBTreePartition
      */
     public Set<Index<?, String>> getAllIndices()
     {
-        Set<Index<?, String>> all = new HashSet<Index<?,String>>( systemIndices.values() );
+        Set<Index<?, String>> all = new HashSet<Index<?, String>>( systemIndices.values() );
         all.addAll( userIndices.values() );
         
         return all;

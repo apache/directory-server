@@ -98,11 +98,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         checkNotClosed( "before()" );
         try
         {
-        	browser = btree.browse( element );
+            browser = btree.browse( element );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
         clearValue();
     }
@@ -114,47 +114,43 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     @SuppressWarnings("unchecked")
     public void after( E element ) throws LdapException, CursorException
     {
-    	try
-    	{
-    		browser = btree.browse( element );
-    		
-    		/*
-    		 * While the next value is less than or equal to the element keep
-    		 * advancing forward to the next item.  If we cannot advance any
-    		 * further then stop and return.  If we find a value greater than
-    		 * the element then we stop, backup, and return so subsequent calls
-    		 * to getNext() will return a value greater than the element.
-    		 */
-    		while ( browser.getNext( tuple ) )
-    		{
-    			checkNotClosed( "after()" );
-    			E next = ( E ) tuple.getKey();
-    			int nextCompared = comparator.compare( next, element );
-    			
-    			if ( nextCompared <= 0 )
-    			{
-    				// just continue
-    			}
-    			else
-    			{
-    				/*
-    				 * If we just have values greater than the element argument
-    				 * then we are before the first element and must backup to
-    				 * before the first element state for the JDBM browser which 
-    				 * apparently the browser supports.
-    				 */
-    				browser.getPrevious( tuple );
-    				clearValue();
-    				return;
-    			}
-    		}
-    		
-    		clearValue();
-    		// just return
-    	}
-        catch( IOException e )
+        try
         {
-        	throw new CursorException( e );
+            browser = btree.browse( element );
+
+            /*
+             * While the next value is less than or equal to the element keep
+             * advancing forward to the next item.  If we cannot advance any
+             * further then stop and return.  If we find a value greater than
+             * the element then we stop, backup, and return so subsequent calls
+             * to getNext() will return a value greater than the element.
+             */
+            while ( browser.getNext( tuple ) )
+            {
+                checkNotClosed( "after()" );
+                E next = ( E ) tuple.getKey();
+                int nextCompared = comparator.compare( next, element );
+
+                if ( nextCompared > 0 )
+                {
+                    /*
+                     * If we just have values greater than the element argument
+                     * then we are before the first element and must backup to
+                     * before the first element state for the JDBM browser which 
+                     * apparently the browser supports.
+                     */
+                    browser.getPrevious( tuple );
+                    clearValue();
+                    return;
+                }
+            }
+
+            clearValue();
+            // just return
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
         }
     }
 
@@ -167,12 +163,12 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         checkNotClosed( "beforeFirst()" );
         try
         {
-        	browser = btree.browse();
-        	clearValue();
+            browser = btree.browse();
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -185,11 +181,11 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
         checkNotClosed( "afterLast()" );
         try
         {
-        	browser = btree.browse( null );
+            browser = btree.browse( null );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -220,27 +216,28 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
-        
+
         try
         {
-        	if ( browser == null )
-        	{
-        		browser = btree.browse( null );
-        	}
-        	
-        	if ( browser.getPrevious( tuple ) )
-        	{
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		return false;
-        	}
+            if ( browser == null )
+            {
+                browser = btree.browse( null );
+            }
+
+            if ( browser.getPrevious( tuple ) )
+            {
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -254,25 +251,26 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
 
         try
         {
-        	if ( browser == null )
-        	{
-        		browser = btree.browse();
-        	}
-        	
-        	if ( browser.getNext( tuple ) )
-        	{
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		
-        		return false;
-        	}
+            if ( browser == null )
+            {
+                browser = btree.browse();
+            }
+
+            if ( browser.getNext( tuple ) )
+            {
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 

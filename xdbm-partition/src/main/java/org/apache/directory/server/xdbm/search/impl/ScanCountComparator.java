@@ -39,8 +39,8 @@ public class ScanCountComparator implements Comparator<Evaluator<?>>
      */
     public int compare( Evaluator<?> e1, Evaluator<?> e2 )
     {
-        Object count1 = e1.getExpression().get( "count" );;
-        Object count2 = e2.getExpression().get( "count" );;
+        Object count1 = e1.getExpression().get( "count" );
+        Object count2 = e2.getExpression().get( "count" );
         long scanCount1 = Long.MAX_VALUE;
         long scanCount2 = Long.MAX_VALUE;
 

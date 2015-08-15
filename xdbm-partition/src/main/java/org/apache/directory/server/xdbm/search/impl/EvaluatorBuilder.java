@@ -65,7 +65,7 @@ public class EvaluatorBuilder
     private final Store db;
     private final SchemaManager schemaManager;
 
-    private static final EmptyEvaluator emptyEvaluator = new EmptyEvaluator();
+    private static final EmptyEvaluator EMPTY_EVALLUATOR = new EmptyEvaluator();
 
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
@@ -88,7 +88,7 @@ public class EvaluatorBuilder
 
         if ( ( count != null ) && ( ( Long ) count == 0L ) )
         {
-            return emptyEvaluator;
+            return EMPTY_EVALLUATOR;
         }
 
         switch ( node.getAssertionType() )
@@ -156,7 +156,7 @@ public class EvaluatorBuilder
         switch ( size )
         {
             case 0:
-                return emptyEvaluator;
+                return EMPTY_EVALLUATOR;
 
             case 1:
                 return evaluators.get( 0 );
@@ -177,7 +177,7 @@ public class EvaluatorBuilder
         switch ( size )
         {
             case 0:
-                return emptyEvaluator;
+                return EMPTY_EVALLUATOR;
 
             case 1:
                 return evaluators.get( 0 );

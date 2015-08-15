@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
 public class LdifPartition extends AbstractLdifPartition
 {
     /** A logger for this class */
-    private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
 
     /** The directory into which the entries are stored */
     private File suffixDirectory;
@@ -316,7 +316,7 @@ public class LdifPartition extends AbstractLdifPartition
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // Remove the EntryDN
-        modifiedEntry.removeAttributes( ENTRY_DN_AT );
+        modifiedEntry.removeAttributes( entryDnAT );
 
         // just overwrite the existing file
         Dn dn = modifyContext.getDn();
@@ -768,7 +768,7 @@ public class LdifPartition extends AbstractLdifPartition
     private void addEntry( Entry entry ) throws LdapException
     {
         // Remove the EntryDN
-        entry.removeAttributes( ENTRY_DN_AT );
+        entry.removeAttributes( entryDnAT );
 
         try
         {

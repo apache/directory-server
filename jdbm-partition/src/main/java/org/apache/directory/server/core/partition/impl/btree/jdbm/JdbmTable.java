@@ -48,7 +48,6 @@ import org.apache.directory.server.core.avltree.Marshaller;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
 import org.apache.directory.server.xdbm.KeyTupleArrayCursor;
-import org.apache.directory.server.xdbm.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -144,47 +144,47 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         try
         {
-        	browser = btree.browse( value );
-        	
-        	/*
-        	 * While the next value is less than or equal to the element keep
-        	 * advancing forward to the next item.  If we cannot advance any
-        	 * further then stop and return.  If we find a value greater than
-        	 * the element then we stop, backup, and return so subsequent calls
-        	 * to getNext() will return a value greater than the element.
-        	 */
-        	while ( browser.getNext( valueTuple ) )
-        	{
-        		checkNotClosed( "afterValue" );
-        		
-        		V next = ( V ) valueTuple.getKey();
-        		
-        		int nextCompared = comparator.compare( next, value );
-        		
-        		if ( nextCompared > 0 )
-        		{
-        			/*
-        			 * If we just have values greater than the element argument
-        			 * then we are before the first element and cannot backup, and
-        			 * the call below to getPrevious() will fail.  In this special
-        			 * case we just reset the Cursor's browser and return.
-        			 */
-        			if ( !browser.getPrevious( valueTuple ) )
-        			{
-        				browser = btree.browse( this.key );
-        			}
-        			
-        			clearValue();
-        			
-        			return;
-        		}
-        	}
-        	
-        	clearValue();
+            browser = btree.browse( value );
+
+            /*
+             * While the next value is less than or equal to the element keep
+             * advancing forward to the next item.  If we cannot advance any
+             * further then stop and return.  If we find a value greater than
+             * the element then we stop, backup, and return so subsequent calls
+             * to getNext() will return a value greater than the element.
+             */
+            while ( browser.getNext( valueTuple ) )
+            {
+                checkNotClosed( "afterValue" );
+
+                V next = ( V ) valueTuple.getKey();
+
+                int nextCompared = comparator.compare( next, value );
+
+                if ( nextCompared > 0 )
+                {
+                    /*
+                     * If we just have values greater than the element argument
+                     * then we are before the first element and cannot backup, and
+                     * the call below to getPrevious() will fail.  In this special
+                     * case we just reset the Cursor's browser and return.
+                     */
+                    if ( !browser.getPrevious( valueTuple ) )
+                    {
+                        browser = btree.browse( this.key );
+                    }
+
+                    clearValue();
+
+                    return;
+                }
+            }
+
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -202,12 +202,12 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed( "before()" );
         try
         {
-        	browser = btree.browse( element.getValue() );
-        	clearValue();
+            browser = btree.browse( element.getValue() );
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -229,12 +229,12 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed( "beforeFirst()" );
         try
         {
-        	browser = btree.browse();
-        	clearValue();
+            browser = btree.browse();
+            clearValue();
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -247,11 +247,11 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed( "afterLast()" );
         try
         {
-        	browser = btree.browse( null );
+            browser = btree.browse( null );
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -288,29 +288,30 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         try
         {
-        	if ( browser.getPrevious( valueTuple ) )
-        	{
-        		// work around to fix direction change problem with jdbm browser
-        		if ( ( returnedTuple.getValue() != null ) &&
-        				( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
-        		{
-        			browser.getPrevious( valueTuple );
-        		}
-        		returnedTuple.setKey( key );
-        		returnedTuple.setValue( ( V ) valueTuple.getKey() );
-        		
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		
-        		return false;
-        	}
+            if ( browser.getPrevious( valueTuple ) )
+            {
+                // work around to fix direction change problem with jdbm browser
+                if ( ( returnedTuple.getValue() != null )
+                    && ( comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 ) )
+                {
+                    browser.getPrevious( valueTuple );
+                }
+                returnedTuple.setKey( key );
+                returnedTuple.setValue( ( V ) valueTuple.getKey() );
+
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 
@@ -325,30 +326,31 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         try
         {
-        	if ( browser.getNext( valueTuple ) )
-        	{
-        		// work around to fix direction change problem with jdbm browser
-        		if ( returnedTuple.getValue() != null &&
-        				comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
-        		{
-        			browser.getNext( valueTuple );
-        		}
-        		
-        		returnedTuple.setKey( key );
-        		returnedTuple.setValue( ( V ) valueTuple.getKey() );
-        		
-        		return valueAvailable = true;
-        	}
-        	else
-        	{
-        		clearValue();
-        		
-        		return false;
-        	}
+            if ( browser.getNext( valueTuple ) )
+            {
+                // work around to fix direction change problem with jdbm browser
+                if ( returnedTuple.getValue() != null
+                    && comparator.compare( ( V ) valueTuple.getKey(), returnedTuple.getValue() ) == 0 )
+                {
+                    browser.getNext( valueTuple );
+                }
+
+                returnedTuple.setKey( key );
+                returnedTuple.setValue( ( V ) valueTuple.getKey() );
+
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+
+                return false;
+            }
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
-        	throw new CursorException( e );
+            throw new CursorException( e );
         }
     }
 

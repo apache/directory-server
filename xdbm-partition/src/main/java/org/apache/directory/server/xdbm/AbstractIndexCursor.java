@@ -79,6 +79,7 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
      */
     protected boolean setAvailable( boolean available )
     {
-        return this.available = available;
+        this.available = available;
+        return available;
     }
 }

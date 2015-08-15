@@ -65,7 +65,6 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -356,7 +355,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 String attributeOid = index.getAttribute().getOid();
 
-                if( systemIndices.get( attributeOid ) != null )
+                if ( systemIndices.get( attributeOid ) != null )
                 {
                     // skipping building of the system index
                     continue;
@@ -400,7 +399,7 @@ public class JdbmPartition extends AbstractBTreePartition
             // take the part after removing .db from the
             name = name.substring( 0, name.lastIndexOf( JDBM_DB_FILE_EXTN ) );
 
-            if( systemIndices.get( name ) != null )
+            if ( systemIndices.get( name ) != null )
             {
                 // do not delete the system index file
                 continue;
@@ -534,8 +533,8 @@ public class JdbmPartition extends AbstractBTreePartition
      */
     protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
-        LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
-            "Will create new JdbmIndex using copied configuration parameters." );
+        LOG.debug( "Supplied index {} is not a JdbmIndex.  "
+            + "Will create new JdbmIndex using copied configuration parameters." );
         JdbmIndex<?> jdbmIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
@@ -586,9 +585,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 entryCache.replace( new Element( id, entry ) );
             }
-            else if ( ( opCtx instanceof MoveOperationContext ) ||
-                ( opCtx instanceof MoveAndRenameOperationContext ) ||
-                ( opCtx instanceof RenameOperationContext ) )
+            else if ( ( opCtx instanceof MoveOperationContext )
+                || ( opCtx instanceof MoveAndRenameOperationContext )
+                || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
                 entryCache.removeAll();

@@ -155,7 +155,7 @@ public class DefaultSearchEngine implements SearchEngine
 
             if ( aliasBaseElement != null )
             {
-                aliasedBase = (Dn)(aliasBaseElement).getObjectValue();
+                aliasedBase = ( Dn ) ( aliasBaseElement ).getObjectValue();
             }
         }
         else

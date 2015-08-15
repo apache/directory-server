@@ -35,7 +35,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.LruPolicy;
 
@@ -175,13 +174,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected Index<String, String> adminRoleIdx;
 
     /** Cached attributes types to avoid lookup all over the code */
-    protected AttributeType OBJECT_CLASS_AT;
-    protected AttributeType ENTRY_CSN_AT;
-    protected AttributeType ENTRY_DN_AT;
-    protected AttributeType ENTRY_UUID_AT;
-    protected AttributeType ALIASED_OBJECT_NAME_AT;
-    protected AttributeType ADMINISTRATIVE_ROLE_AT;
-    protected AttributeType CONTEXT_CSN_AT;
+    protected AttributeType objectClassAT;
+    protected AttributeType entryCsnAT;
+    protected AttributeType entryDnAT;
+    protected AttributeType entryUuidAT;
+    protected AttributeType aliasedObjectNameAT;
+    protected AttributeType administrativeRoleAT;
+    protected AttributeType contextCsnAT;
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
@@ -238,13 +237,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         indexedAttributes = new HashSet<Index<?, String>>();
 
         // Initialize Attribute types used all over this method
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        ALIASED_OBJECT_NAME_AT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
-        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
-        ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
-        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
-        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
-        CONTEXT_CSN_AT = schemaManager.getAttributeType( SchemaConstants.CONTEXT_CSN_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        aliasedObjectNameAT = schemaManager.getAttributeType( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
+        entryDnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
+        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
+        administrativeRoleAT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
+        contextCsnAT = schemaManager.getAttributeType( SchemaConstants.CONTEXT_CSN_AT );
     }
 
 
@@ -734,7 +733,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // Get a new UUID for the added entry if it does not have any already
-            Attribute entryUUID = entry.get( ENTRY_UUID_AT );
+            Attribute entryUUID = entry.get( entryUuidAT );
 
             String id = null;
 
@@ -748,7 +747,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // Update the ObjectClass index
-            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+            Attribute objectClass = entry.get( objectClassAT );
 
             if ( objectClass == null )
             {
@@ -773,12 +772,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
-                Attribute aliasAttr = entry.get( ALIASED_OBJECT_NAME_AT );
+                Attribute aliasAttr = entry.get( aliasedObjectNameAT );
                 addAliasIndices( id, entryDn, new Dn( schemaManager, aliasAttr.getString() ) );
             }
 
             // Update the EntryCsn index
-            Attribute entryCsn = entry.get( ENTRY_CSN_AT );
+            Attribute entryCsn = entry.get( entryCsnAT );
 
             if ( entryCsn == null )
             {
@@ -789,10 +788,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             entryCsnIdx.add( entryCsn.getString(), id );
 
             // Update the AdministrativeRole index, if needed
-            if ( entry.containsAttribute( ADMINISTRATIVE_ROLE_AT ) )
+            if ( entry.containsAttribute( administrativeRoleAT ) )
             {
                 // We may have more than one role
-                Attribute adminRoles = entry.get( ADMINISTRATIVE_ROLE_AT );
+                Attribute adminRoles = entry.get( administrativeRoleAT );
 
                 for ( Value<?> value : adminRoles )
                 {
@@ -800,7 +799,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
 
                 // Adds only those attributes that are indexed
-                presenceIdx.add( ADMINISTRATIVE_ROLE_AT.getOid(), id );
+                presenceIdx.add( administrativeRoleAT.getOid(), id );
             }
 
             // Now work on the user defined userIndices
@@ -843,7 +842,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
 
                 // Remove the EntryDN attribute
-                entry.removeAttributes( ENTRY_DN_AT );
+                entry.removeAttributes( entryDnAT );
 
                 Attribute at = entry.get( SchemaConstants.ENTRY_CSN_AT );
                 setContextCsn( at.getString() );
@@ -1008,7 +1007,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 throw new LdapNoSuchObjectException( "Cannot find an entry for UUID " + id );
             }
 
-            Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+            Attribute objectClass = entry.get( objectClassAT );
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
@@ -1033,13 +1032,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             updateRdnIdx( parent.getParentId(), REMOVE_CHILD, 0 );
 
             // Update the rdn, oneLevel, subLevel, and entryCsn indexes
-            entryCsnIdx.drop( entry.get( ENTRY_CSN_AT ).getString(), id );
+            entryCsnIdx.drop( entry.get( entryCsnAT ).getString(), id );
 
             // Update the AdministrativeRole index, if needed
-            if ( entry.containsAttribute( ADMINISTRATIVE_ROLE_AT ) )
+            if ( entry.containsAttribute( administrativeRoleAT ) )
             {
                 // We may have more than one role
-                Attribute adminRoles = entry.get( ADMINISTRATIVE_ROLE_AT );
+                Attribute adminRoles = entry.get( administrativeRoleAT );
 
                 for ( Value<?> value : adminRoles )
                 {
@@ -1047,7 +1046,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
 
                 // Deletes only those attributes that are indexed
-                presenceIdx.drop( ADMINISTRATIVE_ROLE_AT.getOid(), id );
+                presenceIdx.drop( administrativeRoleAT.getOid(), id );
             }
 
             // Update the user indexes
@@ -1081,7 +1080,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 entryDnCache.remove( id );
                 
-                Attribute csn = entry.get( ENTRY_CSN_AT );
+                Attribute csn = entry.get( entryCsnAT );
                 // can be null while doing subentry deletion
                 if ( csn != null )
                 {
@@ -1243,11 +1242,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 entry = new ClonedServerEntry( entry );
 
                 // Replace the entry's DN with the provided one
-                Attribute entryDnAt = entry.get( ENTRY_DN_AT );
+                Attribute entryDnAt = entry.get( entryDnAT );
 
                 if ( entryDnAt == null )
                 {
-                    entry.add( ENTRY_DN_AT, dn.getName() );
+                    entry.add( entryDnAT, dn.getName() );
                 }
                 else
                 {
@@ -1278,9 +1277,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 entry = new ClonedServerEntry( entry );
 
-                if ( !entry.containsAttribute( ENTRY_DN_AT ) )
+                if ( !entry.containsAttribute( entryDnAT ) )
                 {
-                    entry.add( ENTRY_DN_AT, dn.getName() );
+                    entry.add( entryDnAT, dn.getName() );
                 }
 
                 return entry;
@@ -1325,7 +1324,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public synchronized final Entry modify( Dn dn, Modification... mods ) throws Exception
+    public final synchronized Entry modify( Dn dn, Modification... mods ) throws Exception
     {
         String id = getEntryId( dn );
         Entry entry = master.get( id );
@@ -1356,9 +1355,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         updateCsnIndex( entry, id );
 
         // Remove the EntryDN
-        entry.removeAttributes( ENTRY_DN_AT );
+        entry.removeAttributes( entryDnAT );
 
-        setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
+        setContextCsn( entry.get( entryCsnAT ).getString() );
         
         master.put( id, entry );
 
@@ -1499,11 +1498,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         AttributeType attributeType = mods.getAttributeType();
 
         // Special case for the ObjectClass index
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        if ( attributeType.equals( objectClassAT ) )
         {
             // if the id exists in the index drop all existing attribute
             // value index entries and add new ones
-            for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
+            for ( Value<?> value : entry.get( objectClassAT ) )
             {
                 String valueStr = ( String ) value.getNormValue();
 
@@ -1557,10 +1556,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
         }
         // Special case for the AdministrativeRole index
-        else if ( attributeType.equals( ADMINISTRATIVE_ROLE_AT ) )
+        else if ( attributeType.equals( administrativeRoleAT ) )
         {
             // Remove the previous values
-            for ( Value<?> value : entry.get( ADMINISTRATIVE_ROLE_AT ) )
+            for ( Value<?> value : entry.get( administrativeRoleAT ) )
             {
                 String valueStr = ( String ) value.getNormValue();
 
@@ -1589,7 +1588,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName(
             SchemaConstants.ALIASED_OBJECT_NAME_AT );
 
-        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
+        if ( mods.getAttributeType().equals( aliasedObjectNameAT ) )
         {
             dropAliasIndices( id );
         }
@@ -1638,7 +1637,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         AttributeType attributeType = mods.getAttributeType();
 
         // Special case for the ObjectClass index
-        if ( attributeType.equals( OBJECT_CLASS_AT ) )
+        if ( attributeType.equals( objectClassAT ) )
         {
             /*
              * If there are no attribute values in the modifications then this
@@ -1647,7 +1646,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
              */
             if ( mods.size() == 0 )
             {
-                for ( Value<?> value : entry.get( OBJECT_CLASS_AT ) )
+                for ( Value<?> value : entry.get( objectClassAT ) )
                 {
                     String valueStr = ( String ) value.getNormValue();
 
@@ -1765,7 +1764,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( mods.getAttributeType().equals( ALIASED_OBJECT_NAME_AT ) )
+        if ( mods.getAttributeType().equals( aliasedObjectNameAT ) )
         {
             dropAliasIndices( id );
         }
@@ -1807,7 +1806,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public synchronized final void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry )
+    public final synchronized void move( Dn oldDn, Dn newSuperiorDn, Dn newDn, Entry modifiedEntry )
         throws Exception
     {
         // Check that the parent Dn exists
@@ -1891,11 +1890,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId );
 
         // Remove the EntryDN
-        modifiedEntry.removeAttributes( ENTRY_DN_AT );
+        modifiedEntry.removeAttributes( entryDnAT );
 
         entryDnCache.removeAll();
         
-        setContextCsn( modifiedEntry.get( ENTRY_CSN_AT ).getString() );
+        setContextCsn( modifiedEntry.get( entryCsnAT ).getString() );
 
         master.put( entryId, modifiedEntry );
 
@@ -1948,8 +1947,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
-    public synchronized final void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn,
-        Entry modifiedEntry,
+    public final synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
         boolean deleteOldRdn ) throws Exception
     {
         // Check that the old entry exists
@@ -2217,9 +2215,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // Remove the EntryDN
-        entry.removeAttributes( ENTRY_DN_AT );
+        entry.removeAttributes( entryDnAT );
 
-        setContextCsn( entry.get( ENTRY_CSN_AT ).getString() );
+        setContextCsn( entry.get( entryCsnAT ).getString() );
 
         // And save the modified entry
         master.put( oldId, entry );
@@ -2230,7 +2228,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public synchronized final void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
+    public final synchronized void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
         String oldId = getEntryId( dn );
 
@@ -2361,7 +2359,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     
                     if ( piar != null )
                     {
-                        cur = (ParentIdAndRdn)piar.getValue();
+                        cur = ( ParentIdAndRdn ) piar.getValue();
                     }
                     else
                     {
@@ -2372,7 +2370,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                             return null;
                         }
                         
-                        piarCache.put( new Element( parentId, cur) );
+                        piarCache.put( new Element( parentId, cur ) );
                     }
                 }
                 else
@@ -3288,7 +3286,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         try
         {
-            if( rwLock == null )
+            if ( rwLock == null )
             {
                 // Create a ReadWrite lock from scratch
                 rwLock = new ReentrantReadWriteLock();
@@ -3297,14 +3295,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // load the last stored valid CSN value
             String contextEntryId = getEntryId( getSuffixDn() );
             
-            if( contextEntryId == null )
+            if ( contextEntryId == null )
             {
                 return;
             }
             
             Entry entry = fetch( contextEntryId );
             
-            Attribute ctxCsnAt = entry.get( CONTEXT_CSN_AT );
+            Attribute ctxCsnAt = entry.get( contextCsnAT );
             
             if ( ctxCsnAt != null )
             {
@@ -3312,7 +3310,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 ctxCsnChanged = false; // this is just loaded, not new
             }
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             throw new RuntimeException( e );
         }
@@ -3326,7 +3324,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     // note that this modification shouldn't change the entryCSN value of the context entry
     public void saveContextCsn() throws LdapException
     {
-        if( !ctxCsnChanged )
+        if ( !ctxCsnChanged )
         {
             return;
         }
@@ -3349,9 +3347,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             origEntry = ( ( ClonedServerEntry ) origEntry ).getOriginalEntry();
             
-            origEntry.removeAttributes( CONTEXT_CSN_AT, ENTRY_DN_AT );
+            origEntry.removeAttributes( contextCsnAT, entryDnAT );
             
-            origEntry.add( CONTEXT_CSN_AT, contextCsn );
+            origEntry.add( contextCsnAT, contextCsn );
             
             master.put( contextEntryId, origEntry );
             

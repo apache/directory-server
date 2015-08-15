@@ -212,8 +212,8 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
             {
                 if ( element.getValue() != null )
                 {
-                    Dn dn = (Dn)element.getValue();
-                    
+                    Dn dn = ( Dn ) element.getValue();
+
                     return false;
                 }
             }

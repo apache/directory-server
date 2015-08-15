@@ -182,7 +182,8 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             {
                 returnedTuple.setKey( key );
                 returnedTuple.setValue( wrapped.prev() );
-                return valueAvailable = true;
+                valueAvailable = true;
+                return true;
             }
             else
             {
@@ -211,7 +212,8 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
                 returnedTuple.setKey( key );
                 returnedTuple.setValue( wrapped.next() );
 
-                return valueAvailable = true;
+                valueAvailable = true;
+                return true;
             }
             else
             {

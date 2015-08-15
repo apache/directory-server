@@ -75,7 +75,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /** lock for serializing the operations on the backing LDIF file */
     private Object lock = new Object();
 
-    private static Logger LOG = LoggerFactory.getLogger( SingleFileLdifPartition.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SingleFileLdifPartition.class );
 
 
     /**
@@ -218,7 +218,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                         {} ) );
 
                 // Remove the EntryDN
-                modifiedEntry.removeAttributes( ENTRY_DN_AT );
+                modifiedEntry.removeAttributes( entryDnAT );
 
                 modifyContext.setAlteredEntry( modifiedEntry );
             }
@@ -323,7 +323,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     Entry entry = master.get( suffixId );
 
                     // Don't write the EntryDN attribute
-                    entry.removeAttributes( ENTRY_DN_AT );
+                    entry.removeAttributes( entryDnAT );
 
                     entry.setDn( suffixDn );
 

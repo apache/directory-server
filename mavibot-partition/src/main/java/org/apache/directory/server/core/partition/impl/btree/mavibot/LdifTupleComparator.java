@@ -37,12 +37,12 @@ public class LdifTupleComparator implements Comparator<Tuple<Dn, String>>
     {
         Dn dn1 = t1.getKey();
         Dn dn2 = t2.getKey();
-        
-        if( dn1.isAncestorOf( dn2 ) )
+
+        if ( dn1.isAncestorOf( dn2 ) )
         {
             return -1;
         }
-        else if( dn2.isAncestorOf( dn1 ) )
+        else if ( dn2.isAncestorOf( dn1 ) )
         {
             return 1;
         }
@@ -50,7 +50,7 @@ public class LdifTupleComparator implements Comparator<Tuple<Dn, String>>
         {
             return 0;
         }
-        
+
         return dn1.getNormName().compareTo( dn2.getNormName() );
     }
 

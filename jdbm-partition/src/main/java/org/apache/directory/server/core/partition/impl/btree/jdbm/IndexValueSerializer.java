@@ -40,13 +40,13 @@ public class IndexValueSerializer implements Serializer
     private static final long serialVersionUID = 1L;
 
     /** the flag for a Long value*/
-    private static byte LONG_VALUE = 0;
+    private static final byte LONG_VALUE = 0;
 
     /** the flag for a AvlTree value*/
-    private static byte AVL_TREE_VALUE = 0;
+    private static final byte AVL_TREE_VALUE = 0;
 
     /** the flag for a BTree value*/
-    private static byte BTREE_VALUE = 0;
+    private static final byte BTREE_VALUE = 0;
 
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( IndexValueSerializer.class );

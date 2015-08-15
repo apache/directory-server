@@ -43,7 +43,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     private V available;
 
     // marker to detect the availability (cause Mavibot supports null values also)
-    private V NOT_AVAILABLE = ( V ) new Object();
+    private V notAvailable = ( V ) new Object();
 
 
     public ValueTreeCursor( ValueCursor<V> cursor )
@@ -55,7 +55,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     @Override
     public boolean available()
     {
-        return ( available != NOT_AVAILABLE );
+        return ( available != notAvailable );
     }
 
 
@@ -112,7 +112,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
             }
             else
             {
-                available = NOT_AVAILABLE;
+                available = notAvailable;
                 return false;
             }
         }
@@ -135,7 +135,7 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
             }
             else
             {
-                available = NOT_AVAILABLE;
+                available = notAvailable;
                 return false;
             }
         }

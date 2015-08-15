@@ -294,7 +294,8 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
                 returnedTuple.setKey( tuple.getKey() );
                 returnedTuple.setValue( tuple.getValue() );
-                return valueAvailable = true;
+                valueAvailable = true;
+                return true;
             }
             else
             {
@@ -329,7 +330,8 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
                 returnedTuple.setKey( tuple.getKey() );
                 returnedTuple.setValue( tuple.getValue() );
-                return valueAvailable = true;
+                valueAvailable = true;
+                return true;
             }
             else
             {

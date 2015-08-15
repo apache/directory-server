@@ -24,7 +24,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.List;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -65,7 +64,7 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
         {
             raf = new RandomAccessFile( ldifFile, "r" );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             throw new RuntimeException( e );
         }
@@ -77,7 +76,7 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
     {
         try
         {
-            if( in.available() > 0 )
+            if ( in.available() > 0 )
             {
                 Tuple<Dn, E> t = new Tuple<Dn, E>();
                 t.setKey( new Dn( in.readUTF() ) );
