@@ -20,8 +20,10 @@
 package org.apache.directory.server.config.beans;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 
 import org.apache.directory.server.config.ConfigurationElement;
 
@@ -38,8 +40,8 @@ public class HashInterceptorBean extends InterceptorBean
     private String hashAlgorithm;
 
     /** The reference to the Password Policy component */
-    @ConfigurationElement(attributeType = "ads-hashAttribute", isOptional = true, defaultValues = {"userPassword"} )
-    private List<String> hashAttributes = new ArrayList<String>();
+    @ConfigurationElement(attributeType = "ads-hashAttribute", isOptional = true, defaultValues = {"2.5.4.35"} )
+    private Set<String> hashAttributes = new HashSet<String>();
 
 
     /**
@@ -48,6 +50,22 @@ public class HashInterceptorBean extends InterceptorBean
     public HashInterceptorBean()
     {
         super();
+    }
+
+
+    /**
+     * @param hashAttributes The attributes that need to be hashed
+     */
+    public void addHashAttributes( String[] hashAttributes )
+    {
+        if ( hashAttributes != null && hashAttributes.length > 0 ) 
+        {
+            if ( this.hashAttributes == null ) 
+            {
+                this.hashAttributes = new HashSet<String>();
+            }
+            this.hashAttributes.addAll( Arrays.asList( hashAttributes ) );
+        }
     }
 
 
@@ -63,7 +81,7 @@ public class HashInterceptorBean extends InterceptorBean
     /**
      * @return the attributes to hash
      */
-    public List<String> getHashAttributes()
+    public Set<String> getHashAttributes()
     {
         return hashAttributes;
     }
@@ -75,15 +93,6 @@ public class HashInterceptorBean extends InterceptorBean
     public void setHashAlgorithm( String hashAlgorithm )
     {
         this.hashAlgorithm = hashAlgorithm;
-    }
-
-
-    /**
-     * @param hashAttributes The attributes that need to be hashed
-     */
-    public void setHashAttributes( List<String> hashAttributes )
-    {
-        this.hashAttributes = hashAttributes;
     }
 
 

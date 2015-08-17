@@ -89,10 +89,11 @@ public class ServiceBuilderTest
         HashInterceptorBean bean = new HashInterceptorBean();
         bean.setInterceptorClassName( "org.apache.directory.server.core.hash.ConfigurableHashingInterceptor" );
         bean.setHashAlgorithm( "SSHA-256" );
-        List<String> hashAttributes = new ArrayList<>();
-        hashAttributes.add( "userPassword" );
-        hashAttributes.add( "cn" ); // why would i do this?... to test...
-        bean.setHashAttributes( hashAttributes );
+        bean.addHashAttributes( 
+                new String[] {
+                    schemaManager.getAttributeType( "userPassword" ).getOid(),
+                    schemaManager.getAttributeType( "cn" ).getOid(),
+                });
         
         List<InterceptorBean> interceptorBeans = new ArrayList<>();
         interceptorBeans.add( bean );

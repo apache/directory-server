@@ -198,8 +198,10 @@ objectclass: ads-interceptor
 objectclass: ads-hashInterceptor
 ads-enabled: TRUE
 ads-interceptororder: 9
-ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
+ads-interceptorclassname: org.apache.directory.server.core.hash.ConfigurableHashingInterceptor
 ads-interceptorid: passwordHashingInterceptor
+ads-hashAlgorithm: SSHA
+ads-hashAttribute: 2.5.4.35
 
 dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top

@@ -113,9 +113,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
             { 
                 HashInterceptorBean config = new HashInterceptorBean();
                 config.setHashAlgorithm( "SSHA-256" );
-                List<String> hashAttributes = new ArrayList<>();
-                hashAttributes.add( "userPassword" );
-                config.setHashAttributes( hashAttributes );
+                config.addHashAttributes( new String[] { "2.5.4.35" } );
                 hashMech = new ConfigurableHashingInterceptor( config );
             }
             else 
