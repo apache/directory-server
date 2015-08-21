@@ -110,16 +110,14 @@ public interface Interceptor
 
 
     /**
-     * Intializes this interceptor.  This is invoked by {@link InterceptorChain}
-     * when this intercepter is loaded into interceptor chain.
+     * Intializes this interceptor. 
      * @throws Exception
      */
     void init( DirectoryService directoryService ) throws LdapException;
 
 
     /**
-     * Deinitializes this interceptor.  This is invoked by {@link InterceptorChain}
-     * when this intercepter is unloaded from interceptor chain.
+     * Deinitializes this interceptor. 
      */
     void destroy();
 
