@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 
@@ -623,7 +624,7 @@ public class ConfigWriter
             else if ( value instanceof Boolean )
             {
                 // Value is a byte[]
-                attribute.add( value.toString().toUpperCase() );
+                attribute.add( Strings.toUpperCase( value.toString() ) );
             }
             else
             {

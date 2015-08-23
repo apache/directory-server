@@ -386,7 +386,7 @@ public class KerberosUtils
 
     public static String getAlgoNameFromEncType( EncryptionType encType )
     {
-        String cipherName = encType.getName().toLowerCase();
+        String cipherName = Strings.toLowerCase( encType.getName() );
 
         for ( String c : cipherAlgoMap.keySet() )
         {
