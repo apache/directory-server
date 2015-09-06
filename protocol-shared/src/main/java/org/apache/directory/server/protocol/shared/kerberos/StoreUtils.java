@@ -50,11 +50,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreUtils
+public final class StoreUtils
 {
     /** Loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( StoreUtils.class );
     private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
+
+
+    private StoreUtils()
+    {
+    }
 
 
     /**
