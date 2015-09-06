@@ -114,12 +114,10 @@ public class GetFlatRecord implements DnsOperation
     {
         ResourceRecordModifier modifier = new ResourceRecordModifier();
 
-        Attribute attr;
-
-        String dnsName = ( attr = attrs.get( DnsAttribute.NAME ) ) != null ? ( String ) attr.get() : null;
-        String dnsType = ( attr = attrs.get( DnsAttribute.TYPE ) ) != null ? ( String ) attr.get() : null;
-        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? ( String ) attr.get() : null;
-        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : null;
+        String dnsName = getAttrOrNull( attrs, DnsAttribute.NAME );
+        String dnsType = getAttrOrNull( attrs, DnsAttribute.TYPE );
+        String dnsClass = getAttrOrNull( attrs, DnsAttribute.CLASS );
+        String dnsTtl = getAttrOrNull( attrs, DnsAttribute.TTL );
 
         modifier.setDnsName( dnsName );
         modifier.setDnsType( RecordType.valueOf( dnsType ) );
@@ -135,5 +133,12 @@ public class GetFlatRecord implements DnsOperation
         }
 
         return modifier.getEntry();
+    }
+
+
+    private String getAttrOrNull( Attributes attrs, String name ) throws NamingException
+    {
+        Attribute attr = attrs.get( name );
+        return attr != null ? ( String ) attr.get() : null;
     }
 }

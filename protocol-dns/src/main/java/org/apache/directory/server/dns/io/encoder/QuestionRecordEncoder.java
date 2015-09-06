@@ -49,7 +49,7 @@ public class QuestionRecordEncoder
 
     private void encodeDomainName( IoBuffer byteBuffer, String domainName )
     {
-        if ( ! Strings.isEmpty( domainName ) )
+        if ( !Strings.isEmpty( domainName ) )
         {
             String[] labels = domainName.split( "\\." );
         

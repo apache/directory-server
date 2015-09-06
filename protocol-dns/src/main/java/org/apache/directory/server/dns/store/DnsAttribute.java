@@ -25,8 +25,12 @@ package org.apache.directory.server.dns.store;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DnsAttribute
+public final class DnsAttribute
 {
+    private DnsAttribute()
+    {
+    }
+
     /**
      * Apache DNS Schema Attributes
      */

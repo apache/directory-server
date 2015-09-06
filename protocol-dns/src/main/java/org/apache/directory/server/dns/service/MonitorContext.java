@@ -37,14 +37,14 @@ import org.slf4j.LoggerFactory;
 public class MonitorContext implements IoHandlerCommand
 {
     /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
+    private static final Logger LOG = LoggerFactory.getLogger( MonitorContext.class );
 
     private String contextKey = "context";
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
             try
             {
@@ -57,12 +57,12 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "store:                     " + store );
                 sb.append( "\n\t" + "records:                   " + records );
 
-                log.debug( sb.toString() );
+                LOG.debug( sb.toString() );
             }
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
-                log.error( I18n.err( I18n.ERR_154 ), e );
+                LOG.error( I18n.err( I18n.ERR_154 ), e );
             }
         }
 
