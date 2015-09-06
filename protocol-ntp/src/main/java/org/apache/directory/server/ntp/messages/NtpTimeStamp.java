@@ -43,13 +43,13 @@ public class NtpTimeStamp
      */
     private static final long NTP_EPOCH_DIFFERENCE = -2208988800000L;
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS z" );
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS z" );
 
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
     
     static
     {
-        dateFormat.setTimeZone( UTC_TIME_ZONE );
+        DATE_FORMAT.setTimeZone( UTC_TIME_ZONE );
     }
 
     private long seconds = 0;
@@ -130,9 +130,9 @@ public class NtpTimeStamp
         long msSinceStartOfNtpEpoch = seconds * 1000 + ( fraction * 1000 ) / 0x100000000L;
         Date date = new Date( msSinceStartOfNtpEpoch + NTP_EPOCH_DIFFERENCE );
 
-        synchronized ( dateFormat )
+        synchronized ( DATE_FORMAT )
         {
-            return "org.apache.ntp.message.NtpTimeStamp[ date = " + dateFormat.format( date ) + " ]";
+            return "org.apache.ntp.message.NtpTimeStamp[ date = " + DATE_FORMAT.format( date ) + " ]";
         }
     }
 

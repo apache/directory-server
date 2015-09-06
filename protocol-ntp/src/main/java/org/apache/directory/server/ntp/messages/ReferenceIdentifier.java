@@ -42,7 +42,7 @@ import java.util.List;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
+public final class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
 {
     /**
      * Constant for the "INIT" reference identifier type.
@@ -144,13 +144,13 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
     /**
      * Array for building a List of VALUES.
      */
-    private static final ReferenceIdentifier[] values =
+    private static final ReferenceIdentifier[] VALUES_ARRAY =
         { INIT, LOCL, PPS, ACTS, USNO, PTB, TDF, DCF, MSF, WWV, WWVB, WWVH, CHU, LORC, OMEG, GPS, GOES, CDMA };
 
     /**
      * A list of all the reference identifier type constants.
      */
-    public static final List<ReferenceIdentifier> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<ReferenceIdentifier> VALUES = Collections.unmodifiableList( Arrays.asList( VALUES_ARRAY ) );
 
     /**
      * The value/code for the reference identifier type.
@@ -187,11 +187,11 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
      */
     public static ReferenceIdentifier getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( int ii = 0; ii < VALUES_ARRAY.length; ii++ )
         {
-            if ( values[ii].ordinal == type )
+            if ( VALUES_ARRAY[ii].ordinal == type )
             {
-                return values[ii];
+                return VALUES_ARRAY[ii];
             }
         }
 
@@ -207,11 +207,11 @@ public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
      */
     public static ReferenceIdentifier getTypeByName( String type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        for ( int ii = 0; ii < VALUES_ARRAY.length; ii++ )
         {
-            if ( values[ii].code.equalsIgnoreCase( type ) )
+            if ( VALUES_ARRAY[ii].code.equalsIgnoreCase( type ) )
             {
-                return values[ii];
+                return VALUES_ARRAY[ii];
             }
         }
 
