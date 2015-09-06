@@ -97,7 +97,7 @@ public class DhcpMessageEncoder
 
         try
         {
-            byte sbytes[] = string.getBytes( "ASCII" );
+            byte[] sbytes = string.getBytes( "ASCII" );
 
             // writeBytes will automatically zero-pad and thus terminate the
             // string.
@@ -121,7 +121,7 @@ public class DhcpMessageEncoder
     {
         if ( null == currentClientAddress )
         {
-            byte emptyAddress[] =
+            byte[] emptyAddress =
                 { 0, 0, 0, 0 };
             byteBuffer.put( emptyAddress );
         }
@@ -141,7 +141,7 @@ public class DhcpMessageEncoder
      * @param byteBuffer
      * @param currentClientAddress
      */
-    private void writeBytes( ByteBuffer byteBuffer, byte bytes[], int len )
+    private void writeBytes( ByteBuffer byteBuffer, byte[] bytes, int len )
     {
         if ( null == bytes )
         {

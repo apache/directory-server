@@ -161,7 +161,7 @@ public class DhcpMessageDecoder
 
         byte code;
         byte length;
-        byte value[];
+        byte[] value;
 
         OptionsField options = new OptionsField();
 

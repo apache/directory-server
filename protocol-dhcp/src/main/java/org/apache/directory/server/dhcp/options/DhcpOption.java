@@ -111,7 +111,7 @@ public abstract class DhcpOption
     /**
      * An array of concrete implementations of DhcpOption.
      */
-    private static Class<?> OPTION_CLASSES[] =
+    private static final Class<?>[] OPTION_CLASSES =
         { 
             BootfileName.class, 
             ClientIdentifier.class, 
@@ -200,12 +200,12 @@ public abstract class DhcpOption
     /**
      * A map of concrete implementations of DhcpOption indexed by tag code.
      */
-    private static Map<Integer, Class<?>> OPTION_CLASS_BY_CODE;
+    private static final Map<Integer, Class<?>> OPTION_CLASS_BY_CODE;
 
     /**
      * A map of tag codes indexed by OptionClass subclass.
      */
-    private static Map<Class<?>, Integer> CODE_BY_CLASS;
+    private static final Map<Class<?>, Integer> CODE_BY_CLASS;
 
     static
     {
@@ -273,7 +273,7 @@ public abstract class DhcpOption
      * 
      * @param data
      */
-    public void setData( byte data[] )
+    public void setData( byte[] data )
     {
         this.data = data;
     }
@@ -297,7 +297,7 @@ public abstract class DhcpOption
         out.put( getTag() );
 
         // FIXME: handle continuation, i.e. options longer than 128 bytes?
-        byte data[] = getData();
+        byte[] data = getData();
 
         if ( data.length > 255 )
         {

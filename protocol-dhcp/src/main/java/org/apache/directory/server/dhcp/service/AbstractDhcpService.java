@@ -45,8 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDhcpService implements DhcpService
 {
-    private static final Logger logger = LoggerFactory
-        .getLogger( AbstractDhcpService.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( AbstractDhcpService.class );
 
 
     /*
@@ -66,7 +65,7 @@ public abstract class AbstractDhcpService implements DhcpService
         // message type option MUST be set - we don't support plain BOOTP.
         if ( null == request.getMessageType() )
         {
-            logger.warn( "Missing message type option - plain BOOTP not supported." );
+            LOGGER.warn( "Missing message type option - plain BOOTP not supported." );
 
             return null;
         }
@@ -114,9 +113,9 @@ public abstract class AbstractDhcpService implements DhcpService
     protected DhcpMessage handleUnknownMessage( InetSocketAddress clientAddress,
         DhcpMessage request )
     {
-        if ( logger.isWarnEnabled() )
+        if ( LOGGER.isWarnEnabled() )
         {
-            logger.warn( "Got unknkown DHCP message: {} from: {}", request, clientAddress );
+            LOGGER.warn( "Got unknkown DHCP message: {} from: {}", request, clientAddress );
         }
 
         return null;
@@ -136,9 +135,9 @@ public abstract class AbstractDhcpService implements DhcpService
         InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException
     {
-        if ( logger.isDebugEnabled() )
+        if ( LOGGER.isDebugEnabled() )
         {
-            logger.debug( "Got INFORM message: {} from: {}", request, clientAddress );
+            LOGGER.debug( "Got INFORM message: {} from: {}", request, clientAddress );
         }
 
         return null;
@@ -158,8 +157,10 @@ public abstract class AbstractDhcpService implements DhcpService
         InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException
     {
-        if ( logger.isDebugEnabled() )
-            logger.debug( "Got RELEASE message: {} from: {}", request, clientAddress );
+        if ( LOGGER.isDebugEnabled() )
+        {
+            LOGGER.debug( "Got RELEASE message: {} from: {}", request, clientAddress );
+        }
         return null;
     }
 
@@ -177,9 +178,9 @@ public abstract class AbstractDhcpService implements DhcpService
         InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException
     {
-        if ( logger.isDebugEnabled() )
+        if ( LOGGER.isDebugEnabled() )
         {
-            logger.debug( "Got REQUEST message: {} from: {}", request, clientAddress );
+            LOGGER.debug( "Got REQUEST message: {} from: {}", request, clientAddress );
         }
 
         return null;
@@ -200,9 +201,9 @@ public abstract class AbstractDhcpService implements DhcpService
         InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException
     {
-        if ( logger.isDebugEnabled() )
+        if ( LOGGER.isDebugEnabled() )
         {
-            logger.debug( "Got DISCOVER message: {} from: {}", request, clientAddress );
+            LOGGER.debug( "Got DISCOVER message: {} from: {}", request, clientAddress );
         }
 
         return null;
@@ -223,9 +224,9 @@ public abstract class AbstractDhcpService implements DhcpService
         InetSocketAddress clientAddress, DhcpMessage request )
         throws DhcpException
     {
-        if ( logger.isDebugEnabled() )
+        if ( LOGGER.isDebugEnabled() )
         {
-            logger.debug( "Got OFFER message: {} from: {}", request, clientAddress );
+            LOGGER.debug( "Got OFFER message: {} from: {}", request, clientAddress );
         }
 
         return null;

@@ -20,7 +20,6 @@
 package org.apache.directory.server.dhcp.messages;
 
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -223,7 +222,7 @@ public final class HardwareAddress
         int type = Integer.parseInt( m.group( 1 ) );
         int len = m.groupCount() - 1;
 
-        byte addr[] = new byte[len];
+        byte[] addr = new byte[len];
 
         for ( int i = 0; i < addr.length; i++ )
         {

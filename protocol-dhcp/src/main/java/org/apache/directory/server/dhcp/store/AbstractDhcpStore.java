@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDhcpStore implements DhcpStore
 {
-    private static final Logger logger = LoggerFactory.getLogger( AbstractDhcpStore.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractDhcpStore.class );
 
 
     /*
@@ -55,7 +55,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
 
         if ( null == subnet )
         {
-            logger.warn( "Don't know anything about the sbnet containing " + selectionBase );
+            LOG.warn( "Don't know anything about the sbnet containing " + selectionBase );
             return null;
         }
 
@@ -78,7 +78,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
             // possible to violate this condition, but we can't be sure.
             if ( !subnet.contains( host.getAddress() ) )
             {
-                logger.warn( "Host " + host + " is not within the subnet for which an address is requested" );
+                LOG.warn( "Host " + host + " is not within the subnet for which an address is requested" );
             }
             else
             {
@@ -114,10 +114,10 @@ public abstract class AbstractDhcpStore implements DhcpStore
             }
         }
 
-        if ( null == lease )
-        {
-            // FIXME: use selection base to find a lease in a pool.
-        }
+        //if ( null == lease )
+        //{
+        // FIXME: use selection base to find a lease in a pool.
+        //}
 
         // update the lease state
         if ( null != lease && lease.getState() != Lease.STATE_ACTIVE )
@@ -152,7 +152,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
         // check whether the notions of the client address match
         if ( !lease.getClientAddress().equals( requestedAddress ) )
         {
-            logger.warn( "Requested address " + requestedAddress + " for " + hardwareAddress
+            LOG.warn( "Requested address " + requestedAddress + " for " + hardwareAddress
                 + " doesn't match existing lease " + lease );
             return null;
         }
@@ -162,19 +162,19 @@ public abstract class AbstractDhcpStore implements DhcpStore
 
         if ( null == subnet )
         {
-            logger.warn( "No subnet found for existing lease " + lease );
+            LOG.warn( "No subnet found for existing lease " + lease );
             return null;
         }
 
         if ( !subnet.contains( lease.getClientAddress() ) )
         {
-            logger.warn( "Client with existing lease " + lease + " is on wrong subnet " + subnet );
+            LOG.warn( "Client with existing lease " + lease + " is on wrong subnet " + subnet );
             return null;
         }
 
         if ( !subnet.isInRange( lease.getClientAddress() ) )
         {
-            logger.warn( "Client with existing lease " + lease + " is out of valid range for subnet " + subnet );
+            LOG.warn( "Client with existing lease " + lease + " is out of valid range for subnet " + subnet );
             return null;
         }
 
@@ -197,7 +197,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
             // host address is mandatory).
             if ( host.getAddress() != null && !host.getAddress().equals( lease.getClientAddress() ) )
             {
-                logger.warn( "Existing fixed address for " + hardwareAddress + " conflicts with existing lease "
+                LOG.warn( "Existing fixed address for " + hardwareAddress + " conflicts with existing lease "
                     + lease );
                 return null;
             }
