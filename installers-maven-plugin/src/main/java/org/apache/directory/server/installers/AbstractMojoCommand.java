@@ -80,9 +80,6 @@ public abstract class AbstractMojoCommand<T extends Target>
     /** The rights for a command */
     protected static final String RWX_RX_RX = "755";
 
-    /** The rights for a user command */
-    protected static final String RWX_R__R_ = "744";
-
     /** The os.name property key */
     protected static final String OS_NAME = "os.name";
 
@@ -302,7 +299,7 @@ public abstract class AbstractMojoCommand<T extends Target>
     }
 
 
-    abstract public void copyWrapperFiles( GenerateMojo mojo ) throws MojoFailureException;
+    public abstract void copyWrapperFiles( GenerateMojo mojo ) throws MojoFailureException;
 
 
     /**

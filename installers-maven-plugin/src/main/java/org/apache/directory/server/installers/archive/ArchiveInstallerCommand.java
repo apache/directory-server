@@ -345,8 +345,8 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
         // Checking for a known archive type
         ArchiveType type = ArchiveType.getType( archiveType );
 
-        if ( ( type != ArchiveType.ZIP ) && ( type != ArchiveType.TAR ) &&
-            ( type != ArchiveType.TAR_GZ ) && ( type != ArchiveType.TAR_BZ2 ) )
+        if ( ( type != ArchiveType.ZIP ) && ( type != ArchiveType.TAR )
+            && ( type != ArchiveType.TAR_GZ ) && ( type != ArchiveType.TAR_BZ2 ) )
         {
             log.warn( "Archive type is unknwown (" + archiveType + ")!" );
             log.warn( "The build will continue, but please check the archive type of this installer target" );

@@ -50,14 +50,20 @@ import org.codehaus.plexus.util.InterpolationFilterReader;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MojoHelperUtils
+public final class MojoHelperUtils
 {
+
+    private MojoHelperUtils()
+    {
+    }
+
+
     public static void copyBinaryFile( GenerateMojo mojo, String fileName, InputStream from, File to )
         throws IOException
     {
         mojo.getLog().info( "Copying " + fileName + " to " + to );
 
-        try (FileOutputStream out = new FileOutputStream( to ))
+        try ( FileOutputStream out = new FileOutputStream( to ) )
         {
             IOUtil.copy( from, out );
         }
@@ -72,7 +78,7 @@ public class MojoHelperUtils
         InputStream from, File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
-        try (Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
+        try ( Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
             Writer fileWriter = new OutputStreamWriter( new FileOutputStream( to ) ) )
         {
             Reader reader = null;
