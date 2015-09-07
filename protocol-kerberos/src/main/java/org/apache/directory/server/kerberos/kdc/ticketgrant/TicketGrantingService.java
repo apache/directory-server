@@ -80,17 +80,22 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketGrantingService
+public final class TicketGrantingService
 {
 
     /** the log for this class */
     private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
-    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler CIPHER_TEXT_HANDLER = new CipherTextHandler();
 
     private static final String SERVICE_NAME = "Ticket-Granting Service (TGS)";
 
-    private static final ChecksumHandler checksumHandler = new ChecksumHandler();
+    private static final ChecksumHandler CHRECKSUM_HANDLER = new ChecksumHandler();
+
+
+    private TicketGrantingService()
+    {
+    }
 
 
     public static void execute( TicketGrantingContext tgsContext ) throws Exception
@@ -116,7 +121,7 @@ public class TicketGrantingService
 
     private static void configureTicketGranting( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        tgsContext.setCipherTextHandler( cipherTextHandler );
+        tgsContext.setCipherTextHandler( CIPHER_TEXT_HANDLER );
 
         if ( tgsContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
         {
@@ -323,7 +328,7 @@ public class TicketGrantingService
 
                 LOG_KRB.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
-                checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
+                CHRECKSUM_HANDLER.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
                     KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY );
             }
         }
@@ -476,12 +481,12 @@ public class TicketGrantingService
 
         if ( authenticator.getSubKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), encTgsRepPart,
+            encryptedData = CIPHER_TEXT_HANDLER.seal( authenticator.getSubKey(), encTgsRepPart,
                 KeyUsage.TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY );
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart,
+            encryptedData = CIPHER_TEXT_HANDLER.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart,
                 KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
         }
 
@@ -746,9 +751,9 @@ public class TicketGrantingService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            KerberosTime startTime = ( tgt.getEncTicketPart().getStartTime() != null ) ?
-                tgt.getEncTicketPart().getStartTime() :
-                tgt.getEncTicketPart().getAuthTime();
+            KerberosTime startTime = ( tgt.getEncTicketPart().getStartTime() != null )
+                ? tgt.getEncTicketPart().getStartTime()
+                : tgt.getEncTicketPart().getAuthTime();
 
             if ( startTime.greaterThan( new KerberosTime() ) )
             {
@@ -759,26 +764,26 @@ public class TicketGrantingService
             newTicketPart.getFlags().clearFlag( TicketFlag.INVALID );
         }
 
-        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_0 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_7 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_9 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_10 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_11 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_12 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_13 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_14 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_15 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_16 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_17 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_18 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_19 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_20 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_21 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_22 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_23 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_24 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_25 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_29 ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_0 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_7 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_9 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_10 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_11 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_12 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_13 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_14 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_15 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_16 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_17 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_18 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_19 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_20 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_21 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_22 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_23 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_24 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_25 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_29 ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
@@ -845,9 +850,9 @@ public class TicketGrantingService
 
             newTicketPart.setStartTime( now );
 
-            KerberosTime tgtStartTime = ( tgt.getEncTicketPart().getStartTime() != null ) ?
-                tgt.getEncTicketPart().getStartTime() :
-                tgt.getEncTicketPart().getAuthTime();
+            KerberosTime tgtStartTime = ( tgt.getEncTicketPart().getStartTime() != null )
+                    ? tgt.getEncTicketPart().getStartTime()
+                    : tgt.getEncTicketPart().getAuthTime();
 
             long oldLife = tgt.getEncTicketPart().getEndTime().getTime() - tgtStartTime.getTime();
 

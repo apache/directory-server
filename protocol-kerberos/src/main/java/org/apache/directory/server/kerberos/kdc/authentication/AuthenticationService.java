@@ -83,16 +83,21 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AuthenticationService
+public final class AuthenticationService
 {
     /** The log for this class. */
     private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
     /** The module responsible for encryption and decryption */
-    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler CIPHER_TEXT_HANDLER = new CipherTextHandler();
 
     /** The service name */
     private static final String SERVICE_NAME = "Authentication Service (AS)";
+
+
+    private AuthenticationService()
+    {
+    }
 
 
     /**
@@ -108,7 +113,7 @@ public class AuthenticationService
             monitorRequest( authContext );
         }
 
-        authContext.setCipherTextHandler( cipherTextHandler );
+        authContext.setCipherTextHandler( CIPHER_TEXT_HANDLER );
 
         int kerberosVersion = authContext.getRequest().getProtocolVersionNumber();
 
@@ -706,7 +711,7 @@ public class AuthenticationService
         }
 
         EncryptionKey clientKey = authContext.getClientKey();
-        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, encAsRepPart,
+        EncryptedData encryptedData = CIPHER_TEXT_HANDLER.seal( clientKey, encAsRepPart,
             KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
         reply.setEncPart( encryptedData );
         //FIXME the below setter is useless, remove it

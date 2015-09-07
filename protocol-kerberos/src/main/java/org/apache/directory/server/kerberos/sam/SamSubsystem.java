@@ -45,7 +45,7 @@ public final class SamSubsystem
     public static final String PROPKEY_BASE = "kerberos.sam.type.";
 
     /** the SAM subsystem instance */
-    public static SamSubsystem instance;
+    private static SamSubsystem instance;
 
     /** a map of verifiers so we do not need to create a new one every time */
     private final Map<SamType, SamVerifier> verifiers = new HashMap<SamType, SamVerifier>();

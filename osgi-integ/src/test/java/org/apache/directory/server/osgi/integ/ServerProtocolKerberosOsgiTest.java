@@ -23,10 +23,7 @@ package org.apache.directory.server.osgi.integ;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
-import org.apache.directory.server.kerberos.changepwd.service.ChangePasswordService;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
-import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
-import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
 import org.apache.directory.server.kerberos.protocol.codec.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
 import org.apache.directory.server.kerberos.sam.TimestampChecker;
@@ -48,12 +45,9 @@ public class ServerProtocolKerberosOsgiTest extends ServerOsgiTestBase
         new KerberosConfig();
         new ChangePasswordConfig();
         new KdcServer();
-        new TicketGrantingService();
-        new AuthenticationService();
         KerberosProtocolCodecFactory.getInstance().getDecoder( null );
         KerberosProtocolCodecFactory.getInstance().getEncoder( null );
         new ChangePasswordServer();
-        new ChangePasswordService();
         new TimestampChecker();
         SamSubsystem.getInstance();
     }

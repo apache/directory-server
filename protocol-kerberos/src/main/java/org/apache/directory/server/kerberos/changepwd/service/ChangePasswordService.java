@@ -63,12 +63,18 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChangePasswordService
+public final class ChangePasswordService
 {
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordService.class );
 
-    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler CIPHER_TEXT_HANDLER = new CipherTextHandler();
+
+
+    private ChangePasswordService()
+    {
+    }
+
 
     public static void execute( IoSession session, ChangePasswordContext changepwContext ) throws Exception
     {
@@ -153,7 +159,7 @@ public class ChangePasswordService
     
     private static void configureChangePassword( ChangePasswordContext changepwContext )
     {
-        changepwContext.setCipherTextHandler( cipherTextHandler );
+        changepwContext.setCipherTextHandler( CIPHER_TEXT_HANDLER );
     }
     
     
@@ -249,7 +255,7 @@ public class ChangePasswordService
             byte[] decryptedData = cipherTextHandler.decrypt( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
             EncKrbPrivPart privatePart = KerberosDecoder.decodeEncKrbPrivPart( decryptedData );
 
-            if( authenticator.getSeqNumber() != privatePart.getSeqNumber() )
+            if ( authenticator.getSeqNumber() != privatePart.getSeqNumber() )
             {
                 throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED );    
             }
@@ -350,7 +356,9 @@ public class ChangePasswordService
         EncKrbPrivPart privPart = new EncKrbPrivPart();
         // first two bytes are the result code, rest is the string 'Password Changed' followed by a null char
         byte[] resultCode =
-            { ( byte ) 0x00, ( byte ) 0x00, (byte)0x50, (byte)0x61, (byte)0x73, (byte)0x73, (byte)0x77, (byte)0x6F, (byte)0x72, (byte)0x64, (byte)0x20, (byte)0x63, (byte)0x68, (byte)0x61, (byte)0x6E, (byte)0x67, (byte)0x65, (byte)0x64, (byte)0x00 };
+            { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x50, ( byte ) 0x61, ( byte ) 0x73, ( byte ) 0x73, ( byte ) 0x77,
+                ( byte ) 0x6F, ( byte ) 0x72, ( byte ) 0x64, ( byte ) 0x20, ( byte ) 0x63, ( byte ) 0x68,
+                ( byte ) 0x61, ( byte ) 0x6E, ( byte ) 0x67, ( byte ) 0x65, ( byte ) 0x64, ( byte ) 0x00 };
         privPart.setUserData( resultCode );
 
         privPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );

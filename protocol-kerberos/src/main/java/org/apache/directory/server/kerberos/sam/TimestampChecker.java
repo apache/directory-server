@@ -31,7 +31,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextH
 public class TimestampChecker implements KeyIntegrityChecker
 {
     private static final long FIVE_MINUTES = 300000;
-    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler CIPHER_TEXT_HANDLER = new CipherTextHandler();
 
 
     // FIXME this whole function seems to be buggy and also I don't find any references to this function in code- kayyagari
