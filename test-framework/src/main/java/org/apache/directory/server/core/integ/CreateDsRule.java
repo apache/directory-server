@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateDsRule implements TestRule
 {
-    private static Logger LOG = LoggerFactory.getLogger( CreateDsRule.class );
+    private static final Logger LOG = LoggerFactory.getLogger( CreateDsRule.class );
 
     private DirectoryService directoryService;
     private CreateDsRule outerCreateDsRule;

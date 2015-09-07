@@ -23,7 +23,6 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateLdapServerRule extends CreateDsRule
 {
-    private static Logger LOG = LoggerFactory.getLogger( CreateLdapServerRule.class );
+    private static final Logger LOG = LoggerFactory.getLogger( CreateLdapServerRule.class );
 
     private CreateLdapServerRule classCreateLdapServerRule;
     private LdapServer ldapServer;

@@ -33,7 +33,6 @@ import org.apache.directory.ldap.client.api.LdapConnectionValidator;
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.ldap.LdapServer;
-import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
 {
-    private static Logger LOG = LoggerFactory.getLogger( CreateLdapConnectionPoolRule.class );
+    private static final Logger LOG = LoggerFactory.getLogger( CreateLdapConnectionPoolRule.class );
     private CreateLdapConnectionPoolRule classCreateLdapConnectionPoolRule;
     private CreateLdapConnectionPool createLdapConnectionPool;
     private LdapConnectionPool ldapConnectionPool;
@@ -215,7 +214,8 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
         try
         {
             Method timeoutSetter = connectionFactoryClass.getMethod( "setTimeOut", Long.TYPE );
-            if ( timeoutSetter != null ) {
+            if ( timeoutSetter != null )
+            {
                 timeoutSetter.invoke( ldapConnectionFactory, createLdapConnectionPool.timeout() );
             }
         }
@@ -240,8 +240,9 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
         try
         {
             Method setValidator = factoryClass.getMethod( "setValidator", LdapConnectionValidator.class );
-            if ( setValidator != null ) {
-                setValidator.invoke( poolableLdapConnectionFactory, 
+            if ( setValidator != null )
+            {
+                setValidator.invoke( poolableLdapConnectionFactory,
                     validatorClass.newInstance() );
             }
         }
