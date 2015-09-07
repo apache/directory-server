@@ -260,7 +260,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             return;
         }
         
-        sendDeletedEntry( ((ClonedServerEntry)entry).getClonedEntry() );
+        sendDeletedEntry( ( ( ClonedServerEntry ) entry ).getClonedEntry() );
     }
     
 
@@ -523,7 +523,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 // if successful update the last sent CSN
                 consumerMsgLog.setLastSentCsn( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 //should never happen
                 LOG.error( "No entry CSN attribute found", e );
@@ -546,15 +546,15 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         
         String name = Strings.toLowerCase( entry.getDn().getName() );
         
-        if ( name.endsWith( replConsumerConfigDn ) ||
-             name.endsWith( schemaDn ) ||
-             name.endsWith( replConsumerDn ) )
+        if ( name.endsWith( replConsumerConfigDn )
+            || name.endsWith( schemaDn )
+            || name.endsWith( replConsumerDn ) )
         {
             return true;
         }
         
         // do not replicate the changes made to transport config entries
-        if( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
+        if ( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
         {
             return true;
         }
@@ -583,11 +583,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     private boolean isMmrConfiguredToReceiver( AbstractChangeOperationContext ctx )
     {
-        if( ctx.isReplEvent() )
+        if ( ctx.isReplEvent() )
         {
             boolean skip = ( ctx.getRid() == consumerMsgLog.getId() );
             
-            if( skip )
+            if ( skip )
             {
                 LOG.debug( "RID in operation context matches with the ID of replication event log {} for host {}", consumerMsgLog.getName(), consumerMsgLog.getHostName() );
             }

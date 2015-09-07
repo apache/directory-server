@@ -148,8 +148,7 @@ public class LdapSession
      */
     public boolean isAuthPending()
     {
-        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) ||
-            ( bindStatus == BindStatus.SASL_AUTH_PENDING );
+        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) || ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
 
 

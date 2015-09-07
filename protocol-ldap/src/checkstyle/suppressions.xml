@@ -24,6 +24,6 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <!-- More than 7 parameters in constructor -->
-    <suppress files="org.apache.directory.server.ntp.messages.NtpMessage" checks="ParameterNumber"/>
+    <!-- More than 7 parameters in private method -->
+    <suppress files="org.apache.directory.server.ldap.handlers.request.SearchRequestHandler" checks="ParameterNumber"/>
 </suppressions>

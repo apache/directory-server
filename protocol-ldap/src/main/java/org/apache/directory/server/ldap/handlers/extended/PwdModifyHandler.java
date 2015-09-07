@@ -110,10 +110,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             Attribute at = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
             if ( ( oldPassword != null ) && ( at != null ) )
             {
-                for( Value<?> v : at )
+                for ( Value<?> v : at )
                 {
                     boolean equal = PasswordUtil.compareCredentials( oldPassword, v.getBytes() );
-                    if( equal )
+                    if ( equal )
                     {
                         oldPassword = v.getBytes();
                     }
@@ -136,7 +136,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         modifyRequest.setName( userDn );
 
         Control ppolicyControl = req.getControl( PasswordPolicy.OID );
-        if( ppolicyControl != null )
+        if ( ppolicyControl != null )
         {
             modifyRequest.addControl( ppolicyControl );
         }
@@ -195,7 +195,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
 
             ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
 
-            if( ppolicyControl != null )
+            if ( ppolicyControl != null )
             {
                 pmrl.addControl( ppolicyControl );
             }
@@ -224,7 +224,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
 
         ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
 
-        if( ppolicyControl != null )
+        if ( ppolicyControl != null )
         {
             errorPmrl.addControl( ppolicyControl );
         }

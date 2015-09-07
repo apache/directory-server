@@ -71,7 +71,6 @@ import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
@@ -263,38 +262,32 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private void handleLookup( LdapSession session, SearchRequest req ) throws Exception
     {
-        try
-        {
-            Map<String, Control> controlMap = req.getControls();
-            Control[] controls = null;
+        Map<String, Control> controlMap = req.getControls();
+        Control[] controls = null;
 
-            if ( controlMap != null )
+        if ( controlMap != null )
+        {
+            Collection<Control> controlValues = controlMap.values();
+
+            controls = new Control[controlValues.size()];
+            int pos = 0;
+
+            for ( Control control : controlMap.values() )
             {
-                Collection<Control> controlValues = controlMap.values();
-
-                controls = new Control[controlValues.size()];
-                int pos = 0;
-
-                for ( Control control : controlMap.values() )
-                {
-                    controls[pos++] = control;
-                }
+                controls[pos++] = control;
             }
-
-            Entry entry = session.getCoreSession().lookup(
-                req.getBase(),
-                controls,
-                req.getAttributes().toArray( new String[]
-                    {} ) );
-
-            session.getIoSession().write( generateResponse( session, req, entry ) );
-
-            // write the SearchResultDone message
-            session.getIoSession().write( req.getResultResponse() );
         }
-        finally
-        {
-        }
+
+        Entry entry = session.getCoreSession().lookup(
+            req.getBase(),
+            controls,
+            req.getAttributes().toArray( new String[]
+                {} ) );
+
+        session.getIoSession().write( generateResponse( session, req, entry ) );
+
+        // write the SearchResultDone message
+        session.getIoSession().write( req.getResultResponse() );
     }
 
 
@@ -1182,7 +1175,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             if ( isLogSearchTime )
             {
                 long t1 = System.nanoTime();
-                SEARCH_TIME_LOG.debug( "Search with filter {} took {}ms. Filter with assigned counts is {}", filter, ((t1-t0)/1000000), req.getFilter() );
+                SEARCH_TIME_LOG.debug( "Search with filter {} took {}ms. Filter with assigned counts is {}", filter,
+                    ( ( t1 - t0 ) / 1000000 ), req.getFilter() );
             }
         }
         catch ( Exception e )

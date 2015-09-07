@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
@@ -160,7 +159,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private static AttributeType ENTRY_UUID_AT;
     private static AttributeType RID_AT_TYPE;
 
-    private static final Map<String, Object> uuidLockMap = new LRUMap( 1000 );
+    private static final Map<String, Object> UUID_LOCK_MAP = new LRUMap( 1000 );
 
 
     /**
@@ -446,6 +445,9 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     case PRESENT:
                         CONSUMER_LOG.debug( "entry present {}", remoteEntry );
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected sync state " + state );
                 }
 
                 // store the cookie only if the above operation was successful
@@ -1013,9 +1015,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         CONSUMER_LOG.debug( "MODDN for entry {}, new entry : {}", entryUuid, remoteEntry );
 
-        // First, compute the MODDN type
-        SyncModifyDnType modDnType = null;
-
         try
         {
             // Retrieve locally the moved or renamed entry
@@ -1069,64 +1068,45 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             Rdn localRdn = localDn.getRdn();
             Rdn remoteRdn = directoryService.getDnFactory().create( remoteDn.getRdn().getName() ).getRdn();
 
+            // Check if the OldRdn has been deleted
+            boolean deleteOldRdn = !remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
+
             if ( localRdn.equals( remoteRdn ) )
             {
                 // If the RDN are equals, it's a MOVE
-                modDnType = SyncModifyDnType.MOVE;
+                CONSUMER_LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
+                MoveOperationContext movCtx = new MoveOperationContext( session, localDn, remoteParentDn );
+                movCtx.setReplEvent( true );
+                movCtx.setRid( rid );
+                directoryService.getOperationManager().move( movCtx );
             }
             else if ( localParentDn.equals( remoteParentDn ) )
             {
                 // If the parentDn are equals, it's a RENAME
-                modDnType = SyncModifyDnType.RENAME;
+                CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}",
+                    localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) );
+                
+                RenameOperationContext renCtx = new RenameOperationContext( session, localDn, remoteRdn,
+                    deleteOldRdn );
+                renCtx.setReplEvent( true );
+                renCtx.setRid( rid );
+                directoryService.getOperationManager().rename( renCtx );
             }
             else
             {
                 // Otherwise, it's a MOVE and RENAME
-                modDnType = SyncModifyDnType.MOVE_AND_RENAME;
-            }
-
-            // Check if the OldRdn has been deleted
-            boolean deleteOldRdn = !remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
-
-            switch ( modDnType )
-            {
-                case MOVE:
-                    CONSUMER_LOG.debug( "moving {} to the new parent {}", localDn, remoteParentDn );
-                    MoveOperationContext movCtx = new MoveOperationContext( session, localDn, remoteParentDn );
-                    movCtx.setReplEvent( true );
-                    movCtx.setRid( rid );
-                    directoryService.getOperationManager().move( movCtx );
-
-                    break;
-
-                case RENAME:
-                    CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}",
-                        localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) );
-
-                    RenameOperationContext renCtx = new RenameOperationContext( session, localDn, remoteRdn,
-                        deleteOldRdn );
-                    renCtx.setReplEvent( true );
-                    renCtx.setRid( rid );
-                    directoryService.getOperationManager().rename( renCtx );
-
-                    break;
-
-                case MOVE_AND_RENAME:
-                    CONSUMER_LOG
-                        .debug(
-                            "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
-                            localDn.getName(),
-                            remoteParentDn.getName(),
-                            remoteRdn.getName(),
-                            String.valueOf( deleteOldRdn ) );
-
-                    MoveAndRenameOperationContext movRenCtx = new MoveAndRenameOperationContext( session, localDn,
-                        remoteParentDn, remoteRdn, deleteOldRdn );
-                    movRenCtx.setReplEvent( true );
-                    movRenCtx.setRid( rid );
-                    directoryService.getOperationManager().moveAndRename( movRenCtx );
-
-                    break;
+                CONSUMER_LOG.debug(
+                    "moveAndRename on the Dn {} with new newParent Dn {}, new Rdn {} and deleteOldRdn flag set to {}",
+                    localDn.getName(),
+                    remoteParentDn.getName(),
+                    remoteRdn.getName(),
+                    String.valueOf( deleteOldRdn ) );
+                
+                MoveAndRenameOperationContext movRenCtx = new MoveAndRenameOperationContext( session, localDn,
+                    remoteParentDn, remoteRdn, deleteOldRdn );
+                movRenCtx.setReplEvent( true );
+                movRenCtx.setRid( rid );
+                directoryService.getOperationManager().moveAndRename( movRenCtx );
             }
         }
         catch ( Exception e )
@@ -1274,24 +1254,24 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             return;
         }
 
-        int NODE_LIMIT = 10;
+        int nodeLimit = 10;
 
-        int count = uuidList.size() / NODE_LIMIT;
+        int count = uuidList.size() / nodeLimit;
 
         int startIndex = 0;
         int i = 0;
         for ( ; i < count; i++ )
         {
-            startIndex = i * NODE_LIMIT;
-            processDelete( uuidList.subList( startIndex, startIndex + NODE_LIMIT ), isRefreshPresent, replicaId );
+            startIndex = i * nodeLimit;
+            processDelete( uuidList.subList( startIndex, startIndex + nodeLimit ), isRefreshPresent, replicaId );
         }
 
-        if ( ( uuidList.size() % NODE_LIMIT ) != 0 )
+        if ( ( uuidList.size() % nodeLimit ) != 0 )
         {
             // remove the remaining entries
             if ( count > 0 )
             {
-                startIndex = i * NODE_LIMIT;
+                startIndex = i * nodeLimit;
             }
 
             processDelete( uuidList.subList( startIndex, uuidList.size() ), isRefreshPresent, replicaId );
@@ -1398,12 +1378,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     private synchronized Object getLockFor( String uuid )
     {
-        Object lock = uuidLockMap.get( uuid );
+        Object lock = UUID_LOCK_MAP.get( uuid );
 
         if ( lock == null )
         {
             lock = new Object();
-            uuidLockMap.put( uuid, lock );
+            UUID_LOCK_MAP.put( uuid, lock );
         }
 
         return lock;

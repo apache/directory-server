@@ -130,9 +130,9 @@ public class PagedSearchContext
             catch ( LdapException le )
             {
                 // Deal with special attributes : '*', '+' and '1.1'
-                if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ||
-                    attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                    attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES )
+                    || attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
+                    || attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     requestSet.add( attribute );
                 }

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdapProtocolUtils
+public final class LdapProtocolUtils
 {
     /** A delimiter for the replicaId */
     public static final String COOKIE_DELIM = ",";
@@ -51,6 +51,11 @@ public class LdapProtocolUtils
     private static final int CSN_PREFIX_LEN = CSN_PREFIX.length();
 
     private static final Logger LOG = LoggerFactory.getLogger( LdapProtocolUtils.class );
+
+
+    private LdapProtocolUtils()
+    {
+    }
 
 
     /**

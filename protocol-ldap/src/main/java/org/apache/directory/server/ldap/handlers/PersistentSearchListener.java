@@ -262,7 +262,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         {
             ServerEntryUtils.filterContents( schemaManager, filterCtx, entry );
         }
-        catch( LdapException e )
+        catch ( LdapException e )
         {
             // shouldn't happen, if it does then blow up
             throw new RuntimeException( e );

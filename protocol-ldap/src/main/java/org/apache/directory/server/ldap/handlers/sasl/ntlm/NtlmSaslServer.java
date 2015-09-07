@@ -95,6 +95,9 @@ public class NtlmSaslServer extends AbstractSaslServer
 
             case COMPLETED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
+
+            default:
+                throw new IllegalStateException( "Unexpected negotiation state " + state );
         }
     }
 
@@ -119,6 +122,9 @@ public class NtlmSaslServer extends AbstractSaslServer
 
             case COMPLETED:
                 throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
+
+            default:
+                throw new IllegalStateException( "Unexpected negotiation state " + state );
         }
     }
 
@@ -180,6 +186,12 @@ public class NtlmSaslServer extends AbstractSaslServer
                 }
 
                 break;
+
+            case INITIALIZED:
+            case TYPE_2_SENT:
+            case COMPLETED:
+            default:
+                throw new IllegalStateException( "Unexpected negotiation state " + state );
         }
 
         responseSent();

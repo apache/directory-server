@@ -81,7 +81,7 @@ public class ReplConsumerManager
 
     /** The replication factory DN */
     private static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
-    private static Dn REPL_CONSUMER_DN;
+    private Dn replConsumerDn;
 
     /** The consumers' ou value */
     private static final String CONSUMERS = "consumers";
@@ -107,7 +107,7 @@ public class ReplConsumerManager
         this.directoryService = directoryService;
         adminSession = directoryService.getAdminSession();
         schemaManager = directoryService.getSchemaManager();
-        REPL_CONSUMER_DN = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
+        replConsumerDn = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
         OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
         ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
 
@@ -121,13 +121,13 @@ public class ReplConsumerManager
      */
     private void createConsumersBranch() throws Exception
     {
-        if ( !adminSession.exists( REPL_CONSUMER_DN ) )
+        if ( !adminSession.exists( replConsumerDn ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
             PROVIDER_LOG
-                .debug( "Creating the entry for storing replication consumers' details in {}", REPL_CONSUMER_DN );
+                .debug( "Creating the entry for storing replication consumers' details in {}", replConsumerDn );
 
-            Entry entry = new DefaultEntry( schemaManager, REPL_CONSUMER_DN,
+            Entry entry = new DefaultEntry( schemaManager, replConsumerDn,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.OU_AT, CONSUMERS );
 
@@ -154,7 +154,7 @@ public class ReplConsumerManager
 
         // Check that we don't already have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
 
         if ( adminSession.exists( consumerDn ) )
         {
@@ -202,7 +202,7 @@ public class ReplConsumerManager
 
         // Check that we have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
 
         PROVIDER_LOG.debug( "Trying to delete the consumer entry {}", consumerDn );
 
@@ -248,7 +248,7 @@ public class ReplConsumerManager
         }
 
         Dn dn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
         adminSession.modify( dn, mod );
 
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
@@ -270,7 +270,7 @@ public class ReplConsumerManager
         ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
             SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
-        searchRequest.setBase( REPL_CONSUMER_DN );
+        searchRequest.setBase( replConsumerDn );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.setFilter( filter );
         searchRequest.addAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );

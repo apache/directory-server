@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SaslFilter extends IoFilterAdapter
 {
-    private static final Logger log = LoggerFactory.getLogger( SaslFilter.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SaslFilter.class );
 
     /**
      * A session attribute key that makes next one write request bypass
@@ -83,7 +83,7 @@ public class SaslFilter extends IoFilterAdapter
 
     public void messageReceived( NextFilter nextFilter, IoSession session, Object message ) throws SaslException
     {
-        log.debug( "Message received:  {}", message );
+        LOG.debug( "Message received:  {}", message );
 
         /*
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
@@ -102,13 +102,13 @@ public class SaslFilter extends IoFilterAdapter
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
 
-            log.debug( "Will use SASL to unwrap received message of length:  {}", bufferLength );
+            LOG.debug( "Will use SASL to unwrap received message of length:  {}", bufferLength );
             byte[] token = saslServer.unwrap( bufferBytes, 0, bufferBytes.length );
             nextFilter.messageReceived( session, IoBuffer.wrap( token ) );
         }
         else
         {
-            log.debug( "Will not use SASL on received message." );
+            LOG.debug( "Will not use SASL on received message." );
             nextFilter.messageReceived( session, message );
         }
     }
@@ -116,7 +116,7 @@ public class SaslFilter extends IoFilterAdapter
 
     public void filterWrite( NextFilter nextFilter, IoSession session, WriteRequest writeRequest ) throws SaslException
     {
-        log.debug( "Filtering write request:  {}", writeRequest );
+        LOG.debug( "Filtering write request:  {}", writeRequest );
 
         /*
          * Check if security layer processing should be disabled once.
@@ -124,7 +124,7 @@ public class SaslFilter extends IoFilterAdapter
         if ( session.containsAttribute( DISABLE_SECURITY_LAYER_ONCE ) )
         {
             // Remove the marker attribute because it is temporary.
-            log.debug( "Disabling SaslFilter once; will not use SASL on write request." );
+            LOG.debug( "Disabling SaslFilter once; will not use SASL on write request." );
             session.removeAttribute( DISABLE_SECURITY_LAYER_ONCE );
             nextFilter.filterWrite( session, writeRequest );
             return;
@@ -149,7 +149,7 @@ public class SaslFilter extends IoFilterAdapter
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
 
-            log.debug( "Will use SASL to wrap message of length:  {}", bufferLength );
+            LOG.debug( "Will use SASL to wrap message of length:  {}", bufferLength );
 
             byte[] saslLayer = saslServer.wrap( bufferBytes, 0, bufferBytes.length );
 
@@ -162,12 +162,12 @@ public class SaslFilter extends IoFilterAdapter
             saslLayerBuffer.position( 0 );
             saslLayerBuffer.limit( 4 + saslLayer.length );
 
-            log.debug( "Sending encrypted token of length {}.", saslLayerBuffer.limit() );
+            LOG.debug( "Sending encrypted token of length {}.", saslLayerBuffer.limit() );
             nextFilter.filterWrite( session, new DefaultWriteRequest( saslLayerBuffer, writeRequest.getFuture() ) );
         }
         else
         {
-            log.debug( "Will not use SASL on write request." );
+            LOG.debug( "Will not use SASL on write request." );
             nextFilter.filterWrite( session, writeRequest );
         }
     }

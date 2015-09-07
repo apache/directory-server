@@ -130,10 +130,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     protected LdapServer ldapServer;
 
     /** An ObjectClass AT instance */
-    private static AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
     /** The CSN AttributeType instance */
-    private AttributeType CSN_AT;
+    private AttributeType csnAT;
 
     private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<Integer, ReplicaEventLog>();
 
@@ -147,9 +147,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private ReplicaEventLogJanitor logJanitor;
 
-    private AttributeType REPL_LOG_MAX_IDLE_AT;
+    private AttributeType replLogMaxIdleAT;
 
-    private AttributeType REPL_LOG_PURGE_THRESHOLD_COUNT_AT;
+    private AttributeType replLogPurgeThresholdCountAT;
 
     /** thread used for updating consumer infor */
     private Thread consumerInfoUpdateThread;
@@ -182,16 +182,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             this.ldapServer = server;
             this.dirService = server.getDirectoryService();
 
-            CSN_AT = dirService.getSchemaManager()
+            csnAT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
 
-            OBJECT_CLASS_AT = dirService.getSchemaManager()
+            objectClassAT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
 
-            REPL_LOG_MAX_IDLE_AT = dirService.getSchemaManager()
+            replLogMaxIdleAT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_MAX_IDLE );
 
-            REPL_LOG_PURGE_THRESHOLD_COUNT_AT = dirService.getSchemaManager()
+            replLogPurgeThresholdCountAT = dirService.getSchemaManager()
                 .lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LOG_PURGE_THRESHOLD_COUNT );
 
             // Get and create the replication directory if it does not exist
@@ -381,13 +381,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 Entry entry = replicaEventMessage.getEntry();
                 PROVIDER_LOG.debug( "Read message from the queue {}", entry );
 
-                lastSentCsn = entry.get( CSN_AT ).getString();
+                lastSentCsn = entry.get( csnAT ).getString();
 
-                ChangeType event = replicaEventMessage.getChangeType();
+                ChangeType changeType = replicaEventMessage.getChangeType();
 
                 SyncStateTypeEnum syncStateType = null;
 
-                switch ( event )
+                switch ( changeType )
                 {
                     case ADD:
                         syncStateType = SyncStateTypeEnum.ADD;
@@ -404,6 +404,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     case DELETE:
                         syncStateType = SyncStateTypeEnum.DELETE;
                         break;
+
+                    default:
+                        throw new IllegalStateException( I18n.err( I18n.ERR_686 ) );
                 }
 
                 sendSearchResultEntry( session, req, entry, syncStateType );
@@ -532,7 +535,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         StringValue contexCsnValue = new StringValue( contextCsn );
 
         // modify the filter to include the context Csn
-        GreaterEqNode csnGeNode = new GreaterEqNode( CSN_AT, contexCsnValue );
+        GreaterEqNode csnGeNode = new GreaterEqNode( csnAT, contexCsnValue );
         ExprNode postInitContentFilter = new AndNode( modifiedFilter, csnGeNode );
         request.setFilter( postInitContentFilter );
 
@@ -560,7 +563,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         dirService.getEventService().addListener( replicationListener, criteria );
 
         // then start pushing initial content
-        LessEqNode csnNode = new LessEqNode( CSN_AT, contexCsnValue );
+        LessEqNode csnNode = new LessEqNode( csnAT, contexCsnValue );
 
         // modify the filter to include the context Csn
         ExprNode initialContentFilter = new AndNode( modifiedFilter, csnNode );
@@ -729,7 +732,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             sendSearchResultEntry( session, req, entry, SyncStateTypeEnum.ADD );
 
-            String lastSentCsn = entry.get( CSN_AT ).getString();
+            String lastSentCsn = entry.get( csnAT ).getString();
             replicaLog.setLastSentCsn( lastSentCsn );
 
             count++;
@@ -981,7 +984,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC ) );
+            objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         return ocIsReferral;
     }
@@ -1246,7 +1249,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                     {
                         Attribute at = m.getAttribute();
 
-                        if ( at.isInstanceOf( REPL_LOG_MAX_IDLE_AT ) )
+                        if ( at.isInstanceOf( replLogMaxIdleAT ) )
                         {
                             ReplicaEventLog log = getEventLog( modifyContext );
                             if ( log != null )
@@ -1255,7 +1258,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                                 log.setMaxIdlePeriod( maxIdlePeriod );
                             }
                         }
-                        else if ( at.isInstanceOf( REPL_LOG_PURGE_THRESHOLD_COUNT_AT ) )
+                        else if ( at.isInstanceOf( replLogPurgeThresholdCountAT ) )
                         {
                             ReplicaEventLog log = getEventLog( modifyContext );
                             if ( log != null )

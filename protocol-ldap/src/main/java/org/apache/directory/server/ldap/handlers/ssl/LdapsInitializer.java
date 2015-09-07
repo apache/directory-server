@@ -43,8 +43,13 @@ import org.apache.mina.filter.ssl.SslFilter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public class LdapsInitializer
+public final class LdapsInitializer
 {
+    private LdapsInitializer()
+    {
+    }
+
+
     /**
      * Initialize the LDAPS server.
      *

@@ -27,7 +27,7 @@ package org.apache.directory.server.ldap.handlers.sasl;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SaslConstants
+public final class SaslConstants
 {
     /**
      * A key constant for storing the SASL Server in the session.
@@ -88,4 +88,9 @@ public class SaslConstants
      * A key constant representing the SASL IoFilter 
      */
     public static final String SASL_FILTER = "SASL_FILTER";
+
+
+    private SaslConstants()
+    {
+    }
 }

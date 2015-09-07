@@ -40,15 +40,9 @@ public class SearchResultDoneHandler extends LdapResponseHandler<SearchResultDon
     {
         LOG.debug( "Message Sent : {}", searchResultDone );
         SearchRequestContainer searchRequestContainer = session.getSearchRequest( searchResultDone.getMessageId() );
-        
-        if ( searchRequestContainer == null )
+
+        if ( searchRequestContainer != null )
         {
-            // We have had an exception
-            //System.out.println( "SearchResultDone : " + searchResultDone );
-        }
-        else
-        {
-            //System.out.println( "SearchResultDone : " + searchRequestContainer );
             // Unregister the request from the session
             session.unregisterSearchRequest( searchRequestContainer.getSearchRequest() );
         }

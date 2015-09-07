@@ -55,7 +55,7 @@ public class PingerThread extends Thread
      */
     public PingerThread( int sleepSec )
     {
-        if( sleepSec > 0 )
+        if ( sleepSec > 0 )
         {
             sleepTime = sleepSec * 1000;
         }
