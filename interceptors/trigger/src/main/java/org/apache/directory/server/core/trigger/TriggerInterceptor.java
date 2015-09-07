@@ -222,10 +222,6 @@ public class TriggerInterceptor extends BaseInterceptor
                 {
                     afterTriggerSpecs.add( triggerSpec );
                 }
-                else
-                {
-
-                }
             }
         }
 

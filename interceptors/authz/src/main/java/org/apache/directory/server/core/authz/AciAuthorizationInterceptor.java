@@ -903,6 +903,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 case REPLACE_ATTRIBUTE:
                     perms = REPLACE_PERMS;
                     break;
+
+                default:
+                    throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
             }
 
             /**

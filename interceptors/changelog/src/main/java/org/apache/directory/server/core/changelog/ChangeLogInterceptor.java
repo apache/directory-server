@@ -223,14 +223,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if ( isDelete ||
-            !changeLog.isEnabled() ||
+        if ( isDelete 
+            || !changeLog.isEnabled()
 
             // if there are no modifications due to stripping out bogus non-
             // existing attributes then we will have no modification items and
             // should ignore not this without registering it with the changelog
 
-            modifyContext.getModItems().size() == 0 )
+            || modifyContext.getModItems().size() == 0 )
         {
             if ( isDelete )
             {

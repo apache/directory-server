@@ -48,8 +48,8 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     {
         this.opContext = opContext;
         injectors = new HashMap<Class<?>, MicroInjector>();
-        injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, $operationPrincipalInjector );
-        injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, $ldapContextInjector );
+        injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, operationPrincipalInjector );
+        injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, ldapContextInjector );
     }
 
 
@@ -96,7 +96,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         return arguments;
     }
 
-    MicroInjector $operationPrincipalInjector = new MicroInjector()
+    MicroInjector operationPrincipalInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
@@ -104,7 +104,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         }
     };
 
-    MicroInjector $ldapContextInjector = new MicroInjector()
+    MicroInjector ldapContextInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {

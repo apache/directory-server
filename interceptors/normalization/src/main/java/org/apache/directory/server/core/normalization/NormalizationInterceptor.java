@@ -412,7 +412,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 {
                     Value<String> v = ( ( EqualityNode<String> ) leafNode ).getValue();
 
-                    if( v.getNormValue().equals( SchemaConstants.TOP_OC ) )
+                    if ( v.getNormValue().equals( SchemaConstants.TOP_OC ) )
                     {
                         // Here too we can safely remove the node and return an undefined node
                         return ObjectClassNode.OBJECT_CLASS_NODE;

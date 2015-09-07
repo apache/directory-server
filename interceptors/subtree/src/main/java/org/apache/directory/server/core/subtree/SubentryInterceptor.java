@@ -397,11 +397,13 @@ public class SubentryInterceptor extends BaseInterceptor
                             modifications = getOperationalModsForRemove( subentryDn, candidate );
                             break;
 
-                    /*
-                    case REPLACE :
-                    modifications = getOperationalModsForReplace( subentryDn, candidate );
-                    break;
-                     */
+                        case REPLACE:
+                            // TODO: why is that commented out???
+                            //modifications = getOperationalModsForReplace( subentryDn, candidate );
+                            break;
+
+                        default:
+                            throw new IllegalArgumentException( "Unexpected operation " + operation );
                     }
 
                     LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
@@ -615,8 +617,8 @@ public class SubentryInterceptor extends BaseInterceptor
 
         for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
-                mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+                || mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 switch ( mod.getOperation() )
                 {
@@ -639,6 +641,9 @@ public class SubentryInterceptor extends BaseInterceptor
                     case REPLACE_ATTRIBUTE:
                         ocFinalState = mod.getAttribute();
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected modify operatoin " + mod.getOperation() );
                 }
             }
         }

@@ -84,7 +84,6 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfigur
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -487,10 +486,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
         CoreSession session = bindContext.getSession();
         Dn bindDn = bindContext.getDn();
 
-        if ( ( session != null ) &&
-            ( session.getEffectivePrincipal() != null ) &&
-            ( !session.isAnonymous() ) &&
-            ( !session.isAdministrator() ) )
+        if ( ( session != null )
+            && ( session.getEffectivePrincipal() != null )
+            && ( !session.isAnonymous() )
+            && ( !session.isAdministrator() ) )
         {
             // null out the credentials
             bindContext.setCredentials( null );
@@ -1199,9 +1198,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private void checkPwdMustChange( ModifyOperationContext modifyContext, CoreSession userSession, 
         PwdModDetailsHolder pwdModDetails, boolean isPPolicyReqCtrlPresent ) throws LdapNoPermissionException
     {
-        if ( userSession.isPwdMustChange() && 
-            !pwdModDetails.isDelete() &&
-            pwdModDetails.isOtherModExists() )
+        if ( userSession.isPwdMustChange() && !pwdModDetails.isDelete() && pwdModDetails.isOtherModExists() )
        {
            if ( isPPolicyReqCtrlPresent )
            {
@@ -1225,9 +1222,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private void checkOldPwdRequired( ModifyOperationContext modifyContext, PasswordPolicyConfiguration policyConfig,
         PwdModDetailsHolder pwdModDetails, boolean isPPolicyReqCtrlPresent ) throws LdapNoPermissionException
     {
-        if ( policyConfig.isPwdSafeModify() && 
-             !pwdModDetails.isDelete() &&
-             pwdModDetails.isAddOrReplace() ) 
+        if ( policyConfig.isPwdSafeModify() && !pwdModDetails.isDelete() && pwdModDetails.isAddOrReplace() )
         {
             String msg = "trying to update password attribute without the supplying the old password";
             LOG.debug( msg );

@@ -45,11 +45,11 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         this.deletedEntryName = deletedEntryName;
         this.deletedEntry = getDeletedEntry( opContext );
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
-        injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
-        injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
+        injectors.put( StoredProcedureParameter.Delete_NAME.class, nameInjector );
+        injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, deletedEntryInjector );
     }
 
-    MicroInjector $nameInjector = new MicroInjector()
+    MicroInjector nameInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
@@ -58,7 +58,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
 
-    MicroInjector $deletedEntryInjector = new MicroInjector()
+    MicroInjector deletedEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {

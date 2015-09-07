@@ -89,7 +89,7 @@ public class TupleCache
     private AttributeType PRESCRIPTIVE_ACI_AT;
 
     /** A storage for the ObjectClass attributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private AttributeType OBJECT_CLASS_AT;
 
 
     /**

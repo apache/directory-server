@@ -25,10 +25,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-
-import javax.naming.Context;
-
-
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;

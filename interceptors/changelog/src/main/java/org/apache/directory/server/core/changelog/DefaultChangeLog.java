@@ -246,10 +246,12 @@ public class DefaultChangeLog implements ChangeLog
 
         if ( store instanceof TaggableChangeLogStore )
         {
-            return latest = ( ( TaggableChangeLogStore ) store ).tag( revision );
+            latest = ( ( TaggableChangeLogStore ) store ).tag( revision );
+            return latest;
         }
 
-        return latest = new Tag( revision, description );
+        latest = new Tag( revision, description );
+        return latest;
     }
 
 
@@ -310,7 +312,8 @@ public class DefaultChangeLog implements ChangeLog
 
         if ( store instanceof TaggableChangeLogStore )
         {
-            return latest = ( ( TaggableChangeLogStore ) store ).getLatest();
+            latest = ( ( TaggableChangeLogStore ) store ).getLatest();
+            return latest;
         }
 
         return null;

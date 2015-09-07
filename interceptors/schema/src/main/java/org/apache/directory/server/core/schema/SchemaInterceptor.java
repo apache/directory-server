@@ -49,7 +49,6 @@ import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
-import org.apache.directory.api.ldap.model.filter.AssertionNode;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -57,10 +56,7 @@ import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
-import org.apache.directory.api.ldap.model.filter.PresenceNode;
-import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
-import org.apache.directory.api.ldap.model.filter.SubstringNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Cascade;
@@ -107,7 +103,7 @@ import org.slf4j.LoggerFactory;
 public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -431,13 +427,6 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( ( filter instanceof SubstringNode ) ||
-                ( filter instanceof PresenceNode ) ||
-                ( filter instanceof AssertionNode ) ||
-                ( filter instanceof ScopeNode ) )
-            {
-                // Nothing to do
-            }
             else if ( filter instanceof GreaterEqNode )
             {
                 GreaterEqNode node = ( ( GreaterEqNode ) filter );
@@ -481,6 +470,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
+            // nothing to do for SubstringNode, PresenceNode, AssertionNode, ScopeNode
         }
         else
         {
@@ -713,23 +703,7 @@ public class SchemaInterceptor extends BaseInterceptor
             Attribute attribute = mod.getAttribute();
             AttributeType attributeType = attribute.getAttributeType();
 
-            // We don't allow modification of operational attributes
-            if ( !attributeType.isUserModifiable() )
-            {
-                if( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() )
-                {
-                    // this is a replication related modification, allow the operation
-                }
-                else if( ( !attributeType.equals( MODIFIERS_NAME_AT )
-                    && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
-                    && ( !attributeType.equals( ENTRY_CSN_AT ) )
-                    && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
-                {
-                    String msg = I18n.err( I18n.ERR_52, attributeType );
-                    LOG.error( msg );
-                    throw new LdapNoPermissionException( msg );
-                }
-            }
+            assertAttributeIsModifyable( modifyContext, attributeType );
 
             switch ( mod.getOperation() )
             {
@@ -863,6 +837,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     }
 
                     break;
+
+                default:
+                    throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
             }
         }
 
@@ -877,6 +854,34 @@ public class SchemaInterceptor extends BaseInterceptor
         // - We haven't removed a part of the Rdn
         check( dn, tempEntry );
     }
+
+
+    private void assertAttributeIsModifyable( ModifyOperationContext modifyContext, AttributeType attributeType )
+        throws LdapNoPermissionException
+    {
+        if ( attributeType.isUserModifiable() )
+        {
+            // We don't allow modification of operational attributes
+            return;
+        }
+
+        if ( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() )
+        {
+            // this is a replication related modification, allow the operation
+            return;
+        }
+
+        if ( ( !attributeType.equals( MODIFIERS_NAME_AT )
+            && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
+            && ( !attributeType.equals( ENTRY_CSN_AT ) )
+            && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
+        {
+            String msg = I18n.err( I18n.ERR_52, attributeType );
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
+        }
+    }
+
 
     /**
      * Filters objectClass attribute to inject top when not present.
@@ -1023,6 +1028,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
                         case STRUCTURAL:
                             break;
+
+                        default:
+                            throw new IllegalArgumentException( "Unexpected object class type " + ocType );
                     }
                 }
                 catch ( LdapException ne )

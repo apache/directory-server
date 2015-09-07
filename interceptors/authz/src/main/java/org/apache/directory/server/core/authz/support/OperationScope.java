@@ -25,7 +25,7 @@ package org.apache.directory.server.core.authz.support;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class OperationScope
+public final class OperationScope
 {
     /**
      * An operation that affects the whole entry.

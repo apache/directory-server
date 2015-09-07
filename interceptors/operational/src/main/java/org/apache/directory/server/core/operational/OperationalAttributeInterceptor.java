@@ -47,7 +47,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -73,9 +72,9 @@ import org.slf4j.LoggerFactory;
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
-    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
+    private final EntryFilter denormalizingSearchFilter = new OperationalAttributeDenormalizingSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;
@@ -441,7 +440,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             if ( directoryService.isDenormalizeOpAttrsEnabled() )
             {
-                cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
+                cursor.addEntryFilter( denormalizingSearchFilter );
             }
 
             return cursor;

@@ -214,6 +214,9 @@ public class EventInterceptor extends BaseInterceptor
                 }
 
                 break;
+
+            default:
+                throw new IllegalArgumentException( "Unexpected event type " + type );
         }
     }
 

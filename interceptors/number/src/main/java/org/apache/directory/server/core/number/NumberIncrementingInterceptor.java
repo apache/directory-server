@@ -131,22 +131,22 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
 
         List<Attribute> lst = new ArrayList<Attribute>();
         
-        for( String oid : incMap.keySet() )
+        for ( String oid : incMap.keySet() )
         {
             Attribute at = entry.get( oid );
-            if( at != null )
+            if ( at != null )
             {
                 lst.add( at );
             }
         }
         
-        if( lst.isEmpty() )
+        if ( lst.isEmpty() )
         {
             next( addContext );
             return;
         }
 
-        for( Attribute at : lst )
+        for ( Attribute at : lst )
         {
             int stored = incMap.get( at.getId() ).get();
             at.clear();
@@ -162,7 +162,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
 
         List<Modification> mods = new ArrayList<Modification>();
 
-        for( Attribute at : lst )
+        for ( Attribute at : lst )
         {
             AtomicInteger ai = incMap.get( at.getId() );
             ai.set( ai.get() + 1 );

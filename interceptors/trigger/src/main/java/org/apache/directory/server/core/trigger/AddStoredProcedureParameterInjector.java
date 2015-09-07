@@ -43,11 +43,11 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         this.addedEntryName = addedEntryName;
         this.addedEntry = addedEntry;
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
-        injectors.put( StoredProcedureParameter.Add_ENTRY.class, $entryInjector );
-        injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, $attributesInjector );
+        injectors.put( StoredProcedureParameter.Add_ENTRY.class, entryInjector );
+        injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, attributesInjector );
     }
 
-    MicroInjector $entryInjector = new MicroInjector()
+    MicroInjector entryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -57,7 +57,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         }
     };
 
-    MicroInjector $attributesInjector = new MicroInjector()
+    MicroInjector attributesInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {

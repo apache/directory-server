@@ -896,8 +896,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isAccessControlInnerRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA ) ||
-            role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_INNER_AREA )
+            || role.equals( SchemaConstants.ACCESS_CONTROL_INNER_AREA_OID );
     }
 
 
@@ -906,8 +906,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isAccessControlSpecificRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-            role.equals( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA )
+            || role.equals( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
     }
 
 
@@ -916,8 +916,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isCollectiveAttributeInnerRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA ) ||
-            role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA )
+            || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_INNER_AREA_OID );
     }
 
 
@@ -926,8 +926,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isCollectiveAttributeSpecificRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-            role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
+            || role.equals( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
     }
 
 
@@ -936,8 +936,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isTriggerExecutionInnerRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA ) ||
-            role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA )
+            || role.equals( SchemaConstants.TRIGGER_EXECUTION_INNER_AREA_OID );
     }
 
 
@@ -946,8 +946,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isTriggerExecutionSpecificRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-            role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA )
+            || role.equals( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
 
@@ -956,8 +956,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isSubschemaSpecficRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA ) ||
-            role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA )
+            || role.equals( SchemaConstants.SUB_SCHEMA_ADMIN_SPECIFIC_AREA_OID );
     }
 
 
@@ -966,8 +966,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isAutonomousAreaRole( String role )
     {
-        return role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA ) ||
-            role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
+        return role.equalsIgnoreCase( SchemaConstants.AUTONOMOUS_AREA )
+            || role.equals( SchemaConstants.AUTONOMOUS_AREA_OID );
     }
 
 
@@ -976,15 +976,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isAAP( Attribute adminPoint )
     {
-        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) || adminPoint
-            .contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
+        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) 
+            || adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
     }
 
 
     private boolean hasAccessControlSpecificRole( Attribute adminPoint )
     {
-        return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA ) ||
-            adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
+        return adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA )
+            || adminPoint.contains( SchemaConstants.ACCESS_CONTROL_SPECIFIC_AREA_OID );
     }
 
 
@@ -996,15 +996,15 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
     private boolean hasCollectiveAttributeSpecificRole( Attribute adminPoint )
     {
-        return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA ) ||
-            adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
+        return adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA )
+            || adminPoint.contains( SchemaConstants.COLLECTIVE_ATTRIBUTE_SPECIFIC_AREA_OID );
     }
 
 
     private boolean hasTriggerExecutionSpecificRole( Attribute adminPoint )
     {
-        return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA ) ||
-            adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
+        return adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA )
+            || adminPoint.contains( SchemaConstants.TRIGGER_EXECUTION_SPECIFIC_AREA_OID );
     }
 
 
@@ -1161,17 +1161,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     public void destroy()
     {
-    }
-
-
-    private void updateAPEntries( Attribute adminPoint, String apUuid )
-    {
-        if ( isAAP( adminPoint ) )
-        {
-
-        }
-
-        return;
     }
 
 
@@ -1435,13 +1424,19 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                 break;
 
                             case REPLACE_ATTRIBUTE:
-                                if( ! ( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() ) )
+                                if ( !( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() ) )
                                 {
                                     // Not supported in non-replication related operations
                                     String msg = "Cannot replace an administrative role, the opertion is not supported";
                                     LOG.error( msg );
                                     throw new LdapUnwillingToPerformException( msg );
                                 }
+
+                                break;
+
+                            default:
+                                throw new IllegalArgumentException( "Unexpected modify operation "
+                                    + modification.getOperation() );
                         }
                     }
                 }

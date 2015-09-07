@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( CollectiveAttributeInterceptor.class );
 
 
     /**
@@ -104,7 +104,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     }
 
     /** The CollectiveAttribute search filter */
-    private final EntryFilter SEARCH_FILTER = new CollectiveAttributeFilter();
+    private final EntryFilter searchFilter = new CollectiveAttributeFilter();
 
 
     //-------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         // only add collective attributes for non-syncrepl search
         if ( !searchContext.isSyncreplSearch() )
         {
-            cursor.addEntryFilter( SEARCH_FILTER );
+            cursor.addEntryFilter( searchFilter );
         }
 
         return cursor;
