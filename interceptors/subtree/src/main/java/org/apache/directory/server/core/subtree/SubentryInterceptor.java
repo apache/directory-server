@@ -102,7 +102,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private static Value<String> SUBENTRY_OC;
 
     /** The set of Subentry operational attributes */
-    public static AttributeType[] SUBENTRY_OPATTRS;
+    private static AttributeType[] SUBENTRY_OPATTRS;
 
     /** The SubTree specification parser instance */
     private SubtreeSpecificationParser ssParser;
