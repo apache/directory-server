@@ -222,7 +222,7 @@ public class ConfigWriter
         }
         else
         {
-            // TODO: throw an exception 
+            throw new IllegalStateException( "Missing object class " + objectClass );
         }
     }
 
@@ -243,9 +243,9 @@ public class ConfigWriter
         ObjectClass objectClass ) throws LdapException
     {
         ObjectClass topObjectClass = schemaManager.lookupObjectClassRegistry( SchemaConstants.TOP_OC );
-        if ( topObjectClass != null )
+        if ( topObjectClass == null )
         {
-            // TODO throw new exception (there should be a top object class 
+            throw new IllegalStateException( "Missing top object class." );
         }
 
         if ( topObjectClass.equals( objectClass ) )

@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.admin;
 
 
-import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

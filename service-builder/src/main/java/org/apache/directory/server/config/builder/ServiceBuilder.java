@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
@@ -47,7 +46,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.config.ConfigSchemaConstants;
 import org.apache.directory.server.config.ConfigurationException;
 import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
@@ -104,6 +102,7 @@ import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotDnIn
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotRdnIndex;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
@@ -135,7 +134,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServiceBuilder
+public final class ServiceBuilder
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ServiceBuilder.class );
@@ -153,6 +152,11 @@ public class ServiceBuilder
             return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
         }
     };
+
+
+    private ServiceBuilder()
+    {
+    }
 
 
     /**
@@ -186,11 +190,13 @@ public class ServiceBuilder
                     interceptorBean.getInterceptorClassName() );
                 Class<?> clazz = Class.forName( interceptorBean.getInterceptorClassName() );
                 Interceptor interceptor = null;
-                try {
+                try
+                {
                     Constructor<?> constructor = clazz.getDeclaredConstructor( interceptorBean.getClass() );
-                    interceptor = (Interceptor) constructor.newInstance( interceptorBean );
+                    interceptor = ( Interceptor ) constructor.newInstance( interceptorBean );
                 }
-                catch ( NoSuchMethodException e ) {
+                catch ( NoSuchMethodException e )
+                {
                     interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
                         .newInstance();
                 }
@@ -1241,13 +1247,13 @@ public class ServiceBuilder
 
         boolean hasReverse = jdbmIndexBean.getIndexHasReverse();
 
-        if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
-            jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
+            || jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             index = new JdbmRdnIndex();
         }
-        else if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT ) ||
-            jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        else if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
+            || jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
         {
             index = new JdbmDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         }
@@ -1452,7 +1458,7 @@ public class ServiceBuilder
 
         if ( systemPartition == null )
         {
-            //throw new Exception( I18n.err( I18n.ERR_505 ) );
+            throw new Exception( I18n.err( I18n.ERR_505 ) );
         }
 
         directoryService.setSystemPartition( systemPartition );
@@ -1499,13 +1505,9 @@ public class ServiceBuilder
         }
 
         // Enabled
-        if ( !directoryServiceBean.isEnabled() )
-        {
-            // will only be useful if we ever allow more than one DS to be configured and
-            // switch between them
-            // decide which one to use based on this flag
-            // TODO
-        }
+        // if ( !directoryServiceBean.isEnabled() )
+        // TODO will only be useful if we ever allow more than one DS to be configured and
+        // switch between them decide which one to use based on this flag
 
         return directoryService;
     }
@@ -1589,13 +1591,13 @@ public class ServiceBuilder
 
         boolean hasReverse = mavobotIndexBean.getIndexHasReverse();
 
-        if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
-            mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
+            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             index = new MavibotRdnIndex();
         }
-        else if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT ) ||
-            mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        else if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
+            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
         {
             index = new MavibotDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         }

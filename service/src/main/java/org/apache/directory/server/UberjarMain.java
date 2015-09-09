@@ -59,13 +59,13 @@ public class UberjarMain
      */
     public static void main( String[] args ) throws Exception
     {
-        if ( (args == null) || (args.length < 1) )
+        if ( ( args == null ) || ( args.length < 1 ) )
         {
             throw new IllegalArgumentException( "Instance directory argument is missing" );
         }
 
         String instanceDirectory = args[0];
-        Action action = (args.length == 2) ? Action.fromString( args[1] ) : Action.START;
+        Action action = ( args.length == 2 ) ? Action.fromString( args[1] ) : Action.START;
 
         UberjarMain instance = new UberjarMain();
         
@@ -76,16 +76,19 @@ public class UberjarMain
                 instance.start( instanceDirectory );
 
                 break;
-                
+
             case STOP:
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
-                try (Socket socket = new Socket( "localhost", readShutdownPort( layout ) );
-                        PrintWriter writer = new PrintWriter( socket.getOutputStream() ))
+                try ( Socket socket = new Socket( "localhost", readShutdownPort( layout ) );
+                    PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
                 }
                 break;
+
+            default:
+                throw new IllegalArgumentException( "Unexpected action " + action );
         }
 
         LOG.trace( "Exiting main" );
@@ -95,7 +98,7 @@ public class UberjarMain
     private int getShutdownPort()
     {
         int shutdownPort = Integer.parseInt( System.getProperty( PROPERTY_SHUTDOWN_PORT, "0" ) );
-        if ( shutdownPort < 0 || (shutdownPort > 0 && shutdownPort < 1024) || shutdownPort > 65536 )
+        if ( shutdownPort < 0 || ( shutdownPort > 0 && shutdownPort < 1024 ) || shutdownPort > 65536 )
         {
             throw new IllegalArgumentException( "Shutdown port [" + shutdownPort + "] is an illegal port number" );
         }
@@ -185,7 +188,7 @@ public class UberjarMain
                     LOG.info( "Start the shutdown listener on port {}", shutdownSocket.getLocalPort() );
                     
                     Socket socket;
-                    while ( (socket = shutdownSocket.accept()) != null )
+                    while ( ( socket = shutdownSocket.accept() ) != null )
                     {
                         if ( shutdownPassword == null || shutdownPassword.isEmpty() ) 
                         {

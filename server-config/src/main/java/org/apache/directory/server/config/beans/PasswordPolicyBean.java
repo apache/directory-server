@@ -442,10 +442,10 @@ public class PasswordPolicyBean extends AdsBaseBean
     /**
      * @return gives the FQCN of the password validator
      */
-    public String getPwdValidator() 
+    public String getPwdValidator()
     {
-		return pwdValidator;
-	}
+        return pwdValidator;
+    }
 
 
     /**
@@ -453,13 +453,13 @@ public class PasswordPolicyBean extends AdsBaseBean
      * 
      * @param pwdValidator the FQCN of the password validator
      */
-	public void setPwdValidator(String pwdValidator) 
-	{
-		this.pwdValidator = pwdValidator;
-	}
+    public void setPwdValidator( String pwdValidator )
+    {
+        this.pwdValidator = pwdValidator;
+    }
 
 
-	/**
+    /**
      * {@inheritDoc}
      */
     public String toString( String tabs )

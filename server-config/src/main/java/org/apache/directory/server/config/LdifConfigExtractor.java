@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdifConfigExtractor
+public final class LdifConfigExtractor
 {
 
     public static final String LDIF_CONFIG_FILE = "config.ldif";
@@ -63,6 +63,11 @@ public class LdifConfigExtractor
     // java.util.regex.Pattern is immutable so only one instance is needed for all uses.
     private static final Pattern EXTRACT_PATTERN = Pattern.compile( ".*config"
         + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
+
+
+    private LdifConfigExtractor()
+    {
+    }
 
 
     /**

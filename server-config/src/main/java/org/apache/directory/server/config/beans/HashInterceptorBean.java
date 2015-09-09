@@ -106,7 +106,8 @@ public class HashInterceptorBean extends InterceptorBean
         sb.append( tabs ).append( "HashInterceptor :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
-        if ( hashAlgorithm != null ) {
+        if ( hashAlgorithm != null )
+        {
             sb.append( tabs ).append( "  hashAlgorithm : " )
                     .append( hashAlgorithm ).append( "\n" );
         }

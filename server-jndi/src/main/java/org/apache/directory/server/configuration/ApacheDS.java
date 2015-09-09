@@ -29,8 +29,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -291,24 +289,25 @@ public class ApacheDS
      */
     private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
     {
-        String fileSep = File.separatorChar == '\\' ?
-            ApacheSchemaConstants.WINDOWS_FILE_AT :
-            ApacheSchemaConstants.UNIX_FILE_AT;
+        String fileSep = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_AT
+            : ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return new Dn( fileSep +
-            "=" +
-            Strings.dumpHexPairs( Strings.getBytesUtf8( getCanonical( ldif ) ) ) +
-            "," +
-            ServerDNConstants.LDIF_FILES_DN );
+        return new Dn( fileSep
+            + "="
+            + Strings.dumpHexPairs( Strings.getBytesUtf8( getCanonical( ldif ) ) )
+            + ","
+            + ServerDNConstants.LDIF_FILES_DN );
     }
 
 
     private void addFileEntry( File ldif ) throws Exception
     {
-        String rdnAttr = File.separatorChar == '\\' ?
-            ApacheSchemaConstants.WINDOWS_FILE_AT :
-            ApacheSchemaConstants.UNIX_FILE_AT;
-        String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC
+        String rdnAttr = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_AT
+            : ApacheSchemaConstants.UNIX_FILE_AT;
+        String oc = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_OC
             : ApacheSchemaConstants.UNIX_FILE_OC;
 
         Entry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );

@@ -37,7 +37,7 @@ import org.apache.directory.server.ldap.LdapServer;
 /**
  * The Class LdapApiIntegrationUtils.
  */
-public class LdapApiIntegrationUtils
+public final class LdapApiIntegrationUtils
 {
     /** The Constant DEFAULT_HOST. */
     private static final String DEFAULT_HOST = "localhost";
@@ -49,7 +49,12 @@ public class LdapApiIntegrationUtils
     private static final String DEFAULT_PASSWORD = "secret";
 
     /** The pools. */
-    private static Map<Integer, LdapConnectionPool> pools = new HashMap<Integer, LdapConnectionPool>();
+    private static final Map<Integer, LdapConnectionPool> POOLS = new HashMap<Integer, LdapConnectionPool>();
+
+
+    private LdapApiIntegrationUtils()
+    {
+    }
 
 
     /**
@@ -131,7 +136,7 @@ public class LdapApiIntegrationUtils
     {
         int port = ldapServer.getPort();
 
-        if ( !pools.containsKey( port ) )
+        if ( !POOLS.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
             config.setLdapHost( DEFAULT_HOST );
@@ -141,10 +146,10 @@ public class LdapApiIntegrationUtils
             DefaultPoolableLdapConnectionFactory factory = new DefaultPoolableLdapConnectionFactory( config );
             LdapConnectionPool pool = new LdapConnectionPool( factory );
             pool.setTestOnBorrow( true );
-            pools.put( port, pool );
+            POOLS.put( port, pool );
         }
 
-        return pools.get( port );
+        return POOLS.get( port );
     }
 
 

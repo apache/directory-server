@@ -62,8 +62,13 @@ import org.junit.runner.Description;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerAnnotationProcessor
+public final class ServerAnnotationProcessor
 {
+    private ServerAnnotationProcessor()
+    {
+    }
+
+
     private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
     {
         if ( transportBuilders.length != 0 )

@@ -183,9 +183,9 @@ public class ConfigPartitionReader
         // Now, let's instantiate the associated bean. Get rid of the 'ads-' in front of the name,
         // and uppercase the first letter. Finally add "Bean" at the end and add the package.
         //String beanName = this.getClass().getPackage().getName() + "org.apache.directory.server.config.beans." + Character.toUpperCase( objectClassName.charAt( 4 ) ) + objectClassName.substring( 5 ) + "Bean";
-        String beanName = this.getClass().getPackage().getName() + ".beans." +
-            Character.toUpperCase( objectClassName.charAt( ADS_PREFIX.length() ) ) +
-            objectClassName.substring( ADS_PREFIX.length() + 1 ) + ADS_SUFFIX;
+        String beanName = this.getClass().getPackage().getName() + ".beans."
+            + Character.toUpperCase( objectClassName.charAt( ADS_PREFIX.length() ) )
+            + objectClassName.substring( ADS_PREFIX.length() + 1 ) + ADS_SUFFIX;
 
         try
         {

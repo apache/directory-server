@@ -44,7 +44,6 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -136,8 +135,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        if ( ( entry.get( USER_PASSWORD_AT ) != null ) &&
-            ( entry.get( KRB5_PRINCIPAL_NAME_AT ) != null ) )
+        if ( ( entry.get( USER_PASSWORD_AT ) != null ) && ( entry.get( KRB5_PRINCIPAL_NAME_AT ) != null ) )
         {
             LOG.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
@@ -248,6 +246,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                     case REPLACE_ATTRIBUTE:
                         operation = "Replacing";
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
                 }
             }
 

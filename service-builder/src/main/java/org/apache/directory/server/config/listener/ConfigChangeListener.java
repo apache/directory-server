@@ -162,14 +162,14 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
         {
             bean = ( PasswordPolicyBean ) cpReader.readConfig( entry );
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.warn( "Failed to read the updated ppolicy configuration from {}", dn );
-            LOG.warn("", e);
+            LOG.warn( "", e );
             return;
         }
 
-        if( bean.isDisabled() )
+        if ( bean.isDisabled() )
         {
             LOG.debug( "Deleting disabled ppolicy config {}", dn );
             ppolicyConfigContainer.removePolicyConfig( dn );
@@ -180,7 +180,7 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
             
             PasswordPolicyConfiguration existing = ppolicyConfigContainer.getPolicyConfig( dn );
             
-            if( existing == null )
+            if ( existing == null )
             {
                 LOG.debug( "Adding ppolicy config {}", dn );
             }
