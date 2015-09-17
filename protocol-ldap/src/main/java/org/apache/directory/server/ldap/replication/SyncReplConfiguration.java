@@ -20,6 +20,8 @@
 package org.apache.directory.server.ldap.replication;
 
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,13 +67,13 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 public class SyncReplConfiguration implements ReplicationConsumerConfig
 {
     /** host name of the syncrepl remote server, default value is localhost */
-    private String remoteHost = "localhost";
+    private String remoteHost;
 
     /** port number of the syncrepl provider server, default is 10389 */
-    private int remotePort = 10389;
+    private int remotePort;
 
     /** The producer, as <host>:<port> */
-    private String producer = remoteHost + ":" + remotePort;
+    private String producer;
 
     /** replication user's Dn */
     private String replUserDn;
@@ -141,6 +143,20 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         attributes = new HashSet<String>();
         // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
+        
+        try
+        {
+            remoteHost = InetAddress.getLocalHost().getHostName();
+        }
+        catch ( UnknownHostException uhe )
+        {
+            // Default to localhost
+            remoteHost = "localhost";
+        }
+        
+        remotePort = 10389;
+        
+        producer = remoteHost + ":" + remotePort;
     }
 
 

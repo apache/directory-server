@@ -118,12 +118,12 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
 
 
     @Test
-    public void testSearchPerfWithJndi() throws NamingException
+    public void testSearchPerfWithJndi() throws NamingException, Exception
     {
         long t1 = System.currentTimeMillis();
 
         // Getting the connection
-        DirContext ctx = jndiEnv( "localhost", getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
+        DirContext ctx = jndiEnv( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
 
         long t2 = System.currentTimeMillis();
 

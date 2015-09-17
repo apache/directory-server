@@ -25,14 +25,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.and;
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.equal;
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.endsWith;
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.startsWith;
 
 
+
+import java.net.InetAddress;
 import java.util.List;
+
 
 
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -360,10 +362,11 @@ public class LdapConnectionTemplateTest
     
     
     @Test
-    public void testDIRAPI_202() {
+    public void testDIRAPI_202() throws Exception
+    {
         // test requested by https://issues.apache.org/jira/browse/DIRAPI-202
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( createLdapConnectionPoolRule.getLdapServer().getPort() );
         config.setName( "uid=admin,ou=system" );
         config.setCredentials( "secret" );

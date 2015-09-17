@@ -89,10 +89,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
 
     @Before
-    public void setup()
+    public void setup() throws Exception
     {
         sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
@@ -100,7 +100,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
                 ldapServer.getDirectoryService().getSchemaManager() ) );
 
         tlsConfig = new LdapConnectionConfig();
-        tlsConfig.setLdapHost( "localhost" );
+        tlsConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
         tlsConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(

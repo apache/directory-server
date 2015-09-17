@@ -20,6 +20,8 @@ package org.apache.directory.shared.client.api;
 
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +71,7 @@ public final class LdapApiIntegrationUtils
     public static LdapNetworkConnection createAdminConnection( LdapServer ldapServer ) throws LdapException,
         IOException
     {
-        LdapNetworkConnection conn = new LdapNetworkConnection( DEFAULT_HOST, ldapServer.getPort() );
+        LdapNetworkConnection conn = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         conn.bind( DEFAULT_ADMIN, DEFAULT_PASSWORD );
         return conn;
     }
@@ -139,7 +141,16 @@ public final class LdapApiIntegrationUtils
         if ( !POOLS.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
-            config.setLdapHost( DEFAULT_HOST );
+            
+            try
+            {
+                config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+            }
+            catch( UnknownHostException uhe )
+            {
+                config.setLdapHost( DEFAULT_HOST );
+            }
+            
             config.setLdapPort( port );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );

@@ -57,9 +57,6 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
     /** The connection pool */
     private LdapConnectionPool pool;
 
-    /** The Constant DEFAULT_HOST. */
-    private static final String DEFAULT_HOST = "localhost";
-
     /** The Constant DEFAULT_ADMIN. */
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
 

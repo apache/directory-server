@@ -42,7 +42,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 public class KdcConfig
 {
     /** host name of the Kerberos server */
-    private String hostName;// = "localhost";
+    private String hostName;
 
     /** port on which the Kerberos server is listening */
     private int kdcPort = 88;

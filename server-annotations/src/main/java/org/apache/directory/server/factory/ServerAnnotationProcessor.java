@@ -22,7 +22,9 @@ package org.apache.directory.server.factory;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +78,7 @@ public final class ServerAnnotationProcessor
             for ( CreateTransport transportBuilder : transportBuilders )
             {
                 List< Transport > transports = createTransports( transportBuilder );
+                
                 for ( Transport t : transports )
                 {
                     ldapServer.addTransports( t );
@@ -459,6 +462,19 @@ public final class ServerAnnotationProcessor
         int nbThreads = transportBuilder.nbThreads();
         int backlog = transportBuilder.backlog();
         String address = transportBuilder.address();
+        
+        if ( Strings.isEmpty( address ) )
+        {
+            try
+            {
+                address = InetAddress.getLocalHost().getHostName();
+            }
+            catch ( UnknownHostException uhe )
+            {
+                // Default to "localhost"...
+                address = "localhost";
+            }
+        }
 
         if ( port <= 0 )
         {

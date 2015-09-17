@@ -55,7 +55,6 @@ import org.junit.runner.RunWith;
         {
             @CreateAuthenticator(
                 type = DelegatingAuthenticator.class,
-                delegateHost = "localhost",
                 delegatePort = 10201,
                 delegateSsl = false,
                 delegateTls = true) })

@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
 @CreateKdcServer(
     transports =
         {
-            @CreateTransport(protocol = "KRB", address = "localhost")
+            @CreateTransport(protocol = "KRB")
     })
 @ApplyLdifFiles("org/apache/directory/server/kerberos/kdc/KerberosIT.ldif")
 public class KerberosKRBProtocolTest extends AbstractKerberosITest

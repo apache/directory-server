@@ -50,7 +50,7 @@ public @interface CreateAuthenticator
 
 
     /** Delegate host, use for testing DelegatingAuthenticator */
-    String delegateHost() default "localhost";
+    String delegateHost() default "";
 
 
     /** Delegate port, use for testing DelegatingAuthenticator */

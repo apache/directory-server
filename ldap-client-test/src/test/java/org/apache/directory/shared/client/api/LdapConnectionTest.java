@@ -68,9 +68,6 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
-    /** The Constant DEFAULT_HOST. */
-    private static final String DEFAULT_HOST = "localhost";
-
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
     private LdapConnection connection;
@@ -119,7 +116,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Ignore
     public void testRebindNoPool() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( DEFAULT_HOST, getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         for ( int i = 0; i < 10000; i++ )

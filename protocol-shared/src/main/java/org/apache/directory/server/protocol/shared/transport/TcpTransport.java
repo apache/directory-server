@@ -19,7 +19,9 @@
 package org.apache.directory.server.protocol.shared.transport;
 
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import org.apache.mina.core.service.IoAcceptor;
@@ -110,10 +112,11 @@ public class TcpTransport extends AbstractTransport
      * @param nbThreads The number of threads to create in the acceptor
      * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
+     * @throws UnknownHostException 
      */
-    public TcpTransport( int tcpPort, int nbThreads, int backLog )
+    public TcpTransport( int tcpPort, int nbThreads, int backLog ) throws UnknownHostException
     {
-        super( LOCAL_HOST, tcpPort, nbThreads, backLog );
+        super( InetAddress.getLocalHost().getHostAddress(), tcpPort, nbThreads, backLog );
         this.acceptor = createAcceptor( null, tcpPort, nbThreads, backLog );
 
         LOG.debug( "TCP Transport created : <*:{},>", tcpPort );

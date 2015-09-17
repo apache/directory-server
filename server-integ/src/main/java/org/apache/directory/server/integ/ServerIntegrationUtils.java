@@ -45,7 +45,6 @@ public class ServerIntegrationUtils extends IntegrationUtils
     private static final Logger LOG = LoggerFactory.getLogger( ServerIntegrationUtils.class );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
-    private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 10389;
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_PASSWORD = "secret";
@@ -199,7 +198,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
         LOG.debug( testServer + ".password = " + password );
 
-        String host = System.getProperty( testServer + ".host", DEFAULT_HOST );
+        String host = System.getProperty( testServer + ".host", InetAddress.getLocalHost().getHostName() );
         LOG.debug( testServer + ".host = " + host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
@@ -229,7 +228,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
         LOG.debug( testServer + ".password = " + password );
 
-        String host = System.getProperty( testServer + ".host", DEFAULT_HOST );
+        String host = System.getProperty( testServer + ".host", InetAddress.getLocalHost().getHostName() );
         LOG.debug( testServer + ".host = " + host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );

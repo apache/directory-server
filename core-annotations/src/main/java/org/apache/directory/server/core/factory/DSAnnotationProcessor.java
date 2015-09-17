@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -129,7 +131,15 @@ public final class DSAnnotationProcessor
                 if ( auth instanceof DelegatingAuthenticator )
                 {
                     DelegatingAuthenticator dauth = ( DelegatingAuthenticator ) auth;
-                    dauth.setDelegateHost( createAuthenticator.delegateHost() );
+                    
+                    String host = createAuthenticator.delegateHost();
+                    
+                    if ( Strings.isEmpty( host ) )
+                    {
+                        host = InetAddress.getLocalHost().getHostName();
+                    }
+                    
+                    dauth.setDelegateHost( host );
                     dauth.setDelegatePort( createAuthenticator.delegatePort() );
                     dauth.setDelegateSsl( createAuthenticator.delegateSsl() );
                     dauth.setDelegateTls( createAuthenticator.delegateTls() );
