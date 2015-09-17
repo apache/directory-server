@@ -66,8 +66,8 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateConsumer
 {
-    /** host name of the syncrepl remote server, default value is localhost */
-    String remoteHost() default "localhost";
+    /** host name of the syncrepl remote server, default value is "" */
+    String remoteHost() default "";
 
 
     /** port number of the syncrepl provider server, default is 389 */

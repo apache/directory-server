@@ -20,6 +20,8 @@
 package org.apache.directory.server.config.beans;
 
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -320,7 +322,15 @@ public class TransportBean extends AdsBaseBean
 
         if ( transportAddress == null )
         {
-            sb.append( "localhost" ).append( '\n' );
+            try
+            {
+                sb.append( InetAddress.getLocalHost().getHostName() ).append( '\n' );
+            }
+            catch ( UnknownHostException uhe )
+            {
+                // Just in case
+                sb.append( "localhost" ).append( '\n' );
+            }
         }
         else
         {

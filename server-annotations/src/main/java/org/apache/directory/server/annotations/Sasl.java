@@ -52,8 +52,8 @@ import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface Sasl
 {
-    /** The SASL host, default to localhost */
-    String host() default "localhost";
+    /** The SASL host, default to "" */
+    String host() default "";
 
 
     /** The principal */

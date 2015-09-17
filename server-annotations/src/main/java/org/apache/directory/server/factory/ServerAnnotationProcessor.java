@@ -240,7 +240,23 @@ public final class ServerAnnotationProcessor
         ReplicationConsumer consumer = new ReplicationConsumerImpl();
 
         SyncReplConfiguration config = new SyncReplConfiguration();
-        config.setRemoteHost( createConsumer.remoteHost() );
+        
+        String remoteHost = createConsumer.remoteHost();
+        
+        if ( Strings.isEmpty( remoteHost ) )
+        {
+            try
+            { 
+                remoteHost = InetAddress.getLocalHost().getHostName();
+            }
+            catch ( UnknownHostException uhe )
+            {
+                // Just in case...
+                remoteHost = "localhost";
+            }
+        }
+        
+        config.setRemoteHost( remoteHost );
         config.setRemotePort( createConsumer.remotePort() );
         config.setReplUserDn( createConsumer.replUserDn() );
         config.setReplUserPassword( Strings.getBytesUtf8( createConsumer.replUserPassword() ) );
