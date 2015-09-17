@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -263,7 +264,7 @@ public class ClientInitialRefreshIT
     {
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
-        config.setRemoteHost( "localhost" );
+        config.setRemoteHost( InetAddress.getLocalHost().getHostName() );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( "secret".getBytes() );

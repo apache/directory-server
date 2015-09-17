@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -104,7 +105,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.setTimeOut( 0L );
     }
 
@@ -259,7 +260,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
         //System.out.println( "------------------Create connection" + i + "-------------" );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
@@ -273,7 +274,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with empty strings
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( "", "" );
 
         assertTrue( connection.isAuthenticated() );
@@ -283,7 +284,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with null parameters
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( ( String ) null, ( String ) null );
 
         assertTrue( connection.isAuthenticated() );
@@ -293,7 +294,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
         connection.close();
 
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         //System.out.println( "----------------Unbind done" + i + "-------------" );
         assertFalse( connection.isConnected() );
@@ -310,7 +311,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testDIRAPI47() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( "uid=nonexisting,dc=example,dc=com" );
 

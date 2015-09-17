@@ -108,10 +108,10 @@ public class EncKrbCredPartDecoderTest
         usec = 1;
         optionalFieldValueList.add( new FieldValueHolder( "usec", usec ) );
 
-        senderAddress = new HostAddress( InetAddress.getByName( "localhost" ) );
+        senderAddress = new HostAddress( InetAddress.getLocalHost() );
         optionalFieldValueList.add( new FieldValueHolder( "senderAddress", senderAddress ) );
 
-        recipientAddress = new HostAddress( InetAddress.getByName( "localhost" ) );
+        recipientAddress = new HostAddress( InetAddress.getLocalHost() );
         optionalFieldValueList.add( new FieldValueHolder( "recipientAddress", recipientAddress ) );
     }
 

@@ -328,7 +328,7 @@ public class EncTicketPart implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_742_CANNOT_ENCODE_ENC_TICKET_PART, 1 + TLV.getNbBytes( encTikcetPartLen )
                 + encTikcetPartLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

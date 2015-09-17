@@ -354,7 +354,7 @@ public class EncKrbPrivPart implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_735_CANNOT_ENCODE_KRBSAFEBODY, 1 + TLV.getNbBytes( encKrbPrivPartLen )
                 + encKrbPrivPartLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

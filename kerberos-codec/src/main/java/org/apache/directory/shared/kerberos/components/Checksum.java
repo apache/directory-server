@@ -261,7 +261,7 @@ public class Checksum implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_140, 1 + TLV.getNbBytes( checksumLength ) + checksumLength,
                 buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

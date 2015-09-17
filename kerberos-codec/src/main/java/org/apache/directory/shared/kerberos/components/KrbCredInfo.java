@@ -368,7 +368,7 @@ public class KrbCredInfo implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_739_CANNOT_ENCODE_KRB_CRED_INFO, 1 + TLV.getNbBytes( krbKredInfoSeqLen )
                 + krbKredInfoSeqLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

@@ -23,6 +23,7 @@ package org.apache.directory.server;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.Calendar;
 
 import org.apache.commons.io.FileUtils;
@@ -109,7 +110,7 @@ public class UberJarMainTest
                 {
                     // Creating a connection on the created server
                     LdapConnectionConfig configuration = new LdapConnectionConfig();
-                    configuration.setLdapHost( "localhost" );
+                    configuration.setLdapHost( InetAddress.getLocalHost().getHostName() );
                     configuration.setLdapPort( 10389 );
                     configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
                     configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );

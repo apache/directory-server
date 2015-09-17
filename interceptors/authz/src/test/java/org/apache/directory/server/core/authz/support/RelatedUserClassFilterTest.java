@@ -78,7 +78,7 @@ public class RelatedUserClassFilterTest
     public static void init() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
-        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager( null ) );
+        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager() );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
 
         try

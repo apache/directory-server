@@ -89,7 +89,7 @@ public class EncTicketPartDecoderTest
         KerberosTime renewtill = new KerberosTime( time );
 
         HostAddresses caddr = new HostAddresses( new HostAddress[]
-            { new HostAddress( InetAddress.getByName( "localhost" ) ) } );
+            { new HostAddress( InetAddress.getLocalHost() ) } );
 
         AuthorizationData authzData = new AuthorizationData();
         authzData.createNewAD();

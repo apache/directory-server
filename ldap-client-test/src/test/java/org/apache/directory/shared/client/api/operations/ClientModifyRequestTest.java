@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -221,7 +222,7 @@ public void testModifyEntryUUIDAndEntryCSN() throws Exception
     modResp = connection.modify( modifyRequest );
     assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
     Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
     nonAdminConnection.bind( bindDn.getName(), "secret" );

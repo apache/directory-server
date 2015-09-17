@@ -304,7 +304,7 @@ public class EncryptedData implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_141, 1 + TLV.getNbBytes( encryptedDataSeqLength )
                 + encryptedDataSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

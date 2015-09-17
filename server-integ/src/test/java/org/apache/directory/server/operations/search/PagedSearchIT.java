@@ -24,6 +24,7 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -1033,7 +1034,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchWrongCookie() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         SearchControls controls = new SearchControls();

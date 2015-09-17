@@ -19,6 +19,7 @@
  */
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -148,7 +149,7 @@ public class MultiThreadedReadWriteTest
 
     private LdapNetworkConnection getConnection() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", 10389 );
+        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), 10389 );
         connection.bind( "uid=admin,ou=system", "secret" );
         connection.setTimeOut( Long.MAX_VALUE );
         

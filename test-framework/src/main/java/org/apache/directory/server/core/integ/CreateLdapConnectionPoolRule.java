@@ -21,6 +21,8 @@ package org.apache.directory.server.core.integ;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
@@ -165,7 +167,16 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
             Class<? extends LdapConnectionValidator> validatorClass )
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        
+        try
+        {
+            config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        }
+        catch ( UnknownHostException uhe )
+        {
+            config.setLdapHost( "localhost" );
+        }
+        
         config.setLdapPort( ldapServer.getPort() );
         config.setName( "uid=admin,ou=system" );
         config.setCredentials( "secret" );

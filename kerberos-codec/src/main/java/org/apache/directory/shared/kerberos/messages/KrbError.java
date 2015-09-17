@@ -642,7 +642,7 @@ public class KrbError extends KerberosMessage
         {
             log.error( I18n.err( I18n.ERR_734_CANNOT_ENCODE_KRBERROR, 1 + TLV.getNbBytes( krbErrorLength )
                 + krbErrorLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

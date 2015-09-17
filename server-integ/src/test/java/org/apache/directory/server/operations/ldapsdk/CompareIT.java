@@ -28,6 +28,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
@@ -255,7 +258,16 @@ public class CompareIT extends AbstractLdapTestUnit
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
-        conn.connect( "localhost", getLdapServer().getPort() );
+        
+        try
+        {
+            conn.connect( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        }
+        catch ( UnknownHostException uhe )
+        {
+            fail( uhe.getMessage() );
+        }
+        
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
 
         try

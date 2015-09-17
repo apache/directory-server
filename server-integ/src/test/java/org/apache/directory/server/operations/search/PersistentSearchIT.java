@@ -22,10 +22,8 @@ package org.apache.directory.server.operations.search;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -380,7 +378,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchMove() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
         
         Entry newOu = new DefaultEntry( "uid=persist, ou=users,ou=system" );

@@ -248,7 +248,7 @@ public class TypedData implements Asn1Object
         {
             LOG.error( I18n.err( I18n.ERR_743_CANNOT_ENCODE_TYPED_DATA, 1 + TLV.getNbBytes( typedDataSeqSeqLength )
                 + typedDataSeqSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

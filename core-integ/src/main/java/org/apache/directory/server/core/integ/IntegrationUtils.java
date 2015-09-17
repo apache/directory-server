@@ -21,6 +21,7 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -441,7 +442,7 @@ public class IntegrationUtils
      */
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = getAnonymousNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = getAnonymousNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         return connection;
     }
@@ -474,7 +475,7 @@ public class IntegrationUtils
      */
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         connection.setTimeOut( 0 );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
@@ -498,7 +499,7 @@ public class IntegrationUtils
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
         throws Exception
     {
-        return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
+        return getNetworkConnectionAs( InetAddress.getLocalHost().getHostName(), ldapServer.getPort(), userDn, password );
     }
 
 

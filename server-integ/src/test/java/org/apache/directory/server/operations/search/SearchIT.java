@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -1676,7 +1677,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testAbandonnedRequest() throws Exception
     {
-        LdapConnection asyncCnx = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection asyncCnx = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         EntryCursor cursor = null;
 
         try

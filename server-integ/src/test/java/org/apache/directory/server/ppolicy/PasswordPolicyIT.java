@@ -36,12 +36,11 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
@@ -543,7 +542,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( "1234" ); // wrong password
         bindReq.addControl( PP_REQ_CTRL );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         for ( int i = 0; i < 3; i++ )
         {
@@ -747,7 +746,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( password.getBytes() );
         bindReq.addControl( PP_REQ_CTRL );
 
-        try (LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() ))
+        try (LdapConnection userCon = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() ))
         {
             userCon.setTimeOut( 0 );
     
@@ -796,7 +795,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( password.getBytes() );
         bindReq.addControl( PP_REQ_CTRL );
 
-        try (LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() ))
+        try (LdapConnection userCon = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() ))
         {
             userCon.setTimeOut( 0 );
     
@@ -859,7 +858,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( password.getBytes() );
         bindReq.addControl( PP_REQ_CTRL );
 
-        try (LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() ))
+        try (LdapConnection userCon = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() ))
         {
             userCon.setTimeOut( 0 );
     
@@ -923,7 +922,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( password.getBytes() );
         bindReq.addControl( PP_REQ_CTRL );
 
-        try (LdapConnection userCon = new LdapNetworkConnection( "localhost", ldapServer.getPort() ))
+        try (LdapConnection userCon = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() ))
         {
             userCon.setTimeOut( 0 );
     
@@ -1000,7 +999,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( modSubEntryDn, userEntry.get( "pwdPolicySubEntry" ).getString() );
 
         // try to modify the subentry as a non-admin
-        adminConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        adminConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         adminConnection.bind( userDn.getName(), password );
 
         modResp = adminConnection.modify( modReq );
@@ -1031,7 +1030,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( "12345" ); // grace login
         bindReq.addControl( PP_REQ_CTRL );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         Thread.sleep( 2000 ); // let the password expire
         BindResponse bindResp = userConnection.bind( bindReq );
@@ -1083,7 +1082,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setCredentials( "1234" ); // wrong password
         bindReq.addControl( PP_REQ_CTRL );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         for ( int i = 0; i < 4; i++ )
         {
@@ -1125,7 +1124,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         addUser( adminConnection, "userLockout", "12345" );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
@@ -1159,7 +1158,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         addUser( adminConnection, "userLockout2", "12345" );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
@@ -1218,7 +1217,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         addUser( adminConnection, "userLockout3", "12345" );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         userConnection.setTimeOut( 0L );
 
         // First attempt
@@ -1291,7 +1290,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         addUser( adminConnection, "userLockout", "12345" );
 
-        LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         // Do two attempts 
         checkBind( userConnection, userDn, "badPassword", 1,
@@ -1354,7 +1353,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         addUser( adminConnection, "userAllowUserChange", "12345" );
 
-        try (LdapConnection userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() ))
+        try (LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() ))
         {
             userConnection.setTimeOut( 0L );
     
@@ -1409,9 +1408,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             Dn userDn = new Dn( "cn=" + userCn + ",ou=system" );
             String password = "12345";
             adminConnection = getAdminNetworkConnection( getLdapServer() );
-            userConnection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
             userConnection.setTimeOut( 0L );
-            userConnection2 = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+            userConnection2 = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
             userConnection2.setTimeOut( 0L );
 
             addUser( adminConnection, userCn, password );
@@ -1520,7 +1519,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
            "userPassword: 12345" );
        adminConnection.add( userEntry );
 
-       LdapConnection userConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+       LdapConnection userConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
        BindRequest bindRequest = new BindRequestImpl();
        bindRequest.setDn( userDn );
        bindRequest.setCredentials( "12345" );

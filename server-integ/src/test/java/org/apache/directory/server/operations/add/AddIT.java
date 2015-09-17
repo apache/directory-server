@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -1157,7 +1158,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Inject a 1024 bytes long description
@@ -1530,7 +1531,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddNullValue() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API
@@ -1569,7 +1570,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddNullValueDirectoryString() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API

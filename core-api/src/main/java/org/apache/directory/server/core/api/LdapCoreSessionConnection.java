@@ -470,6 +470,16 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
+    public void loadSchemaRelaxed() throws LdapException
+    {
+        // do nothing, cause we already have SchemaManager in the session's DirectoryService
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
         return lookup( dn, null, attributes );

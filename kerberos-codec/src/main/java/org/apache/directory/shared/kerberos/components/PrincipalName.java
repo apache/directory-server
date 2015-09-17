@@ -486,7 +486,7 @@ public class PrincipalName implements Asn1Object
         {
             LOG.error( I18n.err( I18n.ERR_146, 1 + TLV.getNbBytes( principalNameSeqLength )
                 + principalNameSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

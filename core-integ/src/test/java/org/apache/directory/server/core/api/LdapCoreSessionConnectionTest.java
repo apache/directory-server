@@ -22,6 +22,9 @@ package org.apache.directory.server.core.api;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -105,7 +108,7 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
         LdapNetworkConnection connection = null;
         try
         {
-            connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+            connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
             BindRequest bindRequest = new BindRequestImpl();
             bindRequest.setDn( new Dn( "cn=user,ou=system" ) );
@@ -117,6 +120,10 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
             assertNotNull( responseControl );
             PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
+        }
+        catch ( UnknownHostException uhe )
+        {
+            // Nothing we can do
         }
         finally
         {

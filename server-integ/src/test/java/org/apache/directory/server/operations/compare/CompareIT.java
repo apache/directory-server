@@ -28,6 +28,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
@@ -260,10 +262,10 @@ public class CompareIT extends AbstractLdapTestUnit
      * @throws LdapException
      */
     @Test(expected = InvalidConnectionException.class)
-    public void testCompareWithoutAuthentication() throws LdapException
+    public void testCompareWithoutAuthentication() throws LdapException, Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        LdapConnection conn = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection conn = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         conn.compare( "uid=admin,ou=system", "uid", "admin" );
         fail( "Compare success without authentication" );

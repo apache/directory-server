@@ -24,6 +24,7 @@ package org.apache.directory.shared.client.api.operations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.InetAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,7 +65,7 @@ public class ConcurrentSearchAndUnbindTest extends AbstractLdapTestUnit
     @Ignore
     public void testConcurrentSearchAndUnbind() throws Exception
     {
-        final LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        final LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         ExecutorService pool = Executors.newFixedThreadPool( 2 );
 

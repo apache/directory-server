@@ -45,7 +45,7 @@ public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
     {
         try
         {
-            address = InetAddress.getByName( "127.0.0.1" );
+            address = InetAddress.getLocalHost();
         }
         catch ( UnknownHostException e )
         {

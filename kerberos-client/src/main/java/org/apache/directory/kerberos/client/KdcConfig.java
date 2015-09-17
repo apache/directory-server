@@ -24,8 +24,9 @@ import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AE
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AES256_CTS_HMAC_SHA1_96;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1_KD;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD5;
-import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RC4_HMAC;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 public class KdcConfig
 {
     /** host name of the Kerberos server */
-    private String hostName = "localhost";
+    private String hostName;// = "localhost";
 
     /** port on which the Kerberos server is listening */
     private int kdcPort = 88;
@@ -77,6 +78,15 @@ public class KdcConfig
         //encryptionTypes.add( RC4_HMAC_EXP );
         
         encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
+        
+        try
+        {
+            hostName = InetAddress.getLocalHost().getHostName();
+        }
+        catch ( UnknownHostException uhe )
+        {
+            hostName = "localhost";
+        }
     }
 
 

@@ -23,6 +23,9 @@ package org.apache.directory.server.operations.bind;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
+import java.net.InetAddress;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
@@ -129,7 +132,7 @@ public class BindIT extends AbstractLdapTestUnit
         try
         {
             conn = new LDAPConnection();
-            conn.connect( 100, "localhost", getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
+            conn.connect( 100, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
         catch ( LDAPException e )
@@ -160,7 +163,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", getLdapServer().getPort(),
+            conn.connect( 3, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
@@ -171,7 +174,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", getLdapServer().getPort(),
+            conn.connect( 3, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }

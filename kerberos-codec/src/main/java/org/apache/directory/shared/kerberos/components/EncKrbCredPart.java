@@ -259,7 +259,7 @@ public class EncKrbCredPart implements Asn1Object
         {
             log.error( I18n.err( I18n.ERR_740_CANNOT_ENCODE_ENC_KRB_CRED_PART, 1 + TLV.getNbBytes( encKrbCredPartLen )
                 + encKrbCredPartLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

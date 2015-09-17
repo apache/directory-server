@@ -25,6 +25,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Hashtable;
 
 import javax.naming.AuthenticationException;
@@ -288,7 +290,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "", new String[]
+            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
@@ -312,7 +314,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
                 fail();
             }
         }
-        catch ( LDAPException e )
+        catch ( Exception e )
         {
             fail( "Should not have caught exception." );
         }
@@ -322,7 +324,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "uid=admin,ou=system", attrIDs, 0,
+            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "uid=admin,ou=system", attrIDs, 0,
                 "(ObjectClass=*)" );
             LDAPConnection.search( url );
 
@@ -332,6 +334,10 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Expected
             assertTrue( true );
+        }
+        catch ( UnknownHostException uhe )
+        {
+            fail( uhe.getMessage() );
         }
 
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( oldValue );
@@ -412,7 +418,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "", new String[]
+            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
@@ -436,7 +442,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
                 fail();
             }
         }
-        catch ( LDAPException e )
+        catch ( Exception e )
         {
             fail( "Should not have caught exception." );
         }
@@ -453,7 +459,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testBindWithDoubleQuote() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
         assertTrue( connection.isAuthenticated() );
@@ -467,7 +473,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testBindSimpleAuthenticatorDisabled() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.setTimeOut( 0 );
 
         try

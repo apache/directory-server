@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     {
         if ( con == null )
         {
-            con = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+            con = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
             con.bind( "uid=admin,ou=system", "secret" );
             con.setTimeOut( Long.MAX_VALUE );
         }

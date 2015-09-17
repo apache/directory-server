@@ -133,7 +133,7 @@ public class KrbCredInfoDecoderTest
         optionalFieldValueList.add( new FieldValueHolder( "sName", sName ) );
 
         clientAddresses = new HostAddresses( new HostAddress[]
-            { new HostAddress( InetAddress.getByName( "localhost" ) ) } );
+            { new HostAddress( InetAddress.getLocalHost() ) } );
         optionalFieldValueList.add( new FieldValueHolder( "clientAddresses", clientAddresses ) );
     }
 

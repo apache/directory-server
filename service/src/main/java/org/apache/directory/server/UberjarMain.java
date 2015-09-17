@@ -80,7 +80,7 @@ public class UberjarMain
             case STOP:
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
-                try ( Socket socket = new Socket( "localhost", readShutdownPort( layout ) );
+                try ( Socket socket = new Socket( InetAddress.getLocalHost().getHostName(), readShutdownPort( layout ) );
                     PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
@@ -181,7 +181,7 @@ public class UberjarMain
             public void run()
             {
                 // bind to localhost only to prevent connections from outside the box
-                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getByName( "localhost" ) ) )
+                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getLocalHost()) )
                 {
                     writeShutdownPort( layout, shutdownSocket.getLocalPort() );
                     

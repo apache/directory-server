@@ -20,6 +20,8 @@
 package org.apache.directory.server.operations.add;
 
 
+import java.net.InetAddress;
+
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -77,7 +79,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
     @Test
     public void testAddPerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         Dn dn = new Dn( "cn=test,dc=example,dc=com" );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,

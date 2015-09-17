@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
@@ -220,7 +221,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         //sslConfig.setTrustManagers( new NoVerificationTrustManager() );

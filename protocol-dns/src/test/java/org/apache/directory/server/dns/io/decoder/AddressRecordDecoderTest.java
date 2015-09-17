@@ -49,7 +49,7 @@ public class AddressRecordDecoderTest
     @Before
     public void setUp() throws Exception
     {
-        address = InetAddress.getByName( "127.0.0.1" );
+        address = InetAddress.getLocalHost();
         inputBuffer = IoBuffer.allocate( address.getAddress().length );
         inputBuffer.put( address.getAddress() );
         inputBuffer.flip();

@@ -262,7 +262,7 @@ public class ETypeInfo2Entry implements Asn1Object
         {
             LOG.error( I18n.err( I18n.ERR_145, 1 + TLV.getNbBytes( etypeInfo2EntrySeqLength )
                 + etypeInfo2EntrySeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

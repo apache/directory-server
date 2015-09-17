@@ -166,7 +166,7 @@ public class AuthorizationData implements Asn1Object
         {
             LOG.error( I18n.err( I18n.ERR_139, 1 + TLV.getNbBytes( authorizationDataSeqSeqLen )
                 + authorizationDataSeqSeqLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

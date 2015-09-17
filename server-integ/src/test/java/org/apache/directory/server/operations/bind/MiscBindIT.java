@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -176,7 +177,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( "localhost", getLdapServer().getPort(), "ou=system", new String[]
+            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "ou=system", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPConnection.search( url );
 

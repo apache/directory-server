@@ -23,6 +23,7 @@ package org.apache.directory.server.operations.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.Random;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -94,7 +95,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestObjectScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         long deltaSearch = 0L;
         long deltaGet = 0L;
         long deltaClose = 0L;
@@ -215,7 +216,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestOneLevelScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
 
         try
         {
@@ -318,7 +319,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestSubtreeLevelScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.setTimeOut( 0 );
 
         try
@@ -418,9 +419,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
 
     @Test
-    public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException
+    public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException, Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         Entry rootPeople = new DefaultEntry(

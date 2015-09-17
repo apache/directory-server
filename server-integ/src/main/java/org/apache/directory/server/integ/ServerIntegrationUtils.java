@@ -19,6 +19,7 @@
 package org.apache.directory.server.integ;
 
 
+import java.net.InetAddress;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -253,7 +254,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         connection.bind( principalDn, password );
 
         return connection;
@@ -269,7 +270,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
      */
     public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
 
         return connection;
     }
@@ -288,7 +289,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         throws Exception
     {
         LDAPConnection connection = new LDAPConnection();
-        connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
+        connection.connect( 3, InetAddress.getLocalHost().getHostName(), ldapServer.getPort(), principalDn, password );
 
         return connection;
     }
@@ -303,7 +304,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
      */
     public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         return connection;

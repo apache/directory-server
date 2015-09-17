@@ -20,6 +20,7 @@
 package org.apache.directory.shared.client.api.perf;
 
 
+import java.net.InetAddress;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -87,7 +88,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Create connection
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         long t2 = System.currentTimeMillis();

@@ -23,6 +23,8 @@ package org.apache.directory.shared.client.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +56,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-    { @CreateTransport(protocol = "LDAP", address = "127.0.0.1", port = 10389) })
+    { @CreateTransport(protocol = "LDAP", address = "localhost", port = 10389) })
 public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 {
     /** The connection pool */
@@ -154,7 +156,16 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         {
             int i = 0;
             LdapConnectionConfig config = new LdapConnectionConfig();
-            config.setLdapHost( "127.0.0.1" );
+            
+            try
+            {
+                config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+            }
+            catch ( UnknownHostException e1 )
+            {
+                e1.printStackTrace();
+            }
+            
             config.setLdapPort( 10389 );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
@@ -212,7 +223,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "127.0.0.1" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -245,7 +256,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "127.0.0.1" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -296,7 +307,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "127.0.0.1" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -520,7 +531,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     public void testSmallPool() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localHost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
