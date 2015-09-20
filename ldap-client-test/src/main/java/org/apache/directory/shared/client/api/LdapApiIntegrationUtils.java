@@ -189,7 +189,7 @@ public final class LdapApiIntegrationUtils
      */
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localHost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
         connection.setTimeOut( 0L );
         connection.bind();
 

@@ -22,6 +22,7 @@ package org.apache.directory.shared.client.api;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -109,7 +110,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localHost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -231,7 +232,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
     public void testSmallPool() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localHost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
