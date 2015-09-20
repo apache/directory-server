@@ -145,7 +145,7 @@ public class EncKrbPrivPartDecoderTest
         EncKrbPrivPart encKrbPrivPart = container.getEncKrbPrivPart();
 
         String time = "20101119080043Z";
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, encKrbPrivPart.getUserData() ) );
@@ -254,7 +254,7 @@ public class EncKrbPrivPartDecoderTest
 
         EncKrbPrivPart enKrbPrivPart = container.getEncKrbPrivPart();
 
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, enKrbPrivPart.getUserData() ) );
@@ -358,7 +358,7 @@ public class EncKrbPrivPartDecoderTest
 
         EncKrbPrivPart encKrbPrivPart = container.getEncKrbPrivPart();
 
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, encKrbPrivPart.getUserData() ) );
@@ -458,7 +458,7 @@ public class EncKrbPrivPartDecoderTest
 
         EncKrbPrivPart encKrbPrivPart = container.getEncKrbPrivPart();
 
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, encKrbPrivPart.getUserData() ) );
@@ -582,7 +582,7 @@ public class EncKrbPrivPartDecoderTest
         EncKrbPrivPart encKrbPrivPart = container.getEncKrbPrivPart();
 
         String time = "20101119080043Z";
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, encKrbPrivPart.getUserData() ) );
@@ -666,7 +666,7 @@ public class EncKrbPrivPartDecoderTest
 
         EncKrbPrivPart encKrbPrivPart = container.getEncKrbPrivPart();
 
-        HostAddress ad = new HostAddress( InetAddress.getLocalHost() );
+        HostAddress ad = new HostAddress( InetAddress.getByName( "127.0.0.1" ) );
 
         assertTrue( Arrays.equals( new byte[]
             { 0, 1 }, encKrbPrivPart.getUserData() ) );
