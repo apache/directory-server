@@ -198,8 +198,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Before
     public void init() throws Exception
     {
-        KerberosTestUtils.fixServicePrincipalName( "ldap/localhost@EXAMPLE.COM", new Dn(
-            "uid=ldap,ou=users,dc=example,dc=com" ), getLdapServer() );
+        KerberosTestUtils.fixServicePrincipalName( "ldap/" + InetAddress.getLocalHost().getHostName() + "@EXAMPLE.COM",
+            new Dn( "uid=ldap,ou=users,dc=example,dc=com" ), getLdapServer() );
     }
 
 

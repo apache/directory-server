@@ -47,7 +47,6 @@ import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.ietf.jgss.GSSContext;
@@ -431,6 +430,8 @@ public class KerberosTestUtils
             KerberosPrincipal.KRB_NT_SRV_HST );
         servicePrincipalName = servicePrincipal.getName();
 
+        ldapServer.setSaslHost( servicePrincipalName.substring( servicePrincipalName.indexOf( "/" ) + 1,
+            servicePrincipalName.indexOf( "@" ) ) );
         ldapServer.setSaslPrincipal( servicePrincipalName );
 
         if ( serviceEntryDn != null )
