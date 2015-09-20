@@ -216,7 +216,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
         // Point on rootDSE
         DirContext context = new InitialDirContext();
 
-        Attributes attrs = context.getAttributes( "ldap://localhost:" + getLdapServer().getPort(), new String[]
+        Attributes attrs = context.getAttributes( "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort(), new String[]
             { "supportedSASLMechanisms" } );
 
         //             Thread.sleep( 10 * 60 * 1000 );
