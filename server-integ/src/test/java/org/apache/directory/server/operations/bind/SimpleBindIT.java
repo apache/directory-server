@@ -134,11 +134,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * Tests to make sure SIMPLE binds works.
      */
     @Test
-    public void testSimpleBind()
+    public void testSimpleBind() throws UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -172,11 +173,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * Tests to make sure SIMPLE binds below the RootDSE fail if the password is bad.
      */
     @Test
-    public void testSimpleBindBadPassword()
+    public void testSimpleBindBadPassword() throws UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
@@ -201,12 +203,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * try to connect using a user with an invalid Dn: we should get a invalidDNSyntax error.
      */
     @Test
-    public void testSimpleBindBadPrincipalAPassword()
+    public void testSimpleBindBadPrincipalAPassword() throws UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
-
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -231,11 +233,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * try to connect using a unknown user: we should get a invalidCredentials error.
      */
     @Test
-    public void testSimpleBindUnknowPrincipalAPassword()
+    public void testSimpleBindUnknowPrincipalAPassword() throws UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -259,14 +262,15 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * covers the anonymous authentication : we should be able to read the rootDSE, but that's it
      */
     @Test
-    public void testSimpleBindNoPrincipalNoPassword()
+    public void testSimpleBindNoPrincipalNoPassword() throws UnknownHostException
     {
         boolean oldValue = getLdapServer().getDirectoryService().isAllowAnonymousAccess();
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -348,11 +352,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      * covers the Unauthenticated case : we should get a UnwillingToPerform error.
      */
     @Test
-    public void testSimpleBindPrincipalNoPassword()
+    public void testSimpleBindPrincipalNoPassword() throws UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -382,8 +387,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
-
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

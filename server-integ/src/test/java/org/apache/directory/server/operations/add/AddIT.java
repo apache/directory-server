@@ -555,8 +555,8 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system",
-            sr.getName() );
+        assertEquals( "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + getLdapServer().getPort()
+            + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
 
         // Remove alias and entry

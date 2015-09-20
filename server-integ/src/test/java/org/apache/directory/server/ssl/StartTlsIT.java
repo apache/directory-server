@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -224,7 +225,8 @@ public class StartTlsIT extends AbstractLdapTestUnit
             env.put( "java.naming.security.authentication", "simple" );
 
             // Must use the name of the server that is found in its certificate?
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+            env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+                + getLdapServer().getPort() );
 
             // Create initial context
             LOG.debug( "About to get initial context" );

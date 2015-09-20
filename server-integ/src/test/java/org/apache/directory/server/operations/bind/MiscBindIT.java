@@ -159,7 +159,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -204,7 +205,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -242,7 +244,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/" );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -280,7 +283,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -320,7 +324,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/dc=aPache,dc=org" );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         InitialDirContext ctx = new InitialDirContext( env );
@@ -359,7 +364,8 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );

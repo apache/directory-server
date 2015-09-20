@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -155,7 +156,8 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a secure connection
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( "java.naming.provider.url", "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

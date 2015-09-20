@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -222,11 +224,12 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
     @Test
-    public void testAddDerivedKeys() throws NamingException, KerberosException
+    public void testAddDerivedKeys() throws NamingException, KerberosException, UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -295,11 +298,12 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
     @Test
-    public void testModifyDerivedKeys() throws NamingException, KerberosException
+    public void testModifyDerivedKeys() throws NamingException, KerberosException, UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -436,11 +440,13 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws IOException on network errors
      */
     @Test
-    public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, KerberosException
+    public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, KerberosException,
+        UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() );
 
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -569,12 +575,13 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * @throws InvalidKeyException if the incorrect key results
      */
     @Test
-    public void testAddRandomKeys() throws NamingException, KerberosException, InvalidKeyException
+    public void testAddRandomKeys() throws NamingException, KerberosException, InvalidKeyException,
+        UnknownHostException
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort()
-            + "/ou=users,dc=example,dc=com" );
+        env.put( "java.naming.provider.url", "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+            + getLdapServer().getPort() + "/ou=users,dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

@@ -80,7 +80,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL,
+            "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -103,7 +104,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL,
+            "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -126,7 +128,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL,
+            "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -149,7 +152,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL,
+            "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -172,7 +176,8 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL,
+            "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + ldapServer.getPort() );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
