@@ -1566,16 +1566,11 @@ public class SchemaInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                try
-                {
-                    syntaxChecker.assertSyntax( value.getValue() );
-                }
-                catch ( Exception ne )
+                if ( !syntaxChecker.isValidSyntax( value.getValue() ) )
                 {
                     String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
-
-                    throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, message );
+                    throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
             }
         }
